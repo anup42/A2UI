@@ -2,9 +2,19 @@ package com.samsung.genuicraft.inference
 
 import com.samsung.genuicraft.InferenceBackendSettings
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class OnDeviceLitertBackendPolicyTest {
+
+    @Test
+    fun `MTP opt out and non GPU backends disable the drafter`() {
+        assertTrue(liteRtMtpEnabledForBackend("GPU", requested = true))
+        assertFalse(liteRtMtpEnabledForBackend("GPU", requested = false))
+        assertFalse(liteRtMtpEnabledForBackend("CPU", requested = true))
+        assertFalse(liteRtMtpEnabledForBackend("NPU", requested = true))
+    }
 
     @Test
     fun `default backend order prefers GPU before CPU fallback`() {

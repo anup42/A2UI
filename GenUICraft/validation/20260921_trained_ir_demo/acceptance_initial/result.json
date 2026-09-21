@@ -1,0 +1,60 @@
+{
+  "success": true,
+  "queryId": "q_001374",
+  "runtime": "LiteRT-LM/Gemma4/GPU+MTP",
+  "mtpRequested": true,
+  "mtpReportedEnabled": true,
+  "inputTokens": 3349,
+  "outputTokens": 2048,
+  "outputTokensPerSecond": 21.976292105123324,
+  "stageDurationsMs": {
+    "STAGE3": 97482,
+    "STAGE4": 21
+  },
+  "stageStreamDurationsMs": {},
+  "usedFallback": false,
+  "sourceTextFallbackWarnings": [],
+  "warnings": [
+    "Using preloaded IR demo response (stage 2 skipped).",
+    "IR output format: A2UI Express v1 (trained SDK converter)",
+    "On-device Gemma IR model: /storage/emulated/0/Android/data/com.samsung.genuicraft/files/sdk_models/gemma4_e2b_a2ui_mobile.litertlm",
+    "On-device Gemma accelerator: GPU (setting=gpu)",
+    "On-device Gemma MTP: enabled",
+    "On-device Gemma prompt: genuicraft/prompts/e2b_v10_shared_prompt.json (frozen SDK training contract)",
+    "Trained repair policy: generated-output DSL repair enabled; source-text fallback disabled.",
+    "Diagnostic trained-model preview: generated IR is rendered, but source fidelity is not guaranteed; review the converter audit warnings.",
+    "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+    "Generated-output diagnostic mode: renders repaired model output; no source-text fallback.",
+    "Source fidelity warning: generated output may omit or change source details. It is not a faithful conversion.",
+    "Source fidelity: Missing or changed numeric facts (including signs/units): [$75000, $36.06, 2080, 40, 52, $1442.31, $2884.62, 26, $3125.00, 24, $6250.00, 12]",
+    "Source fidelity: Added or duplicated numeric facts: [$144.331, $284.6, $315.0.0, $62000.0]",
+    "Source fidelity: Missing supplied URLs: [https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/calculator.svg, https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/cash-coin.svg, https://www.paycheckcity.com/calculator/salary, https://www.bls.gov/bls/blswage.htm]",
+    "Source fidelity: Missing source wording: [salary, conversion, overview, based, on, an, annual, of, 75, 000, your, pre, tax, hourly, wage, is, approximately, 36, 06, this, assumes, a, standard, full, time]",
+    "Source fidelity: Added or duplicated visible wording: [calculation, amount, 144, 331, 284, 315, 0, 62000]",
+    "Source fidelity: Visible source wording order or multiplicity changed.",
+    "Trained E2B output passed generated-output DSL repair only.",
+    "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+    "Salvaged 6 complete generated string literal value(s) after graph/state recovery failed.",
+    "Ignored 32 key, style, corrupt, duplicate, or over-budget string literal(s).",
+    "Rebuilt a generated-literal List; source text was not used.",
+    "Trained SDK repair result: GENERATED_DSL_REPAIR",
+    "Trained SDK rendered prompt SHA-256: 046271c0ba55f15f09a7c24e50620d57eca98a3a805f5367d222d231ef911b27"
+  ],
+  "missingResponseFacts": [
+    {
+      "label": "Total Work Hours",
+      "value": "2,080 hours per year (40 hours x 52 weeks)"
+    },
+    {
+      "label": "Pay Frequency",
+      "value": "The breakdown below illustrates how this salary translates across different pay periods before taxes or deductions are applied."
+    }
+  ],
+  "strictValid": true,
+  "strictError": null,
+  "renderSurfaceCount": 1,
+  "renderError": null,
+  "stage2Prompt": "[IR demo preloaded response]",
+  "finishedAtEpochMs": 1790010857514,
+  "elapsedMs": 98002
+}

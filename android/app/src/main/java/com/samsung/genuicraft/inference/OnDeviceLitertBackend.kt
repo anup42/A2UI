@@ -2,6 +2,7 @@ package com.samsung.genuicraft.inference
 
 import android.util.Log
 import com.google.ai.edge.litertlm.Backend
+import com.google.ai.edge.litertlm.Capabilities
 import com.google.ai.edge.litertlm.Content
 import com.google.ai.edge.litertlm.Contents
 import com.google.ai.edge.litertlm.ConversationConfig
@@ -26,6 +27,7 @@ class OnDeviceLitertBackend(
     private val acceleratorPreference: InferenceBackendSettings.Accelerator =
         InferenceBackendSettings.DEFAULT_ON_DEVICE_ACCELERATOR,
     private val npuNativeLibraryDir: String = "",
+    private val mtpEnabled: Boolean = true,
 ) : InferenceBackend {
 
     override fun generate(request: InferenceBackend.GenerateRequest): InferenceBackend.GenerateResponse {
@@ -59,7 +61,7 @@ class OnDeviceLitertBackend(
                 allowGpuQualityFallback &&
                     acceleratorPreference == InferenceBackendSettings.Accelerator.AUTO
                 )
-            val enableSpeculativeDecoding = runtimeProfile?.enableSpeculativeDecoding == true
+            val enableSpeculativeDecoding = mtpEnabled && runtimeProfile?.enableSpeculativeDecoding == true
             val holder = getOrCreateEngine(
                 modelFile = modelFile,
                 maxContextTokens = maxContextTokens,
@@ -83,6 +85,7 @@ class OnDeviceLitertBackend(
             } catch (gpuFailure: Throwable) {
                 if (
                     holder.backendName != BACKEND_GPU ||
+                    holder.speculativeDecodingEnabled ||
                     acceleratorPreference != InferenceBackendSettings.Accelerator.AUTO ||
                     (!allowGpuQualityFallback && requireGpu)
                 ) {
@@ -436,7 +439,7 @@ class OnDeviceLitertBackend(
         return estimatedTotal.coerceIn(minimum, contextLimit)
     }
 
-    private companion object {
+    companion object {
         private const val LOG_TAG = "OnDeviceLitertBackend"
         private const val BACKEND_GPU = "GPU"
         private const val BACKEND_CPU = "CPU"
@@ -452,6 +455,9 @@ class OnDeviceLitertBackend(
         private var cachedAcceleratorPreference: InferenceBackendSettings.Accelerator? = null
         private var cachedEngine: EngineHolder? = null
         private var gpuSamplerLoadAttempted = false
+
+        /** Release the legacy engine before entering the SDK's trained-model route. */
+        internal fun releaseCachedEngine() = closeCachedEngine()
 
         private data class EngineHolder(
             val engine: Engine,
@@ -485,7 +491,6 @@ class OnDeviceLitertBackend(
                     closeCachedEngineLocked()
                 }
                 val cacheDir = cacheDirFor(canonicalPath, modelFile)
-                ExperimentalFlags.enableSpeculativeDecoding = enableSpeculativeDecoding
 
                 val backendCandidates = liteRtBackendOrder(
                     forceCpu = forceCpu,
@@ -502,14 +507,23 @@ class OnDeviceLitertBackend(
                 }
                 var lastError: Throwable? = null
                 for ((backendName, backend) in backendCandidates) {
+                    val previousMtp = ExperimentalFlags.enableSpeculativeDecoding
+                    var initializingEngine: Engine? = null
                     try {
                         if (backendName == BACKEND_GPU) {
                             ensureGpuSamplerDependenciesLoaded()
                         }
+                        val useMtp = liteRtMtpEnabledForBackend(backendName, enableSpeculativeDecoding)
+                        if (useMtp) {
+                            check(Capabilities(canonicalPath).use { it.hasSpeculativeDecodingSupport() }) {
+                                "MTP was requested but this model has no drafter. Turn MTP off in Settings."
+                            }
+                        }
+                        ExperimentalFlags.enableSpeculativeDecoding = useMtp
                         Log.i(
                             LOG_TAG,
                             "Initializing LiteRT engine backend=$backendName context=$maxContextTokens " +
-                                "mtp=$enableSpeculativeDecoding model=$canonicalPath"
+                                "mtp=$useMtp mtpRequested=$enableSpeculativeDecoding model=$canonicalPath"
                         )
                         val engine = Engine(
                             EngineConfig(
@@ -519,12 +533,13 @@ class OnDeviceLitertBackend(
                                 cacheDir = cacheDir
                             )
                         )
+                        initializingEngine = engine
                         engine.initialize()
                         val holder = EngineHolder(
                             engine = engine,
                             backendName = backendName,
                             maxContextTokens = maxContextTokens,
-                            speculativeDecodingEnabled = enableSpeculativeDecoding,
+                            speculativeDecodingEnabled = useMtp,
                         )
                         cachedEngine = holder
                         cachedPath = canonicalPath
@@ -534,8 +549,12 @@ class OnDeviceLitertBackend(
                         cachedAcceleratorPreference = acceleratorPreference
                         return holder
                     } catch (t: Throwable) {
+                        runCatching { initializingEngine?.close() }
+                        if (enableSpeculativeDecoding && backendName == BACKEND_GPU) throw t
                         lastError = t
                         Log.w(LOG_TAG, "LiteRT engine init failed backend=$backendName: ${t.message}")
+                    } finally {
+                        ExperimentalFlags.enableSpeculativeDecoding = previousMtp
                     }
                 }
                 throw lastError ?: IllegalStateException("LiteRT engine initialization failed.")
@@ -609,6 +628,9 @@ class OnDeviceLitertBackend(
         }
     }
 }
+
+internal fun liteRtMtpEnabledForBackend(backendName: String, requested: Boolean): Boolean =
+    requested && backendName == "GPU"
 
 internal fun liteRtRuntimeBackendLabel(
     backendName: String,

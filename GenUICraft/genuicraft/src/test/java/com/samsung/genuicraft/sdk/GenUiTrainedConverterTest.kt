@@ -85,6 +85,40 @@ class GenUiTrainedConverterTest {
         }
     }
 
+    @Test fun `strict host mode cannot turn invalid generation into a source fallback`() = runBlocking {
+        val provider = RecordingProvider("<a2ui>\nroot=Text(\"Unrelated content\")\n</a2ui>")
+        val result = GenUiTrainedConverter(
+            provider, contract, allowSourceTextFallback = false, allowGeneratedDslRepair = true,
+        ).convert(GenUiRequest("Salary is $75,000 and hourly rate is $36.06."))
+        assertTrue(result.toString(), result is GenUiConversionResult.Failure)
+        assertTrue((result as GenUiConversionResult.Failure).message.contains("source fallback was disabled"))
+        assertEquals(1, provider.prompts.size)
+    }
+
+    @Test fun `strict host can repair generated DSL while keeping source fallback disabled`() = runBlocking {
+        val provider = RecordingProvider("Here is your UI: <a2ui>\nroot=Text(\"Hello\")\n</a2ui>")
+        val result = GenUiTrainedConverter(
+            provider, contract, allowSourceTextFallback = false, allowGeneratedDslRepair = true,
+        ).convert(GenUiRequest("Hello"))
+        assertTrue(result.toString(), result is GenUiConversionResult.Success)
+        assertEquals(GenUiRepairKind.GENERATED_DSL_REPAIR, (result as GenUiConversionResult.Success).repairKind)
+        assertEquals(1, provider.prompts.size)
+    }
+
+    @Test fun `diagnostic host renders only generated values and reports failed source fidelity`() = runBlocking {
+        val provider = RecordingProvider("Here is your UI: <a2ui>\nroot=Text(\"Salary $75,000\")\n</a2ui>")
+        val result = GenUiTrainedConverter(
+            provider, contract, allowSourceTextFallback = false, allowGeneratedDslRepair = true,
+            requireSourceIntegrity = false,
+        ).convert(GenUiRequest("Salary $75,000. Hourly rate $36.06."))
+        assertTrue(result.toString(), result is GenUiConversionResult.Success)
+        result as GenUiConversionResult.Success
+        assertEquals(GenUiRepairKind.GENERATED_DSL_REPAIR, result.repairKind)
+        assertTrue(result.warnings.any { it.contains("not a faithful conversion") })
+        assertFalse(result.document.express.contains("36.06"))
+        assertEquals(1, provider.prompts.size)
+    }
+
     @Test fun `host cancellation propagates`() = runBlocking {
         val provider = object : GenUiProvider {
             override val id = "cancel"

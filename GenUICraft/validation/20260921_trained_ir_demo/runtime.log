@@ -1,0 +1,7 @@
+09-21 22:31:57.727 29228 29340 I GenUICraftRuntime: Gemma4 backend=GPU; MTP=true; MTPRequested=true; modelSupportsMtp=true; thinking=false; metrics=true
+09-21 22:33:02.642 29228 29340 I native  : I0000 00:00:1790010182.642240   29340 llm_litert_mtp_drafter.cc:172] MTP Drafter - Success rate: 0.61567
+09-21 22:35:01.136 29876 30090 I GenUICraftRuntime: Gemma4 backend=GPU; MTP=false; MTPRequested=false; modelSupportsMtp=true; thinking=false; metrics=true
+09-21 22:38:39.845 30883 30998 I GenUICraftRuntime: Gemma4 backend=GPU; MTP=true; MTPRequested=true; modelSupportsMtp=true; thinking=false; metrics=true
+09-21 22:39:54.212 30883 30998 I native  : I0000 00:00:1790010594.212021   30998 llm_litert_mtp_drafter.cc:172] MTP Drafter - Success rate: 0.61567
+09-21 22:42:42.075 32076 32138 I GenUICraftRuntime: Gemma4 backend=GPU; MTP=true; MTPRequested=true; modelSupportsMtp=true; thinking=false; metrics=true
+09-21 22:44:16.913 32076 32138 I native  : I0000 00:00:1790010856.913534   32138 llm_litert_mtp_drafter.cc:172] MTP Drafter - Success rate: 0.61567

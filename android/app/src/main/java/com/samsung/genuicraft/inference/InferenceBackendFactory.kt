@@ -48,6 +48,7 @@ object InferenceBackendFactory {
                         InferenceBackendSettings.getOnDeviceAccelerator(it)
                     } ?: InferenceBackendSettings.DEFAULT_ON_DEVICE_ACCELERATOR,
                     npuNativeLibraryDir = appContext?.applicationInfo?.nativeLibraryDir.orEmpty(),
+                    mtpEnabled = appContext?.let(InferenceBackendSettings::getOnDeviceMtpEnabled) ?: true,
                 )
         }
     }

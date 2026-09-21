@@ -27,6 +27,7 @@ import com.samsung.genuicraft.pipeline.PipelineImageResolver
 import com.samsung.genuicraft.pipeline.PipelineMediaSanitizer
 import com.samsung.genuicraft.pipeline.PipelinePromptBuilder
 import com.samsung.genuicraft.pipeline.ResponseFactCoverage
+import com.samsung.genuicraft.pipeline.TrainedStage3Bridge
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
@@ -306,6 +307,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         val localServerBaseUrl = InferenceBackendSettings.getLocalServerBaseUrl(appContext)
         val localModelPath = InferenceBackendSettings.getLocalModelPath(appContext)
         val onDeviceModelPath = InferenceBackendSettings.getOnDeviceModelPath(appContext)
+        val useTrainedSdkStage3 = TrainedStage3Bridge.shouldUse(irProvider, onDeviceModelPath)
         val stage2MaxOutputTokens = if (responseProvider == InferenceBackendSettings.Provider.LOCAL_SERVER) {
             LOCAL_SERVER_STAGE2_MAX_OUTPUT_TOKENS
         } else {
@@ -409,7 +411,7 @@ class GenUiStagePipeline(private val appContext: Context) {
                 )
             }
         }
-        if (irProvider == InferenceBackendSettings.Provider.ON_DEVICE_LITERT) {
+        if (irProvider == InferenceBackendSettings.Provider.ON_DEVICE_LITERT && !useTrainedSdkStage3) {
             postUpdate(onStageUpdate, Stage.STAGE3, "Checking on-device IR model")
             val healthResult = com.samsung.genuicraft.inference.OnDeviceLitertBackend(onDeviceModelPath).checkHealth()
             if (!healthResult.healthy) {
@@ -437,23 +439,29 @@ class GenUiStagePipeline(private val appContext: Context) {
             onDeviceModelPath = onDeviceModelPath,
             appContext = appContext,
         )
-        val irBackend = InferenceBackendFactory.create(
-            provider = irProvider,
-            apiKey = irApiKey,
-            model = irModel,
-            geminiApiMode = geminiApiMode,
-            vertexProjectId = vertexProjectId,
-            vertexLocation = vertexLocation,
-            vertexAccessToken = vertexAccessToken,
-            vertexExpressApiKey = vertexExpressApiKey,
-            azureOpenAiApiKey = azureOpenAiApiKey,
-            azureOpenAiResponsesEndpoint = azureOpenAiResponsesEndpoint,
-            azureOpenAiDeployment = azureOpenAiDeployment,
-            localServerBaseUrl = localServerBaseUrl,
-            localModelPath = localModelPath,
-            onDeviceModelPath = onDeviceModelPath,
-            appContext = appContext,
-        )
+        // The trained SDK converter owns its Gemma provider and frozen prompt. Keep a non-null
+        // placeholder for the shared MCP signature; trained branches return before it is used.
+        val irBackend = if (useTrainedSdkStage3) {
+            responseBackend
+        } else {
+            InferenceBackendFactory.create(
+                provider = irProvider,
+                apiKey = irApiKey,
+                model = irModel,
+                geminiApiMode = geminiApiMode,
+                vertexProjectId = vertexProjectId,
+                vertexLocation = vertexLocation,
+                vertexAccessToken = vertexAccessToken,
+                vertexExpressApiKey = vertexExpressApiKey,
+                azureOpenAiApiKey = azureOpenAiApiKey,
+                azureOpenAiResponsesEndpoint = azureOpenAiResponsesEndpoint,
+                azureOpenAiDeployment = azureOpenAiDeployment,
+                localServerBaseUrl = localServerBaseUrl,
+                localModelPath = localModelPath,
+                onDeviceModelPath = onDeviceModelPath,
+                appContext = appContext,
+            )
+        }
 
         // -- MCP path: LLM routes query -> optional live data fetch ----------
         // When MCP is enabled, Stage 2 uses a special routing prompt.
@@ -854,16 +862,21 @@ class GenUiStagePipeline(private val appContext: Context) {
         } else if (irProvider == InferenceBackendSettings.Provider.ON_DEVICE_LITERT) {
             val onDeviceProfile = com.samsung.genuicraft.inference.OnDeviceModelCatalog
                 .entryForModelPath(onDeviceModelPath)
-            warnings += "On-device Gemma IR model: $onDeviceModelPath"
-            warnings += if (onDeviceProfile?.enableSpeculativeDecoding == true) {
-                "On-device Gemma MTP: enabled"
-            } else {
-                "On-device Gemma MTP: disabled"
+            if (!useTrainedSdkStage3) {
+                warnings += "On-device Gemma IR model: $onDeviceModelPath"
+                warnings += if (
+                    onDeviceProfile?.enableSpeculativeDecoding == true &&
+                    InferenceBackendSettings.getOnDeviceMtpEnabled(appContext)
+                ) {
+                    "On-device Gemma MTP: enabled"
+                } else {
+                    "On-device Gemma MTP: disabled"
+                }
+                warnings += "On-device Gemma prompt: ${stage3PromptProfilePath(irProvider, onDeviceModelPath)}"
+                warnings += "On-device token cap (IR): stage3=$stage3MaxOutputTokens repairAttempts=" +
+                    if (shouldUseOfficialGemmaResponseFallback(irProvider, onDeviceModelPath)) 0
+                    else ON_DEVICE_STAGE3_REPAIR_ATTEMPTS
             }
-            warnings += "On-device Gemma prompt: ${stage3PromptProfilePath(irProvider, onDeviceModelPath)}"
-            warnings += "On-device token cap (IR): stage3=$stage3MaxOutputTokens repairAttempts=" +
-                if (shouldUseOfficialGemmaResponseFallback(irProvider, onDeviceModelPath)) 0
-                else ON_DEVICE_STAGE3_REPAIR_ATTEMPTS
         } else {
             warnings += "Local server (IR): $localServerBaseUrl"
             warnings += "Local model path (IR): $localModelPath"
@@ -886,6 +899,17 @@ class GenUiStagePipeline(private val appContext: Context) {
         }
         if (injectedTravelMedia) {
             warnings += "Added fallback inline media for travel sections missing media."
+        }
+        if (useTrainedSdkStage3) {
+            return@withContext executeTrainedStage3(
+                normalizedQuery = normalizedQuery,
+                stage2Response = stage2Response,
+                stage2Prompt = stage2Prompt,
+                stageDurationsMs = stageDurationsMs,
+                stageStreamDurationsMs = stageStreamDurationsMs,
+                extraWarnings = warnings,
+                onStageUpdate = onStageUpdate,
+            )
         }
         val stage3Cache = if (stage3CacheDeferred != null) {
             runCatching { stage3CacheDeferred.await() }
@@ -1225,9 +1249,29 @@ class GenUiStagePipeline(private val appContext: Context) {
             )
         }
 
+        val provider = InferenceBackendSettings.getIrProvider(appContext)
+        val onDeviceModelPath = InferenceBackendSettings.getOnDeviceModelPath(appContext)
+        if (TrainedStage3Bridge.shouldUse(provider, onDeviceModelPath)) {
+            postUpdate(
+                onStageUpdate,
+                Stage.STAGE2,
+                "Rich response ready",
+                stage2Response = normalizedResponseRaw,
+            )
+            return@withContext executeTrainedStage3(
+                normalizedQuery = normalizedQuery,
+                stage2Response = normalizedResponseRaw,
+                stage2Prompt = "[IR demo preloaded response]",
+                stageDurationsMs = stageDurationsMs,
+                stageStreamDurationsMs = stageStreamDurationsMs,
+                extraWarnings = listOf("Using preloaded IR demo response (stage 2 skipped)."),
+                onStageUpdate = onStageUpdate,
+            )
+        }
+
+        // Cloud credentials are irrelevant to the trained IR demo route above.
         GeminiApiKeyProvider.refresh(appContext)
 
-        val provider = InferenceBackendSettings.getIrProvider(appContext)
         val geminiApiMode = InferenceBackendSettings.getGeminiApiMode(appContext)
         val vertexProjectId = InferenceBackendSettings.getVertexProjectId(appContext)
         val vertexLocation = InferenceBackendSettings.getVertexLocation(appContext)
@@ -1243,7 +1287,6 @@ class GenUiStagePipeline(private val appContext: Context) {
         }
         val localServerBaseUrl = InferenceBackendSettings.getLocalServerBaseUrl(appContext)
         val localModelPath = InferenceBackendSettings.getLocalModelPath(appContext)
-        val onDeviceModelPath = InferenceBackendSettings.getOnDeviceModelPath(appContext)
         val isLocalServer = provider == InferenceBackendSettings.Provider.LOCAL_SERVER
         val stage3MaxOutputTokens = stage3MaxOutputTokensFor(provider, irModel)
         val stage3RepairMaxOutputTokens = stage3MaxOutputTokens
@@ -1476,7 +1519,10 @@ class GenUiStagePipeline(private val appContext: Context) {
             val onDeviceProfile = com.samsung.genuicraft.inference.OnDeviceModelCatalog
                 .entryForModelPath(onDeviceModelPath)
             warnings += "On-device Gemma IR model: $onDeviceModelPath"
-            warnings += if (onDeviceProfile?.enableSpeculativeDecoding == true) {
+            warnings += if (
+                onDeviceProfile?.enableSpeculativeDecoding == true &&
+                InferenceBackendSettings.getOnDeviceMtpEnabled(appContext)
+            ) {
                 "On-device Gemma MTP: enabled"
             } else {
                 "On-device Gemma MTP: disabled"
@@ -1885,16 +1931,27 @@ class GenUiStagePipeline(private val appContext: Context) {
             stage2Response = sanitizedResponse
         )
 
+        val warnings = extraWarnings.toMutableList()
+        val onDeviceModelPath = InferenceBackendSettings.getOnDeviceModelPath(appContext)
+        if (TrainedStage3Bridge.shouldUse(irProvider, onDeviceModelPath)) {
+            return executeTrainedStage3(
+                normalizedQuery = normalizedQuery,
+                stage2Response = sanitizedResponse,
+                stage2Prompt = stage2Prompt,
+                stageDurationsMs = stageDurationsMs,
+                stageStreamDurationsMs = stageStreamDurationsMs,
+                extraWarnings = warnings,
+                onStageUpdate = onStageUpdate,
+            )
+        }
+
         // Mask every URL and local asset path before sending response data to Stage 3.
         val responseReferenceMask = com.samsung.genuicraft.mcp.McpUrlShortener.shorten(sanitizedResponse)
         val stage3InputResponse = responseReferenceMask.shortenedText
 
-        val warnings = extraWarnings.toMutableList()
-
         val catalogId = PipelineMediaSanitizer.resolveStage3CatalogId(
             appContext.getSharedPreferences(PipelineMediaSanitizer.APP_PREFS_NAME, android.content.Context.MODE_PRIVATE)
         )
-        val onDeviceModelPath = InferenceBackendSettings.getOnDeviceModelPath(appContext)
 
         val genUiTemplate = runCatching {
             loadStage3PromptTemplate(irProvider, onDeviceModelPath)
@@ -1995,7 +2052,10 @@ class GenUiStagePipeline(private val appContext: Context) {
                     .entryForModelPath(onDeviceModelPath)
                 addWarningOnce("On-device Gemma IR model: $onDeviceModelPath")
                 addWarningOnce(
-                    if (onDeviceProfile?.enableSpeculativeDecoding == true) {
+                    if (
+                        onDeviceProfile?.enableSpeculativeDecoding == true &&
+                        InferenceBackendSettings.getOnDeviceMtpEnabled(appContext)
+                    ) {
                         "On-device Gemma MTP: enabled"
                     } else {
                         "On-device Gemma MTP: disabled"
@@ -2255,6 +2315,179 @@ class GenUiStagePipeline(private val appContext: Context) {
                 usedFallback = warnings.any { it.contains("safe response fallback", ignoreCase = true) },
                 warnings = warnings,
                 renderResult = renderResult
+            )
+        )
+    }
+
+    /**
+     * Runs the current trained mobile E2B through the SDK's frozen response-to-IR contract.
+     * This path never creates a cloud or legacy Stage 3 backend and never accepts source fallback.
+     */
+    private suspend fun executeTrainedStage3(
+        normalizedQuery: String,
+        stage2Response: String,
+        stage2Prompt: String,
+        stageDurationsMs: LinkedHashMap<Stage, Long>,
+        stageStreamDurationsMs: LinkedHashMap<Stage, Long>,
+        extraWarnings: List<String>,
+        onStageUpdate: (StageUpdate) -> Unit,
+    ): Outcome {
+        val warnings = extraWarnings.toMutableList()
+        fun addWarningOnce(message: String) {
+            if (warnings.none { it == message }) warnings += message
+        }
+        val modelPath = InferenceBackendSettings.getOnDeviceModelPath(appContext)
+        val profile = com.samsung.genuicraft.inference.OnDeviceModelCatalog
+            .entryForModelPath(modelPath)
+        val mtpEnabled = profile?.enableSpeculativeDecoding == true &&
+            InferenceBackendSettings.getOnDeviceMtpEnabled(appContext)
+        val accelerator = InferenceBackendSettings.getOnDeviceAccelerator(appContext)
+
+        addWarningOnce("IR output format: A2UI Express v1 (trained SDK converter)")
+        addWarningOnce("On-device Gemma IR model: $modelPath")
+        addWarningOnce("On-device Gemma accelerator: GPU (setting=${accelerator.rawValue})")
+        addWarningOnce(if (mtpEnabled) "On-device Gemma MTP: enabled" else "On-device Gemma MTP: disabled")
+        addWarningOnce(
+            "On-device Gemma prompt: ${com.samsung.genuicraft.sdk.GenUiTrainedConverter.PROMPT_ASSET} " +
+                "(frozen SDK training contract)"
+        )
+        addWarningOnce(
+            "Trained repair policy: generated-output DSL repair enabled; source-text fallback disabled."
+        )
+        addWarningOnce(
+            "Diagnostic trained-model preview: generated IR is rendered, but source fidelity is not guaranteed; " +
+                "review the converter audit warnings."
+        )
+
+        postUpdate(
+            onStageUpdate,
+            Stage.STAGE3,
+            "Converting response with trained on-device GenUICraft model",
+            stage2Response = stage2Response,
+        )
+        val stage3StartedAtMs = System.currentTimeMillis()
+        val conversion = TrainedStage3Bridge.convert(
+            context = appContext,
+            modelPath = modelPath,
+            sourceResponse = stage2Response,
+            queryText = normalizedQuery,
+        )
+        stageDurationsMs[Stage.STAGE3] =
+            (System.currentTimeMillis() - stage3StartedAtMs).coerceAtLeast(0L)
+
+        if (conversion is TrainedStage3Bridge.Result.Failure) {
+            val rawOutput = conversion.rawGeneratedText.orEmpty()
+            val diagnostics = Stage3RepairDiagnostics(
+                rawStage3Text = rawOutput,
+                selectedJsonCandidateText = null,
+                initialValidationError = conversion.message,
+            )
+            persistStage3DiagnosticsArtifacts(diagnostics)
+            val debugLog = buildString {
+                appendLine("Trained SDK Stage 3 failed: ${conversion.message}")
+                conversion.runtimeBackend?.let { appendLine("runtime: $it") }
+                conversion.renderedPromptSha256?.let { appendLine("rendered_prompt_sha256: $it") }
+                append("raw_generated_output: ")
+                append(truncateSnippet(rawOutput, 4_000))
+            }
+            postUpdate(
+                onStageUpdate,
+                Stage.STAGE3,
+                "Trained Stage 3 failed; no fallback IR rendered",
+                debugLog = debugLog,
+                stage2Response = stage2Response,
+            )
+            return Outcome.Failure(
+                stage = Stage.STAGE3,
+                message = conversion.message,
+                stage2Response = stage2Response,
+                stageDurationsMs = stageDurationsMs.toMap(),
+                stageStreamDurationsMs = stageStreamDurationsMs.toMap(),
+            )
+        }
+
+        conversion as TrainedStage3Bridge.Result.Success
+        conversion.warnings.forEach(::addWarningOnce)
+        addWarningOnce("Trained SDK repair result: ${conversion.repairKind.name}")
+        conversion.renderedPromptSha256?.let {
+            addWarningOnce("Trained SDK rendered prompt SHA-256: $it")
+        }
+
+        var stage3Json = gson.toJson(conversion.canonicalGraph)
+        val finalSafetyResult = enforceFinalStage3Safety(stage3Json, warnings)
+        val finalWirePayload = finalSafetyResult.jsonText
+        if (finalSafetyResult.error != null || finalWirePayload == null) {
+            postUpdate(
+                onStageUpdate,
+                Stage.STAGE3,
+                "Trained Stage 3 failed final safety validation",
+                debugLog = finalSafetyResult.error,
+                stage2Response = stage2Response,
+                stage3Json = stage3Json,
+            )
+            return Outcome.Failure(
+                stage = Stage.STAGE3,
+                message = "Trained Stage 3 output failed final safety validation: ${finalSafetyResult.error}",
+                stage2Response = stage2Response,
+                stage3Json = stage3Json,
+                stageDurationsMs = stageDurationsMs.toMap(),
+                stageStreamDurationsMs = stageStreamDurationsMs.toMap(),
+            )
+        }
+        stage3Json = wirePayloadToExpressPayload(finalWirePayload)
+        postUpdate(
+            onStageUpdate,
+            Stage.STAGE3,
+            "Trained GenUI JSON ready",
+            debugLog =
+                "generated_only=true source_text_fallback=false repair=${conversion.repairKind.name}",
+            stage2Response = stage2Response,
+            stage3Json = stage3Json,
+            llmInputTokens = conversion.inputTokens,
+            llmOutputTokens = conversion.outputTokens,
+            llmOutputTokensPerSecond = conversion.outputTokensPerSecond,
+            llmRuntimeBackend = conversion.runtimeBackend,
+        )
+
+        postUpdate(onStageUpdate, Stage.STAGE4, "Rendering trained model output")
+        val stage4StartedAtMs = System.currentTimeMillis()
+        val renderResult = GenUiNativeRenderer.render(finalWirePayload, sourceDir = null)
+        stageDurationsMs[Stage.STAGE4] =
+            (System.currentTimeMillis() - stage4StartedAtMs).coerceAtLeast(0L)
+        if (renderResult.errorMessage != null) {
+            return Outcome.Failure(
+                stage = Stage.STAGE4,
+                message = renderResult.errorMessage,
+                stage2Response = stage2Response,
+                stage3Json = stage3Json,
+                stageDurationsMs = stageDurationsMs.toMap(),
+                stageStreamDurationsMs = stageStreamDurationsMs.toMap(),
+            )
+        }
+        postUpdate(
+            onStageUpdate,
+            Stage.STAGE4,
+            "Native render ready",
+            renderResult = renderResult,
+        )
+
+        return Outcome.Success(
+            result = PipelineResult(
+                queryText = normalizedQuery,
+                stage2Prompt = stage2Prompt,
+                stage2Response = stage2Response,
+                stage3Prompt = conversion.prompt?.user ?: stage2Response,
+                stage3SystemPrompt = conversion.prompt?.system,
+                stage3Json = stage3Json,
+                stage3InputTokens = conversion.inputTokens,
+                stage3OutputTokens = conversion.outputTokens,
+                stageDurationsMs = stageDurationsMs.toMap(),
+                stageStreamDurationsMs = stageStreamDurationsMs.toMap(),
+                usedFallback = false,
+                warnings = warnings,
+                renderResult = renderResult,
+                stage3OutputTokensPerSecond = conversion.outputTokensPerSecond,
+                stage3RuntimeBackend = conversion.runtimeBackend,
             )
         )
     }

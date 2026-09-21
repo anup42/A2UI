@@ -1,0 +1,1 @@
+java.lang.AssertionError: No meaningful generated salary title or figure was visible. Generated markers=[Hourly, $144.331,, $284.6,, $315.0.0,, $62000.0,] renderedText=[]

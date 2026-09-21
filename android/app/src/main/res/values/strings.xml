@@ -40,13 +40,15 @@
     <string name="settings_local_server_hint">Use 10.0.2.2 for emulator access to a server running on your computer.</string>
     <string name="settings_on_device_title">On-device IR Model</string>
     <string name="settings_on_device_model_path_label">Model package path</string>
-    <string name="settings_on_device_hint">Select a LiteRT model for Stage 3 IR generation. The custom Gemma 270M INT8 model is installed from the local export; Gemma 4 models can be downloaded. Stage 1 and Stage 2 remain cloud-backed.</string>
+    <string name="settings_on_device_hint">Choose the current trained Gemma 4 E2B mobile model, official Gemma 4 E2B, or Gemma 3 270M A2UI Express for Stage 3 IR generation. Existing packages in sdk_models are reused in place.</string>
     <string name="settings_on_device_accelerator_title">On-device accelerator</string>
-    <string name="settings_on_device_accelerator_description">GPU is the default for the trained v6 model. NPU is experimental and needs a device-specific compiled model plus vendor runtime libraries.</string>
+    <string name="settings_on_device_accelerator_description">The Gemma 4 models require GPU. Gemma 3 270M uses GPU first; Automatic can fall back to CPU if this device returns invalid GPU output.</string>
     <string name="settings_on_device_accelerator_auto">Automatic (GPU first, then CPU where allowed)</string>
     <string name="settings_on_device_accelerator_gpu">GPU only</string>
     <string name="settings_on_device_accelerator_cpu">CPU only</string>
     <string name="settings_on_device_accelerator_npu">NPU (experimental)</string>
+    <string name="settings_on_device_mtp_title">MTP drafter</string>
+    <string name="settings_on_device_mtp_description">Use bundled multi-token prediction on capable Gemma 4 models. Gemma 3 270M has no drafter, so this setting does not apply to it.</string>
     <string name="settings_on_device_downloaded">Downloaded</string>
     <string name="settings_on_device_not_downloaded">Not downloaded</string>
     <string name="settings_on_device_download">Download</string>

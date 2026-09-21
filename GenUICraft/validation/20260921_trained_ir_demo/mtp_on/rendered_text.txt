@@ -1,0 +1,18 @@
+Source fidelity: Missing source wording: [salary, conversion, overview, based, on, an, annual, of, 75, 000, your, pre, tax, hourly, wage, is, approximately, 36, 06, this, assumes, a, standard, full, time]
+Source fidelity: Added or duplicated visible wording: [calculation, amount, 144, 331, 284, 315, 0, 62000]
+Source fidelity: Visible source wording order or multiplicity changed.
+Trained E2B output passed generated-output DSL repair only.
+Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.
+Salvaged 6 complete generated string literal value(s) after graph/state recovery failed.
+Ignored 32 key, style, corrupt, duplicate, or over-budget string literal(s).
+Rebuilt a generated-literal List; source text was not used.
+Trained SDK repair result: GENERATED_DSL_REPAIR
+Trained SDK rendered prompt SHA-256: 046271c0ba55f15f09a7c24e50620d57eca98a3a805f5367d222d231ef911b27
+Hourly
+,calculation:
+,amount:$144.331,calculation:
+,amount:$284.6,calculation:
+,amount:$315.0.0,calculation:
+,amount:$62000.0,calculation:
+GenUICraft Demo
+Debug

@@ -1,9 +1,11 @@
 package com.samsung.genuicraft
 
 import android.content.Context
+import com.samsung.genuicraft.inference.OnDeviceModelCatalog
 
 object InferenceBackendSettings {
     private const val PREFS_NAME = "inference_backend_settings"
+    private const val SDK_DEMO_PREFS_NAME = "genuicraft_sdk_demo"
     private const val KEY_PROVIDER = "provider"
     private const val KEY_RESPONSE_PROVIDER = "response_provider"
     private const val KEY_IR_PROVIDER = "ir_provider"
@@ -20,6 +22,7 @@ object InferenceBackendSettings {
     private const val KEY_LOCAL_MODEL_PATH = "local_model_path"
     private const val KEY_ON_DEVICE_MODEL_PATH = "on_device_model_path"
     private const val KEY_ON_DEVICE_ACCELERATOR = "on_device_accelerator"
+    private const val KEY_ON_DEVICE_MTP_ENABLED = "e2b_mtp_enabled"
     private const val KEY_RENDER_WITHOUT_OUTER_CARD = "render_without_outer_card"
     private const val KEY_RENDER_CARD_TRANSPARENCY = "render_card_transparency"
     private const val KEY_RENDER_BACKGROUND_TRANSPARENCY = "render_background_transparency"
@@ -31,6 +34,7 @@ object InferenceBackendSettings {
     const val DEFAULT_LOCAL_MODEL_PATH = "Qwen/Qwen2.5-Coder-7B-Instruct"
     const val DEFAULT_ON_DEVICE_MODEL_PATH = ""
     val DEFAULT_ON_DEVICE_ACCELERATOR = Accelerator.AUTO
+    const val DEFAULT_ON_DEVICE_MTP_ENABLED = true
     const val DEFAULT_RENDER_WITHOUT_OUTER_CARD = true
     const val DEFAULT_RENDER_CARD_TRANSPARENCY = 0.22f
     const val MIN_RENDER_CARD_TRANSPARENCY = 0.08f
@@ -285,9 +289,15 @@ object InferenceBackendSettings {
 
     fun getOnDeviceModelPath(context: Context): String {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        return prefs.getString(KEY_ON_DEVICE_MODEL_PATH, DEFAULT_ON_DEVICE_MODEL_PATH)
+        val stored = prefs.getString(KEY_ON_DEVICE_MODEL_PATH, DEFAULT_ON_DEVICE_MODEL_PATH)
             .orEmpty()
             .trim()
+        val migrated = OnDeviceModelCatalog.migrateLegacySelection(context, stored)
+        if (migrated != stored) {
+            // Only the model path moves; response and IR provider choices remain untouched.
+            prefs.edit().putString(KEY_ON_DEVICE_MODEL_PATH, migrated).apply()
+        }
+        return migrated
     }
 
     fun setOnDeviceModelPath(context: Context, value: String) {
@@ -308,6 +318,20 @@ object InferenceBackendSettings {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
             .putString(KEY_ON_DEVICE_ACCELERATOR, accelerator.rawValue)
+            .apply()
+    }
+
+    /** Shares the SDK demo's existing MTP preference so both settings surfaces stay in sync. */
+    fun getOnDeviceMtpEnabled(context: Context): Boolean {
+        return context.getSharedPreferences(SDK_DEMO_PREFS_NAME, Context.MODE_PRIVATE)
+            .getBoolean(KEY_ON_DEVICE_MTP_ENABLED, DEFAULT_ON_DEVICE_MTP_ENABLED)
+    }
+
+    /** Shares the SDK demo's existing MTP preference so installed choices are preserved. */
+    fun setOnDeviceMtpEnabled(context: Context, enabled: Boolean) {
+        context.getSharedPreferences(SDK_DEMO_PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putBoolean(KEY_ON_DEVICE_MTP_ENABLED, enabled)
             .apply()
     }
 

@@ -1,0 +1,18 @@
+com.samsung.genuicraft.TrainedMobileIrDemoOnDeviceTest:
+Error in firstIrDemoRecordGeneratesAndRendersWithSelectedTrainedMobileModel(com.samsung.genuicraft.TrainedMobileIrDemoOnDeviceTest):
+java.lang.AssertionError: Debug UI did not identify the on-device IR backend: [jected 13 balanced component call(s) that still failed strict decoding or canonical validation.]
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.samsung.genuicraft.TrainedMobileIrDemoOnDeviceTest.firstIrDemoRecordGeneratesAndRendersWithSelectedTrainedMobileModel(TrainedMobileIrDemoOnDeviceTest.kt:309)
+
+
+Time: 72.329
+There was 1 failure:
+1) firstIrDemoRecordGeneratesAndRendersWithSelectedTrainedMobileModel(com.samsung.genuicraft.TrainedMobileIrDemoOnDeviceTest)
+java.lang.AssertionError: Debug UI did not identify the on-device IR backend: [jected 13 balanced component call(s) that still failed strict decoding or canonical validation.]
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.samsung.genuicraft.TrainedMobileIrDemoOnDeviceTest.firstIrDemoRecordGeneratesAndRendersWithSelectedTrainedMobileModel(TrainedMobileIrDemoOnDeviceTest.kt:309)
+
+FAILURES!!!
+Tests run: 1,  Failures: 1

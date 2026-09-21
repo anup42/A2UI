@@ -55,6 +55,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -125,6 +127,9 @@ private fun SettingsScreen(
     }
     var onDeviceAccelerator by remember {
         mutableStateOf(InferenceBackendSettings.getOnDeviceAccelerator(context))
+    }
+    var onDeviceMtpEnabled by remember {
+        mutableStateOf(InferenceBackendSettings.getOnDeviceMtpEnabled(context))
     }
     var onDeviceModelRefreshKey by remember { mutableIntStateOf(0) }
     var onDeviceDownloadError by remember { mutableStateOf<String?>(null) }
@@ -736,7 +741,45 @@ private fun SettingsScreen(
                                         )
                                     }
                                 }
-                                OnDeviceModelCatalog.entries.forEach { entry ->
+                                HorizontalDivider(
+                                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f),
+                                )
+                                val onDeviceMtpTitle = stringResource(id = R.string.settings_on_device_mtp_title)
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Column(
+                                        modifier = Modifier.weight(1f),
+                                        verticalArrangement = Arrangement.spacedBy(2.dp),
+                                    ) {
+                                        Text(
+                                            text = onDeviceMtpTitle,
+                                            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                                            color = MaterialTheme.colorScheme.onSurface,
+                                        )
+                                        Text(
+                                            text = stringResource(id = R.string.settings_on_device_mtp_description),
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        )
+                                    }
+                                    Switch(
+                                        checked = onDeviceMtpEnabled,
+                                        onCheckedChange = { enabled ->
+                                            onDeviceMtpEnabled = enabled
+                                            InferenceBackendSettings.setOnDeviceMtpEnabled(context, enabled)
+                                        },
+                                        modifier = Modifier.semantics {
+                                            contentDescription = onDeviceMtpTitle
+                                        },
+                                    )
+                                }
+                                HorizontalDivider(
+                                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f),
+                                )
+                                OnDeviceModelCatalog.visibleEntries.forEach { entry ->
                                     val downloaded = onDeviceModelRefreshKey.let { entry.isDownloaded(context) }
                                     val selected = downloaded && onDeviceModelPath == entry.localPath(context)
                                     val isDownloading = onDeviceDownloading[entry.id] == true

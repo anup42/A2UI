@@ -1,0 +1,17 @@
+com.samsung.genuicraft.InferenceBackendSettingsMtpTest:.
+com.samsung.genuicraft.TrainedMobileIrDemoOnDeviceTest:
+Error in firstIrDemoRecordGeneratesAndRendersWithSelectedTrainedMobileModel(com.samsung.genuicraft.TrainedMobileIrDemoOnDeviceTest):
+java.lang.IllegalStateException: Timed out waiting for IR Demo Debug switch
+	at com.samsung.genuicraft.TrainedMobileIrDemoOnDeviceTest.waitForObject(TrainedMobileIrDemoOnDeviceTest.kt:516)
+	at com.samsung.genuicraft.TrainedMobileIrDemoOnDeviceTest.firstIrDemoRecordGeneratesAndRendersWithSelectedTrainedMobileModel(TrainedMobileIrDemoOnDeviceTest.kt:278)
+
+
+Time: 86.121
+There was 1 failure:
+1) firstIrDemoRecordGeneratesAndRendersWithSelectedTrainedMobileModel(com.samsung.genuicraft.TrainedMobileIrDemoOnDeviceTest)
+java.lang.IllegalStateException: Timed out waiting for IR Demo Debug switch
+	at com.samsung.genuicraft.TrainedMobileIrDemoOnDeviceTest.waitForObject(TrainedMobileIrDemoOnDeviceTest.kt:516)
+	at com.samsung.genuicraft.TrainedMobileIrDemoOnDeviceTest.firstIrDemoRecordGeneratesAndRendersWithSelectedTrainedMobileModel(TrainedMobileIrDemoOnDeviceTest.kt:278)
+
+FAILURES!!!
+Tests run: 2,  Failures: 1

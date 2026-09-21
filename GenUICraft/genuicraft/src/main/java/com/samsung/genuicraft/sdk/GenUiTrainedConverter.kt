@@ -15,17 +15,40 @@ import kotlin.coroutines.coroutineContext
  * Uses the frozen training scaffold (system + user/model example + raw response),
  * without model repair turns. Generated output first crosses strict compilation, then bounded
  * structural repair. If neither preserves the supplied response, the SDK returns a deterministic
- * source-bound A2UI layout and records that fallback in the success warnings.
+ * source-bound A2UI layout and records that fallback in the success warnings by default.
+ *
+ * Demo diagnostics may disable source fallback, enable generated DSL repair, and set
+ * [requireSourceIntegrity] to false. That mode renders only generated content and reports source
+ * mismatches in warnings; a successful render does not establish a faithful conversion.
  */
 class GenUiTrainedConverter internal constructor(
     private val provider: GenUiProvider,
     private val contract: TrainedPromptContract,
+    private val allowSourceTextFallback: Boolean = true,
+    private val allowGeneratedDslRepair: Boolean = false,
+    private val requireSourceIntegrity: Boolean = true,
 ) {
-    constructor(context: Context, provider: GenUiProvider) : this(
+    @JvmOverloads
+    constructor(
+        context: Context,
+        provider: GenUiProvider,
+        allowSourceTextFallback: Boolean = true,
+        allowGeneratedDslRepair: Boolean = false,
+        requireSourceIntegrity: Boolean = true,
+    ) : this(
         provider,
         TrainedPromptContract.parse(context.applicationContext.assets.open(PROMPT_ASSET)
             .bufferedReader(Charsets.UTF_8).use { it.readText() }),
+        allowSourceTextFallback,
+        allowGeneratedDslRepair,
+        requireSourceIntegrity,
     )
+
+    init {
+        require(requireSourceIntegrity || !allowSourceTextFallback) {
+            "Generated-only diagnostic mode must disable source fallback."
+        }
+    }
 
     suspend fun convert(request: GenUiRequest): GenUiConversionResult = withContext(Dispatchers.Default) {
         val start = System.nanoTime()
@@ -39,9 +62,16 @@ class GenUiTrainedConverter internal constructor(
             val output = provider.generate(contract.prompt(request.text))
             raw = output.text.trim()
             coroutineContext.ensureActive()
-            val compiled = GenUiCompiler.compileWithRepair(raw, request.text)
+            val compiled = GenUiCompiler.compileWithRepair(
+                raw,
+                if (requireSourceIntegrity) request.text else null,
+                allowSourceTextFallback = allowSourceTextFallback,
+                allowGeneratedDslRepair = allowGeneratedDslRepair,
+            )
             val document = SourceAttribution.append(compiled.document, request.sources)
                 .copy(profile = PROFILE)
+            val sourceIssues = if (requireSourceIntegrity) emptyList()
+                else ContentIntegrity.check(request, compiled.document)
             GenUiConversionResult.Success(
                 document = document,
                 provider = provider.id,
@@ -49,10 +79,18 @@ class GenUiTrainedConverter internal constructor(
                 attempts = 1,
                 warnings = buildList {
                     add("Runtime: ${output.runtime}")
+                    if (!requireSourceIntegrity) {
+                        add("Generated-output diagnostic mode: renders repaired model output; no source-text fallback.")
+                        if (sourceIssues.isNotEmpty()) {
+                            add("Source fidelity warning: generated output may omit or change source details. It is not a faithful conversion.")
+                            addAll(sourceIssues.map { "Source fidelity: $it" })
+                        }
+                    }
+                    val integrityDescription = if (sourceIssues.isEmpty()) " and mechanical source-integrity checks" else " only"
                     when (compiled.repairKind) {
-                        GenUiRepairKind.NONE -> add("Trained E2B output passed strict compilation and mechanical source-integrity checks.")
-                        GenUiRepairKind.STRUCTURAL -> add("Trained E2B output passed bounded syntax repair and mechanical source-integrity checks.")
-                        GenUiRepairKind.GENERATED_DSL_REPAIR -> add("Trained E2B output passed generated-output DSL repair and mechanical source-integrity checks.")
+                        GenUiRepairKind.NONE -> add("Trained E2B output passed strict compilation$integrityDescription.")
+                        GenUiRepairKind.STRUCTURAL -> add("Trained E2B output passed bounded syntax repair$integrityDescription.")
+                        GenUiRepairKind.GENERATED_DSL_REPAIR -> add("Trained E2B output passed generated-output DSL repair$integrityDescription.")
                         GenUiRepairKind.SOURCE_TEXT_FALLBACK -> add("Trained E2B output was rejected; built deterministic typed A2UI from exact source blocks.")
                     }
                     addAll(compiled.diagnostics)

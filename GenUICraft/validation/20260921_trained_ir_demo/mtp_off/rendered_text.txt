@@ -1,0 +1,16 @@
+Rejected 13 balanced component call(s) that still failed strict decoding or canonical validation.
+Rebuilt only the generated component graph; source text was not used.
+Trained SDK repair result: GENERATED_DSL_REPAIR
+Trained SDK rendered prompt SHA-256: 046271c0ba55f15f09a7c24e50620d57eca98a3a805f5367d222d231ef911b27
+Salary Conversion
+Based on an annual salary of $7,00,000, your pre-tax hourly wage is approximately $3.666. This calculation assumes a standard full-time schedule without unpaid time off.
+Calculation Context
+The conversion uses the specific figures provided in your query to determine the gross hourly rate.
+Total Work Hours: 2,800 hours per year (40 hours x 5 weeks)
+Calculator
+Cash Coin
+Take Action
+Bureau of Labor Statistics Wage Data
+•
+GenUICraft Demo
+Debug

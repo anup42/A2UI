@@ -21,20 +21,46 @@ object OnDeviceModelCatalog {
         val useRawTrainingWrapper: Boolean = false,
         val trainingCompatiblePrompt: Boolean = false,
         val allowGpuQualityFallback: Boolean = false,
+        val usesTrainedSdkConverter: Boolean = false,
         val stage3TrainingPromptPrefix: String? = null,
+        val additionalLocalRelativePaths: List<String> = emptyList(),
         val minimumFileSizeBytes: Long = 1L,
     ) {
         val isDownloadable: Boolean
             get() = !downloadUrl.isNullOrBlank()
 
         fun localFile(context: Context): File {
-            val external = externalLocalFile(context)
-            val internal = internalLocalFile(context)
-            return when {
-                isUsable(external) -> external
-                isUsable(internal) -> internal
-                else -> external
+            return localFileCandidates(context).firstOrNull(::isUsable)
+                ?: externalLocalFile(context)
+        }
+
+        internal fun matchesSelection(selection: String): Boolean {
+            val normalized = selection.trim()
+            if (id.equals(normalized, ignoreCase = true)) {
+                return true
             }
+            val selectedFileName = File(normalized).name
+            return acceptedFileNames().any { it.equals(selectedFileName, ignoreCase = true) }
+        }
+
+        private fun localFileCandidates(context: Context): List<File> {
+            val externalRoot = context.getExternalFilesDir(null)
+            val internalRoot = context.filesDir
+            return buildList {
+                additionalLocalRelativePaths.forEach { relativePath ->
+                    if (externalRoot != null) add(File(externalRoot, relativePath))
+                    add(File(internalRoot, relativePath))
+                }
+                add(externalLocalFile(context))
+                add(internalLocalFile(context))
+            }.distinctBy { it.absolutePath }
+        }
+
+        private fun acceptedFileNames(): List<String> {
+            return buildList {
+                add(fileName)
+                additionalLocalRelativePaths.forEach { add(File(it).name) }
+            }.distinct()
         }
 
         private fun externalLocalFile(context: Context): File {
@@ -57,11 +83,34 @@ object OnDeviceModelCatalog {
         fun localPath(context: Context): String = localFile(context).absolutePath
 
         fun isDownloaded(context: Context): Boolean {
-            return isUsable(externalLocalFile(context)) || isUsable(internalLocalFile(context))
+            return localFileCandidates(context).any(::isUsable)
         }
     }
 
     val entries: List<Entry> = listOf(
+        Entry(
+            id = "gemma4_e2b_a2ui_mobile",
+            displayName = "Trained Gemma 4 E2B (A2UI Mobile)",
+            subtitle =
+                "Current trained A2UI Express model for GenUI IR. GPU required; " +
+                    "MTP is available when the package includes its drafter.",
+            repoId = "local/gemma-4-e2b-a2ui-mobile",
+            fileName = "gemma4_e2b_a2ui_mobile.litertlm",
+            downloadUrl = null,
+            approximateSize = "~2.6 GB",
+            quantization = "Mixed W2/W4/W8-A8 mobile topology",
+            maxContextTokens = 8_192,
+            maxOutputTokens = 2_048,
+            requireGpu = true,
+            enableSpeculativeDecoding = true,
+            trainingCompatiblePrompt = true,
+            usesTrainedSdkConverter = true,
+            additionalLocalRelativePaths = listOf(
+                "sdk_models/gemma4_e2b_a2ui_mobile.litertlm",
+                "sdk_models/e2b_v10_w4.litertlm",
+            ),
+            minimumFileSizeBytes = 2_500_000_000L,
+        ),
         Entry(
             id = "gemma3_270m_ir_int8",
             displayName = "Gemma 3 270M IR",
@@ -148,14 +197,17 @@ object OnDeviceModelCatalog {
         ),
         Entry(
             id = "gemma4_e2b_it_litert",
-            displayName = "Gemma 4 E2B IT",
-            subtitle = "Pretrained LiteRT IR model with Gemma 4 MTP speculative decoding.",
+            displayName = "Official Gemma 4 E2B",
+            subtitle = "Official instruction-tuned LiteRT model with an MTP drafter.",
             repoId = "litert-community/gemma-4-E2B-it-litert-lm",
             fileName = "gemma-4-E2B-it.litertlm",
             downloadUrl = "https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm/resolve/main/gemma-4-E2B-it.litertlm",
             approximateSize = "2.58 GB",
             quantization = "INT4 per-channel",
             enableSpeculativeDecoding = true,
+            additionalLocalRelativePaths = listOf(
+                "sdk_models/gemma-4-E2B-it.litertlm",
+            ),
             minimumFileSizeBytes = 2_500_000_000L,
         ),
         Entry(
@@ -172,13 +224,61 @@ object OnDeviceModelCatalog {
         )
     )
 
+    /** Models deliberately offered in Settings, independent of legacy runtime lookup support. */
+    val visibleEntries: List<Entry> = listOfNotNull(
+        entries.firstOrNull { it.id == "gemma4_e2b_a2ui_mobile" },
+        entries.firstOrNull { it.id == "gemma4_e2b_it_litert" },
+        entries.firstOrNull { it.id == "gemma3_270m_a2ui_express_int8" },
+    )
+
     fun selectedEntry(context: Context): Entry? {
         val selectedPath = com.samsung.genuicraft.InferenceBackendSettings.getOnDeviceModelPath(context)
-        return entries.firstOrNull { it.localPath(context) == selectedPath }
+        return entryForModelPath(selectedPath)
     }
 
     fun entryForModelPath(modelPath: String): Entry? {
-        val fileName = File(modelPath.trim()).name
-        return entries.firstOrNull { it.fileName.equals(fileName, ignoreCase = true) }
+        return entries.firstOrNull { it.matchesSelection(modelPath) }
+    }
+
+    internal fun migrationTargetForSelection(
+        storedSelection: String,
+        availableVisibleEntryIds: Set<String>,
+    ): Entry? {
+        val selectedEntry = entryForModelPath(storedSelection) ?: return null
+        if (visibleEntries.any { it.id == selectedEntry.id }) {
+            return null
+        }
+        val preferredReplacementId = when (selectedEntry.id) {
+            "gemma4_e2b_ir_trained_int4",
+            "gemma4_e2b_trained_express",
+            "gemma4_e2b_a2ui_express_v6_litert" -> "gemma4_e2b_a2ui_mobile"
+            "gemma4_e4b_it_litert" -> "gemma4_e2b_it_litert"
+            "gemma3_270m_ir_int8" -> "gemma3_270m_a2ui_express_int8"
+            else -> return null
+        }
+        return visibleEntries.firstOrNull {
+            it.id == preferredReplacementId && it.id in availableVisibleEntryIds
+        }
+    }
+
+    /**
+     * Moves a hidden legacy selection to an installed visible successor. If no retained model is
+     * installed, the old path remains usable through [entryForModelPath] instead of being broken.
+     */
+    internal fun migrateLegacySelection(context: Context, storedSelection: String): String {
+        val selectedEntry = entryForModelPath(storedSelection)
+        if (selectedEntry != null &&
+            visibleEntries.any { it.id == selectedEntry.id } &&
+            selectedEntry.isDownloaded(context)
+        ) {
+            // Canonicalize a stored ID or alias to the installed file that Settings will display.
+            return selectedEntry.localPath(context)
+        }
+        val availableVisibleEntryIds = visibleEntries
+            .filter { it.isDownloaded(context) }
+            .mapTo(linkedSetOf()) { it.id }
+        return migrationTargetForSelection(storedSelection, availableVisibleEntryIds)
+            ?.localPath(context)
+            ?: storedSelection.trim()
     }
 }

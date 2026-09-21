@@ -101,6 +101,13 @@ class IrDemoRenderActivity : AppCompatActivity() {
         IrDemoRenderUiState.Loading(message = "")
     )
 
+    /** Device tests observe the real screen's result without a second model invocation. */
+    internal fun completedPipelineResultForTest(): GenUiStagePipeline.PipelineResult? =
+        (uiState as? IrDemoRenderUiState.Success)?.result
+
+    internal fun failureMessageForTest(): String? =
+        (uiState as? IrDemoRenderUiState.Failure)?.message
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         applyOneUiWindowBlur()

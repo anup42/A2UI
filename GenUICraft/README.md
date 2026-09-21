@@ -165,6 +165,24 @@ consumers must provision their own accessible model path.
 
 ## MTP drafter settings in the test app
 
+The **GenUI Demo → Pipeline** and **IR Demo** routes also support the current
+trained mobile E2B export. In the main app Settings, select **On-device LiteRT IR**
+for IR generation, choose the trained E2B model, and use **GPU only** or **Automatic**.
+The model list shows the current trained E2B, official E2B, and Gemma 3 270M;
+legacy exports remain recognizable for compatibility but are hidden from the picker.
+Existing trained/official files in `sdk_models` are reused without another download.
+
+IR Demo uses each sample's saved response directly, so trained IR generation
+does not call Gemini or need a Gemini key. The Pipeline tab still uses its configured
+response provider to obtain the answer before local Stage 3. The trained route
+uses the SDK's frozen training prompt and generated-DSL repair with source fallback
+disabled. These demo routes explicitly render recoverable generated output and
+show source-fidelity warnings when details are omitted or changed. Rendering is
+not a faithful-conversion score; unrecoverable DSL still fails. SDK hosts can
+select this diagnostic policy with
+`GenUiTrainedConverter(context, provider, allowSourceTextFallback = false, allowGeneratedDslRepair = true, requireSourceIntegrity = false)`.
+Source-integrity enforcement remains enabled by default for other SDK callers.
+
 Open **GenUICraft SDK · Bixby50 → Settings → MTP drafter** to enable or disable
 speculative decoding. It defaults to on, persists across app restarts, and applies
 to both Gemma profiles. Changing it recreates the GPU engine on the next conversion.
@@ -173,6 +191,8 @@ model package is required; disable the switch for older exports without a drafte
 The app reports the actual completed runtime (`GPU` or `GPU+MTP`) under the run
 status, even when token metrics are off. Logs separately report requested MTP,
 effective MTP, and package capability.
+The main Settings screen shares the same persisted MTP choice. Gemma 3 270M does
+not use a drafter; the choice applies to MTP-capable Gemma 4 GPU packages.
 
 ## Optional token metrics in the test app
 
