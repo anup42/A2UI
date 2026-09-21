@@ -61,6 +61,7 @@ class FullParameterQATOptions:
     allow_experimental_export: bool = False
     distributed_backend: str = "ddp"
     max_input_tokens: int = 5120
+    zero_stage: int = 2
 
 
 def _json(path: Path) -> dict[str, Any]:
@@ -110,6 +111,15 @@ def build_plan(options: FullParameterQATOptions) -> dict[str, Any]:
     values = asdict(options)
     if values["distributed_backend"] not in {"ddp", "sharded"}:
         raise ValueError("distributed_backend must be one of: ddp, sharded")
+    from ir_training.train.sharded_contract import resolve_zero_stage
+
+    zero_stage = resolve_zero_stage({
+        "distributed_backend": values["distributed_backend"],
+        "zero_stage": values["zero_stage"],
+    })
+    if zero_stage == 2:
+        # Keep legacy/default plan serialization and hashes unchanged.
+        values.pop("zero_stage")
     for key in ("model_dir", "input_dir", "output_dir", "preparation_cache_dir"):
         if values[key] is not None:
             values[key] = str(Path(values[key]).expanduser().resolve())
@@ -225,6 +235,7 @@ def build_plan(options: FullParameterQATOptions) -> dict[str, Any]:
         "distributed_training": {
             "backend": values["distributed_backend"],
             "optimizer": training_contract["optimizer"],
+            **({"zero_stage": zero_stage} if zero_stage == 3 else {}),
         },
         "training_contract": training_contract,
         "gpu_contract": {
@@ -306,7 +317,9 @@ def training_config(plan: dict[str, Any], profile: dict[str, Any], report: dict[
         Path(paths["training"]) / "tensorboard"
     )
     config = configure_full_qat(
-        base, distributed_backend=values.get("distributed_backend", "ddp")
+        base,
+        distributed_backend=values.get("distributed_backend", "ddp"),
+        zero_stage=values.get("zero_stage", 2),
     )
     validate_full_qat_config(config)
     return config
@@ -571,6 +584,7 @@ def _evaluation_files(plan: dict[str, Any], stage: str) -> list[Path]:
 
 def _optimizer_preflight_files(plan: dict[str, Any]) -> list[Path]:
     from ir_training.qat.full_model_contract import validate_optimizer_probe
+    from ir_training.train.sharded_contract import resolve_zero_stage
 
     config_path = Path(plan["paths"]["config"])
     config = load_yaml(config_path)
@@ -580,7 +594,13 @@ def _optimizer_preflight_files(plan: dict[str, Any]) -> list[Path]:
     distributed_backend = (config.get("training") or {}).get("distributed_backend", "ddp")
     if distributed_backend != plan["options"].get("distributed_backend", "ddp"):
         raise ValueError("Optimizer preflight backend does not match the planned backend")
-    log(f"Validate optimizer preflight: distributed_backend={distributed_backend}")
+    zero_stage = resolve_zero_stage(config.get("training") or {})
+    if zero_stage != plan["options"].get("zero_stage", 2):
+        raise ValueError("Optimizer preflight ZeRO stage does not match the planned stage")
+    log(
+        "Validate optimizer preflight: "
+        f"distributed_backend={distributed_backend}, zero_stage={zero_stage}"
+    )
     accumulation_steps = (config.get("training") or {}).get("gradient_accumulation_steps")
     result = []
     for rank in range(world_size):
@@ -602,6 +622,7 @@ def _optimizer_preflight_files(plan: dict[str, Any]) -> list[Path]:
                 world_size=world_size,
                 local_rank=rank,
                 distributed_backend=distributed_backend,
+                zero_stage=zero_stage,
             )
             from ir_training.qat.full_model_contract import _validate_sharded_binding
             _validate_sharded_binding(config, probe, world_size)

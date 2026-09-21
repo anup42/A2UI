@@ -56,9 +56,14 @@ def _options(tmp_path: Path, *, backend: str = "ddp") -> FullParameterQATOptions
 def test_cli_defaults_to_ddp_and_accepts_sharded():
     parser = _script_module().build_parser()
     assert parser.parse_args([]).distributed_backend == "ddp"
+    assert parser.parse_args([]).zero_stage == 2
     assert parser.parse_args(["--distributed-backend", "sharded"]).distributed_backend == "sharded"
+    selected = parser.parse_args(["--distributed-backend", "sharded", "--zero-stage", "3"])
+    assert selected.zero_stage == 3
     with pytest.raises(SystemExit):
         parser.parse_args(["--distributed-backend", "invalid"])
+    with pytest.raises(SystemExit):
+        parser.parse_args(["--zero-stage", "4"])
 
 
 def test_offline_plan_selects_backend_without_writing_output(tmp_path: Path):
@@ -83,6 +88,26 @@ def test_offline_plan_selects_backend_without_writing_output(tmp_path: Path):
     assert sharded["training_contract"]["optimizer"] == "adamw_torch"
     assert sharded["stages"] == ["environment", *ddp["stages"]]
     assert not sharded_options.output_dir.exists()
+
+    zero3_options = replace(
+        ddp_options,
+        output_dir=tmp_path / "zero3-output",
+        distributed_backend="sharded",
+        zero_stage=3,
+    )
+    zero3 = workflow.build_plan(zero3_options)
+    assert zero3["distributed_training"] == {
+        "backend": "sharded",
+        "optimizer": "adamw_torch",
+        "zero_stage": 3,
+    }
+
+
+def test_offline_plan_rejects_zero3_with_ddp(tmp_path: Path):
+    options = replace(_options(tmp_path), zero_stage=3)
+    with pytest.raises(ValueError, match="requires distributed_backend='sharded'"):
+        workflow.build_plan(options)
+    assert not options.output_dir.exists()
 
 
 def test_environment_stage_records_probe_evidence_without_touching_seed(tmp_path, monkeypatch):
@@ -150,8 +175,9 @@ def test_training_config_forwards_selected_backend(tmp_path: Path, monkeypatch):
             "golden_eval": {},
         }
 
-    def fake_configure(config, *, distributed_backend="ddp"):
+    def fake_configure(config, *, distributed_backend="ddp", zero_stage=2):
         captured["backend"] = distributed_backend
+        captured["zero_stage"] = zero_stage
         return config
 
     def fake_validate(config):
@@ -167,6 +193,7 @@ def test_training_config_forwards_selected_backend(tmp_path: Path, monkeypatch):
 
     workflow.training_config(plan, {}, {})
     assert captured["backend"] == "sharded"
+    assert captured["zero_stage"] == 2
 
 
 def test_actual_full_qat_configure_produces_valid_sharded_recipe_without_lora():

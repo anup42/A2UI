@@ -65,6 +65,7 @@ def build_golden_set_eval_callback(
     evaluate_at_end: bool = True,
     use_cache: bool = True,
     resume_checkpoint: str | Path | None = None,
+    zero3_trainer: Any | None = None,
 ) -> Any | None:
     if not enabled:
         return None
@@ -228,8 +229,35 @@ def build_golden_set_eval_callback(
                     stop_strings=resolved_stop_strings,
                     use_cache=use_cache,
                     performance_metrics=performance,
+                    zero3_trainer=zero3_trainer,
                 )
-                if rank == 0:
+                if zero3_trainer is not None:
+                    aggregate, scoring_error = _score_and_broadcast_zero3(
+                        rank=rank,
+                        predictions_path=predictions_path,
+                        event_dir=event_dir,
+                        weights_config_path=weights_config_path,
+                        baseline_aggregate_path=baseline_aggregate_path,
+                        metric_version=resolved_metric_version,
+                    )
+                    if scoring_error is not None:
+                        raise RuntimeError(scoring_error)
+                    assert aggregate is not None
+                    aggregate["epoch"] = getattr(state, "epoch", None)
+                    aggregate["step"] = int(getattr(state, "global_step", 0) or 0)
+                    aggregate["evaluation_event"] = self.evaluation_count
+                    aggregate["golden_set_rows"] = len(golden_rows)
+                    aggregate["golden_set_sha256"] = golden_split_sha256
+                    aggregate.update(performance)
+                    aggregate["evaluation_world_size"] = world_size
+                    checkpoint_started = time.perf_counter()
+                    self._record_best_if_improved(
+                        model=model, state=state, event_label=event_label,
+                        event_dir=event_dir, aggregate=aggregate,
+                    )
+                    aggregate["evaluation_checkpoint_save_seconds"] = time.perf_counter() - checkpoint_started
+                    aggregate["evaluation_pause_seconds"] = time.perf_counter() - started
+                elif rank == 0:
                     scoring_started = time.perf_counter()
                     aggregate = evaluate_predictions(
                         predictions_path=predictions_path,
@@ -256,6 +284,7 @@ def build_golden_set_eval_callback(
                     )
                     aggregate["evaluation_checkpoint_save_seconds"] = time.perf_counter() - checkpoint_started
                     aggregate["evaluation_pause_seconds"] = time.perf_counter() - started
+                if rank == 0:
                     aggregate_path = event_dir / "aggregate_metrics.json"
                     aggregate_path.write_text(
                         json.dumps(aggregate, indent=2, ensure_ascii=False),
@@ -291,7 +320,11 @@ def build_golden_set_eval_callback(
                                 "golden_set_rows": len(golden_rows),
                                 "golden_set_sha256": golden_split_sha256,
                                 "evaluation_reason": "train_end" if force else resolved_trigger,
-                                "execution": "synchronous generation sharded over training DDP ranks",
+                                "execution": (
+                                    "synchronized generation on all ZeRO-3 ranks"
+                                    if zero3_trainer is not None
+                                    else "synchronous generation sharded over training DDP ranks"
+                                ),
                                 "pause_scope": "generation, rank gathering, scoring and best-checkpoint save; excludes metric publishing",
                                 "use_cache": bool(use_cache),
                             },
@@ -318,14 +351,25 @@ def build_golden_set_eval_callback(
             aggregate: dict[str, Any],
         ) -> None:
             metric_value = _finite_float(aggregate.get(metric_for_best_model))
-            if metric_value is None:
+            if zero3_trainer is not None:
+                metric_value, improved, decision_error = _broadcast_zero3_best_decision(
+                    metric_value=metric_value,
+                    previous=self.best_metric_value,
+                    greater_is_better=greater_is_better,
+                )
+                if decision_error is not None:
+                    raise RuntimeError(decision_error)
+                if not improved:
+                    return
+                assert metric_value is not None
+            elif metric_value is None:
                 print(
                     f"Golden eval metric {metric_for_best_model!r} was not produced; "
                     "best-checkpoint selection was skipped.",
                     flush=True,
                 )
                 return
-            if not _metric_improved(metric_value, self.best_metric_value, greater_is_better):
+            if zero3_trainer is None and not _metric_improved(metric_value, self.best_metric_value, greater_is_better):
                 return
 
             self.best_metric_value = metric_value
@@ -342,21 +386,45 @@ def build_golden_set_eval_callback(
                 "evaluation_dir": str(event_dir),
                 "checkpoint_dir": str(resolved_best_checkpoint_dir) if save_best_checkpoint else None,
             }
-            resolved_output_dir.mkdir(parents=True, exist_ok=True)
-            (resolved_output_dir / "best_golden_eval.json").write_text(
-                json.dumps(best_info, indent=2, ensure_ascii=False),
-                encoding="utf-8",
-            )
-            if save_best_checkpoint:
-                _save_best_golden_checkpoint(
-                    model=model,
-                    tokenizer=tokenizer,
-                    checkpoint_dir=resolved_best_checkpoint_dir,
-                    event_dir=event_dir,
-                    best_info=best_info,
+            rank, _ = _distributed_context()
+            if rank == 0 and zero3_trainer is None:
+                resolved_output_dir.mkdir(parents=True, exist_ok=True)
+                (resolved_output_dir / "best_golden_eval.json").write_text(
+                    json.dumps(best_info, indent=2, ensure_ascii=False), encoding="utf-8"
                 )
+            if save_best_checkpoint:
+                if zero3_trainer is not None:
+                    from ir_training.train.zero3_checkpoint import save_zero3_checkpoint
+                    save_zero3_checkpoint(
+                        zero3_trainer, resolved_best_checkpoint_dir,
+                        tokenizer=tokenizer,
+                    )
+                else:
+                    _save_best_golden_checkpoint(
+                        model=model, tokenizer=tokenizer,
+                        checkpoint_dir=resolved_best_checkpoint_dir,
+                        event_dir=event_dir, best_info=best_info,
+                    )
                 self.best_checkpoint_saved = True
                 self.best_checkpoint_path = resolved_best_checkpoint_dir
+            if zero3_trainer is not None:
+                publication_error: Exception | None = None
+                if rank == 0:
+                    try:
+                        resolved_output_dir.mkdir(parents=True, exist_ok=True)
+                        (resolved_output_dir / "best_golden_eval.json").write_text(
+                            json.dumps(best_info, indent=2, ensure_ascii=False), encoding="utf-8",
+                        )
+                        if save_best_checkpoint:
+                            _copy_best_golden_artifacts(
+                                checkpoint_dir=resolved_best_checkpoint_dir,
+                                event_dir=event_dir, best_info=best_info,
+                            )
+                    except Exception as exc:  # noqa: BLE001 - exchange writer failures with every rank
+                        publication_error = exc
+                _raise_distributed_evaluation_error(
+                    publication_error, world_size=_distributed_context()[1]
+                )
             print(
                 f"New best golden eval {metric_for_best_model}={metric_value:.6f} "
                 f"at {event_label}.",
@@ -397,6 +465,7 @@ def _generate_predictions_with_model(
     stop_strings: Sequence[str] | None = None,
     use_cache: bool = True,
     performance_metrics: dict[str, Any] | None = None,
+    zero3_trainer: Any | None = None,
 ) -> int:
     try:
         import torch  # type: ignore
@@ -418,7 +487,8 @@ def _generate_predictions_with_model(
     generation_error: Exception | None = None
     try:
         with generation_cache_scope(generation_model, enabled=use_cache):
-            for idx in range(rank, len(rows_for_eval), world_size):
+            indices = range(len(rows_for_eval)) if zero3_trainer is not None else range(rank, len(rows_for_eval), world_size)
+            for idx in indices:
                 row = rows_for_eval[idx]
                 prompt_text = adapter.format_example(
                     row, tokenizer=tokenizer, include_assistant=False
@@ -444,9 +514,9 @@ def _generate_predictions_with_model(
                     "use_cache": bool(use_cache),
                     "eos_token_id": eos_ids,
                     "stop_strings": None,
-                    # DDP is explicitly unwrapped. Rows are sharded and may differ
-                    # in count/length; do not enter generation-time collectives.
-                    "synced_gpus": False,
+                    # DDP/ZeRO-2 rows are sharded and cannot use collectives.
+                    # ZeRO-3 processes identical rows with gather hooks active.
+                    "synced_gpus": zero3_trainer is not None,
                 }
                 pad_token_id = getattr(tokenizer, "pad_token_id", None)
                 if pad_token_id is None:
@@ -482,9 +552,10 @@ def _generate_predictions_with_model(
                     inference_device=str(device),
                     generation_rank=rank,
                 )
-                record = build_prediction_record(row, generated, runtime=runtime)
-                record["_golden_index"] = idx
-                rows_out.append(record)
+                if zero3_trainer is None or rank == 0:
+                    record = build_prediction_record(row, generated, runtime=runtime)
+                    record["_golden_index"] = idx
+                    rows_out.append(record)
     except Exception as exc:
         generation_error = exc
     finally:
@@ -493,7 +564,7 @@ def _generate_predictions_with_model(
 
     _raise_distributed_evaluation_error(generation_error, world_size=world_size)
     gathered_rows = _gather_prediction_rows(rows_out, world_size=world_size)
-    if rank != 0:
+    if rank != 0 and zero3_trainer is None:
         return 0
     gathered_rows.sort(key=lambda row: int(row.get("_golden_index", 0)))
     for row in gathered_rows:
@@ -509,7 +580,17 @@ def _generate_predictions_with_model(
             evaluation_rows_per_second=len(gathered_rows) / elapsed if elapsed else 0.0,
             evaluation_output_tokens_per_second=output_tokens / elapsed if elapsed else 0.0,
         )
-    return write_jsonl(output_path, gathered_rows)
+    if zero3_trainer is None:
+        return write_jsonl(output_path, gathered_rows)
+    write_error: Exception | None = None
+    written = 0
+    if rank == 0:
+        try:
+            written = write_jsonl(output_path, gathered_rows)
+        except Exception as exc:  # noqa: BLE001 - exchange writer failures with every rank
+            write_error = exc
+    _raise_distributed_evaluation_error(write_error, world_size=world_size)
+    return written
 
 
 def _load_fixed_golden_rows(
@@ -913,3 +994,68 @@ def _save_best_golden_checkpoint(
         json.dumps(best_info, indent=2, ensure_ascii=False),
         encoding="utf-8",
     )
+
+
+def _copy_best_golden_artifacts(
+    *, checkpoint_dir: Path, event_dir: Path, best_info: dict[str, Any]
+) -> None:
+    for name in ("predictions.jsonl", "scored_predictions.jsonl", "aggregate_metrics.json"):
+        source = event_dir / name
+        if source.exists():
+            shutil.copy2(source, checkpoint_dir / name)
+    (checkpoint_dir / "best_metric_info.json").write_text(
+        json.dumps(best_info, indent=2, ensure_ascii=False), encoding="utf-8"
+    )
+
+
+def _score_and_broadcast_zero3(
+    *, rank: int, predictions_path: Path, event_dir: Path,
+    weights_config_path: str | Path | None,
+    baseline_aggregate_path: str | Path | None, metric_version: str,
+) -> tuple[dict[str, Any] | None, str | None]:
+    payload: list[Any] = [None]
+    if rank == 0:
+        try:
+            payload[0] = {
+                "aggregate": evaluate_predictions(
+                    predictions_path=predictions_path, output_dir=event_dir,
+                    weights_config_path=weights_config_path,
+                    baseline_aggregate_path=baseline_aggregate_path,
+                    metric_version=metric_version,
+                ),
+                "error": None,
+            }
+        except Exception as exc:  # noqa: BLE001 - broadcast scoring failures before the next collective
+            payload[0] = {"aggregate": None, "error": f"{type(exc).__name__}: {exc}"}
+    _, world_size = _distributed_context()
+    if world_size > 1:
+        import torch.distributed as dist  # type: ignore
+        dist.broadcast_object_list(payload, src=0)
+    result = payload[0] or {}
+    return result.get("aggregate"), result.get("error")
+
+
+def _broadcast_zero3_best_decision(
+    *, metric_value: float | None, previous: float, greater_is_better: bool
+) -> tuple[float | None, bool, str | None]:
+    rank, world_size = _distributed_context()
+    payload: list[Any] = [None]
+    if rank == 0:
+        if metric_value is None:
+            payload[0] = {
+                "metric_value": None,
+                "improved": False,
+                "error": "Golden eval did not produce a finite selection metric.",
+            }
+        else:
+            payload[0] = {
+                "metric_value": metric_value,
+                "improved": _metric_improved(metric_value, previous, greater_is_better),
+                "error": None,
+            }
+    if world_size > 1:
+        import torch.distributed as dist  # type: ignore
+        dist.broadcast_object_list(payload, src=0)
+    result = payload[0] or {}
+    value = _finite_float(result.get("metric_value"))
+    return value, bool(result.get("improved", False)), result.get("error")

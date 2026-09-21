@@ -1,4 +1,4 @@
-"""Explicit opt-in contract for full-parameter DeepSpeed ZeRO-2 training.
+"""Explicit opt-in contract for full-parameter DeepSpeed ZeRO training.
 
 The default remains ordinary replicated DDP.  This module deliberately builds
 an inline DeepSpeed configuration instead of accepting an arbitrary file: the
@@ -10,6 +10,7 @@ from __future__ import annotations
 import hashlib
 import importlib.metadata
 import json
+import math
 import sys
 from collections.abc import Mapping
 from enum import Enum
@@ -48,6 +49,17 @@ def validate_backend(training_cfg: Mapping[str, Any]) -> str:
         ) from exc
 
 
+def resolve_zero_stage(training_cfg: Mapping[str, Any]) -> int:
+    """Resolve the reviewed ZeRO stage, defaulting legacy configurations to 2."""
+
+    raw = training_cfg.get("zero_stage", 2)
+    if type(raw) is not int or raw not in (2, 3):
+        raise ValueError("training.zero_stage must be exactly integer 2 or 3.")
+    if raw == 3 and validate_backend(training_cfg) != DistributedBackend.SHARDED.value:
+        raise ValueError("training.zero_stage=3 requires distributed_backend='sharded'.")
+    return raw
+
+
 def _positive_int(value: Any, name: str) -> int:
     if type(value) is not int or value < 1:
         raise ValueError(f"{name} must be a positive integer.")
@@ -59,6 +71,7 @@ def validate_sharded_config(training_cfg: Mapping[str, Any]) -> None:
 
     if validate_backend(training_cfg) != DistributedBackend.SHARDED.value:
         raise ValueError("DeepSpeed configuration is only valid for distributed_backend='sharded'.")
+    resolve_zero_stage(training_cfg)
     _positive_int(
         training_cfg.get("per_device_train_batch_size"),
         "training.per_device_train_batch_size",
@@ -76,7 +89,7 @@ def validate_sharded_config(training_cfg: Mapping[str, Any]) -> None:
     configured = [name for name in forbidden if training_cfg.get(name) not in (None, False, "")]
     if configured:
         raise ValueError(
-            "Sharded training uses the repository-owned inline ZeRO-2 config; "
+            "Sharded training uses the repository-owned inline ZeRO config; "
             f"remove unsupported settings: {', '.join(configured)}."
         )
 
@@ -84,7 +97,7 @@ def validate_sharded_config(training_cfg: Mapping[str, Any]) -> None:
 def build_deepspeed_config(
     training_cfg: Mapping[str, Any], world_size: int
 ) -> dict[str, Any]:
-    """Build and hash the only supported ZeRO-2 configuration.
+    """Build and hash a reviewed ZeRO-2 or ZeRO-3 configuration.
 
     Optimizer and scheduler are intentionally absent. Hugging Face Trainer owns
     ``adamw_torch`` and its scheduler; duplicated DeepSpeed definitions can
@@ -101,6 +114,31 @@ def build_deepspeed_config(
         configured_effective = _positive_int(configured_effective, "training.expected_effective_batch_size")
         if configured_effective != effective_batch:
             raise ValueError("training.expected_effective_batch_size does not match microbatch * gradient_accumulation_steps * world_size.")
+    zero_stage = resolve_zero_stage(training_cfg)
+    if zero_stage == 2:
+        # Preserve the original hash-bound ZeRO-2 dictionary exactly.
+        zero_optimization = {
+            "stage": 2,
+            "contiguous_gradients": True,
+            "reduce_scatter": True,
+            "overlap_comm": False,
+            "reduce_bucket_size": _BUCKET_ELEMENTS,
+            "allgather_bucket_size": _BUCKET_ELEMENTS,
+            "allgather_partitions": True,
+        }
+    else:
+        zero_optimization = {
+            "stage": 3,
+            "contiguous_gradients": True,
+            "reduce_scatter": True,
+            "overlap_comm": False,
+            "reduce_bucket_size": _BUCKET_ELEMENTS,
+            "stage3_prefetch_bucket_size": _BUCKET_ELEMENTS,
+            "stage3_param_persistence_threshold": 0,
+            "stage3_max_live_parameters": _BUCKET_ELEMENTS,
+            "stage3_max_reuse_distance": 0,
+            "stage3_gather_16bit_weights_on_model_save": True,
+        }
     config: dict[str, Any] = {
         "train_micro_batch_size_per_gpu": microbatch,
         "gradient_accumulation_steps": accumulation,
@@ -114,15 +152,7 @@ def build_deepspeed_config(
             "dtype": "bfloat16",
             "lower_precision_safe_modules": [],
         },
-        "zero_optimization": {
-            "stage": 2,
-            "contiguous_gradients": True,
-            "reduce_scatter": True,
-            "overlap_comm": False,
-            "reduce_bucket_size": _BUCKET_ELEMENTS,
-            "allgather_bucket_size": _BUCKET_ELEMENTS,
-            "allgather_partitions": True,
-        },
+        "zero_optimization": zero_optimization,
     }
     return config
 
@@ -224,7 +254,7 @@ def _runtime_value(engine: Any, method: str, attribute: str | None = None) -> An
 def assert_sharded_engine(
     engine: Any, training_cfg: Mapping[str, Any], world_size: int
 ) -> dict[str, Any]:
-    """Fail closed unless a live engine implements the requested ZeRO-2 lane.
+    """Fail closed unless a live engine implements the requested ZeRO lane.
 
     This uses public duck-typed engine APIs and therefore remains unit-testable
     without importing DeepSpeed. It must be called only for the sharded branch.
@@ -232,10 +262,12 @@ def assert_sharded_engine(
 
     validate_sharded_config(training_cfg)
     expected_world_size = _positive_int(world_size, "world_size")
+    expected_stage = resolve_zero_stage(training_cfg)
     stage = _runtime_value(engine, "zero_optimization_stage")
     partitions_gradients = _runtime_value(
         engine, "zero_optimization_partition_gradients"
     )
+    partitions_weights = _runtime_value(engine, "zero_optimization_partition_weights")
     world_size = _runtime_value(engine, "dp_world_size", "world_size")
     autocast_enabled = _runtime_value(engine, "torch_autocast_enabled")
     autocast_dtype = _runtime_value(engine, "torch_autocast_dtype")
@@ -248,10 +280,12 @@ def assert_sharded_engine(
     if not isinstance(runtime_config, Mapping):
         runtime_config = getattr(runtime_config, "_param_dict", None)
     failures: list[str] = []
-    if stage != 2:
-        failures.append(f"ZeRO stage is {stage!r}, expected 2")
+    if stage != expected_stage:
+        failures.append(f"ZeRO stage is {stage!r}, expected {expected_stage}")
     if partitions_gradients is not True:
         failures.append("ZeRO gradient partitioning is not active")
+    if expected_stage == 3 and partitions_weights is not True:
+        failures.append("ZeRO parameter partitioning is not active")
     if world_size != expected_world_size:
         failures.append(
             f"data-parallel world size is {world_size!r}, expected {expected_world_size}"
@@ -266,7 +300,51 @@ def assert_sharded_engine(
         failures.append("engine module exposes no parameters")
     if any(getattr(parameter, "requires_grad", None) is not True for parameter in parameters):
         failures.append("model parameters are not all trainable")
-    non_fp32 = [str(getattr(parameter, "dtype", None)) for parameter in parameters
+    checked_tensors = parameters
+    if expected_stage == 3:
+        checked_tensors = list(parameters)
+        seen_ds_ids: set[int] = set()
+        for parameter in parameters:
+            ds_numel = getattr(parameter, "ds_numel", None)
+            ds_shape = getattr(parameter, "ds_shape", None)
+            ds_tensor = getattr(parameter, "ds_tensor", None)
+            ds_id = getattr(parameter, "ds_id", None)
+            if (
+                type(ds_numel) is not int
+                or ds_numel < 1
+                or not isinstance(ds_shape, (tuple, list))
+                or ds_tensor is None
+                or type(ds_id) is not int
+                or ds_id < 0
+            ):
+                failures.append(
+                    "ZeRO-3 parameter lacks valid ds_id, ds_numel, ds_shape, "
+                    "or ds_tensor metadata"
+                )
+                break
+            if ds_id in seen_ds_ids:
+                failures.append("ZeRO-3 parameter ds_id values are not distinct")
+                break
+            seen_ds_ids.add(ds_id)
+            valid_shape = all(type(size) is int and size > 0 for size in ds_shape)
+            logical_numel = math.prod(ds_shape) if valid_shape else None
+            if logical_numel != ds_numel:
+                failures.append(
+                    "ZeRO-3 logical ds_shape has invalid dimensions or does not "
+                    "match ds_numel"
+                )
+                break
+            shard_numel = getattr(ds_tensor, "numel", None)
+            shard_numel = shard_numel() if callable(shard_numel) else None
+            expected_shard_numel = math.ceil(ds_numel / expected_world_size)
+            if type(shard_numel) is not int or shard_numel != expected_shard_numel:
+                failures.append(
+                    "ZeRO-3 local ds_tensor size does not match the logical "
+                    "partition size"
+                )
+                break
+            checked_tensors.append(ds_tensor)
+    non_fp32 = [str(getattr(parameter, "dtype", None)) for parameter in checked_tensors
                 if str(getattr(parameter, "dtype", None)) not in {"torch.float32", "float32", "fp32"}]
     if non_fp32:
         failures.append(f"model parameters are not all FP32: {non_fp32[:3]}")
@@ -285,7 +363,7 @@ def assert_sharded_engine(
         "zero_stage": stage,
         "partition_gradients": True,
         "world_size": world_size,
-        "model_parameters_replicated": True,
+        "model_parameters_replicated": expected_stage == 2,
         "model_parameter_dtype": "float32",
         "compute_autocast_dtype": "bfloat16",
     }

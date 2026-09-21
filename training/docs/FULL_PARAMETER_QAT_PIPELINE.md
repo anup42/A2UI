@@ -16,7 +16,7 @@ retained-scale LoRA pipeline in `official_mobile.py`.
 - Keeps master parameters and saved checkpoint tensors in FP32, with BF16 AMP
   for execution.
 - Uses Adafactor in the default replicated-DDP lane. The opt-in sharded lane
-  uses PyTorch AdamW with DeepSpeed ZeRO-2. In both cases the live
+  uses PyTorch AdamW with DeepSpeed ZeRO-2 by default, or opt-in ZeRO-3. In all cases the live
   maximum-shape backward/optimizer probe is mandatory and planning alone does
   not establish that memory fits.
 - Applies dynamic `ste_ai_edge` weight fake quantization to every Linear and
@@ -234,11 +234,20 @@ DeepSpeed config to agree. Trainer continues dividing loss once and supplying
 Optimizer boundaries remain controlled by Trainer. The DDP path retains its
 original Accelerate accumulation behavior and synchronization policy.
 
-The sharded mode is narrowly defined as DeepSpeed ZeRO-2 with PyTorch AdamW.
-FP32 master parameters and BF16 `torch.autocast` compute are unchanged. Only
-gradients and optimizer state are sharded; model parameters remain replicated.
-CPU/NVMe optimizer or parameter offload is disabled. This mode is not FSDP or
-ZeRO-3, and it does not pool all GPU memory into one logical device.
+The sharded mode is narrowly defined as DeepSpeed ZeRO-2 or ZeRO-3 with PyTorch
+AdamW. FP32 master parameters and BF16 `torch.autocast` compute are unchanged.
+ZeRO-2 shards gradients and optimizer state while parameters remain replicated;
+ZeRO-3 also partitions parameters. CPU/NVMe optimizer or parameter offload is
+disabled. This mode is not FSDP and does not pool all GPU memory into one
+logical device.
+
+ZeRO-3 is initialized by Trainer before the production backward pass; the
+earlier seed-load and numeric gates still materialize the approximately 20 GB
+FP32 model on each 80 GB H100. This lane does not use ZeRO.Init during startup.
+Consolidating a dense ZeRO-3 checkpoint also requires sufficient rank-0 host
+memory for the full FP32 state. The opt-in CPU and tiny-model integration tests
+do not certify E2B memory fit on H100 hardware; only the live production
+preflight and checkpoint run can establish that on the selected host.
 
 The sharded optimizer choice is an explicit experimental contract, not a claim
 that AdamW is superior to the default Adafactor recipe. It changes optimizer
@@ -262,17 +271,29 @@ process and reloads the untouched seed; probe weights are never continued or
 saved as a user checkpoint.
 
 With `--distributed-backend sharded`, the corresponding disposable probe uses
-the production DeepSpeed ZeRO-2 wrapper and PyTorch AdamW path instead. It must
+the selected production DeepSpeed wrapper and PyTorch AdamW path instead:
+ZeRO-2 when `--zero-stage` is omitted or set to `2`, and ZeRO-3 when set to `3`. It must
 demonstrate the selected backend and sharded gradient/optimizer-state contract
 on every rank; it is not permitted to satisfy the gate with DDP evidence. The
 numeric and coverage checks still run independently, but the backward gate runs
 inside this real sharded Trainer rather than allocating replicated gradients in
 a bare-model backward. This gate inspects existing rank-local gradient fragments
 and verifies their exact cross-rank coverage; it never gathers a full embedding
-gradient just for validation. Its separate version-3 receipt binds the exact
-ZeRO configuration, accumulation count, AdamW state, and memory headroom. The
+gradient just for validation. ZeRO-2 retains its version-3 receipt; ZeRO-3 uses
+a distinct version-4 receipt and audits logical parameter coverage through
+local shards rather than empty parameter placeholders. Each receipt binds the exact
+ZeRO configuration, accumulation count, AdamW state, and memory headroom. Cross-stage
+receipts cannot be reused. The
 Golden32 selector, final-only Golden35/Bixby50 evaluations, downstream stage order, export
 route, H100 counts, effective batch, and checkpoint provenance remain the same.
+
+During ZeRO-3 Golden evaluation, all ranks process the same ordered prompts with
+synchronized generation, keeping DeepSpeed's parameter-gather hooks active; only
+rank 0 writes predictions and selects the best checkpoint. Best, intermediate,
+and final checkpoints are collectively consolidated into complete FP32 HF models,
+including persistent buffers. Incomplete or non-FP32 states fail closed rather
+than falling back to shard-only export artifacts. DDP and ZeRO-2 retain their
+existing evaluation and saving paths.
 
 ### Diagnosing rank-local ZeRO-2 memory failures
 
@@ -451,10 +472,15 @@ python training/scripts/run_full_parameter_qat_pipeline.py \
   --exporter-python /opt/litert-export/bin/python \
   --devices auto \
   --distributed-backend sharded \
+  --zero-stage 3 \
   --steps 20 \
   --eval-steps 5 \
   --golden-every-steps 10
 ```
+
+This keeps the default 4096-token training/validation limit and independent
+5120-token evaluation prompt limit. It is an opt-in configuration, not a claim
+that the model fits on the selected GPUs; the live preflight remains mandatory.
 
 ## Retry export without retraining
 
@@ -570,8 +596,9 @@ provenance check to continue.
 The new sharded contract has CPU regression tests for backend selection,
 gradient-partition coverage, strict memory receipts, checkpoint provenance,
 and unchanged default DDP behavior. A separate opt-in integration test runs
-the real two-GPU ZeRO-2 preflight, then training and an exact FP32 checkpoint
-round trip in fresh worker processes:
+the real two-GPU ZeRO-2 and ZeRO-3 preflights, then training, bounded generation,
+and exact FP32 checkpoint round trips in fresh worker processes. The ZeRO-3
+cases also cover tied and untied parameter aliases:
 
 ```bash
 A2UI_RUN_SHARDED_GPU_TESTS=1 python -m pytest -q \

@@ -18,6 +18,7 @@ from ir_training.qat.mobile_training_seed import (
     EXPECTED_TENSOR_COUNT,
     OFFICIAL_MOBILE_MODEL_ID,
 )
+from ir_training.train.sharded_contract import resolve_zero_stage
 
 WORKFLOW = "e2b_all_parameter_qat_v1"
 NUMERIC_POLICY = "all_parameter_qat_safety_v1"
@@ -75,13 +76,17 @@ def validate_optimizer_probe(
     world_size: int,
     local_rank: int | None = None,
     distributed_backend: str = "ddp",
+    zero_stage: int = 2,
 ) -> None:
     """Fail closed on production-equivalent Trainer/Accelerate probe evidence."""
     if distributed_backend == "sharded":
         from ir_training.train.sharded_preflight import validate_sharded_probe
         validate_sharded_probe(probe, accumulation_steps=accumulation_steps,
-                               world_size=world_size, local_rank=local_rank)
+                               world_size=world_size, local_rank=local_rank,
+                               zero_stage=zero_stage)
         return
+    if type(zero_stage) is not int or zero_stage != 2:
+        raise ValueError("ZeRO-3 optimizer preflight requires the sharded backend")
     if distributed_backend != "ddp":
         raise ValueError("Unknown distributed backend in optimizer preflight")
     if not _strict_int(accumulation_steps, minimum=1) or not _strict_int(world_size, minimum=1):
@@ -200,6 +205,7 @@ def write_optimizer_preflight(config: dict, config_path: Path | None, probe: dic
         probe, accumulation_steps=accumulation_steps, world_size=world_size,
         local_rank=local_rank,
         distributed_backend=(config.get("training") or {}).get("distributed_backend", "ddp"),
+        zero_stage=resolve_zero_stage(config.get("training") or {}),
     )
     _validate_sharded_binding(config, probe, world_size)
     report = {"training_config_sha256": sha256(config_path), "rank": rank,
@@ -232,6 +238,7 @@ def require_optimizer_preflight(config: dict, config_path: Path | None) -> dict:
             probe, accumulation_steps=accumulation_steps, world_size=world_size,
             local_rank=local_rank,
             distributed_backend=(config.get("training") or {}).get("distributed_backend", "ddp"),
+            zero_stage=resolve_zero_stage(config.get("training") or {}),
         )
         _validate_sharded_binding(config, probe, world_size)
     except ValueError as exc:
@@ -270,7 +277,7 @@ def _validate_sharded_binding(config: dict, probe: dict, world_size: int) -> Non
             raise ValueError("Sharded optimizer preflight is not bound to the configured recipe")
 
 
-def configure_full_qat(config: dict, *, distributed_backend: str = "ddp") -> dict:
+def configure_full_qat(config: dict, *, distributed_backend: str = "ddp", zero_stage: int = 2) -> dict:
     """Copy a resolved mobile config; never mutate its LoRA source/defaults."""
     result = copy.deepcopy(config)
     result.setdefault("run", {})["purpose"] = WORKFLOW
@@ -288,6 +295,7 @@ def configure_full_qat(config: dict, *, distributed_backend: str = "ddp") -> dic
     )
     if distributed_backend not in {"ddp", "sharded"}:
         raise ValueError("distributed_backend must be ddp or sharded")
+    resolve_zero_stage({"distributed_backend": distributed_backend, "zero_stage": zero_stage})
     # Preserve the default config byte-for-byte; only the explicit opt-in adds
     # a backend key and changes the optimizer to partition-compatible AdamW.
     if distributed_backend == "sharded":
@@ -295,6 +303,8 @@ def configure_full_qat(config: dict, *, distributed_backend: str = "ddp") -> dic
                                   adam_beta1=0.9, adam_beta2=0.999, adam_epsilon=1e-8)
         result["training"].pop("ddp_sync_each_batch", None)
         result.setdefault("runtime", {})["distributed"] = "sharded"
+        if zero_stage == 3:
+            result["training"]["zero_stage"] = 3
     result["qat"] = _qat_config()
     result.setdefault("preflight", {}).update(
         numeric_policy=NUMERIC_POLICY, require_zero_adapter_parity=False,
@@ -315,6 +325,7 @@ def validate_full_qat_config(config: dict) -> None:
         validate_sharded_config,
     )
     sharded = validate_backend(training) == "sharded"
+    resolve_zero_stage(training)
     if sharded:
         validate_sharded_config(training)
         if (config.get("runtime") or {}).get("distributed") != "sharded":
@@ -588,6 +599,7 @@ def validate_full_qat_checkpoint(config: dict, metadata: dict, checkpoint: Path)
         world_size=report_world_size,
         local_rank=optimizer.get("rank"),
         distributed_backend=(config.get("training") or {}).get("distributed_backend", "ddp"),
+        zero_stage=resolve_zero_stage(config.get("training") or {}),
     )
     _validate_sharded_binding(config, probe, report_world_size)
     sharded = (config.get("training") or {}).get("distributed_backend", "ddp") == "sharded"

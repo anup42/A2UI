@@ -84,11 +84,16 @@ def train_sft(
     )
     all_parameter_qat = is_full_qat(config)
     sharded_training = all_parameter_qat and training_cfg.get("distributed_backend", "ddp") == "sharded"
+    zero_stage = 2
     if sharded_training:
-        from ir_training.train.sharded_contract import validate_sharded_runtime
+        from ir_training.train.sharded_contract import (
+            resolve_zero_stage,
+            validate_sharded_runtime,
+        )
         # Check imported environment/APIs before reading the large seed or
         # running architecture/numeric/backward probes on every rank.
         validate_sharded_runtime()
+        zero_stage = resolve_zero_stage(training_cfg)
     full_parameter_scope, full_model_inventory, full_qat_coverage = {}, {}, {}
     effective_batch = validate_effective_batch(training_cfg, int(os.environ.get("WORLD_SIZE", "1")))
     # Validate an explicitly bounded run before loading multi-gigabyte model
@@ -729,7 +734,7 @@ def train_sft(
             backward_preflight_report = {
                 "status": "pending" if preflight_only else "passed",
                 "selection": selection, "backend": "sharded",
-                "scope": "disposable_production_trainer_zero2",
+                "scope": f"disposable_production_trainer_zero{zero_stage}",
                 "optimizer_preflight_sha256": full_optimizer_preflight.get("sha256"),
             }
             if not preflight_only:
@@ -854,6 +859,7 @@ def train_sft(
         tensorboard_root=tensorboard_root,
         tensorboard_run_id=str(run_cfg.get("id") or output_dir.name),
         resume_checkpoint=resolved_resume_checkpoint,
+        **({"zero3_trainer": trainer} if sharded_training and zero_stage == 3 else {}),
     )
     if golden_callback is not None:
         trainer.add_callback(golden_callback)
@@ -967,8 +973,13 @@ def train_sft(
         golden_summary = golden_callback.summary()
         if golden_summary is not None:
             metadata["best_golden_eval"] = golden_summary
+    if sharded_training and zero_stage == 3:
+        # ZeRO-3 consolidation is collective. Never serialize rank-zero placeholders.
+        from ir_training.train.zero3_checkpoint import save_zero3_checkpoint
+        save_zero3_checkpoint(trainer, final_adapter, tokenizer=tokenizer)
     if _trainer_is_world_process_zero(trainer):
-        trainer.model.save_pretrained(str(final_adapter))
+        if not (sharded_training and zero_stage == 3):
+            trainer.model.save_pretrained(str(final_adapter))
         tokenizer.save_pretrained(str(final_adapter))
         if config_path is not None:
             shutil.copy2(config_path, output_dir / "config.yaml")
@@ -1677,7 +1688,9 @@ def _build_checked_causal_lm_trainer(base_trainer_cls: Any, training_cfg: dict[s
     lora_diagnostics_steps = int((training_cfg or {}).get("lora_diagnostics_steps", 0) or 0)
     lora_diagnostics_all_ranks = bool((training_cfg or {}).get("lora_diagnostics_all_ranks", False))
     sharded_training = (training_cfg or {}).get("distributed_backend", "ddp") == "sharded"
-    # Keep the original DDP policy isolated. ZeRO-2 has its own live engine and
+    from ir_training.train.sharded_contract import resolve_zero_stage
+    zero_stage = resolve_zero_stage(training_cfg or {})
+    # Keep the original DDP policy isolated. ZeRO has its own live engine and
     # optimizer probe, not DDP bucket views or DDP no_sync accumulation.
     full_parameter_training = (training_cfg or {}).get("full_parameter_training") is True and not sharded_training
     if (
@@ -1691,6 +1704,18 @@ def _build_checked_causal_lm_trainer(base_trainer_cls: Any, training_cfg: dict[s
         )
 
     class CheckedCausalLMTrainer(base_trainer_cls):  # type: ignore[misc, valid-type]
+        def save_model(self, output_dir: str | None = None, _internal_call: bool = False) -> None:
+            if sharded_training and zero_stage == 3:
+                # The upstream fallback saves shard-only checkpoints on ValueError.
+                # This lane requires verified dense FP32 artifacts, so fail closed.
+                from ir_training.train.zero3_checkpoint import save_zero3_checkpoint
+                save_zero3_checkpoint(
+                    self, output_dir or self.args.output_dir,
+                    tokenizer=getattr(self, "processing_class", None),
+                )
+                return
+            return super().save_model(output_dir, _internal_call=_internal_call)
+
         def _build_accelerator_args(self, **kwargs: Any) -> dict[str, Any]:
             """Set backend-specific policy before Trainer constructs Accelerator."""
             parent_hook = getattr(super(), "_build_accelerator_args", None)
@@ -1790,7 +1815,8 @@ def _build_checked_causal_lm_trainer(base_trainer_cls: Any, training_cfg: dict[s
                 if not getattr(self, "_a2ui_sharded_policy_logged", False):
                     print(
                         f"Full-parameter sharded policy: rank={_rank_label()}, "
-                        "DeepSpeed ZeRO-2, AdamW, FP32 parameter replicas, "
+                        f"DeepSpeed ZeRO-{zero_stage}, AdamW, FP32 "
+                        f"parameter {'shards' if zero_stage == 3 else 'replicas'}, "
                         "sharded gradients/optimizer state, BF16 autocast; "
                         "effective batch unchanged.", flush=True,
                     )
@@ -3649,6 +3675,7 @@ def _build_optional_golden_callback(
     tensorboard_root: Path | None = None,
     tensorboard_run_id: str | None = None,
     resume_checkpoint: Path | None = None,
+    zero3_trainer: Any | None = None,
 ) -> Any | None:
     if not bool(golden_eval_cfg.get("enabled", False)):
         return None
@@ -3724,6 +3751,7 @@ def _build_optional_golden_callback(
         evaluate_at_end=bool(golden_eval_cfg.get("evaluate_at_end", True)),
         use_cache=bool(golden_eval_cfg.get("use_cache", True)),
         resume_checkpoint=resume_checkpoint,
+        **({"zero3_trainer": zero3_trainer} if zero3_trainer is not None else {}),
     )
 
 

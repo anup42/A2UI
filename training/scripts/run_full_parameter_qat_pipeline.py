@@ -40,7 +40,14 @@ def build_parser() -> argparse.ArgumentParser:
         "--distributed-backend",
         choices=("ddp", "sharded"),
         default="ddp",
-        help="DDP with Adafactor (default), or opt-in DeepSpeed ZeRO-2 with AdamW.",
+        help="DDP with Adafactor (default), or DeepSpeed ZeRO-2/3 with AdamW; see --zero-stage.",
+    )
+    parser.add_argument(
+        "--zero-stage",
+        type=int,
+        choices=(2, 3),
+        default=2,
+        help="DeepSpeed ZeRO stage for the sharded backend (default: 2).",
     )
     parser.add_argument("--eval-steps", type=int, default=500)
     parser.add_argument("--golden-every-steps", type=int, default=1000)

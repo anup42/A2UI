@@ -1,4 +1,4 @@
-"""Disposable ZeRO-2 Trainer gate; never substitute a DDP memory receipt.
+"""Disposable ZeRO-2/3 Trainer gates; never substitute a DDP memory receipt.
 
 The partition adapter below is deliberately pinned to DeepSpeed 0.19.7. Reading
 its existing fragment views avoids gathering a multi-gigabyte embedding gradient
@@ -28,6 +28,7 @@ from ir_training.train.sharded_partition_diagnostics import summarize_zero_parti
 from ir_training.train.tensor_checks import tensor_all_finite, tensor_finite_and_nonzero
 
 PROBE_KIND = "disposable_full_parameter_zero2_trainer_v1"
+ZERO3_PROBE_KIND = "disposable_full_parameter_zero3_trainer_v1"
 STEPS = 2
 
 
@@ -78,14 +79,24 @@ def local_gradient_intervals(parameters: list[tuple[str, Any]]) -> tuple[dict, b
     return intervals, any_nonzero
 
 
-def _collective_gradient_audit(parameters: list[tuple[str, Any]], world_size: int) -> dict:
+def _collective_gradient_audit(parameters: list[tuple[str, Any]], world_size: int, *,
+                               zero_stage: int = 2,
+                               logical_shapes: dict[str, int] | None = None) -> dict:
     import torch.distributed as dist
 
     # Exchange error data as well, so an invalid fragment on one rank does not
     # leave peers entering the update while that rank exits validation.
     result: dict = {}
     try:
-        intervals, nonzero = local_gradient_intervals(parameters)
+        if zero_stage == 3:
+            from ir_training.train.zero3_partitions import (
+                local_gradient_intervals as zero3_intervals,
+            )
+            intervals, nonzero = zero3_intervals(
+                parameters, rank=dist.get_rank(), world_size=world_size
+            )
+        else:
+            intervals, nonzero = local_gradient_intervals(parameters)
         result.update(intervals=intervals, nonzero=nonzero)
     except (ValueError, RuntimeError, AttributeError, KeyError, IndexError) as exc:
         result["error"] = repr(exc)
@@ -94,12 +105,15 @@ def _collective_gradient_audit(parameters: list[tuple[str, Any]], world_size: in
     errors = [item["error"] for item in gathered if "error" in item]
     if errors:
         raise FullParameterScopeError("ZeRO gradient audit failed: " + "; ".join(errors))
-    shapes = {name: parameter.numel() for name, parameter in parameters}
+    shapes = (dict(logical_shapes) if logical_shapes is not None
+              else {name: parameter.numel() for name, parameter in parameters})
     validate_partition_coverage(shapes, [item["intervals"] for item in gathered])
     if not any(item["nonzero"] for item in gathered):
         raise FullParameterScopeError("Sharded preflight has no nonzero gradients")
+    method = ("exhaustive_zero3_local_grad_partitions_exact_global_interval_union"
+              if zero_stage == 3 else "exhaustive_local_fragments_exact_global_interval_union")
     return {"verified": True, "unique_parameters": len(shapes), "global_numel": sum(shapes.values()),
-            "ranks": world_size, "method": "exhaustive_local_fragments_exact_global_interval_union"}
+            "ranks": world_size, "method": method}
 
 
 def audit_adamw_state(zero_optimizer: Any, *, require_state: bool) -> dict:
@@ -139,7 +153,7 @@ def audit_adamw_state(zero_optimizer: Any, *, require_state: bool) -> dict:
 
 
 def validate_sharded_probe(probe: dict, *, accumulation_steps: int, world_size: int,
-                           local_rank: int | None = None) -> None:
+                           local_rank: int | None = None, zero_stage: int = 2) -> None:
     """Strict persisted evidence, distinct from the existing DDP v2 schema."""
     def positive(value: Any) -> bool:
         return type(value) is int and value > 0
@@ -147,12 +161,16 @@ def validate_sharded_probe(probe: dict, *, accumulation_steps: int, world_size: 
     def finite(value: Any) -> bool:
         return type(value) in (int, float) and math.isfinite(value)
 
+    if type(zero_stage) is not int or zero_stage not in (2, 3):
+        raise FullParameterScopeError("Sharded preflight ZeRO stage must be 2 or 3")
+    expected_schema = 3 if zero_stage == 2 else 4
+    expected_probe = PROBE_KIND if zero_stage == 2 else ZERO3_PROBE_KIND
     if local_rank is not None and (type(local_rank) is not int or local_rank < 0):
         raise FullParameterScopeError("Sharded preflight local rank must be a nonnegative integer")
     if (not positive(accumulation_steps) or not positive(world_size) or world_size < 2
             or not isinstance(probe, dict) or type(probe.get("schema_version")) is not int
-            or probe.get("schema_version") != 3
-            or probe.get("probe") != PROBE_KIND or probe.get("passed") is not True
+            or probe.get("schema_version") != expected_schema
+            or probe.get("probe") != expected_probe or probe.get("passed") is not True
             or probe.get("disposable_worker_required") is not True
             or probe.get("model_must_not_be_reused") is not True
             or type(probe.get("checkpoint_writes")) is not int or probe["checkpoint_writes"] != 0
@@ -164,16 +182,20 @@ def validate_sharded_probe(probe: dict, *, accumulation_steps: int, world_size: 
             raise FullParameterScopeError(f"Sharded preflight {name} must be an object")
     shard = probe.get("sharded_probe") or {}
     config = shard.get("config") or {}
-    if (not isinstance(config, dict) or not isinstance(shard.get("gradient_coverage"), dict)
+    zero_config = config.get("zero_optimization") if isinstance(config, dict) else None
+    if (not isinstance(config, dict) or not isinstance(zero_config, dict)
+            or type(zero_config.get("stage")) is not int
+            or zero_config.get("stage") != zero_stage
+            or not isinstance(shard.get("gradient_coverage"), dict)
             or any(not positive(shard.get(key)) for key in (
                 "zero_stage", "world_size", "gradient_accumulation_steps", "microsteps", "optimizer_steps"))
-            or shard.get("backend") != "sharded" or shard.get("zero_stage") != 2
+            or shard.get("backend") != "sharded" or shard.get("zero_stage") != zero_stage
             or shard.get("world_size") != world_size
             or shard.get("gradient_accumulation_steps") != accumulation_steps
             or shard.get("microsteps") != STEPS * accumulation_steps
             or shard.get("optimizer_steps") != STEPS
             or shard.get("nccl_collectives_certified") is not True
-            or shard.get("model_parameters_replicated") is not True
+            or shard.get("model_parameters_replicated") is not (zero_stage == 2)
             or shard.get("config_sha256") != deepspeed_config_sha256(config)):
         raise FullParameterScopeError("Incomplete sharded backend/accumulation evidence")
     scope = probe.get("scope") or {}
@@ -185,7 +207,9 @@ def validate_sharded_probe(probe: dict, *, accumulation_steps: int, world_size: 
             or coverage.get("verified") is not True or coverage.get("ranks") != world_size
             or coverage.get("global_numel") != scope.get("trainable_numel")
             or coverage.get("unique_parameters") != scope.get("unique_parameter_count")
-            or coverage.get("method") != "exhaustive_local_fragments_exact_global_interval_union"):
+            or coverage.get("method") != (
+                "exhaustive_local_fragments_exact_global_interval_union" if zero_stage == 2
+                else "exhaustive_zero3_local_grad_partitions_exact_global_interval_union")):
         raise FullParameterScopeError("Sharded probe did not verify all parameter/gradient partitions")
     optimizer = probe.get("optimizer") or {}
     if (any(not finite(optimizer.get(key)) for key in (
@@ -193,7 +217,9 @@ def validate_sharded_probe(probe: dict, *, accumulation_steps: int, world_size: 
             or optimizer.get("name") != "AdamW" or optimizer.get("betas") != [0.9, 0.999]
             or optimizer.get("epsilon") != 1e-8 or optimizer.get("weight_decay") != 0.0
             or optimizer.get("external_max_grad_norm_required") != 0.0
-            or optimizer.get("state_scope") != "rank_local_fp32_partitions"
+            or optimizer.get("state_scope") != (
+                "rank_local_fp32_partitions" if zero_stage == 2
+                else "rank_local_zero3_fp32_flat_partitions")
             or not positive(optimizer.get("state_tensor_count")) or not positive(optimizer.get("state_numel"))
             or not finite(optimizer.get("learning_rate")) or optimizer["learning_rate"] <= 0):
         raise FullParameterScopeError("Incomplete sharded AdamW evidence")
@@ -215,7 +241,7 @@ def validate_sharded_probe(probe: dict, *, accumulation_steps: int, world_size: 
 
 def run_sharded_trainer_preflight(checked_trainer_cls: Any, trainer_kwargs: dict, *,
                                   training_cfg: dict, longest_row: dict) -> dict:
-    """Run two real Trainer/ZeRO-2 updates in disposable CUDA workers only."""
+    """Run two real Trainer/ZeRO updates in disposable CUDA workers only."""
     import torch
     import torch.distributed as dist
 
@@ -223,6 +249,9 @@ def run_sharded_trainer_preflight(checked_trainer_cls: Any, trainer_kwargs: dict
 
     args = trainer_kwargs["args"]
     parameters = list(trainer_kwargs["model"].named_parameters())
+    from ir_training.train.sharded_contract import resolve_zero_stage
+    zero_stage = resolve_zero_stage(training_cfg)
+    logical_shapes = {name: parameter.numel() for name, parameter in parameters}
     world = int(os.environ.get("WORLD_SIZE", "1"))
     accumulation = args.gradient_accumulation_steps
     if world < 2 or not parameters or args.per_device_train_batch_size != 1:
@@ -261,7 +290,14 @@ def run_sharded_trainer_preflight(checked_trainer_cls: Any, trainer_kwargs: dict
 
     def sample_partitions(zero, phase, *, include_gradients=False):
         try:
-            evidence = summarize_zero_partitions(zero, parameters, include_gradients=include_gradients)
+            if zero_stage == 3:
+                from ir_training.train.zero3_partitions import summarize_partitions
+                evidence = summarize_partitions(
+                    parameters, rank=dist.get_rank(), world_size=world
+                )
+                evidence["gradients_included"] = bool(include_gradients)
+            else:
+                evidence = summarize_zero_partitions(zero, parameters, include_gradients=include_gradients)
             diagnostics.partition_snapshots.append({
                 "phase": phase, "optimizer_steps": completed_steps, "partitions": evidence,
             })
@@ -292,18 +328,44 @@ def run_sharded_trainer_preflight(checked_trainer_cls: Any, trainer_kwargs: dict
                         raise FullParameterScopeError("ZeRO optimizer updated before a full accumulation window")
                     sample_partitions(zero, "before_gradient_validation", include_gradients=True)
                     sample_memory("before_gradient_validation")
-                    coverage = _collective_gradient_audit(parameters, world)
+                    if zero_stage == 3:
+                        coverage = _collective_gradient_audit(
+                            parameters, world, zero_stage=3,
+                            logical_shapes=logical_shapes,
+                        )
+                    else:
+                        # Preserve the original ZeRO-2 call seam as well as its
+                        # receipt schema and fragment implementation.
+                        coverage = _collective_gradient_audit(parameters, world)
                     diagnostics.nccl_collectives_certified = True
-                    audit_adamw_state(zero, require_state=completed_steps > 0)
+                    if zero_stage == 3:
+                        from ir_training.train.zero3_partitions import (
+                            audit_adamw_state as audit_zero3_adamw,
+                        )
+                        audit_zero3_adamw(zero, require_state=completed_steps > 0)
+                    else:
+                        audit_adamw_state(zero, require_state=completed_steps > 0)
                     sample_memory("after_pre_step_validation")
                     result = original_step(*args, **kwargs)
                     sample_memory("after_optimizer_step_before_validation")
                     if getattr(zero, "overflow", False):
                         raise FullParameterScopeError("ZeRO optimizer skipped a non-finite update")
-                    optimizer_evidence = audit_adamw_state(zero, require_state=True)
-                    for name, parameter in parameters:
-                        if not tensor_all_finite(parameter):
-                            raise FullParameterScopeError(f"Non-finite updated parameter: {name}")
+                    if zero_stage == 3:
+                        from ir_training.train.zero3_partitions import (
+                            audit_adamw_state as audit_zero3_adamw,
+                        )
+                        from ir_training.train.zero3_partitions import (
+                            parameters_finite,
+                        )
+                        optimizer_evidence = audit_zero3_adamw(zero, require_state=True)
+                        parameters_finite(
+                            parameters, rank=dist.get_rank(), world_size=world
+                        )
+                    else:
+                        optimizer_evidence = audit_adamw_state(zero, require_state=True)
+                        for name, parameter in parameters:
+                            if not tensor_all_finite(parameter):
+                                raise FullParameterScopeError(f"Non-finite updated parameter: {name}")
                     completed_steps += 1
                     sample_partitions(zero, "after_post_step_validation")
                     sample_memory("after_post_step_validation")
@@ -338,16 +400,17 @@ def run_sharded_trainer_preflight(checked_trainer_cls: Any, trainer_kwargs: dict
             raise FullParameterScopeError("Sharded probe did not complete both full accumulation windows")
         optimizer_evidence["learning_rate"] = float(args.learning_rate)
         report = {
-            "schema_version": 3, "probe": PROBE_KIND, "passed": True,
+            "schema_version": 3 if zero_stage == 2 else 4,
+            "probe": PROBE_KIND if zero_stage == 2 else ZERO3_PROBE_KIND, "passed": True,
             "disposable_worker_required": True, "model_must_not_be_reused": True,
             "checkpoint_writes": 0, "disposable_optimizer_steps": completed_steps,
             "optimizer": optimizer_evidence,
-            "scope": {"unique_parameter_count": len(parameters), "trainable_numel": sum(p.numel() for _, p in parameters),
+            "scope": {"unique_parameter_count": len(logical_shapes), "trainable_numel": sum(logical_shapes.values()),
                       "all_trainable_fp32": True, "all_gradients_finite": True, "all_parameters_finite_after_step": True},
-            "sharded_probe": {"backend": "sharded", "zero_stage": 2, "world_size": world,
+            "sharded_probe": {"backend": "sharded", "zero_stage": zero_stage, "world_size": world,
                               "gradient_accumulation_steps": accumulation, "microsteps": microsteps,
                               "optimizer_steps": completed_steps, "nccl_collectives_certified": True,
-                              "model_parameters_replicated": True, "gradient_coverage": coverage,
+                              "model_parameters_replicated": zero_stage == 2, "gradient_coverage": coverage,
                               "config": ds_config, "config_sha256": deepspeed_config_sha256(ds_config)},
             "memory": diagnostics.memory_report(baseline_allocated, baseline_reserved),
             "selection": {"longest_sequence_length": len(longest_row["input_ids"]), "repeated_real_prepared_row": True},
@@ -357,7 +420,7 @@ def run_sharded_trainer_preflight(checked_trainer_cls: Any, trainer_kwargs: dict
         diagnostics.publish("pending_validation", memory=report["memory"], emit=True)
         dist.barrier()
         validate_sharded_probe(report, accumulation_steps=accumulation, world_size=world,
-                               local_rank=local_rank)
+                               local_rank=local_rank, zero_stage=zero_stage)
         diagnostics.publish("validated", memory=report["memory"])
         return report
     except Exception as exc:
