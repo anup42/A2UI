@@ -9,6 +9,9 @@ The subsequent [renderer visual review](validation/20260918_visual/REPORT.md) ad
 ```mermaid
 flowchart LR
   text[Raw text or Markdown] --> gauss[Gauss 30B]
+  text --> trained[Trained E2B with frozen prompt]
+  trained --> recovery[Generated Express recovery]
+  recovery --> express
   text --> bindings[Ordered source blocks and typed bindings]
   bindings --> gemma[Gemma 4 E2B on GPU with MTP]
   gauss --> express[A2UI Express]
@@ -42,11 +45,14 @@ dependencyResolutionManagement {
     }
 }
 // consumer module
-implementation("com.samsung.genuicraft:genuicraft:0.3.0")
+implementation("com.samsung.genuicraft:genuicraft:0.4.0")
 ```
 
-Version 0.3.0 adds typed recovery classification to successful conversions and
-the safe exact-source fallback. Rebuild consumer code when upgrading; do not
+Version 0.4.0 adds `GenUiSession`, which owns conversion profile selection, raw streaming
+capture, recovery, prompt/runtime measurements, and cancellation-safe cleanup. The SDK
+also owns `LiteRtModelRunner`, the reusable engine/cache and native inference path for
+the official E2B and Gemma 3 profiles. Demo views only select settings and display results.
+Rebuild consumer code when upgrading; do not
 replace an older-version binary at the same Maven coordinate. The trained W4 profile's measured results are in the
 [12-case device pilot](validation/20260919_e2b_v10_w4/REPORT.md).
 
@@ -88,7 +94,45 @@ val provider = Gemma4Provider(Gemma4Config(
 val converter = GenUiConverter(context, provider)
 ```
 
-### Trained E2B v10 W4 option
+### Shared trained E2B pipeline for every host
+
+Use the session API in SDK demos, IR/Pipeline views, and Bixby. Its trained profile uses
+the frozen prompt and best-effort recovery of the generated DSL, without replacing it
+with source text. Raw streamed IR is retained separately from repaired IR and compiled
+A2UI. Recovery does not guarantee that generated values match the source; fidelity
+diagnostics remain in the result warnings.
+
+```kotlin
+val provider = Gemma4Provider(GenUiModelProfiles.trainedE2b(
+    modelPath = trainedModelPath,
+    enableMtp = true, // Use only with the newer mobile package containing a drafter.
+    enableMetrics = true,
+))
+val session = GenUiSession(context, provider, GenUiConversionProfile.TRAINED_E2B_V10_W4)
+val result = session.convert(
+    GenUiRequest(text = markdownOrPlainResponse),
+    GenUiGenerationObserver(onPartialText = { attempt, raw ->
+        // Worker-thread callback: post the raw generation to your optional debug view.
+    }),
+)
+val nativeAttempts = session.attemptSnapshots // Exact raw text, prompt, metrics, runtime.
+when (result) {
+    is GenUiConversionResult.Success -> genUiView.render(result.document)
+    is GenUiConversionResult.Failure -> showRetry(result.message)
+}
+// At the end of the owner lifecycle, before constructing another native engine:
+session.closeAndAwait()
+```
+
+The same session supports the official/source-bound and Gauss routes through
+`GenUiConversionProfile.SOURCE_BOUND`. Model discovery, UI preferences, host actions,
+and dispatching callbacks to the UI thread remain host responsibilities. Low-level
+consumers of other local models can use `LiteRtModelRunner`; its accelerator policy,
+engine cache, conversation/template handling, native token measurements and explicitly
+labelled estimates are library-owned. The reference app's `OnDeviceLitertBackend` is
+only an adapter to that API.
+
+### Original trained E2B v10 W4 option
 
 The SDK test screen also offers **Trained E2B v10 · W4 · GPU**. Place the separate
 model at the displayed app-accessible path, normally
