@@ -116,8 +116,9 @@ example, and the complete response text. It does not use the official model's
 source bindings. The snapshot is pinned in `e2b_v10_shared_prompt.json`; verify
 parity with the current training workflow using
 `python GenUICraft/tools/sync_trained_prompt.py --check` from the A2UI root.
-The supplied v10 export has mixed W4/W8 weights and no MTP drafter; newer exports
-may carry their own runtime metadata. Thinking remains profile-controlled. The
+The original supplied v10 export has mixed W4/W8 weights and no MTP drafter, so
+the example above disables MTP. The newer mobile export includes a drafter;
+use `enableSpeculativeDecoding = true` for that package. Thinking remains profile-controlled. The
 trained converter makes one generation attempt. It accepts unchanged or bounded
 syntax-repaired output only after mechanical source-preservation checks; otherwise
 it returns a deterministic typed A2UI document built from exact source blocks.
@@ -162,13 +163,25 @@ streams the official package directly to the test app's external-files directory
 and verifies the pinned SHA-256 on both the transfer and device file. Other SDK
 consumers must provision their own accessible model path.
 
+## MTP drafter settings in the test app
+
+Open **GenUICraft SDK · Bixby50 → Settings → MTP drafter** to enable or disable
+speculative decoding. It defaults to on, persists across app restarts, and applies
+to both Gemma profiles. Changing it recreates the GPU engine on the next conversion.
+The switch is disabled during generation. Gauss is unaffected. An MTP-capable
+model package is required; disable the switch for older exports without a drafter.
+The app reports the actual completed runtime (`GPU` or `GPU+MTP`) under the run
+status, even when token metrics are off. Logs separately report requested MTP,
+effective MTP, and package capability.
+
 ## Optional token metrics in the test app
 
 Open **GenUICraft SDK · Bixby50** and use **Token metrics** to enable or disable
 the measurements. The preference persists across app restarts and is enabled by
 default in the demo. With Gemma, changing it takes effect on the next conversion
-and recreates the engine as needed. The official profile keeps GPU, MTP, and
-thinking enabled; the trained W4 profile keeps its GPU-only, no-thinking settings.
+and recreates the engine as needed. Both Gemma profiles use GPU and honor the
+separate MTP setting; official-model thinking stays enabled and trained-model
+thinking stays disabled.
 
 SDK hosts opt in with `Gemma4Config(enableMetrics = true, modelPath = modelPath)`.
 Each `GenUiProvider.generate` result exposes nullable `metrics` with actual

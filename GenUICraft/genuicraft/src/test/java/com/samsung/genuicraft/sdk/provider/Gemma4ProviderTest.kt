@@ -269,28 +269,32 @@ class Gemma4ProviderTest {
         assertTrue(optedInConfig.enableSpeculativeDecoding)
 
         assertFalse(
-            shouldEnableSpeculativeDecoding(
+            resolveSpeculativeDecoding(
                 accelerator = Gemma4Accelerator.GPU,
                 enabledByHost = false,
                 modelSupportsMtp = true,
             ),
         )
         assertFalse(
-            shouldEnableSpeculativeDecoding(
+            resolveSpeculativeDecoding(
                 accelerator = Gemma4Accelerator.CPU,
                 enabledByHost = true,
                 modelSupportsMtp = true,
             ),
         )
-        assertFalse(
-            shouldEnableSpeculativeDecoding(
+
+        val unsupportedPackage = assertThrows(IllegalArgumentException::class.java) {
+            resolveSpeculativeDecoding(
                 accelerator = Gemma4Accelerator.GPU,
                 enabledByHost = true,
                 modelSupportsMtp = false,
-            ),
-        )
+            )
+        }
+        assertTrue(unsupportedPackage.message.orEmpty().contains("does not report speculative decoding support"))
+        assertTrue(unsupportedPackage.message.orEmpty().contains("will not silently fall back to CPU"))
+
         assertTrue(
-            shouldEnableSpeculativeDecoding(
+            resolveSpeculativeDecoding(
                 accelerator = Gemma4Accelerator.GPU,
                 enabledByHost = true,
                 modelSupportsMtp = true,

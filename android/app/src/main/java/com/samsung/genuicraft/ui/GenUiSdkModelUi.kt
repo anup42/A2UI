@@ -13,6 +13,7 @@ import kotlinx.coroutines.withContext
 internal const val PREFERENCE_E2B_MODEL_CHOICE = "e2b_model_choice"
 internal const val PREFERENCE_OFFICIAL_E2B_MODEL_PATH = "model_path"
 internal const val PREFERENCE_TRAINED_E2B_W4_MODEL_PATH = "trained_e2b_v10_w4_model_path"
+internal const val PREFERENCE_E2B_MTP_ENABLED = "e2b_mtp_enabled"
 
 internal enum class E2bModelChoice(
     val preferenceValue: String,
@@ -90,6 +91,7 @@ internal fun sdkDemoActionAvailability(
 internal fun trainedE2bW4Config(
     modelPath: String,
     enableMetrics: Boolean,
+    enableMtp: Boolean = false,
 ): Gemma4Config = Gemma4Config(
     modelPath = modelPath,
     accelerator = "GPU",
@@ -97,7 +99,7 @@ internal fun trainedE2bW4Config(
     maxOutputTokens = 2_048,
     enableThinking = false,
     thinkingTokenBudget = 0,
-    enableSpeculativeDecoding = false,
+    enableSpeculativeDecoding = enableMtp,
     enableMetrics = enableMetrics,
 )
 
@@ -106,8 +108,9 @@ internal fun sdkDemoProviderKey(
     e2bModelChoice: E2bModelChoice,
     modelPath: String,
     enableMetrics: Boolean,
+    enableMtp: Boolean = e2bModelChoice == E2bModelChoice.OFFICIAL_E2B,
 ): String = if (useGemma) {
-    "gemma:profile=${e2bModelChoice.profile}:path=${modelPath.trim()}:metrics=$enableMetrics"
+    "gemma:profile=${e2bModelChoice.profile}:path=${modelPath.trim()}:metrics=$enableMetrics:mtp=$enableMtp"
 } else {
     "gauss:profile=gauss30b:metrics=$enableMetrics"
 }

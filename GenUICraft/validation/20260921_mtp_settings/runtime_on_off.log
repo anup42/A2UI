@@ -1,0 +1,9 @@
+09-21 21:56:45.693 24220 24909 I tflite  : Replacing 2068 out of 2068 node(s) with delegate (LITERT_CL) node, yielding 1 partitions for subgraph 0 (decode).
+09-21 21:56:47.458 24220 24909 I tflite  : Replacing 2243 out of 2243 node(s) with delegate (LITERT_CL) node, yielding 1 partitions for subgraph 3 (verify).
+09-21 21:56:47.656 24220 24909 I litert  : [magic_number_utils.cc:109]   signature=mtp_drafter, subgraph_index=0, num_tensors=275, num_inputs=8, num_outputs=2, num_ops=198
+09-21 21:56:47.656 24220 24909 I litert  : [magic_number_utils.cc:536] 57 tensors of signature mtp_drafter have been updated for magic number  32003 to target number 8192
+09-21 21:56:48.278 24220 24909 I GenUICraftRuntime: Gemma4 backend=GPU; MTP=true; MTPRequested=true; modelSupportsMtp=true; thinking=false; metrics=true
+09-21 21:57:39.929 24220 24909 I native  : I0000 00:00:1790008059.929796   24909 llm_litert_mtp_drafter.cc:172] MTP Drafter - Success rate: 0.558642
+09-21 21:57:40.376 24220 25065 I tflite  : Replacing 2068 out of 2068 node(s) with delegate (LITERT_CL) node, yielding 1 partitions for subgraph 0 (decode).
+09-21 21:57:42.110 24220 25065 I tflite  : Replacing 2243 out of 2243 node(s) with delegate (LITERT_CL) node, yielding 1 partitions for subgraph 3 (verify).
+09-21 21:57:42.335 24220 25065 I GenUICraftRuntime: Gemma4 backend=GPU; MTP=false; MTPRequested=false; modelSupportsMtp=true; thinking=false; metrics=true

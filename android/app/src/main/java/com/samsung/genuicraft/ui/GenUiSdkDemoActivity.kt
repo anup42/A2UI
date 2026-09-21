@@ -13,6 +13,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -46,11 +48,13 @@ class GenUiSdkDemoActivity : ComponentActivity() {
     private var activeProvider: GenUiProvider? = null
     private var activeProviderKey: String? = null
     private var activeJob: Job? = null
+    private var lastRuntime by mutableStateOf<String?>(null)
     /** Optional host override used by integration tests; default opens approved web links. */
     var onSdkAction: ((GenUiAction) -> Unit)? = null
 
     fun showDocument(value: GenUiDocument, message: String = "A2UI rendered by GenUICraft AAR") {
         generationMetrics = null
+        lastRuntime = null
         document = value
         status = message
         editorVisible = false
@@ -85,6 +89,10 @@ class GenUiSdkDemoActivity : ComponentActivity() {
         }
         setContent {
             GenUiCraftTheme {
+                var settingsVisible by remember { mutableStateOf(false) }
+                var mtpEnabled by remember {
+                    mutableStateOf(preferences.getBoolean(PREFERENCE_E2B_MTP_ENABLED, true))
+                }
                 var caseIndex by remember { mutableIntStateOf(0) }
                 var source by remember { mutableStateOf(cases.first().get("text").asString) }
                 var useGemma by remember {
@@ -131,9 +139,17 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                     Column(Modifier.fillMaxSize().safeDrawingPadding().padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text("GenUICraft SDK · Bixby50", style = MaterialTheme.typography.titleLarge)
                         Text(status, style = MaterialTheme.typography.bodySmall)
+                        lastRuntime?.let {
+                            Text(it, style = MaterialTheme.typography.bodySmall,
+                                modifier = Modifier.testTag("sdk_last_runtime"))
+                        }
                         if (working) LinearProgressIndicator(Modifier.fillMaxWidth())
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             OutlinedButton(onClick = { editorVisible = !editorVisible }) { Text(if (editorVisible) "Hide input" else "Edit input") }
+                            OutlinedButton(
+                                onClick = { settingsVisible = true },
+                                modifier = Modifier.testTag("sdk_settings_button"),
+                            ) { Text("Settings") }
                             if (working) OutlinedButton(onClick = {
                                 activeJob?.cancel()
                                 generationMetrics = null
@@ -321,7 +337,7 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                         }
                                     } else {
                                         Text(
-                                            "GPU · MTP unavailable in this target-only export.",
+                                            "GPU · MTP follows Settings and requires a bundled drafter.",
                                             style = MaterialTheme.typography.bodySmall,
                                         )
                                         OutlinedTextField(
@@ -402,10 +418,12 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                         }
                                         document = null
                                         generationMetrics = null
+                                        lastRuntime = null
                                         working = true
                                         status = "Generating A2UI…"
                                         val sourceForRun = source
                                         val metricsForRun = tokenMetricsEnabled
+                                        val mtpForRun = mtpEnabled
                                         activeJob = lifecycleScope.launch {
                                             try {
                                                 val providerKey = sdkDemoProviderKey(
@@ -413,6 +431,7 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                                     e2bModelChoice = e2bModelChoiceForRun,
                                                     modelPath = modelPathForRun,
                                                     enableMetrics = metricsForRun,
+                                                    enableMtp = mtpForRun,
                                                 )
                                                 val provider = if (
                                                     providerKey == activeProviderKey &&
@@ -433,11 +452,13 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                                                 trainedE2bW4Config(
                                                                     modelPath = modelPathForRun,
                                                                     enableMetrics = metricsForRun,
+                                                                    enableMtp = mtpForRun,
                                                                 )
                                                             } else {
                                                                 Gemma4Config(
                                                                     modelPath = modelPathForRun,
                                                                     enableMetrics = metricsForRun,
+                                                                    enableSpeculativeDecoding = mtpForRun,
                                                                 )
                                                             }
                                                         )
@@ -453,7 +474,16 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                                 } else {
                                                     null
                                                 }
-                                                val converterProvider = metricsProvider ?: provider
+                                                // Runtime identity comes from the initialized engine, even with metrics off.
+                                                var runtimeForRun: String? = null
+                                                val measuredProvider = metricsProvider ?: provider
+                                                val converterProvider = object : GenUiProvider {
+                                                    override val id = measuredProvider.id
+                                                    override suspend fun generate(prompt: GenUiPrompt): GenUiModelOutput =
+                                                        measuredProvider.generate(prompt).also {
+                                                            runtimeForRun = it.runtime
+                                                        }
+                                                }
                                                 val result = if (
                                                     useGemmaForRun &&
                                                     e2bModelChoiceForRun ==
@@ -490,6 +520,7 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                                         )
                                                     }
                                                 }
+                                                lastRuntime = runtimeForRun
                                             } catch (cancel: kotlinx.coroutines.CancellationException) {
                                                 generationMetrics = null
                                                 throw cancel
@@ -530,6 +561,35 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                           }
                         }
                     }
+                }
+                if (settingsVisible) {
+                    AlertDialog(
+                        onDismissRequest = { settingsVisible = false },
+                        title = { Text("Inference settings") },
+                        text = {
+                            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Switch(
+                                        checked = mtpEnabled,
+                                        onCheckedChange = { enabled ->
+                                            mtpEnabled = enabled
+                                            preferences.edit().putBoolean(PREFERENCE_E2B_MTP_ENABLED, enabled).apply()
+                                        },
+                                        enabled = !working,
+                                        modifier = Modifier.testTag("e2b_mtp_switch")
+                                            .semantics { contentDescription = "MTP drafter" },
+                                    )
+                                    Text("MTP drafter", modifier = Modifier.padding(start = 12.dp))
+                                }
+                                Text("Speeds up Gemma GPU generation using the model's bundled drafter. Applies to the next conversion and reloads the engine when changed.")
+                                Text("Requires an MTP-capable model. Older exports without a drafter must use this setting off. Gauss is unaffected.")
+                                lastRuntime?.let { Text("Last run: $it") }
+                            }
+                        },
+                        confirmButton = {
+                            TextButton(onClick = { settingsVisible = false }) { Text("Done") }
+                        },
+                    )
                 }
             }
         }

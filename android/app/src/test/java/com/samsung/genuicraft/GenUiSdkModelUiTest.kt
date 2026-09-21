@@ -182,6 +182,25 @@ class GenUiSdkModelUiTest {
     }
 
     @Test
+    fun mtpSettingReplacesGemmaProviderWithoutChangingGauss() {
+        E2bModelChoice.entries.forEach { choice ->
+            val on = sdkDemoProviderKey(true, choice, "/models/e2b.litertlm", true, true)
+            val off = sdkDemoProviderKey(true, choice, "/models/e2b.litertlm", true, false)
+            assertNotEquals("MTP changes must recreate the engine for $choice", on, off)
+            assertEquals(
+                sdkDemoProviderKey(false, choice, "", true, true),
+                sdkDemoProviderKey(false, choice, "", true, false),
+            )
+        }
+        val enabled = trainedE2bW4Config("/models/e2b.litertlm", true, enableMtp = true)
+        val disabled = trainedE2bW4Config("/models/e2b.litertlm", true, enableMtp = false)
+        assertTrue(enabled.enableSpeculativeDecoding)
+        assertFalse(disabled.enableSpeculativeDecoding)
+        assertEquals(disabled, enabled.copy(enableSpeculativeDecoding = false))
+        assertFalse("MTP toggle must not change the trained prompt's thinking mode", enabled.enableThinking)
+    }
+
+    @Test
     fun trainedProfileMatchesExportRuntimeContract() {
         val config = trainedE2bW4Config(
             modelPath = temporaryFolder.newFile("profile.litertlm").absolutePath,

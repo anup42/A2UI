@@ -178,11 +178,10 @@ internal class LiteRtGemma4Runtime(
         if (config.accelerator == Gemma4Accelerator.GPU) {
             Gemma4NativeLibraries.ensureGpuRuntimeLoaded()
         }
-        val modelHasMtp = config.enableSpeculativeDecoding && modelSupportsMtp(config.modelPath)
-        require(config.accelerator != Gemma4Accelerator.GPU || !config.enableSpeculativeDecoding || modelHasMtp) {
-            "GPU+MTP was requested, but the model package does not report speculative decoding support. Use an MTP-capable Gemma 4 E2B export."
-        }
-        val useMtp = shouldEnableSpeculativeDecoding(
+        // Capability belongs to the package, independent of whether this host requested MTP.
+        // Keep it truthful in diagnostics when speculative decoding is explicitly disabled.
+        val modelHasMtp = modelSupportsMtp(config.modelPath)
+        val useMtp = resolveSpeculativeDecoding(
             accelerator = config.accelerator,
             enabledByHost = config.enableSpeculativeDecoding,
             modelSupportsMtp = modelHasMtp,
@@ -220,7 +219,7 @@ internal class LiteRtGemma4Runtime(
         }
         val engine = checkNotNull(initializedEngine)
         val mtpSuffix = if (useMtp) "+MTP" else ""
-        android.util.Log.i("GenUICraftRuntime", "Gemma4 backend=${config.accelerator.name}; MTP=$useMtp; modelSupportsMtp=$modelHasMtp; thinking=${config.enableThinking}; metrics=${config.enableMetrics}")
+        android.util.Log.i("GenUICraftRuntime", "Gemma4 backend=${config.accelerator.name}; MTP=$useMtp; MTPRequested=${config.enableSpeculativeDecoding}; modelSupportsMtp=$modelHasMtp; thinking=${config.enableThinking}; metrics=${config.enableMetrics}")
         return EngineState(
             engine = engine,
             runtimeIdentity = "LiteRT-LM/Gemma4/${config.accelerator.name}$mtpSuffix",
@@ -327,11 +326,18 @@ internal fun requireArm64GpuAbi(supportedAbis: List<String>) {
     }
 }
 
-internal fun shouldEnableSpeculativeDecoding(
+internal fun resolveSpeculativeDecoding(
     accelerator: Gemma4Accelerator,
     enabledByHost: Boolean,
     modelSupportsMtp: Boolean,
-): Boolean = accelerator == Gemma4Accelerator.GPU && enabledByHost && modelSupportsMtp
+): Boolean {
+    require(accelerator != Gemma4Accelerator.GPU || !enabledByHost || modelSupportsMtp) {
+        "GPU+MTP was requested, but the model package does not report speculative decoding " +
+            "support. Disable MTP or use an MTP-capable Gemma 4 E2B export; the runtime " +
+            "will not silently fall back to CPU."
+    }
+    return accelerator == Gemma4Accelerator.GPU && enabledByHost && modelSupportsMtp
+}
 
 private fun Message.textContent(): String = contents.contents.joinToString(separator = "") { content ->
     when (content) {

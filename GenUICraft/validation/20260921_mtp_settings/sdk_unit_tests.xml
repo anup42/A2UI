@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.samsung.genuicraft.sdk.provider.Gemma4ProviderTest" tests="14" skipped="0" failures="0" errors="0" timestamp="2026-09-21T16:23:39" hostname="NOTEBOOK-PC" time="0.418">
+  <properties/>
+  <testcase name="close is idempotent and prevents later generation" classname="com.samsung.genuicraft.sdk.provider.Gemma4ProviderTest" time="0.115"/>
+  <testcase name="generation returns explicit runtime metadata and respects output boundary" classname="com.samsung.genuicraft.sdk.provider.Gemma4ProviderTest" time="0.011"/>
+  <testcase name="public config validates external model and accelerator" classname="com.samsung.genuicraft.sdk.provider.Gemma4ProviderTest" time="0.011"/>
+  <testcase name="close during an active call returns immediately and cancels runtime work" classname="com.samsung.genuicraft.sdk.provider.Gemma4ProviderTest" time="0.105"/>
+  <testcase name="cancellation reaches the active native runtime and provider remains reusable" classname="com.samsung.genuicraft.sdk.provider.Gemma4ProviderTest" time="0.008"/>
+  <testcase name="fewshot history counts toward context preflight" classname="com.samsung.genuicraft.sdk.provider.Gemma4ProviderTest" time="0.015"/>
+  <testcase name="provider rejects output and context overflow before native generation" classname="com.samsung.genuicraft.sdk.provider.Gemma4ProviderTest" time="0.009"/>
+  <testcase name="GPU runtime rejects unsupported ABI instead of changing backend" classname="com.samsung.genuicraft.sdk.provider.Gemma4ProviderTest" time="0.003"/>
+  <testcase name="close and await suspends until native cleanup finishes" classname="com.samsung.genuicraft.sdk.provider.Gemma4ProviderTest" time="0.007"/>
+  <testcase name="metrics opt in propagates to native configuration and preserves actual counters" classname="com.samsung.genuicraft.sdk.provider.Gemma4ProviderTest" time="0.005"/>
+  <testcase name="speculative decoding requires GPU model capability and respects explicit opt out" classname="com.samsung.genuicraft.sdk.provider.Gemma4ProviderTest" time="0.004"/>
+  <testcase name="reasoning stays enabled with a bounded formatting budget by default" classname="com.samsung.genuicraft.sdk.provider.Gemma4ProviderTest" time="0.004"/>
+  <testcase name="overlapping calls are serialized around one runtime conversation" classname="com.samsung.genuicraft.sdk.provider.Gemma4ProviderTest" time="0.114"/>
+  <testcase name="metrics are not exposed without explicit opt in even if runtime supplies them" classname="com.samsung.genuicraft.sdk.provider.Gemma4ProviderTest" time="0.004"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

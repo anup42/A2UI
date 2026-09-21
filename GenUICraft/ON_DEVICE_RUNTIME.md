@@ -16,7 +16,7 @@ val provider = Gemma4Provider(
 )
 ```
 
-GPU with MTP speculative decoding and thinking enabled is the default for the official E2B profile. The separate trained E2B v10 W4 profile uses GPU with MTP disabled (the package has no drafter) and thinking disabled to match its training workflow. CPU remains available only as an explicit diagnostic/host choice:
+GPU with MTP speculative decoding and thinking enabled is the default for the official E2B profile. The demo's **Settings → MTP drafter** switch persists across app restarts, applies to both Gemma model profiles, and defaults to enabled. A change takes effect on the next conversion after releasing the previous engine. For the trained profile, leave MTP enabled with the current mobile `e2b_v10_w4.litertlm` package (SHA-256 `4675f37353e41c786a3e94f03ba4f64ad366a2e4e5d188bb92f5bef3922a75fe`), which embeds a drafter; turn MTP off when selecting the historical target-only v10 package, which has no drafter. The trained profile keeps thinking disabled in either case to match its training workflow. CPU remains available only as an explicit diagnostic/host choice:
 
 ```kotlin
 val cpuProvider = Gemma4Provider(
@@ -75,9 +75,13 @@ The repository's optional `working_dir/litertlm-android-0.16.1-gpu-fixed-with-pr
 The trained model uses `GenUiTrainedConverter` with the frozen production system
 prompt and one worked example. The complete response is the final user message;
 no source-binding conversion or model repair is used. Its 8192-token context and
-2048-token output cap follow the current export/evaluation workflow. The supplied
-package has no MTP assistant, so its explicit profile disables speculative
-execution and thinking. The official E2B profile keeps its existing defaults.
+2048-token output cap follow the current export/evaluation workflow. The current
+mobile package named `e2b_v10_w4.litertlm` (SHA-256
+`4675f37353e41c786a3e94f03ba4f64ad366a2e4e5d188bb92f5bef3922a75fe`)
+embeds a drafter, so the demo's trained-profile MTP switch may remain enabled.
+Turn that switch off for the historical target-only v10 package, which has no
+MTP assistant. The trained profile keeps thinking disabled independently of the
+MTP switch. The official E2B profile keeps its existing defaults.
 
 Two Android compatibility fixes are needed:
 
