@@ -31,6 +31,23 @@ data class GenUiPrompt(
     val expectedRenderedPrompt: String? = null,
 )
 
+/** How [GenUiCompiler.compileWithRepair] produced an accepted document. */
+enum class GenUiRepairKind {
+    /** The supplied program passed the normal strict compiler unchanged. */
+    NONE,
+    /** Only bounded syntax normalization was needed; visible values and graph structure were not rewritten. */
+    STRUCTURAL,
+    /** The generated program was rejected and a source-bound document was rebuilt from source text. */
+    SOURCE_TEXT_FALLBACK,
+}
+
+/** Auditable result of opt-in generated-output recovery. */
+data class GenUiCompileOutcome(
+    val document: GenUiDocument,
+    val repairKind: GenUiRepairKind,
+    val diagnostics: List<String> = emptyList(),
+)
+
 enum class GenUiPromptRole { USER, MODEL }
 
 data class GenUiPromptMessage(val role: GenUiPromptRole, val text: String)
@@ -69,6 +86,8 @@ sealed interface GenUiConversionResult {
         val elapsedMs: Long,
         val attempts: Int,
         val warnings: List<String> = emptyList(),
+        /** Stable recovery classification; hosts do not need to parse warning text. */
+        val repairKind: GenUiRepairKind = GenUiRepairKind.NONE,
     ) : GenUiConversionResult
 
     data class Failure(

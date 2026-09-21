@@ -42,12 +42,12 @@ dependencyResolutionManagement {
     }
 }
 // consumer module
-implementation("com.samsung.genuicraft:genuicraft:0.2.0")
+implementation("com.samsung.genuicraft:genuicraft:0.3.0")
 ```
 
-Version 0.2.0 adds fields to the public prompt/output data classes. Rebuild
-consumer code when upgrading; do not replace a 0.1.0 binary in an already
-compiled consumer. The trained W4 profile's measured results are in the
+Version 0.3.0 adds typed recovery classification to successful conversions and
+the safe exact-source fallback. Rebuild consumer code when upgrading; do not
+replace an older-version binary at the same Maven coordinate. The trained W4 profile's measured results are in the
 [12-case device pilot](validation/20260919_e2b_v10_w4/REPORT.md).
 
 Use the Maven POM/module metadata: an AAR copied alone does not automatically install Compose, Coil, Gson, OkHttp, coroutines or LiteRT dependencies. Keep Gemma model weights external to the AAR. Renderer-only calls never initialize a model, though the combined artifact declares its runtime dependency.
@@ -116,10 +116,13 @@ example, and the complete response text. It does not use the official model's
 source bindings. The snapshot is pinned in `e2b_v10_shared_prompt.json`; verify
 parity with the current training workflow using
 `python GenUICraft/tools/sync_trained_prompt.py --check` from the A2UI root.
-The supplied export has mixed W4/W8 weights and no MTP drafter. Thinking is
-disabled to match the current training workflow. It gets one generation attempt
-with a 2048-token cap; invalid output is returned as a failure without a fallback.
-Successful compilation alone does not establish lossless content preservation.
+The supplied v10 export has mixed W4/W8 weights and no MTP drafter; newer exports
+may carry their own runtime metadata. Thinking remains profile-controlled. The
+trained converter makes one generation attempt. It accepts unchanged or bounded
+syntax-repaired output only after mechanical source-preservation checks; otherwise
+it returns a deterministic typed A2UI document built from exact source blocks.
+`GenUiConversionResult.Success.repairKind` identifies `SOURCE_TEXT_FALLBACK`
+directly, so fallback rendering is never reported as successful model generation.
 
 LiteRT-LM 0.16.1 is required for this export's dynamic prefill dimensions.
 Version 0.15 schedules prefill from dimensions read before GPU compilation and
@@ -191,6 +194,29 @@ genUiView.onAction = { action ->
 GenUiContent(document = document, onAction = ::handleAction)
 ```
 
+Generated output can opt into auditable recovery while keeping strict compilation
+unchanged:
+
+```kotlin
+val outcome = GenUiCompiler.compileWithRepair(rawModelOutput, perplexityResponse)
+when (outcome.repairKind) {
+    GenUiRepairKind.NONE -> Unit
+    GenUiRepairKind.STRUCTURAL -> log(outcome.diagnostics)
+    GenUiRepairKind.SOURCE_TEXT_FALLBACK -> log("Model output rejected; exact source fallback used")
+}
+genUiView.render(outcome.document)
+```
+
+Bounded repair only removes a leading BOM or exact Markdown fence and can complete
+a final `</a2ui` token when the enclosed program already passes the strict codec and
+canonical validator. It does not balance expressions, drop properties or elements,
+invent roots/IDs, fuzzy-correct values, or change visible content. The fallback maps
+source headings, paragraphs, lists, tables, code and dividers to typed components
+through source bindings, then passes the normal compiler and content-integrity gate.
+Recovery rejects generated input above 120,000 characters, source text above
+100,000 characters, more than 1,024 elements/statements, and expression or
+reference nesting above 64 levels before recursive work can become unbounded.
+
 `GenUiView` is an Android View wrapper with scrolling. `GenUiContent` is a composable for host-controlled layout. Local actions (`setState`, `pushState`, `removeState`, `validateForm`) execute in the renderer. External URL actions return `GenUiAction(name = "openUrl", parameters = mapOf("url" to url))`; successful `emitEvent` actions return the supplied event name and remaining parameters. A renderer-only application does not need provider credentials or model weights.
 
 `genUiView.convertAndRender(converter, request)` is the convenience API. The caller controls loading, retries, cancellation and errors. Conversion runs off the main thread; the convenience API switches to the main thread for rendering.
@@ -200,8 +226,8 @@ GenUiContent(document = document, onAction = ::handleAction)
 - Output exposes both Express and JSON, with explicit profile/schema versions. `GenUiCompiler.compile()` accepts strict `<a2ui>` Express or supported A2UI v0.9 wire envelopes (object/array). It rejects legacy `{root,state,elements}` input. `a2uiJson` is a v0.9 message array using catalog `com.samsung.genuicraft.catalog.v1`; the renderer's internal canonical graph is not the public JSON format.
 - Source text that resembles a state expression is escaped using the catalog's literal-string convention. It stays valid v0.9 JSON and replays literally in this renderer; see [LITERAL_TEXT_PROFILE.md](LITERAL_TEXT_PROFILE.md) before sending these exceptional values to another renderer.
 - No LLM is used to compile Express to JSON. Invalid schemas, unresolved references or unsupported properties are rejected.
-- `GenUiConverter` validates source wording, numeric facts, citation markers and supplied links. Mechanical preservation checks complement human review; they do not prove semantic correctness. The separate `GenUiTrainedConverter` uses the direct training prompt and checks compilation, without a source-fidelity guarantee.
-- `GenUiConverter` bounds model repair and reports `attempts`. `GenUiTrainedConverter` makes one attempt without repair. Neither turns a failed generation into a successful rich-UI result through a fallback.
+- `GenUiConverter` validates source wording, numeric facts, citation markers and supplied links. Mechanical preservation checks complement human review; they do not prove semantic correctness. `GenUiTrainedConverter` applies the same mechanical gate before accepting direct trained output.
+- `GenUiConverter` bounds model repair and reports provider `attempts`. `GenUiTrainedConverter` makes one provider attempt, then uses local bounded syntax repair or a separately labeled source-bound fallback. Local recovery never increments the provider-attempt count.
 - Citation markers without supplied URLs remain markers. The library does not invent source links.
 - Supplied source IDs, titles and safe public HTTP(S) URLs are appended deterministically as source buttons. Unsupported or blocked source URLs fail before model execution. `GenUiConverter` also restricts model-generated actions to exact supplied links. Trained-model and renderer-only documents use the renderer's action policy and host callbacks; hosts must review external actions.
 - Requests are bounded before serialization (100,000 text characters, 8,000 query characters, 100 sources and 110,000 combined characters). Transport responses are bounded before allocation, and server redirects are rejected.
@@ -216,7 +242,7 @@ Instrumentation class: `com.samsung.genuicraft.GenUiSdkBixby50Test`. Arguments: 
 
 The test app's `-PgenUiSdkOnlyNative=true` build flag omits its legacy JNI files. Use this flag to verify the native runtime supplied by the SDK publication and its declared dependencies. Prompt studies may set `recordInputs=true` to save each effective input and `corpusPath` for a synthetic JSONL fixture. The experimental `inputScaffold=true` argument appends a test-provider scaffold to custom prompts; it is separate from the accepted v10 SDK behavior. Omit experimental scaffold arguments for production acceptance. The study's candidate-build metadata must not be interpreted as a production API or default.
 
-For an independent renderer check, run `GenUiSdkBixby50Test#replaySavedBixbyCorpus` with `sourceRunId=<completed-run>` and a new `runId`. Omit `cases` to replay all 50. The default `replayMode=json` compiles the saved JSON without changing its bytes. `replayMode=raw_model` instead revalidates the exact captured successful Gemma output through the current converter with zero repairs; it writes separate revalidated Express/JSON. Both modes report **zero live model calls**, save fresh screenshots and accessibility hierarchies, and check that table columns can be observed while scrolling. These are renderer/revalidation results, not additional inference successes. Bounded viewport capture cannot prove that every pixel or row is correct.
+For an independent renderer check, run `GenUiSdkBixby50Test#replaySavedBixbyCorpus` with `sourceRunId=<completed-run>` and a new `runId`. Omit `cases` to replay all 50. The default `replayMode=json` compiles saved JSON without changing its bytes. `replayMode=express` strictly compiles captured Express. `replayMode=express_repair` runs the explicit repair/fallback API and records its classification, diagnostics and recovered hashes. `replayMode=raw_model` revalidates captured successful Gemma output through the current converter. All replay modes report **zero live model calls**, save screenshots and accessibility hierarchies, and check table columns while scrolling. Repair/fallback replay is renderer evidence, not additional inference success or an improved model-quality score. Bounded viewport capture cannot prove that every pixel or row is correct.
 
 `tools/probe_gauss.py` is a host prompt-development helper. Its results are explicitly separate from Android AAR acceptance results.
 

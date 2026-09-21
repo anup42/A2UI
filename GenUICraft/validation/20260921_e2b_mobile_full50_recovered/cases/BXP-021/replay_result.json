@@ -1,0 +1,44 @@
+{
+  "id": "BXP-021",
+  "kind": "renderer_repair_replay",
+  "replayMode": "express_repair",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-021/output.express",
+  "sourceExpressSha256": "0bbfb2f360eabbbcdd50035a8beb9c8cc08055b44442db44d0605cde2360e38c",
+  "repairKind": "SOURCE_TEXT_FALLBACK",
+  "repairDiagnostics": [
+    "Strict compile rejected output: Invalid GenUI Express: children must contain non-empty component references.",
+    "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+  ],
+  "recoveredExpressSha256": "09deab05a57e0186abe5e7af71d9af8e8cf28d4ff0431f826fba11ebe5a8f2fb",
+  "recoveredJsonSha256": "8eccf2bda4e2c107bf059dc48186fe31d1b61e36a712c4609d3ea55d63daae57",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 7
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 7
+    },
+    {
+      "name": "vertical_2",
+      "screenshot": true,
+      "visibleTextNodes": 7
+    }
+  ],
+  "verticalSwipes": 2,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 3023
+}

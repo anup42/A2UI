@@ -1,0 +1,49 @@
+{
+  "id": "BXP-039",
+  "kind": "renderer_repair_replay",
+  "replayMode": "express_repair",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-039/output.express",
+  "sourceExpressSha256": "4f58918fcd8f3c64d9dc722865fc2297c826b19588ca2c93cf161509adfdb429",
+  "repairKind": "SOURCE_TEXT_FALLBACK",
+  "repairDiagnostics": [
+    "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+    "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+  ],
+  "recoveredExpressSha256": "e2e494e1e8f57c6fef232a012ece152d3f7e1b2b3a64e7f409c7fb88910c103d",
+  "recoveredJsonSha256": "9495a074d2ab53eb85c1d071521d14d0a75c48dc53b101b1c6f041c0b0db9f83",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 16
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 16
+    },
+    {
+      "name": "vertical_2",
+      "screenshot": true,
+      "visibleTextNodes": 13
+    },
+    {
+      "name": "vertical_3",
+      "screenshot": true,
+      "visibleTextNodes": 13
+    }
+  ],
+  "verticalSwipes": 3,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 5545
+}

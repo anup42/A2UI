@@ -1,0 +1,39 @@
+{
+  "id": "BXP-010",
+  "kind": "renderer_repair_replay",
+  "replayMode": "express_repair",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-010/output.express",
+  "sourceExpressSha256": "42874a1fbe413f19c4c08df010cd875c870c82cea3b02f89eefed62d22b17c39",
+  "repairKind": "SOURCE_TEXT_FALLBACK",
+  "repairDiagnostics": [
+    "Strict compile rejected output: Invalid GenUI Express: children must be an array.",
+    "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+  ],
+  "recoveredExpressSha256": "701c7a62130f9db4e019bde3c02a2e1ac62ecf0af15b95451297c4414b3893b6",
+  "recoveredJsonSha256": "c1a223fb48e7a7584423d5185bd5b24644a86d72980336f493bd1b3e40bd300d",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 11
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 11
+    }
+  ],
+  "verticalSwipes": 1,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 1909
+}

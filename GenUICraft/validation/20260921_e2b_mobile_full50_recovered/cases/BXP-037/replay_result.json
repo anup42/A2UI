@@ -1,0 +1,82 @@
+{
+  "id": "BXP-037",
+  "kind": "renderer_repair_replay",
+  "replayMode": "express_repair",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-037/output.express",
+  "sourceExpressSha256": "162f966e70ea8d21641792a1e0307379672b5338b599218ac3e9f99977bc9a35",
+  "repairKind": "SOURCE_TEXT_FALLBACK",
+  "repairDiagnostics": [
+    "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+    "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+  ],
+  "recoveredExpressSha256": "cbcbe2ad3cdb774afc1ae8e0aaa548630504be7024d01ff619e9ff382844e423",
+  "recoveredJsonSha256": "93fdd0536244fcd87f530b800f09836620a04715c7d0ce269719aa7a3fb737d8",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [
+    {
+      "id": "b",
+      "columns": [
+        "Factor",
+        "CBSE",
+        "CISCE",
+        "IB"
+      ],
+      "observedHeaders": [
+        "Factor",
+        "CBSE",
+        "CISCE",
+        "IB"
+      ],
+      "observedRepresentativeCells": [
+        "**Curriculum**",
+        "Built around NCERT and a structured, concept-based syllabus; it is widely aligned with Indian competitive exams such as JEE, NEET, and CUET.[1][3]",
+        "A broader, more content-rich syllabus with strong language depth and separate treatment of subjects such as History/Civics and Geography from middle school onward."
+      ],
+      "missingColumns": [],
+      "horizontalScrollObserved": true
+    }
+  ],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 18
+    },
+    {
+      "name": "table_1_horizontal_1",
+      "screenshot": true,
+      "visibleTextNodes": 18
+    },
+    {
+      "name": "table_1_reset",
+      "screenshot": true,
+      "visibleTextNodes": 18
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 18
+    },
+    {
+      "name": "vertical_2",
+      "screenshot": true,
+      "visibleTextNodes": 17
+    },
+    {
+      "name": "vertical_3",
+      "screenshot": true,
+      "visibleTextNodes": 17
+    }
+  ],
+  "verticalSwipes": 3,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 7588
+}

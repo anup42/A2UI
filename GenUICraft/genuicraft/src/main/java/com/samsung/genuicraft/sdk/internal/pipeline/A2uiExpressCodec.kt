@@ -16,6 +16,10 @@ import com.google.gson.JsonPrimitive
 internal object A2uiExpressCodec {
     private const val OPEN = "<a2ui>"
     private const val CLOSE = "</a2ui>"
+    private const val MAX_INPUT_CHARS = 120_000
+    private const val MAX_STATEMENTS = 1_024
+    private const val MAX_ELEMENTS = 1_024
+    private const val MAX_EXPRESSION_DEPTH = 64
 
     fun looksLike(text: String?): Boolean {
         val value = text?.trim().orEmpty()
@@ -106,11 +110,19 @@ internal object A2uiExpressCodec {
     }
 
     fun decode(text: String): JsonObject {
+        require(text.length <= MAX_INPUT_CHARS) {
+            "A2UI Express input exceeds $MAX_INPUT_CHARS characters."
+        }
         val state = JsonObject()
         val elements = JsonObject()
         var inlineCounter = 0
+        var materializedCount = 0
 
         fun materialize(id: String, call: Expr.Call): String {
+            materializedCount += 1
+            require(materializedCount <= MAX_ELEMENTS) {
+                "A2UI Express contains more than $MAX_ELEMENTS elements."
+            }
             require(!elements.has(id)) { "Duplicate A2UI Express component id '$id'." }
             val expressComponent = call.name
             val positional = GenUiA2uiCatalog.positional[expressComponent]
@@ -441,7 +453,12 @@ internal object A2uiExpressCodec {
         var tripleString = false
         var escaped = false
         fun flush() {
-            buffer.toString().trim().takeIf { it.isNotEmpty() }?.let(out::add)
+            buffer.toString().trim().takeIf { it.isNotEmpty() }?.let {
+                require(out.size < MAX_STATEMENTS) {
+                    "A2UI Express contains more than $MAX_STATEMENTS statements."
+                }
+                out += it
+            }
             buffer.clear()
         }
         while (index < body.length) {
@@ -501,6 +518,9 @@ internal object A2uiExpressCodec {
                     inString = true
                 }
                 body[index] == '(' || body[index] == '[' || body[index] == '{' -> {
+                    require(depth < MAX_EXPRESSION_DEPTH) {
+                        "A2UI Express nesting exceeds $MAX_EXPRESSION_DEPTH levels."
+                    }
                     depth += 1
                     buffer.append(body[index++])
                 }
@@ -608,23 +628,32 @@ internal object A2uiExpressCodec {
 
     private class Parser(private val source: String) {
         private var index = 0
+        private var expressionDepth = 0
         fun requireComplete() { skipWhitespace(); require(index == source.length) { "Trailing A2UI Express syntax at $index." } }
         fun parseValue(): Expr {
-            skipWhitespace()
-            if (index >= source.length) error("Unexpected end of A2UI Express expression.")
-            return when (source[index]) {
-                '"' -> Expr.Literal(JsonPrimitive(parseString()))
-                'r', 'R' -> if (source.getOrNull(index + 1) == '"') {
-                    Expr.Literal(JsonPrimitive(parseString()))
-                } else {
-                    parseIdentifierValue()
+            require(expressionDepth < MAX_EXPRESSION_DEPTH) {
+                "A2UI Express nesting exceeds $MAX_EXPRESSION_DEPTH levels."
+            }
+            expressionDepth += 1
+            try {
+                skipWhitespace()
+                if (index >= source.length) error("Unexpected end of A2UI Express expression.")
+                return when (source[index]) {
+                    '"' -> Expr.Literal(JsonPrimitive(parseString()))
+                    'r', 'R' -> if (source.getOrNull(index + 1) == '"') {
+                        Expr.Literal(JsonPrimitive(parseString()))
+                    } else {
+                        parseIdentifierValue()
+                    }
+                    '[' -> parseArray()
+                    '{' -> parseObject()
+                    '$' -> Expr.Literal(JsonPrimitive(parsePath()))
+                    '?' -> parseCheck()
+                    '-', in '0'..'9' -> parseNumber()
+                    else -> parseIdentifierValue()
                 }
-                '[' -> parseArray()
-                '{' -> parseObject()
-                '$' -> Expr.Literal(JsonPrimitive(parsePath()))
-                '?' -> parseCheck()
-                '-', in '0'..'9' -> parseNumber()
-                else -> parseIdentifierValue()
+            } finally {
+                expressionDepth -= 1
             }
         }
         private fun parseArray(): Expr.ArrayValue {

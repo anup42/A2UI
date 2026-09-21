@@ -1,0 +1,80 @@
+{
+  "id": "BXP-032",
+  "kind": "renderer_repair_replay",
+  "replayMode": "express_repair",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-032/output.express",
+  "sourceExpressSha256": "c9add99220e4b47e89dac7141452556306027f6651d0f243ccb4512dfcb591d1",
+  "repairKind": "SOURCE_TEXT_FALLBACK",
+  "repairDiagnostics": [
+    "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+    "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+  ],
+  "recoveredExpressSha256": "98d88639dcdda9d30aeac7f2eba163c0ddeca31d9221ba765aab566df5064ef9",
+  "recoveredJsonSha256": "05ef6965987a22198f600f0f0647d34bd068614637d0f33ac4732d973e37179b",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [
+    {
+      "id": "b",
+      "columns": [
+        "Term",
+        "What it means",
+        "Typical effect on a claim"
+      ],
+      "observedHeaders": [
+        "Term",
+        "What it means",
+        "Typical effect on a claim"
+      ],
+      "observedRepresentativeCells": [
+        "Deductible",
+        "A fixed amount you must pay before the insurer pays any admissible claim. In indemnity plans, it is a rupee threshold. [3]",
+        "The insurer starts paying only after the deductible is crossed."
+      ],
+      "missingColumns": [],
+      "horizontalScrollObserved": true
+    }
+  ],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 15
+    },
+    {
+      "name": "table_1_horizontal_1",
+      "screenshot": true,
+      "visibleTextNodes": 15
+    },
+    {
+      "name": "table_1_reset",
+      "screenshot": true,
+      "visibleTextNodes": 15
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 10
+    },
+    {
+      "name": "vertical_2",
+      "screenshot": true,
+      "visibleTextNodes": 5
+    },
+    {
+      "name": "vertical_3",
+      "screenshot": true,
+      "visibleTextNodes": 5
+    }
+  ],
+  "verticalSwipes": 3,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 7682
+}

@@ -1,0 +1,80 @@
+{
+  "id": "BXP-044",
+  "kind": "renderer_repair_replay",
+  "replayMode": "express_repair",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-044/output.express",
+  "sourceExpressSha256": "c882b34d313c11595d8767821206f3eff588c8a56381d972c8f4cd59c80b5c87",
+  "repairKind": "SOURCE_TEXT_FALLBACK",
+  "repairDiagnostics": [
+    "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+    "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+  ],
+  "recoveredExpressSha256": "1f763324624bdea95b9fd5f84544ecec5966afa087ef26845b6ad171bdcd7e8a",
+  "recoveredJsonSha256": "9c52d4a322fc6b513845f701901aa4dfeb175574e61621ea73f522057b95e063",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [
+    {
+      "id": "b",
+      "columns": [
+        "Device",
+        "Main problem it addresses",
+        "Best fit for Indian homes"
+      ],
+      "observedHeaders": [
+        "Device",
+        "Main problem it addresses",
+        "Best fit for Indian homes"
+      ],
+      "observedRepresentativeCells": [
+        "Air purifier",
+        "Dust, smoke, PM2.5, pollen, pet dander, and other airborne particles [3]",
+        "Homes near traffic, construction, seasonal smoke, or for allergy relief"
+      ],
+      "missingColumns": [],
+      "horizontalScrollObserved": true
+    }
+  ],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 15
+    },
+    {
+      "name": "table_1_horizontal_1",
+      "screenshot": true,
+      "visibleTextNodes": 15
+    },
+    {
+      "name": "table_1_reset",
+      "screenshot": true,
+      "visibleTextNodes": 15
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 9
+    },
+    {
+      "name": "vertical_2",
+      "screenshot": true,
+      "visibleTextNodes": 9
+    },
+    {
+      "name": "vertical_3",
+      "screenshot": true,
+      "visibleTextNodes": 9
+    }
+  ],
+  "verticalSwipes": 3,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 7607
+}

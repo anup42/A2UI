@@ -1,0 +1,7 @@
+<a2ui>
+root=Column([a,b,c,d],"md")
+a=Text("I’m sorry, but I can’t reliably complete a verified 2025–2026 book recommendation list right now.")
+b=Text("Current limitation","heading")
+c=Text("I’m not able to confirm three suitable nonfiction books about technology and society from reliable current sources with the evidence needed to answer confidently.")
+d=Text("If you want, I can still help in a later turn with a tightly sourced shortlist once current book-data access is available.")
+</a2ui>

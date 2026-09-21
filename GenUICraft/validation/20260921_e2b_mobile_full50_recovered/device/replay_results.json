@@ -1,0 +1,3160 @@
+[
+  {
+    "id": "BXP-001",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-001/output.express",
+    "sourceExpressSha256": "58e80c58090a5785d0bfbf13806effedd9b4b1925ec93fc4efb7f242bd6a0c60",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: Invalid GenUI Express: Unclosed A2UI Express expression.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "69fd95fa03ed567b8a4acdf9d254887db909d6d7e75d9ce0d3236c067d060ff9",
+    "recoveredJsonSha256": "25110adf8ed886efe52cc4518c379cf28e4af5aa6bfd0ec33f8430f9759c1e11",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "a",
+        "columns": [
+          "Date",
+          "High (°C)",
+          "Low (°C)",
+          "Rain probability"
+        ],
+        "observedHeaders": [
+          "Date",
+          "High (°C)",
+          "Low (°C)",
+          "Rain probability"
+        ],
+        "observedRepresentativeCells": [
+          "Wed, Sep 9",
+          "31",
+          "20",
+          "57%"
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 19
+      },
+      {
+        "name": "table_1_horizontal_1",
+        "screenshot": true,
+        "visibleTextNodes": 19
+      },
+      {
+        "name": "table_1_reset",
+        "screenshot": true,
+        "visibleTextNodes": 19
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 19
+      }
+    ],
+    "verticalSwipes": 1,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 3874
+  },
+  {
+    "id": "BXP-002",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-002/output.express",
+    "sourceExpressSha256": "796d54a36472700b051c16fbec0274b28f5b34f5879f26122f4c60aba24b31e9",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: Invalid GenUI Express: Unknown property '铺' for A2UI Express component 'Column'.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "93724d94b4bd6462f7d19e5243d3ed2d24f49269ff02a547c2e69d6eb2a8219b",
+    "recoveredJsonSha256": "33fefccea91d621780bf4a3d0147d3bbdf25d7a4d78200d14607b7947665cbb6",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 11
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 11
+      }
+    ],
+    "verticalSwipes": 1,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 1961
+  },
+  {
+    "id": "BXP-003",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-003/output.express",
+    "sourceExpressSha256": "d2cd4b3c4c663a082b3794e65fd6b75954feb36b8a067b25a820655cd5ed52a8",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "7445b0a1fdbefeb785a94ce887a28dd3b4a4db5b1c2e082d9d1d6ec15d5a4ef1",
+    "recoveredJsonSha256": "f8a36f20da81af1a6b40919bc4b0d172fd4b5f1649825b4843607e46e889bb47",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Train service",
+          "Departure station",
+          "Typical departure time",
+          "Journey duration",
+          "Seating class"
+        ],
+        "observedHeaders": [
+          "Train service",
+          "Departure station",
+          "Typical departure time",
+          "Journey duration",
+          "Seating class"
+        ],
+        "observedRepresentativeCells": [
+          "**Shatabdi Express (12007)**",
+          "KSR Bengaluru (SBC)",
+          "**10:35–10:45**",
+          "**About 2 h 15 m to 2 h 25 m**",
+          "**CC, EC**"
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 25
+      },
+      {
+        "name": "table_1_horizontal_1",
+        "screenshot": true,
+        "visibleTextNodes": 25
+      },
+      {
+        "name": "table_1_horizontal_2",
+        "screenshot": true,
+        "visibleTextNodes": 25
+      },
+      {
+        "name": "table_1_reset",
+        "screenshot": true,
+        "visibleTextNodes": 25
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 25
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 25
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 7465
+  },
+  {
+    "id": "BXP-004",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-004/output.express",
+    "sourceExpressSha256": "85db57c9393a81899b9a13ffbdd284e62be7be9ac72ab72972ea91918381abf5",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "f094c2fd34149a116362544c9b456da0eae260b9f5770cc346aadd22836a600f",
+    "recoveredJsonSha256": "9cb24ac441dd8d682886506ab5ffbefb7f7b4b0949f5375bc16d436d75b0c55f",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 20
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 19
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 19
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 3084
+  },
+  {
+    "id": "BXP-005",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-005/output.express",
+    "sourceExpressSha256": "44bfeb341e818942286f1a066322d1c4dc071474cf9f1fa4ce5d69561e7c71ad",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: Invalid GenUI Express: Stack.gap must be one of none, sm, md, lg, xl.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "f8b255a42bbf3776c1284d75eb51be2d34ad72e906927c68c4db550b5ddcf8a6",
+    "recoveredJsonSha256": "ed6ab0cf4b556a114882a833f76009fcd7ff748ede29420378296f17c75e4fd0",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 21
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 23
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 23
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 3108
+  },
+  {
+    "id": "BXP-006",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-006/output.express",
+    "sourceExpressSha256": "3ed5a0ba705ad18bfdb6e8b59594b78153ea83ad58ef858f581e7345ec2cd3a5",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "42efbc71bf2de53c75d2a7ac9a8bb24f924b113964dda9c6e0386e7325a6a5f1",
+    "recoveredJsonSha256": "51a4e51984bd9dfff5e224a4adbb5053cb7fa01a6eca9e1d89df968837667cf0",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "c",
+        "columns": [
+          "Route",
+          "Approx. distance",
+          "Usual travel time",
+          "Road conditions",
+          "Useful stop"
+        ],
+        "observedHeaders": [
+          "Route",
+          "Approx. distance",
+          "Usual travel time",
+          "Road conditions",
+          "Useful stop"
+        ],
+        "observedRepresentativeCells": [
+          "Bengaluru → Mysuru → Hunsur → Kushalnagar → Madikeri",
+          "About 250–255 km, sometimes cited up to 270 km depending on exact start point and detours[10]",
+          "About 4.5–6 hours, commonly around 5.5–6 hours",
+          "Mostly smooth and well-maintained, especially on the Bengaluru–Mysuru Expressway; traffic can build up on the Mysuru corridor, and the final stretch near Madikeri becomes hilly/ghat road[3][8][15]",
+          "**Namdroling Monastery, Bylakuppe**[7][9]"
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 15
+      },
+      {
+        "name": "table_1_horizontal_1",
+        "screenshot": true,
+        "visibleTextNodes": 15
+      },
+      {
+        "name": "table_1_horizontal_2",
+        "screenshot": true,
+        "visibleTextNodes": 15
+      },
+      {
+        "name": "table_1_horizontal_3",
+        "screenshot": true,
+        "visibleTextNodes": 15
+      },
+      {
+        "name": "table_1_reset",
+        "screenshot": true,
+        "visibleTextNodes": 15
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 16
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 16
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 9414
+  },
+  {
+    "id": "BXP-007",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-007/output.express",
+    "sourceExpressSha256": "deaee6f9e032bc307c1c440e5ce76303a65cc389ea4cba543ef1d449e8da8778",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: Invalid GenUI Express: Unclosed A2UI Express expression.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "41f2ea1e78070f080ab8ea9c0a1300e9a45310194b9ff105aed36fe0dd265a7f",
+    "recoveredJsonSha256": "b706c44c40eae0431c9d4d1aa0d35af98c1991fb00ebe635731bf310032a880e",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Sight",
+          "Opening hours",
+          "Usual visit duration",
+          "Published adult entry fee"
+        ],
+        "observedHeaders": [
+          "Sight",
+          "Opening hours",
+          "Usual visit duration",
+          "Published adult entry fee"
+        ],
+        "observedRepresentativeCells": [
+          "Chamundi Hill Lookout View Point",
+          "5:00 am–11:00 pm",
+          "30–45 min",
+          "Not available in the provided reliable sources[6]"
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 18
+      },
+      {
+        "name": "table_1_horizontal_1",
+        "screenshot": true,
+        "visibleTextNodes": 18
+      },
+      {
+        "name": "table_1_reset",
+        "screenshot": true,
+        "visibleTextNodes": 18
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 18
+      }
+    ],
+    "verticalSwipes": 1,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 4186
+  },
+  {
+    "id": "BXP-008",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-008/output.express",
+    "sourceExpressSha256": "a7202c92952f815f6fecc4e5042a069ca24355955bfbe93ceb8d3b0d795b663a",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: Invalid GenUI Express: Unknown property 'Gap' for A2UI Express component 'Column'.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "d84a3768700cf46be39e0856a642ba7d3f3911cb49d88df3282c358754c57631",
+    "recoveredJsonSha256": "47b4c4a50dc942a0d13a501129242760f7353fa1b5e03338d3a20adf9937392f",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Restaurant",
+          "Neighborhood",
+          "Signature dish",
+          "Approx. cost per person",
+          "Opening hours"
+        ],
+        "observedHeaders": [
+          "Restaurant",
+          "Neighborhood",
+          "Signature dish",
+          "Approx. cost per person",
+          "Opening hours"
+        ],
+        "observedRepresentativeCells": [
+          "Vidyarthi Bhavan",
+          "Basavanagudi (Gandhi Bazaar)",
+          "South Indian breakfast classics; widely known for its crisp dosas",
+          "₹1–200",
+          "6:30am–11:30am, 2:00pm–8:00pm on Mon–Thu; closed Fri; 6:30am–12:00pm, 2:30pm–8:00pm on Sat–Sun[2]"
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 16
+      },
+      {
+        "name": "table_1_horizontal_1",
+        "screenshot": true,
+        "visibleTextNodes": 12
+      },
+      {
+        "name": "table_1_horizontal_2",
+        "screenshot": true,
+        "visibleTextNodes": 16
+      },
+      {
+        "name": "table_1_reset",
+        "screenshot": true,
+        "visibleTextNodes": 16
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 16
+      }
+    ],
+    "verticalSwipes": 1,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 6021
+  },
+  {
+    "id": "BXP-009",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-009/output.express",
+    "sourceExpressSha256": "379276ba0e602564a76e76d2625439e7bd8233bad23d874b8547e8e5925aef13",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "0467a16110ed7478a68f55e1ac494d608ded307f6a3821526d60a69a685358d2",
+    "recoveredJsonSha256": "17759aa9078588f3c625d33f5c0f7a044a1fc1b630ef227820d63c5c7844259c",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 21
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 22
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 22
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 3055
+  },
+  {
+    "id": "BXP-010",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-010/output.express",
+    "sourceExpressSha256": "42874a1fbe413f19c4c08df010cd875c870c82cea3b02f89eefed62d22b17c39",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: Invalid GenUI Express: children must be an array.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "701c7a62130f9db4e019bde3c02a2e1ac62ecf0af15b95451297c4414b3893b6",
+    "recoveredJsonSha256": "c1a223fb48e7a7584423d5185bd5b24644a86d72980336f493bd1b3e40bd300d",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 11
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 11
+      }
+    ],
+    "verticalSwipes": 1,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 1909
+  },
+  {
+    "id": "BXP-011",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-011/output.express",
+    "sourceExpressSha256": "3d30f6ebbfe6cdc6723df2486f65125990ddda5b374897168101929637870f3e",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: Invalid GenUI Express: Unclosed A2UI Express expression.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "347fa096dad4a26fb80f1a46e1ac1085a691def8d3720982a48c6187df417a59",
+    "recoveredJsonSha256": "a5a9922d5ccebc09dc8b699cb5788b2138a5384be6a03b3e168c1402a15b5908",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Model",
+          "Indicative price",
+          "Display",
+          "Battery",
+          "Software support",
+          "Best for"
+        ],
+        "observedHeaders": [
+          "Model",
+          "Indicative price",
+          "Display",
+          "Battery",
+          "Software support",
+          "Best for"
+        ],
+        "observedRepresentativeCells": [
+          "OnePlus Nord CE 5",
+          "From ₹24,999",
+          "6.77-inch AMOLED, 120Hz [9][16]",
+          "7,100mAh, 80W charging",
+          "6 years of software support",
+          "Buyers wanting a big battery and smooth everyday performance"
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 13
+      },
+      {
+        "name": "table_1_horizontal_1",
+        "screenshot": true,
+        "visibleTextNodes": 17
+      },
+      {
+        "name": "table_1_horizontal_2",
+        "screenshot": true,
+        "visibleTextNodes": 17
+      },
+      {
+        "name": "table_1_horizontal_3",
+        "screenshot": true,
+        "visibleTextNodes": 13
+      },
+      {
+        "name": "table_1_horizontal_4",
+        "screenshot": true,
+        "visibleTextNodes": 13
+      },
+      {
+        "name": "table_1_reset",
+        "screenshot": true,
+        "visibleTextNodes": 13
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 13
+      }
+    ],
+    "verticalSwipes": 1,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 9898
+  },
+  {
+    "id": "BXP-012",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-012/output.express",
+    "sourceExpressSha256": "6325d046069149abdfe64798f168e8653a406ec80c406dbd463a95eda9bd42d5",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: Invalid GenUI Express: Unbalanced A2UI Express delimiter.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "264c3c38b2bfa24785c69ecb58efe21c80a6d506397afb590a6a9e7c087ac978",
+    "recoveredJsonSha256": "b2a5d79a8460fa8374b1ccc4160e4ae5f58c456c320101b06e9987c0a08ce5fa",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "App",
+          "Offline use",
+          "Synchronization",
+          "Export options",
+          "Biggest free-plan restriction"
+        ],
+        "observedHeaders": [
+          "App",
+          "Offline use",
+          "Synchronization",
+          "Export options",
+          "Biggest free-plan restriction"
+        ],
+        "observedRepresentativeCells": [
+          "**Microsoft OneNote**",
+          "Works offline on Android and web-backed notebooks sync when you reconnect[2][12]",
+          "Free cross-device sync through OneDrive",
+          "Export support is available, but the free plan is mainly limited by storage rather than format[1]",
+          "About **5 GB of notes** on the free plan"
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 19
+      },
+      {
+        "name": "table_1_horizontal_1",
+        "screenshot": true,
+        "visibleTextNodes": 19
+      },
+      {
+        "name": "table_1_horizontal_2",
+        "screenshot": true,
+        "visibleTextNodes": 19
+      },
+      {
+        "name": "table_1_horizontal_3",
+        "screenshot": true,
+        "visibleTextNodes": 19
+      },
+      {
+        "name": "table_1_reset",
+        "screenshot": true,
+        "visibleTextNodes": 19
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 19
+      }
+    ],
+    "verticalSwipes": 1,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 8062
+  },
+  {
+    "id": "BXP-013",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-013/output.express",
+    "sourceExpressSha256": "9fec98836bf9c56b162480c44d091a72aa3c2080c74e31ea96358fee1f440ad9",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "d7df208ec4a2bfbadea14e87e0a251ae693b169f1ffd2624414995066f278ac3",
+    "recoveredJsonSha256": "8347648606fd93eccd8b9cfe1e01eb8837b0186f9c4b27ac7b1368e780602d1d",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "j",
+        "columns": [
+          "Bank",
+          "One-year retail FD rate",
+          "Assumed deposit size",
+          "Rate date / effective date"
+        ],
+        "observedHeaders": [
+          "Bank",
+          "One-year retail FD rate",
+          "Assumed deposit size",
+          "Rate date / effective date"
+        ],
+        "observedRepresentativeCells": [
+          "SBI",
+          "6.25%",
+          "Below ₹3 crore",
+          "Current retail grid shown on SBI’s retail domestic term-deposit page"
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 14
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 11
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 20
+      },
+      {
+        "name": "table_1_horizontal_1",
+        "screenshot": true,
+        "visibleTextNodes": 20
+      },
+      {
+        "name": "table_1_reset",
+        "screenshot": true,
+        "visibleTextNodes": 20
+      },
+      {
+        "name": "vertical_3",
+        "screenshot": true,
+        "visibleTextNodes": 20
+      }
+    ],
+    "verticalSwipes": 3,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 7714
+  },
+  {
+    "id": "BXP-014",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-014/output.express",
+    "sourceExpressSha256": "b632c8ec9e758db8c6253bf38269c25af1a1ef8eb18d4b4dce8d861a8b635144",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: Invalid GenUI Express: Unclosed A2UI Express expression.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "f5eff833febf258572028d5bc76d6e90d0a390e79f778867a3bb34660f3e30e3",
+    "recoveredJsonSha256": "c0a5c3b3107df68cfdbfc6a891865450805541f81c951359f33aa60126623120",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 9
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 9
+      }
+    ],
+    "verticalSwipes": 1,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 1890
+  },
+  {
+    "id": "BXP-015",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-015/output.express",
+    "sourceExpressSha256": "74b6649f6c0fc71bd80edbf9150daf790f9ded7b2d10bf7acda01c925ade0343",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: Invalid GenUI Express: Unclosed A2UI Express expression.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "7029b0ede5e6d281c07237cc69fc3c0fcc5267013961eaec999bda223b31b612",
+    "recoveredJsonSha256": "3aa4be247b06aa7128a60dec1f27b44750ccf8f2d0340715f7d32c49df1aec10",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 18
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 18
+      }
+    ],
+    "verticalSwipes": 1,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 1881
+  },
+  {
+    "id": "BXP-016",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-016/output.express",
+    "sourceExpressSha256": "37888c549aa15f82e6f7f20037be45c45858ff75421f94e7d77841d89beca3e4",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "329e891bd01add56daa14658f2bd313d09b0bd67637caebec74bb669c105005d",
+    "recoveredJsonSha256": "81e91cb7b27b87afe9ca97311276cd38a6f4535fcb7707b1a2af661252fdfcff",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Title",
+          "Platform",
+          "Streaming release date",
+          "Spoiler-free description"
+        ],
+        "observedHeaders": [
+          "Title",
+          "Platform",
+          "Streaming release date",
+          "Spoiler-free description"
+        ],
+        "observedRepresentativeCells": [
+          "**Bandar**",
+          "ZEE5",
+          "**28 August 2026**",
+          "A tense drama centered on accusation, accountability, and justice, led by Bobby Deol. [33]"
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 16
+      },
+      {
+        "name": "table_1_horizontal_1",
+        "screenshot": true,
+        "visibleTextNodes": 16
+      },
+      {
+        "name": "table_1_reset",
+        "screenshot": true,
+        "visibleTextNodes": 16
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 16
+      }
+    ],
+    "verticalSwipes": 1,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 4067
+  },
+  {
+    "id": "BXP-017",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-017/output.express",
+    "sourceExpressSha256": "1a6d82eabe4625bd61cf9ffb4bbc357c4ef87de3a74afb028c1417af5be2fc9e",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: Invalid GenUI Express: Unclosed A2UI Express expression.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "bd25d91ef44599905ec0ab9239f2ab79ae8eb595a712e6f0731bd875b9210299",
+    "recoveredJsonSha256": "d26f4a543982d7387b643ca98084cc8094c46fa0055988f97ca03675d848836e",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 4
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 4
+      }
+    ],
+    "verticalSwipes": 1,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 1868
+  },
+  {
+    "id": "BXP-018",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-018/output.express",
+    "sourceExpressSha256": "d8f4530acc19f6462069713bcb22bb4c9cce6c72bd87971c953480bab2dc86e4",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "24a9a8ca6b286fb2451b6db8282c36c994a87c832f7d53127b294adad6784751",
+    "recoveredJsonSha256": "2473a45bb4128fc9c6f10c4390a1921c27ff0b2844dc7e9bc4d87efc8825be4d",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 11
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 11
+      }
+    ],
+    "verticalSwipes": 1,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 1893
+  },
+  {
+    "id": "BXP-019",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-019/output.express",
+    "sourceExpressSha256": "b86f544def965b28c7bd53bf7f3acba467d96f80f9b8ce96546f2b7de3e1ec2b",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "58f39a737a9c2c6e046df042367ff264bb205487780429565259fa176424ad67",
+    "recoveredJsonSha256": "53e8434a996aa339880fac40c40cb7125cfaca2f2ec1f7d316cb194eace4016d",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Game",
+          "Age rating",
+          "Co-op support",
+          "Players",
+          "Indicative India price"
+        ],
+        "observedHeaders": [
+          "Game",
+          "Age rating",
+          "Co-op support",
+          "Players",
+          "Indicative India price"
+        ],
+        "observedRepresentativeCells": [
+          "**It Takes Two**",
+          "13+ for online features",
+          "Online co-op; Friend’s Pass supports inviting a friend",
+          "2"
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 19
+      },
+      {
+        "name": "table_1_horizontal_1",
+        "screenshot": true,
+        "visibleTextNodes": 19
+      },
+      {
+        "name": "table_1_reset",
+        "screenshot": true,
+        "visibleTextNodes": 19
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 19
+      }
+    ],
+    "verticalSwipes": 1,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 4180
+  },
+  {
+    "id": "BXP-020",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-020/output.express",
+    "sourceExpressSha256": "60e8a2c0d3dd8548e645b22fcf6c0339e5eed9b56837357a317ef447c4480c19",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: GenUI input contains prose or an unsupported prefix; expected <a2ui>, {, or [.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "fc3acc77abc99d6c90b81a437ead62037892e8d3911f4884204a5868d30ca9c4",
+    "recoveredJsonSha256": "ce2f6d724464c14eefc00cb45dd40f639364d070eedf9aed48ed3eb5ebd27a00",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 12
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 12
+      }
+    ],
+    "verticalSwipes": 1,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 2496
+  },
+  {
+    "id": "BXP-021",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-021/output.express",
+    "sourceExpressSha256": "0bbfb2f360eabbbcdd50035a8beb9c8cc08055b44442db44d0605cde2360e38c",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: Invalid GenUI Express: children must contain non-empty component references.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "09deab05a57e0186abe5e7af71d9af8e8cf28d4ff0431f826fba11ebe5a8f2fb",
+    "recoveredJsonSha256": "8eccf2bda4e2c107bf059dc48186fe31d1b61e36a712c4609d3ea55d63daae57",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 7
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 7
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 7
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 3023
+  },
+  {
+    "id": "BXP-022",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-022/output.express",
+    "sourceExpressSha256": "6fb5312684d4c924fc694803ec1b9cdc47bc8e3fb5eee6178145dee94b112449",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: Invalid GenUI Express: Unbalanced A2UI Express delimiter.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "c96fa75f7f7408a3b3666e34deffa6657ba564bb53d906f323287b33ad59d2b3",
+    "recoveredJsonSha256": "45d8647b3c63e36e709c87ceeadfbbeb3cae380d2daac2ec961ffdd8ea904c15",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 18
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 20
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 20
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 3035
+  },
+  {
+    "id": "BXP-023",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-023/output.express",
+    "sourceExpressSha256": "eced64e446e1ae3f177264aaa1d2044d11992df327b327b7dc71547343b2eda1",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "14de5f73696006cac5cfcb8fc46f2746eef3165758125a9e627d2b821664be93",
+    "recoveredJsonSha256": "453659ae1b51ee2704ae9ac8b923f51b4345e0c776630fcea72ce6cac0e3d8c4",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 15
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 16
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 16
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 3010
+  },
+  {
+    "id": "BXP-024",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-024/output.express",
+    "sourceExpressSha256": "6863608a59462ce2bc756ff80d38a2c3f39d143c65fb5fa2d8e32151acbed4f6",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "aff05aab9865bfdb829c9d946d3de07ff2ff9a254b48cc5a843cc94f77e7ac48",
+    "recoveredJsonSha256": "7d87701f7ffb64ca2abd4eff976cb7c91db5be4df88523491510ddbdcaec938c",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 9
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 20
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 15
+      },
+      {
+        "name": "vertical_3",
+        "screenshot": true,
+        "visibleTextNodes": 15
+      }
+    ],
+    "verticalSwipes": 3,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 5430
+  },
+  {
+    "id": "BXP-025",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-025/output.express",
+    "sourceExpressSha256": "5a2df353b0ee566a8863006e29b0bf6422d5bccf2256ae9b761d00a94373f5dd",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: Invalid GenUI Express: Unclosed A2UI Express expression.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "f7c8e99994ff67b59ad6f21e9c49374bc9a1ac5a01936ed974837f235354bcce",
+    "recoveredJsonSha256": "497d65a87dd0f588ab593b76f066164aacbb179c399ccc83db3f600632c3fb0f",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Day",
+          "10 min speaking",
+          "10 min listening"
+        ],
+        "observedHeaders": [
+          "Day",
+          "10 min speaking",
+          "10 min listening"
+        ],
+        "observedRepresentativeCells": [
+          "1",
+          "Practice greetings and introduce yourself aloud.",
+          "Listen to a short beginner greeting lesson."
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 24
+      },
+      {
+        "name": "table_1_horizontal_1",
+        "screenshot": true,
+        "visibleTextNodes": 24
+      },
+      {
+        "name": "table_1_reset",
+        "screenshot": true,
+        "visibleTextNodes": 24
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 23
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 23
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 5288
+  },
+  {
+    "id": "BXP-026",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-026/output.express",
+    "sourceExpressSha256": "88acf65c725ca3c58a6156c188655f81f6dd37fb0070487f592fe68451d29fd1",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: GenUI input contains prose or an unsupported prefix; expected <a2ui>, {, or [.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "b838a7aa44703aa68ea6b7d0cc2e9054f2185874a030c2e7c2b634114696f5c9",
+    "recoveredJsonSha256": "75f8925d5fae85a900387fe4704e8c49557360e854823bffad4e5fec3c5fa12b",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Approach",
+          "Data freshness",
+          "Cost",
+          "Setup effort",
+          "Limitations"
+        ],
+        "observedHeaders": [
+          "Approach",
+          "Data freshness",
+          "Cost",
+          "Setup effort",
+          "Limitations"
+        ],
+        "observedRepresentativeCells": [
+          "Retrieval-augmented generation",
+          "Best for fresh content because it can pull in updated documents at query time and does not require retraining for each change [9][40].",
+          "Usually lower for knowledge lookup at scale because you index once and retrieve only relevant chunks, though you still pay retrieval and embedding costs [19][15].",
+          "Moderate; you need document ingestion, chunking, embedding, and retrieval infrastructure [1].",
+          "Quality depends on retrieval quality; bad chunking or search can cause missed or irrelevant answers, and multi-step reasoning over scattered documents can still be hard[14]."
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 18
+      },
+      {
+        "name": "table_1_horizontal_1",
+        "screenshot": true,
+        "visibleTextNodes": 18
+      },
+      {
+        "name": "table_1_horizontal_2",
+        "screenshot": true,
+        "visibleTextNodes": 18
+      },
+      {
+        "name": "table_1_horizontal_3",
+        "screenshot": true,
+        "visibleTextNodes": 18
+      },
+      {
+        "name": "table_1_reset",
+        "screenshot": true,
+        "visibleTextNodes": 18
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 13
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 13
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 9164
+  },
+  {
+    "id": "BXP-027",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-027/output.express",
+    "sourceExpressSha256": "35026adea696a1de8a6b65d3b766db118b0f222e063ec2dc4a06ba7d6a4f908f",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "c06801026eb882570e48df0b273fd3046deb44285d3dc42373a922488aff14dd",
+    "recoveredJsonSha256": "fae2366dc6dbb505aebc3c669b7a6f47463249ae45c8a230d049c6100a5a7115",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 15
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 18
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 16
+      },
+      {
+        "name": "vertical_3",
+        "screenshot": true,
+        "visibleTextNodes": 16
+      }
+    ],
+    "verticalSwipes": 3,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 5598
+  },
+  {
+    "id": "BXP-028",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-028/output.express",
+    "sourceExpressSha256": "1f306180caca80fabd9f73bf205474adf53118001c4a7363280377f6f2290614",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "0954d1d1b0ab7c4e170b2d1bfc47622d683209ff98f2d99711de638d1c9b8dea",
+    "recoveredJsonSha256": "949fe3da104faf2920a03fb48ea7bf4dfce72f5b2918eb26b1896f2819ce2001",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 14
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 14
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 19
+      },
+      {
+        "name": "vertical_3",
+        "screenshot": true,
+        "visibleTextNodes": 18
+      },
+      {
+        "name": "vertical_4",
+        "screenshot": true,
+        "visibleTextNodes": 18
+      }
+    ],
+    "verticalSwipes": 4,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 7951
+  },
+  {
+    "id": "BXP-029",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-029/output.express",
+    "sourceExpressSha256": "9172490d1c693a5c3153edcf867d44b6e7e726b9649004eae23943fb0cafc68b",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "b0c028264d1a0c2824975f155cfaf082d7672a8cb9037c709e250cbe4c04f59f",
+    "recoveredJsonSha256": "04a80874903ef1e8dcd034ebc636ad7400a37c766e8bb401b2e37fcd3f03967d",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "d",
+        "columns": [
+          "Point",
+          "ITR-1 (Sahaj)",
+          "ITR-2"
+        ],
+        "observedHeaders": [
+          "Point",
+          "ITR-1 (Sahaj)",
+          "ITR-2"
+        ],
+        "observedRepresentativeCells": [
+          "Who can file",
+          "Resident individual, not RNOR or non-resident",
+          "Individual (resident or non-resident)"
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 27
+      },
+      {
+        "name": "table_1_horizontal_1",
+        "screenshot": true,
+        "visibleTextNodes": 27
+      },
+      {
+        "name": "table_1_reset",
+        "screenshot": true,
+        "visibleTextNodes": 27
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 13
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 15
+      },
+      {
+        "name": "vertical_3",
+        "screenshot": true,
+        "visibleTextNodes": 15
+      }
+    ],
+    "verticalSwipes": 3,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 7799
+  },
+  {
+    "id": "BXP-030",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-030/output.express",
+    "sourceExpressSha256": "b8d95775001a6eaf82556fc385b4cc587b7556e9de2e68578f9e0b130fa0ad16",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "6474632da2c205da50909c5467e2feda0e03820b019399f5904660ca7e0e3e7c",
+    "recoveredJsonSha256": "305712187b8b9f022329bab0128a3a2120473fbc9978a98b2686cd560f0aed6f",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Feature",
+          "**EPF**",
+          "**PPF**",
+          "**NPS**"
+        ],
+        "observedHeaders": [
+          "Feature",
+          "**EPF**",
+          "**PPF**",
+          "**NPS**"
+        ],
+        "observedRepresentativeCells": [
+          "**Eligibility**",
+          "Salaried employees in EPF-covered establishments; mandatory for many formal-sector workers.",
+          "Any resident individual can open an account."
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 16
+      },
+      {
+        "name": "table_1_horizontal_1",
+        "screenshot": true,
+        "visibleTextNodes": 16
+      },
+      {
+        "name": "table_1_reset",
+        "screenshot": true,
+        "visibleTextNodes": 16
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 9
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 9
+      },
+      {
+        "name": "vertical_3",
+        "screenshot": true,
+        "visibleTextNodes": 9
+      }
+    ],
+    "verticalSwipes": 3,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 7634
+  },
+  {
+    "id": "BXP-031",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-031/output.express",
+    "sourceExpressSha256": "550fafd211f3c54a9bc9ccdcc85ee110a627bfa5c6facfc243a30b41781c4886",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "bd19437d396d186baf7b3dced3bd787564496f068d06824a14a9e2a9b38e7bfd",
+    "recoveredJsonSha256": "ea9c2c6bbf26696e1d86e9b79e8f5cd5327a8df5edca96052b60dc3c734dff15",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 11
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 12
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 22
+      },
+      {
+        "name": "vertical_3",
+        "screenshot": true,
+        "visibleTextNodes": 22
+      }
+    ],
+    "verticalSwipes": 3,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 6089
+  },
+  {
+    "id": "BXP-032",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-032/output.express",
+    "sourceExpressSha256": "c9add99220e4b47e89dac7141452556306027f6651d0f243ccb4512dfcb591d1",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "98d88639dcdda9d30aeac7f2eba163c0ddeca31d9221ba765aab566df5064ef9",
+    "recoveredJsonSha256": "05ef6965987a22198f600f0f0647d34bd068614637d0f33ac4732d973e37179b",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Term",
+          "What it means",
+          "Typical effect on a claim"
+        ],
+        "observedHeaders": [
+          "Term",
+          "What it means",
+          "Typical effect on a claim"
+        ],
+        "observedRepresentativeCells": [
+          "Deductible",
+          "A fixed amount you must pay before the insurer pays any admissible claim. In indemnity plans, it is a rupee threshold. [3]",
+          "The insurer starts paying only after the deductible is crossed."
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 15
+      },
+      {
+        "name": "table_1_horizontal_1",
+        "screenshot": true,
+        "visibleTextNodes": 15
+      },
+      {
+        "name": "table_1_reset",
+        "screenshot": true,
+        "visibleTextNodes": 15
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 10
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 5
+      },
+      {
+        "name": "vertical_3",
+        "screenshot": true,
+        "visibleTextNodes": 5
+      }
+    ],
+    "verticalSwipes": 3,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 7682
+  },
+  {
+    "id": "BXP-033",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-033/output.express",
+    "sourceExpressSha256": "1af010c7202f01bf9a984657855f5a28471545334b55cb96e96bcdd4832e45ae",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "0b31425cf3718af75bbecbc710ebae952ab7c271d735b06cd56745e043485d93",
+    "recoveredJsonSha256": "f66583df72adcb5c22fbad30c14408ae2a389157c165d613afc14c6fb0d89dc2",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 9
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 6
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 6
+      },
+      {
+        "name": "vertical_3",
+        "screenshot": true,
+        "visibleTextNodes": 6
+      }
+    ],
+    "verticalSwipes": 3,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 5449
+  },
+  {
+    "id": "BXP-034",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-034/output.express",
+    "sourceExpressSha256": "ed3206ccb684e2791c19dc60432c8de5a5b3fab21268422dc19db9c9277f62f8",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "d4dab019b79b4b9cb88f9b0f671385204f43e54108631859d32da0b7c4fb926f",
+    "recoveredJsonSha256": "37d3ffb27b3e7b1f98e732d4d6294f550ee4a28ec31d300d0ac1b17abda9d4d7",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "c",
+        "columns": [
+          "Food",
+          "Typical serving",
+          "Approx. protein"
+        ],
+        "observedHeaders": [
+          "Food",
+          "Typical serving",
+          "Approx. protein"
+        ],
+        "observedRepresentativeCells": [
+          "Soy chunks, dry",
+          "30 g",
+          "15–16 g [3]"
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 33
+      },
+      {
+        "name": "table_1_horizontal_1",
+        "screenshot": true,
+        "visibleTextNodes": 33
+      },
+      {
+        "name": "table_1_reset",
+        "screenshot": true,
+        "visibleTextNodes": 33
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 8
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 8
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 6006
+  },
+  {
+    "id": "BXP-035",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-035/output.express",
+    "sourceExpressSha256": "285ea0ad3bf215bf3ff4855318b2b9deecad6a3f94ebdccfd0d43d423aeb85a6",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "71224f7c7d188b7762c052c7f9b2df359ebfc7968b59db46db5fa8b6fde57dec",
+    "recoveredJsonSha256": "d28ceac7b2850dfbf31d9446e09d447ccf920876c7501769b7f5a02afaf38031",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 21
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 26
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 26
+      },
+      {
+        "name": "vertical_3",
+        "screenshot": true,
+        "visibleTextNodes": 26
+      }
+    ],
+    "verticalSwipes": 3,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 5981
+  },
+  {
+    "id": "BXP-036",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-036/output.express",
+    "sourceExpressSha256": "f5d4f40c7cd19a70f8c2a6ab6755929d33009e8971ec1802632d5421b812e598",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "135398729fa46b269b68ec79e3c2ea6e40c4bcf74af307dd6036358acdfeac56",
+    "recoveredJsonSha256": "8296dabf3df1f7e22606e0387a2f9be59a2feb685ecfdac5544dada8032c5221",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 4
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 18
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 9
+      },
+      {
+        "name": "vertical_3",
+        "screenshot": true,
+        "visibleTextNodes": 9
+      }
+    ],
+    "verticalSwipes": 3,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 5437
+  },
+  {
+    "id": "BXP-037",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-037/output.express",
+    "sourceExpressSha256": "162f966e70ea8d21641792a1e0307379672b5338b599218ac3e9f99977bc9a35",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "cbcbe2ad3cdb774afc1ae8e0aaa548630504be7024d01ff619e9ff382844e423",
+    "recoveredJsonSha256": "93fdd0536244fcd87f530b800f09836620a04715c7d0ce269719aa7a3fb737d8",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Factor",
+          "CBSE",
+          "CISCE",
+          "IB"
+        ],
+        "observedHeaders": [
+          "Factor",
+          "CBSE",
+          "CISCE",
+          "IB"
+        ],
+        "observedRepresentativeCells": [
+          "**Curriculum**",
+          "Built around NCERT and a structured, concept-based syllabus; it is widely aligned with Indian competitive exams such as JEE, NEET, and CUET.[1][3]",
+          "A broader, more content-rich syllabus with strong language depth and separate treatment of subjects such as History/Civics and Geography from middle school onward."
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 18
+      },
+      {
+        "name": "table_1_horizontal_1",
+        "screenshot": true,
+        "visibleTextNodes": 18
+      },
+      {
+        "name": "table_1_reset",
+        "screenshot": true,
+        "visibleTextNodes": 18
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 18
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 17
+      },
+      {
+        "name": "vertical_3",
+        "screenshot": true,
+        "visibleTextNodes": 17
+      }
+    ],
+    "verticalSwipes": 3,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 7588
+  },
+  {
+    "id": "BXP-038",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-038/output.express",
+    "sourceExpressSha256": "67a0782d01e91dc1ef4fdd5b9163d2a14ed06d95a9c3f2b210aa158b340e2480",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: Invalid GenUI Express: Unbalanced A2UI Express delimiter.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "7c8dfca46754537d85d89f14d3338103e2d8a3afd3fd72a9ca493d056cf15f81",
+    "recoveredJsonSha256": "e5150e53ee6718f31eda1d7baa876aa774dddc3906e8a9492a4c737f2544d4a7",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 1
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 1
+      }
+    ],
+    "verticalSwipes": 1,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 1810
+  },
+  {
+    "id": "BXP-039",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-039/output.express",
+    "sourceExpressSha256": "4f58918fcd8f3c64d9dc722865fc2297c826b19588ca2c93cf161509adfdb429",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "e2e494e1e8f57c6fef232a012ece152d3f7e1b2b3a64e7f409c7fb88910c103d",
+    "recoveredJsonSha256": "9495a074d2ab53eb85c1d071521d14d0a75c48dc53b101b1c6f041c0b0db9f83",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 16
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 16
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 13
+      },
+      {
+        "name": "vertical_3",
+        "screenshot": true,
+        "visibleTextNodes": 13
+      }
+    ],
+    "verticalSwipes": 3,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 5545
+  },
+  {
+    "id": "BXP-040",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-040/output.express",
+    "sourceExpressSha256": "bdef163491ad171a7743afca1ccbd4a29bd07c3f51810ebf685a1f3abb6f1179",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "188df0e512904bf61148f63735231bd9d9d82f8f3159dabf1170a45cf1e4f0d1",
+    "recoveredJsonSha256": "4df0bed7b70f5e6585155e51288536861a1266e2c26d9e9118a4d83cacc001b3",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 17
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 15
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 16
+      },
+      {
+        "name": "vertical_3",
+        "screenshot": true,
+        "visibleTextNodes": 16
+      }
+    ],
+    "verticalSwipes": 3,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 6623
+  },
+  {
+    "id": "BXP-041",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-041/output.express",
+    "sourceExpressSha256": "2c66b68414d4eaa4febb3691dac19afd881cf0d9c7865135ad1910032f4a9ea4",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: Invalid GenUI Express: Unclosed A2UI Express expression.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "c933a02854a51acdf5f2f7ebbf4f53cdeb26cf5dd6d88fa81cf6826e7996c157",
+    "recoveredJsonSha256": "3c55b947dfe876afde3508e97ec34fd8e197ebd246ddd1a6629318b6bab89168",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Country",
+          "Visa route",
+          "Permitted stay",
+          "Published fee",
+          "Passport requirement",
+          "Rules checked"
+        ],
+        "observedHeaders": [
+          "Country",
+          "Visa route",
+          "Permitted stay",
+          "Published fee",
+          "Passport requirement",
+          "Rules checked"
+        ],
+        "observedRepresentativeCells": [
+          "Thailand",
+          "Visa exemption for Indian ordinary passport holders for tourism; Thai embassy note says longer stays can use e-visa if needed [21][22]",
+          "Up to 30 days from 15 September 2026 under the revised exemption scheme",
+          "Visa exemption: no fee published; e-visa fee not confirmed in the official snippets I could verify",
+          "Thai embassy advisory lists a passport valid on arrival and standard immigration conditions[24]",
+          "Checked against Thai embassy notices dated 26 July 2026 and 15 September 2026 rule notice"
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 16
+      },
+      {
+        "name": "table_1_horizontal_1",
+        "screenshot": true,
+        "visibleTextNodes": 16
+      },
+      {
+        "name": "table_1_horizontal_2",
+        "screenshot": true,
+        "visibleTextNodes": 16
+      },
+      {
+        "name": "table_1_horizontal_3",
+        "screenshot": true,
+        "visibleTextNodes": 16
+      },
+      {
+        "name": "table_1_horizontal_4",
+        "screenshot": true,
+        "visibleTextNodes": 16
+      },
+      {
+        "name": "table_1_reset",
+        "screenshot": true,
+        "visibleTextNodes": 16
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 14
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 14
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 11585
+  },
+  {
+    "id": "BXP-042",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-042/output.express",
+    "sourceExpressSha256": "6dda739a6a6bae6a9c99e5944a4f65ea693eadb4035d2e48d4750cc164e23847",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "963d0b666a17c55baecdf16029d58db503221f35c92ee9cdb738e85a830ca45b",
+    "recoveredJsonSha256": "0a5c58f51844bf6096612bb666051f7f2d06d013631e46bacf44e76220125ec4",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 16
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 17
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 14
+      },
+      {
+        "name": "vertical_3",
+        "screenshot": true,
+        "visibleTextNodes": 14
+      }
+    ],
+    "verticalSwipes": 3,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 5302
+  },
+  {
+    "id": "BXP-043",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-043/output.express",
+    "sourceExpressSha256": "3624226d60d4741bf4f6165d844e57a465149b012b15ab0d03e512a3eec13fd4",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "e853b418ce284a696ab3ef509e561ec8cb3ad0a54dddffc7fb7ed0551fbf62a4",
+    "recoveredJsonSha256": "489aa83a46bb74aa0c5ca47457c8bb944744f1460c4965a42ee0774667adb369",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 6
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 5
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 5
+      },
+      {
+        "name": "vertical_3",
+        "screenshot": true,
+        "visibleTextNodes": 5
+      }
+    ],
+    "verticalSwipes": 3,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 5355
+  },
+  {
+    "id": "BXP-044",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-044/output.express",
+    "sourceExpressSha256": "c882b34d313c11595d8767821206f3eff588c8a56381d972c8f4cd59c80b5c87",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "1f763324624bdea95b9fd5f84544ecec5966afa087ef26845b6ad171bdcd7e8a",
+    "recoveredJsonSha256": "9c52d4a322fc6b513845f701901aa4dfeb175574e61621ea73f522057b95e063",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Device",
+          "Main problem it addresses",
+          "Best fit for Indian homes"
+        ],
+        "observedHeaders": [
+          "Device",
+          "Main problem it addresses",
+          "Best fit for Indian homes"
+        ],
+        "observedRepresentativeCells": [
+          "Air purifier",
+          "Dust, smoke, PM2.5, pollen, pet dander, and other airborne particles [3]",
+          "Homes near traffic, construction, seasonal smoke, or for allergy relief"
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 15
+      },
+      {
+        "name": "table_1_horizontal_1",
+        "screenshot": true,
+        "visibleTextNodes": 15
+      },
+      {
+        "name": "table_1_reset",
+        "screenshot": true,
+        "visibleTextNodes": 15
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 9
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 9
+      },
+      {
+        "name": "vertical_3",
+        "screenshot": true,
+        "visibleTextNodes": 9
+      }
+    ],
+    "verticalSwipes": 3,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 7607
+  },
+  {
+    "id": "BXP-045",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-045/output.express",
+    "sourceExpressSha256": "b4a45bc0942b3fc927c381d9a04d798fb47661ee24b5d2f0eb80aef9d36fbe60",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "667a04b399fc3a4ab9e841fba54685f765051521d0c8a0c354a856e3a0a7dd9a",
+    "recoveredJsonSha256": "3524755f1e353a0af96f2a298ca59728ee56d78b85b9c7fb0cbc231f54f1b0bb",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "r",
+        "columns": [
+          "Level",
+          "Best measures",
+          "Expected impact"
+        ],
+        "observedHeaders": [
+          "Level",
+          "Best measures",
+          "Expected impact"
+        ],
+        "observedRepresentativeCells": [
+          "Household",
+          "Clear local inlets, secure valuables, harvest rainwater, avoid waste dumping",
+          "Lowers damage at one property"
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 6
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 7
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 10
+      },
+      {
+        "name": "table_1_horizontal_1",
+        "screenshot": true,
+        "visibleTextNodes": 12
+      },
+      {
+        "name": "table_1_reset",
+        "screenshot": true,
+        "visibleTextNodes": 10
+      },
+      {
+        "name": "vertical_3",
+        "screenshot": true,
+        "visibleTextNodes": 13
+      },
+      {
+        "name": "vertical_4",
+        "screenshot": true,
+        "visibleTextNodes": 13
+      }
+    ],
+    "verticalSwipes": 4,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 9907
+  },
+  {
+    "id": "BXP-046",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-046/output.express",
+    "sourceExpressSha256": "207931f7f04f1695ddd7dc98c94a35f49865af4ef6d58354c5e2cceb019bc865",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "50b2c6726a75c96b98b7f1f3571aca176353f9ecfa77632054c8248aca280b4f",
+    "recoveredJsonSha256": "030d29ea1f27ed69739f35f87538de3fc565b23cc2e18c61b06cdfe639dbfe11",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 14
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 13
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 17
+      },
+      {
+        "name": "vertical_3",
+        "screenshot": true,
+        "visibleTextNodes": 17
+      },
+      {
+        "name": "vertical_4",
+        "screenshot": true,
+        "visibleTextNodes": 17
+      }
+    ],
+    "verticalSwipes": 4,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 7714
+  },
+  {
+    "id": "BXP-047",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-047/output.express",
+    "sourceExpressSha256": "c623533de0f2ec454f269605f061d6ac4690c409a25a0eae81dcd847e20a27c3",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: Invalid GenUI Express: Unclosed A2UI Express expression.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "0ab242bce3d9247da990b4c8bdf3633db6fda8a62e4246544ef4abefedf3294b",
+    "recoveredJsonSha256": "6244fd5935aa9630c1286043d870b243cba14619bbe754c2c7fcc9447210aec6",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Chemistry",
+          "Energy density",
+          "Cycle life",
+          "Safety",
+          "Cost",
+          "Maturity"
+        ],
+        "observedHeaders": [
+          "Chemistry",
+          "Energy density",
+          "Cycle life",
+          "Safety",
+          "Cost",
+          "Maturity"
+        ],
+        "observedRepresentativeCells": [
+          "LFP",
+          "Lower than NMC; IEA says LFP packs are about one-fifth lower by mass and one-third lower by volume than NMC packs [22]",
+          "Typically long; sources cite roughly 2,000–6,000+ cycles, with some BESS-grade cells higher [3][18]",
+          "Strong; better thermal stability and lower thermal-runaway risk than NMC",
+          "Lower; IEA says LFP packs were almost 30% cheaper per kWh than NMC in 2025, and more than 40% cheaper on average in 2025 data[21]",
+          "Mature, widely deployed in EVs and especially stationary storage"
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 13
+      },
+      {
+        "name": "table_1_horizontal_1",
+        "screenshot": true,
+        "visibleTextNodes": 13
+      },
+      {
+        "name": "table_1_horizontal_2",
+        "screenshot": true,
+        "visibleTextNodes": 13
+      },
+      {
+        "name": "table_1_horizontal_3",
+        "screenshot": true,
+        "visibleTextNodes": 13
+      },
+      {
+        "name": "table_1_horizontal_4",
+        "screenshot": true,
+        "visibleTextNodes": 13
+      },
+      {
+        "name": "table_1_reset",
+        "screenshot": true,
+        "visibleTextNodes": 13
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 5
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 5
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 11107
+  },
+  {
+    "id": "BXP-048",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-048/output.express",
+    "sourceExpressSha256": "1d3f5b10ba4283a0d338f7add87982a1dd94338900efabc3f076991f5aea56c9",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "107c4aef9b3eec01fc5e85d4070136e3fe4cc1d87d60dd87ae4d51b96b39a2bf",
+    "recoveredJsonSha256": "1c28ab3407ab4cc548ad80bde2b745802b6f4f8cb1ea2392d2f6a0820c6e89f8",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 12
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 5
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 5
+      },
+      {
+        "name": "vertical_3",
+        "screenshot": true,
+        "visibleTextNodes": 5
+      }
+    ],
+    "verticalSwipes": 3,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 5426
+  },
+  {
+    "id": "BXP-049",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-049/output.express",
+    "sourceExpressSha256": "b778ed6e63811d973c3fa3c4cb1f1dca1c37bba6902cdbeaf5bebf62daaf265f",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: Invalid GenUI Express: Unbalanced A2UI Express delimiter.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "35fa297a3077a32c7faa49f3e196fa7b9ec0ecdae53d1bba0bcf865ac1e3596b",
+    "recoveredJsonSha256": "e39825dd8e82552dcfdd33245a3cc74d3a3f15112e1a41db83faf07a9cbe95b6",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Tradition",
+          "Geographical origins",
+          "Materials",
+          "Motifs",
+          "Technique",
+          "Cultural context"
+        ],
+        "observedHeaders": [
+          "Tradition",
+          "Geographical origins",
+          "Materials",
+          "Motifs",
+          "Technique",
+          "Cultural context"
+        ],
+        "observedRepresentativeCells": [
+          "**Madhubani**",
+          "Mithila region of Bihar, especially Madhubani, Darbhanga, and Sitamarhi[1][2]",
+          "Traditionally mud walls; now paper, cloth, and canvas; natural dyes, twigs/fingers/matchsticks[9][13]",
+          "Deities, wedding/fertility symbols, fish, birds, flowers, nature, village life[3][6][12]",
+          "Dense line work, geometric filling, no empty space, bold borders",
+          "Traditionally painted by women for rituals, festivals, and auspicious occasions"
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 18
+      },
+      {
+        "name": "table_1_horizontal_1",
+        "screenshot": true,
+        "visibleTextNodes": 18
+      },
+      {
+        "name": "table_1_horizontal_2",
+        "screenshot": true,
+        "visibleTextNodes": 18
+      },
+      {
+        "name": "table_1_horizontal_3",
+        "screenshot": true,
+        "visibleTextNodes": 18
+      },
+      {
+        "name": "table_1_horizontal_4",
+        "screenshot": true,
+        "visibleTextNodes": 18
+      },
+      {
+        "name": "table_1_reset",
+        "screenshot": true,
+        "visibleTextNodes": 18
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 15
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 13
+      },
+      {
+        "name": "vertical_3",
+        "screenshot": true,
+        "visibleTextNodes": 13
+      }
+    ],
+    "verticalSwipes": 3,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 13425
+  },
+  {
+    "id": "BXP-050",
+    "kind": "renderer_repair_replay",
+    "replayMode": "express_repair",
+    "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-050/output.express",
+    "sourceExpressSha256": "81a6ffc913a71dcab5c977598b91828bdeca1c042009f470434920ee87244b66",
+    "repairKind": "SOURCE_TEXT_FALLBACK",
+    "repairDiagnostics": [
+      "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+      "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+    ],
+    "recoveredExpressSha256": "1057e4c91acb41bd96dfc14c1aecda54022eb5f9cc2d6ecac836bcc52e0193ae",
+    "recoveredJsonSha256": "ab99331ee825bc3fdef707787bab9b17dc2f6a3225bdc6971085ac5281ee9124",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "d",
+        "columns": [
+          "Signal",
+          "Typical ocean pattern",
+          "Usual effect on Indian monsoon",
+          "Why it matters"
+        ],
+        "observedHeaders": [
+          "Signal",
+          "Typical ocean pattern",
+          "Usual effect on Indian monsoon",
+          "Why it matters"
+        ],
+        "observedRepresentativeCells": [
+          "El Niño",
+          "Warmer central/eastern Pacific",
+          "Below-normal rainfall, more dry spells, higher heat risk",
+          "Weakens moisture flow and monsoon circulation"
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 19
+      },
+      {
+        "name": "table_1_horizontal_1",
+        "screenshot": true,
+        "visibleTextNodes": 16
+      },
+      {
+        "name": "table_1_horizontal_2",
+        "screenshot": true,
+        "visibleTextNodes": 16
+      },
+      {
+        "name": "table_1_reset",
+        "screenshot": true,
+        "visibleTextNodes": 19
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 21
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 16
+      },
+      {
+        "name": "vertical_3",
+        "screenshot": true,
+        "visibleTextNodes": 16
+      }
+    ],
+    "verticalSwipes": 3,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 9715
+  }
+]

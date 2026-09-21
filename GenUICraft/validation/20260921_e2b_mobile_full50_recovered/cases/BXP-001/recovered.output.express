@@ -1,0 +1,6 @@
+<a2ui>
+root=Column([a,b,c],"md")
+a=Table(columns=["Date","High (°C)","Low (°C)","Rain probability"],rows=[["Wed, Sep 9","31","20","57%"],["Thu, Sep 10","30","21","55%"],["Fri, Sep 11","30","21","55%"]],domain="generic",preferredPresentation="table")
+b=Text("AccuWeather’s Bengaluru forecast shows cloudy or sunny-interval conditions through the next three days, with the highest rain chance on Wednesday and continued shower/thunderstorm potential on Thursday and Friday.[7][14]")
+c=List(items=["Carry an umbrella or light rain jacket, especially for afternoon and evening plans.","Plan outdoor activities earlier in the day, when conditions are more likely to stay drier and slightly cooler."])
+</a2ui>

@@ -1,0 +1,83 @@
+{
+  "id": "BXP-013",
+  "kind": "renderer_repair_replay",
+  "replayMode": "express_repair",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-013/output.express",
+  "sourceExpressSha256": "9fec98836bf9c56b162480c44d091a72aa3c2080c74e31ea96358fee1f440ad9",
+  "repairKind": "SOURCE_TEXT_FALLBACK",
+  "repairDiagnostics": [
+    "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+    "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+  ],
+  "recoveredExpressSha256": "d7df208ec4a2bfbadea14e87e0a251ae693b169f1ffd2624414995066f278ac3",
+  "recoveredJsonSha256": "8347648606fd93eccd8b9cfe1e01eb8837b0186f9c4b27ac7b1368e780602d1d",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [
+    {
+      "id": "j",
+      "columns": [
+        "Bank",
+        "One-year retail FD rate",
+        "Assumed deposit size",
+        "Rate date / effective date"
+      ],
+      "observedHeaders": [
+        "Bank",
+        "One-year retail FD rate",
+        "Assumed deposit size",
+        "Rate date / effective date"
+      ],
+      "observedRepresentativeCells": [
+        "SBI",
+        "6.25%",
+        "Below ₹3 crore",
+        "Current retail grid shown on SBI’s retail domestic term-deposit page"
+      ],
+      "missingColumns": [],
+      "horizontalScrollObserved": true
+    }
+  ],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 14
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 11
+    },
+    {
+      "name": "vertical_2",
+      "screenshot": true,
+      "visibleTextNodes": 20
+    },
+    {
+      "name": "table_1_horizontal_1",
+      "screenshot": true,
+      "visibleTextNodes": 20
+    },
+    {
+      "name": "table_1_reset",
+      "screenshot": true,
+      "visibleTextNodes": 20
+    },
+    {
+      "name": "vertical_3",
+      "screenshot": true,
+      "visibleTextNodes": 20
+    }
+  ],
+  "verticalSwipes": 3,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 7714
+}

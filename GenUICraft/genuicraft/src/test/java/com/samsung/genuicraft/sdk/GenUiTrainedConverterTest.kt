@@ -52,21 +52,26 @@ class GenUiTrainedConverterTest {
         assertEquals(2048, prompt.maxOutputTokens)
     }
 
-    @Test fun `trained state and tables compile without the official source-binding fidelity gate`() = runBlocking {
+    @Test fun `state backed output that cannot prove fidelity uses source fallback`() = runBlocking {
         val provider = RecordingProvider("<a2ui>\nroot=Table([\"Item\",\"Count\"],statePath=\"/rows\")\n\$/rows=[[\"Apples\",2]]\n</a2ui>")
         val result = GenUiTrainedConverter(provider, contract).convert(GenUiRequest("There are two apples."))
         assertTrue(result.toString(), result is GenUiConversionResult.Success)
         result as GenUiConversionResult.Success
         assertEquals(GenUiTrainedConverter.PROFILE, result.document.profile)
-        assertTrue(result.warnings.any { it.contains("not source-bound") })
+        assertEquals(GenUiRepairKind.SOURCE_TEXT_FALLBACK, result.repairKind)
+        assertTrue(result.warnings.any { it.contains("source blocks") })
+        assertTrue(result.document.express.contains("There are two apples."))
     }
 
-    @Test fun `invalid and truncated outputs are recorded without repair or fallback`() = runBlocking {
+    @Test fun `invalid and truncated outputs use an explicit source-bound fallback`() = runBlocking {
         listOf("Here is your UI: <a2ui>\nroot=Text(\"Hello\")\n</a2ui>", "<a2ui>\nroot=Text(\"Hello\")", "<a2ui>\nroot=Column([missing])\n</a2ui>").forEach { raw ->
             val provider = RecordingProvider(raw)
             val result = GenUiTrainedConverter(provider, contract).convert(GenUiRequest("Hello"))
-            assertTrue(result.toString(), result is GenUiConversionResult.Failure)
-            assertEquals(raw, (result as GenUiConversionResult.Failure).rawOutput)
+            assertTrue(result.toString(), result is GenUiConversionResult.Success)
+            result as GenUiConversionResult.Success
+            assertEquals(GenUiRepairKind.SOURCE_TEXT_FALLBACK, result.repairKind)
+            assertTrue(result.warnings.any { it.contains("source blocks") })
+            assertTrue(result.document.express.contains("Hello"))
             assertEquals(1, provider.prompts.size)
         }
     }

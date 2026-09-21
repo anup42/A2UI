@@ -1,0 +1,38 @@
+{
+  "evaluation_date": "2026-09-21",
+  "result_scope": "deterministic recovery and renderer replay; no model inference",
+  "cases": 50,
+  "raw_model_strict_valid": 0,
+  "safe_structural_repair_valid": 0,
+  "source_text_fallback_compiled": 50,
+  "source_text_fallback_rendered": 50,
+  "renderer_failures": 0,
+  "renderer_issues": 0,
+  "tables_observed": 23,
+  "table_columns_missing": 0,
+  "vertical_end_observed": 50,
+  "vertical_limit_reached": 0,
+  "capture_count": 227,
+  "vertical_swipe_count": 110,
+  "batch_wall_elapsed_ms": 294209,
+  "sum_case_replay_elapsed_ms": 291311,
+  "replay_mean_ms_per_case": 5826.22,
+  "model_calls": 0,
+  "fallback_scoring": {
+    "metric_version": "5.4.0",
+    "strict_valid_rate": 1.0,
+    "canonical_semantic_valid_rate": 1.0,
+    "content_coverage_mean": 1.0,
+    "fully_root_reachable_rate": 1.0,
+    "generation_reward_v5_4_mean": 95.92216777737536,
+    "overall_score": 49.3661542944077,
+    "reference_ir_available": false,
+    "interpretation": "Scores deterministic exact-source fallback output, not model output or factual correctness."
+  },
+  "model_performance_unchanged": {
+    "decode_median_tokens_per_second": 18.24,
+    "decode_weighted_tokens_per_second": 18.3,
+    "mtp_draft_acceptance_percent": 68.52,
+    "source_report": "../20260921_e2b_mobile_full50/REPORT.md"
+  }
+}

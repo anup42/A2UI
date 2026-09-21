@@ -1,0 +1,88 @@
+{
+  "id": "BXP-050",
+  "kind": "renderer_repair_replay",
+  "replayMode": "express_repair",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-050/output.express",
+  "sourceExpressSha256": "81a6ffc913a71dcab5c977598b91828bdeca1c042009f470434920ee87244b66",
+  "repairKind": "SOURCE_TEXT_FALLBACK",
+  "repairDiagnostics": [
+    "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+    "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+  ],
+  "recoveredExpressSha256": "1057e4c91acb41bd96dfc14c1aecda54022eb5f9cc2d6ecac836bcc52e0193ae",
+  "recoveredJsonSha256": "ab99331ee825bc3fdef707787bab9b17dc2f6a3225bdc6971085ac5281ee9124",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [
+    {
+      "id": "d",
+      "columns": [
+        "Signal",
+        "Typical ocean pattern",
+        "Usual effect on Indian monsoon",
+        "Why it matters"
+      ],
+      "observedHeaders": [
+        "Signal",
+        "Typical ocean pattern",
+        "Usual effect on Indian monsoon",
+        "Why it matters"
+      ],
+      "observedRepresentativeCells": [
+        "El Niño",
+        "Warmer central/eastern Pacific",
+        "Below-normal rainfall, more dry spells, higher heat risk",
+        "Weakens moisture flow and monsoon circulation"
+      ],
+      "missingColumns": [],
+      "horizontalScrollObserved": true
+    }
+  ],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 19
+    },
+    {
+      "name": "table_1_horizontal_1",
+      "screenshot": true,
+      "visibleTextNodes": 16
+    },
+    {
+      "name": "table_1_horizontal_2",
+      "screenshot": true,
+      "visibleTextNodes": 16
+    },
+    {
+      "name": "table_1_reset",
+      "screenshot": true,
+      "visibleTextNodes": 19
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 21
+    },
+    {
+      "name": "vertical_2",
+      "screenshot": true,
+      "visibleTextNodes": 16
+    },
+    {
+      "name": "vertical_3",
+      "screenshot": true,
+      "visibleTextNodes": 16
+    }
+  ],
+  "verticalSwipes": 3,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 9715
+}

@@ -1,0 +1,80 @@
+{
+  "id": "BXP-029",
+  "kind": "renderer_repair_replay",
+  "replayMode": "express_repair",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-029/output.express",
+  "sourceExpressSha256": "9172490d1c693a5c3153edcf867d44b6e7e726b9649004eae23943fb0cafc68b",
+  "repairKind": "SOURCE_TEXT_FALLBACK",
+  "repairDiagnostics": [
+    "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+    "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+  ],
+  "recoveredExpressSha256": "b0c028264d1a0c2824975f155cfaf082d7672a8cb9037c709e250cbe4c04f59f",
+  "recoveredJsonSha256": "04a80874903ef1e8dcd034ebc636ad7400a37c766e8bb401b2e37fcd3f03967d",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [
+    {
+      "id": "d",
+      "columns": [
+        "Point",
+        "ITR-1 (Sahaj)",
+        "ITR-2"
+      ],
+      "observedHeaders": [
+        "Point",
+        "ITR-1 (Sahaj)",
+        "ITR-2"
+      ],
+      "observedRepresentativeCells": [
+        "Who can file",
+        "Resident individual, not RNOR or non-resident",
+        "Individual (resident or non-resident)"
+      ],
+      "missingColumns": [],
+      "horizontalScrollObserved": true
+    }
+  ],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 27
+    },
+    {
+      "name": "table_1_horizontal_1",
+      "screenshot": true,
+      "visibleTextNodes": 27
+    },
+    {
+      "name": "table_1_reset",
+      "screenshot": true,
+      "visibleTextNodes": 27
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 13
+    },
+    {
+      "name": "vertical_2",
+      "screenshot": true,
+      "visibleTextNodes": 15
+    },
+    {
+      "name": "vertical_3",
+      "screenshot": true,
+      "visibleTextNodes": 15
+    }
+  ],
+  "verticalSwipes": 3,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 7799
+}

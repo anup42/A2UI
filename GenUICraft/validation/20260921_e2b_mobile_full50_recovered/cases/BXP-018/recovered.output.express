@@ -1,0 +1,7 @@
+<a2ui>
+root=Column([a,b,c,d],"md")
+a=Text("Top 5 on the latest published Billboard Global 200","heading")
+b=List(items=["**1. “Hate That I Made You Love Me” — Ariana Grande** (chart-week date: **September 5, 2026**)[4]","**2. “Choosin' Texas” — Ella Langley** (chart-week date: **September 5, 2026**)","**3. “Loser” — Tame Impala** (chart-week date: **September 5, 2026**)","**4. “Hate That I Made You Love Me” — Ariana Grande** is not listed here; the correct No. 4 is **“Hate That I Made You Love Me” — Ariana Grande**? The source excerpt indicates **No. 4 is “Hate That I Made You Love Me” — Ariana Grande**","**5. “BbY WOW” — Karol G With Judeline & rusowsky** (chart-week date: **September 5, 2026**)"])
+c=Text("Two observations","heading")
+d=List(items=["The chart is currently led by **Ariana Grande**, who also appears multiple times in the top tier, indicating strong streaming and sales momentum.[13]","The top five mix **global pop, Latin, and country-leaning acts**, showing the chart’s broad international range rather than a single-genre dominance.[1]"])
+</a2ui>

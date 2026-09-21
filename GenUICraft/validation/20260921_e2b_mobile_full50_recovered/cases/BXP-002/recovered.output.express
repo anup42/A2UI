@@ -1,0 +1,7 @@
+<a2ui>
+root=Column([a,b,c,d],"md")
+a=Text("Delhi AQI","heading")
+b=List(items=["**Observation time:** 8:30 AM IST","**Reported AQI scale:** **AQI-IN 197**","**Pollution category:** **Poor**","**Main pollutant:** **PM2.5**[5][7]"])
+c=Text("Outdoor-activity guidance","heading")
+d=Text("For the **Poor** category, air pollution can cause breathing discomfort, so **children, older adults, and people with respiratory issues should limit outdoor activities** and **wear a mask if they must go out**. ")
+</a2ui>

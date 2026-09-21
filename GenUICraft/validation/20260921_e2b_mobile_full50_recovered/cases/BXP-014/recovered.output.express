@@ -1,0 +1,7 @@
+<a2ui>
+root=Column([a,b,c,d],"md")
+a=Text("Latest quoted rates","heading")
+b=List(items=["USD/INR: 95.5614, quoted as of 28-Aug-2026 14:23:47 IST. [18]","EUR/INR: 111.2956, quoted as of 28-Aug-2026 14:23:47 IST.","GBP/INR: 129.8867, quoted as of 28-Aug-2026 14:23:47 IST."])
+c=Text("Reference rates vs traveler rates","heading")
+d=Text("Reference rates are benchmark or indicative market rates used for pricing and valuation, while travelers usually receive a worse rate because providers add a spread, fees, and sometimes cash handling or card conversion charges. ECB and NSE publish reference-style rates, and Reuters notes its market quote data can be delayed, which also distinguishes it from the final retail rate a traveler pays. [12][3]")
+</a2ui>

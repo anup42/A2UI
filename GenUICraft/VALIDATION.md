@@ -1,5 +1,17 @@
 # GenUICraft validation — 18 September 2026
 
+The **21 September safe-output recovery** is documented in
+[its complete Bixby50 report](validation/20260921_e2b_mobile_full50_recovered/REPORT.md).
+The supplied E2B run remains 0/50 strict-valid, and conservative syntax repair
+also accepts 0/50. The AAR now rejects those generations and builds an explicitly
+labelled, exact-source typed fallback: **50/50 compiled and rendered** on the
+connected Samsung SM-F776U, with zero recorded renderer issues, all checked
+columns visible across 23 tables, and every case reaching an observed vertical
+end. This was a
+zero-model-call replay; it is recovery coverage, not a model-quality improvement.
+The recovery API is published as SDK 0.3.0; its integrity gate also rejects
+reordered visible wording and invented accessibility text.
+
 The separate **19 September trained E2B v10 W4 pilot** is documented in
 [its report](validation/20260919_e2b_v10_w4/REPORT.md). The user stopped it after
 12 completed cases: one compiled/rendered with poor content/layout, ten returned

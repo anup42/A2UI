@@ -1,0 +1,75 @@
+{
+  "id": "BXP-019",
+  "kind": "renderer_repair_replay",
+  "replayMode": "express_repair",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-019/output.express",
+  "sourceExpressSha256": "b86f544def965b28c7bd53bf7f3acba467d96f80f9b8ce96546f2b7de3e1ec2b",
+  "repairKind": "SOURCE_TEXT_FALLBACK",
+  "repairDiagnostics": [
+    "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+    "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+  ],
+  "recoveredExpressSha256": "58f39a737a9c2c6e046df042367ff264bb205487780429565259fa176424ad67",
+  "recoveredJsonSha256": "53e8434a996aa339880fac40c40cb7125cfaca2f2ec1f7d316cb194eace4016d",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [
+    {
+      "id": "b",
+      "columns": [
+        "Game",
+        "Age rating",
+        "Co-op support",
+        "Players",
+        "Indicative India price"
+      ],
+      "observedHeaders": [
+        "Game",
+        "Age rating",
+        "Co-op support",
+        "Players",
+        "Indicative India price"
+      ],
+      "observedRepresentativeCells": [
+        "**It Takes Two**",
+        "13+ for online features",
+        "Online co-op; Friend’s Pass supports inviting a friend",
+        "2"
+      ],
+      "missingColumns": [],
+      "horizontalScrollObserved": true
+    }
+  ],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 19
+    },
+    {
+      "name": "table_1_horizontal_1",
+      "screenshot": true,
+      "visibleTextNodes": 19
+    },
+    {
+      "name": "table_1_reset",
+      "screenshot": true,
+      "visibleTextNodes": 19
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 19
+    }
+  ],
+  "verticalSwipes": 1,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 4180
+}

@@ -1,0 +1,94 @@
+{
+  "id": "BXP-011",
+  "kind": "renderer_repair_replay",
+  "replayMode": "express_repair",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-011/output.express",
+  "sourceExpressSha256": "3d30f6ebbfe6cdc6723df2486f65125990ddda5b374897168101929637870f3e",
+  "repairKind": "SOURCE_TEXT_FALLBACK",
+  "repairDiagnostics": [
+    "Strict compile rejected output: Invalid GenUI Express: Unclosed A2UI Express expression.",
+    "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+  ],
+  "recoveredExpressSha256": "347fa096dad4a26fb80f1a46e1ac1085a691def8d3720982a48c6187df417a59",
+  "recoveredJsonSha256": "a5a9922d5ccebc09dc8b699cb5788b2138a5384be6a03b3e168c1402a15b5908",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [
+    {
+      "id": "b",
+      "columns": [
+        "Model",
+        "Indicative price",
+        "Display",
+        "Battery",
+        "Software support",
+        "Best for"
+      ],
+      "observedHeaders": [
+        "Model",
+        "Indicative price",
+        "Display",
+        "Battery",
+        "Software support",
+        "Best for"
+      ],
+      "observedRepresentativeCells": [
+        "OnePlus Nord CE 5",
+        "From ₹24,999",
+        "6.77-inch AMOLED, 120Hz [9][16]",
+        "7,100mAh, 80W charging",
+        "6 years of software support",
+        "Buyers wanting a big battery and smooth everyday performance"
+      ],
+      "missingColumns": [],
+      "horizontalScrollObserved": true
+    }
+  ],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 13
+    },
+    {
+      "name": "table_1_horizontal_1",
+      "screenshot": true,
+      "visibleTextNodes": 17
+    },
+    {
+      "name": "table_1_horizontal_2",
+      "screenshot": true,
+      "visibleTextNodes": 17
+    },
+    {
+      "name": "table_1_horizontal_3",
+      "screenshot": true,
+      "visibleTextNodes": 13
+    },
+    {
+      "name": "table_1_horizontal_4",
+      "screenshot": true,
+      "visibleTextNodes": 13
+    },
+    {
+      "name": "table_1_reset",
+      "screenshot": true,
+      "visibleTextNodes": 13
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 13
+    }
+  ],
+  "verticalSwipes": 1,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 9898
+}

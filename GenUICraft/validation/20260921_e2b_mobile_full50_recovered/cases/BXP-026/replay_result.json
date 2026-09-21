@@ -1,0 +1,91 @@
+{
+  "id": "BXP-026",
+  "kind": "renderer_repair_replay",
+  "replayMode": "express_repair",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-026/output.express",
+  "sourceExpressSha256": "88acf65c725ca3c58a6156c188655f81f6dd37fb0070487f592fe68451d29fd1",
+  "repairKind": "SOURCE_TEXT_FALLBACK",
+  "repairDiagnostics": [
+    "Strict compile rejected output: GenUI input contains prose or an unsupported prefix; expected <a2ui>, {, or [.",
+    "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+  ],
+  "recoveredExpressSha256": "b838a7aa44703aa68ea6b7d0cc2e9054f2185874a030c2e7c2b634114696f5c9",
+  "recoveredJsonSha256": "75f8925d5fae85a900387fe4704e8c49557360e854823bffad4e5fec3c5fa12b",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [
+    {
+      "id": "b",
+      "columns": [
+        "Approach",
+        "Data freshness",
+        "Cost",
+        "Setup effort",
+        "Limitations"
+      ],
+      "observedHeaders": [
+        "Approach",
+        "Data freshness",
+        "Cost",
+        "Setup effort",
+        "Limitations"
+      ],
+      "observedRepresentativeCells": [
+        "Retrieval-augmented generation",
+        "Best for fresh content because it can pull in updated documents at query time and does not require retraining for each change [9][40].",
+        "Usually lower for knowledge lookup at scale because you index once and retrieve only relevant chunks, though you still pay retrieval and embedding costs [19][15].",
+        "Moderate; you need document ingestion, chunking, embedding, and retrieval infrastructure [1].",
+        "Quality depends on retrieval quality; bad chunking or search can cause missed or irrelevant answers, and multi-step reasoning over scattered documents can still be hard[14]."
+      ],
+      "missingColumns": [],
+      "horizontalScrollObserved": true
+    }
+  ],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 18
+    },
+    {
+      "name": "table_1_horizontal_1",
+      "screenshot": true,
+      "visibleTextNodes": 18
+    },
+    {
+      "name": "table_1_horizontal_2",
+      "screenshot": true,
+      "visibleTextNodes": 18
+    },
+    {
+      "name": "table_1_horizontal_3",
+      "screenshot": true,
+      "visibleTextNodes": 18
+    },
+    {
+      "name": "table_1_reset",
+      "screenshot": true,
+      "visibleTextNodes": 18
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 13
+    },
+    {
+      "name": "vertical_2",
+      "screenshot": true,
+      "visibleTextNodes": 13
+    }
+  ],
+  "verticalSwipes": 2,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 9164
+}

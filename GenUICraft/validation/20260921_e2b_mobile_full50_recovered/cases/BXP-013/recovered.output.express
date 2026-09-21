@@ -1,0 +1,14 @@
+<a2ui>
+root=Column([a,b,c,d,e,f,g,h,i,j,k],"md")
+a=Text("One-year FD rates","heading")
+b=Text("For regular adult retail customers, SBI, HDFC Bank, and ICICI Bank are all showing a one-year rate of 6.25% for the relevant retail deposit bucket [1][6][9].")
+c=Text("Assumed deposit sizes","heading")
+d=List(items=["**SBI:** Retail domestic term deposits below ₹3 crore; the one-year slab is **1 year to less than 2 years** and the rate is **6.25%** for general customers .","**HDFC Bank:** Domestic/NRO/NRE fixed deposits below ₹3 crore; the one-year slab is **1 year to less than 15 months** and the rate is **6.25%** for regular customers .","**ICICI Bank:** Retail deposits below ₹3 crore; the one-year slab is **1 year to less than 18 months** and the rate is **6.25%** for general customers[17]."])
+e=Text("Rate dates","heading")
+f=List(items=["**SBI:** The bank page shown is the retail domestic term-deposit page with the current revised grid; the page content indicates the current retail slab structure and the source snapshot used here reflects the live rate table .","**HDFC Bank:** The rate table is explicitly marked **applicable from 19 August 2026** for domestic/NRO/NRE fixed deposits below ₹3 crore .","**ICICI Bank:** The source snapshot used here reflects the current retail FD grid, and the cited third-party rate page states the one-year retail rate at 6.25% for deposits below ₹3 crore."])
+g=Text("Premature-withdrawal caveats","heading")
+h=List(items=["**SBI:** The cited SBI retail page provides the rate grid but does not spell out a premature-withdrawal penalty in the extracted text shown here, so the exact penalty should be checked in SBI’s current deposit terms before booking .","**HDFC Bank:** For deposits booked on or after 22 July 2023, premature withdrawal, including sweep-in/partial withdrawal, is charged at **1% below the rate on the date of deposit booking for the actual period the deposit remained with the bank**, rather than the contracted rate; certain government-related entities may be exempt on eligible branches and documents .","**ICICI Bank:** The cited current FD rate snapshot shows the one-year retail rate, but the displayed source excerpt here does not include the bank’s premature-withdrawal penalty text, so that condition should be verified in ICICI Bank’s deposit terms before booking."])
+i=Text("Quick view","heading")
+j=Table(columns=["Bank","One-year retail FD rate","Assumed deposit size","Rate date / effective date"],rows=[["SBI","6.25%","Below ₹3 crore","Current retail grid shown on SBI’s retail domestic term-deposit page"],["HDFC Bank","6.25%","Below ₹3 crore","19 August 2026"],["ICICI Bank","6.25%","Below ₹3 crore","Current retail grid shown in the cited rate snapshot"]],domain="generic",preferredPresentation="table")
+k=Text("If you want, I can also turn this into a stricter like-for-like comparison using only the banks’ own official pages and exact effective-date wording.")
+</a2ui>

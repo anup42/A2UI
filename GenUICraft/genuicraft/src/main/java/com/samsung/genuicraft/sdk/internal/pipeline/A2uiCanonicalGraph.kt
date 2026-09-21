@@ -7,6 +7,9 @@ import com.google.gson.JsonObject
 internal object A2uiCanonicalGraph {
     data class ValidationResult(val isValid: Boolean, val error: String? = null)
 
+    private const val MAX_ELEMENTS = 1_024
+    private const val MAX_REFERENCE_DEPTH = 64
+
     private val allowedElementFields = setOf("type", "props", "children", "repeat", "visible", "on", "watch")
     private val actionParams = mapOf(
         "openUrl" to setOf("url"),
@@ -37,6 +40,7 @@ internal object A2uiCanonicalGraph {
         val elements = graph.get("elements")?.takeIf { it.isJsonObject }?.asJsonObject
             ?: return invalid("Canonical graph elements must be an object.")
         if (elements.size() == 0 || !elements.has(root)) return invalid("Canonical graph root element is missing.")
+        if (elements.size() > MAX_ELEMENTS) return invalid("Canonical graph exceeds $MAX_ELEMENTS elements.")
         val ids = elements.entrySet().map { it.key }.toSet()
 
         elements.entrySet().forEach { (id, raw) ->
@@ -88,6 +92,13 @@ internal object A2uiCanonicalGraph {
                 }
                 val unknown = repeat.asJsonObject.keySet() - repeatFields
                 if (unknown.isNotEmpty()) return invalid("Element '$id' repeat contains unsupported fields: ${unknown.sorted()}.")
+                val explicitTemplate = listOf("template", "itemTemplate", "child").any { key ->
+                    repeat.asJsonObject.get(key)?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isString }
+                        ?.asString?.isNotBlank() == true
+                }
+                if (!explicitTemplate && children.size() == 0) {
+                    return invalid("Element '$id' repeat requires template/itemTemplate/child or a child reference.")
+                }
             }
             validateActions(element.get("on"), "Element '$id'.on")?.let { return invalid(it) }
             val watch = element.get("watch")
@@ -103,19 +114,31 @@ internal object A2uiCanonicalGraph {
             }
         }
 
-        val visiting = linkedSetOf<String>()
+        data class Frame(val id: String, val references: Iterator<String>)
+        fun references(id: String): Iterator<String> = elements.getAsJsonObject(id)
+            .let(RendererReferenceSemantics::references)
+            .map { it.targetId }
+            .iterator()
+        val visiting = linkedSetOf(root)
         val visited = linkedSetOf<String>()
-        fun visit(id: String): String? {
-            if (id in visiting) return id
-            if (id in visited) return null
-            visiting += id
-            val element = elements.get(id)?.takeIf { it.isJsonObject }?.asJsonObject
-            element?.let { RendererReferenceSemantics.references(it).forEach { ref -> visit(ref.targetId)?.let { return it } } }
-            visiting -= id
-            visited += id
-            return null
+        val stack = java.util.ArrayDeque<Frame>().apply { addLast(Frame(root, references(root))) }
+        while (stack.isNotEmpty()) {
+            val frame = requireNotNull(stack.peekLast())
+            if (!frame.references.hasNext()) {
+                stack.removeLast()
+                visiting -= frame.id
+                visited += frame.id
+                continue
+            }
+            val target = frame.references.next()
+            if (target in visiting) return invalid("Canonical graph contains reachable reference cycle at '$target'.")
+            if (target in visited) continue
+            if (stack.size >= MAX_REFERENCE_DEPTH) {
+                return invalid("Canonical graph reference depth exceeds $MAX_REFERENCE_DEPTH levels.")
+            }
+            visiting += target
+            stack.addLast(Frame(target, references(target)))
         }
-        visit(root)?.let { return invalid("Canonical graph contains reachable reference cycle at '$it'.") }
         return ValidationResult(true)
     }
 

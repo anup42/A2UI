@@ -1,0 +1,85 @@
+{
+  "id": "BXP-045",
+  "kind": "renderer_repair_replay",
+  "replayMode": "express_repair",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-045/output.express",
+  "sourceExpressSha256": "b4a45bc0942b3fc927c381d9a04d798fb47661ee24b5d2f0eb80aef9d36fbe60",
+  "repairKind": "SOURCE_TEXT_FALLBACK",
+  "repairDiagnostics": [
+    "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+    "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+  ],
+  "recoveredExpressSha256": "667a04b399fc3a4ab9e841fba54685f765051521d0c8a0c354a856e3a0a7dd9a",
+  "recoveredJsonSha256": "3524755f1e353a0af96f2a298ca59728ee56d78b85b9c7fb0cbc231f54f1b0bb",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [
+    {
+      "id": "r",
+      "columns": [
+        "Level",
+        "Best measures",
+        "Expected impact"
+      ],
+      "observedHeaders": [
+        "Level",
+        "Best measures",
+        "Expected impact"
+      ],
+      "observedRepresentativeCells": [
+        "Household",
+        "Clear local inlets, secure valuables, harvest rainwater, avoid waste dumping",
+        "Lowers damage at one property"
+      ],
+      "missingColumns": [],
+      "horizontalScrollObserved": true
+    }
+  ],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 6
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 7
+    },
+    {
+      "name": "vertical_2",
+      "screenshot": true,
+      "visibleTextNodes": 10
+    },
+    {
+      "name": "table_1_horizontal_1",
+      "screenshot": true,
+      "visibleTextNodes": 12
+    },
+    {
+      "name": "table_1_reset",
+      "screenshot": true,
+      "visibleTextNodes": 10
+    },
+    {
+      "name": "vertical_3",
+      "screenshot": true,
+      "visibleTextNodes": 13
+    },
+    {
+      "name": "vertical_4",
+      "screenshot": true,
+      "visibleTextNodes": 13
+    }
+  ],
+  "verticalSwipes": 4,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 9907
+}

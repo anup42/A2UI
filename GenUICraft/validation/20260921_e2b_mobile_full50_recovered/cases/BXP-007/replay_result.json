@@ -1,0 +1,73 @@
+{
+  "id": "BXP-007",
+  "kind": "renderer_repair_replay",
+  "replayMode": "express_repair",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-007/output.express",
+  "sourceExpressSha256": "deaee6f9e032bc307c1c440e5ce76303a65cc389ea4cba543ef1d449e8da8778",
+  "repairKind": "SOURCE_TEXT_FALLBACK",
+  "repairDiagnostics": [
+    "Strict compile rejected output: Invalid GenUI Express: Unclosed A2UI Express expression.",
+    "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+  ],
+  "recoveredExpressSha256": "41f2ea1e78070f080ab8ea9c0a1300e9a45310194b9ff105aed36fe0dd265a7f",
+  "recoveredJsonSha256": "b706c44c40eae0431c9d4d1aa0d35af98c1991fb00ebe635731bf310032a880e",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [
+    {
+      "id": "b",
+      "columns": [
+        "Sight",
+        "Opening hours",
+        "Usual visit duration",
+        "Published adult entry fee"
+      ],
+      "observedHeaders": [
+        "Sight",
+        "Opening hours",
+        "Usual visit duration",
+        "Published adult entry fee"
+      ],
+      "observedRepresentativeCells": [
+        "Chamundi Hill Lookout View Point",
+        "5:00 am–11:00 pm",
+        "30–45 min",
+        "Not available in the provided reliable sources[6]"
+      ],
+      "missingColumns": [],
+      "horizontalScrollObserved": true
+    }
+  ],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 18
+    },
+    {
+      "name": "table_1_horizontal_1",
+      "screenshot": true,
+      "visibleTextNodes": 18
+    },
+    {
+      "name": "table_1_reset",
+      "screenshot": true,
+      "visibleTextNodes": 18
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 18
+    }
+  ],
+  "verticalSwipes": 1,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 4186
+}

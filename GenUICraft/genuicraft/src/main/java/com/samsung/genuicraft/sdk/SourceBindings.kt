@@ -152,6 +152,7 @@ internal class SourceBindings private constructor(
         )
         private val headingVariants = setOf("title", "heading", "headline", "h1", "h2", "h3", "h4", "h5", "h6")
         private val heading = Regex("^ {0,3}#{1,6}[ \\t]+(.+?)\\s*$")
+        private val orderedListItem = Regex("^( {0,3})\\d+[.)][ \\t]+(.+)$")
         private val listItem = Regex("^( {0,3})(?:[-+*]|\\d+[.)])[ \\t]+(.+)$")
         private val fence = Regex("^ {0,3}(`{3,}|~{3,})(.*)$")
         private val separator = Regex(":?-{3,}:?")
@@ -226,6 +227,14 @@ internal class SourceBindings private constructor(
                 if (rule.matches(line)) {
                     blocks += mapOf("kind" to "divider")
                     index++
+                    continue
+                }
+                if (orderedListItem.matches(line)) {
+                    // Numeric markers can carry authored meaning (years, legal clauses, non-1 starts).
+                    // Preserve the complete lines instead of replacing them with generic bullets.
+                    val start = index++
+                    while (index < lines.size && orderedListItem.matches(lines[index])) index++
+                    paragraph(lines.subList(start, index).joinToString("\n"))
                     continue
                 }
                 if (listItem.matches(line)) {

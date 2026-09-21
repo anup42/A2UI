@@ -30,6 +30,12 @@ class ContentIntegrityTest {
         assertTrue(ContentIntegrity.check(GenUiRequest("A 5. B 5."), doc("A 5. B.")).isNotEmpty())
     }
 
+    @Test fun `word order cannot change meaning while preserving the same word counts`() {
+        val issues = ContentIntegrity.check(GenUiRequest("Alice pays Bob."), doc("Bob pays Alice."))
+
+        assertTrue(issues.any { it.contains("order or multiplicity") })
+    }
+
     @Test fun `layout properties cannot satisfy visible source wording`() {
         assertTrue(ContentIntegrity.check(GenUiRequest("vertical Ready"), doc("Ready")).any { it.contains("wording") })
     }

@@ -1,0 +1,86 @@
+{
+  "id": "BXP-003",
+  "kind": "renderer_repair_replay",
+  "replayMode": "express_repair",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-003/output.express",
+  "sourceExpressSha256": "d2cd4b3c4c663a082b3794e65fd6b75954feb36b8a067b25a820655cd5ed52a8",
+  "repairKind": "SOURCE_TEXT_FALLBACK",
+  "repairDiagnostics": [
+    "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+    "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+  ],
+  "recoveredExpressSha256": "7445b0a1fdbefeb785a94ce887a28dd3b4a4db5b1c2e082d9d1d6ec15d5a4ef1",
+  "recoveredJsonSha256": "f8a36f20da81af1a6b40919bc4b0d172fd4b5f1649825b4843607e46e889bb47",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [
+    {
+      "id": "b",
+      "columns": [
+        "Train service",
+        "Departure station",
+        "Typical departure time",
+        "Journey duration",
+        "Seating class"
+      ],
+      "observedHeaders": [
+        "Train service",
+        "Departure station",
+        "Typical departure time",
+        "Journey duration",
+        "Seating class"
+      ],
+      "observedRepresentativeCells": [
+        "**Shatabdi Express (12007)**",
+        "KSR Bengaluru (SBC)",
+        "**10:35–10:45**",
+        "**About 2 h 15 m to 2 h 25 m**",
+        "**CC, EC**"
+      ],
+      "missingColumns": [],
+      "horizontalScrollObserved": true
+    }
+  ],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 25
+    },
+    {
+      "name": "table_1_horizontal_1",
+      "screenshot": true,
+      "visibleTextNodes": 25
+    },
+    {
+      "name": "table_1_horizontal_2",
+      "screenshot": true,
+      "visibleTextNodes": 25
+    },
+    {
+      "name": "table_1_reset",
+      "screenshot": true,
+      "visibleTextNodes": 25
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 25
+    },
+    {
+      "name": "vertical_2",
+      "screenshot": true,
+      "visibleTextNodes": 25
+    }
+  ],
+  "verticalSwipes": 2,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 7465
+}

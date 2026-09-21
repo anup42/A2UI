@@ -1,0 +1,41 @@
+{
+  "source_commit_before_recovery_changes": "db4a2415efe8ac88995c1fac40fce55ddb48ed7d",
+  "sdk_maven_coordinate": "com.samsung.genuicraft:genuicraft:0.3.0",
+  "replay_run_id": "mobile_gpu_mtp_full50_repair_20260921_r5",
+  "source_run_id": "mobile_gpu_mtp_full50_render_source_20260921",
+  "corpus_sha256": "fc46aa381957bed206f9e0f53e28edbb21b5096ca093985ad184fda73faaea0a",
+  "raw_artifact_hashes_match_prior_report": true,
+  "device": {
+    "serial": "R3GL203AKSF",
+    "model": "SM-F776U",
+    "android_sdk": 37
+  },
+  "artifacts": {
+    "genuicraft_release_aar": {
+      "bytes": 9427374,
+      "sha256": "3d3ef9ca998496e7568458e8d7b38fd6cf66f740f96c42693d33e6642f809e51"
+    },
+    "reference_app_debug_apk": {
+      "bytes": 213495174,
+      "sha256": "660c5df75c124b486f393020dee9b34e6a63ac504584c9e837656dcf66dc160e"
+    },
+    "instrumentation_test_apk": {
+      "bytes": 1419855,
+      "sha256": "d25f06b48b99e6fbfeedfbd48f36369b51b5d227a1d1a207b6e441c945d06a8b"
+    }
+  },
+  "host_unit_tests": {
+    "tests": 328,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "suites": 35
+  },
+  "complete_device_evidence": {
+    "retained_path": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_benchmark/mobile_gpu_mtp_full50_repair_20260921_r5",
+    "host_working_copy": "tmp/mobile_gpu_mtp_full50_repair_20260921_r5",
+    "files": 657,
+    "bytes": 82184391,
+    "committed_package_policy": "Compact outputs, per-case results, metrics and four representative screenshots; full capture set remains on device and in ignored host scratch."
+  }
+}

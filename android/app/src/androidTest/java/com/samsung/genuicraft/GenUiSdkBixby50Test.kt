@@ -179,8 +179,14 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
         val args = InstrumentationRegistry.getArguments()
         val context = instrumentation.targetContext
         val mode = args.getString("replayMode", "json")!!
-        require(mode in setOf("json", "express", "raw_model")) { "replayMode must be json, express, or raw_model." }
-        val kind = if (mode == "raw_model") "captured_model_revalidation" else "renderer_replay"
+        require(mode in setOf("json", "express", "express_repair", "raw_model")) {
+            "replayMode must be json, express, express_repair, or raw_model."
+        }
+        val kind = when (mode) {
+            "raw_model" -> "captured_model_revalidation"
+            "express_repair" -> "renderer_repair_replay"
+            else -> "renderer_replay"
+        }
         fun runName(value: String?, label: String): String {
             require(value != null && Regex("[A-Za-z0-9_-]{1,100}").matches(value)) {
                 "$label must contain only letters, digits, underscores or hyphens (1..100 characters)."
@@ -233,6 +239,7 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
         )))
         val device = UiDevice.getInstance(instrumentation)
         val reports = mutableListOf<JsonObject>()
+        val repairCounts = mutableMapOf<String, Int>()
         var failures = 0
         ActivityScenario.launch(GenUiSdkDemoActivity::class.java).use { scenario ->
             for ((caseIndex, row) in rows.withIndex()) {
@@ -253,14 +260,29 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
                         File(caseDir, "source.output.a2ui.json").writeBytes(bytes)
                         report.addProperty("sourceJsonSha256", replaySha256(bytes))
                     }
-                    val document = if (mode == "express") {
+                    val document = if (mode == "express" || mode == "express_repair") {
                         val expressFile = File(sourceCase, "output.express")
                         require(expressFile.isFile) { "Missing saved output.express for $caseId." }
                         val expressBytes = expressFile.readBytes()
                         File(caseDir, "source.output.express").writeBytes(expressBytes)
                         report.addProperty("sourceArtifact", "${sourceRunId}/${caseId}/output.express")
                         report.addProperty("sourceExpressSha256", replaySha256(expressBytes))
-                        GenUiCompiler.compile(expressBytes.toString(Charsets.UTF_8))
+                        if (mode == "express") {
+                            GenUiCompiler.compile(expressBytes.toString(Charsets.UTF_8))
+                        } else {
+                            val outcome = GenUiCompiler.compileWithRepair(
+                                expressBytes.toString(Charsets.UTF_8),
+                                row.get("text").asString,
+                            )
+                            report.addProperty("repairKind", outcome.repairKind.name)
+                            report.add("repairDiagnostics", gson.toJsonTree(outcome.diagnostics))
+                            repairCounts[outcome.repairKind.name] = (repairCounts[outcome.repairKind.name] ?: 0) + 1
+                            File(caseDir, "recovered.output.express").writeText(outcome.document.express)
+                            File(caseDir, "recovered.output.a2ui.json").writeText(outcome.document.a2uiJson)
+                            report.addProperty("recoveredExpressSha256", replaySha256(outcome.document.express.toByteArray()))
+                            report.addProperty("recoveredJsonSha256", replaySha256(outcome.document.a2uiJson.toByteArray()))
+                            outcome.document
+                        }
                     } else if (mode == "json") {
                         require(originalJsonFile.isFile) { "Missing saved output.a2ui.json for $caseId." }
                         report.addProperty("sourceArtifact", "${sourceRunId}/${caseId}/output.a2ui.json")
@@ -374,9 +396,17 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
                         val left = bounds.left + margin
                         val right = bounds.right - margin
                         if (right - left < 40) return false
-                        val ok = if (towardsEnd) device.swipe(right, y, left, y, 35) else device.swipe(left, y, right, y, 35)
-                        Thread.sleep(250)
-                        return ok
+                        repeat(3) {
+                            val ok = if (towardsEnd) {
+                                device.swipe(right, y, left, y, 35)
+                            } else {
+                                device.swipe(left, y, right, y, 35)
+                            }
+                            Thread.sleep(250)
+                            if (ok) return true
+                            instrumentation.waitForIdleSync()
+                        }
+                        return false
                     }
                     fun sweepVisibleTables(input: List<ReplayNode>): List<ReplayNode> {
                         var current = input
@@ -465,7 +495,7 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
         File(output, "replay_summary.json").writeText(gson.toJson(mapOf(
             "kind" to kind, "replayMode" to mode, "runId" to runId, "sourceRunId" to sourceRunId,
             "total" to rows.size, "rendered" to rows.size - failures, "failed" to failures,
-            "modelCalls" to 0, "inferenceEvaluated" to false,
+            "modelCalls" to 0, "inferenceEvaluated" to false, "repairCounts" to repairCounts.toSortedMap(),
         )))
         assertTrue("$failures/${rows.size} replay checks failed; no inference performed; artifacts: ${output.absolutePath}", failures == 0)
     }

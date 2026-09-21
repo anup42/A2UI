@@ -1,0 +1,91 @@
+{
+  "id": "BXP-006",
+  "kind": "renderer_repair_replay",
+  "replayMode": "express_repair",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-006/output.express",
+  "sourceExpressSha256": "3ed5a0ba705ad18bfdb6e8b59594b78153ea83ad58ef858f581e7345ec2cd3a5",
+  "repairKind": "SOURCE_TEXT_FALLBACK",
+  "repairDiagnostics": [
+    "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+    "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+  ],
+  "recoveredExpressSha256": "42efbc71bf2de53c75d2a7ac9a8bb24f924b113964dda9c6e0386e7325a6a5f1",
+  "recoveredJsonSha256": "51a4e51984bd9dfff5e224a4adbb5053cb7fa01a6eca9e1d89df968837667cf0",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [
+    {
+      "id": "c",
+      "columns": [
+        "Route",
+        "Approx. distance",
+        "Usual travel time",
+        "Road conditions",
+        "Useful stop"
+      ],
+      "observedHeaders": [
+        "Route",
+        "Approx. distance",
+        "Usual travel time",
+        "Road conditions",
+        "Useful stop"
+      ],
+      "observedRepresentativeCells": [
+        "Bengaluru → Mysuru → Hunsur → Kushalnagar → Madikeri",
+        "About 250–255 km, sometimes cited up to 270 km depending on exact start point and detours[10]",
+        "About 4.5–6 hours, commonly around 5.5–6 hours",
+        "Mostly smooth and well-maintained, especially on the Bengaluru–Mysuru Expressway; traffic can build up on the Mysuru corridor, and the final stretch near Madikeri becomes hilly/ghat road[3][8][15]",
+        "**Namdroling Monastery, Bylakuppe**[7][9]"
+      ],
+      "missingColumns": [],
+      "horizontalScrollObserved": true
+    }
+  ],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 15
+    },
+    {
+      "name": "table_1_horizontal_1",
+      "screenshot": true,
+      "visibleTextNodes": 15
+    },
+    {
+      "name": "table_1_horizontal_2",
+      "screenshot": true,
+      "visibleTextNodes": 15
+    },
+    {
+      "name": "table_1_horizontal_3",
+      "screenshot": true,
+      "visibleTextNodes": 15
+    },
+    {
+      "name": "table_1_reset",
+      "screenshot": true,
+      "visibleTextNodes": 15
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 16
+    },
+    {
+      "name": "vertical_2",
+      "screenshot": true,
+      "visibleTextNodes": 16
+    }
+  ],
+  "verticalSwipes": 2,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 9414
+}

@@ -13,8 +13,9 @@ import kotlin.coroutines.coroutineContext
  * Direct response-to-Express inference for the trained E2B v10 checkpoint.
  *
  * Uses the frozen training scaffold (system + user/model example + raw response),
- * without source bindings, repair turns, or fallback layouts. Success means the output
- * compiled; unlike [GenUiConverter], it does not guarantee lossless source retention.
+ * without model repair turns. Generated output first crosses strict compilation, then bounded
+ * structural repair. If neither preserves the supplied response, the SDK returns a deterministic
+ * source-bound A2UI layout and records that fallback in the success warnings.
  */
 class GenUiTrainedConverter internal constructor(
     private val provider: GenUiProvider,
@@ -38,15 +39,25 @@ class GenUiTrainedConverter internal constructor(
             val output = provider.generate(contract.prompt(request.text))
             raw = output.text.trim()
             coroutineContext.ensureActive()
-            require(raw.startsWith("<a2ui>") && raw.endsWith("</a2ui>")) {
-                "Expected exactly one complete <a2ui> program."
-            }
-            val document = SourceAttribution.append(GenUiCompiler.compile(raw), request.sources)
+            val compiled = GenUiCompiler.compileWithRepair(raw, request.text)
+            val document = SourceAttribution.append(compiled.document, request.sources)
                 .copy(profile = PROFILE)
-            GenUiConversionResult.Success(document, provider.id, elapsed(), 1, listOf(
-                "Runtime: ${output.runtime}",
-                "Trained E2B v10 prompt; generated content is not source-bound. Review content fidelity.",
-            ))
+            GenUiConversionResult.Success(
+                document = document,
+                provider = provider.id,
+                elapsedMs = elapsed(),
+                attempts = 1,
+                warnings = buildList {
+                    add("Runtime: ${output.runtime}")
+                    when (compiled.repairKind) {
+                        GenUiRepairKind.NONE -> add("Trained E2B output passed strict compilation and mechanical source-integrity checks.")
+                        GenUiRepairKind.STRUCTURAL -> add("Trained E2B output passed bounded syntax repair and mechanical source-integrity checks.")
+                        GenUiRepairKind.SOURCE_TEXT_FALLBACK -> add("Trained E2B output was rejected; built deterministic typed A2UI from exact source blocks.")
+                    }
+                    addAll(compiled.diagnostics)
+                },
+                repairKind = compiled.repairKind,
+            )
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (failure: Exception) {

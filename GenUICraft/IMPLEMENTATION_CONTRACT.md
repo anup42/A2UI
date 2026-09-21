@@ -1,6 +1,6 @@
 # GenUICraft implementation contract
 
-Standalone Android library, version 0.1.0, module `:genuicraft`, public package `com.samsung.genuicraft.sdk`.
+Standalone Android library, version 0.3.0, module `:genuicraft`, public package `com.samsung.genuicraft.sdk`.
 The independent project lives under A2UI/GenUICraft. Do not build Bixby. Test the actual published AAR in the existing A2UI/android app.
 
 ## Ownership
@@ -15,18 +15,19 @@ The independent project lives under A2UI/GenUICraft. Do not build Bixby. Test th
 `GenUiRequest(text: String, query: String? = null, sources: List<GenUiSource> = emptyList())`
 `GenUiSource(id: String, url: String, title: String? = null)`
 `GenUiDocument(express: String, a2uiJson: String, profile: String = "genuicraft_express_v1", schemaVersion: String = "v0.9")`
+`GenUiCompileOutcome(document: GenUiDocument, repairKind: GenUiRepairKind, diagnostics: List<String>)`; successful conversions also expose `GenUiConversionResult.Success.repairKind` so hosts can distinguish unchanged, structurally normalized and source-fallback output without parsing warning text.
 `GenUiAction(name: String, parameters: Map<String, String> = emptyMap())`
 `GenUiPrompt(system: String, user: String, maxOutputTokens: Int = 8192, temperature: Double = 0.0)`
 `GenUiModelOutput(text: String, runtime: String, outputTokens: Int? = null)`
 `interface GenUiProvider : AutoCloseable { val id: String; suspend fun generate(prompt: GenUiPrompt): GenUiModelOutput; override fun close() {}; suspend fun closeAndAwait() { close() } }`
-`GenUiConversionResult.Success(document: GenUiDocument, provider: String, elapsedMs: Long, attempts: Int, warnings: List<String> = emptyList())`
+`GenUiConversionResult.Success(document: GenUiDocument, provider: String, elapsedMs: Long, attempts: Int, warnings: List<String> = emptyList(), repairKind: GenUiRepairKind = NONE)`. `repairKind` classifies local output recovery; provider repair attempts remain represented by `attempts` and may still leave `repairKind == NONE`.
 `GenUiConversionResult.Failure(message: String, provider: String, elapsedMs: Long, attempts: Int, rawOutput: String? = null)`
 `ConversionOptions(maxOutputTokens: Int = 8192, maxRepairAttempts: Int = 1, temperature: Double = 0.0)`
 `class GenUiConverter(context: Context, provider: GenUiProvider, options: ConversionOptions = ConversionOptions()) { suspend fun convert(request: GenUiRequest): GenUiConversionResult }`
 
 ## Compiler and renderer (renderer agent owns)
 
-`object GenUiCompiler { fun compile(input: String): GenUiDocument }` accepts strict Express or supported v0.9 JSON; throws actionable IllegalArgumentException on invalid content. Produces both representations by deterministic compilation. No model fallback.
+`object GenUiCompiler { fun compile(input: String): GenUiDocument; fun compileWithRepair(input: String, sourceText: String? = null): GenUiCompileOutcome }`. `compile` remains strict. The opt-in recovery API allows bounded syntax-only normalization and, when exact source text is supplied, a separately classified deterministic source-block fallback. Both paths re-enter strict compilation; fallback also passes mechanical content integrity. It never reports fallback as repaired model output.
 `@Composable fun GenUiContent(document: GenUiDocument, modifier: Modifier = Modifier, onAction: (GenUiAction) -> Unit = {})`
 `class GenUiView(context: Context, attrs: AttributeSet? = null) : FrameLayout` with `fun render(document: GenUiDocument)`, `fun render(input: String)`, `fun clear()`, and `var onAction: (GenUiAction) -> Unit`.
 All external actions (especially openUrl) are host callbacks. State-local renderer actions remain local. Native rendering requires no provider or model initialization.
@@ -42,6 +43,6 @@ Gemma runtime uses existing test app LiteRT-LM pattern; weights are external. No
 
 ## Integration and validation
 
-Bixby: classify using actual provider metadata, accumulate streaming response by request, convert once complete, cancel stale work, show native GenUiView/Compose result. Preserve citations/source metadata, TTS/history. A2UI failure must show error/retry; never label fallback text as model success. Dependency: Maven coordinate `com.samsung.genuicraft:genuicraft:0.1.0` from copied `aars/genuicraft-maven` repository. Host selectable Gauss/Gemma config; default Gauss. Document exact source extraction/classification limitations rather than guessing.
+Bixby: classify using actual provider metadata, accumulate streaming response by request, convert once complete, cancel stale work, show native GenUiView/Compose result. Preserve citations/source metadata, TTS/history. A2UI failure must show error/retry; never label fallback text as model success. Current recovery dependency: Maven coordinate `com.samsung.genuicraft:genuicraft:0.3.0` from the complete copied Maven repository. Host selectable Gauss/Gemma config; default Gauss. Document exact source extraction/classification limitations rather than guessing.
 
 Test app: actual built AAR dependency, dedicated SDK demo/benchmark route, Bixby50 assets copied from `tmp/bixby_perplexity_check/run_50_exact/responses.jsonl`. Both providers, renderer-only replay, content/citation preservation, latency, screenshots and failure details. Keep benchmark outputs separate from source. Report cold initialization, successful raw generations, repaired generations and failures distinctly.

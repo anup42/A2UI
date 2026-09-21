@@ -1,0 +1,104 @@
+{
+  "id": "BXP-049",
+  "kind": "renderer_repair_replay",
+  "replayMode": "express_repair",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-049/output.express",
+  "sourceExpressSha256": "b778ed6e63811d973c3fa3c4cb1f1dca1c37bba6902cdbeaf5bebf62daaf265f",
+  "repairKind": "SOURCE_TEXT_FALLBACK",
+  "repairDiagnostics": [
+    "Strict compile rejected output: Invalid GenUI Express: Unbalanced A2UI Express delimiter.",
+    "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+  ],
+  "recoveredExpressSha256": "35fa297a3077a32c7faa49f3e196fa7b9ec0ecdae53d1bba0bcf865ac1e3596b",
+  "recoveredJsonSha256": "e39825dd8e82552dcfdd33245a3cc74d3a3f15112e1a41db83faf07a9cbe95b6",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [
+    {
+      "id": "b",
+      "columns": [
+        "Tradition",
+        "Geographical origins",
+        "Materials",
+        "Motifs",
+        "Technique",
+        "Cultural context"
+      ],
+      "observedHeaders": [
+        "Tradition",
+        "Geographical origins",
+        "Materials",
+        "Motifs",
+        "Technique",
+        "Cultural context"
+      ],
+      "observedRepresentativeCells": [
+        "**Madhubani**",
+        "Mithila region of Bihar, especially Madhubani, Darbhanga, and Sitamarhi[1][2]",
+        "Traditionally mud walls; now paper, cloth, and canvas; natural dyes, twigs/fingers/matchsticks[9][13]",
+        "Deities, wedding/fertility symbols, fish, birds, flowers, nature, village life[3][6][12]",
+        "Dense line work, geometric filling, no empty space, bold borders",
+        "Traditionally painted by women for rituals, festivals, and auspicious occasions"
+      ],
+      "missingColumns": [],
+      "horizontalScrollObserved": true
+    }
+  ],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 18
+    },
+    {
+      "name": "table_1_horizontal_1",
+      "screenshot": true,
+      "visibleTextNodes": 18
+    },
+    {
+      "name": "table_1_horizontal_2",
+      "screenshot": true,
+      "visibleTextNodes": 18
+    },
+    {
+      "name": "table_1_horizontal_3",
+      "screenshot": true,
+      "visibleTextNodes": 18
+    },
+    {
+      "name": "table_1_horizontal_4",
+      "screenshot": true,
+      "visibleTextNodes": 18
+    },
+    {
+      "name": "table_1_reset",
+      "screenshot": true,
+      "visibleTextNodes": 18
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 15
+    },
+    {
+      "name": "vertical_2",
+      "screenshot": true,
+      "visibleTextNodes": 13
+    },
+    {
+      "name": "vertical_3",
+      "screenshot": true,
+      "visibleTextNodes": 13
+    }
+  ],
+  "verticalSwipes": 3,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 13425
+}

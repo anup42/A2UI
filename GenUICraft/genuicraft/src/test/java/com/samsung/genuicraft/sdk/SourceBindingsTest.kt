@@ -114,10 +114,17 @@ class SourceBindingsTest {
         assertEquals(listOf("heading", "heading", "heading", "headline", "h3"), variants)
     }
 
-    @Test fun `ordered list keeps item order and all wording`() {
+    @Test fun `ordered list preserves authored numeric markers as source text`() {
         val source = "1. First 10:30.\n2. Second 25%.\n3. Third."
         val document = compile(source)
-        assertEquals(listOf("First 10:30.", "Second 25%.", "Third."), property(document, "b0", "items").asJsonArray.map { it.asString })
+        assertEquals(source, property(document, "b0", "text").asString)
+        assertTrue(ContentIntegrity.check(GenUiRequest(source), document).isEmpty())
+    }
+
+    @Test fun `ordered markers preserve non-one starts gaps years and legal clauses`() {
+        val source = "5. Take dose A.\n7) Review clause B.\n2024. Revenue increased."
+        val document = compile(source)
+        assertEquals(source, property(document, "b0", "text").asString)
         assertTrue(ContentIntegrity.check(GenUiRequest(source), document).isEmpty())
     }
 

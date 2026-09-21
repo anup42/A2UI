@@ -1,0 +1,82 @@
+{
+  "id": "BXP-030",
+  "kind": "renderer_repair_replay",
+  "replayMode": "express_repair",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-030/output.express",
+  "sourceExpressSha256": "b8d95775001a6eaf82556fc385b4cc587b7556e9de2e68578f9e0b130fa0ad16",
+  "repairKind": "SOURCE_TEXT_FALLBACK",
+  "repairDiagnostics": [
+    "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+    "Generated output was rejected; rebuilt typed A2UI from exact source blocks."
+  ],
+  "recoveredExpressSha256": "6474632da2c205da50909c5467e2feda0e03820b019399f5904660ca7e0e3e7c",
+  "recoveredJsonSha256": "305712187b8b9f022329bab0128a3a2120473fbc9978a98b2686cd560f0aed6f",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [
+    {
+      "id": "b",
+      "columns": [
+        "Feature",
+        "**EPF**",
+        "**PPF**",
+        "**NPS**"
+      ],
+      "observedHeaders": [
+        "Feature",
+        "**EPF**",
+        "**PPF**",
+        "**NPS**"
+      ],
+      "observedRepresentativeCells": [
+        "**Eligibility**",
+        "Salaried employees in EPF-covered establishments; mandatory for many formal-sector workers.",
+        "Any resident individual can open an account."
+      ],
+      "missingColumns": [],
+      "horizontalScrollObserved": true
+    }
+  ],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 16
+    },
+    {
+      "name": "table_1_horizontal_1",
+      "screenshot": true,
+      "visibleTextNodes": 16
+    },
+    {
+      "name": "table_1_reset",
+      "screenshot": true,
+      "visibleTextNodes": 16
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 9
+    },
+    {
+      "name": "vertical_2",
+      "screenshot": true,
+      "visibleTextNodes": 9
+    },
+    {
+      "name": "vertical_3",
+      "screenshot": true,
+      "visibleTextNodes": 9
+    }
+  ],
+  "verticalSwipes": 3,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 7634
+}
