@@ -10,7 +10,6 @@ import com.google.ai.edge.litertlm.ConversationConfig
 import com.google.ai.edge.litertlm.Engine
 import com.google.ai.edge.litertlm.EngineConfig
 import com.google.ai.edge.litertlm.ExperimentalApi
-import com.google.ai.edge.litertlm.ExperimentalFlags
 import com.google.ai.edge.litertlm.Message
 import com.google.ai.edge.litertlm.SamplerConfig
 import com.google.ai.edge.litertlm.ThinkingConfig
@@ -112,14 +111,8 @@ internal class LiteRtGemma4Runtime(
                     thinkingTokenBudget = config.thinkingTokenBudget,
                 ),
             )
-        val conversation = synchronized(experimentalFlagsLock) {
-            val previousTemplate = ExperimentalFlags.overwritePromptTemplate
-            try {
-                ExperimentalFlags.overwritePromptTemplate = prompt.chatTemplateOverride
-                state.engine.createConversation(conversationConfig)
-            } finally {
-                ExperimentalFlags.overwritePromptTemplate = previousTemplate
-            }
+        val conversation = LiteRtRuntimeFlags.withPromptTemplate(prompt.chatTemplateOverride) {
+            state.engine.createConversation(conversationConfig)
         }
         if (requestCancelled.get() || closed.get()) {
             runCatching { conversation.cancelProcess() }
@@ -220,14 +213,13 @@ internal class LiteRtGemma4Runtime(
         val cacheDir = config.cacheDir?.let(::prepareCacheDirectory)
 
         var initializedEngine: Engine? = null
-        synchronized(experimentalFlagsLock) {
-            val previousMtp = ExperimentalFlags.enableSpeculativeDecoding
-            val previousBenchmark = ExperimentalFlags.enableBenchmark
+        LiteRtRuntimeFlags.withEngineFlags(
+            speculativeDecoding = useMtp,
+            benchmark = config.enableMetrics,
+        ) {
             try {
                 // CPU must explicitly initialize without MTP even if another host component left
                 // the process-global experimental flag enabled.
-                ExperimentalFlags.enableSpeculativeDecoding = useMtp
-                ExperimentalFlags.enableBenchmark = config.enableMetrics
                 initializedEngine = Engine(
                     EngineConfig(
                         modelPath = config.modelPath,
@@ -239,9 +231,6 @@ internal class LiteRtGemma4Runtime(
             } catch (failure: Throwable) {
                 runCatching { initializedEngine?.close() }
                 throw failure
-            } finally {
-                ExperimentalFlags.enableSpeculativeDecoding = previousMtp
-                ExperimentalFlags.enableBenchmark = previousBenchmark
             }
         }
         val engine = checkNotNull(initializedEngine)
@@ -311,10 +300,6 @@ internal class LiteRtGemma4Runtime(
         val runtimeIdentity: String,
     )
 
-    private companion object {
-        /** Guards LiteRT-LM's process-global [ExperimentalFlags] during engine initialization. */
-        val experimentalFlagsLock = Any()
-    }
 }
 
 private fun promptSha256(text: String): String = MessageDigest.getInstance("SHA-256")

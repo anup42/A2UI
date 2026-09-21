@@ -2,6 +2,7 @@ package com.samsung.genuicraft
 
 import com.samsung.genuicraft.sdk.GenUiTrainedConverter
 import com.samsung.genuicraft.sdk.GenUiProvider
+import com.samsung.genuicraft.sdk.GenUiModelProfiles
 import com.samsung.genuicraft.sdk.provider.Gemma4Config
 import java.io.File
 import java.util.Locale
@@ -92,14 +93,9 @@ internal fun trainedE2bW4Config(
     modelPath: String,
     enableMetrics: Boolean,
     enableMtp: Boolean = false,
-): Gemma4Config = Gemma4Config(
+): Gemma4Config = GenUiModelProfiles.trainedE2b(
     modelPath = modelPath,
-    accelerator = "GPU",
-    maxContextTokens = 8_192,
-    maxOutputTokens = 2_048,
-    enableThinking = false,
-    thinkingTokenBudget = 0,
-    enableSpeculativeDecoding = enableMtp,
+    enableMtp = enableMtp,
     enableMetrics = enableMetrics,
 )
 

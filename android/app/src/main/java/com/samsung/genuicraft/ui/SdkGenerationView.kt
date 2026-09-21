@@ -87,8 +87,12 @@ internal fun SdkGenerationWorkspace(
         )
     }
     val hasAttempts = trace.attempts.isNotEmpty()
-    LaunchedEffect(hasAttempts, document != null) {
+    LaunchedEffect(trace.phase, hasAttempts, document != null) {
         when {
+            trace.phase == SdkGenerationPhase.COMPLETE && document != null ->
+                selectedTab = WorkspaceTab.PREVIEW
+            trace.phase == SdkGenerationPhase.GENERATING ||
+                trace.phase == SdkGenerationPhase.REPAIRING -> selectedTab = WorkspaceTab.IR
             hasAttempts -> selectedTab = WorkspaceTab.IR
             document == null -> selectedTab = WorkspaceTab.IR
             else -> selectedTab = WorkspaceTab.PREVIEW
@@ -107,6 +111,15 @@ internal fun SdkGenerationWorkspace(
             .semantics { contentDescription = "SDK generation workspace" },
     ) {
         val compact = maxWidth < 520.dp
+        if (
+            trace.phase == SdkGenerationPhase.IDLE &&
+            trace.attempts.isEmpty() &&
+            trace.finalIr == null &&
+            document == null
+        ) {
+            EmptyWorkspace()
+            return@BoxWithConstraints
+        }
         Column(Modifier.fillMaxSize()) {
             PhaseTracker(trace, compact, document != null)
             TabRow(
@@ -119,7 +132,7 @@ internal fun SdkGenerationWorkspace(
                     modifier = Modifier
                         .testTag("sdk_ir_tab")
                         .semantics { contentDescription = "IR output" },
-                    text = { Text("IR") },
+                    text = { Text("Inspect IR") },
                 )
                 if (document != null) {
                     Tab(
@@ -140,7 +153,8 @@ internal fun SdkGenerationWorkspace(
                         modifier = Modifier
                             .fillMaxSize()
                             .testTag("sdk_preview_content")
-                            .verticalScroll(rememberScrollState()),
+                            .verticalScroll(rememberScrollState())
+                            .padding(top = 10.dp, bottom = 16.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp),
                     ) {
                         GenUiContent(
@@ -149,6 +163,47 @@ internal fun SdkGenerationWorkspace(
                             onAction = onAction,
                         )
                         metrics()
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun EmptyWorkspace() {
+    Box(
+        modifier = Modifier.fillMaxSize().padding(vertical = 12.dp),
+        contentAlignment = Alignment.TopCenter,
+    ) {
+        OutlinedCard(Modifier.fillMaxWidth()) {
+            Column(
+                modifier = Modifier.padding(horizontal = 18.dp, vertical = 20.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Text("Your generated UI will appear here", style = MaterialTheme.typography.titleMedium)
+                Text(
+                    "Choose a sample or paste an answer, pick a model, then tap Generate UI.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    listOf("A2UI Express", "Recover", "Render").forEachIndexed { index, label ->
+                        Surface(
+                            modifier = Modifier.weight(1f),
+                            shape = MaterialTheme.shapes.small,
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                        ) {
+                            Text(
+                                "${index + 1}  $label",
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
                     }
                 }
             }
@@ -178,45 +233,35 @@ private fun PhaseTracker(trace: SdkGenerationTrace, compact: Boolean, hasDocumen
         SdkGenerationPhase.CANCELLED -> MaterialTheme.colorScheme.tertiary
         else -> MaterialTheme.colorScheme.onSurfaceVariant
     }
-    val labels = if (compact) listOf("Generate", "Check", "Ready")
-    else listOf("Generate", "Validate & repair", "Ready")
+    val labels = if (compact) listOf("Generate", "Recover", "Render")
+    else listOf("Generate", "Validate & recover", "Render")
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 6.dp)
+            .padding(bottom = 4.dp)
             .testTag("sdk_generation_phase")
             .semantics { contentDescription = "Generation phase: $status" },
-        verticalArrangement = Arrangement.spacedBy(5.dp),
+        verticalArrangement = Arrangement.spacedBy(3.dp),
     ) {
         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             labels.forEachIndexed { index, label ->
                 val complete = activeStep > index
                 val active = activeStep == index
-                Surface(
-                    modifier = Modifier.weight(1f),
-                    shape = MaterialTheme.shapes.small,
-                    color = when {
-                        complete -> MaterialTheme.colorScheme.primaryContainer
-                        active -> MaterialTheme.colorScheme.secondaryContainer
-                        else -> MaterialTheme.colorScheme.surfaceVariant
+                Text(
+                    text = when {
+                        complete -> "✓ $label"
+                        active -> "• $label"
+                        else -> label
                     },
-                ) {
-                    Text(
-                        text = when {
-                            complete -> "✓ $label"
-                            active -> "• $label"
-                            else -> label
-                        },
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 7.dp),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = when {
-                            complete -> MaterialTheme.colorScheme.onPrimaryContainer
-                            active -> MaterialTheme.colorScheme.onSecondaryContainer
-                            else -> MaterialTheme.colorScheme.onSurfaceVariant
-                        },
-                    )
-                }
+                    modifier = Modifier.weight(1f).padding(vertical = 3.dp),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = when {
+                        complete -> MaterialTheme.colorScheme.primary
+                        active -> MaterialTheme.colorScheme.onSecondaryContainer
+                        else -> MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+                )
             }
         }
         Text(status, style = MaterialTheme.typography.labelSmall, color = statusColor)
@@ -261,6 +306,7 @@ private fun IrWorkspace(
                 liveTestTag = live,
                 compact = compact,
                 live = live,
+                initiallyExpanded = live || trace.finalIr == null,
             )
         }
 
@@ -277,10 +323,36 @@ private fun IrWorkspace(
                 testTag = "sdk_repaired_ir",
                 compact = compact,
                 supportingText = finalIrSupportingText(trace.repairKind),
+                initiallyExpanded = false,
             )
         }
 
         ConversionNotes(trace.warnings)
+
+        if (
+            trace.phase == SdkGenerationPhase.FAILED ||
+            trace.phase == SdkGenerationPhase.CANCELLED
+        ) {
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.medium,
+                color = if (trace.phase == SdkGenerationPhase.FAILED) {
+                    MaterialTheme.colorScheme.errorContainer
+                } else {
+                    MaterialTheme.colorScheme.tertiaryContainer
+                },
+            ) {
+                Text(
+                    if (trace.phase == SdkGenerationPhase.FAILED) {
+                        "The input and generated output are still available. Edit the input or try the run again."
+                    } else {
+                        "The run stopped safely. Partial generated output is still available to inspect or copy."
+                    },
+                    modifier = Modifier.padding(12.dp),
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+        }
 
         trace.error?.takeIf(String::isNotBlank)?.let { error ->
             CodePanel(
@@ -322,11 +394,12 @@ private fun CodePanel(
     liveTestTag: Boolean = false,
     supportingText: String? = null,
     error: Boolean = false,
+    initiallyExpanded: Boolean = true,
 ) {
     val clipboard = LocalClipboardManager.current
     val verticalScroll = rememberScrollState()
     val horizontalScroll = rememberScrollState()
-    var expanded by remember(testTag) { mutableStateOf(false) }
+    var expanded by remember(testTag, initiallyExpanded) { mutableStateOf(initiallyExpanded) }
     var copied by remember(text) { mutableStateOf(false) }
     val codeHeight = when {
         expanded && compact -> 320.dp
@@ -393,33 +466,35 @@ private fun CodePanel(
                 modifier = Modifier.semantics {
                     contentDescription = if (expanded) "Collapse $title" else "Expand $title"
                 },
-            ) { Text(if (expanded) "Collapse" else "Expand") }
+            ) { Text(if (expanded) "Hide code" else "Show code") }
         }
-        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(codeHeight)
-                .then(if (liveTestTag) Modifier.testTag("sdk_live_ir") else Modifier),
-            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.34f),
-        ) {
-            SelectionContainer {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(verticalScroll)
-                        .horizontalScroll(horizontalScroll)
-                        .padding(12.dp),
-                ) {
-                    Text(
-                        text = text.ifEmpty { "Waiting for model output…" },
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            fontFamily = FontFamily.Monospace,
-                            lineHeight = 18.sp,
-                        ),
-                        color = if (text.isEmpty()) MaterialTheme.colorScheme.onSurfaceVariant
-                        else MaterialTheme.colorScheme.onSurface,
-                    )
+        if (expanded) {
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(codeHeight)
+                    .then(if (liveTestTag) Modifier.testTag("sdk_live_ir") else Modifier),
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.34f),
+            ) {
+                SelectionContainer {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(verticalScroll)
+                            .horizontalScroll(horizontalScroll)
+                            .padding(12.dp),
+                    ) {
+                        Text(
+                            text = text.ifEmpty { "Waiting for model output…" },
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                fontFamily = FontFamily.Monospace,
+                                lineHeight = 18.sp,
+                            ),
+                            color = if (text.isEmpty()) MaterialTheme.colorScheme.onSurfaceVariant
+                            else MaterialTheme.colorScheme.onSurface,
+                        )
+                    }
                 }
             }
         }

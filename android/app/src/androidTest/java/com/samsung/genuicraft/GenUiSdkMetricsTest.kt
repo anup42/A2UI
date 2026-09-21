@@ -19,11 +19,13 @@ class GenUiSdkMetricsTest {
     @get:Rule val compose = createAndroidComposeRule<GenUiSdkDemoActivity>()
 
     @Test fun metricsTogglePersistsAndRendererOnlyClearsStaleCounters() {
+        compose.onNodeWithTag("sdk_settings_button").performClick()
         val toggle = compose.onNodeWithTag("token_metrics_switch")
         // Start from an explicit enabled preference so this test is repeatable.
         if (compose.activity.getSharedPreferences("genuicraft_sdk_demo", 0)
                 .getBoolean("token_metrics_enabled", true).not()) toggle.performClick()
         toggle.assertIsOn()
+        compose.onNodeWithText("Done").performClick()
         val document = GenUiCompiler.compile("<a2ui>\nroot=Text(\"Metrics UI test\")\n</a2ui>")
         compose.runOnUiThread {
             compose.activity.showDocument(document)
@@ -35,14 +37,21 @@ class GenUiSdkMetricsTest {
         compose.onNodeWithTag("generation_metrics_panel").assertExists()
         compose.onNodeWithText("Details").performClick()
         compose.onNodeWithTag("generation_metrics_attempt_1").assertExists()
+        compose.onNodeWithTag("sdk_settings_button").performClick()
         toggle.performClick()
         toggle.assertIsOff()
+        compose.onNodeWithText("Done").performClick()
         compose.onNodeWithTag("generation_metrics_panel").assertDoesNotExist()
         compose.activityRule.scenario.recreate()
+        compose.onNodeWithTag("sdk_settings_button").performClick()
         compose.onNodeWithTag("token_metrics_switch").assertIsOff().performClick().assertIsOn()
+        compose.onNodeWithText("Done").performClick()
         compose.activityRule.scenario.recreate()
+        compose.onNodeWithTag("sdk_settings_button").performClick()
         compose.onNodeWithTag("token_metrics_switch").assertIsOn()
+        compose.onNodeWithText("Done").performClick()
         compose.runOnUiThread {
+            compose.activity.showDocument(document)
             compose.activity.showGenerationMetrics(
                 listOf(GenUiModelOutput("fixture", "test/GPU+MTP", 80, GenUiGenerationMetrics(120, 80, 40.0))),
                 3500,

@@ -68,9 +68,9 @@ class SdkStreamingOnDeviceTest {
                 assertForeground(device, context.packageName, "start SDK conversion")
                 assertTrue(
                     "SDK screen did not open on the first Bixby50 case",
-                    device.wait(Until.hasObject(By.text("BXP-001")), UI_TIMEOUT),
+                    device.wait(Until.hasObject(By.textStartsWith("BXP-001")), UI_TIMEOUT),
                 )
-                clickText(device, context.packageName, "Convert + render")
+                clickText(device, context.packageName, "Generate UI")
 
                 val samples = mutableListOf<Map<String, Any>>()
                 var lastPartial = ""
@@ -124,10 +124,17 @@ class SdkStreamingOnDeviceTest {
                 assertTrue("Rendered document Express IR is empty", documentExpress.isNotBlank())
                 assertTrue("Rendered document A2UI JSON is empty", final.documentJson.orEmpty().isNotBlank())
 
-                capture(device, context.packageName, File(runDir, GENERATED_SCREENSHOT))
-                device.dumpWindowHierarchy(File(runDir, "final_ui.xml"))
+                // Completed demos open the preview; raw and repaired output stay in Inspect IR.
+                clickText(device, context.packageName, "Inspect IR")
                 waitForText(device, context.packageName, "Generated IR")
                 waitForText(device, context.packageName, "Repaired IR")
+                val expand = requireNotNull(device.wait(
+                    Until.findObject(By.pkg(context.packageName).desc("Expand Repaired IR")), UI_TIMEOUT,
+                )) { "Repaired IR disclosure is missing" }
+                assertForeground(device, context.packageName, "expand repaired IR")
+                expand.click()
+                capture(device, context.packageName, File(runDir, GENERATED_SCREENSHOT))
+                device.dumpWindowHierarchy(File(runDir, "final_ui.xml"))
                 clickText(device, context.packageName, "Preview")
                 Thread.sleep(UI_SETTLE_MS)
                 capture(device, context.packageName, File(runDir, PREVIEW_SCREENSHOT))

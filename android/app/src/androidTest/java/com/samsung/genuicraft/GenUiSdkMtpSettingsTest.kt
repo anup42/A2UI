@@ -75,15 +75,15 @@ class GenUiSdkMtpSettingsTest {
 
     private fun openInferenceSettings(device: UiDevice) {
         waitForObject(device, By.text("Settings"), "Settings button").click()
-        waitForObject(device, By.text("Inference settings"), "Inference settings dialog")
-        waitForObject(device, By.text("MTP drafter"), "MTP drafter label")
+        waitForObject(device, By.text("Demo settings"), "Demo settings dialog")
+        waitForObject(device, By.text("MTP acceleration"), "MTP acceleration label")
     }
 
     private fun closeInferenceSettings(device: UiDevice) {
         waitForObject(device, By.text("Done"), "Done button").click()
         assertTrue(
             "Inference settings dialog did not close",
-            device.wait(Until.gone(By.text("Inference settings")), UI_TIMEOUT_MS),
+            device.wait(Until.gone(By.text("Demo settings")), UI_TIMEOUT_MS),
         )
     }
 

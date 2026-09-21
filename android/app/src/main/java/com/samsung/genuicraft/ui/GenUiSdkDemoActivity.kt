@@ -9,6 +9,7 @@ import android.os.SystemClock
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
@@ -23,6 +24,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.gson.JsonParser
+import com.samsung.genuicraft.inference.OnDeviceModelCatalog
 import com.samsung.genuicraft.inference.SdkGemmaModelDownload
 import com.samsung.genuicraft.sdk.*
 import com.samsung.genuicraft.sdk.provider.*
@@ -158,69 +160,117 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                     mutableStateOf(
                         preferences.getString(
                             PREFERENCE_TRAINED_E2B_W4_MODEL_PATH,
-                            java.io.File(
-                                getExternalFilesDir(null),
-                                "sdk_models/e2b_v10_w4.litertlm",
-                            ).absolutePath,
+                            OnDeviceModelCatalog.entries.first { it.usesTrainedSdkConverter }
+                                .localFile(this@GenUiSdkDemoActivity).absolutePath,
                         ).orEmpty()
                     )
                 }
                 var trainedModelCheckRevision by remember { mutableIntStateOf(0) }
+                var modelSetupVisible by remember { mutableStateOf(false) }
+                val selectedCase = cases[caseIndex]
+                val customInput = source != selectedCase.get("text").asString
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    Column(Modifier.fillMaxSize().safeDrawingPadding().padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text("GenUICraft SDK · Bixby50", style = MaterialTheme.typography.titleLarge)
-                        if (editorVisible || generationTrace.phase != SdkGenerationPhase.IDLE) {
-                            Text(
-                                "Sample ${cases[caseIndex].get("id").asString} · ${cases[caseIndex].get("query").asString}",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                maxLines = 2,
-                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
-                            )
+                    Column(
+                        Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 16.dp, vertical = 12.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Column(Modifier.weight(1f)) {
+                                Text("GenUICraft SDK", style = MaterialTheme.typography.headlineSmall)
+                                Text(
+                                    "Markdown to an interactive A2UI experience",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                            TextButton(
+                                onClick = { settingsVisible = true },
+                                modifier = Modifier.testTag("sdk_settings_button"),
+                            ) { Text("Settings") }
                         }
-                        Text(status, style = MaterialTheme.typography.bodySmall)
-                        lastRuntime?.let {
-                            Text(it, style = MaterialTheme.typography.bodySmall,
-                                modifier = Modifier.testTag("sdk_last_runtime"))
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = MaterialTheme.shapes.medium,
+                            color = when (generationTrace.phase) {
+                                SdkGenerationPhase.FAILED -> MaterialTheme.colorScheme.errorContainer
+                                SdkGenerationPhase.CANCELLED -> MaterialTheme.colorScheme.tertiaryContainer
+                                SdkGenerationPhase.COMPLETE -> MaterialTheme.colorScheme.primaryContainer
+                                else -> MaterialTheme.colorScheme.surfaceVariant
+                            },
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            ) {
+                                Column(Modifier.weight(1f)) {
+                                    Text(
+                                        status,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = when (generationTrace.phase) {
+                                            SdkGenerationPhase.FAILED -> MaterialTheme.colorScheme.onErrorContainer
+                                            SdkGenerationPhase.CANCELLED -> MaterialTheme.colorScheme.onTertiaryContainer
+                                            SdkGenerationPhase.COMPLETE -> MaterialTheme.colorScheme.onPrimaryContainer
+                                            else -> MaterialTheme.colorScheme.onSurfaceVariant
+                                        },
+                                    )
+                                    lastRuntime?.let {
+                                        Text(
+                                            it,
+                                            style = MaterialTheme.typography.labelSmall,
+                                            modifier = Modifier.testTag("sdk_last_runtime"),
+                                        )
+                                    }
+                                    if (tokenMetricsEnabled) generationMetrics?.let { metrics ->
+                                        val decodeRate = metrics.weightedNativeDecodeTokensPerSecond
+                                        Text(
+                                            "${formatTokenCount(metrics.totalInputTokens)} in · " +
+                                                "${formatTokenCount(metrics.totalOutputTokens)} out · " +
+                                                if (decodeRate != null) {
+                                                    "${formatTokensPerSecond(decodeRate)} decode"
+                                                } else {
+                                                    "${formatTokensPerSecond(metrics.requestAverageTokensPerSecond)} request average"
+                                                },
+                                            style = MaterialTheme.typography.labelSmall,
+                                            modifier = Modifier.testTag("sdk_metrics_summary"),
+                                        )
+                                    }
+                                }
+                                when {
+                                    working -> OutlinedButton(
+                                        onClick = {
+                                            activeJob?.cancel()
+                                            generationMetrics = null
+                                            generationTrace = generationTrace.copy(
+                                                phase = SdkGenerationPhase.CANCELLED
+                                            )
+                                            status = "Cancelled · generated text retained"
+                                        },
+                                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+                                    ) { Text("Cancel") }
+                                    !editorVisible -> TextButton(
+                                        onClick = { editorVisible = true },
+                                    ) { Text("Edit input") }
+                                }
+                            }
                         }
                         if (working) LinearProgressIndicator(Modifier.fillMaxWidth())
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            OutlinedButton(
-                                onClick = { editorVisible = !editorVisible },
-                                modifier = Modifier.weight(1f),
-                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
-                            ) {
-                                Text(if (editorVisible) "Hide input" else "Edit input", maxLines = 1,
-                                    style = MaterialTheme.typography.labelMedium)
-                            }
-                            OutlinedButton(
-                                onClick = { settingsVisible = true },
-                                modifier = Modifier.weight(1f).testTag("sdk_settings_button"),
-                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
-                            ) { Text("Settings", maxLines = 1, style = MaterialTheme.typography.labelMedium) }
-                            if (working) OutlinedButton(modifier = Modifier.weight(1f),
-                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
-                                onClick = {
-                                activeJob?.cancel()
-                                generationMetrics = null
-                                generationTrace = generationTrace.copy(phase = SdkGenerationPhase.CANCELLED)
-                                status = "Cancelled · generated text retained"
-                            }) { Text("Cancel", maxLines = 1, style = MaterialTheme.typography.labelMedium) }
-                        }
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Switch(
-                                checked = tokenMetricsEnabled,
-                                onCheckedChange = { enabled ->
-                                    tokenMetricsEnabled = enabled
-                                    generationMetrics = null
-                                    preferences.edit()
-                                        .putBoolean(PREFERENCE_TOKEN_METRICS_ENABLED, enabled)
-                                        .apply()
+                        if (!editorVisible && generationTrace.phase != SdkGenerationPhase.IDLE) {
+                            Text(
+                                if (customInput) {
+                                    "Custom input"
+                                } else {
+                                    "${selectedCase.get("id").asString} · " +
+                                        selectedCase.get("query").asString
                                 },
-                                enabled = !working,
-                                modifier = Modifier.testTag(TOKEN_METRICS_SWITCH_TEST_TAG),
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 1,
+                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                             )
-                            Text("Token metrics", modifier = Modifier.padding(horizontal = 12.dp))
                         }
                         val managedReadyFile =
                             (managedModelState as? SdkGemmaModelDownload.State.Ready)?.file
@@ -239,206 +289,267 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                             trainedModelReady = trainedModelReadiness.usable,
                         )
                         if (editorVisible) {
-                            Column(
+                            OutlinedCard(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .heightIn(max = 300.dp)
-                                    .verticalScroll(rememberScrollState()),
-                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                                    .heightIn(max = 470.dp),
                             ) {
-                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    OutlinedButton(enabled = !working, onClick = {
-                                        caseIndex = (caseIndex + cases.size - 1) % cases.size
-                                        source = cases[caseIndex].get("text").asString
-                                    }) { Text("Previous") }
-                                    Text(cases[caseIndex].get("id").asString, modifier = Modifier.padding(top = 12.dp))
-                                    OutlinedButton(enabled = !working, onClick = {
-                                        caseIndex = (caseIndex + 1) % cases.size
-                                        source = cases[caseIndex].get("text").asString
-                                    }) { Text("Next") }
-                                }
-                                OutlinedTextField(
-                                    source,
-                                    { source = it },
-                                    modifier = Modifier.fillMaxWidth(),
-                                    label = { Text("Markdown, text or A2UI") },
-                                    minLines = 3,
-                                    maxLines = 5,
-                                )
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Switch(
-                                        checked = useGemma,
-                                        onCheckedChange = { enabled ->
-                                            useGemma = enabled
-                                            preferences.edit()
-                                                .putBoolean(PREFERENCE_USE_GEMMA, enabled)
-                                                .apply()
-                                        },
-                                        enabled = !working,
-                                    )
-                                    Text(
-                                        if (useGemma) "Gemma 4 E2B · on device" else "Gauss 30B · server",
-                                        modifier = Modifier.padding(horizontal = 12.dp),
-                                    )
-                                }
-                                if (useGemma) {
-                                    Text("E2B model", style = MaterialTheme.typography.titleSmall)
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        RadioButton(
-                                            selected = e2bModelChoice == E2bModelChoice.OFFICIAL_E2B,
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .verticalScroll(rememberScrollState())
+                                        .padding(14.dp),
+                                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                                ) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    ) {
+                                        OutlinedButton(
+                                            enabled = !working,
+                                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 7.dp),
                                             onClick = {
+                                                caseIndex = (caseIndex + cases.size - 1) % cases.size
+                                                source = cases[caseIndex].get("text").asString
+                                            },
+                                        ) { Text("Previous") }
+                                        Text(
+                                            if (customInput) "Custom input" else "${caseIndex + 1} / ${cases.size}",
+                                            modifier = Modifier.weight(1f),
+                                            style = MaterialTheme.typography.labelLarge,
+                                            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                        )
+                                        OutlinedButton(
+                                            enabled = !working,
+                                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 7.dp),
+                                            onClick = {
+                                                caseIndex = (caseIndex + 1) % cases.size
+                                                source = cases[caseIndex].get("text").asString
+                                            },
+                                        ) { Text("Next") }
+                                    }
+                                    Text(
+                                        if (customInput) {
+                                            "Edited text · use Previous or Next to load a Bixby50 sample."
+                                        } else {
+                                            "${selectedCase.get("id").asString} · " +
+                                                selectedCase.get("query").asString
+                                        },
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        maxLines = 2,
+                                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                                    )
+                                    OutlinedTextField(
+                                        source,
+                                        { source = it },
+                                        modifier = Modifier.fillMaxWidth(),
+                                        label = { Text("Markdown, text or A2UI Express") },
+                                        supportingText = {
+                                            Text("Paste an answer, or use a Bixby50 example above.")
+                                        },
+                                        minLines = 3,
+                                        maxLines = 5,
+                                    )
+                                    Text("Generation model", style = MaterialTheme.typography.titleSmall)
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .horizontalScroll(rememberScrollState()),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    ) {
+                                        FilterChip(
+                                            selected = !useGemma,
+                                            onClick = {
+                                                useGemma = false
+                                                modelSetupVisible = false
+                                                preferences.edit()
+                                                    .putBoolean(PREFERENCE_USE_GEMMA, false)
+                                                    .apply()
+                                            },
+                                            enabled = !working,
+                                            label = { Text("Gauss 30B") },
+                                        )
+                                        FilterChip(
+                                            selected = useGemma &&
+                                                e2bModelChoice == E2bModelChoice.OFFICIAL_E2B,
+                                            onClick = {
+                                                useGemma = true
                                                 e2bModelChoice = E2bModelChoice.OFFICIAL_E2B
-                                                preferences.edit().putString(
-                                                    PREFERENCE_E2B_MODEL_CHOICE,
-                                                    E2bModelChoice.OFFICIAL_E2B.preferenceValue,
-                                                ).apply()
+                                                preferences.edit()
+                                                    .putBoolean(PREFERENCE_USE_GEMMA, true)
+                                                    .putString(
+                                                        PREFERENCE_E2B_MODEL_CHOICE,
+                                                        E2bModelChoice.OFFICIAL_E2B.preferenceValue,
+                                                    ).apply()
                                             },
                                             enabled = !working,
                                             modifier = Modifier.testTag("e2b_model_official"),
+                                            label = { Text("Official E2B") },
                                         )
-                                        Text("Official E2B · GPU")
-                                    }
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        RadioButton(
-                                            selected =
+                                        FilterChip(
+                                            selected = useGemma &&
                                                 e2bModelChoice == E2bModelChoice.TRAINED_E2B_V10_W4,
                                             onClick = {
+                                                useGemma = true
                                                 e2bModelChoice = E2bModelChoice.TRAINED_E2B_V10_W4
-                                                preferences.edit().putString(
-                                                    PREFERENCE_E2B_MODEL_CHOICE,
-                                                    E2bModelChoice.TRAINED_E2B_V10_W4.preferenceValue,
-                                                ).apply()
+                                                preferences.edit()
+                                                    .putBoolean(PREFERENCE_USE_GEMMA, true)
+                                                    .putString(
+                                                        PREFERENCE_E2B_MODEL_CHOICE,
+                                                        E2bModelChoice.TRAINED_E2B_V10_W4.preferenceValue,
+                                                    ).apply()
                                             },
                                             enabled = !working,
                                             modifier = Modifier.testTag("e2b_model_trained_v10_w4"),
+                                            label = { Text("Trained E2B") },
                                         )
-                                        Text("Trained E2B v10 · W4 · GPU")
                                     }
-                                    if (e2bModelChoice == E2bModelChoice.OFFICIAL_E2B) {
-                                        Text(
-                                            "Official model source",
-                                            style = MaterialTheme.typography.titleSmall,
-                                        )
-                                        Row(verticalAlignment = Alignment.CenterVertically) {
-                                            RadioButton(
-                                                selected =
-                                                    gemmaModelSource == GemmaModelSource.MANAGED_DOWNLOAD,
-                                                onClick = {
-                                                    gemmaModelSource = GemmaModelSource.MANAGED_DOWNLOAD
-                                                    preferences.edit().putString(
-                                                        PREFERENCE_GEMMA_MODEL_SOURCE,
-                                                        GemmaModelSource.MANAGED_DOWNLOAD.preferenceValue,
-                                                    ).apply()
-                                                },
-                                                enabled = !working,
-                                                modifier = Modifier.testTag(
-                                                    "gemma_model_source_managed"
-                                                ),
-                                            )
-                                            Text("Download model")
+                                    Text(
+                                        when {
+                                            !useGemma -> "Server model · no local setup required"
+                                            e2bModelChoice == E2bModelChoice.OFFICIAL_E2B &&
+                                                managedReadyFile != null -> "On-device GPU · ready offline"
+                                            e2bModelChoice == E2bModelChoice.OFFICIAL_E2B ->
+                                                "On-device GPU · model setup required"
+                                            trainedModelReadiness.usable -> "Trained on-device GPU · model ready"
+                                            else -> "Trained on-device GPU · model setup required"
+                                        },
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = if (
+                                            useGemma &&
+                                            e2bModelChoice == E2bModelChoice.TRAINED_E2B_V10_W4 &&
+                                            !trainedModelReadiness.usable
+                                        ) MaterialTheme.colorScheme.error
+                                        else MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                    if (useGemma) {
+                                        TextButton(
+                                            onClick = { modelSetupVisible = !modelSetupVisible },
+                                            contentPadding = PaddingValues(horizontal = 0.dp, vertical = 4.dp),
+                                        ) {
+                                            Text(if (modelSetupVisible) "Hide model setup" else "Model setup")
                                         }
-                                        Row(verticalAlignment = Alignment.CenterVertically) {
-                                            RadioButton(
-                                                selected =
-                                                    gemmaModelSource == GemmaModelSource.LOCAL_FILE,
-                                                onClick = {
-                                                    gemmaModelSource = GemmaModelSource.LOCAL_FILE
-                                                    preferences.edit().putString(
-                                                        PREFERENCE_GEMMA_MODEL_SOURCE,
-                                                        GemmaModelSource.LOCAL_FILE.preferenceValue,
-                                                    ).apply()
-                                                },
-                                                enabled = !working,
-                                                modifier = Modifier.testTag(
-                                                    "gemma_model_source_local"
-                                                ),
-                                            )
-                                            Text("Use local file · advanced")
-                                        }
-                                        if (gemmaModelSource == GemmaModelSource.MANAGED_DOWNLOAD) {
-                                            ManagedModelDownloadPanel(
-                                                state = managedModelState,
-                                                modelFile = managedModelDownload.modelFile,
-                                                enabled = !working,
-                                                onStart = {
-                                                    lifecycleScope.launch {
-                                                        managedModelState = managedModelDownload.start()
-                                                    }
-                                                },
-                                                onCancel = {
-                                                    lifecycleScope.launch {
-                                                        managedModelState = managedModelDownload.cancel()
-                                                    }
-                                                },
-                                            )
+                                    }
+                                    if (useGemma && modelSetupVisible) {
+                                        HorizontalDivider()
+                                        if (e2bModelChoice == E2bModelChoice.OFFICIAL_E2B) {
+                                            Text("Official model source", style = MaterialTheme.typography.titleSmall)
+                                            Row(
+                                                modifier = Modifier.horizontalScroll(rememberScrollState()),
+                                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                            ) {
+                                                FilterChip(
+                                                    selected = gemmaModelSource == GemmaModelSource.MANAGED_DOWNLOAD,
+                                                    onClick = {
+                                                        gemmaModelSource = GemmaModelSource.MANAGED_DOWNLOAD
+                                                        preferences.edit().putString(
+                                                            PREFERENCE_GEMMA_MODEL_SOURCE,
+                                                            GemmaModelSource.MANAGED_DOWNLOAD.preferenceValue,
+                                                        ).apply()
+                                                    },
+                                                    enabled = !working,
+                                                    modifier = Modifier.testTag("gemma_model_source_managed"),
+                                                    label = { Text("Managed download") },
+                                                )
+                                                FilterChip(
+                                                    selected = gemmaModelSource == GemmaModelSource.LOCAL_FILE,
+                                                    onClick = {
+                                                        gemmaModelSource = GemmaModelSource.LOCAL_FILE
+                                                        preferences.edit().putString(
+                                                            PREFERENCE_GEMMA_MODEL_SOURCE,
+                                                            GemmaModelSource.LOCAL_FILE.preferenceValue,
+                                                        ).apply()
+                                                    },
+                                                    enabled = !working,
+                                                    modifier = Modifier.testTag("gemma_model_source_local"),
+                                                    label = { Text("Local file") },
+                                                )
+                                            }
+                                            if (gemmaModelSource == GemmaModelSource.MANAGED_DOWNLOAD) {
+                                                ManagedModelDownloadPanel(
+                                                    state = managedModelState,
+                                                    modelFile = managedModelDownload.modelFile,
+                                                    enabled = !working,
+                                                    onStart = {
+                                                        lifecycleScope.launch {
+                                                            managedModelState = managedModelDownload.start()
+                                                        }
+                                                    },
+                                                    onCancel = {
+                                                        lifecycleScope.launch {
+                                                            managedModelState = managedModelDownload.cancel()
+                                                        }
+                                                    },
+                                                )
+                                            } else {
+                                                OutlinedTextField(
+                                                    officialModelPath,
+                                                    {
+                                                        officialModelPath = it
+                                                        preferences.edit().putString(
+                                                            PREFERENCE_OFFICIAL_E2B_MODEL_PATH,
+                                                            it,
+                                                        ).apply()
+                                                    },
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    label = { Text("Official .litertlm model path") },
+                                                    singleLine = true,
+                                                )
+                                            }
                                         } else {
+                                            Text(
+                                                "GPU · MTP follows Settings and requires a bundled drafter.",
+                                                style = MaterialTheme.typography.bodySmall,
+                                            )
                                             OutlinedTextField(
-                                                officialModelPath,
+                                                trainedModelPath,
                                                 {
-                                                    officialModelPath = it
+                                                    trainedModelPath = it
                                                     preferences.edit().putString(
-                                                        PREFERENCE_OFFICIAL_E2B_MODEL_PATH,
+                                                        PREFERENCE_TRAINED_E2B_W4_MODEL_PATH,
                                                         it,
                                                     ).apply()
                                                 },
-                                                modifier = Modifier.fillMaxWidth(),
-                                                label = { Text("Official .litertlm model path") },
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .testTag("trained_e2b_w4_model_path"),
+                                                label = { Text("Trained .litertlm model path") },
                                                 singleLine = true,
                                             )
-                                        }
-                                    } else {
-                                        Text(
-                                            "GPU · MTP follows Settings and requires a bundled drafter.",
-                                            style = MaterialTheme.typography.bodySmall,
-                                        )
-                                        OutlinedTextField(
-                                            trainedModelPath,
-                                            {
-                                                trainedModelPath = it
-                                                preferences.edit().putString(
-                                                    PREFERENCE_TRAINED_E2B_W4_MODEL_PATH,
-                                                    it,
-                                                ).apply()
-                                            },
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .testTag("trained_e2b_w4_model_path"),
-                                            label = { Text("Trained .litertlm model path") },
-                                            singleLine = true,
-                                        )
-                                        Text(
-                                            trainedModelReadiness.message,
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = if (trainedModelReadiness.usable) {
-                                                MaterialTheme.colorScheme.onSurface
-                                            } else {
-                                                MaterialTheme.colorScheme.error
-                                            },
-                                            modifier = Modifier.testTag(
-                                                "trained_e2b_w4_model_readiness"
-                                            ),
-                                        )
-                                        Text(
-                                            "Place the exported model at the path above. " +
-                                                "No download URL is configured.",
-                                            style = MaterialTheme.typography.bodySmall,
-                                        )
-                                        OutlinedButton(
-                                            onClick = { trainedModelCheckRevision += 1 },
-                                            enabled = !working,
-                                            modifier = Modifier.testTag(
-                                                "trained_e2b_w4_check_model"
-                                            ),
-                                        ) {
-                                            Text("Check model")
+                                            Text(
+                                                trainedModelReadiness.message,
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = if (trainedModelReadiness.usable) {
+                                                    MaterialTheme.colorScheme.onSurface
+                                                } else {
+                                                    MaterialTheme.colorScheme.error
+                                                },
+                                                modifier = Modifier.testTag("trained_e2b_w4_model_readiness"),
+                                            )
+                                            Text(
+                                                "Place the exported model at the path above. No download URL is configured.",
+                                                style = MaterialTheme.typography.bodySmall,
+                                            )
+                                            OutlinedButton(
+                                                onClick = { trainedModelCheckRevision += 1 },
+                                                enabled = !working,
+                                                modifier = Modifier.testTag("trained_e2b_w4_check_model"),
+                                            ) { Text("Check model") }
                                         }
                                     }
                                 }
                             }
-                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            ) {
                                 Button(
                                     enabled = actionAvailability.convertEnabled,
-                                    modifier = Modifier.testTag("convert_render_button"),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .testTag("convert_render_button"),
                                     onClick = {
                                         // Compose can deliver a second tap before the disabled state recomposes.
                                         if (working) return@Button
@@ -479,7 +590,7 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                         val metricsForRun = tokenMetricsEnabled
                                         val mtpForRun = mtpEnabled
                                         activeJob = lifecycleScope.launch {
-                                            var captureForRun: SdkStreamingProvider? = null
+                                            var captureForRun: GenUiSession? = null
                                             try {
                                                 val providerKey = sdkDemoProviderKey(
                                                     useGemma = useGemmaForRun,
@@ -524,17 +635,17 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                                         activeProviderKey = providerKey
                                                     }
                                                 }
-                                                val metricsProvider = if (metricsForRun) {
-                                                    MetricsRecordingProvider(provider)
-                                                } else {
-                                                    null
-                                                }
                                                 // Runtime identity comes from the initialized engine, even with metrics off.
                                                 var runtimeForRun: String? = null
-                                                val measuredProvider = metricsProvider ?: provider
                                                 var lastPartialAtMs = 0L
-                                                val converterProvider = SdkStreamingProvider(
-                                                    delegate = measuredProvider,
+                                                val session = GenUiSession(
+                                                    this@GenUiSdkDemoActivity,
+                                                    provider,
+                                                    if (useGemmaForRun && e2bModelChoiceForRun == E2bModelChoice.TRAINED_E2B_V10_W4)
+                                                        GenUiConversionProfile.TRAINED_E2B_V10_W4
+                                                    else GenUiConversionProfile.SOURCE_BOUND,
+                                                ).also { captureForRun = it }
+                                                val observer = GenUiGenerationObserver(
                                                     onAttemptStarted = { number ->
                                                         lastPartialAtMs = 0L
                                                         postGenerationUpdate(runId) {
@@ -559,27 +670,10 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                                             status = "Validating and repairing IR…"
                                                         }
                                                     },
-                                                ).also { captureForRun = it }
-                                                val result = if (
-                                                    useGemmaForRun &&
-                                                    e2bModelChoiceForRun ==
-                                                        E2bModelChoice.TRAINED_E2B_V10_W4
-                                                ) {
-                                                    GenUiTrainedConverter(
-                                                        this@GenUiSdkDemoActivity,
-                                                        converterProvider,
-                                                        allowSourceTextFallback = false,
-                                                        allowGeneratedDslRepair = true,
-                                                        requireSourceIntegrity = false,
-                                                    ).convert(GenUiRequest(sourceForRun))
-                                                } else {
-                                                    GenUiConverter(
-                                                        this@GenUiSdkDemoActivity,
-                                                        converterProvider,
-                                                    ).convert(GenUiRequest(sourceForRun))
-                                                }
+                                                )
+                                                val result = session.convert(GenUiRequest(sourceForRun), observer)
                                                 generationTrace = generationTrace.copy(
-                                                    attempts = converterProvider.attemptSnapshots.map {
+                                                    attempts = session.attemptSnapshots.map {
                                                         SdkGenerationAttempt(it.number, it.rawText, it.complete)
                                                     },
                                                 )
@@ -599,10 +693,10 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                                             repairKind = result.repairKind,
                                                             warnings = result.warnings,
                                                         )
-                                                        generationMetrics = metricsProvider?.toUiState(
+                                                        generationMetrics = if (metricsForRun) session.toUiState(
                                                             reportedAttempts = result.attempts,
                                                             conversionElapsedMs = result.elapsedMs,
-                                                        )
+                                                        ) else null
                                                     }
                                                     is GenUiConversionResult.Failure -> {
                                                         status = "Conversion failed"
@@ -610,10 +704,10 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                                             phase = SdkGenerationPhase.FAILED,
                                                             error = result.message,
                                                         )
-                                                        generationMetrics = metricsProvider?.toUiState(
+                                                        generationMetrics = if (metricsForRun) session.toUiState(
                                                             reportedAttempts = result.attempts,
                                                             conversionElapsedMs = result.elapsedMs,
-                                                        )
+                                                        ) else null
                                                     }
                                                 }
                                                 lastRuntime = runtimeForRun
@@ -641,10 +735,12 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                             }
                                         }
                                     },
-                                ) { Text("Convert + render") }
+                                ) { Text("Generate UI") }
                                 OutlinedButton(
                                     enabled = actionAvailability.renderEnabled,
-                                    modifier = Modifier.testTag("render_a2ui_button"),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .testTag("render_a2ui_button"),
                                     onClick = {
                                     generationMetrics = null
                                     runCatching { GenUiCompiler.compile(source) }
@@ -677,10 +773,51 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                 if (settingsVisible) {
                     AlertDialog(
                         onDismissRequest = { settingsVisible = false },
-                        title = { Text("Inference settings") },
+                        title = { Text("Demo settings") },
                         text = {
-                            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .heightIn(max = 520.dp)
+                                    .verticalScroll(rememberScrollState()),
+                                verticalArrangement = Arrangement.spacedBy(12.dp),
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Column(Modifier.weight(1f)) {
+                                        Text("Performance metrics", style = MaterialTheme.typography.titleSmall)
+                                        Text(
+                                            "Show token counts and timing after each run.",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        )
+                                    }
+                                    Switch(
+                                        checked = tokenMetricsEnabled,
+                                        onCheckedChange = { enabled ->
+                                            tokenMetricsEnabled = enabled
+                                            generationMetrics = null
+                                            preferences.edit()
+                                                .putBoolean(PREFERENCE_TOKEN_METRICS_ENABLED, enabled)
+                                                .apply()
+                                        },
+                                        enabled = !working,
+                                        modifier = Modifier.testTag(TOKEN_METRICS_SWITCH_TEST_TAG)
+                                            .semantics { contentDescription = "Performance metrics" },
+                                    )
+                                }
+                                HorizontalDivider()
                                 Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Column(Modifier.weight(1f)) {
+                                        Text("MTP acceleration", style = MaterialTheme.typography.titleSmall)
+                                        Text(
+                                            "Uses a bundled drafter on supported Gemma models.",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        )
+                                    }
                                     Switch(
                                         checked = mtpEnabled,
                                         onCheckedChange = { enabled ->
@@ -691,11 +828,17 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                         modifier = Modifier.testTag("e2b_mtp_switch")
                                             .semantics { contentDescription = "MTP drafter" },
                                     )
-                                    Text("MTP drafter", modifier = Modifier.padding(start = 12.dp))
                                 }
-                                Text("Speeds up Gemma GPU generation using the model's bundled drafter. Applies to the next conversion and reloads the engine when changed.")
-                                Text("Requires an MTP-capable model. Older exports without a drafter must use this setting off. Gauss is unaffected.")
-                                lastRuntime?.let { Text("Last run: $it") }
+                                Text(
+                                    "Applies on the next run. Turn it off for older packages without a drafter. Gauss is unaffected.",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                                lastRuntime?.let {
+                                    HorizontalDivider()
+                                    Text("Last runtime", style = MaterialTheme.typography.labelLarge)
+                                    Text(it, style = MaterialTheme.typography.bodySmall)
+                                }
                             }
                         },
                         confirmButton = {
@@ -803,51 +946,18 @@ private fun ManagedModelDownloadPanel(
     }
 }
 
-/** Records provider-returned metrics without changing routing through [GenUiProvider.id]. */
-private class MetricsRecordingProvider(
-    private val delegate: GenUiProvider,
-) : GenUiProvider {
-    override val id: String
-        get() = delegate.id
-
-    private val attempts = mutableListOf<GenerationAttemptUiMetrics>()
-
-    override suspend fun generate(prompt: GenUiPrompt): GenUiModelOutput =
-        recordAttempt { delegate.generate(prompt) }
-
-    override suspend fun generate(
-        prompt: GenUiPrompt,
-        onPartialText: (String) -> Unit,
-    ): GenUiModelOutput = recordAttempt { delegate.generate(prompt, onPartialText) }
-
-    private suspend fun recordAttempt(generate: suspend () -> GenUiModelOutput): GenUiModelOutput {
-        val started = System.nanoTime()
-        var output: GenUiModelOutput? = null
-        try {
-            return generate().also { output = it }
-        } finally {
-            val elapsedNanos = (System.nanoTime() - started).coerceAtLeast(0L)
-            val attempt = output?.toUiMetrics(elapsedNanos) ?: GenerationAttemptUiMetrics(
-                inputTokens = null,
-                outputTokens = null,
-                nativeDecodeTokensPerSecond = null,
-                providerCallElapsedNanos = elapsedNanos,
+/** Formats SDK-owned native measurements for this view. */
+private fun GenUiSession.toUiState(reportedAttempts: Int, conversionElapsedMs: Long) =
+    GenerationMetricsUiState(
+        attempts = attemptSnapshots.map { attempt ->
+            attempt.output?.toUiMetrics(attempt.elapsedNanos) ?: GenerationAttemptUiMetrics(
+                inputTokens = null, outputTokens = null,
+                nativeDecodeTokensPerSecond = null, providerCallElapsedNanos = attempt.elapsedNanos,
             )
-            synchronized(attempts) { attempts += attempt }
-        }
-    }
-
-    fun toUiState(reportedAttempts: Int, conversionElapsedMs: Long): GenerationMetricsUiState =
-        GenerationMetricsUiState(
-            attempts = synchronized(attempts) { attempts.toList() },
-            reportedAttempts = reportedAttempts,
-            conversionElapsedMs = conversionElapsedMs,
-        )
-
-    override fun close() = delegate.close()
-
-    override suspend fun closeAndAwait() = delegate.closeAndAwait()
-}
+        },
+        reportedAttempts = reportedAttempts,
+        conversionElapsedMs = conversionElapsedMs,
+    )
 
 @Composable
 private fun GenerationMetricsPanel(metrics: GenerationMetricsUiState) {
@@ -867,29 +977,36 @@ private fun GenerationMetricsPanel(metrics: GenerationMetricsUiState) {
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
-            verticalArrangement = Arrangement.spacedBy(3.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            Text("Token metrics", style = MaterialTheme.typography.titleMedium)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(Modifier.weight(1f)) {
+                    Text("Performance", style = MaterialTheme.typography.titleSmall)
+                    Text(
+                        "${formatElapsedMillis(metrics.conversionElapsedMs)} · $summaryRate",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+                TextButton(onClick = { detailsExpanded = !detailsExpanded }) {
+                    Text(if (detailsExpanded) "Hide details" else "Details")
+                }
+            }
             Text(
-                "Input: ${formatTokenCount(metrics.totalInputTokens)} · " +
-                    "Output: ${formatTokenCount(metrics.totalOutputTokens)}",
-                style = MaterialTheme.typography.bodyMedium,
-            )
-            Text(summaryRate, style = MaterialTheme.typography.bodyMedium)
-            Text(
-                "${metrics.reportedAttempts} attempt(s) · Total: " +
-                    formatElapsedMillis(metrics.conversionElapsedMs),
-                style = MaterialTheme.typography.bodyMedium,
-            )
-            Text(
-                "Includes thinking when reported; native decode excludes startup/prefill.",
-                style = MaterialTheme.typography.bodySmall,
+                "${formatTokenCount(metrics.totalInputTokens)} in · " +
+                    "${formatTokenCount(metrics.totalOutputTokens)} out · " +
+                    "${metrics.reportedAttempts} attempt(s)",
+                style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            TextButton(onClick = { detailsExpanded = !detailsExpanded }) {
-                Text(if (detailsExpanded) "Hide details" else "Details")
-            }
             if (detailsExpanded) {
+                Text(
+                    "Token counts include thinking when reported. Native decode excludes startup and prefill.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()

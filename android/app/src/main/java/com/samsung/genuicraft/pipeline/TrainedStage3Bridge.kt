@@ -4,7 +4,6 @@ import android.content.Context
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.samsung.genuicraft.InferenceBackendSettings
-import com.samsung.genuicraft.inference.OnDeviceLitertBackend
 import com.samsung.genuicraft.inference.OnDeviceModelCatalog
 import com.samsung.genuicraft.sdk.GenUiConversionResult
 import com.samsung.genuicraft.sdk.GenUiModelOutput
@@ -12,21 +11,21 @@ import com.samsung.genuicraft.sdk.GenUiPrompt
 import com.samsung.genuicraft.sdk.GenUiProvider
 import com.samsung.genuicraft.sdk.GenUiRepairKind
 import com.samsung.genuicraft.sdk.GenUiRequest
-import com.samsung.genuicraft.sdk.GenUiTrainedConverter
+import com.samsung.genuicraft.sdk.GenUiSession
+import com.samsung.genuicraft.sdk.GenUiConversionProfile
+import com.samsung.genuicraft.sdk.GenUiGenerationObserver
+import com.samsung.genuicraft.sdk.GenUiModelProfiles
 import com.samsung.genuicraft.sdk.provider.Gemma4Config
 import com.samsung.genuicraft.sdk.provider.Gemma4Provider
 import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.ensureActive
-import kotlinx.coroutines.withContext
 
 /**
  * Boundary between the app pipeline and the SDK's frozen trained-E2B converter.
  *
- * The bridge deliberately keeps the generated-output-only demo policy separate from the legacy
- * LiteRT backend. It also captures the native provider result because the converter's public result
- * carries the compiled document and warnings, while token/runtime measurements remain provider data.
+ * The SDK owns inference, recovery policy, streaming capture, metrics and native cleanup.
+ * This adapter only selects host settings and maps the returned wire document to the app graph.
  */
 internal object TrainedStage3Bridge {
     sealed interface Result {
@@ -69,24 +68,12 @@ internal object TrainedStage3Bridge {
         modelPath: String,
         accelerator: InferenceBackendSettings.Accelerator,
         enableMtp: Boolean,
-    ): Gemma4Config {
-        require(
-            accelerator == InferenceBackendSettings.Accelerator.AUTO ||
-                accelerator == InferenceBackendSettings.Accelerator.GPU
-        ) {
-            "The trained A2UI Mobile model requires GPU. Select Auto or GPU in Settings."
-        }
-        return Gemma4Config(
-            modelPath = modelPath,
-            accelerator = "GPU",
-            maxContextTokens = TRAINED_CONTEXT_TOKENS,
-            maxOutputTokens = TRAINED_OUTPUT_TOKENS,
-            enableThinking = false,
-            thinkingTokenBudget = 0,
-            enableSpeculativeDecoding = enableMtp,
-            enableMetrics = true,
-        )
-    }
+    ): Gemma4Config = GenUiModelProfiles.trainedE2b(
+        modelPath = modelPath,
+        accelerator = accelerator.name,
+        enableMtp = enableMtp,
+        enableMetrics = true,
+    )
 
     suspend fun convert(
         context: Context,
@@ -116,23 +103,11 @@ internal object TrainedStage3Bridge {
 
         return try {
             coroutineContext.ensureActive()
-            // A legacy route may have initialized a process-wide LiteRT engine during an earlier
-            // request. Holding it while the SDK creates the trained GPU engine can exhaust memory.
-            OnDeviceLitertBackend.releaseCachedEngine()
-            coroutineContext.ensureActive()
-            runWithProvider(
-                provider = Gemma4Provider(config),
+            runWithSession(
+                session = GenUiSession(context, Gemma4Provider(config), GenUiConversionProfile.TRAINED_E2B_V10_W4),
                 request = GenUiRequest(text = sourceResponse, query = queryText),
                 onPartialText = onPartialText,
-            ) { provider, request ->
-                GenUiTrainedConverter(
-                    context = context,
-                    provider = provider,
-                    allowSourceTextFallback = false,
-                    allowGeneratedDslRepair = true,
-                    requireSourceIntegrity = false,
-                ).convert(request)
-            }
+            )
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (failure: Exception) {
@@ -155,29 +130,33 @@ internal object TrainedStage3Bridge {
         onPartialText: ((String) -> Unit)? = null,
         convert: suspend (GenUiProvider, GenUiRequest) -> GenUiConversionResult,
     ): Result {
-        val capture = CapturingProvider(provider, onPartialText)
+        return runWithSession(GenUiSession(provider, convert), request, onPartialText)
+    }
+
+    private suspend fun runWithSession(
+        session: GenUiSession,
+        request: GenUiRequest,
+        onPartialText: ((String) -> Unit)?,
+    ): Result {
         val result = try {
-            val conversion = convert(capture, request)
-            adapt(
-                conversion = conversion,
-                prompt = capture.lastPrompt,
-                output = capture.lastOutput,
-                partialText = capture.lastPartialText,
+            val conversion = session.convert(
+                request,
+                GenUiGenerationObserver(onPartialText = { _, text -> onPartialText?.invoke(text) }),
             )
+            val attempt = session.attemptSnapshots.lastOrNull()
+            adapt(conversion, attempt?.prompt, attempt?.output, attempt?.rawText)
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (failure: Exception) {
+            val attempt = session.attemptSnapshots.lastOrNull()
             failure(
                 message = failure.message ?: failure.javaClass.simpleName,
-                prompt = capture.lastPrompt,
-                output = capture.lastOutput,
-                rawGeneratedText = capture.lastPartialText,
+                prompt = attempt?.prompt,
+                output = attempt?.output,
+                rawGeneratedText = attempt?.rawText,
             )
         } finally {
-            // Native cleanup must finish even when the host cancels the Activity coroutine.
-            withContext(NonCancellable) {
-                capture.closeAndAwait()
-            }
+            session.closeAndAwait()
         }
         coroutineContext.ensureActive()
         return result
@@ -255,59 +234,6 @@ internal object TrainedStage3Bridge {
         )
     }
 
-    private class CapturingProvider(
-        private val delegate: GenUiProvider,
-        private val onPartialText: ((String) -> Unit)?,
-    ) : GenUiProvider {
-        override val id: String
-            get() = delegate.id
-
-        var lastPrompt: GenUiPrompt? = null
-            private set
-        var lastOutput: GenUiModelOutput? = null
-            private set
-        @Volatile
-        var lastPartialText: String? = null
-            private set
-
-        override suspend fun generate(prompt: GenUiPrompt): GenUiModelOutput {
-            return generateCaptured(prompt) { text ->
-                onPartialText?.invoke(text)
-            }
-        }
-
-        override suspend fun generate(
-            prompt: GenUiPrompt,
-            onPartialText: (String) -> Unit,
-        ): GenUiModelOutput {
-            return generateCaptured(prompt) { text ->
-                this.onPartialText?.invoke(text)
-                onPartialText(text)
-            }
-        }
-
-        private suspend fun generateCaptured(
-            prompt: GenUiPrompt,
-            forwardPartialText: (String) -> Unit,
-        ): GenUiModelOutput {
-            lastPrompt = prompt
-            return delegate.generate(prompt) { text ->
-                // Store first so cancellation or observer errors cannot erase the diagnostic prefix.
-                lastPartialText = text
-                forwardPartialText(text)
-            }.also { output ->
-                lastOutput = output
-                if (lastPartialText == null) {
-                    lastPartialText = output.text
-                }
-            }
-        }
-
-        override fun close() = delegate.close()
-
-        override suspend fun closeAndAwait() = delegate.closeAndAwait()
-    }
-
-    internal const val TRAINED_CONTEXT_TOKENS = 8_192
-    internal const val TRAINED_OUTPUT_TOKENS = 2_048
+    internal const val TRAINED_CONTEXT_TOKENS = GenUiModelProfiles.TRAINED_CONTEXT_TOKENS
+    internal const val TRAINED_OUTPUT_TOKENS = GenUiModelProfiles.TRAINED_OUTPUT_TOKENS
 }

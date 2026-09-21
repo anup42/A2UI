@@ -2,8 +2,12 @@ package com.samsung.genuicraft.sdk
 
 import android.content.Context
 import com.samsung.genuicraft.sdk.provider.Gemma4Config
+import com.samsung.genuicraft.sdk.provider.LiteRtModelRunner
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.coroutines.coroutineContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -68,16 +72,26 @@ data class GenUiGenerationAttempt(
  * The provider/conversion constructor supports custom converters; normal hosts use the Context
  * constructor so prompting and recovery policy stay in this library.
  */
-class GenUiSession(
+class GenUiSession private constructor(
     private val provider: GenUiProvider,
+    private val prepareRuntime: () -> Unit,
     private val conversion: suspend (GenUiProvider, GenUiRequest) -> GenUiConversionResult,
 ) : AutoCloseable {
+    constructor(
+        provider: GenUiProvider,
+        conversion: suspend (GenUiProvider, GenUiRequest) -> GenUiConversionResult,
+    ) : this(provider, {}, conversion)
+
     constructor(
         context: Context,
         provider: GenUiProvider,
         profile: GenUiConversionProfile = GenUiConversionProfile.SOURCE_BOUND,
         options: ConversionOptions = ConversionOptions(),
-    ) : this(provider, conversionFor(context.applicationContext, profile, options))
+    ) : this(
+        provider,
+        runtimePreparationFor(profile),
+        conversionFor(context.applicationContext, profile, options),
+    )
 
     private val mutex = Mutex()
     private val closed = AtomicBoolean(false)
@@ -91,6 +105,11 @@ class GenUiSession(
         observer: GenUiGenerationObserver = GenUiGenerationObserver(),
     ): GenUiConversionResult = mutex.withLock {
         check(!closed.get()) { "GenUICraft session has been closed." }
+        capture = null
+        coroutineContext.ensureActive()
+        withContext(Dispatchers.IO) { prepareRuntime() }
+        coroutineContext.ensureActive()
+        check(!closed.get()) { "GenUICraft session was closed while preparing its runtime." }
         val observed = GenUiStreamingProvider(
             provider, observer.onAttemptStarted, observer.onPartialText, observer.onAttemptCompleted,
         )
@@ -103,13 +122,20 @@ class GenUiSession(
     }
 
     suspend fun closeAndAwait() {
-        closed.set(true)
+        // Close first so a concurrent native generation is cancelled and can release [mutex].
+        // Waiting for the mutex before closing would deadlock against a stalled provider call.
+        close()
         withContext(NonCancellable) {
             mutex.withLock { provider.closeAndAwait() }
         }
     }
 
     companion object {
+        private fun runtimePreparationFor(profile: GenUiConversionProfile): () -> Unit = when (profile) {
+            GenUiConversionProfile.SOURCE_BOUND -> ({})
+            GenUiConversionProfile.TRAINED_E2B_V10_W4 -> ({ LiteRtModelRunner.releaseCachedEngine() })
+        }
+
         private fun conversionFor(
             context: Context,
             profile: GenUiConversionProfile,

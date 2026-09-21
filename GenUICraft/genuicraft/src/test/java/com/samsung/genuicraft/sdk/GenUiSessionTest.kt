@@ -1,8 +1,11 @@
 package com.samsung.genuicraft.sdk
 
 import androidx.test.core.app.ApplicationProvider
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -90,6 +93,23 @@ class GenUiSessionTest {
         }
     }
 
+    @Test fun closeAndAwaitCancelsActiveConversionBeforeWaitingForItsMutex() = runBlocking {
+        val provider = CloseReleasedProvider()
+        val session = GenUiSession(provider) { observed, _ ->
+            observed.generate(GenUiPrompt(system = "system", user = "user"))
+            error("Generation should have been cancelled by close")
+        }
+        val running = async { session.convert(GenUiRequest("Hello")) }
+        provider.started.await()
+
+        withTimeout(5_000) { session.closeAndAwait() }
+        running.join()
+
+        assertTrue(provider.closed)
+        assertTrue(provider.awaited)
+        assertTrue(running.isCancelled)
+    }
+
     private fun trainedSession(provider: GenUiProvider) = GenUiSession(
         ApplicationProvider.getApplicationContext(), provider, GenUiConversionProfile.TRAINED_E2B_V10_W4,
     )
@@ -105,5 +125,35 @@ class GenUiSessionTest {
             return GenUiModelOutput(raw, "test/GPU+MTP", 9, GenUiGenerationMetrics(123, 9, 45.0))
         }
         override suspend fun closeAndAwait() { closed = true }
+    }
+
+    private class CloseReleasedProvider : GenUiProvider {
+        override val id = "close-released"
+        val started = CompletableDeferred<Unit>()
+        private val released = CompletableDeferred<Unit>()
+        @Volatile var closed = false
+        @Volatile var awaited = false
+
+        override suspend fun generate(prompt: GenUiPrompt): GenUiModelOutput =
+            generate(prompt) {}
+
+        override suspend fun generate(
+            prompt: GenUiPrompt,
+            onPartialText: (String) -> Unit,
+        ): GenUiModelOutput {
+            started.complete(Unit)
+            released.await()
+            throw CancellationException("provider closed")
+        }
+
+        override fun close() {
+            closed = true
+            released.complete(Unit)
+        }
+
+        override suspend fun closeAndAwait() {
+            close()
+            awaited = true
+        }
     }
 }

@@ -9,7 +9,6 @@ import com.google.ai.edge.litertlm.ConversationConfig
 import com.google.ai.edge.litertlm.Engine
 import com.google.ai.edge.litertlm.EngineConfig
 import com.google.ai.edge.litertlm.ExperimentalApi
-import com.google.ai.edge.litertlm.ExperimentalFlags
 import com.google.ai.edge.litertlm.Message
 import com.google.ai.edge.litertlm.SamplerConfig
 import java.io.File
@@ -237,7 +236,12 @@ class LiteRtModelRunner(
                 complete = false,
             ),
         )
-        val generation = holder.engine.createConversation(conversationConfig).use { conversation ->
+        // A different SDK provider may temporarily install a trained chat template. Explicitly
+        // select the model package's default while creating this conversation, then restore it.
+        val conversation = LiteRtRuntimeFlags.withPromptTemplate(null) {
+            holder.engine.createConversation(conversationConfig)
+        }
+        val generation = conversation.use { conversation ->
             // The LiteRT-LM callback path can finish without exposing final GPU text. The sync API
             // is also used by the official GPU probe and reliably returns the final Content.Text.
             val responseMessage = conversation.sendMessage(promptParts.user)
@@ -523,7 +527,6 @@ private object LiteRtSharedEngineCache {
             }
             var lastError: Throwable? = null
             for ((backendName, backend) in candidates) {
-                val previousMtp = ExperimentalFlags.enableSpeculativeDecoding
                 var initializingEngine: Engine? = null
                 try {
                     if (backendName == BACKEND_GPU) ensureGpuSamplerDependenciesLoaded()
@@ -536,42 +539,43 @@ private object LiteRtSharedEngineCache {
                             "MTP was requested but this model has no drafter. Turn MTP off in Settings."
                         }
                     }
-                    ExperimentalFlags.enableSpeculativeDecoding = useMtp
-                    Log.i(
-                        LOG_TAG,
-                        "Initializing LiteRT engine backend=$backendName context=$maxContextTokens " +
-                            "mtp=$useMtp mtpRequested=$enableSpeculativeDecoding model=$canonicalPath",
-                    )
-                    val engine = Engine(
-                        EngineConfig(
-                            modelPath = canonicalPath,
-                            backend = backend,
-                            maxNumTokens = maxContextTokens,
-                            cacheDir = cacheDir,
-                        ),
-                    )
-                    initializingEngine = engine
-                    engine.initialize()
-                    return EngineHolder(
-                        engine = engine,
-                        backendName = backendName,
-                        maxContextTokens = maxContextTokens,
-                        speculativeDecodingEnabled = useMtp,
-                    ).also { holder ->
-                        cachedEngine = holder
-                        cachedPath = canonicalPath
-                        cachedMaxContextTokens = maxContextTokens
-                        cachedBackendName = backendName
-                        cachedSpeculativeDecoding = enableSpeculativeDecoding
-                        cachedAccelerator = accelerator
+                    val holder = LiteRtRuntimeFlags.withEngineFlags(
+                        speculativeDecoding = useMtp,
+                    ) {
+                        Log.i(
+                            LOG_TAG,
+                            "Initializing LiteRT engine backend=$backendName context=$maxContextTokens " +
+                                "mtp=$useMtp mtpRequested=$enableSpeculativeDecoding model=$canonicalPath",
+                        )
+                        val engine = Engine(
+                            EngineConfig(
+                                modelPath = canonicalPath,
+                                backend = backend,
+                                maxNumTokens = maxContextTokens,
+                                cacheDir = cacheDir,
+                            ),
+                        )
+                        initializingEngine = engine
+                        engine.initialize()
+                        EngineHolder(
+                            engine = engine,
+                            backendName = backendName,
+                            maxContextTokens = maxContextTokens,
+                            speculativeDecodingEnabled = useMtp,
+                        )
                     }
+                    cachedEngine = holder
+                    cachedPath = canonicalPath
+                    cachedMaxContextTokens = maxContextTokens
+                    cachedBackendName = backendName
+                    cachedSpeculativeDecoding = enableSpeculativeDecoding
+                    cachedAccelerator = accelerator
+                    return holder
                 } catch (failure: Throwable) {
                     runCatching { initializingEngine?.close() }
                     if (enableSpeculativeDecoding && backendName == BACKEND_GPU) throw failure
                     lastError = failure
                     Log.w(LOG_TAG, "LiteRT engine init failed backend=$backendName: ${failure.message}")
-                } finally {
-                    ExperimentalFlags.enableSpeculativeDecoding = previousMtp
                 }
             }
             throw lastError ?: IllegalStateException("LiteRT engine initialization failed.")
