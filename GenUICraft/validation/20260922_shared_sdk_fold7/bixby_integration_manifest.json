@@ -1,0 +1,191 @@
+{
+  "checkout": "C:\\Users\\anupk\\Downloads\\Bixby_18Sep",
+  "fullBixbyBuildPerformed": false,
+  "bixbyInstalled": false,
+  "bixbyPushed": false,
+  "changedXmlFilesParsed": [
+    "Renderer/src/main/res/values/strings.xml",
+    "Settings/src/main/AndroidManifest.xml",
+    "Settings/src/main/res/values/strings.xml",
+    "Settings/src/main/res/values/settings_preferences.xml",
+    "Settings/src/main/res/xml/current_device_settings.xml",
+    "Settings/src/main/res/xml/settings_genuicraft.xml"
+  ],
+  "newStringReferencesResolved": true,
+  "files": [
+    {
+      "path": "Renderer/src/main/res/values/strings.xml",
+      "sha256": "bf6dd2a6a3420031dafd5b7f43e4de3350c883f45c5a143d91a3c9adc61f3700"
+    },
+    {
+      "path": "Settings/src/main/AndroidManifest.xml",
+      "sha256": "65c28393b134eed174bc5225fec574844f965910afe14adca524225e69c97e9a"
+    },
+    {
+      "path": "Settings/src/main/res/values/strings.xml",
+      "sha256": "c88746bfb99a9cc9d5724cabd7842836fead7bdb590e9a11c5a4fca9c6c0b71d"
+    },
+    {
+      "path": "Settings/src/main/res/values/settings_preferences.xml",
+      "sha256": "52d8066a58e418fb17702a45e38ee22d33f29e8fc45189598790a37d550575cb"
+    },
+    {
+      "path": "Settings/src/main/res/xml/current_device_settings.xml",
+      "sha256": "684fb0cdebf9bdd73330713040e40c4f35cea57d691513b8344724d5862cdb13"
+    },
+    {
+      "path": "Settings/src/main/res/xml/settings_genuicraft.xml",
+      "sha256": "83e2476011269732da9218fd109b18a115ca02d69ff70d90dc556001c088c92f"
+    },
+    {
+      "path": "Common/src/main/java/com/samsung/android/bixby/agent/common/genuicraft/GenUiFeatureStore.kt",
+      "sha256": "22fbd0fd6d8284afbcad1ae17e86daa1aa67df455ba5291407658589ff29b47d"
+    },
+    {
+      "path": "Renderer/build.gradle.kts",
+      "sha256": "ec9cab876e39f3cb93dd8014a032ff8b1cbf57d7b8426625a455a7b018cd5e9d"
+    },
+    {
+      "path": "Renderer/src/main/java/com/samsung/android/bixby/agent/renderer/internal/genuicraft/GenUiIntegrationManager.kt",
+      "sha256": "53fe2e70ed2cbfba3f2d83052ab91b80077a99cd7a71951bf84a8778c4709409"
+    },
+    {
+      "path": "Renderer/src/main/java/com/samsung/android/bixby/agent/renderer/internal/genuicraft/PerplexityStreamAccumulator.kt",
+      "sha256": "a02701d19430cb6b4b3ed2c9fcba3070d5ba7c321545f632db20a86ddf32ce48"
+    },
+    {
+      "path": "Renderer/src/main/java/com/samsung/android/bixby/agent/renderer/internal/genuicraft/GenUiHostRegistry.kt",
+      "sha256": "a1443ceafe5f1fdccbdc3b8692f9b55824ad306c42db31f476aa79ab12962a48"
+    },
+    {
+      "path": "Renderer/src/main/java/com/samsung/android/bixby/agent/renderer/api/GenUiHostView.kt",
+      "sha256": "efe67ae2a99d8d44a974ca2f570bcbc32b89a3855f5161363bd0f038b009cf48"
+    },
+    {
+      "path": "Renderer/src/test/java/com/samsung/android/bixby/agent/renderer/internal/genuicraft/PerplexityStreamAccumulatorTest.kt",
+      "sha256": "007fbf0d44973e0549b84ad1268c19141e5e1b1008ee680b76d5747fc589a952"
+    },
+    {
+      "path": "Settings/src/main/java/com/samsung/android/bixby/settings/main/currentdevice/GenUiVisualAnswersView.kt",
+      "sha256": "cec2d7d719ca13ebe560b783721e096fd6202eb63204069add92a0f8c21be6e7"
+    },
+    {
+      "path": "Settings/src/main/java/com/samsung/android/bixby/settings/main/currentdevice/CurrentDeviceSettingsFragment.kt",
+      "sha256": "15b50ed2a7e6f3edd6f2e033f32fa1f130e3104c9dd43f37ff87b977432ef50d"
+    },
+    {
+      "path": "Settings/src/main/java/com/samsung/android/bixby/settings/genuicraft/GenUiSettingsActivity.kt",
+      "sha256": "204b7acbb830141f1e79e8c130dc99aec657b0132e1c074414cfaa79b2386e92"
+    },
+    {
+      "path": "Settings/src/main/java/com/samsung/android/bixby/settings/genuicraft/GenUiSettingsFragment.kt",
+      "sha256": "f9ed87b9acf111c2d4fabec8ad4a0e8de9c2e7927400b9fb53edb4721f0c1ef7"
+    },
+    {
+      "path": "docs/genuicraft_bixby_integration.md",
+      "sha256": "83244bacb1b502ecd23eca88996736c258d0c5953063efd8087f093005ce494d"
+    }
+  ],
+  "publication": [
+    {
+      "file": "genuicraft-0.4.0-sources.jar",
+      "sha256": "866263ca91bf0321b1137a3df899a7b49e53bb7290322553ba4f56ad9d805fca",
+      "matchesBixbyCopy": true
+    },
+    {
+      "file": "genuicraft-0.4.0-sources.jar.md5",
+      "sha256": "ce644587dfa654bc961475f3d10abcf2cfe5c5135167e8debc2dd43081beb43d",
+      "matchesBixbyCopy": true
+    },
+    {
+      "file": "genuicraft-0.4.0-sources.jar.sha1",
+      "sha256": "a8d5b5f8db52399cba63ed9e2af3fe8ded517df9eebc540657f6a30e16c0ff2b",
+      "matchesBixbyCopy": true
+    },
+    {
+      "file": "genuicraft-0.4.0-sources.jar.sha256",
+      "sha256": "940983a59c3d4bc97e84b0ace9e66aa45ad4800a6f06f9598c69af4d5e34b7b5",
+      "matchesBixbyCopy": true
+    },
+    {
+      "file": "genuicraft-0.4.0-sources.jar.sha512",
+      "sha256": "d112d4f7cc73403cbc088c5cf27791455927b58bfb8b6c2b68e0cfff7baf3de5",
+      "matchesBixbyCopy": true
+    },
+    {
+      "file": "genuicraft-0.4.0.aar",
+      "sha256": "b357e81301c863e408f56f9f25a6c2ccc53e5da3caf27558311363b77f0d7a56",
+      "matchesBixbyCopy": true
+    },
+    {
+      "file": "genuicraft-0.4.0.aar.md5",
+      "sha256": "4ddd38784d4f008f9b01b40215dcfbb636171b9b51013f438a012c518776c126",
+      "matchesBixbyCopy": true
+    },
+    {
+      "file": "genuicraft-0.4.0.aar.sha1",
+      "sha256": "928f06db38db3d0d6d03251218bf98f302366f756bb4ebd7681bdb98eef90822",
+      "matchesBixbyCopy": true
+    },
+    {
+      "file": "genuicraft-0.4.0.aar.sha256",
+      "sha256": "9eeac7e9a25e97673050d4f6a1cf37917efff0a6b9f76aeb2613b86a09934bb5",
+      "matchesBixbyCopy": true
+    },
+    {
+      "file": "genuicraft-0.4.0.aar.sha512",
+      "sha256": "ba15ff3ee1e0f006e1c0ef013bc7bc8b0d4d5900d92cc536a2cc74245634d783",
+      "matchesBixbyCopy": true
+    },
+    {
+      "file": "genuicraft-0.4.0.module",
+      "sha256": "dbea124a37645042594d77121b1d1e197db4fcce6a50b9f29f7a00b04fd47da4",
+      "matchesBixbyCopy": true
+    },
+    {
+      "file": "genuicraft-0.4.0.module.md5",
+      "sha256": "93cd7a0038cc82817105b928b5959da7429ac35a3e901a503de9ff7a8b795856",
+      "matchesBixbyCopy": true
+    },
+    {
+      "file": "genuicraft-0.4.0.module.sha1",
+      "sha256": "cd95f5a933e83804b453ab466b52f25569fb8a1e94a4a487d5c1ca86542467d5",
+      "matchesBixbyCopy": true
+    },
+    {
+      "file": "genuicraft-0.4.0.module.sha256",
+      "sha256": "28c0350286be29e8e2981ec46efe9dd9cdb8afd935ffea4597aa41672d4f196b",
+      "matchesBixbyCopy": true
+    },
+    {
+      "file": "genuicraft-0.4.0.module.sha512",
+      "sha256": "4a13a663d91067469e7ca14c216b0500f0206482f357ee4166409ef221d89f2f",
+      "matchesBixbyCopy": true
+    },
+    {
+      "file": "genuicraft-0.4.0.pom",
+      "sha256": "9d44ece27bd2d7edd4841f8b2009ddd8e9fac993e2382b8edba901a7823f3c75",
+      "matchesBixbyCopy": true
+    },
+    {
+      "file": "genuicraft-0.4.0.pom.md5",
+      "sha256": "f7180bbeb83fcc9c0d2bdcec67adcb8038eea4b8b615a0a2d1b9cb7a43d6c438",
+      "matchesBixbyCopy": true
+    },
+    {
+      "file": "genuicraft-0.4.0.pom.sha1",
+      "sha256": "ffa7c9ad20dca245146536a2405826ee276b894e25c93e986fc434e9c6c05408",
+      "matchesBixbyCopy": true
+    },
+    {
+      "file": "genuicraft-0.4.0.pom.sha256",
+      "sha256": "ab40843f1450223cfefed7aec9a995666831046b602b40e121c766d44ad88303",
+      "matchesBixbyCopy": true
+    },
+    {
+      "file": "genuicraft-0.4.0.pom.sha512",
+      "sha256": "9019d4f8fa9244975d0c4d0f1944f9565d8a75e6131deed6156adf826fa69d93",
+      "matchesBixbyCopy": true
+    }
+  ]
+}

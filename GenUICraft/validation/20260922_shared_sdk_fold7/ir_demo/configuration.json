@@ -1,0 +1,25 @@
+{
+  "runId": "1790024561252_mtp_on_6518ba15",
+  "queryId": "q_001374",
+  "queryText": "If I earn a salary of $75,000 per year and work 40 hours a week for 52 weeks, what is my pre-tax hourly wage?",
+  "recordHasSavedIr": false,
+  "modelId": "gemma4_e2b_a2ui_mobile",
+  "modelPath": "/storage/emulated/0/Android/data/com.samsung.genuicraft/files/sdk_models/gemma4_e2b_a2ui_mobile.litertlm",
+  "modelSizeBytes": 2588147712,
+  "usesTrainedSdkConverter": true,
+  "irProvider": "on_device_litert",
+  "accelerator": "gpu",
+  "mtpRequested": true,
+  "formatId": "a2ui_express_v1",
+  "startedAtEpochMs": 1790024561270,
+  "device": {
+    "manufacturer": "samsung",
+    "model": "SM-F966B",
+    "device": "q7q",
+    "sdkInt": 36,
+    "release": "16",
+    "supportedAbis": [
+      "arm64-v8a"
+    ]
+  }
+}

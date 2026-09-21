@@ -1,0 +1,63 @@
+{
+  "sdk": {
+    "tests": 368,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "classes": [
+      "com.samsung.genuicraft.sdk.ContentIntegrityTest",
+      "com.samsung.genuicraft.sdk.GenUiCompilerTest",
+      "com.samsung.genuicraft.sdk.GenUiContentActionTest",
+      "com.samsung.genuicraft.sdk.GenUiConverterTest",
+      "com.samsung.genuicraft.sdk.GenUiOutputRepairFull50Test",
+      "com.samsung.genuicraft.sdk.GenUiRecoveryContentTest",
+      "com.samsung.genuicraft.sdk.GenUiSessionTest",
+      "com.samsung.genuicraft.sdk.GenUiStreamingProviderTest",
+      "com.samsung.genuicraft.sdk.GenUiTrainedConverterTest",
+      "com.samsung.genuicraft.sdk.GenUiViewTest",
+      "com.samsung.genuicraft.sdk.internal.pipeline.FlatSpecContractSchemaParityTest",
+      "com.samsung.genuicraft.sdk.internal.pipeline.FlatSpecContractTest",
+      "com.samsung.genuicraft.sdk.internal.pipeline.FlatSpecIngestorTest",
+      "com.samsung.genuicraft.sdk.internal.pipeline.GenUiIrCodecTest",
+      "com.samsung.genuicraft.sdk.internal.pipeline.LiteralTextCodecTest",
+      "com.samsung.genuicraft.sdk.internal.renderer.EntityTableCardMappingTest",
+      "com.samsung.genuicraft.sdk.internal.renderer.ExplicitTablePresentationTest",
+      "com.samsung.genuicraft.sdk.internal.renderer.FlatFormValidationTest",
+      "com.samsung.genuicraft.sdk.internal.renderer.FlatIconCatalogTest",
+      "com.samsung.genuicraft.sdk.internal.renderer.FlatListItemsTest",
+      "com.samsung.genuicraft.sdk.internal.renderer.FlatRendererDiagnosticsTest",
+      "com.samsung.genuicraft.sdk.internal.renderer.FlatRenderRegistryTest",
+      "com.samsung.genuicraft.sdk.internal.renderer.FlatSpecRendererSupportTest",
+      "com.samsung.genuicraft.sdk.internal.renderer.native.intents.flight.NativeFlightSemanticsTest",
+      "com.samsung.genuicraft.sdk.internal.renderer.native.intents.weather.NativeWeatherSemanticsTest",
+      "com.samsung.genuicraft.sdk.internal.renderer.native.NativeIrCompatibilityTest",
+      "com.samsung.genuicraft.sdk.internal.renderer.native.NativeTextFormatterTest",
+      "com.samsung.genuicraft.sdk.internal.renderer.native.parser.NativeMediaParsingTest",
+      "com.samsung.genuicraft.sdk.internal.renderer.native.parser.NativeSourceParsingTest",
+      "com.samsung.genuicraft.sdk.internal.renderer.native.parser.NativeTextBlockParserTest",
+      "com.samsung.genuicraft.sdk.internal.renderer.RendererExtractionTest",
+      "com.samsung.genuicraft.sdk.internal.renderer.TableViewportUsabilityTest",
+      "com.samsung.genuicraft.sdk.internal.security.SafeContentPolicyTest",
+      "com.samsung.genuicraft.sdk.provider.Gauss30bProviderTest",
+      "com.samsung.genuicraft.sdk.provider.Gemma4MetricsTest",
+      "com.samsung.genuicraft.sdk.provider.Gemma4ProviderTest",
+      "com.samsung.genuicraft.sdk.provider.Gemma4StreamingTest",
+      "com.samsung.genuicraft.sdk.provider.LiteRtModelRunnerPolicyTest",
+      "com.samsung.genuicraft.sdk.SourceAttributionTest",
+      "com.samsung.genuicraft.sdk.SourceBindingsTest"
+    ]
+  },
+  "app": {
+    "tests": 29,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "classes": [
+      "com.samsung.genuicraft.GenerationMetricsUiTest",
+      "com.samsung.genuicraft.GenUiSdkModelUiTest",
+      "com.samsung.genuicraft.inference.OnDeviceLitertBackendPolicyTest",
+      "com.samsung.genuicraft.inference.OnDeviceModelCatalogTest",
+      "com.samsung.genuicraft.pipeline.TrainedStage3BridgeTest"
+    ]
+  }
+}

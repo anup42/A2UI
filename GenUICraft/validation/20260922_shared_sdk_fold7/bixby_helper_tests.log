@@ -1,0 +1,86 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.10.2/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build
+> Task :clean
+> Task :checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :processResources NO-SOURCE
+> Task :processTestResources NO-SOURCE
+> Task :compileKotlin
+> Task :compileJava NO-SOURCE
+> Task :classes UP-TO-DATE
+> Task :jar
+> Task :compileTestKotlin
+> Task :compileTestJava NO-SOURCE
+> Task :testClasses UP-TO-DATE
+
+> Task :test
+
+GenUiActionPolicyTest > should reject non web action schemes() PASSED
+
+GenUiActionPolicyTest > should allow an explicit https openUrl action() PASSED
+
+GenUiActionPolicyTest > should reject source text as an action name() PASSED
+
+GenUiActionPolicyTest > should reject non-public and credential-bearing links() PASSED
+
+GenUiHostAttachmentStateTest > retained presentation covers legacy view again after reattach() PASSED
+
+GenUiRequestLifecycleTest > late final from replaced request cannot become current() PASSED
+
+GenUiRequestLifecycleTest > structured stream can establish a current request when start was not observed() PASSED
+
+GenUiRequestLifecycleTest > retired request cannot be reactivated by a late stream() PASSED
+
+GenUiRequestLifecycleTest > history restore retires the current live request() PASSED
+
+GenUiRequestLifecycleTest > late final and stream after incomplete result cannot restore native content() PASSED
+
+GenUiRequestLifecycleTest > late final after cancellation cannot restore native content() PASSED
+
+GenUiSourceParserTest > should strip only explicit markers matching the citation id() PASSED
+
+GenUiSourceParserTest > should reject non web source schemes() PASSED
+
+GenUiSourceParserTest > should ignore renderer events from another request() PASSED
+
+GenUiSourceParserTest > should parse citation ids and links from ResultDetails() PASSED
+
+GenUiSourceParserTest > oversized citation fields should be excluded before SDK handoff() PASSED
+
+GenUiSourceParserTest > source count should be capped at SDK limit() PASSED
+
+GenUiSourceParserTest > later renderer event should replace citation metadata for the same id() PASSED
+
+GenUiSourceParserTest > should preserve a host-bearing http citation() PASSED
+
+GenUiSourceParserTest > mixed citations should keep only exact safe public links() PASSED
+
+PerplexityStreamAccumulatorTest > should ignore an old final event after a newer request starts() PASSED
+
+PerplexityStreamAccumulatorTest > should extract only displayable final messages for the request() PASSED
+
+PerplexityStreamAccumulatorTest > should continue an identified request when later metadata is absent() PASSED
+
+PerplexityStreamAccumulatorTest > should accept Markdown when provider metadata is not Perplexity() PASSED
+
+PerplexityStreamAccumulatorTest > should replace snapshots and append deltas for one request() PASSED
+
+PerplexityStreamAccumulatorTest > should retain prose prefix when a later delta establishes Markdown() PASSED
+
+PerplexityStreamAccumulatorTest > should accept a Markdown final-only response without search provenance() PASSED
+
+PerplexityStreamAccumulatorTest > should preserve repeated delta chunks() PASSED
+
+PerplexityStreamAccumulatorTest > should accept a structured final-only response() PASSED
+
+PerplexityStreamAccumulatorTest > should keep a plain native control response out of GenUI() PASSED
+
+PerplexityStreamAccumulatorTest > should use StreamComplete as the authoritative response() PASSED
+
+PerplexityStreamAccumulatorTest > should accept stream modes case insensitively() PASSED
+
+PerplexityStreamAccumulatorTest > should retain numbered source ids used by citation markers() PASSED
+
+PerplexityStreamAccumulatorTest > should ignore final events after cancellation() PASSED
+
+BUILD SUCCESSFUL in 26s
+5 actionable tasks: 5 executed

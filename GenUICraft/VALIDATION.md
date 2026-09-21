@@ -1,4 +1,16 @@
-# GenUICraft validation — 18 September 2026
+# GenUICraft validation
+
+The latest **22 September shared SDK and Fold7 delivery** is documented in
+[its report](validation/20260922_shared_sdk_fold7/REPORT.md). SDK 0.4.0 owns native
+inference, streaming capture and trained repair policy across the demo, Pipeline,
+IR Demo and Bixby integration. Validation passes 368 SDK tests, 29 app tests,
+34 isolated Bixby helper tests, four isolated model-storage tests and five distinct
+Fold7 device tests. The final live weather run reports GPU+MTP at 57.82 native
+decode tokens/s. Bixby Settings and its local AAR integration are updated, but the
+full Bixby app remains unbuilt because private dependencies are unavailable.
+The trained profile now follows the requested generated-output recovery policy
+with source fallback disabled; factual model errors remain visible and reported.
+Historical results below describe their original builds and policies.
 
 The **21 September generated-DSL repair-only evaluation** is documented in
 [its complete Bixby50 report](validation/20260921_e2b_mobile_full50_dsl_repair_only_r5/REPORT.md).

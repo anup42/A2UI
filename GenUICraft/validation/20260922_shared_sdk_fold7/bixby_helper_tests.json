@@ -1,0 +1,61 @@
+{
+  "counts": {
+    "tests": 34,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "sources": [
+    {
+      "Source": "C:\\Users\\anupk\\Downloads\\Bixby_18Sep\\Renderer\\src\\main\\java\\com\\samsung\\android\\bixby\\agent\\renderer\\internal\\genuicraft\\PerplexityStreamAccumulator.kt",
+      "TestedSHA256": "A02701D19430CB6B4B3ED2C9FCBA3070D5BA7C321545F632DB20A86DDF32CE48",
+      "CurrentSHA256": "A02701D19430CB6B4B3ED2C9FCBA3070D5BA7C321545F632DB20A86DDF32CE48"
+    },
+    {
+      "Source": "C:\\Users\\anupk\\Downloads\\Bixby_18Sep\\Renderer\\src\\main\\java\\com\\samsung\\android\\bixby\\agent\\renderer\\internal\\genuicraft\\GenUiHostRegistry.kt",
+      "TestedSHA256": "A1443CEAFE5F1FDCCBDC3B8692F9B55824AD306C42DB31F476AA79AB12962A48",
+      "CurrentSHA256": "A1443CEAFE5F1FDCCBDC3B8692F9B55824AD306C42DB31F476AA79AB12962A48"
+    },
+    {
+      "Source": "C:\\Users\\anupk\\Downloads\\Bixby_18Sep\\CoreSdk\\src\\main\\java\\com\\samsung\\android\\bixby\\agent\\core\\sdk\\conversation\\result\\data\\ResultMessageData.kt",
+      "TestedSHA256": "073EAE8343A0D0842EE512E764DE1F2C87F0292EB44F2DCB1BF9CB5A4F5C046E",
+      "CurrentSHA256": "073EAE8343A0D0842EE512E764DE1F2C87F0292EB44F2DCB1BF9CB5A4F5C046E"
+    },
+    {
+      "Source": "C:\\Users\\anupk\\Downloads\\Bixby_18Sep\\CoreSdk\\src\\main\\java\\com\\samsung\\android\\bixby\\agent\\core\\sdk\\conversation\\result\\data\\RendererEventData.kt",
+      "TestedSHA256": "1E2C85DEAC5AC37ACB01202AEFA92018C5E158461D0E7CBEE4263001478D0FEE",
+      "CurrentSHA256": "1E2C85DEAC5AC37ACB01202AEFA92018C5E158461D0E7CBEE4263001478D0FEE"
+    },
+    {
+      "Source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\genuicraft\\src\\main\\java\\com\\samsung\\genuicraft\\sdk\\Api.kt",
+      "TestedSHA256": "C6CBFBBA4B172B1DF226588A804997D5DAB0E43150CE681C0ACC8320806F75B1",
+      "CurrentSHA256": "C6CBFBBA4B172B1DF226588A804997D5DAB0E43150CE681C0ACC8320806F75B1"
+    },
+    {
+      "Source": "C:\\Users\\anupk\\Downloads\\Bixby_18Sep\\Renderer\\src\\test\\java\\com\\samsung\\android\\bixby\\agent\\renderer\\internal\\genuicraft\\PerplexityStreamAccumulatorTest.kt",
+      "TestedSHA256": "007FBF0D44973E0549B84AD1268C19141E5E1B1008EE680B76D5747FC589A952",
+      "CurrentSHA256": "007FBF0D44973E0549B84AD1268C19141E5E1B1008EE680B76D5747FC589A952"
+    },
+    {
+      "Source": "C:\\Users\\anupk\\Downloads\\Bixby_18Sep\\Renderer\\src\\test\\java\\com\\samsung\\android\\bixby\\agent\\renderer\\internal\\genuicraft\\GenUiSourceParserTest.kt",
+      "TestedSHA256": "73F6ACBA85CC5923091BC77DA02463FA8D97EB154395FB667D613D65AAD9E829",
+      "CurrentSHA256": "73F6ACBA85CC5923091BC77DA02463FA8D97EB154395FB667D613D65AAD9E829"
+    },
+    {
+      "Source": "C:\\Users\\anupk\\Downloads\\Bixby_18Sep\\Renderer\\src\\test\\java\\com\\samsung\\android\\bixby\\agent\\renderer\\internal\\genuicraft\\GenUiRequestLifecycleTest.kt",
+      "TestedSHA256": "1E6CC19937DD9D271082D4CBCBC282A9A5C07478F258AE5352752931481D6908",
+      "CurrentSHA256": "1E6CC19937DD9D271082D4CBCBC282A9A5C07478F258AE5352752931481D6908"
+    },
+    {
+      "Source": "C:\\Users\\anupk\\Downloads\\Bixby_18Sep\\Renderer\\src\\test\\java\\com\\samsung\\android\\bixby\\agent\\renderer\\internal\\genuicraft\\GenUiHostAttachmentStateTest.kt",
+      "TestedSHA256": "977E6A9DE3E09E99B6B74CF579A6FC8926C063C0D0904E9E48813EF969B53EEF",
+      "CurrentSHA256": "977E6A9DE3E09E99B6B74CF579A6FC8926C063C0D0904E9E48813EF969B53EEF"
+    },
+    {
+      "Source": "C:\\Users\\anupk\\Downloads\\Bixby_18Sep\\Renderer\\src\\test\\java\\com\\samsung\\android\\bixby\\agent\\renderer\\internal\\genuicraft\\GenUiActionPolicyTest.kt",
+      "TestedSHA256": "0604E3BC7F8D6E6C705F28E983CEBDF976E37809400AB468FAE6F466EFAE843F",
+      "CurrentSHA256": "0604E3BC7F8D6E6C705F28E983CEBDF976E37809400AB468FAE6F466EFAE843F"
+    }
+  ],
+  "scope": "Exact Bixby helpers in public Kotlin/JUnit harness; Android Handler, Log and host view are compile-only shims. Not a Bixby application build."
+}

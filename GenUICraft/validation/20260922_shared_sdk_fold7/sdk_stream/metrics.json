@@ -1,0 +1,10 @@
+{
+  "inputTokens": 3174,
+  "outputTokens": 288,
+  "nativeDecodeTokensPerSecond": 57.82,
+  "status": "Recovered \u00b7 9773 ms \u00b7 1 attempt(s)",
+  "runtime": "LiteRT-LM/Gemma4/GPU+MTP",
+  "nativePartialCount": 51,
+  "evidence": "sdk_stream/final_ui.xml",
+  "runId": "1790025616127_83fa715f"
+}

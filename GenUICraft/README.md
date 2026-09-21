@@ -367,6 +367,10 @@ the subsequent train/weather row-retention fix and device evidence.
 
 ## Validation in the A2UI test app
 
+The latest [shared SDK and Fold7 delivery report](validation/20260922_shared_sdk_fold7/REPORT.md)
+records SDK 0.4.0 ownership, the refreshed demo UI, live GPU+MTP results, and the
+Bixby Settings/model-import integration with its current validation boundaries.
+
 The parent `android` test app consumes the published AAR by Maven coordinate, not this library's source. Open **GenUICraft SDK · Bixby50** from its home screen to try either provider or renderer-only mode.
 
 Instrumentation class: `com.samsung.genuicraft.GenUiSdkBixby50Test`. Arguments: `provider=gauss|gemma`, `modelPath`, `accelerator=GPU|CPU` (default GPU), `mtp=true` (default), `cases=BXP-001,BXP-038` (omit for all 50), `runId`, `repairs=1`, `caseTimeoutMs=600000`, `temperature=0.0`. Gemma's optional `thinkingBudget` overrides the SDK's 1,024-token default without disabling thinking. Optional `promptPath` loads a local prompt for development, with `sourceBindings=true` for a custom bound prompt; omit it for bundled-prompt acceptance. Artifacts are written to the app's external-files `sdk_benchmark/<runId>` directory. Each success is replayed through JSON-only rendering without another model call. Failures remain failures in reports. `tools/summarize_benchmark.py <pulled-run>` reports first-attempt successes, repaired successes, failures, timing, and whole-process PSS separately. Its `run_complete` flag requires the completion record and the full expected set of unique case IDs; partial results remain explicitly incomplete.

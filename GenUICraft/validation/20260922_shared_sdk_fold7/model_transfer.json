@@ -1,0 +1,9 @@
+{
+  "source": "existing installed model",
+  "destinationDevice": "R3CY30QFWLP",
+  "path": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_models/gemma4_e2b_a2ui_mobile.litertlm",
+  "bytes": 2588147712,
+  "sha256": "4675f37353e41c786a3e94f03ba4f64ad366a2e4e5d188bb92f5bef3922a75fe",
+  "destinationHashVerified": true,
+  "elapsedSeconds": 39.36
+}

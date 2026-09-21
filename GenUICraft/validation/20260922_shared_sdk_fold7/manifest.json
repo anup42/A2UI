@@ -1,0 +1,17 @@
+{
+  "sdkVersion": "0.4.0",
+  "deviceSerial": "R3CY30QFWLP",
+  "deviceModel": "SM-F966B",
+  "androidApi": 36,
+  "apkSha256": "ca55cee20860c47a58c8d46ddd1c749e2bb26dbda71333609cc36851454c9ec6",
+  "installedApkHashMatches": true,
+  "aarSha256": "b357e81301c863e408f56f9f25a6c2ccc53e5da3caf27558311363b77f0d7a56",
+  "sdkStreamRun": "1790025616127_83fa715f",
+  "irDemoRun": "1790024561252_mtp_on_6518ba15",
+  "recoveryRun": "1790024674262_8962cdfc",
+  "promptContractSha256": "005ef700eee29a4429c895ac6c86580003c43d0ad35e67cbb92a9d4cf0e8c1d2",
+  "storedApkHashMatches": true,
+  "apkBytes": 183117588,
+  "apkDevicePath": "/sdcard/Download/GenUICraft/GenUICraft-demo-0.4.0.apk",
+  "modelImportDevicePath": "/sdcard/Download/GenUICraft/models/gemma4_e2b_a2ui_mobile.litertlm"
+}

@@ -1,0 +1,31 @@
+Calculation data
+Hourly: Annual Salary /2,800 Hours
+HOURLY
+Annual Salary /2,800 Hours
+Weekly: Annual Salary /52 Weeks
+WEEKLY
+Annual Salary /52 Weeks
+Bi-Weekly: Annual Salary / 26 Pay Periods
+BI-WEEKLY
+Annual Salary / 26 Pay Periods
+Semi-Monthly: Annual Salary /24 Pay Periods
+SEMI-MONTHLY
+Annual Salary /24 Pay Periods
+Monthly: Annual Salary / 12 Months
+MONTHLY
+Annual Salary / 12 Months
+Table with 5 rows and 2 columns
+Additional recovered text
+Salary Conversion
+Based on an annual salary of $7,000000, your pre-tax hourly wage is approximately $3.666. This calculation assumes a standard full-time schedule without unpaid time off.
+Calculation Context
+The conversion uses the specific figures provided in your query to determine the gross hourly rate.
+Calculate
+Quick Actions
+Take Home
+Bureau of Labor Statistics Wage Data
+Calculator
+Cash Coin
+Calculation
+GenUICraft Demo
+Debug

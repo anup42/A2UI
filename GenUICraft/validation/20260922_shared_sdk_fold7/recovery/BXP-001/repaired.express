@@ -1,0 +1,10 @@
+<a2ui>
+root=Column([a,c,d,e,f],"md")
+a=Column([b],"md")
+b=Table(columns=["date","high","low","rain"],rows=[["Wed, Sep 9","31","20","57%"],["Thu, Sep 10","30","211","55%"],["Fri, Sep 1","30","21","55%"]],title="Forecast data",domain="generic",preferredPresentation="cards")
+c=Text("AccuWeather’s Bengaluru forecast shows cloudy or sunny-interval conditions through the next three days with the highest rain chance on Wednesday and continued shower/thunder/storm potential on Thursday and Friday.","body")
+d=Text("Carry an umbrella or light rain jacket, especially for afternoon and evening plans.","body")
+e=Text("Plan outdoor activities earlier in the day, when conditions are likely to stay drier and slightly cooler.","3")
+f=Card([g],"Additional recovered text")
+g=List(items=["Date","High (°C)","Low (°C)","probability"])
+</a2ui>

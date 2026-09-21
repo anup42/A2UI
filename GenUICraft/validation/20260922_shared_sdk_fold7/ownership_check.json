@@ -1,0 +1,13 @@
+{
+  "directLiteRtImportsInAppMain": [],
+  "trainedConsumers": [
+    "GenUiSdkDemoActivity",
+    "TrainedStage3Bridge (Pipeline and IR Demo)",
+    "Bixby GenUiIntegrationManager"
+  ],
+  "sharedSession": "com.samsung.genuicraft.sdk.GenUiSession",
+  "nativeRuntimes": [
+    "com.samsung.genuicraft.sdk.provider.Gemma4Provider",
+    "com.samsung.genuicraft.sdk.provider.LiteRtModelRunner"
+  ]
+}

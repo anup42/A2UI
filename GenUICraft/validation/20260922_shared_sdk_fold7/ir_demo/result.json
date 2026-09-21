@@ -1,0 +1,69 @@
+{
+  "success": true,
+  "queryId": "q_001374",
+  "runtime": "LiteRT-LM/Gemma4/GPU+MTP",
+  "mtpRequested": true,
+  "mtpReportedEnabled": true,
+  "inputTokens": 3349,
+  "outputTokens": 2048,
+  "outputTokensPerSecond": 23.31358693674291,
+  "stageDurationsMs": {
+    "STAGE3": 93438,
+    "STAGE4": 32
+  },
+  "stageStreamDurationsMs": {},
+  "usedFallback": false,
+  "sourceTextFallbackWarnings": [],
+  "warnings": [
+    "Using preloaded IR demo response (stage 2 skipped).",
+    "IR output format: A2UI Express v1 (trained SDK converter)",
+    "On-device Gemma IR model: /storage/emulated/0/Android/data/com.samsung.genuicraft/files/sdk_models/gemma4_e2b_a2ui_mobile.litertlm",
+    "On-device Gemma accelerator: GPU (setting=gpu)",
+    "On-device Gemma MTP: enabled",
+    "On-device Gemma prompt: genuicraft/prompts/e2b_v10_shared_prompt.json (frozen SDK training contract)",
+    "Trained repair policy: generated-output DSL repair enabled; source-text fallback disabled.",
+    "Diagnostic trained-model preview: generated IR is rendered, but source fidelity is not guaranteed; review the converter audit warnings.",
+    "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+    "Generated-output diagnostic mode: renders repaired model output; no source-text fallback.",
+    "Source fidelity warning: generated output may omit or change source details. It is not a faithful conversion.",
+    "Source fidelity: Missing or changed numeric facts (including signs/units): [$75000, $36.06, 2080, 40, 52, $1442.31, $2884.62, $3125.00, $6250.00]",
+    "Source fidelity: Added or duplicated numeric facts: [2800, $7000000, $3.666]",
+    "Source fidelity: Missing supplied URLs: [https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/calculator.svg, https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/cash-coin.svg, https://www.paycheckcity.com/calculator/salary, https://www.bls.gov/bls/blswage.htm]",
+    "Source fidelity: Missing source wording: [salary, overview, 75, 000, 36, 06, this, the, gross, total, work, hours, 2, 080, per, year, 40, x, 52, weeks, pay, frequency, breakdown, below, illustrates]",
+    "Source fidelity: Added or duplicated visible wording: [calculation, data, 800, additional, recovered, text, 7, 000000, 666]",
+    "Source fidelity: Visible source wording order or multiplicity changed.",
+    "Trained E2B output passed generated-output DSL repair only.",
+    "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+    "Wrapped 2 positional child reference(s) for Column.",
+    "Wrapped 1 positional child reference(s) for Row.",
+    "Wrapped 2 positional child reference(s) for Card.",
+    "Wrapped 1 positional child reference(s) for Column.",
+    "Wrapped 65 positional child reference(s) for Column.",
+    "Salvaged 11 additional complete generated string literal value(s) from damaged structure.",
+    "Ignored 25 key, style, corrupt, duplicate, or over-budget string literal(s).",
+    "Rebuilt a generated-literal List; source text was not used.",
+    "Recovered 1 generated state assignment(s), including 1 damaged assignment(s) with complete literal values.",
+    "Materialized all 1 recovered state field(s), preserving row order, repeated rows, and generated values.",
+    "Combined 0 valid generated component call(s) with recovered state; inspected 51 damaged or state-bound call(s) for additional readable fragments.",
+    "Best-effort generated-output recovery; unresolved structure is not a complete or source-verified answer. Source text was not used.",
+    "Trained SDK repair result: GENERATED_DSL_REPAIR",
+    "Trained SDK rendered prompt SHA-256: 046271c0ba55f15f09a7c24e50620d57eca98a3a805f5367d222d231ef911b27"
+  ],
+  "missingResponseFacts": [
+    {
+      "label": "Total Work Hours",
+      "value": "2,080 hours per year (40 hours x 52 weeks)"
+    },
+    {
+      "label": "Pay Frequency",
+      "value": "The breakdown below illustrates how this salary translates across different pay periods before taxes or deductions are applied."
+    }
+  ],
+  "strictValid": true,
+  "strictError": null,
+  "renderSurfaceCount": 1,
+  "renderError": null,
+  "stage2Prompt": "[IR demo preloaded response]",
+  "finishedAtEpochMs": 1790024655229,
+  "elapsedMs": 93959
+}

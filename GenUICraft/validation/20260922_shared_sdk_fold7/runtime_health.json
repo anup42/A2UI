@@ -1,0 +1,6 @@
+{
+  "source": "android-diagnostics\\20260922_023942\\logcat_filtered.txt",
+  "scope": "Package-filtered 8-minute log collection after the Fold7 device tests.",
+  "fatalExceptionAnrOrSignalMarkers": 0,
+  "claim": "No matching crash/ANR markers in this captured window; not a long-duration stability test."
+}

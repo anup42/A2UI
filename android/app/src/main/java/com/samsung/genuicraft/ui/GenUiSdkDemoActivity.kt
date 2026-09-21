@@ -103,6 +103,7 @@ class GenUiSdkDemoActivity : ComponentActivity() {
         )
     }
 
+    @OptIn(ExperimentalLayoutApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val cases = assets.open("genuicraft_bixby50.jsonl").bufferedReader().useLines { lines ->
@@ -353,10 +354,8 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                         maxLines = 5,
                                     )
                                     Text("Generation model", style = MaterialTheme.typography.titleSmall)
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .horizontalScroll(rememberScrollState()),
+                                    FlowRow(
+                                        modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                                     ) {
                                         FilterChip(

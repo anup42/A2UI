@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.samsung.android.bixby.agent.common.genuicraft.GenUiFeatureStoreHarnessTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-09-21T21:10:55" hostname="NOTEBOOK-PC" time="4.314">
+  <properties/>
+  <testcase name="preferencesUseSafeDefaultsAndPersistExplicitChoices" classname="com.samsung.android.bixby.agent.common.genuicraft.GenUiFeatureStoreHarnessTest" time="4.022"/>
+  <testcase name="verificationDistinguishesMissingAndWrongSizeFilesWithoutHashingLargeData" classname="com.samsung.android.bixby.agent.common.genuicraft.GenUiFeatureStoreHarnessTest" time="0.122"/>
+  <testcase name="rejectedWrongSizeImportPreservesPriorModelAndRemovesTemporaryFile" classname="com.samsung.android.bixby.agent.common.genuicraft.GenUiFeatureStoreHarnessTest" time="0.121"/>
+  <testcase name="closingListenerRegistrationStopsFutureNotifications" classname="com.samsung.android.bixby.agent.common.genuicraft.GenUiFeatureStoreHarnessTest" time="0.048"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
