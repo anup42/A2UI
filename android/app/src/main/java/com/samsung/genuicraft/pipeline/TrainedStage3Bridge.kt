@@ -29,6 +29,9 @@ import kotlinx.coroutines.ensureActive
  */
 internal object TrainedStage3Bridge {
     sealed interface Result {
+        /** Wall time spent in the native provider call, excluding DSL validation and repair. */
+        val generationElapsedMs: Long?
+
         data class Success(
             val canonicalGraph: JsonObject,
             val express: String,
@@ -41,6 +44,7 @@ internal object TrainedStage3Bridge {
             val runtimeBackend: String?,
             val renderedPromptSha256: String?,
             val elapsedMs: Long,
+            override val generationElapsedMs: Long?,
             val warnings: List<String>,
             val repairKind: GenUiRepairKind,
         ) : Result
@@ -55,6 +59,7 @@ internal object TrainedStage3Bridge {
             val runtimeBackend: String?,
             val renderedPromptSha256: String?,
             val elapsedMs: Long? = null,
+            override val generationElapsedMs: Long? = null,
         ) : Result
     }
 
@@ -144,7 +149,13 @@ internal object TrainedStage3Bridge {
                 GenUiGenerationObserver(onPartialText = { _, text -> onPartialText?.invoke(text) }),
             )
             val attempt = session.attemptSnapshots.lastOrNull()
-            adapt(conversion, attempt?.prompt, attempt?.output, attempt?.rawText)
+            adapt(
+                conversion = conversion,
+                prompt = attempt?.prompt,
+                output = attempt?.output,
+                partialText = attempt?.rawText,
+                generationElapsedMs = attempt?.elapsedNanos?.div(1_000_000L),
+            )
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (failure: Exception) {
@@ -154,6 +165,7 @@ internal object TrainedStage3Bridge {
                 prompt = attempt?.prompt,
                 output = attempt?.output,
                 rawGeneratedText = attempt?.rawText,
+                generationElapsedMs = attempt?.elapsedNanos?.div(1_000_000L),
             )
         } finally {
             session.closeAndAwait()
@@ -167,6 +179,7 @@ internal object TrainedStage3Bridge {
         prompt: GenUiPrompt?,
         output: GenUiModelOutput?,
         partialText: String?,
+        generationElapsedMs: Long?,
     ): Result = when (conversion) {
         is GenUiConversionResult.Failure -> failure(
             message = conversion.message,
@@ -176,6 +189,7 @@ internal object TrainedStage3Bridge {
             prompt = prompt,
             output = output,
             elapsedMs = conversion.elapsedMs,
+            generationElapsedMs = generationElapsedMs,
         )
 
         is GenUiConversionResult.Success -> {
@@ -185,6 +199,7 @@ internal object TrainedStage3Bridge {
                     prompt = prompt,
                     output = output,
                     elapsedMs = conversion.elapsedMs,
+                    generationElapsedMs = generationElapsedMs,
                 )
             } else {
                 val decoded = GenUiIrCodec.decode(
@@ -206,6 +221,7 @@ internal object TrainedStage3Bridge {
                     runtimeBackend = output?.runtime,
                     renderedPromptSha256 = output?.renderedPromptSha256,
                     elapsedMs = conversion.elapsedMs,
+                    generationElapsedMs = generationElapsedMs,
                     warnings = conversion.warnings,
                     repairKind = conversion.repairKind,
                 )
@@ -219,6 +235,7 @@ internal object TrainedStage3Bridge {
         output: GenUiModelOutput?,
         rawGeneratedText: String? = null,
         elapsedMs: Long? = null,
+        generationElapsedMs: Long? = null,
     ): Result.Failure {
         val metrics = output?.metrics
         return Result.Failure(
@@ -231,6 +248,7 @@ internal object TrainedStage3Bridge {
             runtimeBackend = output?.runtime,
             renderedPromptSha256 = output?.renderedPromptSha256,
             elapsedMs = elapsedMs,
+            generationElapsedMs = generationElapsedMs,
         )
     }
 

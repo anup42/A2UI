@@ -171,7 +171,6 @@ internal object A2uiExpressGeneralRepair {
         val recovered = GeneratedStateRecovery.recover(statements)
         val accepted = mutableListOf<JsonObject>()
         val canonicalSeen = linkedSetOf<String>()
-        val remaining = mutableListOf<String>()
         val changes = mutableListOf<String>()
         graphFromGeneratedState(recovered.state)?.let(accepted::add)
         var recoveredCalls = 0
@@ -179,8 +178,6 @@ internal object A2uiExpressGeneralRepair {
         statements.forEach { statement ->
             var line = statement.trim()
             if (line.startsWith('$')) {
-                // Exact strings not captured by partial state parsing are still eligible below.
-                remaining += line
                 return@forEach
             }
             line = line.replace(Regex("^[*@]+(?=[A-Za-z_])"), "")
@@ -200,12 +197,10 @@ internal object A2uiExpressGeneralRepair {
             // here would either duplicate its rows or leave an empty table with a dangling path.
             if (graph == null || recoveredCalls >= MAX_CALLS || hasStateBindings(graph) ||
                 !A2uiCanonicalGraph.validate(graph).isValid || !hasVisibleContent(graph)) {
-                remaining += line
                 damagedCalls += 1
                 return@forEach
             }
             val canonical = runCatching { A2uiExpressCodec.encode(graph) }.getOrNull() ?: run {
-                remaining += line
                 damagedCalls += 1
                 return@forEach
             }
@@ -214,15 +209,9 @@ internal object A2uiExpressGeneralRepair {
                 recoveredCalls += 1
             }
         }
-        val represented = linkedSetOf<String>()
-        collectLiterals(recovered.state, represented)
-        accepted.forEach { collectLiterals(it.getAsJsonObject("elements"), represented) }
-        val loose = salvageVisibleStringLiterals("$OPEN\n${remaining.joinToString("\n")}\n$CLOSE", represented)
-        loose?.let { candidate ->
-            accepted += A2uiExpressCodec.decode(candidate.express)
-            changes += candidate.changes
-        }
-        // Broken root syntax without a recognizable assignment can still contain useful literals.
+        // Loose literals from damaged calls are noisy and often duplicate the structured state or
+        // surviving components. Do not append them as an "Additional recovered text" section.
+        // If no structured content survived at all, literal-only recovery remains the last resort.
         if (accepted.isEmpty()) return salvageVisibleStringLiterals(input)
         val merged = mergeRecoveredGraphs(accepted) ?: return null
         val canonical = runCatching { A2uiExpressCodec.encode(merged) }.getOrNull() ?: return null
@@ -271,14 +260,6 @@ internal object A2uiExpressGeneralRepair {
         return value
     }
 
-    private fun collectLiterals(value: JsonElement, output: MutableSet<String>) {
-        when {
-            value.isJsonObject -> value.asJsonObject.entrySet().forEach { collectLiterals(it.value, output) }
-            value.isJsonArray -> value.asJsonArray.forEach { collectLiterals(it, output) }
-            value.isJsonPrimitive -> output += value.asString
-        }
-    }
-
     private fun graphFromGeneratedState(state: JsonObject): JsonObject? {
         val elements = JsonObject()
         val rootChildren = JsonArray()
@@ -306,7 +287,7 @@ internal object A2uiExpressGeneralRepair {
     }
 
     /** Last-resort generated-output salvage for a program whose graph and state grammar are lost. */
-    private fun salvageVisibleStringLiterals(input: String, represented: Set<String> = emptySet()): Candidate? {
+    private fun salvageVisibleStringLiterals(input: String): Candidate? {
         val body = repairBody(input) ?: return null
         val values = linkedSetOf<String>()
         var retainedCharacters = 0
@@ -344,7 +325,7 @@ internal object A2uiExpressGeneralRepair {
                 ignored += 1
                 return@forEach
             }
-            if (decoded in represented || !isUsefulVisibleLiteral(decoded) || retainedCharacters + decoded.length > MAX_LITERAL_CHARS) {
+            if (!isUsefulVisibleLiteral(decoded) || retainedCharacters + decoded.length > MAX_LITERAL_CHARS) {
                 ignored += 1
                 return@forEach
             }
@@ -355,17 +336,12 @@ internal object A2uiExpressGeneralRepair {
             addProperty("root", "root")
             add("state", JsonObject())
             add("elements", JsonObject().apply {
-                add(if (represented.isEmpty()) "root" else "fragments", JsonObject().apply {
+                add("root", JsonObject().apply {
                     addProperty("type", "List")
                     add("props", JsonObject().apply {
                         add("items", JsonArray().apply { values.forEach(::add) })
                     })
                     add("children", JsonArray())
-                })
-                if (represented.isNotEmpty()) add("root", JsonObject().apply {
-                    addProperty("type", "Card")
-                    add("props", JsonObject().apply { addProperty("title", "Additional recovered text") })
-                    add("children", JsonArray().apply { add("fragments") })
                 })
             })
         }

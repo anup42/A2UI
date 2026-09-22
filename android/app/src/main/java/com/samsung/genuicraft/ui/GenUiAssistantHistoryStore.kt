@@ -14,7 +14,9 @@ internal data class GenUiAssistantHistoryItem(
     val usedFallback: Boolean = false,
     val warnings: List<String> = emptyList(),
     val stage3InputTokens: Int? = null,
-    val stage3OutputTokens: Int? = null
+    val stage3OutputTokens: Int? = null,
+    val stage3OutputTokensPerSecond: Double? = null,
+    val stage3GenerationDurationMs: Long? = null,
 )
 
 internal object GenUiAssistantHistoryStore {

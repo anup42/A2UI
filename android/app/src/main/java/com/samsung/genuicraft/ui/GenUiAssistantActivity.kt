@@ -176,6 +176,8 @@ private object GenUiAssistantSessionCache {
     var warnings: List<String> = emptyList()
     var stage3InputTokens: Int? = null
     var stage3OutputTokens: Int? = null
+    var stage3OutputTokensPerSecond: Double? = null
+    var stage3GenerationDurationMs: Long? = null
     var renderResult: GenUiNativeRenderer.RenderResult? = null
     var logs: List<AssistantLogItem> = emptyList()
 }
@@ -264,6 +266,12 @@ private fun GenUiAssistantScreen(
     var warnings by remember { mutableStateOf(ArrayList(GenUiAssistantSessionCache.warnings)) }
     var stage3InputTokens by rememberSaveable { mutableStateOf(GenUiAssistantSessionCache.stage3InputTokens) }
     var stage3OutputTokens by rememberSaveable { mutableStateOf(GenUiAssistantSessionCache.stage3OutputTokens) }
+    var stage3OutputTokensPerSecond by rememberSaveable {
+        mutableStateOf(GenUiAssistantSessionCache.stage3OutputTokensPerSecond)
+    }
+    var stage3GenerationDurationMs by rememberSaveable {
+        mutableStateOf(GenUiAssistantSessionCache.stage3GenerationDurationMs)
+    }
     var renderResult by remember {
         mutableStateOf<GenUiNativeRenderer.RenderResult?>(GenUiAssistantSessionCache.renderResult)
     }
@@ -305,6 +313,8 @@ private fun GenUiAssistantScreen(
         warnings,
         stage3InputTokens,
         stage3OutputTokens,
+        stage3OutputTokensPerSecond,
+        stage3GenerationDurationMs,
         renderResult,
         logs.toList()
     ) {
@@ -323,6 +333,8 @@ private fun GenUiAssistantScreen(
         GenUiAssistantSessionCache.warnings = warnings.toList()
         GenUiAssistantSessionCache.stage3InputTokens = stage3InputTokens
         GenUiAssistantSessionCache.stage3OutputTokens = stage3OutputTokens
+        GenUiAssistantSessionCache.stage3OutputTokensPerSecond = stage3OutputTokensPerSecond
+        GenUiAssistantSessionCache.stage3GenerationDurationMs = stage3GenerationDurationMs
         GenUiAssistantSessionCache.renderResult = displayRenderResult
         GenUiAssistantSessionCache.logs = logs.toList()
     }
@@ -507,6 +519,8 @@ private fun GenUiAssistantScreen(
         warnings = arrayListOf()
         stage3InputTokens = null
         stage3OutputTokens = null
+        stage3OutputTokensPerSecond = null
+        stage3GenerationDurationMs = null
         renderResult = null
         logs.clear()
         resetToIdleSteps()
@@ -528,24 +542,13 @@ private fun GenUiAssistantScreen(
         warnings = ArrayList(item.warnings.map(::sanitizeUiLogText))
         stage3InputTokens = item.stage3InputTokens
         stage3OutputTokens = item.stage3OutputTokens
+        stage3OutputTokensPerSecond = item.stage3OutputTokensPerSecond
+        stage3GenerationDurationMs = item.stage3GenerationDurationMs
         logs.clear()
         upsertLogCard(
             title = "Response",
             content = item.responseText
         )
-        if (item.stage3InputTokens != null || item.stage3OutputTokens != null) {
-            upsertLogCard(
-                title = "IR Tokens",
-                content = buildString {
-                    append("Input: ")
-                    append(item.stage3InputTokens?.toString() ?: "n/a")
-                    append('\n')
-                    append("Output: ")
-                    append(item.stage3OutputTokens?.toString() ?: "n/a")
-                },
-                monospace = true
-            )
-        }
         val restored = GenUiNativeRenderer.renderLegacyForComparison(rawInput = item.genUiJson, sourceDir = null)
         renderResult = restored.takeIf { it.errorMessage == null }
         if (restored.errorMessage != null) {
@@ -915,6 +918,8 @@ private fun GenUiAssistantScreen(
                                     usedFallback = false
                                     stage3InputTokens = null
                                     stage3OutputTokens = null
+                                    stage3OutputTokensPerSecond = null
+                                    stage3GenerationDurationMs = null
                                     logs.clear()
                                     resetSteps(GenUiStagePipeline.Stage.STAGE2)
                                     currentStatus = "Starting pipeline"
@@ -966,21 +971,17 @@ private fun GenUiAssistantScreen(
                                                     stage3Json = update.stage3Json
                                                 }
                                                 if (update.stage == GenUiStagePipeline.Stage.STAGE3 &&
-                                                    (update.llmInputTokens != null || update.llmOutputTokens != null)
+                                                    (update.llmInputTokens != null ||
+                                                        update.llmOutputTokens != null ||
+                                                        update.llmOutputTokensPerSecond != null)
                                                 ) {
                                                     stage3InputTokens = update.llmInputTokens
+                                                        ?: stage3InputTokens
                                                     stage3OutputTokens = update.llmOutputTokens
-                                                    upsertLogCard(
-                                                        title = "IR Tokens",
-                                                        content = buildString {
-                                                            append("Input: ")
-                                                            append(update.llmInputTokens?.toString() ?: "n/a")
-                                                            append('\n')
-                                                            append("Output: ")
-                                                            append(update.llmOutputTokens?.toString() ?: "n/a")
-                                                        },
-                                                        monospace = true
-                                                    )
+                                                        ?: stage3OutputTokens
+                                                    stage3OutputTokensPerSecond =
+                                                        update.llmOutputTokensPerSecond
+                                                            ?: stage3OutputTokensPerSecond
                                                 }
                                                 update.renderResult?.let { partialRender ->
                                                     if (partialRender.errorMessage == null) {
@@ -1004,6 +1005,11 @@ private fun GenUiAssistantScreen(
                                                     finalIrFailed = false
                                                     stage3InputTokens = result.stage3InputTokens
                                                     stage3OutputTokens = result.stage3OutputTokens
+                                                    stage3OutputTokensPerSecond =
+                                                        result.stage3OutputTokensPerSecond
+                                                    stage3GenerationDurationMs =
+                                                        result.stageStreamDurationsMs[GenUiStagePipeline.Stage.STAGE3]
+                                                            ?: result.stageDurationsMs[GenUiStagePipeline.Stage.STAGE3]
                                                     renderResult = result.renderResult
                                                     warnings = ArrayList(result.warnings.map(::sanitizeUiLogText))
                                                     usedFallback = result.usedFallback
@@ -1011,19 +1017,6 @@ private fun GenUiAssistantScreen(
                                                         title = "Response",
                                                         content = result.stage2Response
                                                     )
-                                                    if (result.stage3InputTokens != null || result.stage3OutputTokens != null) {
-                                                        upsertLogCard(
-                                                            title = "IR Tokens",
-                                                            content = buildString {
-                                                                append("Input: ")
-                                                                append(result.stage3InputTokens?.toString() ?: "n/a")
-                                                                append('\n')
-                                                                append("Output: ")
-                                                                append(result.stage3OutputTokens?.toString() ?: "n/a")
-                                                            },
-                                                            monospace = true
-                                                        )
-                                                    }
                                                     appendDebugLogLine("Pipeline completed successfully.")
                                                     steps.indices.forEach { i ->
                                                         steps[i] = steps[i].copy(status = PipelineStepStatus.Done)
@@ -1049,7 +1042,12 @@ private fun GenUiAssistantScreen(
                                                                 usedFallback = result.usedFallback,
                                                                 warnings = result.warnings.map(::sanitizeUiLogText),
                                                                 stage3InputTokens = result.stage3InputTokens,
-                                                                stage3OutputTokens = result.stage3OutputTokens
+                                                                stage3OutputTokens = result.stage3OutputTokens,
+                                                                stage3OutputTokensPerSecond =
+                                                                    result.stage3OutputTokensPerSecond,
+                                                                stage3GenerationDurationMs =
+                                                                    result.stageStreamDurationsMs[GenUiStagePipeline.Stage.STAGE3]
+                                                                        ?: result.stageDurationsMs[GenUiStagePipeline.Stage.STAGE3],
                                                             )
                                                         )
                                                     }
@@ -1075,6 +1073,9 @@ private fun GenUiAssistantScreen(
                                                     if (!outcome.stage3Json.isNullOrBlank()) {
                                                         stage3Json = outcome.stage3Json
                                                     }
+                                                    stage3GenerationDurationMs =
+                                                        outcome.stageStreamDurationsMs[GenUiStagePipeline.Stage.STAGE3]
+                                                            ?: outcome.stageDurationsMs[GenUiStagePipeline.Stage.STAGE3]
                                                     steps.indices.forEach { i ->
                                                         val step = steps[i]
                                                         val status = when {
@@ -1175,6 +1176,21 @@ private fun GenUiAssistantScreen(
                             statusText = currentStatus,
                             running = isRunning
                         )
+                    }
+
+                    if (
+                        stage3OutputTokens != null ||
+                        stage3OutputTokensPerSecond != null ||
+                        stage3GenerationDurationMs != null
+                    ) {
+                        item {
+                            GenUiAssistantIrGenerationStatsCard(
+                                inputTokens = stage3InputTokens,
+                                outputTokens = stage3OutputTokens,
+                                outputTokensPerSecond = stage3OutputTokensPerSecond,
+                                generationDurationMs = stage3GenerationDurationMs,
+                            )
+                        }
                     }
 
                     if (rawStage3Text.isNotBlank() || !stage3Json.isNullOrBlank()) {
@@ -1790,6 +1806,99 @@ private fun StageProgressCard(
             }
         }
     }
+}
+
+@Composable
+private fun GenUiAssistantIrGenerationStatsCard(
+    inputTokens: Int?,
+    outputTokens: Int?,
+    outputTokensPerSecond: Double?,
+    generationDurationMs: Long?,
+) {
+    val speed = outputTokensPerSecond
+        ?.takeIf { it.isFinite() && it >= 0.0 }
+        ?.let { String.format(Locale.US, "%.2f tokens/s", it) }
+        ?: "Unavailable"
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(GenUiTokens.RadiusXl),
+        colors = genUiCardColors(GenUiCardTone.Primary),
+        border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor()),
+        elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 14.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(9.dp),
+        ) {
+            Text(
+                text = "IR generation metrics",
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                IrMetricValue(
+                    label = "Total tokens",
+                    value = outputTokens?.toString() ?: "Unavailable",
+                    modifier = Modifier.weight(0.8f),
+                )
+                IrMetricValue(
+                    label = "Token speed",
+                    value = speed,
+                    modifier = Modifier.weight(1.25f),
+                )
+                IrMetricValue(
+                    label = "Time taken",
+                    value = generationDurationMs?.let(::formatIrGenerationDuration)
+                        ?: "Unavailable",
+                    modifier = Modifier.weight(0.9f),
+                )
+            }
+            inputTokens?.let { count ->
+                Text(
+                    text = "Prompt tokens: $count · generation time excludes validation and repair when native timing is available.",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun IrMetricValue(
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodySmall.copy(
+                fontFamily = FontFamily.Monospace,
+                fontWeight = FontWeight.SemiBold,
+            ),
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+    }
+}
+
+private fun formatIrGenerationDuration(durationMs: Long): String {
+    val safeDurationMs = durationMs.coerceAtLeast(0L)
+    if (safeDurationMs < 1_000L) return "$safeDurationMs ms"
+    if (safeDurationMs < 60_000L) {
+        return String.format(Locale.US, "%.1fs", safeDurationMs / 1_000.0)
+    }
+    return "${safeDurationMs / 60_000L}m ${(safeDurationMs % 60_000L) / 1_000L}s"
 }
 
 @Composable

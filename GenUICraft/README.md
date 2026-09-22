@@ -219,6 +219,9 @@ With **Debug** enabled, the trained route displays cumulative native output in
 separate **Repaired IR** after compilation (or **Validated IR** when no repair
 was needed). Raw output is never replaced by the repaired program. The live
 pane follows newly generated text; both versions remain available afterward.
+The GenUI Demo debug view also shows total generated tokens, native decode speed,
+and provider generation wall time. Those values survive configuration changes
+and are stored with completed demo history entries.
 
 SDK hosts can observe Gemma generation with
 `provider.generate(prompt, onPartialText = { cumulativeRawText -> ... })`.
@@ -314,9 +317,11 @@ Broader generated-output salvage is available only through an explicit diagnosti
 option. Recovery combines generated state and independently valid components in
 one document, retaining every recoverable row instead of stopping at the first
 valid text component. It also retains complete fields/items from damaged state
-assignments without completing truncated strings. Readable fragments from broken
-components appear separately under **Additional recovered text**. Dangling table
-bindings trigger data recovery rather than producing empty table shells.
+assignments without completing truncated strings. When structured state or valid
+components survive, loose strings from damaged calls are omitted instead of being
+shown in an extra recovery section. Literal-only recovery remains available when
+no structured generated content survives. Dangling table bindings trigger data
+recovery rather than producing empty table shells.
 It never imports the source response or corrects model-produced facts; rendering
 alone does not prove that the answer is complete. Strict limits still apply to
 compiled documents; recovery may flatten an over-deep broken graph into a valid,

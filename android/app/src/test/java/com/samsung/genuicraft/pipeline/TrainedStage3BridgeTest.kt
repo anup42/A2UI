@@ -132,6 +132,8 @@ class TrainedStage3BridgeTest {
         assertEquals("LiteRT-LM/Gemma4/GPU/MTP", result.runtimeBackend)
         assertEquals("prompt-sha", result.renderedPromptSha256)
         assertEquals(123, result.elapsedMs)
+        assertNotNull(result.generationElapsedMs)
+        assertTrue(result.generationElapsedMs!! >= 0L)
         assertTrue(result.warnings.single().contains("source fidelity audit"))
         assertTrue(closed.get())
     }

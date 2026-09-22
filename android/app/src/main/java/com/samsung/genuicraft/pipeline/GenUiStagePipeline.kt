@@ -2396,6 +2396,9 @@ class GenUiStagePipeline(private val appContext: Context) {
                 }
             },
         )
+        conversion.generationElapsedMs?.let { elapsedMs ->
+            stageStreamDurationsMs[Stage.STAGE3] = elapsedMs.coerceAtLeast(0L)
+        }
         stageDurationsMs[Stage.STAGE3] =
             (System.currentTimeMillis() - stage3StartedAtMs).coerceAtLeast(0L)
 

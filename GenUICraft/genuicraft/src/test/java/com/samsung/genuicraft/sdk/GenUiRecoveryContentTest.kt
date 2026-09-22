@@ -39,9 +39,10 @@ class GenUiRecoveryContentTest {
             "can also provide same comparison with arrival times and days of operation included",
         )
         val values = leafStrings(graph)
-        assertTrue("Readable text from broken Table properties must also survive", values.contains(
+        assertFalse("Loose damaged-call fragments must not create an extra recovery section", values.contains(
             "Shatabdi Express also shows slight variation in duration, from about 2 h 15 m to 2 h 25 m.",
         ))
+        assertFalse("The diagnostic recovery heading must never be rendered", "Additional recovered text" in values)
         assertFalse("Corrupted layout metadata is not answer text", " между" in values)
     }
 
