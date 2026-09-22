@@ -3,6 +3,9 @@
 This folder contains the latest Fold8 capture pulled from serial `R3GL203AKSF`
 and a one-slide PowerPoint demo artifact.
 
+The slide uses a white background for clearer demo-room readability while keeping
+the embedded device captures and editable latency text.
+
 - `output/GenUICraft_Fold8_Demo_Latency.pptx` is the final slide. It embeds the
   17.75-second MP4, so the video travels with the presentation.
 - `output/slide_preview.png` is a native PowerPoint render used for visual QA.
