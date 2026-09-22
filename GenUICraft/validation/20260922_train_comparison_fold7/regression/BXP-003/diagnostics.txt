@@ -1,0 +1,15 @@
+Strict compile rejected output: Invalid GenUI Express: Unclosed A2UI Express expression.
+Canonicalized property 'Gap' to 'gap'.
+Normalized invalid gap value 'между' to 'md'.
+Wrapped 1 positional child reference(s) for Column.
+Wrapped 1 positional child reference(s) for Card.
+Normalized invalid gap value 'sma' to 'md'.
+Wrapped 1 positional child reference(s) for Row.
+Normalized invalid align value ':**' to 'start'.
+Salvaged 16 additional complete generated string literal value(s) from damaged structure.
+Ignored 58 key, style, corrupt, duplicate, or over-budget string literal(s).
+Rebuilt a generated-literal List; source text was not used.
+Recovered 1 generated state assignment(s), including 0 damaged assignment(s) with complete literal values.
+Materialized all 1 recovered state field(s), preserving row order, repeated rows, and generated values.
+Combined 3 valid generated component call(s) with recovered state; inspected 14 damaged or state-bound call(s) for additional readable fragments.
+Best-effort generated-output recovery; unresolved structure is not a complete or source-verified answer. Source text was not used.

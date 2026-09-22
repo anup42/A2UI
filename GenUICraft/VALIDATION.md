@@ -1,5 +1,10 @@
 # GenUICraft validation
 
+The **22 September train-comparison renderer update** is documented in
+[its Fold7 report](validation/20260922_train_comparison_fold7/REPORT.md). SDK 0.4.1
+adds dedicated train cards and readable labels while preserving the exact repaired
+IR. All 374 SDK tests and two device tests covering three renderer fixtures pass.
+
 The latest **22 September shared SDK and Fold7 delivery** is documented in
 [its report](validation/20260922_shared_sdk_fold7/REPORT.md). SDK 0.4.0 owns native
 inference, streaming capture and trained repair policy across the demo, Pipeline,

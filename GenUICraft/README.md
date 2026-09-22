@@ -45,8 +45,11 @@ dependencyResolutionManagement {
     }
 }
 // consumer module
-implementation("com.samsung.genuicraft:genuicraft:0.4.0")
+implementation("com.samsung.genuicraft:genuicraft:0.4.1")
 ```
+
+Version 0.4.1 adds [native train-comparison cards](validation/20260922_train_comparison_fold7/REPORT.md),
+including readable field labels, prominent departure times and full generated-value preservation.
 
 Version 0.4.0 adds `GenUiSession`, which owns conversion profile selection, raw streaming
 capture, recovery, prompt/runtime measurements, and cancellation-safe cleanup. The SDK

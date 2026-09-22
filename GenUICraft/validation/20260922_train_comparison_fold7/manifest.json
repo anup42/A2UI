@@ -1,0 +1,20 @@
+{
+  "sdkVersion": "0.4.1",
+  "deviceSerial": "R3CY30QFWLP",
+  "deviceModel": "SM-F966B",
+  "runIds": {
+    "after": "1790041044431",
+    "regression": "1790041047870_92ec2f0a"
+  },
+  "rawSha256": "85f69c512d8df1e871069c2fb3d6c43ccfd283da065e40154e23cc2dd376e1da",
+  "repairedSha256": "61abcb5bf5f188560b1b0cb5871849eb208413fdac4c4b97c6fc8181075bc198",
+  "repairedDocumentUnchanged": true,
+  "apkSha256": "22264d673278420b57951b4198882c825cbd61f838aa408a8bfbca0e27777277",
+  "installedApkHashMatches": true,
+  "storedApkHashMatches": true,
+  "apkDevicePath": "/sdcard/Download/GenUICraft/GenUICraft-demo-0.4.1.apk",
+  "aarSha256": "55ceaa69879e74075caa08362950f6bc3a0a4ef13d75f23ee5f3b53c3ec139b9",
+  "bixbyPublicationFilesMatched": 20,
+  "bixbyBuildPerformed": false,
+  "bixbyPushed": false
+}

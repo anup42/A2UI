@@ -120,6 +120,8 @@ import com.samsung.genuicraft.sdk.internal.renderer.native.NativePayloadParser
 import com.samsung.genuicraft.sdk.internal.renderer.native.ParsedButton
 import com.samsung.genuicraft.sdk.internal.renderer.native.intents.flight.NativeFlightSemantics
 import com.samsung.genuicraft.sdk.internal.renderer.native.intents.flight.NativeFlightUiRenderer
+import com.samsung.genuicraft.sdk.internal.renderer.native.intents.train.NativeTrainSemantics
+import com.samsung.genuicraft.sdk.internal.renderer.native.intents.train.NativeTrainUiRenderer
 import com.samsung.genuicraft.sdk.internal.renderer.native.intents.weather.NativeWeatherSemantics
 import com.samsung.genuicraft.sdk.internal.renderer.native.intents.weather.NativeWeatherUiRenderer
 import com.samsung.genuicraft.sdk.internal.renderer.native.media.NativeMediaVisualUtils
@@ -262,6 +264,11 @@ internal fun RenderDirectTable(
                 numericColumns = numericColumnIndexes(table.columns, table.rows, table.numericColumns)
             )
         }
+        return
+    }
+    val trainRows = NativeTrainSemantics.buildTrainRows(headers, table.rows, props["title"]?.toString())
+    if (!trainRows.isNullOrEmpty()) {
+        NativeTrainUiRenderer.RenderTrainRows(trainRows, props["title"]?.toString(), tableModifier)
         return
     }
     val sourceLinks = if (shouldBypassSourceLinkIntercept(table.renderMode)) {
