@@ -45,8 +45,11 @@ dependencyResolutionManagement {
     }
 }
 // consumer module
-implementation("com.samsung.genuicraft:genuicraft:0.4.1")
+implementation("com.samsung.genuicraft:genuicraft:0.4.2")
 ```
+
+Version 0.4.2 refines the train cards with compact ticket styling, full-width departure times,
+and wrapping duration/seating details. See the [Fold7 visual check](validation/20260922_train_card_polish_fold7/REPORT.md).
 
 Version 0.4.1 adds [native train-comparison cards](validation/20260922_train_comparison_fold7/REPORT.md),
 including readable field labels, prominent departure times and full generated-value preservation.
