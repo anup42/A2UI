@@ -77,20 +77,26 @@ $env:JAVA_HOME="$env:USERPROFILE\.jdks\corretto-18.0.2"
 
 To test a candidate JDK, run `Selector.open()` in a scratch file; if it throws, that JDK cannot run Gradle here.
 
-## Gemini Key Setup (No Keys In APK)
+## Gemini / Vertex Express key setup
 
-- This app does not embed Gemini keys in `BuildConfig` or APK.
+- Release and `judgeCapture` APKs keep credential-backed `BuildConfig` fields empty.
+- A local debug/demo APK can embed credentials resolved from ignored `local.properties`,
+  `.env`, Gradle properties, or environment variables. Do not distribute that APK.
 - Runtime key file location on device:
   - `/sdcard/Android/data/com.samsung.genuicraft/files/genuicraft_keys.env`
 - Required entries:
-  - Stage 2: `GEMINI_STAGE2_API_KEY` (or `GEMINI_RESPONSE_API_KEY` / `GEMINI_API_KEY`)
-  - Stage 3: `GEMINI_STAGE3_API_KEY` (or `GEMINI_IR_API_KEY` / `GEMINI_API_KEY_2`)
+  - Vertex Express: `GEMINI_VERTEX_EXPRESS_API_KEY` or `VERTEX_EXPRESS_API_KEY`
+  - Direct Gemini Stage 2: `GEMINI_STAGE2_API_KEY` (or `GEMINI_RESPONSE_API_KEY` / `GEMINI_API_KEY`)
+  - Direct Gemini Stage 3: `GEMINI_STAGE3_API_KEY` (or `GEMINI_IR_API_KEY` / `GEMINI_API_KEY_2`)
 
-Push keys from `../dataset/.env`:
+Push the ignored Android `local.properties` values to a specific connected device:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\tools\push_gemini_keys.ps1
+powershell -ExecutionPolicy Bypass -File .\tools\push_gemini_keys.ps1 -Serial <adb-serial>
 ```
+
+The app imports the external file into private storage and deletes the staged copy.
+Runtime values take precedence over debug `BuildConfig` defaults.
 
 ## UI Automation Method (Agent Reuse)
 

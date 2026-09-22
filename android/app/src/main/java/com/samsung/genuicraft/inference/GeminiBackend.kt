@@ -9,7 +9,6 @@ import com.samsung.genuicraft.InferenceBackendSettings
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
-import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.util.Locale
 import kotlin.math.min
@@ -114,11 +113,10 @@ class GeminiBackend(
 
     private fun buildGenerateEndpoint(): URL {
         val normalizedModel = normalizeModelName(model)
-        val encodedKey = URLEncoder.encode(requestApiKey(), StandardCharsets.UTF_8.name())
         if (usesGeminiApiEndpoint()) {
-            return URL("https://generativelanguage.googleapis.com/v1beta/models/$normalizedModel:generateContent?key=$encodedKey")
+            return URL("https://generativelanguage.googleapis.com/v1beta/models/$normalizedModel:generateContent")
         }
-        return URL("https://aiplatform.googleapis.com/v1/publishers/google/models/$normalizedModel:generateContent?key=$encodedKey")
+        return URL("https://aiplatform.googleapis.com/v1/publishers/google/models/$normalizedModel:generateContent")
     }
 
     private fun requestApiKey(): String {

@@ -8,8 +8,8 @@ object GeminiModelSettings {
     private const val KEY_SELECTED_MODEL = "selected_model"
     private const val KEY_RESPONSE_MODEL = "selected_response_model"
     private const val KEY_IR_MODEL = "selected_ir_model"
-    const val DEFAULT_RESPONSE_MODEL = "gemini-2.5-flash-lite"
-    const val DEFAULT_IR_MODEL = "gemini-2.5-flash"
+    const val DEFAULT_RESPONSE_MODEL = "gemini-3.5-flash-lite"
+    const val DEFAULT_IR_MODEL = "gemini-3.5-flash"
     const val GEMMA_4_31B_IT_MODEL = "gemma-4-31b-it"
     const val DEFAULT_MODEL = DEFAULT_RESPONSE_MODEL
 
@@ -26,12 +26,6 @@ object GeminiModelSettings {
         "gemini-3.5-flash-lite",
         "gemini-3.1-flash-lite",
         "gemini-3.1-pro-preview",
-        "gemini-2.5-pro",
-        "gemini-2.5-flash",
-        "gemini-2.5-flash-lite",
-        "gemini-pro-latest",
-        "gemini-flash-latest",
-        "gemini-flash-lite-latest",
     )
 
     fun getSelectedModel(context: Context): String {
@@ -54,8 +48,12 @@ object GeminiModelSettings {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val stored = prefs.getString(KEY_IR_MODEL, null)
             ?: prefs.getString(KEY_SELECTED_MODEL, DEFAULT_IR_MODEL)
-        val normalized = normalizeModelName(stored.orEmpty().trim())
-        return normalized.ifBlank { DEFAULT_IR_MODEL }
+        val storedModel = normalizeModelName(stored.orEmpty().trim())
+        val resolvedModel = normalizeVertexExpressIrModel(storedModel)
+        if (resolvedModel != storedModel) {
+            prefs.edit().putString(KEY_IR_MODEL, resolvedModel).apply()
+        }
+        return resolvedModel
     }
 
     fun setResponseModel(context: Context, model: String) {
@@ -67,7 +65,7 @@ object GeminiModelSettings {
     }
 
     fun setIrModel(context: Context, model: String) {
-        val normalized = normalizeModelName(model).ifBlank { DEFAULT_IR_MODEL }
+        val normalized = normalizeVertexExpressIrModel(model)
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
             .putString(KEY_IR_MODEL, normalized)
@@ -109,12 +107,34 @@ object GeminiModelSettings {
 
     internal fun normalizeVertexExpressResponseModel(value: String): String {
         val normalized = normalizeModelName(value)
+        if (isUnavailableExpressSelection(normalized)) {
+            return DEFAULT_RESPONSE_MODEL
+        }
         return normalized.takeIf(::isVertexExpressCompatibleModel) ?: DEFAULT_RESPONSE_MODEL
+    }
+
+    internal fun normalizeVertexExpressIrModel(value: String): String {
+        val normalized = normalizeModelName(value)
+        if (isUnavailableExpressSelection(normalized)) {
+            return DEFAULT_IR_MODEL
+        }
+        return normalized.takeIf(::isVertexExpressCompatibleModel) ?: DEFAULT_IR_MODEL
     }
 
     fun isVertexExpressCompatibleModel(value: String): Boolean {
         return normalizeModelName(value)
             .lowercase(Locale.US)
             .startsWith("gemini-")
+    }
+
+    private fun isUnavailableExpressSelection(value: String): Boolean {
+        return value.lowercase(Locale.US) in setOf(
+            "gemini-2.5-pro",
+            "gemini-2.5-flash",
+            "gemini-2.5-flash-lite",
+            "gemini-pro-latest",
+            "gemini-flash-latest",
+            "gemini-flash-lite-latest",
+        )
     }
 }

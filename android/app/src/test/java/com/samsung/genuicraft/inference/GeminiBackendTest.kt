@@ -15,8 +15,7 @@ class GeminiBackendTest {
 
         assertEquals("aiplatform.googleapis.com", endpoint.host)
         assertTrue(endpoint.path.endsWith("/v1/publishers/google/models/gemma-4-31b-it:generateContent"))
-        assertTrue(endpoint.query.contains("vertex-key"))
-        assertFalse(endpoint.query.contains("gemini-key"))
+        assertEquals(null, endpoint.query)
     }
 
     @Test
@@ -28,8 +27,7 @@ class GeminiBackendTest {
 
         assertEquals("generativelanguage.googleapis.com", endpoint.host)
         assertTrue(endpoint.path.endsWith("/v1beta/models/gemma-4-31b-it:generateContent"))
-        assertTrue(endpoint.query.contains("gemini-key"))
-        assertFalse(endpoint.query.contains("vertex-key"))
+        assertEquals(null, endpoint.query)
     }
 
     @Test
@@ -38,8 +36,7 @@ class GeminiBackendTest {
 
         assertEquals("aiplatform.googleapis.com", endpoint.host)
         assertTrue(endpoint.path.endsWith("/v1/publishers/google/models/gemini-2.5-flash:generateContent"))
-        assertTrue(endpoint.query.contains("vertex-key"))
-        assertFalse(endpoint.query.contains("gemini-key"))
+        assertEquals(null, endpoint.query)
     }
 
     @Test
@@ -48,7 +45,7 @@ class GeminiBackendTest {
 
         assertEquals("aiplatform.googleapis.com", endpoint.host)
         assertTrue(endpoint.path.endsWith("/v1/publishers/google/models/gemini-3.8-flash:generateContent"))
-        assertTrue(endpoint.query.contains("vertex-key"))
+        assertEquals(null, endpoint.query)
     }
 
     @Test

@@ -1,11 +1,17 @@
 param(
-    [string]$DatasetEnvPath = "..\dataset\.env",
+    [Alias("KeysPath")]
+    [string]$DatasetEnvPath = "",
     [string]$PackageName = "com.samsung.genuicraft",
-    [string]$OutputName = "genuicraft_keys.env"
+    [string]$OutputName = "genuicraft_keys.env",
+    [string]$Serial = $env:ANDROID_SERIAL
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
+
+if ([string]::IsNullOrWhiteSpace($DatasetEnvPath)) {
+    $DatasetEnvPath = Join-Path (Split-Path -Parent $PSScriptRoot) "local.properties"
+}
 
 function Parse-DotEnv([string]$path) {
     $result = @{}
@@ -104,8 +110,9 @@ if (-not [string]::IsNullOrWhiteSpace($vertexProjectId)) {
 $lines | Set-Content -Path $tmpFile -NoNewline:$false -Encoding ascii
 
 $devicePath = "/sdcard/Android/data/$PackageName/files/$OutputName"
-adb push "$tmpFile" "$devicePath" | Out-Null
-adb shell ls -l "$devicePath"
+$adbTarget = if ([string]::IsNullOrWhiteSpace($Serial)) { @() } else { @("-s", $Serial) }
+& adb @adbTarget push "$tmpFile" "$devicePath" | Out-Null
+& adb @adbTarget shell ls -l "$devicePath"
 
 Remove-Item -Force "$tmpFile"
 Write-Host "Pushed key file to $devicePath"

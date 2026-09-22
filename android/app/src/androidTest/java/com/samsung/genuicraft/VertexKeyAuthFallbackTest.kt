@@ -33,8 +33,8 @@ class VertexKeyAuthFallbackTest {
         val backend = InferenceBackendFactory.create(
             provider = InferenceBackendSettings.Provider.GEMINI,
             apiKey = "",
-            model = "gemini-2.5-flash",
-            geminiApiMode = InferenceBackendSettings.GeminiApiMode.AI_STUDIO_DIRECT,
+            model = GeminiModelSettings.DEFAULT_RESPONSE_MODEL,
+            geminiApiMode = InferenceBackendSettings.GeminiApiMode.VERTEX_AI_EXPRESS_API_KEY,
             vertexProjectId = InferenceBackendSettings.getVertexProjectId(context),
             vertexLocation = InferenceBackendSettings.getVertexLocation(context),
             vertexAccessToken = InferenceBackendSettings.getVertexAccessToken(context),

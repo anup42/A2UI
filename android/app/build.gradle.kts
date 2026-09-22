@@ -60,17 +60,23 @@ fun resolveSecret(vararg keys: String): String {
         if (!gradleProp.isNullOrBlank()) {
             return gradleProp
         }
+    }
+    for (key in keys) {
+        val envVar = System.getenv(key)?.trim()
+        if (!envVar.isNullOrBlank()) {
+            return envVar
+        }
+    }
+    for (key in keys) {
         val localProp = localProperties.getProperty(key)?.trim()
         if (!localProp.isNullOrBlank()) {
             return localProp
         }
+    }
+    for (key in keys) {
         val dotEnvValue = dotEnvValues[key]?.trim()
         if (!dotEnvValue.isNullOrBlank()) {
             return dotEnvValue
-        }
-        val envVar = System.getenv(key)?.trim()
-        if (!envVar.isNullOrBlank()) {
-            return envVar
         }
     }
     return ""
@@ -288,47 +294,47 @@ android {
         buildConfigField(
             "String",
             "GEMINI_STAGE2_API_KEY_DEFAULT",
-            "\"${escapeForBuildConfig(embeddedStage2ApiKey)}\""
+            "\"\""
         )
         buildConfigField(
             "String",
             "GEMINI_STAGE3_API_KEY_DEFAULT",
-            "\"${escapeForBuildConfig(embeddedStage3ApiKey)}\""
+            "\"\""
         )
         buildConfigField(
             "String",
             "NEWS_API_KEY_DEFAULT",
-            "\"${escapeForBuildConfig(embeddedNewsApiKey)}\""
+            "\"\""
         )
         buildConfigField(
             "String",
             "SERPAPI_KEY_DEFAULT",
-            "\"${escapeForBuildConfig(embeddedSerpApiKey)}\""
+            "\"\""
         )
         buildConfigField(
             "String",
             "GOOGLE_MAPS_API_KEY_DEFAULT",
-            "\"${escapeForBuildConfig(embeddedGoogleMapsApiKey)}\""
+            "\"\""
         )
         buildConfigField(
             "String",
             "VERTEX_EXPRESS_API_KEY_DEFAULT",
-            "\"${escapeForBuildConfig(embeddedVertexExpressApiKey)}\""
+            "\"\""
         )
         buildConfigField(
             "String",
             "VERTEX_OAUTH_ACCESS_TOKEN_DEFAULT",
-            "\"${escapeForBuildConfig(embeddedVertexOauthAccessToken)}\""
+            "\"\""
         )
         buildConfigField(
             "String",
             "VERTEX_PROJECT_ID_DEFAULT",
-            "\"${escapeForBuildConfig(embeddedVertexProjectId)}\""
+            "\"\""
         )
         buildConfigField(
             "String",
             "AZURE_OPENAI_API_KEY_DEFAULT",
-            "\"${escapeForBuildConfig(embeddedAzureOpenAiApiKey)}\""
+            "\"\""
         )
         buildConfigField(
             "String",
@@ -368,6 +374,25 @@ android {
         }
         debug {
             enableUnitTestCoverage = true
+            // Local debug/demo builds may embed ignored developer credentials.
+            // Release and judgeCapture variants keep every credential field empty.
+            buildConfigField(
+                "String",
+                "GEMINI_STAGE2_API_KEY_DEFAULT",
+                "\"${escapeForBuildConfig(embeddedStage2ApiKey)}\""
+            )
+            buildConfigField(
+                "String",
+                "GEMINI_STAGE3_API_KEY_DEFAULT",
+                "\"${escapeForBuildConfig(embeddedStage3ApiKey)}\""
+            )
+            buildConfigField("String", "NEWS_API_KEY_DEFAULT", "\"${escapeForBuildConfig(embeddedNewsApiKey)}\"")
+            buildConfigField("String", "SERPAPI_KEY_DEFAULT", "\"${escapeForBuildConfig(embeddedSerpApiKey)}\"")
+            buildConfigField("String", "GOOGLE_MAPS_API_KEY_DEFAULT", "\"${escapeForBuildConfig(embeddedGoogleMapsApiKey)}\"")
+            buildConfigField("String", "VERTEX_EXPRESS_API_KEY_DEFAULT", "\"${escapeForBuildConfig(embeddedVertexExpressApiKey)}\"")
+            buildConfigField("String", "VERTEX_OAUTH_ACCESS_TOKEN_DEFAULT", "\"${escapeForBuildConfig(embeddedVertexOauthAccessToken)}\"")
+            buildConfigField("String", "VERTEX_PROJECT_ID_DEFAULT", "\"${escapeForBuildConfig(embeddedVertexProjectId)}\"")
+            buildConfigField("String", "AZURE_OPENAI_API_KEY_DEFAULT", "\"${escapeForBuildConfig(embeddedAzureOpenAiApiKey)}\"")
         }
         release {
             isMinifyEnabled = false
