@@ -14,7 +14,7 @@ class Gemma4StreamingTest {
     @Test fun `native deltas become exact cumulative snapshots before completion`() {
         val snapshots = mutableListOf<String>()
         var complete = false
-        val raw = awaitGemma4Stream(
+        val result = awaitGemma4Stream(
             start = { callback ->
                 callback.onMessage(Message.model("  <a2ui>\n"))
                 callback.onMessage(Message.model("root=Text(\"Sunny ☀\")"))
@@ -28,9 +28,33 @@ class Gemma4StreamingTest {
             onPartialText = { assertFalse(complete); snapshots += it },
             isCancelled = { false },
         )
-        assertEquals("  <a2ui>\nroot=Text(\"Sunny ☀\")\n</a2ui>  ", raw)
-        assertEquals(raw, snapshots.last())
+        assertEquals("  <a2ui>\nroot=Text(\"Sunny ☀\")\n</a2ui>  ", result.text)
+        assertNull(result.repetitionStop)
+        assertEquals(result.text, snapshots.last())
         assertTrue(snapshots.zipWithNext().all { (a, b) -> b.startsWith(a) && b.length > a.length })
+    }
+
+    @Test fun `twentieth repeated child reference cancels decode and returns partial output for repair`() {
+        lateinit var callback: MessageCallback
+        var cancelled = false
+        val partial = "<a2ui>\nroot=Column([" + List(20) { "aa" }.joinToString(",")
+        val result = awaitGemma4Stream(
+            start = {
+                callback = it
+                it.onMessage(Message.model(partial))
+            },
+            cancel = {
+                cancelled = true
+                callback.onError(CancellationException("intentional repetition cutoff"))
+            },
+            onPartialText = {},
+            isCancelled = { false },
+        )
+
+        assertTrue(cancelled)
+        assertEquals(partial, result.text)
+        assertEquals(20, result.repetitionStop?.repeatLimit)
+        assertTrue(result.repetitionStop?.detail.orEmpty().contains("'aa'"))
     }
 
     @Test fun `native stream failure preserves earlier snapshots and propagates`() {

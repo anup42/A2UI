@@ -18,7 +18,8 @@ The independent project lives under A2UI/GenUICraft. Do not build Bixby. Test th
 `GenUiCompileOutcome(document: GenUiDocument, repairKind: GenUiRepairKind, diagnostics: List<String>)`; successful conversions also expose `GenUiConversionResult.Success.repairKind` so hosts can distinguish unchanged, structurally normalized, explicitly generated-DSL-salvaged and source-fallback output without parsing warning text.
 `GenUiAction(name: String, parameters: Map<String, String> = emptyMap())`
 `GenUiPrompt(system: String, user: String, maxOutputTokens: Int = 8192, temperature: Double = 0.0)`
-`GenUiModelOutput(text: String, runtime: String, outputTokens: Int? = null)`
+`GenUiGenerationFinishReason { COMPLETED, REPETITION_LIMIT }`
+`GenUiModelOutput(text: String, runtime: String, outputTokens: Int? = null, metrics: GenUiGenerationMetrics? = null, renderedPromptSha256: String? = null, finishReason: GenUiGenerationFinishReason = COMPLETED, finishDetail: String? = null)`. A repetition-limited result contains the exact accumulated partial output and continues through the normal generated-DSL recovery path.
 `interface GenUiProvider : AutoCloseable { val id: String; suspend fun generate(prompt: GenUiPrompt): GenUiModelOutput; override fun close() {}; suspend fun closeAndAwait() { close() } }`
 `GenUiConversionResult.Success(document: GenUiDocument, provider: String, elapsedMs: Long, attempts: Int, warnings: List<String> = emptyList(), repairKind: GenUiRepairKind = NONE)`. `repairKind` classifies local output recovery; provider repair attempts remain represented by `attempts` and may still leave `repairKind == NONE`.
 `GenUiConversionResult.Failure(message: String, provider: String, elapsedMs: Long, attempts: Int, rawOutput: String? = null)`
@@ -38,6 +39,7 @@ Relocate extracted implementation to `com.samsung.genuicraft.sdk.internal` to av
 `com.samsung.genuicraft.sdk.provider.Gemma4Provider(config: Gemma4Config)`
 `Gemma4Config(modelPath: String, accelerator: String = "GPU", maxContextTokens: Int = 16384)` (agent may extend with optional fields, preserving these names).
 Gemma runtime uses existing test app LiteRT-LM pattern; weights are external. No global app settings or test-app dependency. Cancellation/lifecycle, reusable engine, explicit runtime identity. Preserve model reasoning defaults; do not disable reasoning silently.
+Native streaming stops a component-reference decode loop at 20 repeated references, including repeated ids and sequential alphabetic ids such as `aa, ab, ...`. The guard ignores state values and ordinary prose. Recovered table-state keys use substring target matching, with specific targets evaluated before broad ones; for example, `flight_options_schedule` selects the `flight` renderer route because it contains `flight_options`.
 
 ## Integration and validation
 

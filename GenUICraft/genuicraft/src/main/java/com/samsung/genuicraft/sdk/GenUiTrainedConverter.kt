@@ -79,6 +79,13 @@ class GenUiTrainedConverter internal constructor(
                 attempts = 1,
                 warnings = buildList {
                     add("Runtime: ${output.runtime}")
+                    if (output.finishReason == GenUiGenerationFinishReason.REPETITION_LIMIT) {
+                        add(
+                            "Stopped native generation at the 20-reference repetition limit; " +
+                                "repairing the accumulated partial A2UI output. " +
+                                output.finishDetail.orEmpty(),
+                        )
+                    }
                     if (!requireSourceIntegrity) {
                         add("Generated-output diagnostic mode: renders repaired model output; no source-text fallback.")
                         if (sourceIssues.isNotEmpty()) {

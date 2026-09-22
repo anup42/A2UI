@@ -16,6 +16,7 @@ import com.google.ai.edge.litertlm.ThinkingConfig
 import com.samsung.genuicraft.sdk.GenUiPrompt
 import com.samsung.genuicraft.sdk.GenUiPromptRole
 import com.samsung.genuicraft.sdk.GenUiGenerationMetrics
+import com.samsung.genuicraft.sdk.GenUiGenerationFinishReason
 import java.io.File
 import java.security.MessageDigest
 import java.util.concurrent.ExecutorService
@@ -53,6 +54,8 @@ internal data class Gemma4RuntimeOutput(
     val outputTokens: Int?,
     val metrics: GenUiGenerationMetrics? = null,
     val renderedPromptSha256: String? = null,
+    val finishReason: GenUiGenerationFinishReason = GenUiGenerationFinishReason.COMPLETED,
+    val finishDetail: String? = null,
 )
 
 /** LiteRT-LM implementation isolated behind [Gemma4Runtime] so lifecycle behavior is testable. */
@@ -138,24 +141,31 @@ internal class LiteRtGemma4Runtime(
                 }
                 promptSha256(rendered)
             }
-            val responseText = if (onPartialText == null) {
-                conversation.sendMessage(prompt.user).textContent().trim()
-            } else {
-                awaitGemma4Stream(
-                    start = { callback -> conversation.sendMessageAsync(prompt.user, callback) },
-                    cancel = { conversation.cancelProcess() },
-                    onPartialText = onPartialText,
-                    isCancelled = { requestCancelled.get() || closed.get() },
-                )
-            }
+            // Always use the async path so decode-loop detection also protects callers that do not
+            // request UI streaming. The observer remains optional; repetition recovery is not.
+            val stream = awaitGemma4Stream(
+                start = { callback -> conversation.sendMessageAsync(prompt.user, callback) },
+                cancel = { conversation.cancelProcess() },
+                onPartialText = onPartialText ?: {},
+                isCancelled = { requestCancelled.get() || closed.get() },
+            )
+            val responseText = if (onPartialText == null) stream.text.trim() else stream.text
             throwIfRequestStopped(requestCancelled)
-            val metrics = if (config.enableMetrics) readGemma4GenerationMetrics(conversation) else null
+            val metrics = if (config.enableMetrics) {
+                runCatching { readGemma4GenerationMetrics(conversation) }.getOrNull()
+            } else null
             Gemma4RuntimeOutput(
                 text = responseText,
                 runtimeIdentity = state.runtimeIdentity,
-                outputTokens = metrics?.outputTokens ?: conversation.outputTokenCount(),
+                outputTokens = metrics?.outputTokens ?: runCatching { conversation.outputTokenCount() }.getOrNull(),
                 metrics = metrics,
                 renderedPromptSha256 = renderedPromptSha256,
+                finishReason = if (stream.repetitionStop == null) {
+                    GenUiGenerationFinishReason.COMPLETED
+                } else {
+                    GenUiGenerationFinishReason.REPETITION_LIMIT
+                },
+                finishDetail = stream.repetitionStop?.detail,
             )
         } finally {
             activeConversation.compareAndSet(conversation, null)

@@ -105,6 +105,33 @@ class GenUiTrainedConverterTest {
         assertEquals(1, provider.prompts.size)
     }
 
+    @Test fun `repetition cutoff is reported while partial output continues through repair`() = runBlocking {
+        val partial = """
+            <a2ui>
+            ${'$'}/={flight_options_schedule:[{airline:"IndiGo",departure:"10:00",arrival:"12:35"}]}
+            root=Column([a,a,a,a,a,a,a,a,a,a,a,a,a,a,a,a,a,a,a,a
+        """.trimIndent()
+        val provider = object : GenUiProvider {
+            override val id = "gemma4_e2b"
+            override suspend fun generate(prompt: GenUiPrompt) = GenUiModelOutput(
+                text = partial,
+                runtime = "test/GPU+MTP",
+                finishReason = GenUiGenerationFinishReason.REPETITION_LIMIT,
+                finishDetail = "A2UI child reference 'a' was emitted 20 times in one component list.",
+            )
+        }
+        val result = GenUiTrainedConverter(
+            provider, contract, allowSourceTextFallback = false, allowGeneratedDslRepair = true,
+            requireSourceIntegrity = false,
+        ).convert(GenUiRequest("Flight options"))
+
+        assertTrue(result.toString(), result is GenUiConversionResult.Success)
+        result as GenUiConversionResult.Success
+        assertEquals(GenUiRepairKind.GENERATED_DSL_REPAIR, result.repairKind)
+        assertTrue(result.warnings.any { it.contains("20-reference repetition limit") })
+        assertTrue(result.document.express.contains("domain=\"flight\""))
+    }
+
     @Test fun `diagnostic host renders only generated values and reports failed source fidelity`() = runBlocking {
         val provider = RecordingProvider("Here is your UI: <a2ui>\nroot=Text(\"Salary $75,000\")\n</a2ui>")
         val result = GenUiTrainedConverter(

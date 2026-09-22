@@ -226,6 +226,15 @@ Native Gemma callbacks run on a worker thread and must return promptly; dispatch
 UI updates to the main thread. Gemma uses native streaming chunks. Providers without a
 streaming implementation emit one final snapshot through this overload.
 
+The SDK also guards native generation against runaway A2UI component lists. It
+cancels decoding when one child reference is emitted 20 times or when 20 sequential
+alphabetic ids such as `aa, ab, ... at` are emitted, then sends the accumulated partial
+Express through the same recovery pipeline. State rows and prose are excluded from this
+check. When recovery rebuilds a table from state, known target names are matched as
+substrings, with specific names evaluated first. Thus `flight_options_schedule` contains
+`flight_options` and is rendered using the native `flight` card route rather than the
+generic or schedule route.
+
 The **GenUICraft SDK · Bixby50** screen also streams Gemma output directly from
 the AAR. Its **IR** view keeps each generated attempt, then shows the repaired
 Express program in a separate panel; **Preview** opens the rendered result.

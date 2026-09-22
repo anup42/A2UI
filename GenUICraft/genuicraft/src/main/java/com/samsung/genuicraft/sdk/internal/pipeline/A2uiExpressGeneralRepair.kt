@@ -414,7 +414,7 @@ internal object A2uiExpressGeneralRepair {
                         add(JsonArray().apply { columns.forEach { column -> add(displayValue(row.asJsonObject.get(column))) } })
                     }
                 })
-                props.addProperty("domain", "generic")
+                props.addProperty("domain", recoveredTableDomain(key, columns))
                 props.addProperty("preferredPresentation", "cards")
                 "Table"
             }
@@ -452,11 +452,50 @@ internal object A2uiExpressGeneralRepair {
         }
     }
 
+    /**
+     * Generated state keys often add a descriptive suffix to a renderer target, for example
+     * `flight_options_schedule`. Match a known target anywhere in the normalized key so recovery
+     * retains that semantic route. Flight-shaped columns are a fallback for generic state names.
+     */
+    private fun recoveredTableDomain(key: String, columns: Collection<String>): String {
+        val normalizedKey = normalizeTargetName(key)
+        recoveredStateDomainTargets.forEach { (domain, targets) ->
+            if (targets.any(normalizedKey::contains)) return domain
+        }
+
+        val normalizedColumns = columns.map(::normalizeTargetName)
+        val hasCarrier = normalizedColumns.any { column ->
+            listOf("airline", "carrier", "flight", "flight_number").any(column::contains)
+        }
+        val hasDeparture = normalizedColumns.any { column ->
+            listOf("departure", "depart", "origin").any(column::contains)
+        }
+        val hasArrival = normalizedColumns.any { column ->
+            listOf("arrival", "arrive", "destination").any(column::contains)
+        }
+        return if (hasCarrier && hasDeparture && hasArrival) "flight" else "generic"
+    }
+
+    private fun normalizeTargetName(value: String): String = value
+        .lowercase(java.util.Locale.ROOT)
+        .replace(Regex("[^a-z0-9]+"), "_")
+        .trim('_')
+
     private fun displayValue(value: JsonElement?): String = when {
         value == null || value.isJsonNull -> ""
         value.isJsonPrimitive -> value.asJsonPrimitive.asString
         else -> value.toString()
     }
+
+    private val recoveredStateDomainTargets = linkedMapOf(
+        // Keep more specific targets before generic schedule/status substrings.
+        "flight" to listOf("flight_options", "flight_schedule", "flight_results", "flight_itinerary"),
+        "weather" to listOf("weather_forecast", "weather_outlook", "weather_conditions"),
+        "booking" to listOf("booking_options", "hotel_options", "restaurant_options"),
+        "comparison" to listOf("comparison", "compare_options", "feature_matrix"),
+        "status" to listOf("delivery_status", "order_status", "service_status", "status_updates"),
+        "schedule" to listOf("schedule", "agenda", "itinerary"),
+    )
 
     private fun mergeRecoveredGraphs(graphs: List<JsonObject>): JsonObject? {
         val elements = JsonObject()

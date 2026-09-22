@@ -64,12 +64,20 @@ data class GenUiGenerationMetrics(
     val decodeTokensPerSecond: Double?,
 )
 
+/** Why native generation ended. A repetition cutoff still returns its accumulated text for repair. */
+enum class GenUiGenerationFinishReason {
+    COMPLETED,
+    REPETITION_LIMIT,
+}
+
 data class GenUiModelOutput(
     val text: String,
     val runtime: String,
     val outputTokens: Int? = null,
     val metrics: GenUiGenerationMetrics? = null,
     val renderedPromptSha256: String? = null,
+    val finishReason: GenUiGenerationFinishReason = GenUiGenerationFinishReason.COMPLETED,
+    val finishDetail: String? = null,
 )
 
 interface GenUiProvider : AutoCloseable {

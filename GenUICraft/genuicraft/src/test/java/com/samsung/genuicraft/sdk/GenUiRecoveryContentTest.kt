@@ -126,6 +126,46 @@ class GenUiRecoveryContentTest {
     }
 
     @Test
+    fun generatedStateTargetSubstringRoutesFlightOptionsToFlightCards() {
+        val raw = """
+            <a2ui>
+            ${'$'}/={flight_options_schedule:[{airline:"Air India Express",departure:"07:15 PM",arrival:"09:55 PM",duration:"2h 40m",stops:"Non-stop",fare:"₹6,150"}]}
+            root=Column([broken])
+            broken=Card(children=[missing]
+        """.trimIndent()
+        val recovered = graph(recover(raw))
+        val flightTable = recovered.getAsJsonObject("elements").entrySet()
+            .map { it.value.asJsonObject }
+            .single { element ->
+                element.get("type")?.asString == "Table" &&
+                    leafStrings(element).contains("Air India Express")
+            }
+        val props = flightTable.getAsJsonObject("props")
+
+        assertEquals("flight", props.get("domain").asString)
+        assertEquals("cards", props.get("preferredPresentation").asString)
+        assertTableRows(recovered, "Air India Express", listOf(
+            listOf("Air India Express", "07:15 PM", "09:55 PM", "2h 40m", "Non-stop", "₹6,150"),
+        ))
+    }
+
+    @Test
+    fun flightColumnsRouteGenericGeneratedStateToFlightCards() {
+        val raw = """
+            <a2ui>
+            ${'$'}/={results:[{carrier:"IndiGo",depart:"10:00",destination:"LKO",fare:"₹7,450"}]}
+            root=Column([broken])
+            broken=Row([missing]
+        """.trimIndent()
+        val recovered = graph(recover(raw))
+        val table = recovered.getAsJsonObject("elements").entrySet()
+            .map { it.value.asJsonObject }
+            .single { it.get("type")?.asString == "Table" }
+
+        assertEquals("flight", table.getAsJsonObject("props").get("domain").asString)
+    }
+
+    @Test
     fun danglingBoundTableStillRecoversEveryCompleteStateRow() {
         val raw = """
             <a2ui>

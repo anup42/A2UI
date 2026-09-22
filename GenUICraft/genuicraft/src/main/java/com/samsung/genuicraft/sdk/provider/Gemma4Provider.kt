@@ -83,6 +83,8 @@ class Gemma4Provider private constructor(
                 outputTokens = generation.outputTokens,
                 metrics = generation.metrics.takeIf { validatedConfig.enableMetrics },
                 renderedPromptSha256 = generation.renderedPromptSha256,
+                finishReason = generation.finishReason,
+                finishDetail = generation.finishDetail,
             )
         } finally {
             generationMutex.unlock()
