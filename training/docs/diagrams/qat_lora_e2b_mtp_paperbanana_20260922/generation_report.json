@@ -1,0 +1,65 @@
+{
+  "created": "2026-09-22",
+  "generator": "PaperBanana via paperbanana-image-generation skill wrapper",
+  "upstream_revision": "836455537e863b5a2f40dace487a782c0bc5ef94",
+  "aspect_ratio_requested": "16:9",
+  "figures": {
+    "training": {
+      "filename": "qat_lora_training.png",
+      "models": {
+        "image_gen_model": "gemini-3-pro-image",
+        "main_model": "gemini-3.1-pro-preview"
+      },
+      "auth_route": "vertex-ai-express",
+      "exp_mode": "demo_full",
+      "retrieval_setting": "none",
+      "num_candidates": 1,
+      "critic_rounds_requested": 4,
+      "critic_rounds_observed": 1,
+      "critic_round_indices_observed": [
+        0
+      ],
+      "return_code": 0,
+      "early_stop_reason": "Critic reported No changes needed.",
+      "dimensions": {
+        "width": 1376,
+        "height": 768
+      },
+      "sha256": "95baea2c05085439cd0d36a3dc00890bdbaf0edaea4e48ebc64fbb9d422e2713",
+      "visual_review": "passed"
+    },
+    "export": {
+      "filename": "official_e2b_export_mtp.png",
+      "models": {
+        "image_gen_model": "gemini-3-pro-image",
+        "main_model": "gemini-3.1-pro-preview"
+      },
+      "auth_route": "vertex-ai-express",
+      "exp_mode": "demo_full",
+      "retrieval_setting": "none",
+      "num_candidates": 1,
+      "critic_rounds_requested": 4,
+      "critic_rounds_observed": 2,
+      "critic_round_indices_observed": [
+        0,
+        1
+      ],
+      "return_code": 0,
+      "early_stop_reason": "Critic reported No changes needed.",
+      "dimensions": {
+        "width": 1376,
+        "height": 768
+      },
+      "sha256": "64015aedae3558cd844385b8708b002e4e436544500756d8bc84cacea511519c",
+      "visual_review": "passed"
+    }
+  },
+  "notes": [
+    "Pro preview image model returned 404; final successful runs use gemini-3-pro-image, the GA Pro image model. No Flash model substituted.",
+    "Auto reference retrieval downloaded zero files. Both final runs explicitly selected retrieval none.",
+    "Transient 429 errors were retried for training; an overlapping export attempt was stopped and rerun successfully by itself.",
+    "Four critique rounds are a maximum. PaperBanana stopped early on critic approval, as recorded separately for each figure.",
+    "Only process-local environment variables carried the API key. No credentials were included in briefs, images, documentation or commits.",
+    "These figures depict retained-mobile QAT LoRA, not full-parameter QAT. The default MTP drafter is preserved unchanged and untrained."
+  ]
+}
