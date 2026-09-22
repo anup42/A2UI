@@ -70,7 +70,7 @@ These are hashes of the message-list representation, not interchangeable with th
 
 Longer target strings do not prove better content retention: generated syntax, repeated containers, and unused state can inflate length.
 
-Full evidence: [inventory report](inventory/README.md), [file manifest](inventory/files.json), [structure](inventory/structure.json), [provenance match report](inventory/provenance.json).
+Full evidence: [inventory report](inventory/README.md), [file manifest](inventory/files.json), and [structure](inventory/structure.json).
 
 ### Source format and URL modes
 
@@ -384,6 +384,6 @@ The structural pass compiles the unchanged wire-schema assertion set for speed a
 
 Runtime used for this audit: Python **3.12.10**, `jsonschema` **4.26.0**, `fastjsonschema` **2.21.2**, `tokenizers` **0.23.1**, and `transformers` **5.16.1**. These are observed audit-environment versions, not a newly certified GPU training dependency lock. Graph depth in the structural audit means maximum depth observed by its first-visit renderer-reference traversal, not guaranteed longest-path depth of a shared-node DAG.
 
-Verification included **four passing audit regression tests**, critical Ruff checks, script compilation, zero tracked-diff whitespace errors, cross-index row/hash reconciliation, original source SHA-256 rechecks, and local-link validation. A final small [audit manifest](audit_manifest.json) records report and relevant code hashes. The full GPU training test suite was not rerun for these report-only additions, and no GPU execution is claimed.
+Verification included **four passing audit regression tests**, critical Ruff checks, script compilation, zero tracked-diff whitespace errors, cross-index row/hash reconciliation, original source SHA-256 rechecks, and local-link validation. The full GPU training test suite was not rerun for these report-only additions, and no GPU execution is claimed.
 
 Run the four primary audit scripts with `--help` for input/output options. Existing SQLite destinations are intentionally not overwritten by the inventory/structural/synthesis passes; use new audit destinations to reproduce. No command in this report starts training.

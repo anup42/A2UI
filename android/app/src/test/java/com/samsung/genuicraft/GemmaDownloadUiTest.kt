@@ -9,7 +9,6 @@ class GemmaDownloadUiTest {
     fun managedGemmaRequiresVerifiedModelButRendererOnlyRemainsAvailable() {
         val unavailable = demoActionAvailability(
             working = false,
-            useGemma = true,
             modelSource = GemmaModelSource.MANAGED_DOWNLOAD,
             managedModelReady = false,
         )
@@ -18,7 +17,6 @@ class GemmaDownloadUiTest {
 
         val ready = demoActionAvailability(
             working = false,
-            useGemma = true,
             modelSource = GemmaModelSource.MANAGED_DOWNLOAD,
             managedModelReady = true,
         )
@@ -27,8 +25,8 @@ class GemmaDownloadUiTest {
     }
 
     @Test
-    fun localFileAndGaussDoNotDependOnManagedDownloadState() {
-        assertTrue(demoActionAvailability(false, true, GemmaModelSource.LOCAL_FILE, false).convertEnabled)
-        assertTrue(demoActionAvailability(false, false, GemmaModelSource.MANAGED_DOWNLOAD, false).convertEnabled)
+    fun localFileDoesNotDependOnManagedDownloadState() {
+        assertTrue(demoActionAvailability(false, GemmaModelSource.LOCAL_FILE, false).convertEnabled)
+        assertFalse(demoActionAvailability(false, GemmaModelSource.MANAGED_DOWNLOAD, false).convertEnabled)
     }
 }

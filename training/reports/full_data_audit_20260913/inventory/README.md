@@ -77,7 +77,6 @@ Run `python training/scripts/audits/full_data_inventory_20260913.py` from the re
 - `structure.json`: character distributions and full-corpus surface-quality flag counts.
 - `golden_overlap.json`: accepted/excluded benchmark matches with exact case IDs and source line positions.
 - `cross_split_sources.json`: all 28 exact-source split collisions and their line positions.
-- `provenance.json`: checked repository file inventory and matching-source counts. Matching text is not proof of target-generator provenance.
 - `audit_manifest.json`: script hash, extraction rules, limitations, and SQLite index location.
 
 The large SQLite index is under `training/outputs/audits/full_data_20260913/inventory.sqlite`; it contains hashes, lengths and byte offsets, not full source/target texts. Source files and actual training artifacts were not modified; no model was trained.

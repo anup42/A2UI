@@ -10,7 +10,7 @@ Over this development cycle, the project was transformed into a reproducible, mu
 Key outcomes:
 
 - Built/maintained an end-to-end pipeline: **Queries → Responses → GenUICraft IR → Metrics/Aggregates → HTML/PNG rendering**.
-- Added/updated multi-provider LLM support (Gemini, OpenAI, Gauss, OpenRouter, Perplexity, plus local Qwen/DeepSeek).
+- Added/updated multi-provider LLM support (Gemini, OpenAI, OpenRouter, Perplexity, plus local Qwen/DeepSeek).
 - Improved reliability (per-item error handling, retries, recompute-only mode, safer caps/limits for local models).
 - Expanded and documented Stage-3 metrics (including intent requirement checks) and improved reporting/visualization.
 - Significantly improved Stage-4 output quality (tables, cards, buttons, link clickability, icons/logos, layout fixes).
@@ -43,7 +43,6 @@ Implemented/maintained adapters under `dataset/src/llm/` and configuration in `d
 - Gemini (including Gemini 3 JSON mode + batch workflows).
 - OpenAI.
 - OpenRouter.
-- Gauss (including endpoint/env hardening and prompt/token clamps).
 - Perplexity (API integration for stages 1–3, including “gpt5” flow).
 - Local Qwen/DeepSeek support via `transformers`, with strict offline controls.
 
@@ -128,7 +127,7 @@ High-level milestones taken from commit history:
 - **2026-02-02**
   - Rebrand pipeline/UI text to GenUICraft; embed local schema in Stage-3 prompt; stage-4 renders for OpenRouter.
 - **2026-02-03 → 2026-02-04**
-  - GenUI/TOON encoding changes; stage-3 schema and Gauss hardening (env parsing, endpoints, max token clamps).
+  - GenUI/TOON encoding changes and stage-3 schema improvements.
   - Gemini batch support for stages 1–3 and JSON mode enablement.
 - **2026-02-05 → 2026-02-08**
   - Local model support improved (vLLM, then transformers), strict offline enforcement, per-item network error handling.
@@ -180,4 +179,3 @@ Visualizer:
 ```bash
 python visualizer/app.py --port 8008
 ```
-

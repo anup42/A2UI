@@ -35,8 +35,8 @@ Reviewed screenshots: [previous screen](sdk_before.png), [updated input](sdk_inp
 
 | Check | Result | Evidence |
 | --- | --- | --- |
-| SDK JVM tests | **368 passed**, 0 failed/errors/skipped | [counts and suites](jvm_tests.json), [build log](sdk_build.log) |
-| Targeted app JVM tests | **29 passed**, 0 failed/errors/skipped | [counts and suites](jvm_tests.json), [build log](app_tests_build.log) |
+| SDK JVM tests | **368 passed**, 0 failed/errors/skipped | [build log](sdk_build.log) |
+| Targeted app JVM tests | **29 passed**, 0 failed/errors/skipped | [build log](app_tests_build.log) |
 | Exact Bixby stream/lifecycle/source/action helpers | **34 passed**, 0 failed/errors/skipped | [source hashes and scope](bixby_helper_tests.json), [test log](bixby_helper_tests.log) |
 | Exact Bixby model-storage source, isolated Robolectric harness | **4 passed**, 0 failed/errors/skipped | [scope and limitations](bixby_feature_store_validation.md), [JUnit XML](bixby_feature_store_host_tests.xml) |
 | Fold7 MTP preference persistence | Passed | [device tests](settings_device_test.txt) |

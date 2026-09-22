@@ -11,7 +11,7 @@ class GenerationMetricsUiTest {
     fun modelOutputUsesReportedMetricsAndLegacyOutputFallbackWithoutEstimating() {
         val output = GenUiModelOutput(
             text = "fixture",
-            runtime = "Gauss/test",
+            runtime = "Gemma/test",
             outputTokens = 80,
             metrics = GenUiGenerationMetrics(
                 inputTokens = 120,

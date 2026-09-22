@@ -51,6 +51,4 @@ The script chooses `revalidated.output.a2ui.json`, then `output.a2ui.json`, then
 - Script self-checks passed for ID-independent matching, formatting equivalence, changed numeric facts, wrong domains, feature-matrix presentation review, missing/unreachable tables, missing outputs in zero-table cases, escaped pipes/backticks, code-fence exclusion, and one-layer literal decoding.
 - v9 revalidated baseline: 50/50 outputs present, 23 exact table-content matches, no table-content failures; 9 preferred presentations and 14 accepted alternatives; 19 preferred and 4 accepted domain choices.
 - v7 original Gemma baseline: same 23 exact matches and choice distribution. This is a saved-output audit, not a new inference run.
-- Saved `gauss50_v10`: 50/50 outputs present, 17 exact matches and 6 formatting-equivalent matches, no table-content failures; 6 preferred presentations and 17 accepted alternatives.
-
 These results show that the checker accepts useful variation while exposing presentation tradeoffs. They do not establish actual on-screen routing, lack of clipping, or readability. Replay changed/suspicious choices and inspect long cells, units, row/column reachability, and feature relationships before declaring UI quality improved.

@@ -216,15 +216,6 @@
       checked_at: "2026-05-20"
       source: "user_requested_restart_model"
       note: "rate limits remain project-tier specific"
-  - name: gauss_default
-    provider: gauss
-    model: GAUSS_MODEL_ID
-    supports_json_mode: false
-    limits:
-      rpm: null
-      tpm: null
-      rpd: null
-      note: "set per your Gauss account tier"
   - name: local_mock
     provider: local
     model: mock

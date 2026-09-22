@@ -7,7 +7,6 @@ The metrics-enabled test app was installed on Galaxy Z Fold7 SM-F966B, serial R3
 - **Token metrics** switch is enabled by default and persists across activity/app restarts. Turning it off hides metrics and disables native benchmarking on the next Gemma engine initialization.
 - Actual input/output counts, native decode token/s, conversion total, and per-attempt details. Unknown counters remain unavailable; no character-based estimates.
 - Native GPU+MTP/thinking remain enabled. Changing the metrics flag recreates the cached provider before the next generation.
-- Gauss uses server-reported prompt/completion usage and explicitly labels output tokens divided by request wall time as request-average speed. Server decode speed is unavailable.
 - Renderer-only runs, new conversions, and cancellation clear stale metrics. Details expand within a bounded scroll area.
 
 ## Measured Fold run
@@ -30,7 +29,7 @@ The normal user flow was then exercised separately from the instrumentation hook
 
 ## Validation
 
-- SDK: **304 JVM tests passed**, including native counter validation, opt-in/off propagation and Gauss usage parsing.
+- SDK: **304 JVM tests passed**, including native counter validation and opt-in/off propagation.
 - App: **3 focused aggregation/fallback JVM tests passed**.
 - Fold UI instrumentation: **1 test passed**, covering the persistent switch, metrics visibility, per-attempt details and renderer-only clearing.
 - Real Fold conversion/render instrumentation: **3 cases passed** in 122.527 seconds including rendering and test overhead.

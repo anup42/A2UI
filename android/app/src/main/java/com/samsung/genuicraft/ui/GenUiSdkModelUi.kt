@@ -69,13 +69,12 @@ internal fun trainedE2bW4Readiness(modelPath: String): LocalModelReadiness {
 
 internal fun sdkDemoActionAvailability(
     working: Boolean,
-    useGemma: Boolean,
     e2bModelChoice: E2bModelChoice,
     officialModelSource: GemmaModelSource,
     managedOfficialModelReady: Boolean,
     trainedModelReady: Boolean,
 ): DemoActionAvailability {
-    if (useGemma && e2bModelChoice == E2bModelChoice.TRAINED_E2B_V10_W4) {
+    if (e2bModelChoice == E2bModelChoice.TRAINED_E2B_V10_W4) {
         return DemoActionAvailability(
             convertEnabled = !working && trainedModelReady,
             renderEnabled = !working,
@@ -83,7 +82,6 @@ internal fun sdkDemoActionAvailability(
     }
     return demoActionAvailability(
         working = working,
-        useGemma = useGemma,
         modelSource = officialModelSource,
         managedModelReady = managedOfficialModelReady,
     )
@@ -100,16 +98,12 @@ internal fun trainedE2bW4Config(
 )
 
 internal fun sdkDemoProviderKey(
-    useGemma: Boolean,
     e2bModelChoice: E2bModelChoice,
     modelPath: String,
     enableMetrics: Boolean,
     enableMtp: Boolean = e2bModelChoice == E2bModelChoice.OFFICIAL_E2B,
-): String = if (useGemma) {
+): String =
     "gemma:profile=${e2bModelChoice.profile}:path=${modelPath.trim()}:metrics=$enableMetrics:mtp=$enableMtp"
-} else {
-    "gauss:profile=gauss30b:metrics=$enableMetrics"
-}
 
 /** Fully releases an old native provider before a replacement can be constructed. */
 internal suspend fun closeProviderBeforeReplacement(provider: GenUiProvider?) {

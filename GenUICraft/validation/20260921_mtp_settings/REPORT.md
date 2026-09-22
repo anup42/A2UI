@@ -9,7 +9,7 @@ App: `com.samsung.genuicraft`, SDK Bixby50 screen.
   Gemma profiles. It defaults on and persists across app restarts. The switch is
   disabled during generation. Its new value applies to the next conversion.
 - The provider cache key includes MTP, so changing the setting releases the old
-  native engine before creating its replacement. Gauss is unaffected.
+  native engine before creating its replacement.
 - The completed run displays its actual engine identity even with token metrics
   off. Runtime logs separate requested MTP, effective MTP and package capability.
 - GPU+MTP requests on packages without a drafter fail explicitly. Users can turn
@@ -50,7 +50,7 @@ modelSupportsMtp=true`. Releasing that engine logged `MTP Drafter - Success rate
 modelSupportsMtp=true`, demonstrating the capability-reporting fix.
 
 Evidence: [runtime logs](runtime_on_off.log), [on screen](run_on.png),
-[off screen](run_off.png), [settings screen](settings_on.png).
+[off screen](run_off.png).
 
 After the final installation and persistence test, MTP was explicitly turned
 back on. A final BXP-001 conversion displayed `GPU+MTP`, 61.38 token/s,

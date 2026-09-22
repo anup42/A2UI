@@ -59,12 +59,6 @@ OPENROUTER_API_BASE="https://openrouter.ai/api/v1"
 OPENROUTER_SITE_URL="https://your-site.example"
 OPENROUTER_APP_NAME="DatasetRunner"
 
-# Gauss
-GAUSS_ENDPOINT="https://your-host"
-GAUSS_CLIENT_KEY="your-client-key"
-GAUSS_OPENAPI_TOKEN="Bearer your-token"
-GAUSS_USER_EMAIL="you@example.com"
-GAUSS_MODEL_ID="your-model-id"
 ```
 
 ### Local Model Setup

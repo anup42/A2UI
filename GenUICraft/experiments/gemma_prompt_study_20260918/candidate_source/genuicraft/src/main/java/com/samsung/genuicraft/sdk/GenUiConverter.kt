@@ -21,7 +21,7 @@ class GenUiConverter private constructor(
     constructor(context: Context, provider: GenUiProvider, options: ConversionOptions = ConversionOptions()) : this(
         provider, options,
         context.applicationContext.assets.open(
-            "genuicraft/prompts/${if (provider.id == "gemma4_e2b") "gemma" else "gauss"}.txt"
+            "genuicraft/prompts/gemma.txt"
         ).bufferedReader().use { it.readText() },
         provider.id == "gemma4_e2b",
         provider.id == "gemma4_e2b",

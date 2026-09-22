@@ -281,8 +281,6 @@ def _load_env(root: Path) -> None:
         "GEMINI_API_KEYS",
         "GEMINI_VERTEX_EXPRESS_API_KEYS",
         "VERTEX_EXPRESS_API_KEYS",
-        "GAUSS_OPENAPI_TOKEN",
-        "GAUSS_CLIENT_KEY",
     }
     for env_path in [
         root / ".env",
@@ -576,7 +574,6 @@ def main() -> None:
     parser.add_argument("--run_id", type=str, default=None, help="Override run id")
     parser.add_argument("--version", action="store_true", help="Print release/component versions and exit")
     parser.add_argument("--print_limits", action="store_true", help="Print configured model limits")
-    parser.add_argument("--list_models", action="store_true", help="List models for a provider")
     parser.add_argument(
         "--stage1_batch_size",
         type=int,
@@ -779,24 +776,6 @@ def main() -> None:
         _print_limits(specs)
         return
 
-    if args.list_models:
-        spec = model_map.get(args.model) if args.model else None
-        if spec is None:
-            spec = next((item for item in specs if item.provider.lower() == "gauss"), None)
-        if spec is None:
-            spec = ModelSpec(
-                name="gauss_list",
-                provider="gauss",
-                model="GAUSS_MODEL_ID",
-                supports_json_mode=False,
-            )
-        adapter = build_adapter(spec)
-        if not hasattr(adapter, "list_models"):
-            raise SystemExit(f"Provider {spec.provider} does not support list_models")
-        payload = adapter.list_models()
-        print(json.dumps(payload, ensure_ascii=False, indent=2))
-        return
-
     if args.benchmark_models is not None and len(args.benchmark_models) > 0:
         base_queries_path = run_paths.queries_path
         if not base_queries_path.exists():
@@ -976,8 +955,6 @@ def main() -> None:
         )
 
     prompt_max_tokens = run_cfg.get("genui_prompt_max_tokens")
-    if prompt_max_tokens is None and adapter is not None and adapter.spec.provider == "gauss":
-        prompt_max_tokens = 6000
     if args.stage == 3 and adapter is not None and adapter.spec.provider == "local":
         local_prompt_cap_raw = (os.environ.get("LOCAL_STAGE3_PROMPT_MAX_TOKENS") or "8192").strip()
         try:

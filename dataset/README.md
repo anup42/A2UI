@@ -29,7 +29,6 @@ dataset/
       base.py
       openai_adapter.py
       gemini_adapter.py
-      gauss_adapter.py
       openrouter_adapter.py
       perplexity_adapter.py
       local_adapter.py
@@ -64,11 +63,6 @@ $env:OPENROUTER_API_KEY="..."
 $env:OPENROUTER_API_BASE="https://openrouter.ai/api/v1"
 $env:OPENROUTER_SITE_URL="https://your-site.example"
 $env:OPENROUTER_APP_NAME="DatasetRunner"
-$env:GAUSS_ENDPOINT="https://your-host"
-$env:GAUSS_CLIENT_KEY="..."
-$env:GAUSS_OPENAPI_TOKEN="Bearer ..."
-$env:GAUSS_USER_EMAIL="you@example.com"
-$env:GAUSS_MODEL_ID="your-model-id"
 ```
 
 ## Versioning

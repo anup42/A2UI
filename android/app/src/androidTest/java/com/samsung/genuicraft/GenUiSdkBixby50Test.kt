@@ -750,7 +750,8 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val args = InstrumentationRegistry.getArguments()
         val context = instrumentation.targetContext
-        val providerName = args.getString("provider", "gauss")
+        val providerName = args.getString("provider", "gemma")!!
+        require(providerName == "gemma") { "Only the on-device Gemma provider is supported." }
         val enableMetrics = args.getString("enableMetrics", "false") == "true"
         val runId = args.getString("runId", "${providerName}_${System.currentTimeMillis()}")!!.replace(Regex("[^A-Za-z0-9_-]"), "_")
         val output = File(context.getExternalFilesDir(null), "sdk_benchmark/$runId").apply { mkdirs() }
@@ -766,15 +767,16 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
         require(selected.all(allIds::contains)) { "Unknown benchmark case ID in cases." }
         val rows = allRows.filter { selected.isEmpty() || it.get("id").asString in selected }
         require(rows.isNotEmpty()) { "No benchmark cases selected." }
-        val provider: GenUiProvider = if (providerName == "gemma") {
-            val config = Gemma4Config(
-                args.getString("modelPath", "")!!,
-                args.getString("accelerator", "GPU")!!,
-                enableSpeculativeDecoding = args.getString("mtp", "true") == "true",
-                enableMetrics = enableMetrics,
-            )
-            Gemma4Provider(args.getString("thinkingBudget")?.let { config.copy(thinkingTokenBudget = it.toInt()) } ?: config)
-        } else Gauss30bProvider()
+        val config = Gemma4Config(
+            args.getString("modelPath", "")!!,
+            args.getString("accelerator", "GPU")!!,
+            enableSpeculativeDecoding = args.getString("mtp", "true") == "true",
+            enableMetrics = enableMetrics,
+        )
+        val provider: GenUiProvider = Gemma4Provider(
+            args.getString("thinkingBudget")?.let { config.copy(thinkingTokenBudget = it.toInt()) }
+                ?: config,
+        )
         var attemptDir: File? = null
         var attemptIndex = 0
         val attemptOutputs = mutableListOf<GenUiModelOutput>()
@@ -805,9 +807,9 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
         val options = ConversionOptions(maxRepairAttempts = args.getString("repairs", "1")!!.toInt(), temperature=args.getString("temperature", "0.0")!!.toDouble())
         val promptPath = args.getString("promptPath")?.takeIf(String::isNotBlank)
         val promptBytes = if (promptPath == null) {
-            context.assets.open("genuicraft/prompts/${if (provider.id == "gemma4_e2b") "gemma" else "gauss"}.txt").use { it.readBytes() }
+            context.assets.open("genuicraft/prompts/gemma.txt").use { it.readBytes() }
         } else File(promptPath).readBytes()
-        val sourceBindings = if (promptPath == null) provider.id == "gemma4_e2b"
+        val sourceBindings = if (promptPath == null) true
             else args.getString("sourceBindings", "false") == "true"
         File(output, "run_config.json").writeText(gson.toJson(mapOf(
             "provider" to providerName, "cases" to rows.map { it.get("id").asString },
@@ -820,11 +822,11 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
             "recordInputs" to (args.getString("recordInputs", "false") == "true"),
             "metricsEnabled" to enableMetrics,
             "deviceModel" to Build.MODEL, "deviceHardware" to Build.HARDWARE,
-        ) + if (providerName == "gemma") mapOf(
+        ) + mapOf(
             "accelerator" to args.getString("accelerator", "GPU"),
             "mtp" to (args.getString("mtp", "true") == "true"),
             "thinkingEnabled" to true, "thinkingBudgetOverride" to args.getString("thinkingBudget"),
-        ) else mapOf("endpoint" to GaussConfig().endpoint, "model" to GaussConfig().model)))
+        )))
         val converter = if (promptPath.isNullOrBlank()) GenUiConverter(context, recordingProvider, options)
             else GenUiConverter.withPrompt(recordingProvider, promptBytes.toString(Charsets.UTF_8), options,
                 useSourceBindings = sourceBindings)

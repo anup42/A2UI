@@ -1,6 +1,6 @@
 # GenUICraft implementation contract
 
-Standalone Android library, version 0.3.0, module `:genuicraft`, public package `com.samsung.genuicraft.sdk`.
+Standalone Android library, version 0.5.0, module `:genuicraft`, public package `com.samsung.genuicraft.sdk`.
 The independent project lives under A2UI/GenUICraft. Do not build Bixby. Test the actual published AAR in the existing A2UI/android app.
 
 ## Ownership
@@ -8,7 +8,7 @@ The independent project lives under A2UI/GenUICraft. Do not build Bixby. Test th
 - Renderer agent: Gradle scaffold; extraction/relocation of codec, catalog, canonical graph, validation, complete native renderer and needed resources into library; `GenUiCompiler`, `GenUiContent`, `GenUiView`; renderer tests.
 - On-device agent: only `sdk/provider/Gemma4Provider.kt`, on-device helper implementation, provider tests and runtime packaging notes. Coordinate build dependency needs with renderer agent.
 - Bixby agent: only Bixby_18Sep integration files and Bixby integration documentation/tests. No Bixby build.
-- Root: shared API types, converter, Gauss provider, prompts, test-app integration, device benchmark, documentation and final assembly.
+- Root: shared API types, converter, prompts, test-app integration, device benchmark, documentation and final assembly.
 
 ## Public API (root owns Api.kt)
 
@@ -35,14 +35,12 @@ Relocate extracted implementation to `com.samsung.genuicraft.sdk.internal` to av
 
 ## Providers
 
-`com.samsung.genuicraft.sdk.provider.Gauss30bProvider(config: GaussConfig = GaussConfig())`
-`GaussConfig(endpoint: String = "https://gaussa.post-train.win/v1/chat/completions", model: String = "gaussa-30b-v0.5-128k", apiKey: String = "", reasoningStrength: String = "low", timeoutMs: Long = 180000)`
 `com.samsung.genuicraft.sdk.provider.Gemma4Provider(config: Gemma4Config)`
 `Gemma4Config(modelPath: String, accelerator: String = "GPU", maxContextTokens: Int = 16384)` (agent may extend with optional fields, preserving these names).
 Gemma runtime uses existing test app LiteRT-LM pattern; weights are external. No global app settings or test-app dependency. Cancellation/lifecycle, reusable engine, explicit runtime identity. Preserve model reasoning defaults; do not disable reasoning silently.
 
 ## Integration and validation
 
-Bixby: classify using actual provider metadata, accumulate streaming response by request, convert once complete, cancel stale work, show native GenUiView/Compose result. Preserve citations/source metadata, TTS/history. A2UI failure must show error/retry; never label fallback text as model success. Current recovery dependency: Maven coordinate `com.samsung.genuicraft:genuicraft:0.3.0` from the complete copied Maven repository. Host selectable Gauss/Gemma config; default Gauss. Document exact source extraction/classification limitations rather than guessing.
+Bixby: classify using actual provider metadata, accumulate streaming response by request, convert once complete, cancel stale work, show native GenUiView/Compose result. Preserve citations/source metadata, TTS/history. A2UI failure must show error/retry; never label fallback text as model success. When its SDK integration is refreshed, consume the complete Maven publication; the current library coordinate is `com.samsung.genuicraft:genuicraft:0.5.0`. The host selects an on-device model profile. Document exact source extraction/classification limitations rather than guessing.
 
-Test app: actual built AAR dependency, dedicated SDK demo/benchmark route, Bixby50 assets copied from `tmp/bixby_perplexity_check/run_50_exact/responses.jsonl`. Both providers, renderer-only replay, content/citation preservation, latency, screenshots and failure details. Keep benchmark outputs separate from source. Report cold initialization, successful raw generations, repaired generations and failures distinctly.
+Test app: actual built AAR dependency, dedicated SDK demo/benchmark route, Bixby50 assets copied from `tmp/bixby_perplexity_check/run_50_exact/responses.jsonl`. On-device profiles, renderer-only replay, content/citation preservation, latency, screenshots and failure details. Keep benchmark outputs separate from source. Report cold initialization, successful raw generations, repaired generations and failures distinctly.

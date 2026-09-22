@@ -79,14 +79,13 @@ internal class GenUiSdkDemoViewModel(application: Application) : AndroidViewMode
 
     fun generate(
         source: String,
-        useGemmaForRun: Boolean,
         e2bModelChoiceForRun: E2bModelChoice,
         modelPathForRun: String,
         metricsForRun: Boolean,
         mtpForRun: Boolean,
         // Injectable provider keeps lifecycle tests independent of network or native model timing.
         providerFactory: () -> GenUiProvider = {
-            createSdkDemoProvider(useGemmaForRun, e2bModelChoiceForRun, modelPathForRun, metricsForRun, mtpForRun)
+            createSdkDemoProvider(e2bModelChoiceForRun, modelPathForRun, metricsForRun, mtpForRun)
         },
     ) {
         if (working) return
@@ -104,7 +103,6 @@ internal class GenUiSdkDemoViewModel(application: Application) : AndroidViewMode
             var captureForRun: GenUiSession? = null
             try {
                 val providerKey = sdkDemoProviderKey(
-                    useGemma = useGemmaForRun,
                     e2bModelChoice = e2bModelChoiceForRun,
                     modelPath = modelPathForRun,
                     enableMetrics = metricsForRun,
@@ -131,7 +129,7 @@ internal class GenUiSdkDemoViewModel(application: Application) : AndroidViewMode
                 val session = GenUiSession(
                     getApplication<Application>(),
                     provider,
-                    if (useGemmaForRun && e2bModelChoiceForRun == E2bModelChoice.TRAINED_E2B_V10_W4)
+                    if (e2bModelChoiceForRun == E2bModelChoice.TRAINED_E2B_V10_W4)
                         GenUiConversionProfile.TRAINED_E2B_V10_W4
                     else GenUiConversionProfile.SOURCE_BOUND,
                 ).also { captureForRun = it }
@@ -236,12 +234,11 @@ internal class GenUiSdkDemoViewModel(application: Application) : AndroidViewMode
 }
 
 private fun createSdkDemoProvider(
-    useGemmaForRun: Boolean,
     e2bModelChoiceForRun: E2bModelChoice,
     modelPathForRun: String,
     metricsForRun: Boolean,
     mtpForRun: Boolean,
-): GenUiProvider = if (useGemmaForRun) {
+): GenUiProvider =
     Gemma4Provider(
         if (e2bModelChoiceForRun == E2bModelChoice.TRAINED_E2B_V10_W4) {
             trainedE2bW4Config(
@@ -257,9 +254,6 @@ private fun createSdkDemoProvider(
             )
         },
     )
-} else {
-    Gauss30bProvider()
-}
 
 /** Formats SDK-owned native measurements for this view. */
 private fun GenUiSession.toUiState(reportedAttempts: Int, conversionElapsedMs: Long) =

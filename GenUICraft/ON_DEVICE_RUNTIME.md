@@ -4,7 +4,7 @@
 
 ## Host setup
 
-The published `com.samsung.genuicraft:genuicraft:0.3.0` POM declares `com.google.ai.edge.litertlm:litertlm-android:0.16.1` and `kotlinx-coroutines-android:1.9.0` as runtime dependencies. Consume the Maven publication rather than copying only `genuicraft-0.3.0.aar`; a bare AAR does not carry transitive dependencies. LiteRT-LM supplies its JNI bridge for `arm64-v8a` and `x86_64`. The GenUICraft AAR supplies the additional ARM64 LiteRT/OpenCL libraries described below.
+The published `com.samsung.genuicraft:genuicraft:0.5.0` POM declares `com.google.ai.edge.litertlm:litertlm-android:0.16.1` and `kotlinx-coroutines-android:1.9.0` as runtime dependencies. Consume the Maven publication rather than copying only `genuicraft-0.5.0.aar`; a bare AAR does not carry transitive dependencies. LiteRT-LM supplies its JNI bridge for `arm64-v8a` and `x86_64`. The GenUICraft AAR supplies the additional ARM64 LiteRT/OpenCL libraries described below.
 
 Pass an absolute path to a readable, nonempty `.litertlm` file that the host app has permission to access:
 

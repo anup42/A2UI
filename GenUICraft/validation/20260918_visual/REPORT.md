@@ -31,8 +31,6 @@ The bounded runtime log check found no target-app fatal exception or ANR marker;
 
 The v14 release AAR is **9,376,695 bytes**, SHA-256 `bdd8b06710e4118aa130fb506e181527b31fa6d204b858b47237fa3bff5160fd`. All **294 JVM tests** pass across 32 suites, with no failures, errors or skips. The published AAR is consumed by the installed reference app, and the installed APK hash matches the built file.
 
-The [source and archive audit](host_build_evidence.json) checks all 106 production files against accepted v10: exactly eight renderer/theme/wrapper files changed, and 98 are byte-identical. Provider, converter, compiler, source bindings, prompts and native-library hashes are unchanged. [Source details](source_delta.json) identify every changed file. The test harness changes are outside the AAR.
-
 All [25 publication files copied to Bixby](bixby_publication.json) match the new Maven repository by SHA-256. The Maven version remains `0.1.0` during this local development iteration; refresh Gradle dependencies when consuming the rebuilt version. Bixby itself was not built or installed.
 
 All [four focused device checks](focused-instrumentation.log) pass on v14: host action callback, exact supplied source URL, literal text preservation, and horizontal table access. They make zero live model calls.

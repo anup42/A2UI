@@ -8,13 +8,11 @@ The subsequent [renderer visual review](validation/20260918_visual/REPORT.md) ad
 
 ```mermaid
 flowchart LR
-  text[Raw text or Markdown] --> gauss[Gauss 30B]
   text --> trained[Trained E2B with frozen prompt]
   trained --> recovery[Generated Express recovery]
-  recovery --> express
+  recovery --> express[A2UI Express]
   text --> bindings[Ordered source blocks and typed bindings]
   bindings --> gemma[Gemma 4 E2B on GPU with MTP]
-  gauss --> express[A2UI Express]
   gemma --> bind[Validate bindings and insert exact source values]
   bind --> express
   express --> compiler[Deterministic compiler and validation]
@@ -45,8 +43,11 @@ dependencyResolutionManagement {
     }
 }
 // consumer module
-implementation("com.samsung.genuicraft:genuicraft:0.4.2")
+implementation("com.samsung.genuicraft:genuicraft:0.5.0")
 ```
+
+Version 0.5.0 removes the remote server provider and its public configuration API.
+Conversion now uses the SDK's on-device LiteRT model profiles.
 
 Version 0.4.2 refines the train cards with compact ticket styling, full-width departure times,
 and wrapping duration/seating details. See the [Fold7 visual check](validation/20260922_train_card_polish_fold7/REPORT.md).
@@ -67,26 +68,6 @@ Use the Maven POM/module metadata: an AAR copied alone does not automatically in
 Consumers need `minSdk = 26` or newer. To call the composable `GenUiContent`, enable Compose and apply the Kotlin Compose compiler plugin in the consumer module. A `GenUiView` host does not need to author composables; attach it inside a lifecycle-aware Activity or Fragment view tree, as required by its internal `ComposeView`.
 
 During local development, rebuilding an unchanged version requires refreshing the consumer's Gradle dependencies (`--refresh-dependencies`) after copying the complete publication. Use a new version for subsequent releases.
-
-## Convert with Gauss
-
-```kotlin
-val provider = Gauss30bProvider(GaussConfig())
-val converter = GenUiConverter(context, provider)
-// Launch from a lifecycle-owned coroutine; cancellation aborts outstanding work.
-when (val result = converter.convert(GenUiRequest(
-    text = perplexityResponse,
-    query = originalQuery,
-    sources = listOf(GenUiSource("7", "https://www.who.int/", "Source title")),
-))) {
-    is GenUiConversionResult.Success -> genUiView.render(result.document)
-    is GenUiConversionResult.Failure -> showRetry(result.message)
-}
-// Close at the end of the owner lifecycle, not after every response.
-provider.close()
-```
-
-Gauss defaults to `https://gaussa.post-train.win/v1/chat/completions`, model `gaussa-30b-v0.5-128k`, reasoning strength `low`. Endpoint, model, credential and timeout are injectable. Credentials are not embedded. SSE reasoning is excluded from output and incomplete/truncated completions fail validation.
 
 ## Convert on device
 
@@ -130,8 +111,8 @@ when (result) {
 session.closeAndAwait()
 ```
 
-The same session supports the official/source-bound and Gauss routes through
-`GenUiConversionProfile.SOURCE_BOUND`. Model discovery, UI preferences, host actions,
+The same session supports the official source-bound route through
+`GenUiConversionProfile.SOURCE_BOUND` and the trained model route through its dedicated profile. Model discovery, UI preferences, host actions,
 and dispatching callbacks to the UI thread remain host responsibilities. Low-level
 consumers of other local models can use `LiteRtModelRunner`; its accelerator policy,
 engine cache, conversation/template handling, native token measurements and explicitly
@@ -257,7 +238,7 @@ and do not control whether text streams.
 Open **GenUICraft SDK · Bixby50 → Settings → MTP drafter** to enable or disable
 speculative decoding. It defaults to on, persists across app restarts, and applies
 to both Gemma profiles. Changing it recreates the GPU engine on the next conversion.
-The switch is disabled during generation. Gauss is unaffected. An MTP-capable
+The switch is disabled during generation. An MTP-capable
 model package is required; disable the switch for older exports without a drafter.
 The app reports the actual completed runtime (`GPU` or `GPU+MTP`) under the run
 status, even when token metrics are off. Logs separately report requested MTP,
@@ -279,9 +260,7 @@ Each `GenUiProvider.generate` result exposes nullable `metrics` with actual
 `inputTokens`, `outputTokens`, and native `decodeTokensPerSecond`. Missing counters
 remain unavailable. Native output counts include thinking work. Decode speed
 excludes model startup and prompt prefill, so the demo also shows total conversion
-time and each repair attempt separately. Gauss counts come from server usage;
-its request-average speed includes network and server processing time and is
-labelled separately. Renderer-only calls clear previous generation measurements.
+time and each repair attempt separately. Renderer-only calls clear previous generation measurements.
 
 See the [Fold7 metrics validation](validation/20260918_fold_metrics/REPORT.md) for
 measured GPU+MTP speeds, on-device checks, screenshots, and installed APK identity.
@@ -377,19 +356,17 @@ The latest [shared SDK and Fold7 delivery report](validation/20260922_shared_sdk
 records SDK 0.4.0 ownership, the refreshed demo UI, live GPU+MTP results, and the
 Bixby Settings/model-import integration with its current validation boundaries.
 
-The parent `android` test app consumes the published AAR by Maven coordinate, not this library's source. Open **GenUICraft SDK · Bixby50** from its home screen to try either provider or renderer-only mode.
+The parent `android` test app consumes the published AAR by Maven coordinate, not this library's source. Open **GenUICraft SDK · Bixby50** from its home screen to try on-device conversion or renderer-only mode.
 
 The SDK demo retains the active generation, document, IR trace and metrics in an Activity-scoped
 ViewModel. Rotation and theme changes restore the selected sample, edited input, open settings,
 tab and scroll positions. A new request starts a fresh workspace; leaving the page closes its
 provider. See the [Fold7 recreation checks](validation/20260922_sdk_configuration_fold7/REPORT.md).
 
-Instrumentation class: `com.samsung.genuicraft.GenUiSdkBixby50Test`. Arguments: `provider=gauss|gemma`, `modelPath`, `accelerator=GPU|CPU` (default GPU), `mtp=true` (default), `cases=BXP-001,BXP-038` (omit for all 50), `runId`, `repairs=1`, `caseTimeoutMs=600000`, `temperature=0.0`. Gemma's optional `thinkingBudget` overrides the SDK's 1,024-token default without disabling thinking. Optional `promptPath` loads a local prompt for development, with `sourceBindings=true` for a custom bound prompt; omit it for bundled-prompt acceptance. Artifacts are written to the app's external-files `sdk_benchmark/<runId>` directory. Each success is replayed through JSON-only rendering without another model call. Failures remain failures in reports. `tools/summarize_benchmark.py <pulled-run>` reports first-attempt successes, repaired successes, failures, timing, and whole-process PSS separately. Its `run_complete` flag requires the completion record and the full expected set of unique case IDs; partial results remain explicitly incomplete.
+Instrumentation class: `com.samsung.genuicraft.GenUiSdkBixby50Test`. Arguments: `modelPath`, `accelerator=GPU|CPU` (default GPU), `mtp=true` (default), `cases=BXP-001,BXP-038` (omit for all 50), `runId`, `repairs=1`, `caseTimeoutMs=600000`, `temperature=0.0`. Gemma's optional `thinkingBudget` overrides the SDK's 1,024-token default without disabling thinking. Optional `promptPath` loads a local prompt for development, with `sourceBindings=true` for a custom bound prompt; omit it for bundled-prompt acceptance. Artifacts are written to the app's external-files `sdk_benchmark/<runId>` directory. Each success is replayed through JSON-only rendering without another model call. Failures remain failures in reports. `tools/summarize_benchmark.py <pulled-run>` reports first-attempt successes, repaired successes, failures, timing, and whole-process PSS separately. Its `run_complete` flag requires the completion record and the full expected set of unique case IDs; partial results remain explicitly incomplete.
 
 The test app's `-PgenUiSdkOnlyNative=true` build flag omits its legacy JNI files. Use this flag to verify the native runtime supplied by the SDK publication and its declared dependencies. Prompt studies may set `recordInputs=true` to save each effective input and `corpusPath` for a synthetic JSONL fixture. The experimental `inputScaffold=true` argument appends a test-provider scaffold to custom prompts; it is separate from the accepted v10 SDK behavior. Omit experimental scaffold arguments for production acceptance. The study's candidate-build metadata must not be interpreted as a production API or default.
 
 For an independent renderer check, run `GenUiSdkBixby50Test#replaySavedBixbyCorpus` with `sourceRunId=<completed-run>` and a new `runId`. Omit `cases` to replay all 50. The default `replayMode=json` compiles saved JSON without changing its bytes. `replayMode=express` strictly compiles captured Express. `replayMode=express_repair` runs the explicit repair/fallback API and records its classification, diagnostics and recovered hashes. `replayMode=express_repair_only` enables generated-DSL salvage, disables source fallback, separately audits source integrity, and renders only recovered generated candidates. `replayMode=raw_model` revalidates captured successful Gemma output through the current converter. All replay modes report **zero live model calls**, save screenshots and accessibility hierarchies, and check table columns while scrolling. Repair replay is renderer evidence, not additional inference success or an improved model-quality score. Bounded viewport capture cannot prove that every pixel or row is correct.
-
-`tools/probe_gauss.py` is a host prompt-development helper. Its results are explicitly separate from Android AAR acceptance results.
 
 See `VALIDATION.md` for actual results and remaining integration limitations. Bixby source changes are in the supplied Bixby checkout; Bixby is not built here because its dependencies are unavailable.

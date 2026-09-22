@@ -78,13 +78,11 @@ class GenUiSdkModelUiTest {
         assertNotEquals(PREFERENCE_E2B_MODEL_CHOICE, PREFERENCE_TRAINED_E2B_W4_MODEL_PATH)
 
         val officialKey = sdkDemoProviderKey(
-            useGemma = true,
             e2bModelChoice = E2bModelChoice.OFFICIAL_E2B,
             modelPath = "/models/e2b.litertlm",
             enableMetrics = true,
         )
         val trainedKey = sdkDemoProviderKey(
-            useGemma = true,
             e2bModelChoice = E2bModelChoice.TRAINED_E2B_V10_W4,
             modelPath = "/models/e2b.litertlm",
             enableMetrics = true,
@@ -93,14 +91,8 @@ class GenUiSdkModelUiTest {
         assertNotEquals(officialKey, trainedKey)
         assertTrue(officialKey.contains("profile=official_e2b"))
         assertTrue(trainedKey.contains("profile=trained_e2b_v10_w4"))
-        assertFalse(
-            sdkDemoProviderKey(
-                useGemma = false,
-                e2bModelChoice = E2bModelChoice.TRAINED_E2B_V10_W4,
-                modelPath = "/models/e2b.litertlm",
-                enableMetrics = true,
-            ).contains("/models/e2b.litertlm")
-        )
+        assertTrue(officialKey.contains("path=/models/e2b.litertlm"))
+        assertTrue(trainedKey.contains("path=/models/e2b.litertlm"))
     }
 
     @Test
@@ -132,7 +124,6 @@ class GenUiSdkModelUiTest {
         assertFalse(
             sdkDemoActionAvailability(
                 working = false,
-                useGemma = true,
                 e2bModelChoice = E2bModelChoice.TRAINED_E2B_V10_W4,
                 officialModelSource = GemmaModelSource.MANAGED_DOWNLOAD,
                 managedOfficialModelReady = true,
@@ -142,7 +133,6 @@ class GenUiSdkModelUiTest {
         assertTrue(
             sdkDemoActionAvailability(
                 working = false,
-                useGemma = true,
                 e2bModelChoice = E2bModelChoice.TRAINED_E2B_V10_W4,
                 officialModelSource = GemmaModelSource.MANAGED_DOWNLOAD,
                 managedOfficialModelReady = false,
@@ -152,7 +142,6 @@ class GenUiSdkModelUiTest {
         assertTrue(
             sdkDemoActionAvailability(
                 working = false,
-                useGemma = true,
                 e2bModelChoice = E2bModelChoice.OFFICIAL_E2B,
                 officialModelSource = GemmaModelSource.MANAGED_DOWNLOAD,
                 managedOfficialModelReady = true,
@@ -162,9 +151,8 @@ class GenUiSdkModelUiTest {
         assertTrue(
             sdkDemoActionAvailability(
                 working = false,
-                useGemma = false,
-                e2bModelChoice = E2bModelChoice.TRAINED_E2B_V10_W4,
-                officialModelSource = GemmaModelSource.MANAGED_DOWNLOAD,
+                e2bModelChoice = E2bModelChoice.OFFICIAL_E2B,
+                officialModelSource = GemmaModelSource.LOCAL_FILE,
                 managedOfficialModelReady = false,
                 trainedModelReady = false,
             ).convertEnabled
@@ -172,7 +160,6 @@ class GenUiSdkModelUiTest {
         assertFalse(
             sdkDemoActionAvailability(
                 working = true,
-                useGemma = false,
                 e2bModelChoice = E2bModelChoice.OFFICIAL_E2B,
                 officialModelSource = GemmaModelSource.LOCAL_FILE,
                 managedOfficialModelReady = true,
@@ -182,15 +169,11 @@ class GenUiSdkModelUiTest {
     }
 
     @Test
-    fun mtpSettingReplacesGemmaProviderWithoutChangingGauss() {
+    fun mtpSettingReplacesEachOnDeviceProvider() {
         E2bModelChoice.entries.forEach { choice ->
-            val on = sdkDemoProviderKey(true, choice, "/models/e2b.litertlm", true, true)
-            val off = sdkDemoProviderKey(true, choice, "/models/e2b.litertlm", true, false)
+            val on = sdkDemoProviderKey(choice, "/models/e2b.litertlm", true, true)
+            val off = sdkDemoProviderKey(choice, "/models/e2b.litertlm", true, false)
             assertNotEquals("MTP changes must recreate the engine for $choice", on, off)
-            assertEquals(
-                sdkDemoProviderKey(false, choice, "", true, true),
-                sdkDemoProviderKey(false, choice, "", true, false),
-            )
         }
         val enabled = trainedE2bW4Config("/models/e2b.litertlm", true, enableMtp = true)
         val disabled = trainedE2bW4Config("/models/e2b.litertlm", true, enableMtp = false)

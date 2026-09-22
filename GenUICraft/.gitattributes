@@ -4,5 +4,4 @@
 .gitattributes text eol=lf
 # Preserve upstream notices and whitespace in validated, hash-bound source files.
 genuicraft/src/main/assets/genuicraft_licenses/LiteRT-THIRD-PARTY-NOTICE.txt -whitespace
-genuicraft/src/main/assets/genuicraft/prompts/gauss.txt whitespace=cr-at-eol,-blank-at-eof
 genuicraft/src/main/java/com/samsung/genuicraft/sdk/internal/renderer/native/intents/weather/NativeWeatherSemantics.kt whitespace=cr-at-eol,-blank-at-eof

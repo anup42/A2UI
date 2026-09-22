@@ -7,7 +7,6 @@ from .gemini_adapter import GeminiAdapter
 from .openai_adapter import OpenAIAdapter
 from .azure_openai_responses_adapter import AzureOpenAIResponsesAdapter
 from .local_adapter import LocalAdapter
-from .gauss_adapter import GaussAdapter
 from .openrouter_adapter import OpenRouterAdapter
 from .perplexity_adapter import PerplexityAdapter
 
@@ -20,8 +19,6 @@ def build_adapter(spec: ModelSpec) -> BaseLLMAdapter:
         return AzureOpenAIResponsesAdapter(spec)
     if provider == "gemini":
         return GeminiAdapter(spec)
-    if provider == "gauss":
-        return GaussAdapter(spec)
     if provider == "openrouter":
         return OpenRouterAdapter(spec)
     if provider == "perplexity":

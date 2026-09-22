@@ -32,7 +32,6 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 private const val PREFERENCE_TOKEN_METRICS_ENABLED = "token_metrics_enabled"
-private const val PREFERENCE_USE_GEMMA = "use_gemma_provider"
 private const val PREFERENCE_GEMMA_MODEL_SOURCE = "gemma_model_source"
 
 /** The demo uses the published SDK AAR; it does not call the app's legacy pipeline. */
@@ -104,9 +103,6 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                 }
                 var caseIndex by rememberSaveable { mutableIntStateOf(0) }
                 var source by rememberSaveable { mutableStateOf(cases.first().get("text").asString) }
-                var useGemma by rememberSaveable {
-                    mutableStateOf(preferences.getBoolean(PREFERENCE_USE_GEMMA, false))
-                }
                 var gemmaModelSource by rememberSaveable {
                     mutableStateOf(
                         GemmaModelSource.fromPreference(
@@ -254,7 +250,6 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                         }
                         val actionAvailability = sdkDemoActionAvailability(
                             working = working,
-                            useGemma = useGemma,
                             e2bModelChoice = e2bModelChoice,
                             officialModelSource = gemmaModelSource,
                             managedOfficialModelReady = managedReadyFile != null,
@@ -332,25 +327,10 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                                     ) {
                                         FilterChip(
-                                            selected = !useGemma,
+                                            selected = e2bModelChoice == E2bModelChoice.OFFICIAL_E2B,
                                             onClick = {
-                                                useGemma = false
-                                                modelSetupVisible = false
-                                                preferences.edit()
-                                                    .putBoolean(PREFERENCE_USE_GEMMA, false)
-                                                    .apply()
-                                            },
-                                            enabled = !working,
-                                            label = { Text("Gauss 30B") },
-                                        )
-                                        FilterChip(
-                                            selected = useGemma &&
-                                                e2bModelChoice == E2bModelChoice.OFFICIAL_E2B,
-                                            onClick = {
-                                                useGemma = true
                                                 e2bModelChoice = E2bModelChoice.OFFICIAL_E2B
                                                 preferences.edit()
-                                                    .putBoolean(PREFERENCE_USE_GEMMA, true)
                                                     .putString(
                                                         PREFERENCE_E2B_MODEL_CHOICE,
                                                         E2bModelChoice.OFFICIAL_E2B.preferenceValue,
@@ -361,13 +341,10 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                             label = { Text("Official E2B") },
                                         )
                                         FilterChip(
-                                            selected = useGemma &&
-                                                e2bModelChoice == E2bModelChoice.TRAINED_E2B_V10_W4,
+                                            selected = e2bModelChoice == E2bModelChoice.TRAINED_E2B_V10_W4,
                                             onClick = {
-                                                useGemma = true
                                                 e2bModelChoice = E2bModelChoice.TRAINED_E2B_V10_W4
                                                 preferences.edit()
-                                                    .putBoolean(PREFERENCE_USE_GEMMA, true)
                                                     .putString(
                                                         PREFERENCE_E2B_MODEL_CHOICE,
                                                         E2bModelChoice.TRAINED_E2B_V10_W4.preferenceValue,
@@ -380,7 +357,6 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                     }
                                     Text(
                                         when {
-                                            !useGemma -> "Server model · no local setup required"
                                             e2bModelChoice == E2bModelChoice.OFFICIAL_E2B &&
                                                 managedReadyFile != null -> "On-device GPU · ready offline"
                                             e2bModelChoice == E2bModelChoice.OFFICIAL_E2B ->
@@ -390,21 +366,18 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                         },
                                         style = MaterialTheme.typography.bodySmall,
                                         color = if (
-                                            useGemma &&
                                             e2bModelChoice == E2bModelChoice.TRAINED_E2B_V10_W4 &&
                                             !trainedModelReadiness.usable
                                         ) MaterialTheme.colorScheme.error
                                         else MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
-                                    if (useGemma) {
-                                        TextButton(
-                                            onClick = { modelSetupVisible = !modelSetupVisible },
-                                            contentPadding = PaddingValues(horizontal = 0.dp, vertical = 4.dp),
-                                        ) {
-                                            Text(if (modelSetupVisible) "Hide model setup" else "Model setup")
-                                        }
+                                    TextButton(
+                                        onClick = { modelSetupVisible = !modelSetupVisible },
+                                        contentPadding = PaddingValues(horizontal = 0.dp, vertical = 4.dp),
+                                    ) {
+                                        Text(if (modelSetupVisible) "Hide model setup" else "Model setup")
                                     }
-                                    if (useGemma && modelSetupVisible) {
+                                    if (modelSetupVisible) {
                                         HorizontalDivider()
                                         if (e2bModelChoice == E2bModelChoice.OFFICIAL_E2B) {
                                             Text("Official model source", style = MaterialTheme.typography.titleSmall)
@@ -525,10 +498,8 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                     onClick = {
                                         // Compose can deliver a second tap before the disabled state recomposes.
                                         if (working) return@Button
-                                        val useGemmaForRun = useGemma
                                         val e2bModelChoiceForRun = e2bModelChoice
                                         val modelPathForRun = if (
-                                            useGemmaForRun &&
                                             e2bModelChoiceForRun == E2bModelChoice.OFFICIAL_E2B &&
                                             gemmaModelSource == GemmaModelSource.MANAGED_DOWNLOAD
                                         ) {
@@ -537,7 +508,6 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                                 return@Button
                                             }
                                         } else if (
-                                            useGemmaForRun &&
                                             e2bModelChoiceForRun ==
                                                 E2bModelChoice.TRAINED_E2B_V10_W4
                                         ) {
@@ -552,7 +522,6 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                         }
                                         screen.generate(
                                             source = source,
-                                            useGemmaForRun = useGemmaForRun,
                                             e2bModelChoiceForRun = e2bModelChoiceForRun,
                                             modelPathForRun = modelPathForRun,
                                             metricsForRun = tokenMetricsEnabled,
@@ -656,7 +625,7 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                     )
                                 }
                                 Text(
-                                    "Applies on the next run. Turn it off for older packages without a drafter. Gauss is unaffected.",
+                                    "Applies on the next run. Turn it off for older packages without a drafter.",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )

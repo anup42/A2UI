@@ -27,8 +27,6 @@ def _load_env(root: Path) -> None:
         "GEMINI_API_KEYS",
         "OPENROUTER_API_KEY",
         "PERPLEXITY_API_KEY",
-        "GAUSS_OPENAPI_TOKEN",
-        "GAUSS_CLIENT_KEY",
     }
 
     def _should_force_override(key: str) -> bool:

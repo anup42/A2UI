@@ -19,12 +19,11 @@ internal data class DemoActionAvailability(
 
 internal fun demoActionAvailability(
     working: Boolean,
-    useGemma: Boolean,
     modelSource: GemmaModelSource,
     managedModelReady: Boolean,
 ): DemoActionAvailability = DemoActionAvailability(
     convertEnabled = !working && (
-        !useGemma || modelSource == GemmaModelSource.LOCAL_FILE || managedModelReady
+        modelSource == GemmaModelSource.LOCAL_FILE || managedModelReady
     ),
     renderEnabled = !working,
 )

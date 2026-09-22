@@ -25,7 +25,7 @@ This does not add a content-loss rejection gate. Source fallback remains disable
 
 ## Validation
 
-- **350 SDK JVM tests passed**, including ten new content-recovery regressions. See [unit test summary](unit_tests.json).
+- **350 SDK JVM tests passed**, including ten new content-recovery regressions.
 - **Two captured cases replayed on the connected SM-F776U / Android 17** through the app's published AAR, with all three row markers and surviving prose checked across scroll positions. See [device test output](device_test.txt) and [device results](device/summary.json).
 - Exact captured fixture hashes are checked by both JVM and device tests; device and JVM repaired Express are compared byte-for-byte in the validation manifest.
 - **Existing captured full50 corpus:** 48/50 compile and JVM-render, zero source fallbacks, 0/48 passing the separate source-integrity audit. See [captured replay report](captured_full50_replay.json). This is deterministic replay of existing model output, not a new inference benchmark or a 50-case device run.

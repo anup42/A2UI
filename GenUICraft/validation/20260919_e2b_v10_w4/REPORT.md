@@ -52,8 +52,8 @@ controls actual native token counts and decode speed for either E2B profile.
 The APK is installed on the connected **Samsung SM-F776U (Flip8), Android 17**.
 Only this device was connected for this evaluation. The supplied model is staged
 in the app's external-files `sdk_models/e2b_v10_w4.litertlm` directory. Weights
-remain outside the APK/AAR. The official E2B downloader, source-binding converter,
-and Gauss option remain available. Bixby files were not changed for this work.
+remain outside the APK/AAR. The official E2B downloader and source-binding converter
+remain available. Bixby files were not changed for this work.
 
 | Artifact/property | Verified value |
 |---|---|

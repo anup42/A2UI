@@ -7,7 +7,7 @@ Usage:
     python -m pipeline.generate_aggregates --run-dir <path> --output <path> --config <path>
 
 Example (Windows):
-    python -m pipeline.generate_aggregates --run-dir "C:\Users\adarsh.ag\Desktop\GenUI-LM\dataset\data\runs\gaussO_2" --output "C:\Users\adarsh.ag\Desktop\GenUI-LM\dataset\data\runs\gaussO_2\aggregates_test.json" --config "C:\Users\adarsh.ag\Desktop\GenUI-LM\dataset\configs\run.yaml"
+    python -m pipeline.generate_aggregates --run-dir "C:\Users\adarsh.ag\Desktop\GenUI-LM\dataset\data\runs\RUN_ID" --output "C:\Users\adarsh.ag\Desktop\GenUI-LM\dataset\data\runs\RUN_ID\aggregates_test.json" --config "C:\Users\adarsh.ag\Desktop\GenUI-LM\dataset\configs\run.yaml"
 """
 
 import json

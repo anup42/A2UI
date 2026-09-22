@@ -75,7 +75,6 @@ class GenUiSdkConfigurationStateTest {
                 retained = ViewModelProvider(compose.activity)[GenUiSdkDemoViewModel::class.java]
                 retained.generate(
                     source = "Train comparison",
-                    useGemmaForRun = true,
                     e2bModelChoiceForRun = E2bModelChoice.TRAINED_E2B_V10_W4,
                     modelPathForRun = "lifecycle-test-provider",
                     metricsForRun = true,
