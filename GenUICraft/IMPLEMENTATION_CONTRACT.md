@@ -19,12 +19,15 @@ The independent project lives under A2UI/GenUICraft. Do not build Bixby. Test th
 `GenUiAction(name: String, parameters: Map<String, String> = emptyMap())`
 `GenUiPrompt(system: String, user: String, maxOutputTokens: Int = 8192, temperature: Double = 0.0)`
 `GenUiGenerationFinishReason { COMPLETED, REPETITION_LIMIT }`
+`GenUiGenerationMetrics(inputTokens: Int?, outputTokens: Int?, decodeTokensPerSecond: Double?, prefillTokensPerSecond: Double? = null, timeToFirstTokenSeconds: Double? = null, engineInitializationSeconds: Double? = null, engineInitializedForRequest: Boolean? = null, nativeInitializationPhaseSeconds: Double? = null)`. `engineInitializationSeconds` is measured critical-path wall time. The native phase sum is diagnostic only because native phases can overlap.
+`GenUiGenerationSessionMetrics(speculativeDecodingEnabled: Boolean, drafterAcceptanceRate: Double? = null)`. Acceptance is verified draft tokens divided by proposed draft tokens for the complete metrics session.
 `GenUiModelOutput(text: String, runtime: String, outputTokens: Int? = null, metrics: GenUiGenerationMetrics? = null, renderedPromptSha256: String? = null, finishReason: GenUiGenerationFinishReason = COMPLETED, finishDetail: String? = null)`. A repetition-limited result contains the exact accumulated partial output and continues through the normal generated-DSL recovery path.
-`interface GenUiProvider : AutoCloseable { val id: String; suspend fun generate(prompt: GenUiPrompt): GenUiModelOutput; override fun close() {}; suspend fun closeAndAwait() { close() } }`
+`interface GenUiProvider : AutoCloseable { val id: String; suspend fun generate(prompt: GenUiPrompt): GenUiModelOutput; suspend fun finishGenerationMetrics(): GenUiGenerationSessionMetrics? = null; override fun close() {}; suspend fun closeAndAwait() { close() } }`. Session telemetry is finalized after every conversion attempt and is optional; collection failure cannot change a successful conversion result.
 `GenUiConversionResult.Success(document: GenUiDocument, provider: String, elapsedMs: Long, attempts: Int, warnings: List<String> = emptyList(), repairKind: GenUiRepairKind = NONE)`. `repairKind` classifies local output recovery; provider repair attempts remain represented by `attempts` and may still leave `repairKind == NONE`.
 `GenUiConversionResult.Failure(message: String, provider: String, elapsedMs: Long, attempts: Int, rawOutput: String? = null)`
 `ConversionOptions(maxOutputTokens: Int = 8192, maxRepairAttempts: Int = 1, temperature: Double = 0.0)`
 `class GenUiConverter(context: Context, provider: GenUiProvider, options: ConversionOptions = ConversionOptions()) { suspend fun convert(request: GenUiRequest): GenUiConversionResult }`
+`class GenUiSession(...)` owns the shared conversion, streaming, repair and native-engine lifecycle. `attemptSnapshots` keeps raw per-attempt output and timing; `generationSessionMetrics` exposes finalized MTP telemetry after `convert` completes.
 
 ## Compiler and renderer (renderer agent owns)
 

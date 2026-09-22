@@ -16,6 +16,7 @@ import com.google.ai.edge.litertlm.ThinkingConfig
 import com.samsung.genuicraft.sdk.GenUiPrompt
 import com.samsung.genuicraft.sdk.GenUiPromptRole
 import com.samsung.genuicraft.sdk.GenUiGenerationMetrics
+import com.samsung.genuicraft.sdk.GenUiGenerationSessionMetrics
 import com.samsung.genuicraft.sdk.GenUiGenerationFinishReason
 import java.io.File
 import java.security.MessageDigest
@@ -44,6 +45,7 @@ internal interface Gemma4Runtime : AutoCloseable {
         onPartialText: (String) -> Unit,
     ): Gemma4RuntimeOutput = generate(prompt, maxOutputTokens).also { onPartialText(it.text) }
     fun cancelActive()
+    suspend fun finishGenerationMetrics(): GenUiGenerationSessionMetrics? = null
     suspend fun awaitClosed()
     override fun close()
 }
@@ -89,7 +91,16 @@ internal class LiteRtGemma4Runtime(
         onPartialText: ((String) -> Unit)?,
     ): Gemma4RuntimeOutput = submitCancellable { requestCancelled ->
         check(!closed.get()) { "Gemma 4 runtime has been closed." }
-        val state = engineState ?: initializeEngine().also { engineState = it }
+        var engineInitializationWallSeconds: Double? = null
+        val state = engineState ?: run {
+            val initializationStartedNanos = System.nanoTime()
+            initializeEngine().also {
+                engineInitializationWallSeconds =
+                    (System.nanoTime() - initializationStartedNanos).coerceAtLeast(0L) /
+                    1_000_000_000.0
+                engineState = it
+            }
+        }
         throwIfRequestStopped(requestCancelled)
         val deterministic = prompt.temperature <= 0.0
         // Pass thinking explicitly: a null native optional can resolve to thinking disabled.
@@ -152,7 +163,13 @@ internal class LiteRtGemma4Runtime(
             val responseText = if (onPartialText == null) stream.text.trim() else stream.text
             throwIfRequestStopped(requestCancelled)
             val metrics = if (config.enableMetrics) {
-                runCatching { readGemma4GenerationMetrics(conversation) }.getOrNull()
+                runCatching {
+                    readGemma4GenerationMetrics(
+                        conversation = conversation,
+                        includeEngineInitialization = engineInitializationWallSeconds != null,
+                        engineInitializationWallSeconds = engineInitializationWallSeconds,
+                    )
+                }.getOrNull()
             } else null
             Gemma4RuntimeOutput(
                 text = responseText,
@@ -170,6 +187,38 @@ internal class LiteRtGemma4Runtime(
         } finally {
             activeConversation.compareAndSet(conversation, null)
             conversation.close()
+        }
+    }
+
+    override suspend fun finishGenerationMetrics(): GenUiGenerationSessionMetrics? {
+        if (!config.enableMetrics) return null
+        return submitCancellable { requestCancelled ->
+            throwIfRequestStopped(requestCancelled)
+            val state = engineState ?: return@submitCancellable null
+            if (!state.speculativeDecodingEnabled) {
+                return@submitCancellable GenUiGenerationSessionMetrics(
+                    speculativeDecodingEnabled = false,
+                )
+            }
+            // LiteRT-LM owns verified/drafted counters in the engine's MTP drafter and publishes
+            // their ratio only from its destructor. End the metrics session after all conversion
+            // attempts, then read the process's own bounded log window.
+            val logBoundaryEpochMs = System.currentTimeMillis()
+            val engineClosed = try {
+                state.engine.close()
+                true
+            } catch (_: Exception) {
+                false
+            }
+            if (engineState === state) engineState = null
+            GenUiGenerationSessionMetrics(
+                speculativeDecodingEnabled = true,
+                drafterAcceptanceRate = if (engineClosed) {
+                    MtpAcceptanceLogcat.readSince(logBoundaryEpochMs)
+                } else {
+                    null
+                },
+            )
         }
     }
 
@@ -249,6 +298,7 @@ internal class LiteRtGemma4Runtime(
         return EngineState(
             engine = engine,
             runtimeIdentity = "LiteRT-LM/Gemma4/${config.accelerator.name}$mtpSuffix",
+            speculativeDecodingEnabled = useMtp,
         )
     }
 
@@ -308,6 +358,7 @@ internal class LiteRtGemma4Runtime(
     private data class EngineState(
         val engine: Engine,
         val runtimeIdentity: String,
+        val speculativeDecodingEnabled: Boolean,
     )
 
 }
@@ -373,8 +424,12 @@ private fun Conversation.outputTokenCount(): Int? = runCatching {
     benchmark.javaClass.getMethod("getLastDecodeTokenCount").invoke(benchmark).positiveNativeTokenCount()
 }.getOrNull()
 
-/** LiteRT-LM 0.15.0 exposes these Java getters but hides them from Kotlin metadata. */
-internal fun readGemma4GenerationMetrics(conversation: Any): GenUiGenerationMetrics? {
+/** LiteRT-LM exposes these Java getters but hides them from Kotlin metadata. */
+internal fun readGemma4GenerationMetrics(
+    conversation: Any,
+    includeEngineInitialization: Boolean = true,
+    engineInitializationWallSeconds: Double? = null,
+): GenUiGenerationMetrics? {
     val benchmark = runCatching {
         conversation.javaClass.getMethod("getBenchmarkInfo").invoke(conversation)
     }.getOrNull() ?: return null
@@ -385,8 +440,69 @@ internal fun readGemma4GenerationMetrics(conversation: Any): GenUiGenerationMetr
     val outputTokens = value("getLastDecodeTokenCount").positiveNativeTokenCount()
     val decodeTokensPerSecond = (value("getLastDecodeTokensPerSecond") as? Number)
         ?.toDouble()?.takeIf { it.isFinite() && it > 0.0 }
-    if (inputTokens == null && outputTokens == null && decodeTokensPerSecond == null) return null
-    return GenUiGenerationMetrics(inputTokens, outputTokens, decodeTokensPerSecond)
+    val prefillTokensPerSecond = (value("getLastPrefillTokensPerSecond") as? Number)
+        ?.toDouble()?.takeIf { it.isFinite() && it > 0.0 }
+    val timeToFirstTokenSeconds = (value("getTimeToFirstTokenInSecond") as? Number)
+        ?.toDouble()?.takeIf { it.isFinite() && it >= 0.0 }
+    val nativeInitializationPhaseSeconds = if (includeEngineInitialization) {
+        (value("getInitTimeInSecond") as? Number)
+            ?.toDouble()?.takeIf { it.isFinite() && it >= 0.0 }
+    } else {
+        null
+    }
+    val engineInitializationSeconds = if (includeEngineInitialization) {
+        engineInitializationWallSeconds?.takeIf { it.isFinite() && it >= 0.0 }
+    } else {
+        null
+    }
+    if (
+        inputTokens == null && outputTokens == null && decodeTokensPerSecond == null &&
+        prefillTokensPerSecond == null && timeToFirstTokenSeconds == null &&
+        engineInitializationSeconds == null && nativeInitializationPhaseSeconds == null
+    ) return null
+    return GenUiGenerationMetrics(
+        inputTokens = inputTokens,
+        outputTokens = outputTokens,
+        decodeTokensPerSecond = decodeTokensPerSecond,
+        prefillTokensPerSecond = prefillTokensPerSecond,
+        timeToFirstTokenSeconds = timeToFirstTokenSeconds,
+        engineInitializationSeconds = engineInitializationSeconds,
+        engineInitializedForRequest = when {
+            !includeEngineInitialization -> false
+            engineInitializationSeconds != null || nativeInitializationPhaseSeconds != null -> true
+            else -> null
+        },
+        nativeInitializationPhaseSeconds = nativeInitializationPhaseSeconds,
+    )
+}
+
+/** Reads only this app UID/process's recent logcat lines; Android never grants cross-app logs. */
+internal object MtpAcceptanceLogcat {
+    private val acceptance = Regex(
+        """(?m)^\s*(\d+(?:\.\d+)?)\s+.*MTP Drafter - Success rate:\s*""" +
+            """([0-9]+(?:\.[0-9]+)?)\s*$""",
+    )
+
+    fun parse(logcat: String, notBeforeEpochMs: Long): Double? {
+        val thresholdSeconds = (notBeforeEpochMs - 500L).coerceAtLeast(0L) / 1_000.0
+        return acceptance.findAll(logcat).mapNotNull { match ->
+            val timestamp = match.groupValues[1].toDoubleOrNull() ?: return@mapNotNull null
+            val rate = match.groupValues[2].toDoubleOrNull() ?: return@mapNotNull null
+            rate.takeIf { timestamp >= thresholdSeconds && it.isFinite() && it in 0.0..1.0 }
+        }.lastOrNull()
+    }
+
+    fun readSince(notBeforeEpochMs: Long): Double? = runCatching {
+        val process = ProcessBuilder(
+            "logcat", "-d", "-t", "256", "-v", "epoch",
+            "--pid=${android.os.Process.myPid()}",
+        ).redirectErrorStream(true).start()
+        if (!process.waitFor(2, TimeUnit.SECONDS)) {
+            process.destroy()
+            return@runCatching null
+        }
+        process.inputStream.bufferedReader().use { parse(it.readText(), notBeforeEpochMs) }
+    }.getOrNull()
 }
 
 private fun Any?.positiveNativeTokenCount(): Int? {

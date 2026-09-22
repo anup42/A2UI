@@ -60,6 +60,38 @@ class GenUiSessionTest {
         session.closeAndAwait()
     }
 
+    @Test fun finalizesSessionMetricsAfterAllConversionAttempts() = runBlocking {
+        val raw = "<a2ui>\nroot=Text(\"Hello\")\n</a2ui>"
+        val provider = FakeProvider(
+            raw,
+            finalizedMetrics = GenUiGenerationSessionMetrics(
+                speculativeDecodingEnabled = true,
+                drafterAcceptanceRate = 0.558642,
+            ),
+        )
+        val session = trainedSession(provider)
+
+        session.convert(GenUiRequest("Hello"))
+
+        assertEquals(1, provider.metricsFinalizationCount)
+        assertEquals(true, session.generationSessionMetrics?.speculativeDecodingEnabled)
+        assertEquals(0.558642, session.generationSessionMetrics?.drafterAcceptanceRate!!, 0.000001)
+        session.closeAndAwait()
+    }
+
+    @Test fun unavailableSessionTelemetryDoesNotFailSuccessfulConversion() = runBlocking {
+        val raw = "<a2ui>\nroot=Text(\"Hello\")\n</a2ui>"
+        val provider = FakeProvider(raw, failMetricsFinalization = true)
+        val session = trainedSession(provider)
+
+        val result = session.convert(GenUiRequest("Hello"))
+
+        assertTrue(result is GenUiConversionResult.Success)
+        assertEquals(1, provider.metricsFinalizationCount)
+        assertNull(session.generationSessionMetrics)
+        session.closeAndAwait()
+    }
+
     @Test fun cancelledSessionRetainsExactPrefixAndAwaitsCleanup() = runBlocking {
         val provider = FakeProvider("raw prefix", cancel = true)
         val session = trainedSession(provider)
@@ -114,15 +146,26 @@ class GenUiSessionTest {
         ApplicationProvider.getApplicationContext(), provider, GenUiConversionProfile.TRAINED_E2B_V10_W4,
     )
 
-    private class FakeProvider(val raw: String, val cancel: Boolean = false) : GenUiProvider {
+    private class FakeProvider(
+        val raw: String,
+        val cancel: Boolean = false,
+        val finalizedMetrics: GenUiGenerationSessionMetrics? = null,
+        val failMetricsFinalization: Boolean = false,
+    ) : GenUiProvider {
         override val id = "gemma4_e2b"
         var closed = false
+        var metricsFinalizationCount = 0
         override suspend fun generate(prompt: GenUiPrompt): GenUiModelOutput = error("Use streaming")
         override suspend fun generate(prompt: GenUiPrompt, onPartialText: (String) -> Unit): GenUiModelOutput {
             onPartialText(raw.take(12))
             onPartialText(raw)
             if (cancel) throw CancellationException("cancelled")
             return GenUiModelOutput(raw, "test/GPU+MTP", 9, GenUiGenerationMetrics(123, 9, 45.0))
+        }
+        override suspend fun finishGenerationMetrics(): GenUiGenerationSessionMetrics? {
+            metricsFinalizationCount++
+            if (failMetricsFinalization) error("telemetry unavailable")
+            return finalizedMetrics
         }
         override suspend fun closeAndAwait() { closed = true }
     }

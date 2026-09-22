@@ -49,4 +49,6 @@ class GenUiStreamingProvider(
 
     override fun close() = delegate.close()
     override suspend fun closeAndAwait() = delegate.closeAndAwait()
+    override suspend fun finishGenerationMetrics(): GenUiGenerationSessionMetrics? =
+        delegate.finishGenerationMetrics()
 }

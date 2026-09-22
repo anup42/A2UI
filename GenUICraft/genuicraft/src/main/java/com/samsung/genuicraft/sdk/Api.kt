@@ -62,6 +62,24 @@ data class GenUiGenerationMetrics(
     val outputTokens: Int?,
     /** Native decode throughput; excludes model initialization and prompt prefill. */
     val decodeTokensPerSecond: Double?,
+    /** Native prompt-prefill throughput. */
+    val prefillTokensPerSecond: Double? = null,
+    /** Native latency from generation start to the first decoded token. */
+    val timeToFirstTokenSeconds: Double? = null,
+    /** Measured engine initialization wall time when initialization occurred in this request. */
+    val engineInitializationSeconds: Double? = null,
+    /** True for the request that initialized the native engine, false when it reused the engine. */
+    val engineInitializedForRequest: Boolean? = null,
+    /** LiteRT's sum of native init phases; phases can overlap, so this is not additive wall time. */
+    val nativeInitializationPhaseSeconds: Double? = null,
+)
+
+/** Metrics that LiteRT can publish only when one complete native engine session ends. */
+data class GenUiGenerationSessionMetrics(
+    /** Whether the session actually used the MTP/speculative drafter. */
+    val speculativeDecodingEnabled: Boolean,
+    /** Verified draft tokens divided by all proposed draft tokens, in the range 0.0..1.0. */
+    val drafterAcceptanceRate: Double? = null,
 )
 
 /** Why native generation ended. A repetition cutoff still returns its accumulated text for repair. */
@@ -91,6 +109,11 @@ interface GenUiProvider : AutoCloseable {
     suspend fun generate(prompt: GenUiPrompt, onPartialText: (String) -> Unit): GenUiModelOutput {
         return generate(prompt).also { onPartialText(it.text) }
     }
+    /**
+     * Ends an opt-in metrics session after all conversion attempts. Providers return null when
+     * they have no session-level telemetry. Normal generation must not depend on this hook.
+     */
+    suspend fun finishGenerationMetrics(): GenUiGenerationSessionMetrics? = null
     suspend fun closeAndAwait() {
         close()
     }

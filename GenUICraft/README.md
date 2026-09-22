@@ -269,13 +269,29 @@ thinking stays disabled.
 
 SDK hosts opt in with `Gemma4Config(enableMetrics = true, modelPath = modelPath)`.
 Each `GenUiProvider.generate` result exposes nullable `metrics` with actual
-`inputTokens`, `outputTokens`, and native `decodeTokensPerSecond`. Missing counters
-remain unavailable. Native output counts include thinking work. Decode speed
-excludes model startup and prompt prefill, so the demo also shows total conversion
-time and each repair attempt separately. Renderer-only calls clear previous generation measurements.
+`inputTokens`, `outputTokens`, native prefill/decode throughput, time to first token,
+and measured engine-initialization wall time. Missing counters remain unavailable.
+Native output counts include thinking work. The demo derives prefill and decode
+durations from the matching token counts and native rates, measures provider-call
+wall time directly, and reports the remaining runtime/callback overhead separately.
+The additive breakdown also includes validation and recovery outside provider calls.
+LiteRT's native init-phase sum remains a diagnostic because those phases can overlap;
+it is not used as additive wall time. Renderer-only calls clear previous generation
+measurements.
+
+After all generation and repair attempts, `GenUiSession.generationSessionMetrics`
+reports whether speculative decoding actually ran and, when LiteRT publishes it,
+the aggregate drafter acceptance rate. LiteRT exposes that counter when the MTP
+drafter is destroyed, so an opt-in metrics run using MTP finalizes that engine after
+the conversion and recreates it on the next request. Normal metrics-off generation
+keeps its reusable engine behavior. Telemetry collection is optional and cannot
+turn a successful conversion into a failure.
 
 See the [Fold7 metrics validation](validation/20260918_fold_metrics/REPORT.md) for
-measured GPU+MTP speeds, on-device checks, screenshots, and installed APK identity.
+historical GPU+MTP speeds. See the
+[Fold8 phase-breakdown validation](validation/20260923_fold8_metrics_breakdown/REPORT.md)
+for the additive timing split, native MTP acceptance, screenshot, and installed APK
+identity.
 
 ## Render without conversion
 

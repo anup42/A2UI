@@ -266,4 +266,6 @@ private fun GenUiSession.toUiState(reportedAttempts: Int, conversionElapsedMs: L
         },
         reportedAttempts = reportedAttempts,
         conversionElapsedMs = conversionElapsedMs,
+        speculativeDecodingEnabled = generationSessionMetrics?.speculativeDecodingEnabled,
+        drafterAcceptanceRate = generationSessionMetrics?.drafterAcceptanceRate,
     )

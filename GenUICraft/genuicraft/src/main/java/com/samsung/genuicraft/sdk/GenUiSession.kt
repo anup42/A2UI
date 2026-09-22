@@ -5,6 +5,7 @@ import com.samsung.genuicraft.sdk.provider.Gemma4Config
 import com.samsung.genuicraft.sdk.provider.LiteRtModelRunner
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.coroutineContext
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.ensureActive
@@ -96,9 +97,14 @@ class GenUiSession private constructor(
     private val mutex = Mutex()
     private val closed = AtomicBoolean(false)
     @Volatile private var capture: GenUiStreamingProvider? = null
+    @Volatile private var completedSessionMetrics: GenUiGenerationSessionMetrics? = null
 
     val attemptSnapshots: List<GenUiGenerationAttempt>
         get() = capture?.attemptSnapshots.orEmpty()
+
+    /** Metrics finalized after every generation/repair attempt in the most recent conversion. */
+    val generationSessionMetrics: GenUiGenerationSessionMetrics?
+        get() = completedSessionMetrics
 
     suspend fun convert(
         request: GenUiRequest,
@@ -106,6 +112,7 @@ class GenUiSession private constructor(
     ): GenUiConversionResult = mutex.withLock {
         check(!closed.get()) { "GenUICraft session has been closed." }
         capture = null
+        completedSessionMetrics = null
         coroutineContext.ensureActive()
         withContext(Dispatchers.IO) { prepareRuntime() }
         coroutineContext.ensureActive()
@@ -114,7 +121,16 @@ class GenUiSession private constructor(
             provider, observer.onAttemptStarted, observer.onPartialText, observer.onAttemptCompleted,
         )
         capture = observed
-        conversion(observed, request)
+        val result = conversion(observed, request)
+        completedSessionMetrics = try {
+            provider.finishGenerationMetrics()
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (_: Exception) {
+            // Telemetry is optional and must not turn a successful conversion into a failure.
+            null
+        }
+        result
     }
 
     override fun close() {

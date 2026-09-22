@@ -8,8 +8,34 @@ import org.junit.Test
 
 class Gemma4MetricsTest {
     @Test fun `reads exact pinned native getter values without deriving counts from response text`() {
-        val result = readGemma4GenerationMetrics(ConversationSnapshot(BenchmarkSnapshot(719, 127L, 23.75)))
-        assertEquals(GenUiGenerationMetrics(719, 127, 23.75), result)
+        val result = readGemma4GenerationMetrics(
+            ConversationSnapshot(BenchmarkSnapshot(719, 127L, 23.75, 1540.5, 2.25, 5.5)),
+            engineInitializationWallSeconds = 2.8,
+        )
+        assertEquals(
+            GenUiGenerationMetrics(
+                inputTokens = 719,
+                outputTokens = 127,
+                decodeTokensPerSecond = 23.75,
+                prefillTokensPerSecond = 1540.5,
+                timeToFirstTokenSeconds = 2.25,
+                engineInitializationSeconds = 2.8,
+                engineInitializedForRequest = true,
+                nativeInitializationPhaseSeconds = 5.5,
+            ),
+            result,
+        )
+    }
+
+    @Test fun `warm request omits prior engine initialization from request breakdown`() {
+        val result = readGemma4GenerationMetrics(
+            ConversationSnapshot(BenchmarkSnapshot(719, 127, 23.75, 1540.5, 2.25, 2.8)),
+            includeEngineInitialization = false,
+            engineInitializationWallSeconds = 2.8,
+        )
+
+        assertEquals(null, result?.engineInitializationSeconds)
+        assertEquals(false, result?.engineInitializedForRequest)
     }
 
     @Test fun `missing benchmark or inaccessible getter leaves telemetry unavailable`() {
@@ -50,6 +76,16 @@ class Gemma4MetricsTest {
         assertNull(result.metrics)
     }
 
+    @Test fun `parses only current bounded MTP acceptance value`() {
+        val logcat = """
+            1790101160.100  9734 11590 I native  : MTP Drafter - Success rate: 0.250000
+            1790101164.726  9734 11590 I native  : I0000 drafter] MTP Drafter - Success rate: 0.558642
+        """.trimIndent()
+
+        assertEquals(0.558642, MtpAcceptanceLogcat.parse(logcat, 1_790_101_164_500L)!!, 0.000001)
+        assertNull(MtpAcceptanceLogcat.parse(logcat, 1_790_101_166_000L))
+    }
+
     // These public Java-style getters match LiteRT-LM 0.15.0's metadata-hidden benchmark API.
     class ConversationSnapshot(private val benchmark: Any) {
         fun getBenchmarkInfo(): Any = benchmark
@@ -63,6 +99,9 @@ class Gemma4MetricsTest {
         val lastPrefillTokenCount: Any?,
         val lastDecodeTokenCount: Any?,
         val lastDecodeTokensPerSecond: Any?,
+        val lastPrefillTokensPerSecond: Any? = null,
+        val timeToFirstTokenInSecond: Any? = null,
+        val initTimeInSecond: Any? = null,
     )
 
     class DecodeCountOnly {

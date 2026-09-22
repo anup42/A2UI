@@ -744,6 +744,11 @@ private fun GenerationMetricsPanel(metrics: GenerationMetricsUiState) {
     } else {
         "Request average: ${formatTokensPerSecond(metrics.requestAverageTokensPerSecond)}"
     }
+    val drafterSummary = when (metrics.speculativeDecodingEnabled) {
+        true -> "MTP acceptance: ${formatPercentage(metrics.drafterAcceptanceRate)}"
+        false -> "MTP disabled"
+        null -> null
+    }
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -777,19 +782,58 @@ private fun GenerationMetricsPanel(metrics: GenerationMetricsUiState) {
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            if (detailsExpanded) {
+            drafterSummary?.let { summary ->
                 Text(
-                    "Token counts include thinking when reported. Native decode excludes startup and prefill.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    summary,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.primary,
                 )
+            }
+            if (detailsExpanded) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .heightIn(max = 220.dp)
+                        .heightIn(max = 360.dp)
                         .verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalArrangement = Arrangement.spacedBy(5.dp),
                 ) {
+                    Text("Conversion time breakdown", style = MaterialTheme.typography.labelLarge)
+                    MetricBreakdownRow(
+                        "Complete conversion",
+                        formatElapsedMillis(metrics.conversionElapsedMs),
+                        emphasized = true,
+                    )
+                    MetricBreakdownRow(
+                        "Provider call wall",
+                        formatElapsedNanos(metrics.totalProviderCallElapsedNanos),
+                    )
+                    MetricBreakdownRow(
+                        "  Engine initialization",
+                        formatElapsedNanos(metrics.totalEngineInitializationNanos),
+                    )
+                    MetricBreakdownRow(
+                        "  Prompt prefill",
+                        formatElapsedNanos(metrics.totalPrefillElapsedNanos),
+                    )
+                    MetricBreakdownRow(
+                        "  Native decode",
+                        formatElapsedNanos(metrics.totalDecodeElapsedNanos),
+                    )
+                    MetricBreakdownRow(
+                        "  Runtime/callback overhead",
+                        formatElapsedNanos(metrics.totalProviderResidualNanos),
+                    )
+                    MetricBreakdownRow(
+                        "Validation + recovery",
+                        formatElapsedNanos(metrics.validationAndRecoveryElapsedNanos),
+                    )
+                    Text(
+                        "The indented provider parts plus validation/recovery reconcile to the " +
+                            "conversion wall time; rounding can differ by a few milliseconds.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    HorizontalDivider(Modifier.padding(vertical = 3.dp))
                     if (metrics.attempts.size != metrics.reportedAttempts) {
                         Text(
                             "Metrics returned for ${metrics.attempts.size} of " +
@@ -813,34 +857,72 @@ private fun GenerationMetricsPanel(metrics: GenerationMetricsUiState) {
                                 style = MaterialTheme.typography.bodySmall,
                             )
                             Text(
-                                "Native decode: " +
-                                    "${formatTokensPerSecond(attempt.nativeDecodeTokensPerSecond)} " +
-                                    "· Provider-call wall: " +
-                                    formatElapsedNanos(attempt.providerCallElapsedNanos),
+                                "Prefill: ${formatElapsedNanos(attempt.nativePrefillElapsedNanos)} " +
+                                    "· ${formatTokensPerSecond(attempt.nativePrefillTokensPerSecond)}",
                                 style = MaterialTheme.typography.bodySmall,
                             )
                             Text(
-                                "Request average: " +
+                                "Decode: ${formatElapsedNanos(attempt.nativeDecodeElapsedNanos)} " +
+                                    "· ${formatTokensPerSecond(attempt.nativeDecodeTokensPerSecond)}",
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                            Text(
+                                "Provider wall: ${formatElapsedNanos(attempt.providerCallElapsedNanos)} " +
+                                    "· request average: " +
                                     formatTokensPerSecond(attempt.requestAverageTokensPerSecond),
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                            Text(
+                                "Time to first token: " +
+                                    formatElapsedNanos(attempt.nativeTimeToFirstTokenNanos) +
+                                    " (overlaps initialization/prefill)",
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                            Text(
+                                "LiteRT init phase sum: " +
+                                    formatElapsedNanos(attempt.nativeInitializationPhaseNanos) +
+                                    " (diagnostic; phases may overlap)",
                                 style = MaterialTheme.typography.bodySmall,
                             )
                         }
                     }
                     Text(
-                        "Native decode is reported by the runtime and excludes startup and " +
-                            "validation. Conversion total covers provider calls, generation, " +
-                            "validation, and repair attempts.",
+                        when (metrics.speculativeDecodingEnabled) {
+                            true -> "Drafter acceptance: " +
+                                formatPercentage(metrics.drafterAcceptanceRate) +
+                                " (verified draft tokens / proposed draft tokens)."
+                            false -> "Drafter acceptance: MTP was disabled for this session."
+                            null -> "Drafter acceptance: unavailable for this provider."
+                        },
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Text(
-                        "Request average uses actual output tokens divided by provider-call wall " +
-                            "time; it includes any network/startup, prefill, reasoning, and decode.",
+                        "Prefill/decode rates and TTFT come from LiteRT. Durations are token count " +
+                            "divided by the matching native rate. Acceptance is LiteRT's session " +
+                            "counter, collected after all generation and repair attempts.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun MetricBreakdownRow(label: String, value: String, emphasized: Boolean = false) {
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+        Text(
+            label,
+            modifier = Modifier.weight(1f),
+            style = if (emphasized) MaterialTheme.typography.labelLarge
+                else MaterialTheme.typography.bodySmall,
+        )
+        Text(
+            value,
+            style = if (emphasized) MaterialTheme.typography.labelLarge
+                else MaterialTheme.typography.bodySmall,
+        )
     }
 }

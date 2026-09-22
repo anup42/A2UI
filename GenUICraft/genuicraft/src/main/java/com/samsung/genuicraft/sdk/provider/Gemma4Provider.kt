@@ -3,6 +3,7 @@ package com.samsung.genuicraft.sdk.provider
 import com.samsung.genuicraft.sdk.GenUiModelOutput
 import com.samsung.genuicraft.sdk.GenUiPrompt
 import com.samsung.genuicraft.sdk.GenUiProvider
+import com.samsung.genuicraft.sdk.GenUiGenerationSessionMetrics
 import java.io.File
 import java.util.Locale
 import java.util.concurrent.atomic.AtomicBoolean
@@ -86,6 +87,16 @@ class Gemma4Provider private constructor(
                 finishReason = generation.finishReason,
                 finishDetail = generation.finishDetail,
             )
+        } finally {
+            generationMutex.unlock()
+        }
+    }
+
+    override suspend fun finishGenerationMetrics(): GenUiGenerationSessionMetrics? {
+        if (!validatedConfig.enableMetrics || closed.get()) return null
+        generationMutex.lock()
+        return try {
+            if (closed.get()) null else runtime.finishGenerationMetrics()
         } finally {
             generationMutex.unlock()
         }

@@ -1,0 +1,31 @@
+{
+  "date": "2026-09-23",
+  "device": {
+    "serial": "R3GL203AKSF",
+    "model": "SM-F776U",
+    "androidRelease": "17",
+    "apiLevel": 37
+  },
+  "app": {
+    "package": "com.samsung.genuicraft",
+    "versionName": "1.1.0",
+    "versionCode": 2,
+    "apkSha256": "9cdaca397519c69c85e2eb22190b96431cab474f5fecb143ae3b048eb72c698d"
+  },
+  "caseId": "BXP-001",
+  "runtime": "LiteRT-LM/Gemma4/GPU+MTP",
+  "inputTokens": 3174,
+  "outputTokens": 288,
+  "prefillTokensPerSecond": 2180.48,
+  "decodeTokensPerSecond": 58.09,
+  "conversionMilliseconds": 9058,
+  "displayedBreakdown": {
+    "providerCallSeconds": 9.00,
+    "engineInitializationSeconds": 2.58,
+    "promptPrefillSeconds": 1.46,
+    "nativeDecodeSeconds": 4.96,
+    "runtimeCallbackOverheadMilliseconds": 14,
+    "validationRecoveryMilliseconds": 54
+  },
+  "mtpDrafterAcceptanceRatio": 0.558642
+}
