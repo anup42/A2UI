@@ -1,0 +1,15 @@
+{
+  "model": "trained E2B",
+  "sample": "BXP-003",
+  "changedThemeAndRotationWhileWorking": true,
+  "completedWithOneAttempt": true,
+  "inspectIrTabRetainedAcrossThemeChange": true,
+  "metricsUnchangedAfterThemeChange": true,
+  "displayedMetrics": [
+    "Recovered \u00b7 17350 ms \u00b7 1 attempt(s)",
+    "LiteRT-LM/Gemma4/GPU+MTP",
+    "3394 in \u00b7 438 out \u00b7 44.90 token/s decode"
+  ],
+  "originalNightMode": "no",
+  "originalRotation": "free"
+}

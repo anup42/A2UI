@@ -27,6 +27,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
@@ -72,6 +74,12 @@ internal enum class SdkGenerationPhase {
 
 private enum class WorkspaceTab { IR, PREVIEW }
 
+private class WorkspaceAutoSelectionSnapshot(
+    var document: GenUiDocument?,
+)
+
+private class CodeAutoScrollSnapshot(var text: String)
+
 @Composable
 internal fun SdkGenerationWorkspace(
     trace: SdkGenerationTrace,
@@ -80,29 +88,46 @@ internal fun SdkGenerationWorkspace(
     metrics: @Composable () -> Unit = {},
     onAction: (GenUiAction) -> Unit,
 ) {
-    var selectedTab by remember {
-        mutableStateOf(
-            if (trace.attempts.isNotEmpty() || document == null) WorkspaceTab.IR
-            else WorkspaceTab.PREVIEW
-        )
+    val initialTab = if (document != null &&
+        (trace.phase == SdkGenerationPhase.COMPLETE || trace.attempts.isEmpty())
+    ) {
+        WorkspaceTab.PREVIEW
+    } else {
+        WorkspaceTab.IR
     }
-    val hasAttempts = trace.attempts.isNotEmpty()
-    LaunchedEffect(trace.phase, hasAttempts, document != null) {
+    var selectedTabName by rememberSaveable { mutableStateOf(initialTab.name) }
+    // A run can complete while Android is between the old and recreated Activity.
+    var lastHandledPhase by rememberSaveable { mutableStateOf(trace.phase.name) }
+    val selectedTab = WorkspaceTab.valueOf(selectedTabName)
+    val autoSelection = remember {
+        WorkspaceAutoSelectionSnapshot(document)
+    }
+    val documentIdentity = document?.let { System.identityHashCode(it) }
+    LaunchedEffect(trace.phase, documentIdentity) {
+        val phaseChanged = lastHandledPhase != trace.phase.name
+        val documentChanged = autoSelection.document !== document
         when {
-            trace.phase == SdkGenerationPhase.COMPLETE && document != null ->
-                selectedTab = WorkspaceTab.PREVIEW
-            trace.phase == SdkGenerationPhase.GENERATING ||
-                trace.phase == SdkGenerationPhase.REPAIRING -> selectedTab = WorkspaceTab.IR
-            hasAttempts -> selectedTab = WorkspaceTab.IR
-            document == null -> selectedTab = WorkspaceTab.IR
-            else -> selectedTab = WorkspaceTab.PREVIEW
+            phaseChanged && (
+                trace.phase == SdkGenerationPhase.GENERATING ||
+                    trace.phase == SdkGenerationPhase.REPAIRING
+                ) -> selectedTabName = WorkspaceTab.IR.name
+            document != null &&
+                trace.phase != SdkGenerationPhase.GENERATING &&
+                trace.phase != SdkGenerationPhase.REPAIRING &&
+                (documentChanged ||
+                    (phaseChanged && trace.phase == SdkGenerationPhase.COMPLETE)) ->
+                selectedTabName = WorkspaceTab.PREVIEW.name
+            documentChanged && document == null -> selectedTabName = WorkspaceTab.IR.name
         }
+        lastHandledPhase = trace.phase.name
+        autoSelection.document = document
     }
     val activeTab = if (selectedTab == WorkspaceTab.PREVIEW && document == null) {
         WorkspaceTab.IR
     } else {
         selectedTab
     }
+    val tabStateHolder = rememberSaveableStateHolder()
 
     BoxWithConstraints(
         modifier = modifier
@@ -128,7 +153,7 @@ internal fun SdkGenerationWorkspace(
             ) {
                 Tab(
                     selected = activeTab == WorkspaceTab.IR,
-                    onClick = { selectedTab = WorkspaceTab.IR },
+                    onClick = { selectedTabName = WorkspaceTab.IR.name },
                     modifier = Modifier
                         .testTag("sdk_ir_tab")
                         .semantics { contentDescription = "IR output" },
@@ -137,7 +162,7 @@ internal fun SdkGenerationWorkspace(
                 if (document != null) {
                     Tab(
                         selected = activeTab == WorkspaceTab.PREVIEW,
-                        onClick = { selectedTab = WorkspaceTab.PREVIEW },
+                        onClick = { selectedTabName = WorkspaceTab.PREVIEW.name },
                         modifier = Modifier
                             .testTag("sdk_preview_tab")
                             .semantics { contentDescription = "Preview rendered UI" },
@@ -147,22 +172,26 @@ internal fun SdkGenerationWorkspace(
             }
 
             when (activeTab) {
-                WorkspaceTab.IR -> IrWorkspace(trace, compact, metrics)
+                WorkspaceTab.IR -> tabStateHolder.SaveableStateProvider(WorkspaceTab.IR.name) {
+                    IrWorkspace(trace, compact, metrics)
+                }
                 WorkspaceTab.PREVIEW -> document?.let { output ->
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .testTag("sdk_preview_content")
-                            .verticalScroll(rememberScrollState())
-                            .padding(top = 10.dp, bottom = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(10.dp),
-                    ) {
-                        GenUiContent(
-                            document = output,
-                            modifier = Modifier.fillMaxWidth(),
-                            onAction = onAction,
-                        )
-                        metrics()
+                    tabStateHolder.SaveableStateProvider(WorkspaceTab.PREVIEW.name) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .testTag("sdk_preview_content")
+                                .verticalScroll(rememberScrollState())
+                                .padding(top = 10.dp, bottom = 16.dp),
+                            verticalArrangement = Arrangement.spacedBy(10.dp),
+                        ) {
+                            GenUiContent(
+                                document = output,
+                                modifier = Modifier.fillMaxWidth(),
+                                onAction = onAction,
+                            )
+                            metrics()
+                        }
                     }
                 }
             }
@@ -399,8 +428,11 @@ private fun CodePanel(
     val clipboard = LocalClipboardManager.current
     val verticalScroll = rememberScrollState()
     val horizontalScroll = rememberScrollState()
-    var expanded by remember(testTag, initiallyExpanded) { mutableStateOf(initiallyExpanded) }
+    var expanded by rememberSaveable(testTag, initiallyExpanded) {
+        mutableStateOf(initiallyExpanded)
+    }
     var copied by remember(text) { mutableStateOf(false) }
+    val autoScroll = remember(testTag) { CodeAutoScrollSnapshot(text) }
     val codeHeight = when {
         expanded && compact -> 320.dp
         expanded -> 420.dp
@@ -408,11 +440,12 @@ private fun CodePanel(
         else -> 168.dp
     }
 
-    LaunchedEffect(text.length, live) {
-        if (live && text.isNotEmpty()) {
+    LaunchedEffect(text, live) {
+        if (live && text.isNotEmpty() && autoScroll.text != text) {
             withFrameNanos { }
             verticalScroll.scrollTo(verticalScroll.maxValue)
         }
+        autoScroll.text = text
     }
     LaunchedEffect(copied) {
         if (copied) {
@@ -504,7 +537,7 @@ private fun CodePanel(
 @Composable
 private fun ConversionNotes(warnings: List<String>) {
     if (warnings.isEmpty()) return
-    var expanded by remember { mutableStateOf(false) }
+    var expanded by rememberSaveable { mutableStateOf(false) }
     OutlinedCard(Modifier.fillMaxWidth().testTag("sdk_conversion_notes")) {
         TextButton(
             onClick = { expanded = !expanded },

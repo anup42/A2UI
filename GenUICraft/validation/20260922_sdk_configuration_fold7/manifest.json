@@ -1,0 +1,14 @@
+{
+  "device": "Fold7 SM-F966B",
+  "serial": "R3CY30QFWLP",
+  "sdkVersion": "0.4.2",
+  "appChange": "Configuration-state retention",
+  "apkSha256": "66fb6b6a797051a001a0ae2d5fc840bdca08ea60c35434185ae1f0b05e9d2ad9",
+  "installedApkMatches": true,
+  "storedApkMatches": true,
+  "deviceApkPath": "/sdcard/Download/GenUICraft/GenUICraft-demo-configuration-fix.apk",
+  "deviceTestsPassed": 5,
+  "focusedJvmTestsPassed": 10,
+  "realModelSample": "BXP-003",
+  "bixbyChanged": false
+}
