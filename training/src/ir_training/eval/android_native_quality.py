@@ -141,18 +141,29 @@ def _verified_receipt_files(
     original_root: str | Path,
     current_root: Path,
     required_prefix: Path | None = None,
+    allowed_external_roots: Iterable[Path] = (),
+    allowed_external_files: Iterable[Path] = (),
 ) -> dict[str, str]:
     files = receipt.get("files")
     if not isinstance(files, dict) or not files:
         raise ValueError("Stage receipt has no file bindings")
     verified: dict[str, str] = {}
+    external_roots = tuple(Path(path).resolve() for path in allowed_external_roots)
+    external_files = {Path(path).resolve() for path in allowed_external_files}
     for old_path, expected in files.items():
-        current = relocate_run_path(
-            old_path, original_root=original_root, current_root=current_root
-        )
-        if required_prefix is not None and not _is_relative_to(
-            current, required_prefix
+        candidate = Path(old_path).expanduser()
+        direct = candidate.resolve() if candidate.is_absolute() else None
+        if direct is not None and (
+            direct in external_files
+            or any(_is_relative_to(direct, root) for root in external_roots)
         ):
+            current = direct
+        else:
+            current = relocate_run_path(
+                old_path, original_root=original_root, current_root=current_root
+            )
+        if (required_prefix is not None and not _is_relative_to(current, required_prefix)
+                and current not in external_files):
             continue
         if not current.is_file():
             raise FileNotFoundError(
@@ -162,9 +173,52 @@ def _verified_receipt_files(
         if observed != expected:
             raise ValueError(f"Receipt-bound file changed: {current}")
         verified[str(current)] = observed
-    if required_prefix is not None and not verified:
+    if required_prefix is not None and not any(
+        _is_relative_to(Path(path), required_prefix) for path in verified
+    ):
         raise ValueError(f"Stage receipt binds no files under {required_prefix}")
     return verified
+
+
+def _validated_prepared_root(
+    *, plan: dict[str, Any], config: dict[str, Any], run: Path, original_root: str
+) -> tuple[Path, tuple[Path, ...]]:
+    """Resolve the one external data root allowed for explicit continuation."""
+    raw = (plan.get("paths") or {}).get("prepared")
+    resume = plan.get("resume")
+    policy = (config.get("training") or {}).get("resume_policy")
+    if resume is None:
+        expected = (run / "prepared").resolve()
+        if raw is not None and relocate_run_path(
+            raw, original_root=original_root, current_root=run
+        ) != expected:
+            raise ValueError("Fresh native quality requires prepared data inside the run")
+        configured = (config.get("run") or {}).get("dataset_dir")
+        if configured is None or relocate_run_path(
+            configured, original_root=original_root, current_root=run
+        ) != expected:
+            raise ValueError("Fresh native quality config must bind the run-local prepared data")
+        if policy is not None:
+            raise ValueError("Fresh native quality cannot carry a resume policy")
+        return expected, ()
+
+    from ir_training.train.mobile_resume import POLICY
+
+    if not isinstance(resume, dict) or policy != POLICY:
+        raise ValueError("External prepared data requires the explicit mobile continuation policy")
+    values = (raw, resume.get("prepared"), (config.get("run") or {}).get("dataset_dir"))
+    if any(value is None or not str(value).strip() for value in values):
+        raise ValueError("Continuation prepared-data binding is incomplete")
+    prepared = Path(str(values[0])).expanduser().resolve()
+    if any(Path(str(value)).expanduser().resolve() != prepared for value in values[1:]):
+        raise ValueError("Continuation prepared-data paths disagree")
+    if not prepared.is_dir():
+        raise FileNotFoundError(prepared)
+    source = resume.get("source_config")
+    if source is None or not str(source).strip():
+        raise ValueError("Continuation source config binding is missing")
+    source_path = Path(str(source)).expanduser().resolve()
+    return prepared, (source_path, source_path.parent / "preparation_report.json")
 
 
 def inspect_completed_run(run_dir: str | Path) -> dict[str, Any]:
@@ -214,6 +268,7 @@ def inspect_completed_run(run_dir: str | Path) -> dict[str, Any]:
     paths = {
         name: relocate_run_path(value, original_root=original_root, current_root=run)
         for name, value in plan.get("paths", {}).items()
+        if name != "prepared"
     }
     required_paths = (
         "config",
@@ -234,12 +289,19 @@ def inspect_completed_run(run_dir: str | Path) -> dict[str, Any]:
             "Selected checkpoint has no saved tokenizer; exact host prompt reproduction is unavailable"
         )
 
+    config = load_yaml(paths["config"])
+    prepared_root, external_prepare_files = _validated_prepared_root(
+        plan=plan, config=config, run=run, original_root=original_root
+    )
+    paths["prepared"] = prepared_root
     receipt_bindings: dict[str, dict[str, str]] = {}
     receipt_bindings["prepare"] = _verified_receipt_files(
         completed["prepare"],
         original_root=original_root,
         current_root=run,
-        required_prefix=run / "prepared",
+        required_prefix=prepared_root,
+        allowed_external_roots=((prepared_root,) if plan.get("resume") else ()),
+        allowed_external_files=external_prepare_files,
     )
     receipt_bindings["configure"] = _verified_receipt_files(
         completed["configure"],
@@ -372,7 +434,6 @@ def inspect_completed_run(run_dir: str | Path) -> dict[str, Any]:
             "Deployment runtime identity or no-MTP policy differs from this artifact"
         )
 
-    config = load_yaml(paths["config"])
     max_input_tokens = int(config["training"]["max_seq_length"])
     max_new_tokens = int(config["model"]["max_output_tokens"])
     if max_input_tokens != int(plan["options"]["max_seq_length"]):
@@ -391,10 +452,10 @@ def inspect_completed_run(run_dir: str | Path) -> dict[str, Any]:
             "This evaluator accepts only the no-MTP official-mobile workflow"
         )
 
-    prepared_manifest = checked_preparation_manifest(run / "prepared")
+    prepared_manifest = checked_preparation_manifest(prepared_root)
     cohorts: dict[str, Any] = {}
     for name, count in COHORTS.items():
-        split = run / "prepared" / f"{name}.jsonl"
+        split = prepared_root / f"{name}.jsonl"
         rows = load_fixed_golden_rows(
             split,
             max_rows=count,
@@ -421,7 +482,7 @@ def inspect_completed_run(run_dir: str | Path) -> dict[str, Any]:
             "bixby50": "source_only_holdout",
         }[name]
         prepared = verify_golden_preparation(
-            run / "prepared",
+            prepared_root,
             split,
             required_rows=count,
             max_sequence=max_input_tokens,
@@ -467,7 +528,7 @@ def inspect_completed_run(run_dir: str | Path) -> dict[str, Any]:
         "model_sha256": model_sha,
         "max_input_tokens": max_input_tokens,
         "max_new_tokens": max_new_tokens,
-        "prepared_manifest_sha256": file_sha256(run / "prepared" / "manifest.json"),
+        "prepared_manifest_sha256": file_sha256(prepared_root / "manifest.json"),
         "prepared_manifest": prepared_manifest,
         "cohorts": cohorts,
         "receipt_bindings": receipt_bindings,

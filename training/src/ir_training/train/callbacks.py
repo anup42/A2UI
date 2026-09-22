@@ -5,6 +5,7 @@ import json
 import math
 import re
 import shutil
+import tempfile
 import time
 from pathlib import Path
 from typing import Any, Callable, Sequence
@@ -65,6 +66,7 @@ def build_golden_set_eval_callback(
     evaluate_at_end: bool = True,
     use_cache: bool = True,
     resume_checkpoint: str | Path | None = None,
+    resume_relocate_best: bool = False,
     zero3_trainer: Any | None = None,
 ) -> Any | None:
     if not enabled:
@@ -173,7 +175,14 @@ def build_golden_set_eval_callback(
                     for entry in entries)), None)
                 if matched is None:
                     raise ValueError("Previously selected Golden checkpoint is missing or changed; retain its original files when resuming.")
-                self.best_checkpoint_path = matched
+                if resume_relocate_best:
+                    self.best_checkpoint_path = _relocate_verified_best_checkpoint(
+                        source=matched,
+                        destination=resolved_best_checkpoint_dir,
+                        expected_manifest=manifest,
+                    )
+                else:
+                    self.best_checkpoint_path = matched
                 self.best_checkpoint_saved = True
 
         def on_save(self, args: Any, state: Any, control: Any, **kwargs: Any) -> Any:
@@ -820,6 +829,88 @@ def _atomic_copy_file(source: Path, destination: Path) -> None:
     temporary = destination.with_name(destination.name + ".partial")
     shutil.copy2(source, temporary)
     temporary.replace(destination)
+
+
+def _relocate_verified_best_checkpoint(
+    *, source: Path, destination: Path, expected_manifest: dict[str, Any]
+) -> Path:
+    """Copy a verified prior best into a new run without mutating its source."""
+    source = source.resolve(strict=True)
+    destination = destination.resolve(strict=False)
+    rank, world_size = _distributed_context()
+    relocation_error: Exception | None = None
+    if rank == 0:
+        temporary: Path | None = None
+        try:
+            if source == destination:
+                raise ValueError(
+                    "Golden resume relocation requires a fresh best-checkpoint destination."
+                )
+            if destination.exists() or destination.is_symlink():
+                raise FileExistsError(
+                    f"Golden resume relocation destination already exists: {destination}"
+                )
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            source_files = []
+            for entry in source.iterdir():
+                if entry.is_symlink():
+                    raise ValueError(
+                        f"Golden resume source contains a symlink: {entry.name}"
+                    )
+                if not entry.is_file():
+                    raise ValueError(
+                        "Golden resume source must contain top-level regular files only: "
+                        f"{entry.name}"
+                    )
+                if entry.resolve(strict=True).parent != source:
+                    raise ValueError(
+                        f"Golden resume source file escapes its checkpoint: {entry.name}"
+                    )
+                source_files.append(entry)
+            if not source_files:
+                raise ValueError("Golden resume source checkpoint is empty.")
+
+            temporary = Path(
+                tempfile.mkdtemp(
+                    prefix=f".{destination.name}.relocating-", dir=destination.parent
+                )
+            )
+            for entry in source_files:
+                shutil.copy2(entry, temporary / entry.name)
+            source_inventory = {
+                entry.name: (entry.stat().st_size, _sha256_file(entry))
+                for entry in source_files
+            }
+            copied_inventory = {
+                entry.name: (entry.stat().st_size, _sha256_file(entry))
+                for entry in temporary.iterdir()
+                if entry.is_file() and not entry.is_symlink()
+            }
+            if copied_inventory != source_inventory:
+                raise RuntimeError("Golden resume relocation copy verification failed.")
+            temporary.replace(destination)
+            temporary = None
+        except Exception as exc:  # noqa: BLE001 - exchange failure with every rank
+            relocation_error = exc
+        finally:
+            if temporary is not None and temporary.exists():
+                shutil.rmtree(temporary)
+
+    _raise_distributed_evaluation_error(relocation_error, world_size=world_size)
+    _distributed_barrier()
+
+    manifest_files = expected_manifest.get("files") or []
+    if not manifest_files or not all(
+        isinstance(item, dict)
+        and isinstance(item.get("path"), str)
+        and Path(item["path"]).name == item["path"]
+        and (destination / item["path"]).is_file()
+        and not (destination / item["path"]).is_symlink()
+        and _sha256_file(destination / item["path"]) == item.get("sha256")
+        for item in manifest_files
+    ):
+        raise ValueError("Relocated Golden checkpoint does not match its saved manifest.")
+    return destination
 
 
 def _golden_row_identity(row: dict[str, Any], index: int) -> str:

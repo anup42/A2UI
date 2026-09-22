@@ -325,6 +325,71 @@ def test_export_provenance_conditionally_enforces_new_contract(tmp_path, monkeyp
     assert "exact_70_frozen_activation_bindings" not in legacy["checks"]
 
 
+@pytest.mark.parametrize("consumer", ["merge", "retained_export"])
+@pytest.mark.parametrize("valid_lineage", [True, False])
+def test_continuation_consumers_revalidate_and_record_lineage(
+    tmp_path, monkeypatch, consumer, valid_lineage
+):
+    import yaml
+    from ir_training.common.config import load_yaml
+    from ir_training.qat.numeric_preflight import OFFICIAL_MOBILE_WORKFLOW
+    from ir_training.train import mobile_resume
+
+    adapter, config_path, qparams, metadata = _export_fixture(tmp_path, strict=True)
+    config = load_yaml(config_path)
+    config.update(
+        run={"purpose": OFFICIAL_MOBILE_WORKFLOW},
+        training={
+            "method": "qat_lora_sft", "refuse_resume": False,
+            "resume_policy": mobile_resume.POLICY,
+            "resume_from_checkpoint": str(tmp_path / "original/checkpoint-10"),
+        },
+    )
+    config["qat"].update(enabled=True, scale_mode="retained_mobile")
+    config_path.write_text(yaml.safe_dump(config), encoding="utf-8")
+    metadata["training_config_sha256"] = hashlib.sha256(config_path.read_bytes()).hexdigest()
+    (adapter / "training_metadata.json").write_text(json.dumps(metadata), encoding="utf-8")
+    lineage = {
+        "verified": True, "resumed": True,
+        "original_horizon": {"epochs": 2}, "extended_horizon": {"epochs": 4},
+    }
+    calls = []
+
+    def verify(path, checkpoint):
+        calls.append((path, checkpoint))
+        if not valid_lineage:
+            raise ValueError("Saved continuation state/source differs from verified physical lineage")
+        return lineage
+
+    # Exercise the real consumer branch while isolating the already separately
+    # tested tensor, seed, numeric and physical-lineage implementations.
+    monkeypatch.setattr(mobile_resume, "verify_export_lineage", verify)
+    monkeypatch.setattr(exporter, "numeric_preflight_provenance", lambda *_: {"verified": True})
+    monkeypatch.setattr(exporter, "_golden_selection_binding", lambda *_: {"verified": True})
+    monkeypatch.setattr(merge_lora, "verify_configured_mobile_training_seed", lambda *a, **kw: {"verified": True})
+    monkeypatch.setattr(merge_lora, "verify_mobile_qparams_contract", lambda *a, **kw: {"verified": True})
+    monkeypatch.setattr(merge_lora, "_verify_qat_training_metadata", lambda *a, **kw: {"verified": True})
+
+    def consume():
+        if consumer == "merge":
+            return merge_lora._training_provenance(adapter, config_path, base=tmp_path)
+        return exporter._best_adapter_provenance_report(
+            adapter, config_path, qparams=qparams,
+            seed_report={"manifest_sha256": "c" * 64, "transformation_plan_sha256": "d" * 64},
+        )
+
+    if valid_lineage:
+        report = consume()
+        assert report["resume_lineage"] == lineage
+        if consumer == "retained_export":
+            assert report["verified"] is True
+            assert report["checks"]["resume_lineage_verified"] is True
+    else:
+        with pytest.raises(ValueError, match="physical lineage"):
+            consume()
+    assert calls == [(config_path, adapter)]
+
+
 def test_merge_provenance_conditionally_enforces_new_contract(tmp_path, monkeypatch):
     monkeypatch.setattr(
         merge_lora,

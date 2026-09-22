@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Plan, preflight, or explicitly launch one fresh Gemma 4 mobile QAT run.
+"""Plan, preflight, or explicitly launch a Gemma 4 mobile QAT run.
 
-The launcher is intentionally dry-run by default.  It never resumes or reuses a
-run directory and it refuses to execute unless the scale-preserving checkpoint
-validator is installed and every declared preflight succeeds.
+The launcher is intentionally dry-run by default and never reuses an output
+directory. Retained-mobile continuation requires the explicit, hash-bound
+horizon-extension policy; other runs refuse resume. Every declared preflight
+and the scale-preserving checkpoint validator remain mandatory.
 """
 
 from __future__ import annotations
@@ -498,11 +499,15 @@ def _validate_launch_contract(
         model.get("load_in_4bit") is False,
         "BitsAndBytes/NF4 loading is not retained-scale mobile QAT.",
     )
-    require(
-        "resume_not_refused",
-        training.get("refuse_resume") is True,
-        "training.refuse_resume must remain true for this fresh-run-only workflow.",
-    )
+    from ir_training.train.mobile_resume import enabled as continuation_enabled
+    try:
+        continuation = continuation_enabled(config)
+    except ValueError:
+        continuation = False
+    require("resume_not_refused", continuation or (
+        training.get("refuse_resume") is True and not training.get("resume_from_checkpoint")
+        and not config.get("resume_from_checkpoint") and not training.get("resume_policy")),
+        "Fresh runs must refuse resume; continuation requires the explicit retained-mobile horizon policy.")
     require(
         "nonzero_lora_dropout",
         float(_section(config, "lora").get("dropout", -1.0)) == 0.0,
@@ -1035,6 +1040,10 @@ def build_launch_plan(
         if int(host_gpu_profile["world_size"]) != int(num_gpus):
             raise PortableTrainingLaunchError("GPU profile and launch worker count disagree.")
         apply_gpu_profile(resolved_config, host_gpu_profile)
+    from ir_training.train.mobile_resume import LAUNCH_MODE, verify_continuation
+    from ir_training.train.mobile_resume import enabled as continuation_enabled
+    continuation = continuation_enabled(resolved_config)
+    resume_state = verify_continuation(Path(resolved_config["training"]["resume_from_checkpoint"]), resolved_config) if continuation else None
     issues = _validate_launch_contract(
         resolved_config,
         source_config_path=source_path,
@@ -1083,7 +1092,8 @@ def build_launch_plan(
     plan = {
         "schema_version": 1,
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
-        "mode": "fresh_run_only_no_resume",
+        "mode": LAUNCH_MODE if continuation else "fresh_run_only_no_resume",
+        "resume_state": resume_state,
         "run_id": run_id,
         "run_intent": {
             "purpose": _section(resolved_config, "run").get("purpose", "training"),
@@ -1132,7 +1142,7 @@ def build_launch_plan(
         },
         "paths": {name: str(path) for name, path in paths.items()},
         "checks": {
-            "no_resume_supported": True,
+            "no_resume_supported": not continuation,
             "run_root_must_not_exist": True,
             "scale_validator_required": True,
             "scale_validator_present": SCALE_VALIDATOR.is_file(),

@@ -596,8 +596,15 @@ def _portable_launcher_contract_matches(
             )
             and source_contract_ok
         )
+    from ir_training.train.mobile_resume import LAUNCH_MODE, POLICY
+    continuation_mode = bool(
+        launch_plan.get("mode") == LAUNCH_MODE
+        and (metadata.get("training") or {}).get("resume_policy") == POLICY
+        and (metadata.get("resume_state") or {}).get("verified") is True
+        and launch_plan.get("resume_state") == metadata.get("resume_state")
+    )
     return bool(
-        launch_plan.get("mode") == "fresh_run_only_no_resume"
+        (launch_plan.get("mode") == "fresh_run_only_no_resume" or continuation_mode)
         and launch_plan.get("run_id") == metadata.get("run_id")
         and isinstance(launch_plan.get("checks"), dict)
         and launch_plan["checks"].get("contract_ok") is True
@@ -938,6 +945,11 @@ def _verify_qat_training_metadata(
             del checks["initial_numeric_parity_passed"]
             del checks["deterministic_greedy_prefix_passed"]
             checks["numeric_preflight_mandatory_gates_passed"] = numeric_policy_report["verified"]
+            if (training_config.get("training") or {}).get("resume_policy") is not None:
+                del checks["zero_adapter_initialization_verified"]
+                checks["resumed_adapter_initialization_verified"] = (
+                    numeric_policy_report.get("checks", {}).get("resumed_adapter_initialization_verified") is True
+                )
         checks["portable_launcher_artifacts_bound"] = (
             _portable_launcher_contract_matches(
                 metadata, training_config_sha256=training_config_sha256
@@ -1019,6 +1031,10 @@ def _training_provenance(
     config_bytes = resolved_config.read_bytes()
     config_sha256 = hashlib.sha256(config_bytes).hexdigest()
     config = load_yaml(resolved_config)
+    from ir_training.train.mobile_resume import enabled as continuation_enabled
+    from ir_training.train.mobile_resume import verify_export_lineage
+    if continuation_enabled(config):
+        result["resume_lineage"] = verify_export_lineage(resolved_config, adapter_path)
     if recorded_qat and (config.get("qat") or {}).get("enabled") is not True:
         raise ValueError("Saved checkpoint records QAT; refusing to relabel it as ordinary LoRA and bypass QAT provenance checks.")
     model = config.get("model") if isinstance(config.get("model"), dict) else {}

@@ -67,8 +67,9 @@ class OfficialMobileOptions:
     output_dir: Path
     exporter_python: Path | None = None
     devices: str = "auto"
-    epochs: float = 2.0
+    epochs: float | None = None
     steps: int | None = None
+    resume_from_checkpoint: Path | None = None
     learning_rate: float = 1e-5
     eval_steps: int = 500
     golden_every_steps: int = 1000
@@ -106,19 +107,43 @@ def build_plan(options: OfficialMobileOptions) -> dict[str, Any]:
     """Offline plan: no CUDA probe, downloads, model load, or filesystem writes."""
     values = asdict(options)
     for key in ("model_dir", "input_dir", "source_safetensors", "official_litertlm",
-                "output_dir", "preparation_cache_dir"):
+                "output_dir", "preparation_cache_dir", "resume_from_checkpoint"):
         if values[key] is not None:
             values[key] = str(Path(values[key]).expanduser().resolve())
     # venv/bin/python is often a symlink. Resolving it would silently use the
     # system interpreter and lose the isolated exporter dependencies on Linux.
     values["exporter_python"] = os.path.abspath(os.path.expanduser(
         str(values["exporter_python"] or sys.executable)))
+    resume = None
+    if values["resume_from_checkpoint"]:
+        from ir_training.train.mobile_resume import horizon_record, source_config
+        checkpoint = Path(values["resume_from_checkpoint"])
+        source_path, saved, _ = source_config(checkpoint)
+        resume = {"checkpoint": str(checkpoint), "source_config": str(source_path),
+                  "source_config_sha256": sha256(source_path),
+                  "metadata_sha256": sha256(checkpoint / "training_metadata.json"),
+                  "prepared": saved["run"]["dataset_dir"]}
+        if values["epochs"] is None:
+            values["epochs"] = saved["training"].get("epochs", 2)
+        if values["steps"] is None:
+            values["steps"] = saved["training"].get("max_steps")
+        requested = copy.deepcopy(saved)
+        requested["training"]["epochs"] = values["epochs"]
+        if values["steps"] is not None:
+            requested["training"]["max_steps"] = values["steps"]
+        resume["horizon"] = horizon_record(checkpoint, requested)
+    if values["epochs"] is None:
+        values["epochs"] = 2.0
     for name in ("stage_timeout_seconds", "generation_timeout_seconds", "progress_seconds", "learning_rate"):
         if not math.isfinite(values[name]) or values[name] <= 0:
             raise ValueError(f"{name} must be positive and finite")
     if options.benchmark_android and not options.serial:
         raise ValueError("--benchmark-android requires an explicit --serial")
     output, seed = Path(values["output_dir"]), Path(values["model_dir"])
+    if resume:
+        source_run = Path(saved["run"]["output_dir"]).resolve().parent
+        if output.is_relative_to(source_run) or source_run.is_relative_to(output):
+            raise ValueError("Continuation output must be fresh and separate from its source run")
     if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,95}", output.name):
         raise ValueError("Output directory name must be a safe run ID (1-96 characters)")
     for protected in (seed, Path(values["input_dir"])):
@@ -135,7 +160,7 @@ def build_plan(options: OfficialMobileOptions) -> dict[str, Any]:
         model_dir=seed, input_dir=Path(values["input_dir"]), output_dir=output,
         # Only this shared CPU preparation is reused; its dense configure/train
         # commands are NEVER executed by the mobile workflow.
-        epochs=options.epochs, steps=options.steps, eval_steps=options.eval_steps,
+        epochs=values["epochs"], steps=values["steps"], eval_steps=options.eval_steps,
         golden_every_steps=options.golden_every_steps, max_seq_length=options.max_seq_length,
         max_input_tokens=options.max_seq_length, max_new_tokens=options.max_new_tokens,
         devices=options.devices, microbatch=options.microbatch, effective_batch=options.effective_batch,
@@ -146,6 +171,7 @@ def build_plan(options: OfficialMobileOptions) -> dict[str, Any]:
     preparation = {key: preparation[key] for key in ("options", "source_files", "shared_prompt", "goldens")}
     train_root = output / "training" / output.name
     paths = {
+        "prepared": Path(resume["prepared"]) if resume else output / "prepared",
         "source_config": output / "configs/mobile_training.yaml",
         "config": train_root / "launch/resolved_training_config.yaml",
         "launch_plan": train_root / "launch/launch_plan.json",
@@ -161,7 +187,7 @@ def build_plan(options: OfficialMobileOptions) -> dict[str, Any]:
     }
     return {
         "schema_version": 1, "workflow": WORKFLOW, "options": values,
-        "preparation": preparation, "paths": {key: str(path) for key, path in paths.items()},
+        "preparation": preparation, "resume": resume, "paths": {key: str(path) for key, path in paths.items()},
         "stages": ["assets", "prepare", "configure", "no_op_export", "preflight", "training",
                    *[f"best_{name}" for name in GOLDENS], "merge", "export",
                    *(["android_benchmark"] if options.benchmark_android else [])],
@@ -183,13 +209,19 @@ def training_config(plan: dict, profile: dict, preparation_report: dict) -> dict
     """Resolve the existing strict mobile recipe without editing any source YAML."""
     values, paths = plan["options"], plan["paths"]
     seed, output = Path(values["model_dir"]), Path(values["output_dir"])
-    config = copy.deepcopy(load_yaml(training_root() / "configs/models/gemma4_e2b_mobile_seed_ir_qat_sft.yaml"))
+    if plan.get("resume"):
+        config = load_yaml(Path(plan["resume"]["source_config"]))
+        if sha256(Path(plan["resume"]["source_config"])) != plan["resume"]["source_config_sha256"]:
+            raise ValueError("Source resume config changed after planning")
+    else:
+        config = copy.deepcopy(load_yaml(training_root() / "configs/models/gemma4_e2b_mobile_seed_ir_qat_sft.yaml"))
+    prepared = Path(paths.get("prepared", str(output / "prepared")))
     if profile["dtype"] != "bfloat16":
         raise ValueError("Official mobile retained-scale QAT requires native BF16 GPUs")
     from ir_training.train.gpu_profile import apply_gpu_profile
     from ir_training.train.recipe import validate_effective_batch, validate_sft_recipe
     apply_gpu_profile(config, profile)
-    config["run"].update(dataset_dir=str(output / "prepared"), prepared_manifest_required=True,
+    config["run"].update(dataset_dir=str(prepared), prepared_manifest_required=True,
                          dataset_format="a2ui_express_v1", purpose=WORKFLOW)
     # Deliberate v2 opt-in, not an implicit model-name exception. Standalone
     # historical YAMLs keep their BF16 parity thresholds unchanged.
@@ -201,17 +233,26 @@ def training_config(plan: dict, profile: dict, preparation_report: dict) -> dict
         chat_template_kwargs=preparation_report["tokenizer"].get("chat_template_kwargs") or {},
         max_output_tokens=values["max_new_tokens"])
     training = config["training"]
-    cadence = min(values["eval_steps"], values["steps"]) if values["steps"] else values["eval_steps"]
+    # Extending a short step-capped run must not also extend its originally
+    # capped evaluation/save interval, including across multiple continuations.
+    cadence_cap = (plan["resume"]["horizon"]["original"]["max_steps"]
+                   if plan.get("resume") else values["steps"])
+    cadence = min(values["eval_steps"], cadence_cap) if cadence_cap else values["eval_steps"]
     golden_interval = max(1, math.ceil(values["golden_every_steps"] / cadence))
     training.update(epochs=values["epochs"], learning_rate=values["learning_rate"],
         eval_steps=cadence, save_steps=cadence, eval_strategy="steps", max_seq_length=values["max_seq_length"],
         tensorboard_root=values["tensorboard_root"], tensorboard_subdir="training", tensorboard_detail="minimal",
-        token_cache=True, token_cache_dir=plan["preparation"]["options"]["token_cache_dir"],
+        token_cache=True, token_cache_dir=(training["token_cache_dir"] if plan.get("resume") else plan["preparation"]["options"]["token_cache_dir"]),
         disable_cudnn_sdpa=True, backward_preflight=True, overflow_policy="error", trainer_backend="hf")
     if values["steps"] is not None:
         training["max_steps"] = values["steps"]
-    config["golden_eval"].update(dataset_dir=str(output / "prepared"), split="golden32",
-        split_path=str(output / "prepared/golden32.jsonl"), max_rows=32, required_rows=32,
+    training["refuse_resume"] = not bool(plan.get("resume"))
+    if plan.get("resume"):
+        from ir_training.train.mobile_resume import POLICY, horizon_record
+        training.update(resume_from_checkpoint=values["resume_from_checkpoint"], resume_policy=POLICY)
+        training["resume_horizon"] = horizon_record(Path(values["resume_from_checkpoint"]), config)
+    config["golden_eval"].update(dataset_dir=str(prepared), split="golden32",
+        split_path=str(prepared / "golden32.jsonl"), max_rows=32, required_rows=32,
         max_input_tokens=values["max_seq_length"], max_new_tokens=values["max_new_tokens"],
         metric_version="v5_4", metric_for_best_model=SELECTOR,
         interval=golden_interval, evaluate_at_end=True,
@@ -286,8 +327,9 @@ def _configure(plan: dict) -> list[Path]:
     profile = build_gpu_profile(detect_cuda_devices(), model="e2b", devices=values["devices"],
         microbatch=values["microbatch"], effective_batch=values["effective_batch"],
         dataloader_workers=values["dataloader_workers"])
-    report = verify_prepared(output / "prepared", output / "prepared/golden32.jsonl",
-        golden35=output / "prepared/golden35.jsonl", bixby50=output / "prepared/bixby50.jsonl",
+    prepared = Path(plan["paths"]["prepared"])
+    report = verify_prepared(prepared, prepared / "golden32.jsonl",
+        golden35=prepared / "golden35.jsonl", bixby50=prepared / "bixby50.jsonl",
         max_sequence=values["max_seq_length"], max_prompt=values["max_seq_length"])
     source = Path(plan["paths"]["source_config"])
     _yaml(source, training_config(plan, profile, report))
@@ -295,6 +337,16 @@ def _configure(plan: dict) -> list[Path]:
         num_gpus=profile["world_size"], source_safetensors=values["source_safetensors"], host_gpu_profile=profile)
     if not launch["checks"]["contract_ok"]:
         raise ValueError(f"Mobile launch contract failed: {launch['checks']['issues']}")
+    if plan.get("resume"):
+        from ir_training.train.mobile_resume import (
+            verify_continuation,
+            verify_export_lineage,
+        )
+        checkpoint = Path(values["resume_from_checkpoint"])
+        if sha256(checkpoint / "training_metadata.json") != plan["resume"]["metadata_sha256"]:
+            raise ValueError("Resume checkpoint changed after planning")
+        verify_export_lineage(Path(plan["resume"]["source_config"]), checkpoint)
+        launch["resume_state"] = verify_continuation(checkpoint, resolved)
     mobile._reserve_run(launch, resolved, paths)
     if paths["resolved_config"].resolve() != Path(plan["paths"]["config"]).resolve():
         raise ValueError("Mobile resolved config path differs from pipeline plan")
@@ -323,7 +375,7 @@ def evaluation_command(plan: dict, cohort: str) -> list[str]:
     return [sys.executable, str(training_root() / "scripts/evaluate_checkpoint_on_golden.py"),
         "--config", paths["config"], "--checkpoint", paths["best_checkpoint"], "--checkpoint-kind", "adapter",
         "--qat-mode", "on", "--require-prepared-contract", "--require-gpu", "--devices", "auto",
-        "--split", str(output / f"prepared/{cohort}.jsonl"), "--max-rows", str(count), "--required-rows", str(count),
+        "--split", str(Path(paths["prepared"]) / f"{cohort}.jsonl"), "--max-rows", str(count), "--required-rows", str(count),
         "--max-input-tokens", str(values["max_seq_length"]), "--max-new-tokens", str(values["max_new_tokens"]),
         "--output-dir", str(output / f"evaluations/best_{cohort}"), "--run-id", output.name,
         "--evaluation-name", f"best_{cohort}", "--tensorboard-root", values["tensorboard_root"],
@@ -518,6 +570,15 @@ def run_stage(plan: dict, stage: str) -> list[Path]:
     if stage == "assets":
         return _assets(plan)
     if stage == "prepare":
+        if plan.get("resume"):
+            from launch_review_training import verify_launch_binding
+            source = Path(plan["resume"]["source_config"])
+            verify_launch_binding(source)
+            prepared = Path(paths["prepared"])
+            _write(output / "data_audit.json", {"mode": "reuse_verified_prepared_data", "source_config": str(source),
+                   "source_config_sha256": sha256(source), "prepared": str(prepared)})
+            return [output / "data_audit.json", source, source.parent / "preparation_report.json",
+                    *sorted(prepared.glob("*.json*"))]
         prepare_data(plan["preparation"])
         return [output / "data_audit.json", *sorted((output / "prepared").glob("*.json*")),
                 *map(Path, plan["preparation"]["source_files"])]

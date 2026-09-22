@@ -9,8 +9,11 @@ replaced, or used by the runtime gates in this workflow.
 
 The entry point is `training/scripts/run_official_mobile_pipeline.py`. It is
 plan-only unless `--execute` is passed. Every execution requires a fresh
-`--output-dir`; do not overwrite or silently resume an earlier run. Output must
-be outside the model and input directories, and must not contain them.
+`--output-dir`; do not overwrite an earlier run. Fresh runs refuse resume by
+default. A continuation is available only through the explicit
+`--resume-from-checkpoint` option described below, and it also writes to a new
+output directory. Output must be outside the model and input directories, and
+must not contain them.
 
 The current workflow identifier is
 `e2b_retained_mobile_golden_bixby_no_mtp_v2`. Existing plan and execute commands
@@ -411,6 +414,85 @@ python training/scripts/run_official_mobile_pipeline.py \
   --execute
 ```
 
+## Explicit continuation from a Trainer checkpoint
+
+Fresh runs remain strict fresh runs: their resolved config keeps
+`training.refuse_resume: true`, and execution refuses an existing output
+directory. To continue an interrupted or deliberately extended official-mobile
+run, pass `--resume-from-checkpoint` with a complete numbered Hugging Face
+Trainer checkpoint such as `checkpoint-3500` and choose a different, nonexistent
+`--output-dir`. A callback-created best adapter, final adapter, or weight-only
+folder is not resumable because it does not contain the complete Trainer state.
+
+The checkpoint must contain hash-bound model/adapter and tokenizer files,
+`trainer_state.json`, `optimizer.pt`, `scheduler.pt`, every required per-rank
+`rng_state*.pth`, `golden_callback_state.json`, its resolved training config,
+and matching training provenance. Continuation additionally records hashes of
+the optimizer, scheduler, Trainer, RNG, and Golden state files and rechecks
+them before training and export. Continuation restores optimizer,
+scheduler, Trainer step/epoch, RNG, and Golden selector/cadence state exactly as
+of the selected numbered checkpoint. If an end-of-run Golden evaluation occurred
+after that checkpoint, its later selector state is not implicitly reconstructed.
+
+Continuation reuses the original prepared train, validation, Golden32,
+Golden35, and Bixby50 files. Model identity, prepared-data hashes, LoRA/QAT
+settings, effective batch, world size, microbatch, gradient accumulation,
+learning rate, optimizer, prompt/generation settings, evaluation/save/Golden
+cadences, and every other recipe field must remain unchanged. The only recipe
+change permitted is the active total training horizon:
+
+- With epoch-based training, `--epochs` is the new **total** epoch horizon. It
+  may equal the saved horizon only when the selected checkpoint stopped before
+  that target, or it may increase. It must not decrease.
+- With step-bounded training, `--steps` is the new **total** optimizer-step
+  horizon. It follows the same unfinished-or-increase rule.
+- Do not switch between epoch and `max_steps` modes. When `max_steps` is active,
+  changing the inactive epoch value is also rejected.
+- If the horizon option is omitted, the wrapper inherits the saved total. This
+  is useful only when the selected checkpoint has not yet reached that target;
+  a completed horizon must be increased explicitly.
+
+For example, this plans an epoch-based continuation to a total of four epochs.
+All source/model/export flags are the same as the original run, while the source
+checkpoint and fresh destination are explicit:
+
+```powershell
+python training/scripts/run_official_mobile_pipeline.py `
+  --model-dir <same-mobile-seed> `
+  --source-safetensors <same-packed-mobile>/model.safetensors `
+  --official-litertlm <same-official-mobile.litertlm> `
+  --input-dir <same-source-bound-train-val> `
+  --resume-from-checkpoint <source-run>/training/<source-run-id>/trainer/checkpoint-3500 `
+  --output-dir <new-continuation-run-root> `
+  --devices auto `
+  --epochs 4 `
+  --learning-rate 1e-5 `
+  --eval-steps 500 `
+  --golden-every-steps 1000 `
+  --max-new-tokens 2048
+```
+
+Review the plan before repeating the identical command with `--execute`. The
+plan and checkpoint metadata report the original, previous, and requested
+horizons plus the completed optimizer step. They also preserve the original
+scheduler warmup-step count. The optimizer and scheduler state resume at the
+saved step without restarting warmup; future learning-rate updates use the new
+terminal horizon. This is not equivalent to training from scratch with the
+longer horizon selected at the beginning.
+
+The prior Golden best is manifest-verified and copied into the new run before
+training continues. A worse later score therefore leaves a local selected best;
+an improved score replaces only that new-run copy. The source run is never
+rewritten. Keep the original resolved config and preparation report, every
+numbered checkpoint/state file needed by the chain, and each prior selected-best
+directory until merge and retained-scale export finish. Export verifies every
+physical hop back to the original fresh run; missing ancestors, altered hashes,
+fabricated retention evidence, or a non-physical multi-hop chain fail closed.
+
+These continuation contracts and regressions were validated with CPU fixtures.
+No H100/GPU continuation, full model training, or retained-scale export was run
+as evidence for this documentation update.
+
 The wrapper owns a bounded, fail-closed stage graph. In v2 the resolved order is
 `assets`, `prepare`, `configure`, `no_op_export`, `preflight`, `training`, the
 three best-checkpoint evaluations, `merge`, `export`, and the optional Android
@@ -448,9 +530,9 @@ speed benchmark:
 Every stage runs in a bounded worker subprocess. Before returning, the
 worker writes `stage_receipts/<stage>.json`, binding the plan SHA-256 and hashes
 of every declared stage artifact; the parent verifies it before starting the next
-stage. A failed or interrupted stage remains evidence. The workflow has no
-resume mode: use a new output directory rather than substituting an intermediate
-trainer checkpoint or copying one into `best_golden_checkpoint`.
+stage. A failed or interrupted stage remains evidence. Never manually substitute
+an intermediate checkpoint or copy one into `best_golden_checkpoint`; use only
+the explicit continuation option and its verified state/lineage gates.
 
 ## Output layout
 
@@ -467,8 +549,10 @@ writes:
 - `<run>/pretraining_noop_export.json` — the pre-training 205-buffer,
   target-section, virtual-package, qparam, graph, and static cache-inventory
   gate;
-- `<run>/prepared/{train,val,golden32,golden35,bixby50}.jsonl` plus preparation
-  manifests;
+- for a fresh run, `<run>/prepared/{train,val,golden32,golden35,bixby50}.jsonl`
+  plus preparation manifests; an explicit continuation instead reuses and
+  hash-verifies the original prepared directory and records that path in its
+  plan, config, data audit, and stage receipt;
 - `<run>/configs/mobile_training.yaml` and
   `<run>/configs/mobile_deployment.yaml`;
 - `<run>/training/<run-id>/launch/{resolved_training_config.yaml,launch_plan.json,preflight_report.json,training.log}`;

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fresh E2B mobile QAT -> best Golden/Bixby checkpoint -> official-layout LiteRT-LM.
+"""E2B mobile QAT -> best Golden/Bixby checkpoint -> official-layout LiteRT-LM.
 
 Plan-only by default. See training/docs/OFFICIAL_MOBILE_QAT_PIPELINE.md.
 """
@@ -25,8 +25,9 @@ def main(argv=None) -> int:
         parser.add_argument("--" + name, type=Path)
     parser.add_argument("--exporter-python", type=Path, help="Retained-scale export environment; defaults to this Python. No generic converter is used.")
     parser.add_argument("--devices", default="auto", help="All scheduler-visible GPUs, or visible logical indices/UUIDs.")
-    parser.add_argument("--epochs", type=float, default=2)
-    parser.add_argument("--steps", type=int, help="Optional optimizer-step cap for a smoke run")
+    parser.add_argument("--epochs", type=float, help="Total epochs (fresh default: 2; resume default: saved horizon)")
+    parser.add_argument("--steps", type=int, help="Optional total optimizer-step horizon, not extra steps on resume")
+    parser.add_argument("--resume-from-checkpoint", type=Path, help="Explicit numbered Trainer checkpoint; requires a fresh output directory. Only the total training horizon may increase.")
     parser.add_argument("--learning-rate", type=float, default=1e-5)
     parser.add_argument("--eval-steps", type=int, default=500)
     parser.add_argument("--golden-every-steps", type=int, default=1000)

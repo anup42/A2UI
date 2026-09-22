@@ -199,7 +199,7 @@ def train_sft(
     if not train_path.exists():
         raise FileNotFoundError(f"Missing train split: {train_path}")
     resume_contract = build_resume_contract(config, dataset_dir, effective_batch=effective_batch)
-    resume_state_report = verify_resume_contract(resolved_resume_checkpoint, resume_contract) if resolved_resume_checkpoint is not None else None
+    resume_state_report = verify_resume_contract(resolved_resume_checkpoint, resume_contract, config=config) if resolved_resume_checkpoint is not None else None
 
     load_cfg = dict(model_cfg)
     if full_finetune and resolved_resume_checkpoint is not None:
@@ -426,7 +426,11 @@ def train_sft(
             f"for its log directory: {callback_logging_dir}",
             flush=True,
         )
-    if "warmup_steps" in training_cfg:
+    if resume_state_report and resume_state_report.get("continuation"):
+        if "warmup_steps" not in args_params:
+            raise ValueError("Continuation requires explicit scheduler warmup_steps support")
+        training_args_kwargs["warmup_steps"] = resume_state_report["continuation"]["scheduler_warmup_steps"]
+    elif "warmup_steps" in training_cfg:
         if "warmup_steps" in args_params:
             training_args_kwargs["warmup_steps"] = int(training_cfg.get("warmup_steps", 0))
     elif "warmup_ratio" in args_params:
@@ -684,6 +688,7 @@ def train_sft(
             else ("full_model" if full_finetune else "fresh_zero_adapter")
         )
         numeric_preflight_report["resume_adapter"] = resume_adapter_report
+        numeric_preflight_report["resume_state"] = resume_state_report
         numeric_preflight_report["greedy_generation"] = (
             _compare_initial_greedy_reports(
                 baseline_greedy_report,
@@ -955,6 +960,10 @@ def train_sft(
     try:
         train_kwargs = {}
         if resolved_resume_checkpoint is not None:
+            if resume_state_report and resume_state_report.get("continuation"):
+                refreshed = verify_resume_contract(resolved_resume_checkpoint, resume_contract, config=config)
+                if refreshed != resume_state_report:
+                    raise ValueError("Resume source changed during preflight; refusing training")
             train_kwargs["resume_from_checkpoint"] = str(resolved_resume_checkpoint)
         trainer.train(**train_kwargs)
     finally:
@@ -3751,6 +3760,7 @@ def _build_optional_golden_callback(
         evaluate_at_end=bool(golden_eval_cfg.get("evaluate_at_end", True)),
         use_cache=bool(golden_eval_cfg.get("use_cache", True)),
         resume_checkpoint=resume_checkpoint,
+        **({"resume_relocate_best": True} if training_cfg.get("resume_policy") == "retained_mobile_horizon_extension_v1" else {}),
         **({"zero3_trainer": zero3_trainer} if zero3_trainer is not None else {}),
     )
 

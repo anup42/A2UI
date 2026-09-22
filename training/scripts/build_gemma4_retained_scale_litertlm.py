@@ -789,6 +789,13 @@ def _best_adapter_provenance_report(
     )
     config = load_yaml(training_config)
     numeric_policy_report = numeric_preflight_provenance(config, numeric)
+    from ir_training.train.mobile_resume import enabled, verify_export_lineage
+
+    resume_lineage = (
+        verify_export_lineage(training_config, adapter_checkpoint)
+        if enabled(config)
+        else None
+    )
     config_qat = config.get("qat") if isinstance(config.get("qat"), dict) else {}
     strict_mobile_srq_required = _strict_mobile_srq_contract_required(config_qat)
     golden_selection = _golden_selection_binding(metadata, config)
@@ -870,6 +877,8 @@ def _best_adapter_provenance_report(
         checks.update(
             _strict_mobile_srq_metadata_checks(config_qat, qat, qparams_report)
         )
+    if resume_lineage is not None:
+        checks["resume_lineage_verified"] = resume_lineage["verified"] is True
     return {
         "path": str(metadata_path),
         "sha256": _sha256_file(metadata_path) if metadata_path.is_file() else None,
@@ -880,6 +889,7 @@ def _best_adapter_provenance_report(
         "golden_selection": golden_selection,
         "numeric_preflight_policy": numeric_policy_report,
         "bound_key_sha256": _json_sha256(sorted(bound_keys)),
+        **({"resume_lineage": resume_lineage} if resume_lineage is not None else {}),
     }
 
 

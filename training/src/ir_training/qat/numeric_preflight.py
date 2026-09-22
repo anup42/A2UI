@@ -238,6 +238,27 @@ def numeric_preflight_provenance(config: dict, numeric: dict) -> dict[str, Any]:
                 numeric.get("adapter_initialization_mode") == "full_model"
                 and zero == {"required": False, "reason": "full_finetune", "verified_zero_delta": False}
             )
+        elif (config.get("training") or {}).get("resume_policy") is not None:
+            from pathlib import Path
+
+            from ir_training.train.mobile_resume import verify_continuation
+            from ir_training.train.resume_contract import file_sha256
+
+            checkpoint = Path(config["training"]["resume_from_checkpoint"])
+            state = verify_continuation(checkpoint, config)
+            adapter = numeric.get("resume_adapter") or {}
+            weights = [p for p in (checkpoint / "adapter_model.safetensors", checkpoint / "adapter_model.bin") if p.is_file()]
+            checks.pop("zero_adapter_initialization_verified")
+            checks["resumed_adapter_initialization_verified"] = bool(
+                numeric.get("adapter_initialization_mode") == "resumed_checkpoint"
+                and numeric.get("resume_state") == state and len(weights) == 1
+                and adapter.get("checkpoint") == str(checkpoint)
+                and adapter.get("adapter_sha256") == file_sha256(weights[0])
+                and adapter.get("adapter_pair_count") == 205
+                and adapter.get("finite_adapter_pairs") == 205
+                and _integer_at_least(adapter.get("nonzero_adapter_pairs"), 1)
+                and adapter["nonzero_adapter_pairs"] <= 205
+            )
         report.update(checks=checks, verified=all(checks.values()))
     except (AttributeError, KeyError, TypeError, ValueError, OverflowError) as exc:
         report["error"] = str(exc)

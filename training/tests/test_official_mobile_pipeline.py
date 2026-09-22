@@ -374,10 +374,16 @@ def test_generated_h100_config_keeps_batch32_microbatch1_and_retained_qat(
     assert "qat_mtp" not in config
 
 
+@pytest.mark.parametrize("continue_run", [False, True])
+@pytest.mark.parametrize("horizon_mode", ["steps", "capped_steps", "epochs"])
 def test_real_cpu_prepare_and_portable_configure_bind_all_evaluation_contracts(
-    options, monkeypatch
+    options, monkeypatch, continue_run, horizon_mode
 ):
     options = replace(options, prepare_workers=1, progress_seconds=10)
+    if horizon_mode == "capped_steps":
+        options = replace(options, eval_steps=50, golden_every_steps=100)
+    elif horizon_mode == "epochs":
+        options = replace(options, steps=None, epochs=2, eval_steps=1)
     write_jsonl(options.input_dir / "train.jsonl", [_row("train-a"), _row("train-b")])
     write_jsonl(options.input_dir / "val.jsonl", [_row("val-a"), _row("val-b")])
     plan = workflow.build_plan(options)
@@ -407,6 +413,48 @@ def test_real_cpu_prepare_and_portable_configure_bind_all_evaluation_contracts(
     )
 
     configured_files = workflow._configure(plan)
+    prepared_root = options.output_dir / "prepared"
+    if continue_run:
+        from ir_training.common.config import load_yaml
+        from ir_training.train.callbacks import _write_checkpoint_provenance
+        from ir_training.train.resume_contract import build_resume_contract
+
+        original = load_yaml(Path(plan["paths"]["config"]))
+        saved_step, saved_total = (1, 2) if horizon_mode == "epochs" else (10, 20)
+        checkpoint = Path(original["run"]["output_dir"]) / f"checkpoint-{saved_step}"
+        checkpoint.mkdir(parents=True)
+        for name in ("adapter_model.safetensors", "adapter_config.json", "tokenizer.json",
+                     "optimizer.pt", "scheduler.pt", "rng_state_0.pth", "rng_state_1.pth"):
+            (checkpoint / name).write_bytes(b"fixture")
+        (checkpoint / "trainer_state.json").write_text(json.dumps({"global_step": saved_step, "max_steps": saved_total}))
+        (checkpoint / "golden_callback_state.json").write_text("{}")
+        config_path = Path(plan["paths"]["config"])
+        (checkpoint / "training_config.yaml").write_bytes(config_path.read_bytes())
+        _write_checkpoint_provenance(checkpoint, role="trainer_intermediate", payload={
+            "config_path": str(config_path), "training_config_sha256": workflow.sha256(config_path),
+            "checkpoint_step": saved_step, "effective_batch_size": 32, "model": original["model"],
+            "training": original["training"], "lora": original["lora"],
+            "dataset_dir": original["run"]["dataset_dir"],
+            "resume_contract": build_resume_contract(original, prepared_root, effective_batch=32),
+        })
+        previous = {p: p.read_bytes() for p in options.output_dir.rglob("*") if p.is_file()}
+        options = replace(options, output_dir=options.output_dir.with_name("continued-mobile"),
+                          steps=None if horizon_mode == "epochs" else 40,
+                          epochs=4 if horizon_mode == "epochs" else None,
+                          resume_from_checkpoint=checkpoint)
+        plan = workflow.build_plan(options)
+        options.output_dir.mkdir()
+        workflow.run_stage(plan, "prepare")
+        configured_files = workflow._configure(plan)
+        continued = load_yaml(Path(plan["paths"]["config"]))
+        assert continued["training"]["refuse_resume"] is False
+        assert continued["training"]["resume_from_checkpoint"] == str(checkpoint)
+        assert continued["training"]["resume_horizon"]["original"]["total_optimizer_steps"] == saved_total
+        assert continued["training"]["resume_horizon"]["requested"]["total_optimizer_steps"] == saved_total * 2
+        assert continued["training"]["eval_steps"] == original["training"]["eval_steps"]
+        assert continued["golden_eval"]["interval"] == original["golden_eval"]["interval"]
+        assert all(p.read_bytes() == value for p, value in previous.items())
+        assert not (options.output_dir / "prepared").exists()
     assert Path(plan["paths"]["config"]) in configured_files
     assert Path(plan["paths"]["launch_plan"]) in configured_files
     launcher, launch, launch_paths = workflow._launch(plan)
@@ -421,12 +469,14 @@ def test_real_cpu_prepare_and_portable_configure_bind_all_evaluation_contracts(
     for cohort, (_, count, _) in workflow.GOLDENS.items():
         result = verify_evaluation_prepared_contract(
             launch_paths["resolved_config"],
-            options.output_dir / f"prepared/{cohort}.jsonl",
+            prepared_root / f"{cohort}.jsonl",
             required_rows=count,
             max_input_tokens=options.max_seq_length,
         )
         assert result["required_rows"] == count
-        assert Path(result["split_path"]) == (options.output_dir / f"prepared/{cohort}.jsonl").resolve()
+        assert Path(result["split_path"]) == (prepared_root / f"{cohort}.jsonl").resolve()
+        command = workflow.evaluation_command(plan, cohort)
+        assert command[command.index("--split") + 1] == str(prepared_root / f"{cohort}.jsonl")
 
 
 def test_golden32_alone_selects_and_all_holdout_commands_require_gpu_fake_qat(options):
@@ -735,7 +785,8 @@ def test_direct_training_stage_rejects_bad_best_checkpoint_metadata(
         workflow.run_stage(plan, "training")
 
 
-def test_cli_plan_mode_forwards_options_without_execution(options, monkeypatch, capsys):
+@pytest.mark.parametrize("resume", [False, True])
+def test_cli_plan_mode_forwards_options_without_execution(options, monkeypatch, capsys, resume):
     spec = importlib.util.spec_from_file_location(
         "fixture_run_official_mobile_pipeline",
         ROOT / "scripts/run_official_mobile_pipeline.py",
@@ -758,10 +809,14 @@ def test_cli_plan_mode_forwards_options_without_execution(options, monkeypatch, 
         "--output-dir", str(options.output_dir),
         "--exporter-python", str(options.exporter_python),
     ]
+    if resume:
+        args += ["--resume-from-checkpoint", str(options.output_dir / "checkpoint-5694"), "--epochs", "4"]
 
     assert script.main(args) == 0
     assert captured["execute"] is False
     assert captured["options"].output_dir == options.output_dir
+    assert captured["options"].epochs == (4.0 if resume else None)
+    assert captured["options"].resume_from_checkpoint == (options.output_dir / "checkpoint-5694" if resume else None)
     output = capsys.readouterr().out
     assert '"status": "plan-only-fixture"' in output
     assert "Plan only. Nothing trained/exported" in output

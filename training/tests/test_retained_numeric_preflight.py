@@ -250,6 +250,43 @@ def test_legacy_metadata_keeps_old_provenance_semantics_but_cannot_claim_new_pol
     assert numeric_preflight_provenance({}, official_evidence())["verified"] is False
 
 
+@pytest.mark.parametrize("tamper", [None, "zero", "hash", "state", "scope", "nonfinite", "greedy"])
+def test_explicit_resume_requires_verified_loaded_adapter_and_all_safety_gates(tmp_path, monkeypatch, tamper):
+    from ir_training.train import mobile_resume
+
+    config = official_config()
+    config["training"].update(resume_policy=mobile_resume.POLICY, refuse_resume=False,
+                              resume_from_checkpoint=str(tmp_path))
+    weights = tmp_path / "adapter_model.safetensors"
+    weights.write_bytes(b"saved adapter")
+    state = {"verified": True, "global_step": 5694, "continuation": {"policy": mobile_resume.POLICY}}
+    monkeypatch.setattr(mobile_resume, "verify_continuation", lambda *_args: state)
+    numeric = official_evidence(config)
+    numeric["adapter_initialization_mode"] = "resumed_checkpoint"
+    numeric["zero_adapter_initialization"]["verified_zero_delta"] = False
+    numeric["resume_state"] = copy.deepcopy(state)
+    numeric["resume_adapter"] = {
+        "checkpoint": str(tmp_path), "adapter_sha256": hashlib.sha256(weights.read_bytes()).hexdigest(),
+        "adapter_pair_count": 205, "finite_adapter_pairs": 205, "nonzero_adapter_pairs": 205,
+    }
+    if tamper == "zero":
+        numeric["resume_adapter"]["nonzero_adapter_pairs"] = 0
+    elif tamper == "hash":
+        numeric["resume_adapter"]["adapter_sha256"] = "a" * 64
+    elif tamper == "state":
+        numeric["resume_state"]["global_step"] -= 1
+    elif tamper == "scope":
+        numeric["resume_adapter"]["adapter_pair_count"] = 204
+    elif tamper == "nonfinite":
+        numeric["qat_on"]["completion_loss"] = float("nan")
+    elif tamper == "greedy":
+        numeric["greedy_generation"]["qat_on"]["deterministic"] = False
+    report = numeric_preflight_provenance(config, numeric)
+    assert report["verified"] is (tamper is None)
+    assert "zero_adapter_initialization_verified" not in report["checks"]
+    assert "resumed_adapter_initialization_verified" in report["checks"]
+
+
 @pytest.mark.parametrize("consumer", ["merge", "export"])
 @pytest.mark.parametrize("tamper", [None, "missing_policy", "config_policy", "false_gate",
                                     "nonfinite", "excessive_loss", "greedy", "zero",

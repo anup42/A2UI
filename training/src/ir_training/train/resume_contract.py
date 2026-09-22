@@ -36,7 +36,11 @@ def build_resume_contract(config: dict[str, Any], dataset_dir: Path, *, effectiv
     }
 
 
-def verify_resume_contract(checkpoint: Path, expected: dict[str, Any]) -> dict[str, Any]:
+def verify_resume_contract(checkpoint: Path, expected: dict[str, Any], *, config: dict | None = None) -> dict[str, Any]:
+    if config is not None:
+        from ir_training.train.mobile_resume import enabled, verify_continuation
+        if enabled(config):
+            return verify_continuation(checkpoint, config, expected)
     required = ("trainer_state.json", "optimizer.pt", "scheduler.pt", "training_metadata.json")
     missing = [name for name in required if not (checkpoint / name).is_file()]
     if not list(checkpoint.glob("rng_state*.pth")):
@@ -265,6 +269,19 @@ def resolve_export_training_lineage(preparation_config: Path, checkpoint: Path, 
     original_sha = file_sha256(original_path)
     metadata = _read_object(checkpoint / "training_metadata.json")
     actual_path = _bound_config(checkpoint, metadata, original_path, training_config)
+    from ir_training.train.mobile_resume import enabled as continuation_enabled
+    from ir_training.train.mobile_resume import verify_export_lineage
+    actual = load_yaml(actual_path)
+    if continuation_enabled(actual):
+        lineage = verify_export_lineage(actual_path, checkpoint)
+        if (str(original_path) != lineage["original_config"]
+                or original_sha != lineage["original_config_sha256"]):
+            raise ValueError("Continuation preparation must use its original bound config")
+        preparation = _read_object(original_path.parent / "preparation_report.json")
+        return {"config": actual, "metadata": metadata, "preparation": preparation,
+                "training_config": str(actual_path), "training_config_sha256": file_sha256(actual_path),
+                "preparation_config": str(original_path), "preparation_config_sha256": original_sha,
+                "resume_lineage": lineage}
     preparation = _read_object(original_path.parent / "preparation_report.json")
     if preparation.get("training_config_sha256") != original_sha or not preparation.get("model_files"):
         raise ValueError("Missing or mismatched original model preparation report")
