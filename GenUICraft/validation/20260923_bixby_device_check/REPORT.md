@@ -83,3 +83,36 @@ native view starts behind Bixby's floating top controls and is capped near
 content does scroll to the lower cards and source links. This one live web
 answer establishes that the updated APK can run the pipeline, not that answer
 quality or layout is ready across the Bixby50 set.
+
+## Native host layout fix prepared, 23 Sep
+
+The local Bixby source now applies its existing measured app-bar and input-area
+spacing to the native A2UI host. Full-screen attachment uses `MATCH_PARENT`
+with those margins, and updates them when renderer padding changes. The native
+host respects an exact parent height instead of capping it at 72 percent of
+screen height. Flexible and cover attachments retain their wrap-content cap,
+and their fresh layout parameters do not retain the full-screen margins.
+
+The patch changes three Bixby production files and the existing height-policy
+test. It does not require another GenUICraft AAR or model. MainUi's existing
+state and events are reused; the ConversationDomain contract is unchanged.
+An inactive parent is prevented from updating the attached host's margins.
+
+The exact production height-policy region was compiled in an isolated
+Kotlin/JUnit harness. The new full-screen regression failed on the old policy
+and passes on the fixed policy. All six cases pass, including wrap-content,
+unbounded measurement, a smaller viewport, and zero remaining height.
+Both modified MainUi files passed the accessibility scan with no findings.
+Whitespace checks and independent static review found no blockers. These
+checks do not constitute a full Bixby application build or device validation.
+
+The merge package is `Bixby_GenUICraft_layout_fix_20260923.zip`. Its root contains
+the original `MainUi/` and `Renderer/` paths, with four source/test files plus
+merge instructions and checksums. ZIP CRC and byte-for-byte comparisons against
+the changed checkout files passed. File hashes and test results are recorded
+in `layout_fix_validation.json`.
+
+The installed APK still predates this layout fix. Rebuild and install Bixby
+before checking toolbar clearance, the last card above the input area, rotation,
+and keyboard show/hide. The generated answer's content-quality issues remain a
+separate limitation from this host-layout fix.

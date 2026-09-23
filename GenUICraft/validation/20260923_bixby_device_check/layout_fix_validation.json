@@ -1,0 +1,56 @@
+{
+  "scope": "Exact production height policy compiled in isolated Kotlin/JUnit harness. MainUi inset wiring reviewed from source; no Bixby application build or updated-device validation.",
+  "before": {
+    "name": "com.samsung.android.bixby.agent.renderer.api.GenUiHostMeasurePolicyTest",
+    "tests": "6",
+    "skipped": "0",
+    "failures": "1",
+    "errors": "0",
+    "timestamp": "2026-09-23T05:01:05",
+    "hostname": "NOTEBOOK-PC",
+    "time": "0.06"
+  },
+  "after": {
+    "name": "com.samsung.android.bixby.agent.renderer.api.GenUiHostMeasurePolicyTest",
+    "tests": "6",
+    "skipped": "0",
+    "failures": "0",
+    "errors": "0",
+    "timestamp": "2026-09-23T05:01:56",
+    "hostname": "NOTEBOOK-PC",
+    "time": "0.044"
+  },
+  "files": [
+    {
+      "path": "MainUi/src/main/java/com/samsung/android/bixby/agent/mainui/main/fullscreen/widget/FullScreenRendererView.kt",
+      "sha256": "06c0f981da03e37817c9ff5735ed38b061e07d681876622d58005c3d7ed7fd86"
+    },
+    {
+      "path": "MainUi/src/main/java/com/samsung/android/bixby/agent/mainui/widget/webview/ReusableWebView.kt",
+      "sha256": "cb95243f593f30e8af6fa798e5188fd91a5cb5a6f8ce34d9cba9baf5f1756b16"
+    },
+    {
+      "path": "Renderer/src/main/java/com/samsung/android/bixby/agent/renderer/api/GenUiHostView.kt",
+      "sha256": "c9751e80940e4510d8ff026cdae832bced408719a9c64bea8e599c21b6cfa805"
+    },
+    {
+      "path": "Renderer/src/test/java/com/samsung/android/bixby/agent/renderer/api/GenUiHostMeasurePolicyTest.kt",
+      "sha256": "65d8d4fee27c0e8b5fbaa13ec145bbc35d68526c1195606f9990fd38f1549c27"
+    }
+  ],
+  "a11y": {
+    "scannedFiles": 2,
+    "errors": 0,
+    "warnings": 0
+  },
+  "whitespace": "passed",
+  "review": "Independent read-only review of the diff: no blockers.",
+  "zip": {
+    "name": "Bixby_GenUICraft_layout_fix_20260923.zip",
+    "bytes": 12655,
+    "sha256": "22768c639b48ca09880a114b05e5583eaf0a4e575a845f2bc49dd2e4c6537bb7",
+    "entries": 6,
+    "crc": "passed",
+    "sourceBytesMatch": "passed"
+  }
+}
