@@ -112,7 +112,44 @@ merge instructions and checksums. ZIP CRC and byte-for-byte comparisons against
 the changed checkout files passed. File hashes and test results are recorded
 in `layout_fix_validation.json`.
 
-The installed APK still predates this layout fix. Rebuild and install Bixby
-before checking toolbar clearance, the last card above the input area, rotation,
-and keyboard show/hide. The generated answer's content-quality issues remain a
-separate limitation from this host-layout fix.
+At the time this source fix was prepared, the installed APK predated it. The
+replacement APK was checked on-device below. The generated answer's
+content-quality issues remain separate from this host-layout fix.
+
+## Device retest after layout-fix APK, 23 Sep at 10:46
+
+The connected `R3GL203AKSF` device is an `SM-F776U`. Bixby version
+`5.0.10.38` reports `lastUpdateTime=2026-09-23 10:46:22`, later than the
+previous 10:00 installation. I sent `Compare Snapdragon 8 Elite and 8 Gen 3
+with sources` through Bixby's Chat input and waited for the native answer.
+
+The runtime logged `Gemma4 backend=GPU; MTP=true; metrics=false` at 10:48:48
+and `GenUICraft conversion succeeded: attempts=1,
+repair=GENERATED_DSL_REPAIR, warnings=19` at 10:49:35. The Bixby process PID
+remained `32740` through rendering, scrolling, keyboard show/hide, and rotation;
+the captured log had no Bixby fatal exception or SIGABRT marker. Metrics were
+disabled, so this run does not provide a token count or tokens per second.
+
+The rendered A2UI starts below Bixby's top controls, about 300 px from the top
+of the 1080 x 2520 screenshot. The native answer continues down to the input
+area without the old large blank gap. Vertical scrolling exposed the first
+source and then the last source, `[15]`, above the input bar. Opening the
+keyboard reduced the visible answer area without covering the controls. A
+temporary landscape rotation produced a 2520 x 1080 answer with the top and
+bottom boundaries intact; rotating back preserved the rendered answer. The
+original rotation settings, both zero, were restored after testing.
+
+This one-query device check confirms the host-layout fix and pipeline execution
+on the updated APK. Content quality remains poor: the rendered comparison has
+duplicated very wide tables, abnormal values such as `QHD+ at 4020 Hz` and
+`8K HDR at up 6060 fps`, and a visible `Additional recovered text` card. These
+are generated/repair output issues observed after a successful conversion;
+the logs do not isolate whether the model or repair introduced each value.
+
+Screenshots are stored locally under
+`C:/Users/anupk/Downloads/BixbyVisualValidation_20260923/` as
+`updated_apk_1046_generation_progress.png`, `updated_apk_1046_scrolled_once.png`,
+`updated_apk_1046_bottom.png`, `updated_apk_1046_keyboard_settled.png`, and
+`updated_apk_1046_landscape_attempt.png`. The final raw device log is saved
+there as `updated_apk_1046_logcat_final.txt` and should remain local because
+unfiltered logs can include tokens and personal data.
