@@ -153,3 +153,32 @@ Screenshots are stored locally under
 `updated_apk_1046_landscape_attempt.png`. The final raw device log is saved
 there as `updated_apk_1046_logcat_final.txt` and should remain local because
 unfiltered logs can include tokens and personal data.
+
+## Additional recovered text removal prepared
+
+The 10:46 APK still consumed GenUICraft `0.4.2`. Its compiled
+`A2uiExpressGeneralRepair` class contains the literal `Additional recovered
+text`. The current SDK source and published `0.5.0` AAR remove that diagnostic
+section when structured generated content survives. Bixby's local Renderer
+dependency was updated to `0.5.0`, and the complete Maven publication was
+copied under its existing `aars/genuicraft-maven` repository. Bixby code uses
+the trained E2B profile; the public SDK types it imports retain their
+signatures in `0.5.0`.
+
+The exact `GenUiRecoveryContentTest` suite passed all 12 cases, including
+captured BXP-001 and BXP-003 repairs that assert the diagnostic heading is
+absent. The rebuilt `0.5.0` AAR has no compiled class containing that heading,
+contains the LiteRT JNI keep rule needed by minified hosts, and its Maven
+checksum files match their artifacts. The Bixby checkout still lacks the
+private dependencies needed for a complete application build here, so the
+currently installed APK continues to show the card until it is rebuilt and
+installed with `0.5.0`.
+
+The Bixby merge archive is
+`C:/Users/anupk/Downloads/Bixby_GenUICraft_hide_recovered_card_20260923.zip`
+at 9,949,007 bytes, SHA-256
+`fcd2195b30151828c5ef6d6b33dc70a0077148d4604f86e83af58729e0ad5092`.
+It contains `Renderer/build.gradle.kts`, the 20-file `0.5.0` Maven
+publication, merge instructions, and a file checksum manifest under Bixby's
+original paths. ZIP CRC, all 23 entry byte comparisons, and the 22 source
+checksums passed.

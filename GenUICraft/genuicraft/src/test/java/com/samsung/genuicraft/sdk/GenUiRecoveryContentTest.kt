@@ -70,6 +70,7 @@ class GenUiRecoveryContentTest {
             "Carry an umbrella or light rain jacket, especially for afternoon and evening plans.",
             "Plan outdoor activities earlier in the day, when conditions are likely to stay drier and slightly cooler.",
         )
+        assertFalse("Forecast recovery must not show a diagnostic card", "Additional recovered text" in leafStrings(graph))
     }
 
     @Test
