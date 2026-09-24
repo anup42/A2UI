@@ -1,0 +1,59 @@
+{
+  "runId": "fold7_more_epochs_old_20260924",
+  "profile": "trained_e2b_v10_w4",
+  "startedAtEpochMs": 1790274628872,
+  "cases": [
+    "BXP-001",
+    "BXP-003",
+    "BXP-030",
+    "BXP-032",
+    "BXP-037"
+  ],
+  "corpus": {
+    "asset": "genuicraft_bixby50.jsonl",
+    "sha256": "fc46aa381957bed206f9e0f53e28edbb21b5096ca093985ad184fda73faaea0a",
+    "totalRows": 50,
+    "selectedRows": 5
+  },
+  "prompt": {
+    "asset": "genuicraft/prompts/e2b_v10_shared_prompt.json",
+    "assetSha256": "96803a39869fb21f9f58a0f0adccab6f7746a32f124dc9da83d7df62a9f7ccb8",
+    "contractSha256": "005ef700eee29a4429c895ac6c86580003c43d0ad35e67cbb92a9d4cf0e8c1d2",
+    "systemPromptSha256": "123de4de3558a7e70c30e6df147278b08d73630e6af47f25e2e1b7c09d082d39"
+  },
+  "model": {
+    "basename": "gemma4_e2b_a2ui_mobile.litertlm",
+    "sizeBytes": 2588147712
+  },
+  "runtime": {
+    "provider": "gemma4_e2b",
+    "accelerator": "GPU",
+    "maxContextTokens": 8192,
+    "maxOutputTokens": 2048,
+    "thinkingEnabled": false,
+    "thinkingTokenBudget": 0,
+    "mtpEnabled": true,
+    "metricsEnabled": true,
+    "temperature": 0.0,
+    "repairAttempts": 0,
+    "sourceFallbackEnabled": false,
+    "generatedDslRepairEnabled": true,
+    "requireSourceIntegrity": false,
+    "warmSharedProvider": true,
+    "caseTimeoutMs": 240000
+  },
+  "device": {
+    "manufacturer": "samsung",
+    "brand": "samsung",
+    "model": "SM-F966B",
+    "device": "q7q",
+    "product": "q7qxeea",
+    "hardware": "qcom",
+    "sdkInt": 36,
+    "release": "16",
+    "supportedAbis": [
+      "arm64-v8a"
+    ],
+    "fingerprint": "samsung/q7qxeea/q7q:16/BP4A.251205.006/F966BXXS9BZE2_OXM9BZE2:userdebug/test-keys"
+  }
+}

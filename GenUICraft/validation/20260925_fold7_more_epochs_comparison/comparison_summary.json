@@ -1,0 +1,44 @@
+{
+  "device": {
+    "serial": "R3CY30QFWLP",
+    "model": "SM-F966B"
+  },
+  "cases": [
+    "BXP-001",
+    "BXP-003",
+    "BXP-030",
+    "BXP-032",
+    "BXP-037"
+  ],
+  "model_bytes": 2588147712,
+  "old_model_sha256": "4675f37353e41c786a3e94f03ba4f64ad366a2e4e5d188bb92f5bef3922a75fe",
+  "new_model_sha256": "cf65377a9d6c9e6160b8657bd5f8849065e4c9d3b00b9388ab17f58301fab189",
+  "gpu": true,
+  "mtp_requested": true,
+  "mtp_active": true,
+  "source_fallback_enabled": false,
+  "generated_dsl_repair_enabled": true,
+  "require_source_integrity": false,
+  "old_mtp_acceptance": 0.760904,
+  "new_mtp_acceptance": 0.740143,
+  "old": {
+    "raw_strict_valid": 0,
+    "generated_dsl_repair": 5,
+    "render_valid": 5,
+    "source_fidelity_warning_cases": 5,
+    "total_elapsed_ms": 153276,
+    "median_elapsed_ms": 39247,
+    "output_tokens": 6875,
+    "mean_decode_tokens_per_second": 49.72
+  },
+  "new": {
+    "raw_strict_valid": 0,
+    "generated_dsl_repair": 5,
+    "render_valid": 5,
+    "source_fidelity_warning_cases": 5,
+    "total_elapsed_ms": 164985,
+    "median_elapsed_ms": 34456,
+    "output_tokens": 7790,
+    "mean_decode_tokens_per_second": 52.72
+  }
+}

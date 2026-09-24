@@ -1,0 +1,10 @@
+{
+  "providerCallMs": 22511,
+  "runtime": "LiteRT-LM/Gemma4/GPU+MTP",
+  "outputCharacters": 3246,
+  "outputTokens": 829,
+  "inputTokens": 3636,
+  "actualOutputTokens": 829,
+  "decodeTokensPerSecond": 40.84629161187201,
+  "error": null
+}

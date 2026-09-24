@@ -1,0 +1,6 @@
+case,old_raw_strict,new_raw_strict,old_repair_kind,new_repair_kind,old_render_valid,new_render_valid,old_source_fidelity_warnings,new_source_fidelity_warnings,old_elapsed_ms,new_elapsed_ms,delta_elapsed_ms,old_output_tokens,new_output_tokens,old_decode_tokens_per_second,new_decode_tokens_per_second
+BXP-001,False,False,GENERATED_DSL_REPAIR,GENERATED_DSL_REPAIR,True,True,6,6,13836,54028,40192,288,2049,48.15,46.09
+BXP-003,False,False,GENERATED_DSL_REPAIR,GENERATED_DSL_REPAIR,True,True,6,6,11301,18679,7378,438,812,46.87,51.06
+BXP-030,False,False,GENERATED_DSL_REPAIR,GENERATED_DSL_REPAIR,True,True,4,6,42589,35187,-7402,2050,2050,50.98,62.15
+BXP-032,False,False,GENERATED_DSL_REPAIR,GENERATED_DSL_REPAIR,True,True,6,6,39247,34456,-4791,2049,2050,55.73,63.44
+BXP-037,False,False,GENERATED_DSL_REPAIR,GENERATED_DSL_REPAIR,True,True,5,6,46303,22635,-23668,2050,829,46.86,40.85

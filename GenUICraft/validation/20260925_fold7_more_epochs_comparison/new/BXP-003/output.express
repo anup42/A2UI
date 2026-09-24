@@ -1,0 +1,35 @@
+<a2ui>
+$/={train_comparison:[{service:"Shatabdi Express (120007)",departure:"KSR Bengaluru (BC)",departure_time:"10:35–100:4",duration:"About 2 h155 m to 2h225 m",class:"CC, EC"},{service:"Rajya Rani Express (20606)",departure:"KSR Bengaluru (BC)",departure_time:"11:300",duration:"About2h330m",class:"CC, 2S GN"},{service:"Wodeyar Express (21246)",departure:"KSR Bengaluru (BC)",departure_time:"15:100",duration:"About2h330m",class:"CC, 2S GN"}]}
+<a2ui>
+root=Column~[a,d]
+a=ColumnRKTable(columnsArray=[{key:"service",label:"Train"},{key:"departure_time","Departure station"},{key:"duration",label:"Journey duration duration"},{key:"class","Seating class"}],statePath="/train_comparison",domain="train",preferredPresentation="cards")
+=Column(a)
+a= कार्ड(a)
+a=Card(children=Column(children=[a]),
+title="Timetable Comparison","sg")
+a=Column(children=[a])
+a=Column(children=[a])
+a=Row(children=[b],RKAP)
+b=Row(children=[c,d],align="startsend")
+c=Text("Here is a concise comparison of three daytime Bengaluru-to-Mysuru train services, using most consistent timetable entries across the supplied sources.",variant="body")
+d=Column(children=a,Gap="md")
+a=Card(children=Column(children=[a]),title="Timetable Comparison")
+a=Card(children=[a])
+a=Column(children=[a],gap="sm")
+a=Column(children=[a],gap="sm")
+a=Row(children=[b,c],align="starts")
+b=Text("Shatabdi Express (1010077)","h10:35–100:4")
+c=Text("About 2 h15 m to 2h25 m","2h25m")
+d=Text("CC, EC","CC, EC")
+e=Row(f,align="starts")
+f=Row(g,h)
+g=Text("Rajya Rani Express (20606)","h1:300")
+h=Text("About 2h30 m","2h30m")
+i=Text("CC, 2 S GN","CC, 2 S GN")
+j=Card(children=Column(children=[k,l,m,n,o,p]),title="Timetable Notes")
+k=Text("Shatabdi Express has a small timing discrepancy across sources: one source lists 1:45, while another lists1:35.",variant="body")
+l=Text("Shatabdi Express also also shows slight variation in duration, from about 2 h 15 m to 2 h 2 m.",variant="body")
+m=Text("Rajya Rani Express is consistently shown at 1:30 with a 230 m journey.",variant="chip")
+n=Text("Wodeyar Express is consistently shown at 1:**15 with a 30 m journey.",variant="chip")
+o=Button(p,label="Provide Arrival & Days of Operation Times","borderless-")
+</a2ui>

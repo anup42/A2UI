@@ -14,12 +14,14 @@ import com.google.gson.JsonNull
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.samsung.genuicraft.sdk.GenUiConversionResult
+import com.samsung.genuicraft.sdk.GenUiCompiler
 import com.samsung.genuicraft.sdk.GenUiModelOutput
 import com.samsung.genuicraft.sdk.GenUiPrompt
 import com.samsung.genuicraft.sdk.GenUiPromptMessage
 import com.samsung.genuicraft.sdk.GenUiPromptRole
 import com.samsung.genuicraft.sdk.GenUiProvider
 import com.samsung.genuicraft.sdk.GenUiRequest
+import com.samsung.genuicraft.sdk.GenUiRepairKind
 import com.samsung.genuicraft.sdk.GenUiTrainedConverter
 import com.samsung.genuicraft.sdk.provider.Gemma4Config
 import com.samsung.genuicraft.sdk.provider.Gemma4Provider
@@ -68,6 +70,10 @@ class GenUiTrainedBixby50Test {
         val caseTimeoutMs = arguments.getString("caseTimeoutMs", "600000")!!.toLong().also {
             require(it in 1_000L..3_600_000L) { "caseTimeoutMs must be between 1000 and 3600000." }
         }
+        val mtpEnabled = arguments.getString("mtp", "false") == "true"
+        val sourceFallbackEnabled = arguments.getString("allowSourceTextFallback", "true") == "true"
+        val generatedDslRepairEnabled = arguments.getString("allowGeneratedDslRepair", "false") == "true"
+        val requireSourceIntegrity = arguments.getString("requireSourceIntegrity", "true") == "true"
 
         val defaultModel = File(externalFiles, "sdk_models/e2b_v10_w4.litertlm")
         val modelFile = File(
@@ -114,11 +120,13 @@ class GenUiTrainedBixby50Test {
                     "maxOutputTokens" to 2_048,
                     "thinkingEnabled" to false,
                     "thinkingTokenBudget" to 0,
-                    "mtpEnabled" to false,
+                    "mtpEnabled" to mtpEnabled,
                     "metricsEnabled" to true,
                     "temperature" to 0.0,
                     "repairAttempts" to 0,
-                    "fallbackEnabled" to false,
+                    "sourceFallbackEnabled" to sourceFallbackEnabled,
+                    "generatedDslRepairEnabled" to generatedDslRepairEnabled,
+                    "requireSourceIntegrity" to requireSourceIntegrity,
                     "warmSharedProvider" to true,
                     "caseTimeoutMs" to caseTimeoutMs,
                 ),
@@ -146,7 +154,7 @@ class GenUiTrainedBixby50Test {
                 maxOutputTokens = 2_048,
                 enableThinking = false,
                 thinkingTokenBudget = 0,
-                enableSpeculativeDecoding = false,
+                enableSpeculativeDecoding = mtpEnabled,
                 enableMetrics = true,
             ),
         )
@@ -188,7 +196,13 @@ class GenUiTrainedBixby50Test {
                     try {
                         val conversion = try {
                             withTimeout(caseTimeoutMs) {
-                                GenUiTrainedConverter(context, recorder).convert(
+                                GenUiTrainedConverter(
+                                    context,
+                                    recorder,
+                                    allowSourceTextFallback = sourceFallbackEnabled,
+                                    allowGeneratedDslRepair = generatedDslRepairEnabled,
+                                    requireSourceIntegrity = requireSourceIntegrity,
+                                ).convert(
                                     GenUiRequest(benchmarkCase.text, benchmarkCase.query),
                                 )
                             }
@@ -204,6 +218,10 @@ class GenUiTrainedBixby50Test {
                         report.addProperty("provider", provider.id)
                         report.addProperty("providerCalls", recorder.callCount)
                         report.add("metrics", gson.toJsonTree(recorder.metricMap()))
+                        report.addProperty(
+                            "rawStrictValid",
+                            recorder.output?.text?.let { runCatching { GenUiCompiler.compile(it) }.isSuccess } ?: false,
+                        )
                         recorder.output?.runtime?.let { report.addProperty("runtime", it) }
                         recorder.output?.renderedPromptSha256?.let { report.addProperty("renderedPromptSha256", it) }
                         when (conversion) {
@@ -224,6 +242,15 @@ class GenUiTrainedBixby50Test {
                             }
                             is GenUiConversionResult.Success -> {
                                 report.addProperty("strictValid", true)
+                                report.addProperty("repairKind", conversion.repairKind.name)
+                                report.addProperty(
+                                    "usedFallback",
+                                    conversion.repairKind == GenUiRepairKind.SOURCE_TEXT_FALLBACK,
+                                )
+                                report.addProperty(
+                                    "sourceFidelityWarnings",
+                                    conversion.warnings.count { it.startsWith("Source fidelity:") },
+                                )
                                 report.addProperty("elapsedMs", conversion.elapsedMs)
                                 report.addProperty("attempts", conversion.attempts)
                                 report.add("warnings", gson.toJsonTree(conversion.warnings))

@@ -1,0 +1,24 @@
+<a2ui>
+Column~[a,d,i,r,x]
+~
+Tabs(tah)
+ah="comparison"
+ai=Table(aj,ak,aj,"Curriculum","CBSE","CISCE","IB","IB")
+ak=TableColumn(aj,akColumns=["Curriculum","Assessment","Subject flexibility","Transferability"],statePath="/comparison",domain="comparison",preferredPresentation="cards")
+aj=Table(aj,ak,ak,"Comparison of Curricula","CBSE","CISCE","IB","IB")
+ak=Table(ak,ak,ak,aj,"Curriculum","Built around NCERT and a structured, concept-based syllabus; it is widely aligned with Indian competitive exams such as JEE, NEET, CUET.[1][3]","A broader, content-rich syllabus with strong language depth and separate treatment of subjects such as History/Civics Geography from middle school onward.","-based, concept-led, and interdisciplinary with programmes such as MYP and DP designed around global-minded learning.[4]")
+aj=Table(aj,ak,ak,aj,"Assessment","CBSE","CISCE","IB","Uses a mix of internal and external; MYP external is optional and DP adds essays, projects, and other coursework-heavy elements.[7]")
+aj=Table(aj,ak,aj,"Subject flexibility","CBSE","CISCE","IB","Moderate flexibility but still more fixed than IB","Greater flexibility, especially in subject choice and in how learners connect disciplines.")
+aj=Table(aj,ak,aj,"Transferability","CBSE","CISCE","IB","Best when moving between international schools; recognition is global, but local can depend on school level and subject mapping","Transfers best within CISCE schools, but the smaller network can make moves less convenient than CBSE","Transfers most cleanly between CBSE schools within India; CBSE also has the broadest domestic footprint.")
+aj=Card(ae)
+ae=Column(ae,af="a")
+af=Column(ae,af,ae="What each board suits best","CBSE","CBSE works well for families prioritizing a clear syllabus, frequent school availability, and a strong fit with Indian entrance exam preparation.",margin=16)
+af=Column(ag,ag)
+ag=Row(ag,ah="CBSE","CBSE","CIS","IB","IB")
+ah=Row(ai,ai,"CE","CE","IB","IB")
+=Column(ai,aj,ai,aj,"CBSE","CBSE","CBSE works well for families prioritizing a clear syllabus, frequent school availability, and a strong fit with Indian entrance exam preparation.",margin=1)
+=Column(ao,ao,ao,ao="CIS","CIS","CIS suits students who want more depth, stronger English exposure and a broader academic experience across sciences, humanities, and languages.",margin=1)
+=Column(ap,aq,aq,aq="IB","IB suits students who thrive on discussion, projects, and a less exam-dominant approach, especially if family values global mobility.",margin=1)
+=CBQx
+x=ColumnxColumnx,y,y="Questions to ask prospective schools","Which programme do you actually at secondary level: CBSE, ICSE, ICSE, or IB","How many many subject combinations are available in Classes 9–12 and 12 and can students change them later?","What proportion marks from board from board exams, internal assessment, projects, practicals and coursework?","How do you support students transfer to another school or board in future?","For IB schools which subjects are offered in the school and how they align with university goals?"","CBSE or CISCE schools how do you balance board with deeper learning and stress management?"","What are the class sizes, teacher qualifications, resources, and language for the secondary years?"")
+y</a2ui>
