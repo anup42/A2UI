@@ -43,6 +43,7 @@ class FullParameterQATOptions:
     devices: str = "auto"
     epochs: float = 2.0
     steps: int | None = None
+    resume_from_checkpoint: Path | None = None
     learning_rate: float = 1e-5
     eval_steps: int = 500
     golden_every_steps: int = 1000
@@ -120,9 +121,12 @@ def build_plan(options: FullParameterQATOptions) -> dict[str, Any]:
     if zero_stage == 2:
         # Keep legacy/default plan serialization and hashes unchanged.
         values.pop("zero_stage")
-    for key in ("model_dir", "input_dir", "output_dir", "preparation_cache_dir"):
+    for key in ("model_dir", "input_dir", "output_dir", "preparation_cache_dir", "resume_from_checkpoint"):
         if values[key] is not None:
             values[key] = str(Path(values[key]).expanduser().resolve())
+    if values["resume_from_checkpoint"] is None:
+        # Preserve the historical fresh-run plan when resume is not requested.
+        values.pop("resume_from_checkpoint")
     # Do not resolve a venv Python symlink into the system interpreter.
     values["exporter_python"] = os.path.abspath(
         os.path.expanduser(str(values["exporter_python"]))
@@ -164,6 +168,33 @@ def build_plan(options: FullParameterQATOptions) -> dict[str, Any]:
         for path in seed.glob("*.safetensors")
     ):
         raise FileNotFoundError(f"Reconstructed mobile seed has no safetensor weights: {seed}")
+
+    resume = None
+    if values.get("resume_from_checkpoint"):
+        import copy
+
+        from ir_training.train.full_qat_resume import horizon_record, source_config
+
+        checkpoint = Path(values["resume_from_checkpoint"])
+        source_path, source, _ = source_config(checkpoint)
+        source_run = Path(source["run"]["output_dir"]).resolve().parents[1]
+        if (output.is_relative_to(source_run) or source_run.is_relative_to(output)
+                or checkpoint.is_relative_to(output)):
+            raise ValueError("Full-QAT resume output must be fresh and separate from the source run")
+        if Path(source["model"]["model_source"]).resolve() != seed:
+            raise ValueError("Full-QAT resume requires the original reconstructed model seed")
+        requested = copy.deepcopy(source)
+        requested["training"]["epochs"] = values["epochs"]
+        if values["steps"] is None:
+            requested["training"].pop("max_steps", None)
+        else:
+            requested["training"]["max_steps"] = values["steps"]
+        resume = {
+            "checkpoint": str(checkpoint), "source_config": str(source_path),
+            "source_config_sha256": sha256(source_path),
+            "metadata_sha256": sha256(checkpoint / "training_metadata.json"),
+            "horizon": horizon_record(checkpoint, requested),
+        }
 
     preparation = build_preparation_plan(
         GoldenTrainingOptions(
@@ -220,6 +251,7 @@ def build_plan(options: FullParameterQATOptions) -> dict[str, Any]:
         "options": values,
         "preparation": preparation,
         "paths": {key: str(value) for key, value in paths.items()},
+        **({"resume": resume} if resume is not None else {}),
         "stages": (["environment"] if values["distributed_backend"] == "sharded" else []) + [
             "assets",
             "prepare",
@@ -299,7 +331,20 @@ def training_config(plan: dict[str, Any], profile: dict[str, Any], report: dict[
     )
 
     values, paths = plan["options"], plan["paths"]
-    base = mobile_base_config(plan, profile, report)
+    # The mobile base helper has its own LoRA-specific resume branch. This
+    # lane always derives its independent dense recipe before applying its
+    # own full-QAT continuation contract below.
+    base_plan = {key: value for key, value in plan.items() if key != "resume"}
+    if plan.get("resume"):
+        # Preserve the original bounded-run save/eval cadence when only its
+        # step horizon grows (for example, 20 -> 30 with default eval_steps).
+        from ir_training.train.full_qat_resume import source_config
+
+        _, source_config_value, _ = source_config(Path(plan["resume"]["checkpoint"]))
+        base_plan = {**base_plan, "options": {
+            **values, "steps": source_config_value["training"].get("max_steps"),
+        }}
+    base = mobile_base_config(base_plan, profile, report)
     base["run"].update(
         id=Path(values["output_dir"]).name,
         output_dir=paths["training"],
@@ -321,6 +366,22 @@ def training_config(plan: dict[str, Any], profile: dict[str, Any], report: dict[
         distributed_backend=values.get("distributed_backend", "ddp"),
         zero_stage=values.get("zero_stage", 2),
     )
+    if plan.get("resume"):
+        from ir_training.train.full_qat_resume import POLICY, horizon_record
+
+        checkpoint = Path(values["resume_from_checkpoint"])
+        if values["steps"] is None:
+            config["training"].pop("max_steps", None)
+        else:
+            config["training"]["max_steps"] = values["steps"]
+        horizon = horizon_record(checkpoint, config)
+        if horizon != plan["resume"]["horizon"]:
+            raise ValueError("Full-QAT resume horizon changed after planning")
+        config["training"].update(
+            refuse_resume=False, resume_from_checkpoint=str(checkpoint),
+            resume_policy=POLICY, resume_horizon=horizon,
+            warmup_steps=horizon["scheduler_warmup_steps"],
+        )
     validate_full_qat_config(config)
     return config
 
@@ -412,6 +473,11 @@ def _configure(plan: dict[str, Any]) -> list[Path]:
 
     values = plan["options"]
     output = Path(values["output_dir"])
+    if plan.get("resume"):
+        source = plan["resume"]
+        if (sha256(Path(source["source_config"])) != source["source_config_sha256"]
+                or sha256(Path(source["checkpoint"]) / "training_metadata.json") != source["metadata_sha256"]):
+            raise ValueError("Full-QAT resume source changed after planning")
     profile = build_gpu_profile(
         detect_cuda_devices(),
         model="e2b",
@@ -430,7 +496,12 @@ def _configure(plan: dict[str, Any]) -> list[Path]:
         max_prompt=values.get("max_input_tokens", values["max_seq_length"]),
     )
     config_path = Path(plan["paths"]["config"])
-    _yaml(config_path, training_config(plan, profile, report))
+    config = training_config(plan, profile, report)
+    if plan.get("resume"):
+        from ir_training.train.full_qat_resume import verify_continuation
+
+        verify_continuation(Path(plan["resume"]["checkpoint"]), config)
+    _yaml(config_path, config)
     seed = Path(values["model_dir"])
     report.update(
         training_executed=False,

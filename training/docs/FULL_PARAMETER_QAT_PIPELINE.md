@@ -424,7 +424,9 @@ CLI limits override these defaults. TensorBoard uses `/tensorboard/<run-id>/`. T
 settings, not a measured optimum. Full checkpoints are substantially larger than
 LoRA adapters; budget disk space for retained Trainer checkpoints, best/final
 copies, and the dense export staging copy. This lane deliberately requires fresh
-runs and does not resume LoRA or full-model optimizer state.
+runs. Explicit full-QAT continuation is available only from a numbered Trainer
+checkpoint with its model, optimizer, scheduler, RNG, and Golden32 selector
+state; a best/final weight-only directory is not a resume source.
 
 ```bash
 python training/scripts/run_full_parameter_qat_pipeline.py \
@@ -481,6 +483,41 @@ python training/scripts/run_full_parameter_qat_pipeline.py \
 This keeps the default 4096-token training/validation limit and independent
 5120-token evaluation prompt limit. It is an opt-in configuration, not a claim
 that the model fits on the selected GPUs; the live preflight remains mandatory.
+
+## Resume full-parameter QAT
+
+Use `--resume-from-checkpoint` with a **new** output directory. Keep the same
+model seed, input data, GPU count, backend/ZeRO stage, learning
+rate, effective batch, QAT recipe, context limits, and evaluation cadence as
+the source run. If the original run used `--steps`, specify the same or a larger
+step cap; otherwise use the same or more epochs. The requested horizon must
+extend beyond the checkpoint's completed optimizer step. For a ZeRO-3 run:
+
+```bash
+python training/scripts/run_full_parameter_qat_pipeline.py \
+  --model-dir /models/gemma4_e2b_mobile_dequantized_text_hf \
+  --input-dir /data/a2ui_prepared_source \
+  --output-dir /runs/e2b_all_parameter_qat_continued_002 \
+  --exporter-python /opt/litert-export/bin/python \
+  --devices auto \
+  --distributed-backend sharded --zero-stage 3 \
+  --resume-from-checkpoint /runs/e2b_all_parameter_qat_001/fit/training/checkpoint-500 \
+  --epochs 2 \
+  --execute --allow-experimental-export
+```
+
+Repeat any nondefault original flags (including `--steps` if used). Plan without
+`--execute` first. The pipeline regenerates prepared data in the new run and
+checks train/validation and all three holdout hashes against the source before
+GPU preflight. It preserves
+the saved warmup, restores Trainer/DeepSpeed optimizer and RNG state, and
+relocates the previously selected Golden32 best checkpoint into the new run.
+The original run is never overwritten. Keep the numbered source checkpoint,
+its DeepSpeed shards when applicable, and all earlier resume-source runs
+available through final evaluation/export; missing or changed state fails
+closed. The resumed run still performs the live full-parameter memory and
+numeric preflight. This continuation does not enable LoRA resume or change the
+experimental W248/MTP export boundary.
 
 ## Retry export without retraining
 

@@ -38,6 +38,12 @@ def build_resume_contract(config: dict[str, Any], dataset_dir: Path, *, effectiv
 
 def verify_resume_contract(checkpoint: Path, expected: dict[str, Any], *, config: dict | None = None) -> dict[str, Any]:
     if config is not None:
+        from ir_training.train.full_qat_resume import POLICY as FULL_QAT_RESUME_POLICY
+        from ir_training.train.full_qat_resume import (
+            verify_continuation as verify_full_qat_continuation,
+        )
+        if (config.get("training") or {}).get("resume_policy") == FULL_QAT_RESUME_POLICY:
+            return verify_full_qat_continuation(checkpoint, config, expected)
         from ir_training.train.mobile_resume import enabled, verify_continuation
         if enabled(config):
             return verify_continuation(checkpoint, config, expected)
@@ -272,6 +278,21 @@ def resolve_export_training_lineage(preparation_config: Path, checkpoint: Path, 
     from ir_training.train.mobile_resume import enabled as continuation_enabled
     from ir_training.train.mobile_resume import verify_export_lineage
     actual = load_yaml(actual_path)
+    from ir_training.train.full_qat_resume import POLICY as FULL_QAT_RESUME_POLICY
+    from ir_training.train.full_qat_resume import (
+        verify_export_lineage as verify_full_qat_export_lineage,
+    )
+    if (actual.get("training") or {}).get("resume_policy") == FULL_QAT_RESUME_POLICY:
+        preparation = _read_object(original_path.parent / "preparation_report.json")
+        if (preparation.get("training_config_sha256") != original_sha
+                or not preparation.get("model_files")
+                or original_sha != file_sha256(actual_path)):
+            raise ValueError("Full-QAT continuation preparation must bind its resumed config")
+        lineage = verify_full_qat_export_lineage(actual_path, checkpoint)
+        return {"config": actual, "metadata": metadata, "preparation": preparation,
+                "training_config": str(actual_path), "training_config_sha256": file_sha256(actual_path),
+                "preparation_config": str(original_path), "preparation_config_sha256": original_sha,
+                "resume_lineage": lineage}
     if continuation_enabled(actual):
         lineage = verify_export_lineage(actual_path, checkpoint)
         if (str(original_path) != lineage["original_config"]

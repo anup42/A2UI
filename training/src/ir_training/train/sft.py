@@ -3760,7 +3760,9 @@ def _build_optional_golden_callback(
         evaluate_at_end=bool(golden_eval_cfg.get("evaluate_at_end", True)),
         use_cache=bool(golden_eval_cfg.get("use_cache", True)),
         resume_checkpoint=resume_checkpoint,
-        **({"resume_relocate_best": True} if training_cfg.get("resume_policy") == "retained_mobile_horizon_extension_v1" else {}),
+        **({"resume_relocate_best": True} if training_cfg.get("resume_policy") in {
+            "retained_mobile_horizon_extension_v1", "full_parameter_qat_continuation_v1",
+        } else {}),
         **({"zero3_trainer": zero3_trainer} if zero3_trainer is not None else {}),
     )
 

@@ -340,7 +340,7 @@ def validate_full_qat_config(config: dict) -> None:
         "mixed_precision": "bf16", "optim": "adafactor", "weight_decay": 0.0, "max_grad_norm": 0.0,
         "gradient_checkpointing": True, "backward_preflight": True,
         "per_device_train_batch_size": 1, "per_device_eval_batch_size": 1,
-        "refuse_resume": True, "ddp_sync_each_batch": True,
+        "ddp_sync_each_batch": True,
     }
     if sharded:
         required_training.pop("ddp_sync_each_batch")
@@ -354,8 +354,13 @@ def validate_full_qat_config(config: dict) -> None:
             raise ValueError(f"All-parameter QAT requires verified seed {key}")
     if training.get("gradient_checkpointing_kwargs") != {"use_reentrant": False}:
         raise ValueError("All-parameter QAT requires non-reentrant gradient checkpointing")
-    if training.get("resume_from_checkpoint") or config.get("resume_from_checkpoint"):
-        raise ValueError("Use a fresh full-parameter run; LoRA resume/optimizer state is incompatible")
+    from ir_training.train.full_qat_resume import enabled as full_qat_resume_enabled
+    if training.get("resume_policy") is not None:
+        if not full_qat_resume_enabled(config):
+            raise ValueError("Invalid full-parameter QAT resume policy")
+    elif (training.get("refuse_resume") is not True
+          or training.get("resume_from_checkpoint") or config.get("resume_from_checkpoint")):
+        raise ValueError("Fresh full-parameter QAT runs must refuse implicit resume")
     if config.get("qat") != _qat_config():
         raise ValueError("All-parameter QAT requires the exact dense dynamic W248 contract")
     preflight = config.get("preflight") or {}

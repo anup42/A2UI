@@ -35,6 +35,8 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--epochs", type=float, default=2.0)
     parser.add_argument("--steps", type=int, help="Optional optimizer-step cap for a bounded smoke run")
+    parser.add_argument("--resume-from-checkpoint", type=Path,
+                        help="Resume from a numbered full-QAT Trainer checkpoint into a fresh output directory; preserves optimizer, scheduler, RNG and Golden32 selection state.")
     parser.add_argument("--learning-rate", type=float, default=1e-5)
     parser.add_argument(
         "--distributed-backend",
