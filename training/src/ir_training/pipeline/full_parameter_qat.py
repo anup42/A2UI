@@ -361,6 +361,11 @@ def training_config(plan: dict[str, Any], profile: dict[str, Any], report: dict[
     base["training"]["logging_dir"] = str(
         Path(paths["training"]) / "tensorboard"
     )
+    # Full-parameter ZeRO-3 checkpoints are very large. Keep only the
+    # latest resumable Trainer checkpoint; Golden selection is retained
+    # independently in best_golden_checkpoint.
+    base["training"]["save_total_limit"] = 1
+    base["training"]["save_steps"] = 1000
     config = configure_full_qat(
         base,
         distributed_backend=values.get("distributed_backend", "ddp"),

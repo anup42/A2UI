@@ -255,8 +255,9 @@ semantics, so results must not be presented as a direct optimizer-controlled
 comparison without a dedicated experiment. Neither backend promises that a
 6,144-token context fits, and neither has a throughput or speed advantage
 claim. Both must pass the same strict live maximum-shape, numeric, checkpoint,
-Golden holdout, provenance, and export gates. Resume remains unsupported; a
-failed or changed run starts in a fresh output directory.
+Golden holdout, provenance, and export gates. A changed recipe starts in a fresh
+output directory; an unchanged run may use the strict continuation workflow
+documented below.
 
 The preflight is intentionally stronger than a forward smoke test. In DDP mode,
 each rank first runs the existing independent numeric, coverage, and backward
@@ -505,6 +506,14 @@ python training/scripts/run_full_parameter_qat_pipeline.py \
   --epochs 2 \
   --execute --allow-experimental-export
 ```
+
+Full-parameter runs save a numbered resumable Trainer checkpoint every 1,000
+optimizer steps and keep only the latest one (`save_total_limit: 1`) to bound
+the storage cost of dense and ZeRO-3 states. Golden32 selection is stored
+independently in `fit/training/best_golden_checkpoint`, so Trainer checkpoint
+rotation does not remove the model selected for final evaluation and export.
+If a run stops before its first scheduled save, it has no resumable numbered
+checkpoint.
 
 Repeat any nondefault original flags (including `--steps` if used). Plan without
 `--execute` first. The pipeline regenerates prepared data in the new run and

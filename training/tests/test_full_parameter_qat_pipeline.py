@@ -264,6 +264,8 @@ def test_full_recipe_keeps_fp32_all_parameter_qat_and_safe_h100_batch(
     assert config["training"]["logging_dir"] == str(
         options.output_dir / "fit/training/tensorboard"
     )
+    assert config["training"]["save_total_limit"] == 1
+    assert config["training"]["save_steps"] == 1000
     assert config["golden_eval"]["best_checkpoint_dir"] == plan["paths"][
         "best_checkpoint"
     ]

@@ -148,12 +148,13 @@ def test_full_qat_resume_rejects_recipe_data_and_state_changes(tmp_path):
         verify_continuation(checkpoint, config)
 
 
-def test_full_qat_resume_preserves_capped_eval_and_save_cadence(tmp_path):
+def test_full_qat_resume_preserves_capped_eval_and_bounded_checkpoint_retention(tmp_path):
     options, checkpoint, report = _fixture(tmp_path, eval_steps=500)
     config, _ = _continuation(options, checkpoint, report)
     source = yaml.safe_load((options.output_dir / "fit/training_config.yaml").read_text())
     assert config["training"]["eval_steps"] == source["training"]["eval_steps"] == 20
-    assert config["training"]["save_steps"] == source["training"]["save_steps"] == 20
+    assert config["training"]["save_steps"] == source["training"]["save_steps"] == 1000
+    assert config["training"]["save_total_limit"] == source["training"]["save_total_limit"] == 1
     assert config["golden_eval"]["interval"] == source["golden_eval"]["interval"]
     assert verify_continuation(checkpoint, config)["verified"]
 
