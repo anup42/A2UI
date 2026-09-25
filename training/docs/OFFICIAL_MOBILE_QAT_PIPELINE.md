@@ -323,9 +323,13 @@ checkpoint.
 
 ## Plan the complete run
 
-The default schedule is two epochs, learning rate `1e-5`, evaluation
-every 500 optimizer updates, Golden32 generation every 1,000 updates, and a
-2,048-token generation cap. Golden32 also runs at training end. If a smoke-run
+The default schedule is two epochs, learning rate `1e-5`, a 4,096-token
+supervised training/validation sequence limit, evaluation every 500 optimizer
+updates, Golden32 generation every 1,000 updates, an independent 5,120-token
+evaluation prompt limit, and a 2,048-token generation cap. The independent
+prompt limit applies to Golden32, Golden35, and Bixby50, so long holdout prompts
+are not truncated merely because training uses a shorter context. Golden32 also
+runs at training end. If a smoke-run
 `--steps` cap is shorter than `--eval-steps`, validation runs at that cap and
 Golden's periodic interval rounds up to the next validation boundary, never
 earlier than requested. The requested and resolved cadences are both recorded
@@ -344,6 +348,8 @@ python training/scripts/run_official_mobile_pipeline.py `
   --learning-rate 1e-5 `
   --eval-steps 500 `
   --golden-every-steps 1000 `
+  --max-seq-length 4096 `
+  --max-input-tokens 5120 `
   --max-new-tokens 2048
 ```
 
@@ -467,7 +473,7 @@ COMMON=(
   --exporter-python "$EXPORT_PY"
   --devices "$DEVICES"
   --seed 42 --microbatch 1 --effective-batch 32
-  --epochs 2 --max-seq-length 4096 --max-new-tokens 2048
+  --epochs 2 --max-seq-length 4096 --max-input-tokens 5120 --max-new-tokens 2048
   --eval-steps 500 --golden-every-steps 1000
 )
 
@@ -540,7 +546,8 @@ after that checkpoint, its later selector state is not implicitly reconstructed.
 Continuation reuses the original prepared train, validation, Golden32,
 Golden35, and Bixby50 files. Model identity, prepared-data hashes, LoRA/QAT
 settings, effective batch, world size, microbatch, gradient accumulation,
-learning rate, optimizer, prompt/generation settings, evaluation/save/Golden
+learning rate, optimizer, training/evaluation context and generation settings,
+evaluation/save/Golden
 cadences, and every other recipe field must remain unchanged. The only recipe
 change permitted is the active total training horizon:
 
@@ -572,8 +579,15 @@ python training/scripts/run_official_mobile_pipeline.py `
   --learning-rate 1e-5 `
   --eval-steps 500 `
   --golden-every-steps 1000 `
+  --max-seq-length 4096 `
+  --max-input-tokens 5120 `
   --max-new-tokens 2048
 ```
+
+For a continuation created before the independent evaluation limit was added,
+pass its original value explicitly (normally `--max-input-tokens 4096`). Resume
+validation remains strict and will not silently change an existing run's prompt
+budget.
 
 Review the plan before repeating the identical command with `--execute`. The
 plan and checkpoint metadata report the original, previous, and requested

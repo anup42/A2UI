@@ -14,7 +14,11 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "scripts"))
 
-from ir_training.pipeline.official_mobile import OfficialMobileOptions, run_pipeline, worker
+from ir_training.pipeline.official_mobile import (
+    OfficialMobileOptions,
+    run_pipeline,
+    worker,
+)
 
 
 def main(argv=None) -> int:
@@ -34,7 +38,10 @@ def main(argv=None) -> int:
     parser.add_argument("--seed", type=int, help="Initialization and data-order seed (fresh default: 42; resume: saved seed)")
     parser.add_argument("--eval-steps", type=int, default=500)
     parser.add_argument("--golden-every-steps", type=int, default=1000)
-    parser.add_argument("--max-seq-length", type=int, default=4096)
+    parser.add_argument("--max-seq-length", type=int, default=4096,
+                        help="Supervised training/validation sequence limit (default: 4096)")
+    parser.add_argument("--max-input-tokens", type=int, default=5120,
+                        help="Independent Golden32/Golden35/Bixby50 evaluation prompt limit (default: 5120)")
     parser.add_argument("--max-new-tokens", type=int, default=2048)
     parser.add_argument("--microbatch", type=int)
     parser.add_argument("--effective-batch", type=int)

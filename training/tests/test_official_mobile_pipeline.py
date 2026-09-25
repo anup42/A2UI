@@ -314,6 +314,7 @@ def test_default_context_generation_and_golden_cadence_are_explicit(options):
         eval_steps=500,
         golden_every_steps=1000,
         max_seq_length=4096,
+        max_input_tokens=5120,
         max_new_tokens=2048,
     )
     plan = _plan(defaults)
@@ -325,8 +326,13 @@ def test_default_context_generation_and_golden_cadence_are_explicit(options):
     )
 
     assert plan["options"]["max_seq_length"] == 4096
+    assert plan["options"]["max_input_tokens"] == 5120
     assert plan["options"]["max_new_tokens"] == 2048
+    assert plan["preparation"]["options"]["max_seq_length"] == 4096
+    assert plan["preparation"]["options"]["max_input_tokens"] == 5120
     assert plan["options"]["golden_every_steps"] == 1000
+    assert config["training"]["max_seq_length"] == 4096
+    assert config["golden_eval"]["max_input_tokens"] == 5120
     assert config["training"]["eval_steps"] == 500
     assert config["golden_eval"]["interval"] == 2
     assert config["golden_eval"]["requested_every_optimizer_steps"] == 1000
@@ -355,6 +361,7 @@ def test_abc_experiments_change_only_rank_alpha_and_learning_rate(options, gpu_c
         assert config["training"]["seed"] == config["training"]["data_seed"] == 42
         assert config["training"]["max_steps"] == 2000
         assert config["training"]["max_seq_length"] == 4096
+        assert config["golden_eval"]["max_input_tokens"] == 5120
         assert config["training"]["expected_effective_batch_size"] == 32
         assert config["training"]["refuse_resume"] is True
         assert plan["preparation"]["options"]["seed"] == 42
@@ -373,6 +380,33 @@ def test_invalid_experiment_options_fail_before_writes(options, name, value):
     with pytest.raises(ValueError, match=name):
         workflow.build_plan(replace(options, **{name: value}))
     assert not options.output_dir.exists()
+
+
+@pytest.mark.parametrize("changes", [
+    {"max_seq_length": 0}, {"max_input_tokens": 0}, {"max_new_tokens": -1},
+    {"max_seq_length": 8193}, {"max_input_tokens": 6145}, {"max_input_tokens": True},
+])
+def test_independent_limits_reject_invalid_or_oversized_budgets(options, changes):
+    with pytest.raises(ValueError, match="positive integer|exceeds.*context"):
+        workflow.build_plan(replace(options, **changes))
+    assert not options.output_dir.exists()
+
+
+def test_training_and_evaluation_limits_are_independent(options):
+    plan = _plan(replace(options, max_seq_length=3072,
+                         max_input_tokens=6144, max_new_tokens=1024))
+    profile = build_gpu_profile(_h100_inventory(4), model="e2b", cpu_count=64)
+    config = workflow.training_config(
+        plan, profile, {"tokenizer": {}, "final_evaluation_datasets": {}}
+    )
+
+    assert config["training"]["max_seq_length"] == 3072
+    assert config["golden_eval"]["max_input_tokens"] == 6144
+    assert config["golden_eval"]["max_new_tokens"] == 1024
+    for cohort in workflow.GOLDENS:
+        command = workflow.evaluation_command(plan, cohort)
+        assert command[command.index("--max-input-tokens") + 1] == "6144"
+        assert command[command.index("--max-new-tokens") + 1] == "1024"
 
 
 def test_legacy_resume_config_does_not_gain_a_data_seed(options, monkeypatch):
@@ -406,6 +440,20 @@ def test_older_official_plans_keep_the_previous_recipe(options):
     for name in ("lora_rank", "lora_alpha", "seed"):
         plan["options"].pop(name)
     assert workflow.training_config(plan, profile, report) == current
+
+
+def test_saved_plans_without_evaluation_option_preserve_original_limit(options):
+    plan = _plan(replace(options, max_seq_length=4096, max_input_tokens=4096))
+    del plan["options"]["max_input_tokens"]
+    profile = build_gpu_profile(_h100_inventory(4), model="e2b", cpu_count=64)
+    report = {"tokenizer": {}, "final_evaluation_datasets": {}}
+    config = workflow.training_config(plan, profile, report)
+
+    assert config["training"]["max_seq_length"] == 4096
+    assert config["golden_eval"]["max_input_tokens"] == 4096
+    for cohort in workflow.GOLDENS:
+        command = workflow.evaluation_command(plan, cohort)
+        assert command[command.index("--max-input-tokens") + 1] == "4096"
 
 
 @pytest.mark.parametrize("gpu_count,accumulation", [(2, 16), (4, 8), (8, 4)])
@@ -558,12 +606,13 @@ def test_real_cpu_prepare_and_portable_configure_bind_all_evaluation_contracts(
             launch_paths["resolved_config"],
             prepared_root / f"{cohort}.jsonl",
             required_rows=count,
-            max_input_tokens=options.max_seq_length,
+            max_input_tokens=options.max_input_tokens,
         )
         assert result["required_rows"] == count
         assert Path(result["split_path"]) == (prepared_root / f"{cohort}.jsonl").resolve()
         command = workflow.evaluation_command(plan, cohort)
         assert command[command.index("--split") + 1] == str(prepared_root / f"{cohort}.jsonl")
+        assert command[command.index("--max-input-tokens") + 1] == str(options.max_input_tokens)
 
 
 def test_golden32_alone_selects_and_all_holdout_commands_require_gpu_fake_qat(options):
@@ -592,6 +641,7 @@ def test_golden32_alone_selects_and_all_holdout_commands_require_gpu_fake_qat(op
         assert "--require-gpu" in command
         assert command[command.index("--devices") + 1] == "auto"
         assert command[command.index("--required-rows") + 1] == str(count)
+        assert command[command.index("--max-input-tokens") + 1] == "5120"
         assert command[command.index("--checkpoint") + 1] == plan["paths"]["best_checkpoint"]
     assert plan["selection"]["golden35_used"] is False
     assert plan["selection"]["bixby50_used"] is False
@@ -898,6 +948,7 @@ def test_cli_plan_mode_forwards_options_without_execution(options, monkeypatch, 
         "--exporter-python", str(options.exporter_python),
         "--lora-rank", str(rank), "--lora-alpha", str(rank),
         "--learning-rate", str(rate), "--seed", "42",
+        "--max-seq-length", "4096", "--max-input-tokens", "5120",
     ]
     if resume:
         args += ["--resume-from-checkpoint", str(options.output_dir / "checkpoint-5694"), "--epochs", "4"]
@@ -910,6 +961,8 @@ def test_cli_plan_mode_forwards_options_without_execution(options, monkeypatch, 
     assert captured["options"].lora_rank == captured["options"].lora_alpha == rank
     assert captured["options"].learning_rate == rate
     assert captured["options"].seed == 42
+    assert captured["options"].max_seq_length == 4096
+    assert captured["options"].max_input_tokens == 5120
     output = capsys.readouterr().out
     assert '"status": "plan-only-fixture"' in output
     assert "Plan only. Nothing trained/exported" in output

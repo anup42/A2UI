@@ -77,6 +77,7 @@ class OfficialMobileOptions:
     eval_steps: int = 500
     golden_every_steps: int = 1000
     max_seq_length: int = 4096
+    max_input_tokens: int = 5120
     max_new_tokens: int = 2048
     microbatch: int | None = None
     effective_batch: int | None = None
@@ -155,6 +156,9 @@ def build_plan(options: OfficialMobileOptions) -> dict[str, Any]:
     for name in ("lora_rank", "lora_alpha"):
         if type(values[name]) is not int or values[name] <= 0:
             raise ValueError(f"{name} must be a positive integer")
+    for name in ("max_seq_length", "max_input_tokens", "max_new_tokens"):
+        if type(values[name]) is not int or values[name] <= 0:
+            raise ValueError(f"{name} must be a positive integer")
     if type(values["seed"]) is not int or not 0 <= values["seed"] < 2**32:
         raise ValueError("seed must be an integer in [0, 2**32)")
     for name in ("stage_timeout_seconds", "generation_timeout_seconds", "progress_seconds", "learning_rate"):
@@ -179,18 +183,21 @@ def build_plan(options: OfficialMobileOptions) -> dict[str, Any]:
             raise FileNotFoundError(f"Required mobile artifact missing: {path}. See OFFICIAL_MOBILE_QAT_PIPELINE.md")
         if path.is_relative_to(output):
             raise ValueError("Run output must not contain any input artifact")
-    preparation = build_preparation_plan(GoldenTrainingOptions(
-        model_dir=seed, input_dir=Path(values["input_dir"]), output_dir=output,
-        # Only this shared CPU preparation is reused; its dense configure/train
-        # commands are NEVER executed by the mobile workflow.
-        epochs=values["epochs"], steps=values["steps"], eval_steps=options.eval_steps,
-        golden_every_steps=options.golden_every_steps, max_seq_length=options.max_seq_length,
-        max_input_tokens=options.max_seq_length, max_new_tokens=options.max_new_tokens,
-        devices=options.devices, microbatch=options.microbatch, effective_batch=options.effective_batch,
-        prepare_workers=options.prepare_workers, preparation_cache=options.preparation_cache,
-        preparation_cache_dir=options.preparation_cache_dir, progress_seconds=options.progress_seconds,
-        tensorboard_root=options.tensorboard_root, learning_rate=values["learning_rate"], seed=values["seed"],
-    ))
+    preparation = build_preparation_plan(
+        GoldenTrainingOptions(
+            model_dir=seed, input_dir=Path(values["input_dir"]), output_dir=output,
+            # Only this shared CPU preparation is reused; its dense configure/train
+            # commands are NEVER executed by the mobile workflow.
+            epochs=values["epochs"], steps=values["steps"], eval_steps=options.eval_steps,
+            golden_every_steps=options.golden_every_steps, max_seq_length=options.max_seq_length,
+            max_input_tokens=options.max_input_tokens, max_new_tokens=options.max_new_tokens,
+            devices=options.devices, microbatch=options.microbatch, effective_batch=options.effective_batch,
+            prepare_workers=options.prepare_workers, preparation_cache=options.preparation_cache,
+            preparation_cache_dir=options.preparation_cache_dir, progress_seconds=options.progress_seconds,
+            tensorboard_root=options.tensorboard_root, learning_rate=values["learning_rate"], seed=values["seed"],
+        ),
+        preparation_only=True,
+    )
     preparation = {key: preparation[key] for key in ("options", "source_files", "shared_prompt", "goldens")}
     train_root = output / "training" / output.name
     paths = {
@@ -287,7 +294,8 @@ def training_config(plan: dict, profile: dict, preparation_report: dict) -> dict
         training["resume_horizon"] = horizon_record(Path(values["resume_from_checkpoint"]), config)
     config["golden_eval"].update(dataset_dir=str(prepared), split="golden32",
         split_path=str(prepared / "golden32.jsonl"), max_rows=32, required_rows=32,
-        max_input_tokens=values["max_seq_length"], max_new_tokens=values["max_new_tokens"],
+        max_input_tokens=values.get("max_input_tokens", values["max_seq_length"]),
+        max_new_tokens=values["max_new_tokens"],
         metric_version="v5_4", metric_for_best_model=SELECTOR,
         interval=golden_interval, evaluate_at_end=True,
         requested_every_optimizer_steps=values["golden_every_steps"], use_cache=True,
@@ -364,7 +372,8 @@ def _configure(plan: dict) -> list[Path]:
     prepared = Path(plan["paths"]["prepared"])
     report = verify_prepared(prepared, prepared / "golden32.jsonl",
         golden35=prepared / "golden35.jsonl", bixby50=prepared / "bixby50.jsonl",
-        max_sequence=values["max_seq_length"], max_prompt=values["max_seq_length"])
+        max_sequence=values["max_seq_length"],
+        max_prompt=values.get("max_input_tokens", values["max_seq_length"]))
     source = Path(plan["paths"]["source_config"])
     _yaml(source, training_config(plan, profile, report))
     launch, resolved, paths = mobile.build_launch_plan(source, run_id=output.name, runs_root=output / "training",
@@ -410,7 +419,8 @@ def evaluation_command(plan: dict, cohort: str) -> list[str]:
         "--config", paths["config"], "--checkpoint", paths["best_checkpoint"], "--checkpoint-kind", "adapter",
         "--qat-mode", "on", "--require-prepared-contract", "--require-gpu", "--devices", "auto",
         "--split", str(Path(paths["prepared"]) / f"{cohort}.jsonl"), "--max-rows", str(count), "--required-rows", str(count),
-        "--max-input-tokens", str(values["max_seq_length"]), "--max-new-tokens", str(values["max_new_tokens"]),
+        "--max-input-tokens", str(values.get("max_input_tokens", values["max_seq_length"])),
+        "--max-new-tokens", str(values["max_new_tokens"]),
         "--output-dir", str(output / f"evaluations/best_{cohort}"), "--run-id", output.name,
         "--evaluation-name", f"best_{cohort}", "--tensorboard-root", values["tensorboard_root"],
         "--generation-timeout-seconds", str(values["generation_timeout_seconds"]), "--metric-version", "v5_4"]
