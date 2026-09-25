@@ -393,15 +393,16 @@ def test_normalized_lora_module_handles_peft_and_clippable_wrappers():
     )
 
 
-def test_adapter_mapping_accepts_only_plain_exact_lora_pairs(tmp_path, monkeypatch):
+@pytest.mark.parametrize("rank", [1, 16, 32])
+def test_adapter_mapping_accepts_only_plain_exact_lora_pairs(tmp_path, monkeypatch, rank):
     adapter_dir = tmp_path / "adapter"
     adapter_dir.mkdir()
     (adapter_dir / "adapter_config.json").write_text(
         json.dumps(
             {
                 "peft_type": "LORA",
-                "r": 1,
-                "lora_alpha": 1,
+                "r": rank,
+                "lora_alpha": rank,
                 "fan_in_fan_out": False,
                 "use_rslora": False,
                 "use_dora": False,
@@ -419,8 +420,8 @@ def test_adapter_mapping_accepts_only_plain_exact_lora_pairs(tmp_path, monkeypat
     class FakeAdapter:
         def __init__(self):
             self.entries = {
-                f"{module}.lora_A.weight": {"shape": [1, 2], "dtype": "F32"},
-                f"{module}.lora_B.weight": {"shape": [3, 1], "dtype": "F32"},
+                f"{module}.lora_A.weight": {"shape": [rank, 2], "dtype": "F32"},
+                f"{module}.lora_B.weight": {"shape": [3, rank], "dtype": "F32"},
             }
 
         @staticmethod
@@ -441,12 +442,17 @@ def test_adapter_mapping_accepts_only_plain_exact_lora_pairs(tmp_path, monkeypat
         FakeAdapter(),
         records,
         FakeQParams(),
-        {"lora": {"r": 1, "alpha": 1}},
+        {"lora": {"r": rank, "alpha": rank}},
     )
 
     assert report["verified"] is True
     assert mapping[records[0]["hf_weight_key"]]["a"].endswith("lora_A.weight")
     assert scaling == 1.0
+
+    for key, check in (("r", "rank_matches_training_config"), ("alpha", "alpha_matches_training_config")):
+        mismatched = {"r": rank, "alpha": rank, key: rank + 1}
+        with pytest.raises(exporter.RetainedScaleExportError, match=check):
+            exporter._adapter_mapping_report(adapter_dir, FakeAdapter(), records, FakeQParams(), {"lora": mismatched})
 
     config = json.loads((adapter_dir / "adapter_config.json").read_text())
     config["use_dora"] = True
@@ -457,7 +463,7 @@ def test_adapter_mapping_accepts_only_plain_exact_lora_pairs(tmp_path, monkeypat
             FakeAdapter(),
             records,
             FakeQParams(),
-            {"lora": {"r": 1, "alpha": 1}},
+            {"lora": {"r": rank, "alpha": rank}},
         )
 
 

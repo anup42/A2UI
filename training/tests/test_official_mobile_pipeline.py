@@ -330,6 +330,82 @@ def test_default_context_generation_and_golden_cadence_are_explicit(options):
     assert config["training"]["eval_steps"] == 500
     assert config["golden_eval"]["interval"] == 2
     assert config["golden_eval"]["requested_every_optimizer_steps"] == 1000
+    assert plan["options"]["lora_rank"] == config["lora"]["r"] == 16
+    assert plan["options"]["lora_alpha"] == config["lora"]["alpha"] == 16
+    assert config["training"]["learning_rate"] == 1e-5
+    assert config["training"]["seed"] == config["training"]["data_seed"] == 42
+
+
+@pytest.mark.parametrize("gpu_count", [4, 8])
+def test_abc_experiments_change_only_rank_alpha_and_learning_rate(options, gpu_count):
+    from ir_training.train.resume_contract import _config_changes
+
+    profile = build_gpu_profile(_h100_inventory(gpu_count), model="e2b", cpu_count=32,
+                                microbatch=1, effective_batch=32)
+    configs = []
+    for rank, alpha, rate in ((16, 16, 1e-5), (32, 32, 1e-5), (16, 16, 5e-6)):
+        plan = _plan(replace(options, lora_rank=rank, lora_alpha=alpha, learning_rate=rate,
+                             seed=42, steps=2000, epochs=2, microbatch=1, effective_batch=32))
+        config = workflow.training_config(plan, profile, {"tokenizer": {}, "final_evaluation_datasets": {}})
+        configs.append(config)
+        assert config["lora"]["r"] == rank
+        assert config["lora"]["alpha"] == alpha
+        assert config["lora"]["dropout"] == 0.0
+        assert config["training"]["learning_rate"] == rate
+        assert config["training"]["seed"] == config["training"]["data_seed"] == 42
+        assert config["training"]["max_steps"] == 2000
+        assert config["training"]["max_seq_length"] == 4096
+        assert config["training"]["expected_effective_batch_size"] == 32
+        assert config["training"]["refuse_resume"] is True
+        assert plan["preparation"]["options"]["seed"] == 42
+        assert plan["preparation"]["options"]["augmentation"] == "none"
+    assert set(_config_changes(configs[0], configs[1])) == {("lora", "r"), ("lora", "alpha")}
+    assert _config_changes(configs[0], configs[2]) == [("training", "learning_rate")]
+
+
+@pytest.mark.parametrize("name,value", [
+    ("lora_rank", 0), ("lora_rank", -1), ("lora_rank", True), ("lora_rank", 16.5),
+    ("lora_alpha", 0), ("lora_alpha", -16), ("lora_alpha", False), ("lora_alpha", 16.5),
+    ("seed", -1), ("seed", 2**32), ("seed", True), ("seed", 42.5),
+    ("learning_rate", 0), ("learning_rate", float("nan")), ("learning_rate", True),
+])
+def test_invalid_experiment_options_fail_before_writes(options, name, value):
+    with pytest.raises(ValueError, match=name):
+        workflow.build_plan(replace(options, **{name: value}))
+    assert not options.output_dir.exists()
+
+
+def test_legacy_resume_config_does_not_gain_a_data_seed(options, monkeypatch):
+    import yaml
+    from ir_training.train import mobile_resume
+
+    plan = _plan(options)
+    profile = build_gpu_profile(_h100_inventory(4), model="e2b", cpu_count=32)
+    report = {"tokenizer": {}, "final_evaluation_datasets": {}}
+    saved = workflow.training_config(plan, profile, report)
+    saved["training"].pop("data_seed")
+    source = options.model_dir.parent / "historical_training.yaml"
+    source.write_text(yaml.safe_dump(saved), encoding="utf-8")
+    plan["resume"] = {"source_config": str(source), "source_config_sha256": workflow.sha256(source),
+                      "horizon": {"original": {"max_steps": options.steps}}}
+    plan["options"]["resume_from_checkpoint"] = str(options.model_dir.parent / "checkpoint-10")
+    # This test isolates config propagation; complete provenance/state restore
+    # is exercised by the real CPU preparation/continuation tests below.
+    monkeypatch.setattr(mobile_resume, "horizon_record", lambda *_: plan["resume"]["horizon"])
+    continued = workflow.training_config(plan, profile, report)
+    assert "data_seed" not in continued["training"]
+    assert continued["training"]["seed"] == saved["training"]["seed"]
+
+
+def test_older_official_plans_keep_the_previous_recipe(options):
+    plan = _plan(options)
+    profile = build_gpu_profile(_h100_inventory(4), model="e2b", cpu_count=32)
+    report = {"tokenizer": {}, "final_evaluation_datasets": {}}
+    current = workflow.training_config(plan, profile, report)
+    current["training"].pop("data_seed")
+    for name in ("lora_rank", "lora_alpha", "seed"):
+        plan["options"].pop(name)
+    assert workflow.training_config(plan, profile, report) == current
 
 
 @pytest.mark.parametrize("gpu_count,accumulation", [(2, 16), (4, 8), (8, 4)])
@@ -376,10 +452,12 @@ def test_generated_h100_config_keeps_batch32_microbatch1_and_retained_qat(
 
 @pytest.mark.parametrize("continue_run", [False, True])
 @pytest.mark.parametrize("horizon_mode", ["steps", "capped_steps", "epochs"])
+@pytest.mark.parametrize("rank,rate", [(16, 1e-5), (32, 1e-5), (16, 5e-6)])
 def test_real_cpu_prepare_and_portable_configure_bind_all_evaluation_contracts(
-    options, monkeypatch, continue_run, horizon_mode
+    options, monkeypatch, continue_run, horizon_mode, rank, rate
 ):
-    options = replace(options, prepare_workers=1, progress_seconds=10)
+    options = replace(options, prepare_workers=1, progress_seconds=10,
+                      lora_rank=rank, lora_alpha=rank, learning_rate=rate, seed=19)
     if horizon_mode == "capped_steps":
         options = replace(options, eval_steps=50, golden_every_steps=100)
     elif horizon_mode == "epochs":
@@ -441,7 +519,13 @@ def test_real_cpu_prepare_and_portable_configure_bind_all_evaluation_contracts(
         options = replace(options, output_dir=options.output_dir.with_name("continued-mobile"),
                           steps=None if horizon_mode == "epochs" else 40,
                           epochs=4 if horizon_mode == "epochs" else None,
-                          resume_from_checkpoint=checkpoint)
+                          resume_from_checkpoint=checkpoint,
+                          lora_rank=None, lora_alpha=None, learning_rate=None, seed=None)
+        for key, value in {"lora_rank": rank + 1, "lora_alpha": rank + 1,
+                           "learning_rate": rate * 2, "seed": 20}.items():
+            with pytest.raises(ValueError, match="cannot change on resume"):
+                workflow.build_plan(replace(options, **{key: value}))
+            assert not options.output_dir.exists()
         plan = workflow.build_plan(options)
         options.output_dir.mkdir()
         workflow.run_stage(plan, "prepare")
@@ -452,6 +536,9 @@ def test_real_cpu_prepare_and_portable_configure_bind_all_evaluation_contracts(
         assert continued["training"]["resume_horizon"]["original"]["total_optimizer_steps"] == saved_total
         assert continued["training"]["resume_horizon"]["requested"]["total_optimizer_steps"] == saved_total * 2
         assert continued["training"]["eval_steps"] == original["training"]["eval_steps"]
+        assert continued["lora"]["r"] == continued["lora"]["alpha"] == rank
+        assert continued["training"]["learning_rate"] == rate
+        assert continued["training"]["seed"] == continued["training"]["data_seed"] == 19
         assert continued["golden_eval"]["interval"] == original["golden_eval"]["interval"]
         assert all(p.read_bytes() == value for p, value in previous.items())
         assert not (options.output_dir / "prepared").exists()
@@ -786,7 +873,8 @@ def test_direct_training_stage_rejects_bad_best_checkpoint_metadata(
 
 
 @pytest.mark.parametrize("resume", [False, True])
-def test_cli_plan_mode_forwards_options_without_execution(options, monkeypatch, capsys, resume):
+@pytest.mark.parametrize("rank,rate", [(16, 1e-5), (32, 1e-5), (16, 5e-6)])
+def test_cli_plan_mode_forwards_options_without_execution(options, monkeypatch, capsys, resume, rank, rate):
     spec = importlib.util.spec_from_file_location(
         "fixture_run_official_mobile_pipeline",
         ROOT / "scripts/run_official_mobile_pipeline.py",
@@ -808,6 +896,8 @@ def test_cli_plan_mode_forwards_options_without_execution(options, monkeypatch, 
         "--official-litertlm", str(options.official_litertlm),
         "--output-dir", str(options.output_dir),
         "--exporter-python", str(options.exporter_python),
+        "--lora-rank", str(rank), "--lora-alpha", str(rank),
+        "--learning-rate", str(rate), "--seed", "42",
     ]
     if resume:
         args += ["--resume-from-checkpoint", str(options.output_dir / "checkpoint-5694"), "--epochs", "4"]
@@ -817,6 +907,9 @@ def test_cli_plan_mode_forwards_options_without_execution(options, monkeypatch, 
     assert captured["options"].output_dir == options.output_dir
     assert captured["options"].epochs == (4.0 if resume else None)
     assert captured["options"].resume_from_checkpoint == (options.output_dir / "checkpoint-5694" if resume else None)
+    assert captured["options"].lora_rank == captured["options"].lora_alpha == rank
+    assert captured["options"].learning_rate == rate
+    assert captured["options"].seed == 42
     output = capsys.readouterr().out
     assert '"status": "plan-only-fixture"' in output
     assert "Plan only. Nothing trained/exported" in output

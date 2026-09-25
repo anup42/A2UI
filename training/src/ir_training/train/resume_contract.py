@@ -27,6 +27,10 @@ def build_resume_contract(config: dict[str, Any], dataset_dir: Path, *, effectiv
         "warmup_ratio": 0.03, "warmup_steps": None, "max_grad_norm": 1.0,
         "per_device_train_batch_size": 1, "gradient_accumulation_steps": 16,
     }.items()}
+    # Keep legacy checkpoint contracts byte-equivalent when this opt-in is
+    # absent, but bind the sampler RNG for recipes that explicitly configure it.
+    if "data_seed" in training:
+        fields["data_seed"] = training["data_seed"]
     return {
         "version": 1, "recipe": fields, "effective_batch_size": effective_batch,
         "model_id": (config.get("model") or {}).get("model_id"),

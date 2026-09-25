@@ -414,6 +414,109 @@ python training/scripts/run_official_mobile_pipeline.py \
   --execute
 ```
 
+## Controlled QAT-LoRA experiments: Run A, Run B, and Run C
+
+The same official-mobile entry point supports these **fresh** experiments:
+
+| Run | `--lora-rank` | `--lora-alpha` | `--learning-rate` | Purpose |
+| --- | --- | --- | --- | --- |
+| A | 16 | 16 | `1e-5` | Revised-data baseline |
+| B | 32 | 32 | `1e-5` | Additional adapter capacity |
+| C | 16 | 16 | `5e-6` | Gentler updates |
+
+Fresh defaults remain rank 16, alpha 16, learning rate `1e-5`, and seed 42.
+`--seed` controls initialization before model/adapter construction and the
+explicit Trainer data-order seed. Rank and alpha must be positive integers;
+seed must be an integer in `[0, 2**32)`. Alpha is **not** automatically increased
+when rank changes: pass both flags, as below.
+
+Only adapter rank/alpha and learning rate differ between A/B/C. All three keep
+the same 205 target projections, zero LoRA dropout, retained W2/W4 and A8
+scales, 70 frozen activation modules, mandatory preflights, Golden checkpoint
+selection, and official-layout export. The exporter validates the adapter's
+actual rank/alpha and A/B tensor shapes against its bound training config; it
+does not assume rank 16. The official drafter is preserved, not trained, and
+this launcher's runtime gates still use MTP off. Larger rank is not a promise
+of better quality or unchanged training memory usage.
+
+### Linux / H100 commands
+
+From the repository root, activate the existing QAT training environment and
+set the paths below. `INPUT` is the **same immutable improved dataset** containing
+source-bound `train.jsonl` and `val.jsonl`; this launcher does not regenerate or
+repair labels. `MODEL` must be the original verified reconstructed mobile seed,
+not another run's merged checkpoint. Keep the same visible GPU selection for
+all three runs. The example uses four H100s; use `0,1,2,3,4,5,6,7` for eight.
+
+```bash
+set -euo pipefail
+
+MODEL=/absolute/path/to/reconstructed-mobile-seed
+PACKED=/absolute/path/to/packed-mobile/model.safetensors
+OFFICIAL=/absolute/path/to/official-mobile.litertlm
+INPUT=/absolute/path/to/improved-source-bound-train-val
+EXPORT_PY=/absolute/path/to/export-venv/bin/python
+RUN_ROOT=/absolute/path/to/qat_lora_abc_v1
+DEVICES=0,1,2,3
+
+COMMON=(
+  --model-dir "$MODEL"
+  --source-safetensors "$PACKED"
+  --official-litertlm "$OFFICIAL"
+  --input-dir "$INPUT"
+  --exporter-python "$EXPORT_PY"
+  --devices "$DEVICES"
+  --seed 42 --microbatch 1 --effective-batch 32
+  --epochs 2 --max-seq-length 4096 --max-new-tokens 2048
+  --eval-steps 500 --golden-every-steps 1000
+)
+
+MODE=()  # Plan only first. After review, set MODE=(--execute) and rerun.
+
+python -u training/scripts/run_official_mobile_pipeline.py \
+  "${COMMON[@]}" "${MODE[@]}" --output-dir "$RUN_ROOT/run_a" \
+  --lora-rank 16 --lora-alpha 16 --learning-rate 1e-5
+
+python -u training/scripts/run_official_mobile_pipeline.py \
+  "${COMMON[@]}" "${MODE[@]}" --output-dir "$RUN_ROOT/run_b" \
+  --lora-rank 32 --lora-alpha 32 --learning-rate 1e-5
+
+python -u training/scripts/run_official_mobile_pipeline.py \
+  "${COMMON[@]}" "${MODE[@]}" --output-dir "$RUN_ROOT/run_c" \
+  --lora-rank 16 --lora-alpha 16 --learning-rate 5e-6
+```
+
+The executions are sequential; do not launch three jobs on the same GPUs at
+once. Every execution needs a nonexistent per-run output directory. If a run
+fails, inspect it and choose a new directory for a fresh retry rather than
+rerunning all three into existing directories.
+
+### Keep the comparison budget fixed
+
+- Keep the same input file contents, seed/tokenizer/prompt, GPU count,
+  microbatch, effective batch, sequence limit, and epoch/step horizon. Check
+  that preparation reports agree on accepted rows and prepared train/validation
+  SHA-256 hashes; a changed dataset is not a rank/LR-only comparison.
+- The commands use two complete epochs with no step cap. Identical prepared
+  tokenized data and sampling settings give the same scheduled training-token
+  exposure; `4096` is a per-example limit, **not** a fixed number of tokens per
+  optimizer step. Variable lengths/padding mean `steps * batch * 4096` is not
+  the actual non-padding or supervised-token count.
+- For a shorter pilot, add `--steps 2000` to `COMMON` for **all three** runs.
+  `--steps` overrides the epoch horizon. Do not compare runs stopped at different
+  budgets or silently extend just one of them.
+- Golden32 remains the checkpoint selector. Golden35 and Bixby50 remain
+  final-only holdouts. Inspect quality and saturation reports, then measure
+  exported native quality/speed separately; CPU tests do not certify H100
+  training or device throughput.
+
+These runs start fresh from the same seed; do not pass `--resume-from-checkpoint`
+to initialize B or C from A. A true interruption resume keeps its original
+rank, alpha, learning rate, data, RNG, and recipe. Omitted rank/alpha/LR/seed
+flags inherit the saved values on resume; conflicting explicit values fail
+during planning. Historical continuations without an explicit data-order seed
+keep that original configuration rather than gaining a new field.
+
 ## Explicit continuation from a Trainer checkpoint
 
 Fresh runs remain strict fresh runs: their resolved config keeps

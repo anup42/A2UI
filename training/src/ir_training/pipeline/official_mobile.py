@@ -70,7 +70,10 @@ class OfficialMobileOptions:
     epochs: float | None = None
     steps: int | None = None
     resume_from_checkpoint: Path | None = None
-    learning_rate: float = 1e-5
+    learning_rate: float | None = None
+    lora_rank: int | None = None
+    lora_alpha: int | None = None
+    seed: int | None = None
     eval_steps: int = 500
     golden_every_steps: int = 1000
     max_seq_length: int = 4096
@@ -134,8 +137,28 @@ def build_plan(options: OfficialMobileOptions) -> dict[str, Any]:
         resume["horizon"] = horizon_record(checkpoint, requested)
     if values["epochs"] is None:
         values["epochs"] = 2.0
+    # Omitted knobs keep historical fresh defaults, but inherit the saved
+    # recipe on continuation. An experiment is a fresh run, never a resume
+    # that quietly changes adapter capacity, optimizer settings, or RNG.
+    recipe_options = {
+        "lora_rank": ("lora", "r", 16),
+        "lora_alpha": ("lora", "alpha", 16),
+        "seed": ("training", "seed", 42),
+        "learning_rate": ("training", "learning_rate", 1e-5),
+    }
+    for name, (section, key, default) in recipe_options.items():
+        inherited = saved[section][key] if resume else default
+        if values[name] is None:
+            values[name] = inherited
+        elif resume and values[name] != inherited:
+            raise ValueError(f"--{name.replace('_', '-')} cannot change on resume; start a fresh experiment")
+    for name in ("lora_rank", "lora_alpha"):
+        if type(values[name]) is not int or values[name] <= 0:
+            raise ValueError(f"{name} must be a positive integer")
+    if type(values["seed"]) is not int or not 0 <= values["seed"] < 2**32:
+        raise ValueError("seed must be an integer in [0, 2**32)")
     for name in ("stage_timeout_seconds", "generation_timeout_seconds", "progress_seconds", "learning_rate"):
-        if not math.isfinite(values[name]) or values[name] <= 0:
+        if isinstance(values[name], bool) or not isinstance(values[name], (int, float)) or not math.isfinite(values[name]) or values[name] <= 0:
             raise ValueError(f"{name} must be positive and finite")
     if options.benchmark_android and not options.serial:
         raise ValueError("--benchmark-android requires an explicit --serial")
@@ -166,7 +189,7 @@ def build_plan(options: OfficialMobileOptions) -> dict[str, Any]:
         devices=options.devices, microbatch=options.microbatch, effective_batch=options.effective_batch,
         prepare_workers=options.prepare_workers, preparation_cache=options.preparation_cache,
         preparation_cache_dir=options.preparation_cache_dir, progress_seconds=options.progress_seconds,
-        tensorboard_root=options.tensorboard_root, learning_rate=options.learning_rate,
+        tensorboard_root=options.tensorboard_root, learning_rate=values["learning_rate"], seed=values["seed"],
     ))
     preparation = {key: preparation[key] for key in ("options", "source_files", "shared_prompt", "goldens")}
     train_root = output / "training" / output.name
@@ -239,6 +262,17 @@ def training_config(plan: dict, profile: dict, preparation_report: dict) -> dict
                    if plan.get("resume") else values["steps"])
     cadence = min(values["eval_steps"], cadence_cap) if cadence_cap else values["eval_steps"]
     golden_interval = max(1, math.ceil(values["golden_every_steps"] / cadence))
+    # The independent full-parameter lane also reuses this base builder. Only
+    # official LoRA plans opt into experiment knobs; old plans keep defaults.
+    if plan.get("workflow") == WORKFLOW:
+        config["lora"].update(r=values.get("lora_rank", config["lora"]["r"]),
+                              alpha=values.get("lora_alpha", config["lora"]["alpha"]))
+        if "seed" in values:
+            training["seed"] = values["seed"]
+            # Do not add a field to historical checkpoint continuations.
+            # Fresh experiments decouple sampler RNG from adapter shapes.
+            if not plan.get("resume"):
+                training["data_seed"] = values["seed"]
     training.update(epochs=values["epochs"], learning_rate=values["learning_rate"],
         eval_steps=cadence, save_steps=cadence, eval_strategy="steps", max_seq_length=values["max_seq_length"],
         tensorboard_root=values["tensorboard_root"], tensorboard_subdir="training", tensorboard_detail="minimal",

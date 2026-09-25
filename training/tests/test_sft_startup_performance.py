@@ -10,7 +10,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from ir_training.train import gpu_profile
-from ir_training.train.sft import _initialize_training_seed, _tokenize_completion_only_row, _tokenize_sft_text_dataset, _validate_tokenized_sft_dataset, train_sft
+from ir_training.train.sft import _apply_training_data_seed, _initialize_training_seed, _tokenize_completion_only_row, _tokenize_sft_text_dataset, _validate_tokenized_sft_dataset, train_sft
 
 
 class Split(list):
@@ -203,6 +203,26 @@ def test_seed_precedes_model_adapter_initialization_and_resume_rng_flow_is_kept(
     for constructor in ("create_adapter(load_cfg)", "adapter.load_model()", "get_peft_model(model, configured_lora)"):
         assert seed_call < source.index(constructor)
     assert '"seed": initialization_seed' in source
+    assert source.index("_apply_training_data_seed(training_cfg, training_args_kwargs, args_params)") < source.index("args_cls(**training_args_kwargs)")
     # Seeding construction does not replace Trainer's checkpoint RNG restore.
     resume_assignment = source.index('train_kwargs["resume_from_checkpoint"] = str(resolved_resume_checkpoint)')
     assert seed_call < resume_assignment < source.index("trainer.train(**train_kwargs)")
+
+
+def test_data_seed_is_explicit_for_experiments_and_legacy_recipes_are_unchanged():
+    kwargs = {"seed": 42}
+    _apply_training_data_seed({}, kwargs, {})
+    assert kwargs == {"seed": 42}
+    _apply_training_data_seed({"data_seed": 19}, kwargs, {"data_seed": object()})
+    assert kwargs == {"seed": 42, "data_seed": 19}
+
+
+@pytest.mark.parametrize("seed", [True, -1, 2**32, 3.5, "42", None])
+def test_invalid_data_seed_is_rejected(seed):
+    with pytest.raises(ValueError, match="training.data_seed must be an integer"):
+        _apply_training_data_seed({"data_seed": seed}, {}, {"data_seed": object()})
+
+
+def test_explicit_data_seed_requires_trainer_support():
+    with pytest.raises(ValueError, match="does not support configured data_seed"):
+        _apply_training_data_seed({"data_seed": 42}, {}, {})

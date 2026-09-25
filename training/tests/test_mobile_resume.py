@@ -31,6 +31,17 @@ def _tree_hashes(path: Path) -> dict[str, str]:
     }
 
 
+def test_optional_data_seed_is_bound_without_changing_legacy_contracts(tmp_path):
+    config = _base_config(tmp_path)
+    prepared = Path(config["run"]["dataset_dir"])
+    original = build_resume_contract(config, prepared, effective_batch=2)
+    assert "data_seed" not in original["recipe"]
+    config["training"]["data_seed"] = 7
+    explicit = build_resume_contract(config, prepared, effective_batch=2)
+    assert explicit["recipe"].pop("data_seed") == 7
+    assert explicit == original
+
+
 def _base_config(tmp_path: Path, *, epochs: float = 2, max_steps=None) -> dict:
     dataset = tmp_path / "prepared"
     dataset.mkdir(parents=True)

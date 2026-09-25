@@ -403,6 +403,7 @@ def train_sft(
         **precision_flags,
         "report_to": report_to,
     }
+    _apply_training_data_seed(training_cfg, training_args_kwargs, args_params)
     _apply_training_limit_to_args(training_args_kwargs, training_limit)
     if sharded_training:
         from ir_training.train.sharded_contract import build_deepspeed_config
@@ -1231,6 +1232,18 @@ def _initialize_training_seed(
     seed_setter(seed)
     print(f"Training initialization seed={seed} on rank {os.environ.get('RANK', '0')} (before model/LoRA load)", flush=True)
     return seed
+
+
+def _apply_training_data_seed(training_cfg: dict, args_kwargs: dict, args_params: Any) -> None:
+    """Opt in to sampler seeding without changing legacy training recipes."""
+    if "data_seed" not in training_cfg:
+        return
+    seed = training_cfg["data_seed"]
+    if type(seed) is not int or not 0 <= seed < 2**32:
+        raise ValueError("training.data_seed must be an integer in [0, 2**32)")
+    if "data_seed" not in args_params:
+        raise ValueError("Installed TrainingArguments does not support configured data_seed")
+    args_kwargs["data_seed"] = seed
 
 
 def _sft_token_cache_dir(training_cfg: dict[str, Any], dataset_dir: Path,
