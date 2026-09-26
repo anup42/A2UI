@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from concurrent.futures import Future, ThreadPoolExecutor, wait
 from datetime import datetime
+import math
 import json
 import time
 import hashlib
@@ -20,7 +21,7 @@ from pipeline.reference_boundaries import split_reference_suffix
 from pipeline.storage import JsonlWriter, iter_jsonl
 from pipeline.cache import PromptCache
 from pipeline.source_quality import assess_source_quality, asset_verification_metadata, source_contract_prompt
-from llm.base import BaseLLMAdapter, LLMRateLimitError
+from llm.base import BaseLLMAdapter, LLMRateLimitError, LLMResult, completion_metadata
 from llm.http_transport import urlopen
 from utils.hashing import normalize_text, hash_text
 from utils.rate_limit import RateLimiter
@@ -57,6 +58,87 @@ def _is_transient_error(message: str) -> bool:
 def _sleep_backoff(attempt: int) -> None:
     delay = min(30.0, 2.0 ** (attempt - 1))
     time.sleep(delay)
+
+
+def _env_int(name: str, default: int) -> int:
+    raw = (os.environ.get(name) or "").strip()
+    if not raw:
+        return default
+    try:
+        return int(raw)
+    except (TypeError, ValueError):
+        return default
+
+
+def _env_float(name: str, default: float) -> float:
+    raw = (os.environ.get(name) or "").strip()
+    if not raw:
+        return default
+    try:
+        return float(raw)
+    except (TypeError, ValueError):
+        return default
+
+
+def _is_length_limited(result: LLMResult | None) -> bool:
+    if result is None:
+        return False
+    reason = str(result.finish_reason or "").strip().lower()
+    if not reason:
+        raw_reason, _ = completion_metadata(result.raw)
+        reason = str(raw_reason or "").strip().lower()
+    if reason in {"length", "max_tokens"}:
+        return True
+    error = str(result.error or "").lower()
+    return any(
+        marker in error
+        for marker in (
+            "finish_reason=length",
+            "finish_reason=max_tokens",
+            "finishreason=length",
+            "finishreason=max_tokens",
+        )
+    )
+
+
+def _length_retry_budget(
+    *,
+    prompt: str,
+    current_budget: int,
+    result: LLMResult,
+) -> int | None:
+    """Return a larger, context-safe budget or fail closed when no room exists."""
+    caps: list[int] = []
+    for name in ("STAGE2_LENGTH_RETRY_MAX_OUTPUT_TOKENS", "LOCAL_VLLM_MAX_OUTPUT_TOKENS"):
+        value = _env_int(name, 0)
+        if value > 0:
+            caps.append(value)
+
+    context_tokens = 0
+    for name in ("VLLM_MAX_MODEL_LEN", "LOCAL_VLLM_MAX_MODEL_LEN", "A2UI_VLLM_MAX_MODEL_LEN"):
+        context_tokens = _env_int(name, 0)
+        if context_tokens > 0:
+            break
+    if context_tokens > 0:
+        reported_input = int(result.input_tokens or 0)
+        # Provider usage is authoritative. The fallback deliberately
+        # overestimates ordinary English/code prompts at roughly 3 bytes/token.
+        estimated_input = max(1, math.ceil(len(prompt.encode("utf-8")) / 3))
+        input_tokens = reported_input if reported_input > 0 else estimated_input
+        safety_tokens = max(0, _env_int("STAGE2_CONTEXT_SAFETY_TOKENS", 512))
+        caps.append(context_tokens - input_tokens - safety_tokens)
+
+    if not caps:
+        return None
+    maximum = max(0, min(caps))
+    if maximum <= current_budget:
+        return None
+
+    growth = _env_float("STAGE2_LENGTH_RETRY_GROWTH_FACTOR", 1.5)
+    if not math.isfinite(growth) or growth <= 1.0:
+        growth = 1.5
+    grown = max(current_budget + 1, math.ceil(current_budget * growth))
+    return min(maximum, grown)
 
 
 _URL_RE = re.compile(r"https?://[^\s<>\"']+")
@@ -1070,6 +1152,11 @@ def run_stage2(
 ) -> None:
     prompt_template = select_stage2_prompt(load_prompt(prompt_path), adapter.spec)
     muse_source_prompt = uses_muse_source_prompt(adapter.spec)
+    length_retry_max_retries = (
+        max(0, _env_int("STAGE2_LENGTH_RETRY_MAX_RETRIES", 2))
+        if muse_source_prompt
+        else 0
+    )
 
     existing_ids = {row.get("response_id") for row in iter_jsonl(responses_path)}
     existing_hashes = set()
@@ -1109,6 +1196,12 @@ def run_stage2(
             "Stage2 real-asset retry enabled attempts=%s min_valid_rate=%.2f",
             real_asset_retry_max_attempts,
             real_asset_retry_min_valid_rate,
+        )
+    if length_retry_max_retries > 0:
+        logger.info(
+            "Stage2 Muse length recovery enabled max_retries=%s growth_factor=%.2f",
+            length_retry_max_retries,
+            _env_float("STAGE2_LENGTH_RETRY_GROWTH_FACTOR", 1.5),
         )
     if stage2_asset_workers > 1:
         logger.info("Stage2 async asset processing enabled workers=%s", stage2_asset_workers)
@@ -1225,25 +1318,14 @@ def run_stage2(
             "seed_value": seed + n_idx,
         }
 
-    def _generate_single_entry(entry: dict):
-        cached = _cache_get(entry["prompt_hash"])
-        if cached:
-            return (
-                cached.text.strip(),
-                0.0,
-                0,
-                0,
-                adapter.spec.provider,
-                adapter.spec.model,
-            )
-
+    def _generate_with_budget(entry: dict, requested_tokens: int) -> LLMResult | None:
         def _call():
             rate_limiter.acquire()
             return adapter.generate(
                 prompt=entry["prompt"],
                 system=None,
                 temperature=entry["temperature"],
-                max_tokens=max_tokens,
+                max_tokens=requested_tokens,
                 seed=entry["seed_value"],
                 json_mode=entry["batch"] > 1 and adapter.spec.supports_json_mode,
             )
@@ -1272,8 +1354,8 @@ def run_stage2(
                     continue
                 raise
 
-            if not result.error:
-                break
+            if not result.error or _is_length_limited(result):
+                return result
             if _is_transient_error(result.error) and attempt < max_attempts:
                 logger.warning(
                     "Stage2 transient error query_id=%s attempt=%s/%s err=%s",
@@ -1285,13 +1367,64 @@ def run_stage2(
                 _sleep_backoff(attempt)
                 continue
             logger.error("Stage2 error query_id=%s: %s", entry["query_id"], result.error)
-            result = None
-            break
-
-        if result is None or result.error:
             return None
+        return None
 
-        _cache_set(entry["prompt_hash"], result.text, result.raw)
+    def _recover_length_limited(
+        entry: dict,
+        result: LLMResult,
+        requested_tokens: int,
+    ) -> LLMResult | None:
+        retries = 0
+        while _is_length_limited(result) and retries < length_retry_max_retries:
+            retry_tokens = _length_retry_budget(
+                prompt=entry["prompt"],
+                current_budget=requested_tokens,
+                result=result,
+            )
+            if retry_tokens is None:
+                logger.error(
+                    "Stage2 Muse length recovery exhausted context headroom "
+                    "query_id=%s budget=%s input_tokens=%s retry=%s/%s",
+                    entry["query_id"],
+                    requested_tokens,
+                    result.input_tokens,
+                    retries,
+                    length_retry_max_retries,
+                )
+                return None
+            retries += 1
+            logger.warning(
+                "Stage2 Muse length recovery query_id=%s retry=%s/%s "
+                "budget=%s->%s input_tokens=%s",
+                entry["query_id"],
+                retries,
+                length_retry_max_retries,
+                requested_tokens,
+                retry_tokens,
+                result.input_tokens,
+            )
+            requested_tokens = retry_tokens
+            retried = _generate_with_budget(entry, requested_tokens)
+            if retried is None:
+                return None
+            result = retried
+
+        if result.error:
+            if _is_length_limited(result):
+                logger.error(
+                    "Stage2 Muse length recovery reached retry bound "
+                    "query_id=%s retries=%s final_budget=%s",
+                    entry["query_id"],
+                    retries,
+                    requested_tokens,
+                )
+            else:
+                logger.error("Stage2 error query_id=%s: %s", entry["query_id"], result.error)
+            return None
+        return result
+
+    def _result_payload(result: LLMResult) -> tuple[str, float, int, int, str, str]:
         return (
             result.text.strip(),
             result.latency_ms,
@@ -1300,6 +1433,32 @@ def run_stage2(
             result.provider,
             result.model,
         )
+
+    def _generate_single_entry(entry: dict):
+        cached = _cache_get(entry["prompt_hash"])
+        if cached:
+            return (
+                cached.text.strip(),
+                0.0,
+                0,
+                0,
+                adapter.spec.provider,
+                adapter.spec.model,
+            )
+
+        result = _generate_with_budget(entry, max_tokens)
+        if result is None:
+            return None
+        if _is_length_limited(result) and length_retry_max_retries > 0:
+            result = _recover_length_limited(entry, result, max_tokens)
+        elif result.error:
+            logger.error("Stage2 error query_id=%s: %s", entry["query_id"], result.error)
+            return None
+        if result is None or result.error:
+            return None
+
+        _cache_set(entry["prompt_hash"], result.text, result.raw)
+        return _result_payload(result)
 
     def _consume_failure(entry: dict) -> None:
         state = entry["state"]
@@ -1866,6 +2025,12 @@ def run_stage2(
                 if batch_results is not None and len(batch_results) == len(uncached_entries):
                     for entry, result in zip(uncached_entries, batch_results):
                         if result.error:
+                            if _is_length_limited(result) and length_retry_max_retries > 0:
+                                recovered = _recover_length_limited(entry, result, max_tokens)
+                                if recovered is not None:
+                                    _cache_set(entry["prompt_hash"], recovered.text, recovered.raw)
+                                    generated_payloads[id(entry)] = _result_payload(recovered)
+                                    continue
                             logger.warning(
                                 "Stage2 batch item error query_id=%s err=%s",
                                 entry["query_id"],
@@ -1874,14 +2039,7 @@ def run_stage2(
                             generated_payloads[id(entry)] = None
                             continue
                         _cache_set(entry["prompt_hash"], result.text, result.raw)
-                        generated_payloads[id(entry)] = (
-                            result.text.strip(),
-                            result.latency_ms,
-                            result.input_tokens,
-                            result.output_tokens,
-                            result.provider,
-                            result.model,
-                        )
+                        generated_payloads[id(entry)] = _result_payload(result)
                 else:
                     for entry in uncached_entries:
                         generated_payloads[id(entry)] = None

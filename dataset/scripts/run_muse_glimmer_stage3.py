@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 import re
 import shlex
@@ -34,6 +35,20 @@ def positive_int(value: str) -> int:
     parsed = int(value)
     if parsed < 1:
         raise argparse.ArgumentTypeError("must be positive")
+    return parsed
+
+
+def nonnegative_int(value: str) -> int:
+    parsed = int(value)
+    if parsed < 0:
+        raise argparse.ArgumentTypeError("must be non-negative")
+    return parsed
+
+
+def growth_factor(value: str) -> float:
+    parsed = float(value)
+    if not math.isfinite(parsed) or parsed <= 1.0:
+        raise argparse.ArgumentTypeError("must be greater than 1.0")
     return parsed
 
 
@@ -70,6 +85,18 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--stage1-batch-size", type=positive_int, default=8)
     parser.add_argument("--query-output-tokens", type=positive_int, default=8192)
     parser.add_argument("--response-output-tokens", type=positive_int, default=8192)
+    parser.add_argument(
+        "--response-length-retries",
+        type=nonnegative_int,
+        default=2,
+        help="Adaptive retries for only Muse Stage 2 completions stopped by the output limit",
+    )
+    parser.add_argument(
+        "--response-retry-growth-factor",
+        type=growth_factor,
+        default=1.5,
+        help="Output-budget multiplier for each Muse Stage 2 length retry",
+    )
     parser.add_argument("--wait-seconds", type=positive_int, default=1800)
     parser.add_argument("--log-dir", type=Path, default=Path(tempfile.gettempdir()) / "a2ui_muse_glimmer")
     args = parser.parse_args(argv)
@@ -160,6 +187,11 @@ def client_env(args: argparse.Namespace, stage: int = 3) -> dict[str, str]:
     prompt_cap = min(args.prompt_tokens, args.context_length - args.output_tokens - args.safety_tokens)
     parallelism = args.gpus // args.tp * args.requests_per_server
     output_budget = {1: args.query_output_tokens, 2: args.response_output_tokens, 3: args.output_tokens}[stage]
+    local_output_cap = output_budget
+    if stage == 2 and args.response_length_retries > 0:
+        # This is only the server-wide ceiling. Stage 2 further subtracts the
+        # provider-reported input tokens and safety margin for each retry.
+        local_output_cap = args.context_length - args.safety_tokens - 500
     env = os.environ.copy()
     env.update({
         "LOCAL_VLLM_ENDPOINTS": ",".join(endpoints(args)),
@@ -175,7 +207,7 @@ def client_env(args: argparse.Namespace, stage: int = 3) -> dict[str, str]:
         "LOCAL_VLLM_FORCE_SAMPLING_OVERRIDES": "1",
         "LOCAL_VLLM_TOP_P": "0.95",
         "LOCAL_VLLM_TOP_K": "64",
-        "LOCAL_VLLM_MAX_OUTPUT_TOKENS": str(output_budget),
+        "LOCAL_VLLM_MAX_OUTPUT_TOKENS": str(local_output_cap),
         "LOCAL_VLLM_MIN_RETRY_OUTPUT_TOKENS": str(output_budget),
         "LOCAL_VLLM_TIMEOUT_SECONDS": "900",
         "LOCAL_VLLM_RETRY_MAX_SECONDS": "180",
@@ -207,6 +239,13 @@ def client_env(args: argparse.Namespace, stage: int = 3) -> dict[str, str]:
         "A2UI_MAX_REPAIR_ATTEMPTS": "1",
         "STAGE3_FINAL_REGEN_ATTEMPTS": "1",
     })
+    if stage == 2:
+        env.update({
+            "STAGE2_LENGTH_RETRY_MAX_RETRIES": str(args.response_length_retries),
+            "STAGE2_LENGTH_RETRY_GROWTH_FACTOR": str(args.response_retry_growth_factor),
+            "STAGE2_LENGTH_RETRY_MAX_OUTPUT_TOKENS": str(local_output_cap),
+            "STAGE2_CONTEXT_SAFETY_TOKENS": str(args.safety_tokens),
+        })
     return env
 
 

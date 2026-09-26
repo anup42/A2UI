@@ -197,3 +197,150 @@ def test_visual_media_retries_are_optional_only_for_muse(
         assert row["gen"]["prompt_sha256"] == hash_text(retry)
     elif not is_muse:
         assert "use icon-only media" in generate.call_args.kwargs["prompt"]
+
+
+def _stage2_result(text, *, error=None, reason="stop", input_tokens=2000, output_tokens=100):
+    return LLMResult(
+        text=text,
+        raw={"choices": [{"finish_reason": reason}]},
+        latency_ms=1,
+        input_tokens=input_tokens,
+        output_tokens=output_tokens,
+        cost_usd=None,
+        model=MUSE.model,
+        provider=MUSE.provider,
+        error=error,
+        finish_reason=reason,
+        completion_complete=error is None,
+    )
+
+
+def _prepare_length_retry_case(tmp_path, monkeypatch, queries):
+    import pipeline.stage2_responses as stage2
+
+    for name, value in {
+        "DATASET_OFFLINE_MODE": "1",
+        "INTERNET": "0",
+        "STAGE2_ASSET_WORKERS": "1",
+        "STAGE2_REAL_ASSET_RETRY_ENABLED": "0",
+        "STAGE2_LENGTH_RETRY_MAX_RETRIES": "2",
+        "STAGE2_LENGTH_RETRY_GROWTH_FACTOR": "1.5",
+        "STAGE2_LENGTH_RETRY_MAX_OUTPUT_TOKENS": "19000",
+        "LOCAL_VLLM_MAX_OUTPUT_TOKENS": "19000",
+        "VLLM_MAX_MODEL_LEN": "20000",
+        "STAGE2_CONTEXT_SAFETY_TOKENS": "1000",
+    }.items():
+        monkeypatch.setenv(name, value)
+    monkeypatch.setattr(stage2, "_load_local_icon_context", lambda *_: None)
+    monkeypatch.setattr(stage2, "_commons_enrichment_enabled", lambda: False)
+    monkeypatch.setattr(stage2, "urlopen", Mock(side_effect=AssertionError("network forbidden")))
+    queries_path = tmp_path / "queries.jsonl"
+    queries_path.write_text(
+        "".join(json.dumps(query) + "\n" for query in queries),
+        encoding="utf-8",
+    )
+    prompt_path = tmp_path / "prompt.md"
+    prompt_path.write_text(GENERIC, encoding="utf-8")
+    return queries_path, prompt_path
+
+
+def test_muse_stage2_retries_only_length_failed_batch_items_and_resume_skips_success(
+    tmp_path, monkeypatch,
+):
+    queries = [
+        {"query_id": "q_1", "query_text": "Short answer.", "intent": "generic", "tags": []},
+        {"query_id": "q_2", "query_text": "Long answer.", "intent": "generic", "tags": []},
+    ]
+    queries_path, prompt_path = _prepare_length_retry_case(tmp_path, monkeypatch, queries)
+    first_ok = _stage2_result("Already complete")
+    truncated = _stage2_result(
+        "unfinished",
+        error="incomplete_completion: finish_reason=length",
+        reason="length",
+        output_tokens=8000,
+    )
+    recovered = _stage2_result("Recovered complete response", output_tokens=11000)
+    batch = Mock(return_value=[first_ok, truncated])
+    single = Mock(return_value=recovered)
+    adapter = SimpleNamespace(spec=MUSE, generate=single, generate_batch=batch)
+    responses_path = tmp_path / "responses.jsonl"
+
+    def run():
+        run_stage2(
+            queries_path, prompt_path, None, adapter, responses_path,
+            1, 1, 2, False, False, [.1], 8000, 13, Mock(),
+            PromptCache(tmp_path / "cache.jsonl", enabled=False),
+            logging.getLogger("muse-stage2-length-test"), max_total=2, max_attempts=1,
+        )
+
+    run()
+    assert batch.call_count == 1
+    assert batch.call_args.kwargs["max_tokens"] == 8000
+    assert single.call_count == 1
+    assert single.call_args.kwargs["max_tokens"] == 12000
+    assert "Long answer." in single.call_args.kwargs["prompt"]
+    rows = [json.loads(line) for line in responses_path.read_text(encoding="utf-8").splitlines()]
+    assert {row["response_text"] for row in rows} == {
+        "Already complete",
+        "Recovered complete response",
+    }
+
+    # Existing successful IDs remain authoritative on a safe cycle resume.
+    run()
+    assert batch.call_count == 1
+    assert single.call_count == 1
+
+
+def test_muse_stage2_length_retry_stops_at_context_safe_cap(tmp_path, monkeypatch):
+    queries = [
+        {"query_id": "q_1", "query_text": "Long answer.", "intent": "generic", "tags": []},
+    ]
+    queries_path, prompt_path = _prepare_length_retry_case(tmp_path, monkeypatch, queries)
+    monkeypatch.setenv("VLLM_MAX_MODEL_LEN", "13000")
+    monkeypatch.setenv("STAGE2_LENGTH_RETRY_MAX_RETRIES", "3")
+    truncated = _stage2_result(
+        "unfinished",
+        error="incomplete_completion: finish_reason=length",
+        reason="length",
+        input_tokens=3000,
+        output_tokens=8000,
+    )
+    generate = Mock(side_effect=[truncated, truncated])
+    adapter = SimpleNamespace(spec=MUSE, generate=generate)
+    responses_path = tmp_path / "responses.jsonl"
+
+    run_stage2(
+        queries_path, prompt_path, None, adapter, responses_path,
+        1, 1, 1, False, False, [.1], 8000, 13, Mock(),
+        PromptCache(tmp_path / "cache.jsonl", enabled=False),
+        logging.getLogger("muse-stage2-cap-test"), max_total=1, max_attempts=1,
+    )
+
+    assert [call.kwargs["max_tokens"] for call in generate.call_args_list] == [8000, 9000]
+    assert not responses_path.exists() or not responses_path.read_text(encoding="utf-8").strip()
+
+
+@pytest.mark.parametrize("reason", ["content_filter", "safety", "recitation"])
+def test_muse_stage2_does_not_budget_retry_non_length_failures(
+    tmp_path, monkeypatch, reason,
+):
+    queries = [
+        {"query_id": "q_1", "query_text": "Blocked answer.", "intent": "generic", "tags": []},
+    ]
+    queries_path, prompt_path = _prepare_length_retry_case(tmp_path, monkeypatch, queries)
+    failed = _stage2_result(
+        "",
+        error=f"incomplete_completion: finish_reason={reason}",
+        reason=reason,
+    )
+    generate = Mock(return_value=failed)
+    adapter = SimpleNamespace(spec=MUSE, generate=generate)
+
+    run_stage2(
+        queries_path, prompt_path, None, adapter, tmp_path / "responses.jsonl",
+        1, 1, 1, False, False, [.1], 8000, 13, Mock(),
+        PromptCache(tmp_path / "cache.jsonl", enabled=False),
+        logging.getLogger("muse-stage2-non-length-test"), max_total=1, max_attempts=1,
+    )
+
+    assert generate.call_count == 1

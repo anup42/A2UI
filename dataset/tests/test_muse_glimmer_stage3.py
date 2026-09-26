@@ -128,10 +128,18 @@ def test_cycle_keeps_each_stage_output_budget_without_global_clamping():
     args = muse.parse_args(["cycle", "--gpus", "4", "--run-id", "muse",
                             "--cycle-size", "1000", "--total", "1000",
                             "--query-output-tokens", "16000", "--response-output-tokens", "14000"])
-    for stage, budget in ((1, "16000"), (2, "14000"), (3, "12288")):
+    for stage, budget in ((1, "16000"), (3, "12288")):
         env = muse.client_env(args, stage)
         assert env["LOCAL_VLLM_MAX_OUTPUT_TOKENS"] == budget
         assert env["LOCAL_VLLM_MIN_RETRY_OUTPUT_TOKENS"] == budget
+    stage2 = muse.client_env(args, 2)
+    assert stage2["A2UI_RESPONSE_MAX_TOKENS"] == "14000"
+    assert stage2["LOCAL_VLLM_MIN_RETRY_OUTPUT_TOKENS"] == "14000"
+    assert stage2["LOCAL_VLLM_MAX_OUTPUT_TOKENS"] == str(32768 - 512 - 500)
+    assert stage2["STAGE2_LENGTH_RETRY_MAX_OUTPUT_TOKENS"] == str(32768 - 512 - 500)
+    assert stage2["STAGE2_LENGTH_RETRY_MAX_RETRIES"] == "2"
+    assert stage2["STAGE2_LENGTH_RETRY_GROWTH_FACTOR"] == "1.5"
+    assert stage2["STAGE2_CONTEXT_SAFETY_TOKENS"] == "512"
     # Stage 3-only runs do not need room for the unused Stage 1/2 defaults.
     muse.parse_args(["generate", "--gpus", "4", "--run-id", "muse",
                      "--context-length", "8192", "--output-tokens", "4096"])
@@ -157,7 +165,14 @@ def mock_cycle_runner(run, calls):
         assert env["LOCAL_VLLM_REASONING_STRENGTH"] == "high"
         assert env["A2UI_QUERY_MAX_TOKENS"] == "8192"
         assert env["A2UI_RESPONSE_MAX_TOKENS"] == "8192"
-        assert env["LOCAL_VLLM_MAX_OUTPUT_TOKENS"] == ("12288" if stage == 3 else "8192")
+        expected_cap = (
+            "12288"
+            if stage == 3
+            else str(32768 - 512 - 500)
+            if stage == 2
+            else "8192"
+        )
+        assert env["LOCAL_VLLM_MAX_OUTPUT_TOKENS"] == expected_cap
         path = run / {1: "queries.jsonl", 2: "responses.jsonl", 3: "genui.jsonl"}[stage]
         with path.open("a", encoding="utf-8") as handle:
             for _ in range(amount):
