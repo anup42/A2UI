@@ -683,6 +683,21 @@ class LocalAdapter(BaseLLMAdapter):
             or (text.lstrip().startswith("<|think|>") and not any(marker in text for marker in ("<|/think|>", "<|end_think|>")))
         )
         reasoning_text, reasoning_source, reasoning_tokens = extract_reasoning_metadata(payload)
+        muse_reasoning = None
+        if self._model_is_muse_glimmer():
+            # Preserve the exact to=self content returned by SGLang. The
+            # generic extractor trims whitespace, which changes a future
+            # reasoning-training target when it is tokenized again.
+            choices = payload.get("choices")
+            message = (
+                choices[0].get("message")
+                if isinstance(choices, list) and choices and isinstance(choices[0], dict)
+                else None
+            )
+            muse_reasoning = message.get("reasoning_content") if isinstance(message, dict) else None
+            if isinstance(muse_reasoning, str) and muse_reasoning.strip():
+                reasoning_text = muse_reasoning
+                reasoning_source = "message.reasoning_content"
         if not reasoning_text:
             inline_reasoning, cleaned_text = split_reasoning_from_text(text)
             if inline_reasoning:
@@ -705,6 +720,11 @@ class LocalAdapter(BaseLLMAdapter):
             complete = False
         elif not text.strip():
             completion_error = "incomplete_completion: empty_final_content"
+            complete = False
+        elif (self._model_is_muse_glimmer()
+              and os.environ.get("LOCAL_MUSE_REQUIRE_REASONING", "0").strip().lower() in {"1", "true", "yes", "on"}
+              and (not isinstance(muse_reasoning, str) or not muse_reasoning.strip())):
+            completion_error = "incomplete_completion: missing_muse_reasoning_content"
             complete = False
         return LLMResult(
             text=text or "",

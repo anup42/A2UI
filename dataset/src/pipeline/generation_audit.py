@@ -96,6 +96,8 @@ def record_attempt(task: dict[str, Any], artifacts_dir: Path, *, phase: str,
                    input_tokens: int = 0, output_tokens: int = 0,
                    latency_ms: float = 0.0, error: str | None = None,
                    reasoning_tokens: int | None = None,
+                   reasoning_text: str | None = None,
+                   reasoning_source: str | None = None,
                    cost_usd: float | None = None) -> dict[str, Any]:
     """Persist each provider attempt before parsing; retries never overwrite it."""
     attempts = task.setdefault("generation_attempts", [])
@@ -113,12 +115,17 @@ def record_attempt(task: dict[str, Any], artifacts_dir: Path, *, phase: str,
         "finish_reason": finish_reason(raw), "error": error,
         "completion_complete": False if error else completion_metadata(raw)[1],
     }
+    if isinstance(reasoning_text, str) and reasoning_text.strip():
+        attempt["reasoning_available"] = True
+        attempt["reasoning_source"] = reasoning_source
     if isinstance(raw, Mapping) and isinstance(raw.get("a2ui_request_attempts"), list):
         attempt["http_request_attempts"] = raw["a2ui_request_attempts"]
     directory = artifacts_dir / "generation_attempts" / f"{task['ui_id']}_{invocation}"
     directory.mkdir(parents=True, exist_ok=True)
     path = directory / f"{len(attempts):03d}_{phase}.json"
     payload = {**attempt, "prompt": prompt, "system": system, "completion": text}
+    if isinstance(reasoning_text, str) and reasoning_text.strip():
+        payload["reasoning_text"] = reasoning_text
     with path.open("x", encoding="utf-8") as handle:
         json.dump(payload, handle, ensure_ascii=False, indent=2)
     attempt["artifact"] = str(path.relative_to(artifacts_dir))

@@ -354,6 +354,20 @@ them with `--query-output-tokens`, `--response-output-tokens`, and
 
 `cycle` and `generate` check every endpoint's served model, active DFlash
 configuration, reasoning channel, and final answer before writing any records.
+For every generated Muse Stage 3 row, `genui.jsonl` preserves the exact
+`reasoning_content` text in `reasoning_text`, separate from the final A2UI
+completion. `gen.reasoning_source` identifies the server field and
+`gen.reasoning_format=muse_atem_to_self` identifies the model channel;
+`gen.reasoning_tokens` is the provider-reported count when available, or
+`null` otherwise. Each provider-attempt artifact also retains its own
+reasoning text, including attempts later repaired or rejected. The API does
+not return raw token IDs; future reasoning training can tokenize the saved
+text with the recorded Muse model's tokenizer. Stage 1/2 output rows do not
+store reasoning. A generated Stage 3 completion without separate Muse
+reasoning is retried and is not counted as a completed cyclic Stage 3 row.
+Resuming a run checks existing generated Stage 3 rows for saved reasoning too;
+use a new output run to regenerate older rows whose reasoning was not saved.
+Rows rejected for source quality before model generation have no reasoning.
 Stage 3-only `generate` reads Stage 1/2 data from the source run, resumes missing
 records in the Muse output run, and processes all available Stage 2 responses by
 default. Use

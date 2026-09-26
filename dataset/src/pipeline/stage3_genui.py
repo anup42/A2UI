@@ -1179,6 +1179,12 @@ def run_stage3(
     total_created = 0
     total_failed = 0
     pending: list[dict[str, Any]] = []
+    muse_model = "muse-glimmer" in (adapter.spec.model or "").lower()
+    require_muse_reasoning = (
+        muse_model
+        and os.environ.get("LOCAL_MUSE_REQUIRE_REASONING", "0").strip().lower()
+        in {"1", "true", "yes", "on"}
+    )
     use_parallel = adapter.spec.provider == "gemini" and gemini_parallel_workers > 1
     use_batch = hasattr(adapter, "generate_batch") and not use_parallel
     if batch_size <= 0:
@@ -1290,7 +1296,10 @@ def run_stage3(
         record_attempt(task, artifacts_dir, **kwargs, text=result.text, raw=result.raw,
                        input_tokens=result.input_tokens, output_tokens=result.output_tokens,
                        latency_ms=result.latency_ms, error=result.error,
-                       reasoning_tokens=result.reasoning_tokens, cost_usd=result.cost_usd)
+                       reasoning_tokens=result.reasoning_tokens,
+                       reasoning_text=result.reasoning_text,
+                       reasoning_source=result.reasoning_source,
+                       cost_usd=result.cost_usd)
         return result
 
     def _audit_fields(task: dict[str, Any]) -> dict[str, Any]:
@@ -1307,6 +1316,19 @@ def run_stage3(
                 fields[key] = task[key]
         return fields
 
+    def _attach_reasoning_trace(record: dict[str, Any], reasoning_text: str | None,
+                                reasoning_source: str | None, reasoning_tokens: int | None,
+                                reasoning_attempt: str | None, model: str) -> None:
+        if not isinstance(reasoning_text, str) or not reasoning_text.strip():
+            return
+        record["reasoning_text"] = reasoning_text
+        record["gen"]["reasoning_available"] = True
+        record["gen"]["reasoning_source"] = reasoning_source
+        record["gen"]["reasoning_tokens"] = reasoning_tokens
+        record["gen"]["reasoning_attempt"] = reasoning_attempt
+        if "muse-glimmer" in model.lower() and reasoning_source == "message.reasoning_content":
+            record["gen"]["reasoning_format"] = "muse_atem_to_self"
+
     def _append_format_rejection(
         task: dict[str, Any],
         *,
@@ -1320,6 +1342,10 @@ def run_stage3(
         provider: str,
         model: str,
         error: str | None,
+        reasoning_text: str | None,
+        reasoning_source: str | None,
+        reasoning_tokens: int | None,
+        reasoning_attempt: str | None,
     ) -> None:
         nonlocal total_created
         record = {
@@ -1365,6 +1391,8 @@ def run_stage3(
             "created_at": datetime.utcnow().isoformat() + "Z",
         }
         record.update(_audit_fields(task))
+        _attach_reasoning_trace(record, reasoning_text, reasoning_source,
+                                reasoning_tokens, reasoning_attempt, model)
         writer.append(record)
         existing_ids.add(task["ui_id"])
         total_created += 1
@@ -1408,8 +1436,12 @@ def run_stage3(
                            temperature=generation_temperature, max_tokens=max_tokens,
                            text=raw_text, raw=raw_payload, input_tokens=input_tokens,
                            output_tokens=output_tokens, latency_ms=latency_ms,
-                           error=error, reasoning_tokens=reasoning_tokens)
-        accepted_reasoning_text = reasoning_text.strip() if isinstance(reasoning_text, str) else None
+                           error=error, reasoning_tokens=reasoning_tokens,
+                           reasoning_text=reasoning_text,
+                           reasoning_source=reasoning_source)
+        accepted_reasoning_text = (
+            reasoning_text if isinstance(reasoning_text, str) and reasoning_text.strip() else None
+        )
         accepted_reasoning_source = reasoning_source
         accepted_reasoning_tokens = reasoning_tokens
         accepted_reasoning_attempt = "initial" if accepted_reasoning_text else None
@@ -1559,7 +1591,7 @@ def run_stage3(
             raw_payload = result.raw
             latency_ms, input_tokens, output_tokens = result.latency_ms, result.input_tokens, result.output_tokens
             accepted_reasoning_text = (
-                result.reasoning_text.strip()
+                result.reasoning_text
                 if isinstance(result.reasoning_text, str) and result.reasoning_text.strip()
                 else None
             )
@@ -1637,7 +1669,7 @@ def run_stage3(
             raw_payload = regen_result.raw
             latency_ms, input_tokens, output_tokens = regen_result.latency_ms, regen_result.input_tokens, regen_result.output_tokens
             accepted_reasoning_text = (
-                regen_result.reasoning_text.strip()
+                regen_result.reasoning_text
                 if isinstance(regen_result.reasoning_text, str) and regen_result.reasoning_text.strip()
                 else None
             )
@@ -1665,6 +1697,13 @@ def run_stage3(
                 if not validator_ok:
                     schema_valid_lenient = True
 
+        if require_muse_reasoning and (
+            not accepted_reasoning_text
+            or accepted_reasoning_source != "message.reasoning_content"
+        ):
+            _record_generation_error(task, "missing_muse_reasoning_content", raw_payload)
+            return
+
         if not parsed_ok or genui_json is None or not schema_valid_strict:
             _append_format_rejection(
                 task,
@@ -1678,6 +1717,10 @@ def run_stage3(
                 provider=provider,
                 model=model,
                 error=error,
+                reasoning_text=accepted_reasoning_text,
+                reasoning_source=accepted_reasoning_source,
+                reasoning_tokens=accepted_reasoning_tokens,
+                reasoning_attempt=accepted_reasoning_attempt,
             )
             return
 
@@ -1827,12 +1870,8 @@ def run_stage3(
             "ok": None,
             "source": "stage3_not_attempted",
         }
-        if accepted_reasoning_text:
-            record["reasoning_text"] = accepted_reasoning_text
-            record["gen"]["reasoning_available"] = True
-            record["gen"]["reasoning_source"] = accepted_reasoning_source
-            record["gen"]["reasoning_tokens"] = accepted_reasoning_tokens
-            record["gen"]["reasoning_attempt"] = accepted_reasoning_attempt
+        _attach_reasoning_trace(record, accepted_reasoning_text, accepted_reasoning_source,
+                                accepted_reasoning_tokens, accepted_reasoning_attempt, model)
         if metric_mode in {"v4", "dual"}:
             v4_result = score_genui_completion_v4(
                 genui_json,
@@ -2313,6 +2352,7 @@ def run_stage3(
             "service unavailable",
             "http error 500",
             "500 internal server error",
+            "missing_muse_reasoning_content",
             "enginedeaderror",
             "enginecore encountered",
             "asyncllm output_handler failed",
@@ -2326,7 +2366,8 @@ def run_stage3(
         retry_result_errors = os.environ.get("LOCAL_VLLM_RETRY_RESULT_ERRORS", "1").strip().lower()
         retry_result_errors_enabled = retry_result_errors not in {"0", "false", "no", "off"}
         retry_interval_s = float(os.environ.get("LOCAL_VLLM_RETRY_INTERVAL_SECONDS", "10") or "10")
-        retry_max_s = float(os.environ.get("LOCAL_VLLM_RETRY_MAX_SECONDS", "0") or "0")
+        default_retry_max_s = "180" if require_muse_reasoning else "0"
+        retry_max_s = float(os.environ.get("LOCAL_VLLM_RETRY_MAX_SECONDS", default_retry_max_s) or default_retry_max_s)
         retry_interval_s = max(1.0, retry_interval_s)
         first_failure_at: float | None = None
         transient_attempt = 0
@@ -2436,7 +2477,10 @@ def run_stage3(
                                    max_tokens=max_tokens, text=result.text, raw=result.raw,
                                    input_tokens=result.input_tokens, output_tokens=result.output_tokens,
                                    latency_ms=result.latency_ms, error=result.error,
-                                   reasoning_tokens=result.reasoning_tokens, cost_usd=result.cost_usd)
+                                   reasoning_tokens=result.reasoning_tokens,
+                                   reasoning_text=result.reasoning_text,
+                                   reasoning_source=result.reasoning_source,
+                                   cost_usd=result.cost_usd)
                 return batch_results
 
             try:
@@ -2526,6 +2570,14 @@ def run_stage3(
         for task, result in zip_longest(tasks, results):
             if result is None:
                 raise RuntimeError("Stage3 batch missing result")
+            if (require_muse_reasoning and result.error
+                    and "missing_muse_reasoning_content" in result.error
+                    and os.environ.get("LOCAL_VLLM_RETRY_RESULT_ERRORS", "1").strip().lower()
+                    not in {"0", "false", "no", "off"}):
+                # Keep the initial batch artifact and retry this item with the
+                # same bounded policy used by sequential generation.
+                _generate_single(task)
+                continue
             if result.error:
                 _record_generation_error(task, result.error, result.raw)
                 continue
@@ -2646,6 +2698,29 @@ def run_stage3(
                     if quality_key in response:
                         task[quality_key] = response[quality_key]
                 cached = cache.get(prompt_hash)
+                if cached and muse_model:
+                    # Older caches stored a whitespace-trimmed reasoning_text.
+                    # Recover the exact trace from the original server payload.
+                    choices = cached.raw.get("choices") if isinstance(cached.raw, dict) else None
+                    message = (
+                        choices[0].get("message")
+                        if isinstance(choices, list) and choices and isinstance(choices[0], dict)
+                        else None
+                    )
+                    trace = message.get("reasoning_content") if isinstance(message, dict) else None
+                    if isinstance(trace, str) and trace.strip():
+                        cached.reasoning_text = trace
+                        cached.reasoning_source = "message.reasoning_content"
+                    elif require_muse_reasoning:
+                        cached.reasoning_text = None
+                        cached.reasoning_source = None
+                if cached and require_muse_reasoning and (
+                    not isinstance(cached.reasoning_text, str)
+                    or not cached.reasoning_text.strip()
+                    or cached.reasoning_source != "message.reasoning_content"
+                ):
+                    logger.warning("Stage3 ignoring cached Muse completion without to=self reasoning ui_id=%s", ui_id)
+                    cached = None
                 if cached:
                     task["cache_hit"] = True
                     _process_generated(

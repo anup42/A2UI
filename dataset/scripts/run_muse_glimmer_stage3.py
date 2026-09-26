@@ -166,6 +166,7 @@ def client_env(args: argparse.Namespace, stage: int = 3) -> dict[str, str]:
         "LOCAL_ALLOW_HTTP_ENDPOINT": "1",
         "LOCAL_STRICT_OFFLINE": "0",  # Local HTTP endpoints, not local Transformers loading.
         "LOCAL_VLLM_ENABLE_THINKING": "1",
+        "LOCAL_MUSE_REQUIRE_REASONING": "1" if stage == 3 else "0",
         "LOCAL_VLLM_SEND_CHAT_TEMPLATE_KWARGS": "1",
         "LOCAL_VLLM_REASONING_STRENGTH": args.reasoning_strength,
         "LOCAL_VLLM_STRIP_THINKING": "1",
@@ -401,7 +402,8 @@ def run_layout(run_id: str) -> tuple[Path, Path]:
     return output_root / run_id, intents_path
 
 
-def count_records(path: Path, require_muse: bool = False) -> int:
+def count_records(path: Path, require_muse: bool = False,
+                  require_reasoning: bool = False) -> int:
     if not path.exists():
         return 0
     count = 0
@@ -422,6 +424,20 @@ def count_records(path: Path, require_muse: bool = False) -> int:
                     raise RuntimeError(
                         f"{path}:{line_number} contains model={model!r}; choose a separate --run-id for Muse"
                     )
+                validation = row.get("validation")
+                source_rejected = (
+                    row.get("record_status") == "quality_rejected"
+                    and isinstance(validation, dict)
+                    and validation.get("generation_attempted") is False
+                )
+                if require_reasoning and not source_rejected:
+                    trace = row.get("reasoning_text")
+                    source = gen.get("reasoning_source") if isinstance(gen, dict) else None
+                    if not isinstance(trace, str) or not trace.strip() or source != "message.reasoning_content":
+                        raise RuntimeError(
+                            f"{path}:{line_number} has no saved Muse to=self reasoning; "
+                            "Stage 3 cannot count this row for a reasoning-complete run"
+                        )
             count += 1
     return count
 
@@ -440,7 +456,10 @@ def cycle(args: argparse.Namespace) -> None:
     queries_per_intent = max((args.total + intent_count - 1) // intent_count,
                              args.queries_per_intent or 0)
     paths = {1: run_dir / "queries.jsonl", 2: run_dir / "responses.jsonl", 3: run_dir / "genui.jsonl"}
-    counts = {stage: count_records(path, require_muse=True) for stage, path in paths.items()}
+    counts = {
+        stage: count_records(path, require_muse=True, require_reasoning=stage == 3)
+        for stage, path in paths.items()
+    }
     probe(args)  # Check the model, reasoning, and DFlash before any dataset write.
     print(f"Cyclic Muse generation: run={args.run_id} total={args.total} "
           f"cycle_size={args.cycle_size} queries_per_intent={queries_per_intent}", flush=True)
@@ -456,7 +475,8 @@ def cycle(args: argparse.Namespace) -> None:
                 exit_code = subprocess.call(command, cwd=REPO_ROOT, env=client_env(args, stage))
                 if exit_code != 0:
                     raise RuntimeError(f"Stage {stage} exited with code {exit_code}; resume the same run after fixing it")
-                updated = count_records(paths[stage], require_muse=True)
+                updated = count_records(paths[stage], require_muse=True,
+                                        require_reasoning=stage == 3)
                 print(f"Stage {stage}: {updated}/{target} (+{updated - counts[stage]})", flush=True)
                 if updated <= counts[stage]:
                     raise RuntimeError(f"Stage {stage} made no progress toward {target}; inspect the run before resuming")
@@ -473,14 +493,17 @@ def generate(args: argparse.Namespace) -> None:
     if not queries_path.is_file() or not responses_path.is_file():
         raise RuntimeError(f"Stage 3 needs queries.jsonl and responses.jsonl in {source_dir}")
     existing_output = output_dir / "genui.jsonl"
-    count_records(existing_output, require_muse=True)
+    count_records(existing_output, require_muse=True, require_reasoning=True)
     response_count = count_records(responses_path)
     if response_count == 0:
         raise RuntimeError(f"No Stage 2 responses in {responses_path}")
     probe(args)  # Fail before any dataset writes if a replica or parser is wrong.
     command = stage3_command(args, response_count)
     print(f"Generating A2UI Express Stage 3 for {args.run_id}: {shlex.join(command)}", flush=True)
-    raise SystemExit(subprocess.call(command, cwd=REPO_ROOT, env=client_env(args)))
+    exit_code = subprocess.call(command, cwd=REPO_ROOT, env=client_env(args))
+    if exit_code == 0:
+        count_records(existing_output, require_muse=True, require_reasoning=True)
+    raise SystemExit(exit_code)
 
 
 def main(argv: list[str] | None = None) -> None:
