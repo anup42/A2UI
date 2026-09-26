@@ -295,12 +295,13 @@ and `mtime`, so repeat syncs copy only new or updated files. While sync is runni
 shows aggregate counters plus per-source phase, transfer mode, changed-file count, archive size,
 current file, copied/skipped/error counts, and recent sync messages.
 
-## Muse Glimmer 30B for A2UI Express Stage 3
+## Muse Glimmer 30B dataset generation
 
-The `muse_glimmer_30b_sglang_reasoning_dflash` model entry generates the
-existing A2UI Express Stage 3 output from a source run's `queries.jsonl` and
-`responses.jsonl` into a separate Muse run. It uses the BF16 text decoder, Muse reasoning parser, and
-the official DFlash assistant. Stage 3 is text only, so the launcher omits the
+The `muse_glimmer_30b_sglang_reasoning_dflash` model entry supports cyclic
+Stage 1 query, Stage 2 response, and Stage 3 A2UI Express generation in one
+Muse run. It can also generate Stage 3 alone from another run's Stage 1/2 data.
+It uses the BF16 text decoder, Muse reasoning parser, and the official DFlash
+assistant. Dataset generation is text only, so the launcher omits the
 vision tower to leave more H100 memory for concurrent requests.
 
 Install a Muse-capable SGLang build on the Linux GPU host. At the time this
@@ -333,14 +334,29 @@ python dataset/scripts/run_muse_glimmer_stage3.py servers --gpus 4 \
 
 # In another shell, after the servers start:
 python dataset/scripts/run_muse_glimmer_stage3.py probe --gpus 4
+python dataset/scripts/run_muse_glimmer_stage3.py cycle --gpus 4 \
+  --run-id dataset_muse_glimmer_v1 --cycle-size 1000 --total 10000
+
+# For Stage 3 only, using existing Stage 1/2 records:
 python dataset/scripts/run_muse_glimmer_stage3.py generate --gpus 4 \
   --source-run-id dataset_v1 --run-id dataset_v1_muse_glimmer
 ```
 
-`generate` checks every endpoint's served model, active DFlash configuration,
-reasoning channel, and final answer before writing Stage 3 records. It reads Stage 1/2 data from the source
-run, resumes missing records in the Muse output run, and processes all available
-Stage 2 responses by default. Use
+`cycle` fills a shared target in order: 1,000 queries, then 1,000 responses,
+then 1,000 GenUI records; the next cycle fills each stage to 2,000. Supply
+`--cycle-size` and `--total` explicitly. The last cycle stops at the total even
+when it is smaller than a full chunk. For just one 1,000-record cycle, set both
+to 1,000. Rerun the same command to resume an interrupted cycle; it counts
+existing records and refuses a run that contains another model. Stage 1 and 2
+use 8,192-token output budgets by default, while Stage 3 uses 12,288. Change
+them with `--query-output-tokens`, `--response-output-tokens`, and
+`--output-tokens` if needed.
+
+`cycle` and `generate` check every endpoint's served model, active DFlash
+configuration, reasoning channel, and final answer before writing any records.
+Stage 3-only `generate` reads Stage 1/2 data from the source run, resumes missing
+records in the Muse output run, and processes all available Stage 2 responses by
+default. Use
 `--max-genui-total 10` for an initial ten-record run, then rerun without the
 limit to continue. The Stage 3 prompt and schema remain the repo's A2UI
 Express configuration.

@@ -289,7 +289,7 @@
       rpm: null
       tpm: null
       rpd: null
-      note: "Stage 3 A2UI Express via SGLang Muse reasoning parser and DFlash assistant. Use dataset/scripts/run_muse_glimmer_stage3.py on 4 or 8 H100 80GB GPUs."
+      note: "Cyclic Stages 1/2/3 or Stage 3-only A2UI Express via SGLang Muse reasoning parser and DFlash assistant. Use dataset/scripts/run_muse_glimmer_stage3.py on 4 or 8 H100 80GB GPUs."
   - name: deepseek_coder_v2_lite_local_4x
     provider: local
     model: deepseek-ai/DeepSeek-Coder-V2-Lite-Instruct

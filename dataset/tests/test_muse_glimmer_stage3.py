@@ -96,6 +96,136 @@ def test_launcher_passes_distinct_source_run_to_stage3():
     assert command[command.index("--max_genui_total") + 1] == "100"
 
 
+def test_cycle_requires_supplied_size_and_total():
+    with pytest.raises(SystemExit):
+        muse.parse_args(["cycle", "--gpus", "4", "--run-id", "muse", "--total", "1000"])
+    with pytest.raises(SystemExit):
+        muse.parse_args(["cycle", "--gpus", "4", "--run-id", "muse", "--cycle-size", "1000"])
+    with pytest.raises(SystemExit):
+        muse.parse_args(["cycle", "--gpus", "4", "--run-id", "muse", "--total", "1000",
+                         "--cycle-size", "1000", "--source-run-id", "old"])
+
+
+def test_cycle_stage_batches_scale_with_eight_gpu_replicas():
+    args = muse.parse_args(["cycle", "--gpus", "8", "--run-id", "muse",
+                            "--cycle-size", "1000", "--total", "10000"])
+    stage2 = muse.stage_command(args, 2, 1000)
+    stage3 = muse.stage_command(args, 3, 1000)
+    assert muse.client_env(args)["A2UI_STAGE1_INTENT_BATCH_SIZE"] == "64"
+    assert stage2[stage2.index("--stage2_batch_size") + 1] == "64"
+    assert stage3[stage3.index("--genui_batch_size") + 1] == "64"
+
+
+def test_cycle_keeps_each_stage_output_budget_without_global_clamping():
+    args = muse.parse_args(["cycle", "--gpus", "4", "--run-id", "muse",
+                            "--cycle-size", "1000", "--total", "1000",
+                            "--query-output-tokens", "16000", "--response-output-tokens", "14000"])
+    for stage, budget in ((1, "16000"), (2, "14000"), (3, "12288")):
+        env = muse.client_env(args, stage)
+        assert env["LOCAL_VLLM_MAX_OUTPUT_TOKENS"] == budget
+        assert env["LOCAL_VLLM_MIN_RETRY_OUTPUT_TOKENS"] == budget
+    # Stage 3-only runs do not need room for the unused Stage 1/2 defaults.
+    muse.parse_args(["generate", "--gpus", "4", "--run-id", "muse",
+                     "--context-length", "8192", "--output-tokens", "4096"])
+
+
+def cyclic_repo(tmp_path, monkeypatch):
+    dataset = tmp_path / "dataset"
+    (dataset / "configs").mkdir(parents=True)
+    (dataset / "configs" / "run.yaml").write_text(
+        "run:\n  output_dir: data/runs\n  intents_file: intents.info\n", encoding="utf-8")
+    (dataset / "intents.info").write_text("weather\ntravel\n", encoding="utf-8")
+    run = dataset / "data" / "runs" / "muse"
+    run.mkdir(parents=True)
+    monkeypatch.setattr(muse, "REPO_ROOT", tmp_path)
+    return run
+
+
+def mock_cycle_runner(run, calls):
+    def fake_call(command, cwd, env):
+        stage = int(command[command.index("--stage") + 1])
+        quota_flag = {1: "--max_queries_total", 2: "--max_responses_total", 3: "--max_genui_total"}[stage]
+        amount = int(command[command.index(quota_flag) + 1])
+        assert env["LOCAL_VLLM_REASONING_STRENGTH"] == "high"
+        assert env["A2UI_QUERY_MAX_TOKENS"] == "8192"
+        assert env["A2UI_RESPONSE_MAX_TOKENS"] == "8192"
+        assert env["LOCAL_VLLM_MAX_OUTPUT_TOKENS"] == ("12288" if stage == 3 else "8192")
+        path = run / {1: "queries.jsonl", 2: "responses.jsonl", 3: "genui.jsonl"}[stage]
+        with path.open("a", encoding="utf-8") as handle:
+            for _ in range(amount):
+                handle.write(json.dumps({"gen": {"model": muse.MODEL_ID}}) + "\n")
+        calls.append((stage, amount, command))
+        return 0
+    return fake_call
+
+
+def test_cycle_generates_exact_configured_chunks_in_stage_order(tmp_path, monkeypatch):
+    run = cyclic_repo(tmp_path, monkeypatch)
+    calls = []
+    probes = []
+    monkeypatch.setattr(muse, "probe", lambda args: probes.append(args.run_id))
+    monkeypatch.setattr(muse.subprocess, "call", mock_cycle_runner(run, calls))
+    args = muse.parse_args(["cycle", "--gpus", "4", "--run-id", "muse",
+                            "--cycle-size", "2", "--total", "5"])
+    muse.cycle(args)
+    assert [(stage, amount) for stage, amount, _ in calls] == [
+        (1, 2), (2, 2), (3, 2), (1, 2), (2, 2), (3, 2), (1, 1), (2, 1), (3, 1)]
+    assert calls[0][2][calls[0][2].index("--k_queries_per_intent") + 1] == "3"
+    assert probes == ["muse"]
+    assert [muse.count_records(run / name, require_muse=True) for name in
+            ("queries.jsonl", "responses.jsonl", "genui.jsonl")] == [5, 5, 5]
+
+
+def test_cycle_resumes_incomplete_chunk_before_advancing(tmp_path, monkeypatch):
+    run = cyclic_repo(tmp_path, monkeypatch)
+    (run / "queries.jsonl").write_text(
+        (json.dumps({"gen": {"model": muse.MODEL_ID}}) + "\n") * 2, encoding="utf-8")
+    (run / "responses.jsonl").write_text(
+        json.dumps({"gen": {"model": muse.MODEL_ID}}) + "\n", encoding="utf-8")
+    calls = []
+    monkeypatch.setattr(muse, "probe", lambda args: None)
+    monkeypatch.setattr(muse.subprocess, "call", mock_cycle_runner(run, calls))
+    args = muse.parse_args(["cycle", "--gpus", "4", "--run-id", "muse",
+                            "--cycle-size", "2", "--total", "3"])
+    muse.cycle(args)
+    assert [(stage, amount) for stage, amount, _ in calls] == [
+        (2, 1), (3, 2), (1, 1), (2, 1), (3, 1)]
+
+
+def test_cycle_fails_if_stage_returns_without_new_records(tmp_path, monkeypatch):
+    cyclic_repo(tmp_path, monkeypatch)
+    monkeypatch.setattr(muse, "probe", lambda args: None)
+    monkeypatch.setattr(muse.subprocess, "call", lambda *args, **kwargs: 0)
+    args = muse.parse_args(["cycle", "--gpus", "4", "--run-id", "muse",
+                            "--cycle-size", "2", "--total", "4"])
+    with pytest.raises(RuntimeError, match="made no progress"):
+        muse.cycle(args)
+
+
+def test_cycle_rejects_mixed_model_before_probe_or_write(tmp_path, monkeypatch):
+    run = cyclic_repo(tmp_path, monkeypatch)
+    (run / "responses.jsonl").write_text(
+        '{"gen":{"model":"google/gemma-4-31b-it"}}\n', encoding="utf-8")
+    monkeypatch.setattr(muse, "probe", lambda args: pytest.fail("mixed run should not be probed"))
+    monkeypatch.setattr(muse.subprocess, "call", lambda *args, **kwargs: pytest.fail("should not generate"))
+    args = muse.parse_args(["cycle", "--gpus", "4", "--run-id", "muse",
+                            "--cycle-size", "2", "--total", "4"])
+    with pytest.raises(RuntimeError, match="separate --run-id"):
+        muse.cycle(args)
+
+
+def test_cycle_requires_one_response_and_ui_per_query(tmp_path, monkeypatch):
+    cyclic_repo(tmp_path, monkeypatch)
+    (tmp_path / "dataset" / "configs" / "run.yaml").write_text(
+        "run:\n  output_dir: data/runs\n  intents_file: intents.info\n  n_responses_per_query: 2\n",
+        encoding="utf-8")
+    monkeypatch.setattr(muse, "probe", lambda args: pytest.fail("invalid config should not be probed"))
+    args = muse.parse_args(["cycle", "--gpus", "4", "--run-id", "muse",
+                            "--cycle-size", "2", "--total", "4"])
+    with pytest.raises(RuntimeError, match="one-to-one counts"):
+        muse.cycle(args)
+
+
 def test_custom_endpoints_normalize_once():
     args = muse.parse_args(["plan", "--gpus", "4", "--tp", "2", "--endpoints",
                             "http://node:30000/v1,http://node:30001/v1/chat/completions"])
