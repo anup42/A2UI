@@ -1,6 +1,7 @@
 """Separate Muse preprocessing publishes a reusable, training-free bundle."""
 import importlib.util
 import json
+import os
 import shutil
 import sys
 from dataclasses import replace
@@ -109,6 +110,137 @@ def test_evidence_sealing_rejects_changed_donor_file(options, monkeypatch):
     assert receipt["status"] == "failed" and receipt["active_stage"] == "seal"
 
 
+@pytest.fixture
+def interrupted_augmentation(options, monkeypatch):
+    from ir_training.data import semantic_augmentation
+
+    def interrupted(*args, **kwargs):
+        raise RuntimeError("interrupted before generation")
+
+    with monkeypatch.context() as patch:
+        patch.setattr(semantic_augmentation, "augment_training_at_startup", interrupted)
+        with pytest.raises(RuntimeError, match="interrupted"):
+            semantic_preparation.prepare_semantic_dataset(options, execute=True, tokenizer_loader=lambda *_: Tokenizer())
+    return options
+
+
+def test_resume_reuses_original_preparation_and_preserves_failed_receipt(interrupted_augmentation, monkeypatch):
+    from ir_training.data import semantic_augmentation
+
+    options = interrupted_augmentation
+    receipt = options.output_dir / "augmentation_preparation_manifest.json"
+    original_receipt = receipt.read_bytes()
+    original_base = {p.name: p.read_bytes() for p in (options.output_dir / "prepared").iterdir()}
+    original_helper = semantic_augmentation.augment_training_at_startup
+    calls = []
+
+    def resumed(plan, **kwargs):
+        calls.append(kwargs.pop("resume"))
+        # This interruption occurred before a dataset work directory existed.
+        return original_helper(plan, **kwargs)
+
+    monkeypatch.setattr(semantic_augmentation, "augment_training_at_startup", resumed)
+    monkeypatch.setattr(golden_training, "prepare_data", lambda *a, **k: pytest.fail("Original preparation must not rerun"))
+    result = semantic_preparation.prepare_semantic_dataset(options, execute=True, resume=True,
+        tokenizer_loader=lambda *_: Tokenizer(), command_runner=Teacher())
+    assert result["status"] == "prepared" and calls == [True]
+    assert {p.name: p.read_bytes() for p in (options.output_dir / "prepared").iterdir()} == original_base
+    assert (options.output_dir / "resume_history/attempt-0001.json").read_bytes() == original_receipt
+    assert result["base_files"] and result["raw_files"] and result["producer_contract"]
+
+
+@pytest.mark.parametrize("change", ["raw", "base", "contract", "options"])
+def test_resume_rejects_changed_bindings_without_writes(interrupted_augmentation, monkeypatch, change):
+    from ir_training.data import semantic_augmentation
+
+    options = interrupted_augmentation
+    receipt = options.output_dir / "augmentation_preparation_manifest.json"
+    if change == "raw":
+        with (options.input_dir / "train.jsonl").open("ab") as stream:
+            stream.write(b"\n")
+    elif change == "base":
+        with (options.output_dir / "prepared/train.jsonl").open("ab") as stream:
+            stream.write(b"\n")
+    elif change == "contract":
+        state = json.loads(receipt.read_text(encoding="utf-8"))
+        state["producer_contract"]["producer_files"]["dataset/configs/models.yaml"] = "0" * 64
+        receipt.write_text(json.dumps(state), encoding="utf-8")
+    else:
+        options = replace(options, seed=999)
+    before = receipt.read_bytes()
+    monkeypatch.setattr(semantic_augmentation, "augment_training_at_startup", lambda *a, **k: pytest.fail("Must fail before generation"))
+    with pytest.raises(ValueError, match="changed"):
+        semantic_preparation.prepare_semantic_dataset(options, execute=True, resume=True, tokenizer_loader=lambda *_: Tokenizer())
+    assert receipt.read_bytes() == before
+    assert not (options.output_dir / "resume_history").exists()
+
+
+def test_resume_incomplete_prepare_fails_without_recovery_guess(options, monkeypatch):
+    def interrupted(*args, **kwargs):
+        raise RuntimeError("preparation interrupted")
+
+    monkeypatch.setattr(golden_training, "prepare_data", interrupted)
+    with pytest.raises(RuntimeError):
+        semantic_preparation.prepare_semantic_dataset(options, execute=True)
+    receipt = options.output_dir / "augmentation_preparation_manifest.json"
+    before = receipt.read_bytes()
+    with pytest.raises(ValueError, match="Incomplete original preparation"):
+        semantic_preparation.prepare_semantic_dataset(options, execute=True, resume=True)
+    assert receipt.read_bytes() == before
+
+
+def test_resume_completed_is_verified_noop(options, monkeypatch):
+    from ir_training.data import semantic_augmentation
+
+    first = semantic_preparation.prepare_semantic_dataset(options, execute=True,
+        tokenizer_loader=lambda *_: Tokenizer(), command_runner=Teacher())
+    receipt = options.output_dir / "augmentation_preparation_manifest.json"
+    before = receipt.read_bytes()
+    monkeypatch.setattr(semantic_augmentation, "augment_training_at_startup", lambda *a, **k: pytest.fail("Completed data needs no teacher"))
+    second = semantic_preparation.prepare_semantic_dataset(options, execute=True, resume=True, tokenizer_loader=lambda *_: Tokenizer())
+    assert second == first and receipt.read_bytes() == before
+    assert not (options.output_dir / "resume_history").exists()
+    with (options.output_dir / "augmented/train.jsonl").open("ab") as stream:
+        stream.write(b"\n")
+    with pytest.raises(ValueError, match="bundle changed"):
+        semantic_preparation.prepare_semantic_dataset(options, execute=True, resume=True, tokenizer_loader=lambda *_: Tokenizer())
+
+
+def test_resume_after_partial_sealing_reuses_generation(options, monkeypatch):
+    original_seal = semantic_preparation._seal_evidence
+    teacher = Teacher()
+
+    def interrupted(output):
+        original_seal(output)
+        raise RuntimeError("interrupted after copying evidence")
+
+    with monkeypatch.context() as patch:
+        patch.setattr(semantic_preparation, "_seal_evidence", interrupted)
+        with pytest.raises(RuntimeError, match="copying evidence"):
+            semantic_preparation.prepare_semantic_dataset(options, execute=True,
+                tokenizer_loader=lambda *_: Tokenizer(), command_runner=teacher)
+    result = semantic_preparation.prepare_semantic_dataset(options, execute=True, resume=True,
+        tokenizer_loader=lambda *_: Tokenizer(), command_runner=lambda *a, **k: pytest.fail("Do not regenerate a completed bundle"))
+    assert result["status"] == "prepared" and len(teacher.calls) == 1
+    original_seal(options.output_dir)  # Already sealed exact bytes are idempotent.
+    (options.output_dir / "augmented/augmentation_donors.jsonl").write_text("changed", encoding="utf-8")
+    with pytest.raises(ValueError, match="Previously sealed"):
+        original_seal(options.output_dir)
+
+
+def test_legacy_resume_without_generation_manifest_fails_before_writes(interrupted_augmentation):
+    options = interrupted_augmentation
+    receipt = options.output_dir / "augmentation_preparation_manifest.json"
+    state = json.loads(receipt.read_text(encoding="utf-8"))
+    for key in ("producer_contract", "base_files", "raw_files"):
+        state.pop(key)
+    receipt.write_text(json.dumps(state), encoding="utf-8")
+    before = receipt.read_bytes()
+    with pytest.raises((ValueError, FileNotFoundError), match="manifest|donors|resume|Resume"):
+        semantic_preparation.prepare_semantic_dataset(options, execute=True, resume=True, tokenizer_loader=lambda *_: Tokenizer())
+    assert receipt.read_bytes() == before and not (options.output_dir / "resume_history").exists()
+
+
 @pytest.mark.parametrize("profile,max_input_tokens", [("e2b", 5120), ("270m", 4096)])
 def test_independent_training_includes_saved_augmentation_only_when_enabled(options, profile, max_input_tokens, monkeypatch):
     options = replace(options, profile=profile, max_input_tokens=max_input_tokens)
@@ -180,3 +312,79 @@ def test_cli_defaults_plan_only_and_profile_limits(options, capsys, profile, exp
     assert state["plan"]["options"]["max_input_tokens"] == expected_limit
     assert state["plan"]["options"]["augmentation"] == "semantic"
     assert not options.output_dir.exists()
+
+
+def test_cli_resume_is_forwarded_only_to_standalone(options, monkeypatch, capsys):
+    spec = importlib.util.spec_from_file_location("resume_semantic_script", ROOT / "training/scripts/prepare_semantic_augmentation.py")
+    script = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(script)
+    calls = []
+
+    def capture(parsed, **kwargs):
+        calls.append(kwargs)
+        return {"status": "plan_only"}
+
+    monkeypatch.setattr(script, "prepare_semantic_dataset", capture)
+    assert script.main(["--profile", "270m", "--model-dir", str(options.model_dir),
+                        "--input-dir", str(options.input_dir), "--output-dir", str(options.output_dir),
+                        "--resume", "--execute"]) == 0
+    assert calls == [{"execute": True, "resume": True}]
+    assert not options.output_dir.exists()
+
+
+def test_sealing_optional_reference_bindings_is_hash_checked(tmp_path):
+    prepared, generated, bundle = tmp_path / "prepared", tmp_path / "semantic_augmentation/generated", tmp_path / "augmented"
+    for directory in (prepared, generated, bundle):
+        directory.mkdir(parents=True)
+    sources = {
+        prepared / "manifest.json": "{}",
+        generated.parent / "donors.jsonl": "{}\n",
+        generated.parent / "reference_bindings.json": '{"version":1}',
+        generated / "accepted_genui.jsonl": "{}\n",
+    }
+    for path, content in sources.items():
+        path.write_text(content, encoding="utf-8")
+    (generated / "manifest.json").write_text(json.dumps({
+        "accepted_genui_sha256": sha256(generated / "accepted_genui.jsonl"),
+    }), encoding="utf-8")
+    report = {"source_manifest_sha256": sha256(prepared / "manifest.json"),
+              "generation_manifest_sha256": sha256(generated / "manifest.json"),
+              "donors_sha256": sha256(generated.parent / "donors.jsonl"),
+              "reference_bindings_sha256": sha256(generated.parent / "reference_bindings.json")}
+    (bundle / "augmentation.json").write_text(json.dumps(report), encoding="utf-8")
+    semantic_preparation._seal_evidence(tmp_path)
+    destination = bundle / "augmentation_reference_bindings.json"
+    assert sha256(destination) == report["reference_bindings_sha256"]
+    semantic_preparation._seal_evidence(tmp_path)
+    destination.write_text("changed", encoding="utf-8")
+    with pytest.raises(ValueError, match="Previously sealed"):
+        semantic_preparation._seal_evidence(tmp_path)
+
+
+def test_interrupted_atomic_receipt_write_keeps_previous_json(tmp_path, monkeypatch):
+    from ir_training.pipeline import preparation_cache
+
+    receipt = tmp_path / "augmentation_preparation_manifest.json"
+    semantic_preparation._write(receipt, {"status": "failed", "active_stage": "augment"})
+    before = receipt.read_bytes()
+
+    def interrupted(*args, **kwargs):
+        raise OSError("interrupted before atomic replacement")
+
+    monkeypatch.setattr(preparation_cache.os, "replace", interrupted)
+    with pytest.raises(OSError, match="atomic replacement"):
+        semantic_preparation._write(receipt, {"status": "running"})
+    assert receipt.read_bytes() == before
+    assert json.loads(receipt.read_text(encoding="utf-8"))["status"] == "failed"
+    assert not list(tmp_path.glob(".receipt-*"))
+
+
+def test_parallel_standalone_execution_is_locked_before_output_write(options, monkeypatch):
+    from ir_training.common.cache_store import cache_lock, digest
+
+    output = options.output_dir.resolve()
+    key = "standalone-augmentation-" + digest(os.path.normcase(str(output)))
+    monkeypatch.setattr(golden_training, "prepare_data", lambda *a, **k: pytest.fail("Competing run must not start"))
+    with cache_lock(output.parent, key), pytest.raises(TimeoutError, match="timed out"):
+        semantic_preparation.prepare_semantic_dataset(options, execute=True)
+    assert not output.exists()

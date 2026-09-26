@@ -12,6 +12,7 @@ import math
 import os
 import shutil
 import sys
+import uuid
 from collections import Counter, defaultdict
 from copy import deepcopy
 from pathlib import Path
@@ -55,6 +56,54 @@ def _write_rows(path: Path, rows) -> None:
     with path.open("w", encoding="utf-8", newline="\n") as stream:
         for row in rows:
             stream.write(_json(row) + "\n")
+
+
+def _reference_bindings(source: Path, donors: list[dict], donor_hash: str) -> dict:
+    """Preserve explicit source bindings without exporting any donor target."""
+    from ir_training.data.reference_binding import _reference_map, reference_tokens
+
+    selected = {row["donor_id"]: row for row in donors}
+    bindings = {}
+    for _, _, row in _rows(source / "train.jsonl"):
+        identity = source_identity_record(row)["row_id"]
+        if identity not in selected:
+            continue
+        if row["response_text"] != selected[identity]["response_text"]:
+            raise ValueError("Donor source differs from original prepared data")
+        tokens = reference_tokens(row["response_text"])
+        mapping = _reference_map(row)
+        bindings[identity] = {"source_sha256": _sha(row["response_text"]),
+                              "reference_map": {key: value for key, value in mapping.items() if key in tokens}}
+    if set(bindings) != set(selected):
+        raise ValueError("Donor reference inventory differs from original prepared data")
+    return {"version": 1, "donors_sha256": donor_hash, "bindings": bindings}
+
+
+def _preparation_resume_contract(options: dict, hashes: dict) -> dict:
+    return {"version": 1, "source_files": hashes,
+            "implementation_sha256": file_sha256(Path(__file__)),
+            "reference_normalization_sha256": file_sha256(Path(__file__).with_name("semantic_reference_normalization.py")),
+            "options": {key: options.get(key) for key in sorted(options)
+                        if key.startswith("augmentation") or key in {
+                            "profile", "seed", "max_seq_length", "max_input_tokens", "model_dir"}}}
+
+
+def _published_report(destination: Path, generated: Path, hashes: dict, donor_path: Path) -> dict:
+    """Recover an already published bundle without replacing its bytes."""
+    manifest = checked_preparation_manifest(destination)
+    report = json.loads((destination / "augmentation.json").read_text(encoding="utf-8"))
+    if (manifest.get("augmentation") != report
+            or manifest.get("augmentation_sha256") != file_sha256(destination / "augmentation.json")
+            or report.get("source_manifest_sha256") != hashes["manifest.json"]
+            or report.get("donors_sha256") != file_sha256(donor_path)
+            or report.get("generation_manifest_sha256") != file_sha256(generated / "manifest.json")):
+        raise ValueError("Published augmentation provenance changed; cannot resume sealing")
+    for name, entry in manifest.get("splits", {}).items():
+        if file_sha256(destination / f"{name}.jsonl") != entry.get("output_sha256"):
+            raise ValueError(f"Published augmentation split changed: {name}")
+        if name != "train" and entry.get("output_sha256") != hashes.get(f"{name}.jsonl"):
+            raise ValueError(f"Published augmentation changed reserved split: {name}")
+    return report
 
 
 def validate_semantic_options(options: dict[str, Any]) -> None:
@@ -169,6 +218,10 @@ def _candidate_rows(generated: Path, donors: list[dict], originals: set[str], so
     _api()
     from pipeline.training_augmentation import CATEGORIES
     from pipeline.training_augmentation import VERSION as DATASET_VERSION
+
+    from ir_training.data.semantic_reference_normalization import (
+        normalize_semantic_candidate,
+    )
     categories = set(CATEGORIES)
     if (manifest.get("version") != DATASET_VERSION or manifest.get("status") != "completed"
             or manifest.get("teacher_model") != options.get("augmentation_teacher_model", DEFAULT_TEACHER)
@@ -219,31 +272,53 @@ def _candidate_rows(generated: Path, donors: list[dict], originals: set[str], so
             raise ValueError("Augmentation row identity collision")
         seen_ids.add(identity)
         used_donors.add(donor["donor_id"])
+        normalized = normalize_semantic_candidate(candidate)
+        training_source, training_completion = normalized["response_text"], normalized["completion"]
         rows.append({"id": identity, "row_id": identity, "source_id": donor["source_group_id"],
-                     "query_id": identity + ":query", "response_id": identity + ":response", "response_text": source,
-                     "messages": [{"role": "user", "content": TASK_PREFIX + source},
-                                  {"role": "assistant", "content": completion}],
-                     "prompt": "", "completion": completion, "target_format": "a2ui_express_v1",
-                     "metadata": {"augmentation": {**deepcopy(provenance), "kind": VERSION,
+                     "query_id": identity + ":query", "response_id": identity + ":response", "response_text": training_source,
+                     "messages": [{"role": "user", "content": TASK_PREFIX + training_source},
+                                  {"role": "assistant", "content": training_completion}],
+                     "prompt": "", "completion": training_completion, "target_format": "a2ui_express_v1",
+                     "metadata": {**normalized["metadata"], "augmentation": {**deepcopy(provenance), "kind": VERSION,
                                                    "stage3_ui_id": candidate.get("ui_id"),
                                                    "stage3_record_sha256": _sha(_json(candidate))}}})
     return rows, manifest
 
 
-def augment_training_at_startup(plan: dict, *, tokenizer_loader=None, command_runner=None) -> dict:
-    """Run once before student loading, then publish a new frozen preparation.
+def augment_training_at_startup(plan: dict, *, tokenizer_loader=None, command_runner=None, resume=False) -> dict:
+    """Standalone-only producer; training consumers never invoke generation.
 
-    Failure leaves audits in semantic_augmentation/ but never publishes an
-    incomplete augmented/ directory. A retry uses a fresh run output directory.
+    Explicit resume preserves the original prepared bytes and generation audits.
+    Postprocessing retries use a new directory, never overwrite an earlier IR.
     """
+    from ir_training.common.cache_store import assert_no_links, cache_lock
+
+    output = Path(plan["options"]["output_dir"]).absolute()
+    assert_no_links(output)
+    with cache_lock(output, "semantic-augmentation", timeout=1, interval=1):
+        return _augment_prepared(plan, tokenizer_loader=tokenizer_loader,
+                                 command_runner=command_runner, resume=resume)
+
+
+def _augment_prepared(plan: dict, *, tokenizer_loader=None, command_runner=None, resume=False) -> dict:
+    from ir_training.common.cache_store import assert_no_links
+    from ir_training.pipeline.preparation_cache import _atomic_json
+
     options = plan["options"]
     if options.get("augmentation") != "semantic":
         raise ValueError("Semantic startup helper requires augmentation=semantic")
     validate_semantic_options(options)
     output = Path(options["output_dir"]).resolve()
     source, destination, work = output / "prepared", output / "augmented", output / "semantic_augmentation"
-    if destination.exists() or work.exists():
+    for root in (source, destination, work):
+        assert_no_links(root)
+        if root.exists():
+            for path in root.rglob("*"):
+                assert_no_links(path)
+    if not resume and (destination.exists() or work.exists()):
         raise FileExistsError("Augmentation requires a fresh work and output directory")
+    if resume and not work.is_dir():
+        raise ValueError("No saved augmentation work to resume")
     if source.is_symlink():
         raise ValueError("Prepared augmentation source must not be a symlink")
     manifest = checked_preparation_manifest(source)
@@ -269,33 +344,86 @@ def augment_training_at_startup(plan: dict, *, tokenizer_loader=None, command_ru
     # Includes omitted/replaced Golden source identities embedded in manifests.
     reserved = load_reserved_cohorts([source / f"{name}.jsonl" for name in splits if name != "train"])
     donors, original_ids, source_hashes, original_tokens, families = _select_donors(source, manifest, reserved, options)
-    work.mkdir(parents=True)
+    contract = _preparation_resume_contract(options, hashes)
+    contract_path = work / "preparation_contract.json"
+    saved = None
+    if resume and contract_path.exists():
+        saved = json.loads(contract_path.read_text(encoding="utf-8"))
+        if saved.get("contract") != contract:
+            raise ValueError("Augmentation preparation resume contract changed")
+    work.mkdir(parents=True, exist_ok=resume)
     donor_path, generated = work / "donors.jsonl", work / "generated"
-    _write_rows(donor_path, donors)
+    donor_bytes = "".join(_json(row) + "\n" for row in donors).encode("utf-8")
+    if resume:
+        if not donor_path.is_file() or donor_path.read_bytes() != donor_bytes:
+            raise ValueError("Saved augmentation donors changed; cannot resume")
+    else:
+        _write_rows(donor_path, donors)
+    bindings_path = work / "reference_bindings.json"
+    bindings = _reference_bindings(source, donors, file_sha256(donor_path))
+    if bindings_path.exists() and json.loads(bindings_path.read_text(encoding="utf-8")) != bindings:
+        raise ValueError("Saved donor reference bindings changed; cannot resume")
+    if resume and saved is None:
+        # Only the exact known legacy producer can migrate. Missing historical
+        # provenance is not an invitation to bless an arbitrary old directory.
+        from ir_training.data.express_preparation import _api
+        _api()
+        from pipeline.training_augmentation import validate_generation_resume
+
+        migration = validate_generation_resume(donor_path, generated,
+            teacher_model=options.get("augmentation_teacher_model", DEFAULT_TEACHER),
+            max_new_samples=len(donors), seed=options.get("seed", 42))
+        saved = {"contract": contract, "legacy_migration": migration}
+    if not bindings_path.exists():
+        _atomic_json(bindings_path, bindings)
+    saved = saved or {"contract": contract}
+    if destination.exists():
+        report = _published_report(destination, generated, hashes, donor_path)
+        return {**report, "artifact_paths": [str(path.resolve()) for root in (work, destination)
+                                              for path in sorted(root.rglob("*")) if path.is_file()]}
+    generation_files = saved.get("generation_files")
+    if generation_files is not None:
+        if not isinstance(generation_files, dict) or set(generation_files) != {"manifest.json", "accepted_genui.jsonl"}:
+            raise ValueError("Saved completed generation inventory is invalid")
+        for name, digest in generation_files.items():
+            if name not in {"manifest.json", "accepted_genui.jsonl"} or file_sha256(generated / name) != digest:
+                raise ValueError("Saved completed generation changed; cannot resume")
+    _atomic_json(contract_path, saved)
+    processing = work if not resume else work / "preparation_attempts" / uuid.uuid4().hex
+    processing.mkdir(parents=True, exist_ok=not resume)
     command = [str(options.get("augmentation_python") or sys.executable),
                str(repo_root() / "dataset/scripts/generate_training_augmentations.py"),
                "--donors", str(donor_path), "--output-dir", str(generated),
                "--teacher-model", options.get("augmentation_teacher_model", DEFAULT_TEACHER),
-               "--max-new-samples", str(len(donors)), "--seed", str(options.get("seed", 42))]
-    log(f"Semantic augmentation: at most {len(donors)} train-only Muse variants before model loading")
-    (command_runner or run_bounded_command)(command, log=work / "generation.log", environment=dict(os.environ),
+               "--max-new-samples", str(len(donors)), "--seed", str(options.get("seed", 42)),
+               "--reference-bindings", str(bindings_path)]
+    if resume and generated.exists() and any(generated.iterdir()):
+        command.append("--resume")
+    log(f"Standalone semantic augmentation: at most {len(donors)} train-only Muse variants")
+    if generation_files is None:
+        (command_runner or run_bounded_command)(command, log=processing / "generation.log", environment=dict(os.environ),
                                             timeout_seconds=options.get("augmentation_timeout_seconds", 7200),
                                             progress_seconds=options.get("progress_seconds", 10), emit_heartbeat=False)
     candidates, generation = _candidate_rows(generated, donors, original_ids, source_hashes, options, reserved=reserved)
     if generation.get("donors_sha256") != file_sha256(donor_path):
         raise ValueError("Generated augmentation donor-file hash differs from this run")
+    if (generation.get("reference_bindings_sha256") is not None
+            and generation["reference_bindings_sha256"] != file_sha256(bindings_path)):
+        raise ValueError("Generated augmentation reference binding hash differs from this run")
+    saved["generation_files"] = {name: file_sha256(generated / name) for name in ("manifest.json", "accepted_genui.jsonl")}
+    _atomic_json(contract_path, saved)
     accepted, quarantine, filtering = audit_and_filter_rows(candidates, reserved=reserved, require_source_identities=True)
-    _write_rows(work / "filtered_candidates.jsonl", accepted)
-    _write_rows(work / "candidate_quarantine.jsonl", quarantine)
-    _write(work / "filtering.json", filtering)
+    _write_rows(processing / "filtered_candidates.jsonl", accepted)
+    _write_rows(processing / "candidate_quarantine.jsonl", quarantine)
+    _write(processing / "filtering.json", filtering)
     if not accepted:
         raise ValueError("No semantic candidates survived reserved-source/strict validation")
     if tokenizer_loader is None:
         from ir_training.pipeline.golden_training import _load_tokenizer
         tokenizer_loader = _load_tokenizer
     tokenizer = tokenizer_loader(Path(options["model_dir"]), options.get("profile", "e2b"))
-    candidate_prepared = work / "candidate_prepared"
-    prepared = prepare_splits({"train": work / "filtered_candidates.jsonl"}, candidate_prepared,
+    candidate_prepared = processing / "candidate_prepared"
+    prepared = prepare_splits({"train": processing / "filtered_candidates.jsonl"}, candidate_prepared,
                               tokenizer=tokenizer, ordering="root-first", shared_prompt=plan["shared_prompt"],
                               max_seq_length=options["max_seq_length"], max_input_tokens=options["max_input_tokens"],
                               chat_template_kwargs=tokenizer_contract.get("chat_template_kwargs") or {},
@@ -312,10 +440,14 @@ def augment_training_at_startup(plan: dict, *, tokenizer_loader=None, command_ru
         else:
             added.append(row)
             added_tokens += tokens
-    _write_rows(work / "token_budget_quarantine.jsonl", budget_rejected)
+    _write_rows(processing / "token_budget_quarantine.jsonl", budget_rejected)
     if not added:
         raise ValueError("No semantic candidates fit the augmentation token budget; training was not started")
+    from ir_training.data.semantic_reference_normalization import (
+        VERSION as NORMALIZATION_VERSION,
+    )
     report = {"version": VERSION, "kind": "stage3_semantic_generation", "seed": options.get("seed", 42),
+              "reference_normalization_version": NORMALIZATION_VERSION,
               "source_manifest_sha256": hashes["manifest.json"], "generation_manifest_sha256": file_sha256(generated / "manifest.json"),
               "donors_sha256": file_sha256(donor_path), "source_families": families, "selected_families": len(donors),
               "attempted_rows": generation["attempted_rows"], "stage3_accepted_rows": generation["accepted_rows"],
@@ -330,7 +462,9 @@ def augment_training_at_startup(plan: dict, *, tokenizer_loader=None, command_ru
               "recipe": {key: options.get(key) for key in options if key.startswith("augmentation")},
               "quality_claim": "Synthetic candidates passed automatic checks; real accuracy and rendered quality remain unmeasured.",
               "comparison_policy": "Extra training tokens change an epoch budget; compare matched token/step budgets, not equal epochs."}
-    bundle = work / "bundle"
+    if generation.get("reference_bindings_sha256") is not None:
+        report["reference_bindings_sha256"] = generation["reference_bindings_sha256"]
+    bundle = processing / "bundle"
     bundle.mkdir()
     for path in files:
         if path.name not in {"train.jsonl", "manifest.json"}:

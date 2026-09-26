@@ -192,6 +192,44 @@ def test_sealed_semantic_bundle_keeps_generation_lineage(semantic_plan):
     assert "augmentation_accepted_genui.jsonl" in report["source_files"]
 
 
+@pytest.mark.parametrize("change", [None, "missing", "hash", "donor", "source", "mapping", "orphan"])
+def test_portable_reference_bindings_match_original_donors(semantic_plan, change):
+    source = Path(semantic_plan["options"]["prepared_input_dir"])
+    binding_path = source / "augmentation_reference_bindings.json"
+    shutil.copyfile(source.parent / "semantic_augmentation/reference_bindings.json", binding_path)
+    binding = json.loads(binding_path.read_text(encoding="utf-8"))
+    if change == "donor":
+        binding["bindings"].pop(next(iter(binding["bindings"])))
+    elif change == "source":
+        next(iter(binding["bindings"].values()))["source_sha256"] = "0" * 64
+    elif change == "mapping":
+        next(iter(binding["bindings"].values()))["reference_map"] = {"[ICON_URL_1]": "https://wrong.invalid/icon.svg"}
+    save(binding_path, binding)
+    generation_path = source / "augmentation_generation_manifest.json"
+    generation = json.loads(generation_path.read_text(encoding="utf-8"))
+    report = json.loads((source / "augmentation.json").read_text(encoding="utf-8"))
+    if change != "orphan":
+        generation["reference_bindings_sha256"] = file_sha256(binding_path)
+        report["reference_bindings_sha256"] = file_sha256(binding_path)
+    save(generation_path, generation)
+    report["generation_manifest_sha256"] = file_sha256(generation_path)
+    save(source / "augmentation.json", report)
+    manifest = json.loads((source / "manifest.json").read_text(encoding="utf-8"))
+    manifest["augmentation"] = report
+    manifest["augmentation_sha256"] = file_sha256(source / "augmentation.json")
+    save(source / "manifest.json", manifest)
+    if change == "missing":
+        binding_path.unlink()
+    elif change == "hash":
+        binding_path.write_text("{}", encoding="utf-8")
+    if change is None:
+        checked = validate_prepared_input(semantic_plan, tokenizer_loader=load_tokenizer)
+        assert checked["augmentation"]["reference_bindings_sha256"] == file_sha256(binding_path)
+    else:
+        with pytest.raises(ValueError, match="reference binding"):
+            validate_prepared_input(semantic_plan, tokenizer_loader=load_tokenizer)
+
+
 @pytest.mark.parametrize("name", [
     "augmentation_source_manifest.json", "augmentation_generation_manifest.json",
     "augmentation_donors.jsonl", "augmentation_accepted_genui.jsonl", "augmentation.json",

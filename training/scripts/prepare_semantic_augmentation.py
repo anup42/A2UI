@@ -20,7 +20,7 @@ def build_parser() -> argparse.ArgumentParser:
     source = parser.add_mutually_exclusive_group(required=True)
     source.add_argument("--input-dir", type=Path, help="Source-bound train.jsonl and val.jsonl")
     source.add_argument("--source-run-dir", type=Path, help="Completed dataset run with responses.jsonl and genui.jsonl")
-    parser.add_argument("--output-dir", type=Path, required=True, help="Fresh augmentation job directory; publishes augmented/ for training's --augmentation-dir")
+    parser.add_argument("--output-dir", type=Path, required=True, help="Fresh job directory, or the same job with --resume; publishes augmented/ for training's --augmentation-dir")
     parser.add_argument("--max-seq-length", type=int, default=4096)
     parser.add_argument("--max-input-tokens", type=int, help="Evaluation prompt limit; defaults to 5120 for E2B, 4096 for 270M")
     parser.add_argument("--max-new-tokens", type=int, default=2048)
@@ -36,16 +36,18 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--augmentation-max-extra-fraction", type=float, default=0.10, help="Maximum extra row AND token fraction")
     parser.add_argument("--augmentation-max-family-repeats", type=int, default=2)
     parser.add_argument("--execute", action="store_true", help="Contact the running Muse server and publish data; otherwise inspect plan only")
+    parser.add_argument("--resume", action="store_true", help="Verify and resume this same standalone output; never reprepare original data")
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
     values = vars(build_parser().parse_args(argv))
     execute = values.pop("execute")
+    resume = values.pop("resume")
     if values["max_input_tokens"] is None:
         values["max_input_tokens"] = 5120 if values["profile"] == "e2b" else 4096
     try:
-        result = prepare_semantic_dataset(GoldenTrainingOptions(**values, augmentation="semantic"), execute=execute)
+        result = prepare_semantic_dataset(GoldenTrainingOptions(**values, augmentation="semantic"), execute=execute, resume=resume)
     except (ValueError, OSError, RuntimeError) as exc:
         print(f"Standalone Muse preparation failed: {exc}", file=sys.stderr)
         return 2

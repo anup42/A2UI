@@ -85,7 +85,7 @@ from utils.retry import with_retry
 _MODEL_REFERENCE_RE = re.compile(
     r"(?:"
     r"(?P<quote>[\"'])(?P<quoted_local>(?:[A-Za-z]:[/\\]|/(?:data|sdcard|storage|mnt|android_asset)/|\.\.?[/\\]|(?:assets?|media|images?|res|drawable|mipmap|raw)[/\\]|@[a-z][a-z0-9_.-]*/)[^\"']+)(?P=quote)|"
-    r"\b(?:https?|ftp)://[^\s<>\"']+|\b(?:mailto|tel|geo|intent|genuicraft|data|javascript|blob|urn|sms|market):[^\s<>\"']+|"
+    r"\b(?:https?|ftp)://[^\s<>\"']+|\b(?:app|action|mailto|tel|geo|intent|genuicraft|data|javascript|blob|urn|sms|market):[^\s<>\"']+|"
     r"(?<![\w])(?:[A-Za-z]:[/\\]|/(?:data|sdcard|storage|mnt|android_asset)/|\.\.?[/\\]|(?:assets?|media|images?|res|drawable|mipmap|raw)[/\\]|@[a-z][a-z0-9_.-]*/)[^\s<>\"']+"
     r")",
     re.IGNORECASE,
@@ -2776,5 +2776,4 @@ def run_stage3(
             logger.info("Stage3 completed created=%s", total_created)
     finally:
         _write_aggregates()
-
 

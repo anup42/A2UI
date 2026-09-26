@@ -436,6 +436,7 @@ def test_real_dataset_generator_outputs_feed_training_startup(tmp_path):
             teacher_model=command[command.index("--teacher-model") + 1],
             max_new_samples=int(command[command.index("--max-new-samples") + 1]),
             seed=int(command[command.index("--seed") + 1]), adapter=adapter, stage3_runner=stage3,
+            reference_bindings_path=Path(command[command.index("--reference-bindings") + 1]),
         )
 
     report = run(plan, command_runner)
@@ -444,6 +445,101 @@ def test_real_dataset_generator_outputs_feed_training_startup(tmp_path):
     assert {row["augmentation"]["seed"] for row in generated} == {42}
     assert {row["augmentation"]["candidate_seed"] for row in generated} == {42, 43}
     assert len(adapter.calls) == 4
+
+
+def test_failed_generation_can_resume_without_changing_prepared_data(tmp_path):
+    from ir_training.data.semantic_augmentation import augment_training_at_startup
+
+    plan = make_plan(tmp_path)
+    before = {path.name: path.read_bytes() for path in (tmp_path / "prepared").iterdir()}
+    def fail(*args, **kwargs):
+        raise RuntimeError("interrupted teacher")
+    with pytest.raises(RuntimeError, match="interrupted teacher"):
+        augment_training_at_startup(plan, tokenizer_loader=lambda *_: Tokenizer(), command_runner=fail)
+    donor_bytes = (tmp_path / "semantic_augmentation/donors.jsonl").read_bytes()
+    teacher = Teacher()
+    report = augment_training_at_startup(plan, tokenizer_loader=lambda *_: Tokenizer(),
+                                        command_runner=teacher, resume=True)
+    assert report["added_rows"] == 1  # Token cap still applies on resume.
+    assert len(teacher.calls) == 1
+    assert (tmp_path / "semantic_augmentation/donors.jsonl").read_bytes() == donor_bytes
+    assert {path.name: path.read_bytes() for path in (tmp_path / "prepared").iterdir()} == before
+    assert "--reference-bindings" in teacher.calls[0][0]
+
+
+def test_postprocessing_resume_reuses_completed_generation_and_preserves_diagnostics(tmp_path):
+    from ir_training.data.semantic_augmentation import augment_training_at_startup
+
+    plan = make_plan(tmp_path)
+    teacher = Teacher()
+    def fail(*args):
+        raise RuntimeError("tokenizer unavailable")
+    with pytest.raises(RuntimeError, match="tokenizer unavailable"):
+        augment_training_at_startup(plan, tokenizer_loader=fail, command_runner=teacher)
+    original = (tmp_path / "semantic_augmentation/filtered_candidates.jsonl").read_bytes()
+    def forbidden(*args, **kwargs):
+        pytest.fail("Completed generation must not call Muse again")
+    report = augment_training_at_startup(plan, tokenizer_loader=lambda *_: Tokenizer(),
+                                        command_runner=forbidden, resume=True)
+    assert report["added_rows"] == 1 and len(teacher.calls) == 1
+    assert (tmp_path / "semantic_augmentation/filtered_candidates.jsonl").read_bytes() == original
+    assert len(list((tmp_path / "semantic_augmentation/preparation_attempts").iterdir())) == 1
+
+
+@pytest.mark.parametrize("change", ["recipe", "base", "donors", "bindings", "implementation", "generation"])
+def test_resume_rejects_changed_preparation_evidence_before_teacher(tmp_path, change):
+    from ir_training.data.semantic_augmentation import augment_training_at_startup
+
+    plan = make_plan(tmp_path)
+    def fail(*args):
+        raise RuntimeError("tokenizer unavailable")
+    with pytest.raises(RuntimeError, match="tokenizer unavailable"):
+        augment_training_at_startup(plan, tokenizer_loader=fail, command_runner=Teacher())
+    work = tmp_path / "semantic_augmentation"
+    if change == "recipe":
+        plan["options"]["seed"] = 43
+    elif change == "base":
+        path = tmp_path / "prepared/val.jsonl"
+        path.write_bytes(path.read_bytes() + b"\n")
+    elif change == "implementation":
+        path = work / "preparation_contract.json"
+        value = json.loads(path.read_text())
+        value["contract"]["implementation_sha256"] = "0" * 64
+        path.write_text(json.dumps(value))
+    elif change == "bindings":
+        path = work / "reference_bindings.json"
+        value = json.loads(path.read_text())
+        value["bindings"] = {}
+        path.write_text(json.dumps(value))
+    else:
+        path = work / ("donors.jsonl" if change == "donors" else "generated/accepted_genui.jsonl")
+        path.write_bytes(path.read_bytes() + b"\n")
+    def forbidden(*args, **kwargs):
+        pytest.fail("Changed provenance must fail before teacher calls")
+    with pytest.raises(ValueError, match="changed|differs|contract"):
+        augment_training_at_startup(plan, tokenizer_loader=lambda *_: Tokenizer(),
+                                    command_runner=forbidden, resume=True)
+    assert not (tmp_path / "augmented").exists()
+
+
+def test_donor_reference_sidecar_preserves_mapping_without_targets(tmp_path):
+    from ir_training.data.golden_replacement import source_identity_record
+    from ir_training.data.semantic_augmentation import _reference_bindings
+
+    row = source_row("train-refs", source="An optional icon: [ICON_URL_1].")
+    row["metadata"]["url_preprocessing"] = {"url_map": {
+        "[ICON_URL_1]": {"url": "https://example.invalid/existing.svg"},
+        "[URL_99]": {"url": "https://example.invalid/unused"},
+    }}
+    plan = make_plan(tmp_path, rows=[row])
+    prepared = next(read_jsonl(tmp_path / "prepared/train.jsonl"))
+    donor = {"donor_id": source_identity_record(prepared)["row_id"], "split": "train",
+             "source_group_id": "train-refs", "response_text": prepared["response_text"]}
+    sidecar = _reference_bindings(Path(plan["options"]["output_dir"]) / "prepared", [donor], "1" * 64)
+    entry = sidecar["bindings"][donor["donor_id"]]
+    assert entry["reference_map"] == {"[ICON_URL_1]": "https://example.invalid/existing.svg"}
+    assert entry["source_sha256"] == sha(prepared["response_text"])
+    assert "completion" not in json.dumps(sidecar) and "unused" not in json.dumps(sidecar)
 
 
 @pytest.mark.parametrize("mode", ["none", "rare_components"])
@@ -476,3 +572,99 @@ def test_legacy_nonsemantic_plan_continues_with_only_new_defaults(tmp_path, mode
                      {"augmentation_timeout_seconds": 60}, {"augmentation_python": model / "python"}, {"epochs": 2}):
         with pytest.raises(ValueError, match="Workflow options or prompt contract changed"):
             workflow.run_pipeline(replace(options, **override), prepare_only=True, continue_run=True)
+
+
+@pytest.mark.parametrize("bound", [True, False])
+def test_stage3_reference_pair_prepares_seals_and_verifies_portably(tmp_path, bound):
+    """Exercise the actual standalone preparation and portable bundle consumer.
+
+    The inference seam emits the exact Stage3 transport shape: raw response,
+    opaque-token Express, explicit map, and restored canonical graph/hash.
+    No teacher server, media downloader or student weights are involved.
+    """
+    import shutil
+    from dataclasses import replace
+
+    from ir_training.data.express_preparation import _api, serialize_checked
+    from ir_training.data.prepared_input import validate_prepared_input
+    from ir_training.data.reference_binding import reference_tokens
+    from ir_training.data.semantic_reference_normalization import (
+        VERSION as NORMALIZATION_VERSION,
+    )
+    from ir_training.data.url_preprocess import restore_url_placeholders
+    from ir_training.pipeline import golden_training, semantic_preparation
+    from ir_training.pipeline.golden_training import GoldenTrainingOptions
+
+    _api()
+    from pipeline.stage3_genui import _mask_model_references, _restore_model_references
+
+    model, inputs = tmp_path / "tokenizer", tmp_path / "inputs"
+    model.mkdir()
+    inputs.mkdir()
+    for name in ("config.json", "tokenizer_config.json"):
+        (model / name).write_text("{}", encoding="utf-8")
+    write_jsonl(inputs / "train.jsonl", [source_row(f"train-{index}") for index in range(20)])
+    write_jsonl(inputs / "val.jsonl", [source_row("reserved-validation")])
+    options = GoldenTrainingOptions(model, tmp_path / "preparation", profile="e2b", input_dir=inputs,
+                                    max_seq_length=4096, max_input_tokens=5120, augmentation="semantic",
+                                    prepare_workers=1, preparation_cache=False)
+    raw_source = ("Synthetic mock status; no operation is executed.\n"
+                  "Media: Icon=https://synthetic.invalid/status.svg\n"
+                  "Action: [Button: Mock details] action://synthetic/status/details")
+
+    def with_stage3_references(records, donors):
+        record = records[0]
+        masked, _, mapping = _mask_model_references(raw_source, [])
+        assert "https://" not in masked and "action://" not in masked
+        completion = ('<a2ui>\nroot=Column([icon,button])\n'
+                      'icon=Icon("[ICON_URL_1]")\n'
+                      'button=Button("Mock details",onPress=openUrl("[URL_1]"))\n</a2ui>')
+        record.update(response_text=raw_source, completion=completion, a2ui_express=completion)
+        record["augmentation"]["source_sha256"] = sha(raw_source)
+        if bound:
+            record["reference_map"] = mapping
+            record["canonical_graph"] = _restore_model_references(serialize_checked(completion, "root-first").graph, mapping)
+            record["canonical_graph_hash"] = _api()[2](record["canonical_graph"])
+        return [record]
+
+    teacher = Teacher(transform=with_stage3_references)
+    if not bound:
+        with pytest.raises(ValueError, match="unbound_target_references"):
+            semantic_preparation.prepare_semantic_dataset(options, execute=True,
+                tokenizer_loader=lambda *_: Tokenizer(), command_runner=teacher)
+        assert not (options.output_dir / "augmented").exists()
+        receipt = json.loads((options.output_dir / "augmentation_preparation_manifest.json").read_text())
+        assert receipt["status"] == "failed" and receipt["active_stage"] == "augment"
+        return
+
+    state = semantic_preparation.prepare_semantic_dataset(options, execute=True,
+        tokenizer_loader=lambda *_: Tokenizer(), command_runner=teacher)
+    assert state["status"] == "prepared" and len(teacher.calls) == 1
+    bundle = options.output_dir / "augmented"
+    report = json.loads((bundle / "augmentation.json").read_text())
+    assert report["reference_normalization_version"] == NORMALIZATION_VERSION
+    assert report["added_rows"] == 1
+    row = list(read_jsonl(bundle / "train.jsonl"))[-1]
+    emitted = next(read_jsonl(bundle / "augmentation_accepted_genui.jsonl"))
+    assert emitted["response_text"] == raw_source
+    assert row["response_text"] != raw_source and "https://" not in row["response_text"] and "action://" not in row["response_text"]
+    assert row["metadata"]["augmentation"]["source_sha256"] == sha(raw_source)
+    target = serialize_checked(row["completion"], "root-first").graph
+    assert reference_tokens(target) <= reference_tokens(row["response_text"])
+    mapping = row["metadata"]["url_preprocessing"]["url_map"]
+    assert restore_url_placeholders(row["response_text"], mapping) == raw_source
+    assert restore_url_placeholders(target, mapping) == emitted["canonical_graph"]
+    for split in ("val", "golden32", "golden35", "bixby50"):
+        assert (bundle / f"{split}.jsonl").read_bytes() == (options.output_dir / "prepared" / f"{split}.jsonl").read_bytes()
+
+    # Evidence must work without reaching back into absolute producer paths.
+    portable = tmp_path / "portable-bundle"
+    shutil.copytree(bundle, portable)
+    options.output_dir.rename(tmp_path / "archived-producer")
+    consumer = replace(options, input_dir=None, prepared_input_dir=portable,
+                       output_dir=tmp_path / "consumer", augmentation="none")
+    plan = golden_training.build_plan(consumer, preparation_only=True, tokenizer_only=True)
+    validation = validate_prepared_input(plan, tokenizer_loader=lambda *_: Tokenizer())
+    assert validation["augmentation"]["added_rows"] == 1
+    assert validation["generation_executed"] is False and validation["student_weights_loaded"] is False
+    assert len(teacher.calls) == 1

@@ -26,12 +26,15 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--teacher-model", default=DEFAULT_TEACHER)
     parser.add_argument("--max-new-samples", type=int, default=90)
     parser.add_argument("--seed", type=int, default=123)
+    parser.add_argument("--resume", action="store_true", help="Resume only an identical, verified generation contract")
+    parser.add_argument("--reference-bindings", type=Path, help="Hash-bound donor reference-map sidecar")
     args = parser.parse_args(argv)
     if args.max_new_samples < 1:
         parser.error("--max-new-samples must be positive")
     try:
         manifest = generate_training_augmentations(args.donors, args.output_dir,
-            teacher_model=args.teacher_model, max_new_samples=args.max_new_samples, seed=args.seed)
+            teacher_model=args.teacher_model, max_new_samples=args.max_new_samples, seed=args.seed,
+            resume=args.resume, reference_bindings_path=args.reference_bindings)
     except (ValueError, RuntimeError, OSError) as exc:
         print(str(exc), file=sys.stderr)
         return 1

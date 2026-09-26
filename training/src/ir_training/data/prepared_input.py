@@ -108,7 +108,8 @@ def _golden_bindings(directory: Path, plan: dict) -> dict:
 
 def _augmentation_binding(directory: Path, manifest: dict, hashes: dict) -> dict | None:
     declared = manifest.get("augmentation")
-    evidence_names = {*SEMANTIC_EVIDENCE.values(), "augmentation_accepted_genui.jsonl", "augmentation.json"}
+    binding_name = "augmentation_reference_bindings.json"
+    evidence_names = {*SEMANTIC_EVIDENCE.values(), "augmentation_accepted_genui.jsonl", "augmentation.json", binding_name}
     if declared is None:
         if evidence_names & hashes.keys() or manifest.get("augmentation_sha256") or any(
             (row.get("metadata") or {}).get("augmentation") for _, _, row in _rows(directory / "train.jsonl")
@@ -148,6 +149,19 @@ def _augmentation_binding(directory: Path, manifest: dict, hashes: dict) -> dict
     by_donor = {row.get("donor_id"): row for row in donors}
     if len(by_donor) != len(donors) or any(row.get("split") != "train" for row in donors):
         raise ValueError("Semantic evidence contains duplicate or non-training donors")
+    reference_bindings = None
+    binding_hash = report.get("reference_bindings_sha256")
+    if binding_hash is not None:
+        if (hashes.get(binding_name) != binding_hash
+                or generation.get("reference_bindings_sha256") != binding_hash):
+            raise ValueError("Semantic reference binding evidence missing or changed")
+        bindings = _read(directory / binding_name)
+        reference_bindings = bindings.get("bindings")
+        if (bindings.get("version") != 1 or bindings.get("donors_sha256") != report["donors_sha256"]
+                or not isinstance(reference_bindings, dict) or set(reference_bindings) != set(by_donor)):
+            raise ValueError("Semantic reference binding donor inventory mismatch")
+    elif binding_name in hashes or generation.get("reference_bindings_sha256") is not None:
+        raise ValueError("Undeclared semantic reference binding evidence")
     if (len(accepted) != generation.get("accepted_rows") or len(accepted) != report.get("stage3_accepted_rows")
             or generation.get("attempted_rows") != report.get("attempted_rows")
             or not len(accepted) <= generation.get("attempted_rows", -1) <= len(donors)):
@@ -183,6 +197,19 @@ def _augmentation_binding(directory: Path, manifest: dict, hashes: dict) -> dict
             if donor is not None:
                 if donor.get("source_group_id") != identity["source_id"] or donor.get("response_text") != row.get("response_text"):
                     raise ValueError("Semantic donor differs from original training source")
+                if reference_bindings is not None:
+                    from ir_training.data.reference_binding import (
+                        _reference_map,
+                        reference_tokens,
+                    )
+                    source = row["response_text"]
+                    mapping = _reference_map(row)
+                    expected_binding = {
+                        "source_sha256": hashlib.sha256(source.encode("utf-8")).hexdigest(),
+                        "reference_map": {token: mapping[token] for token in sorted(reference_tokens(source)) if token in mapping},
+                    }
+                    if reference_bindings[identity["row_id"]] != expected_binding:
+                        raise ValueError("Semantic reference binding differs from original training source")
                 found_donors.add(identity["row_id"])
         else:
             if row_count > original_count + added_count:
@@ -207,8 +234,7 @@ def _augmentation_binding(directory: Path, manifest: dict, hashes: dict) -> dict
             raise ValueError("Semantic prepared row provenance differs from Stage 3")
         donor = by_donor.get(original_provenance.get("donor_id"))
         if (not donor or donor.get("source_group_id") != original_provenance.get("source_group_id")
-                or hashlib.sha256(donor["response_text"].encode("utf-8")).hexdigest() != original_provenance.get("donor_source_sha256")
-                or row.get("response_text") != candidate.get("response_text")):
+                or hashlib.sha256(donor["response_text"].encode("utf-8")).hexdigest() != original_provenance.get("donor_source_sha256")):
             raise ValueError("Semantic prepared row source/donor lineage mismatch")
         if donor["donor_id"] in used_donors:
             raise ValueError("Semantic augmentation reused a donor family")
@@ -218,13 +244,26 @@ def _augmentation_binding(directory: Path, manifest: dict, hashes: dict) -> dict
         if type(count) is not int or not 0 < count <= manifest["tokenizer"]["max_seq_length"]:
             raise ValueError("Semantic added training token evidence invalid")
         added_tokens += count
-        from ir_training.data.express_preparation import serialize_checked
-        if serialize_checked(row["completion"], "root-first").semantic_sha256 != serialize_checked(candidate["a2ui_express"], "root-first").semantic_sha256:
-            raise ValueError("Semantic prepared target differs from accepted Stage 3 evidence")
+        if report.get("reference_normalization_version") is not None:
+            from ir_training.data.semantic_reference_normalization import (
+                VERSION as NORMALIZATION_VERSION,
+            )
+            from ir_training.data.semantic_reference_normalization import (
+                verify_normalized_semantic_candidate,
+            )
+            if report["reference_normalization_version"] != NORMALIZATION_VERSION:
+                raise ValueError("Unknown semantic reference normalization version")
+            verify_normalized_semantic_candidate(row, candidate)
+        else:
+            # Previously sealed bundles retain their original raw-source contract.
+            from ir_training.data.express_preparation import serialize_checked
+            if (row.get("response_text") != candidate.get("response_text")
+                    or serialize_checked(row["completion"], "root-first").semantic_sha256 != serialize_checked(candidate["a2ui_express"], "root-first").semantic_sha256):
+                raise ValueError("Semantic prepared source/target differs from accepted Stage 3 evidence")
         from ir_training.data.express_preparation import _api
         _api()
         from pipeline.training_augmentation import admission_errors
-        if admission_errors(candidate, row["response_text"]):
+        if admission_errors(candidate, candidate["response_text"]):
             raise ValueError("Semantic Stage 3 evidence is not admitted")
     categories = Counter((row["metadata"]["augmentation"])["category"] for row in augmented)
     if dict(categories) != report.get("category_counts"):

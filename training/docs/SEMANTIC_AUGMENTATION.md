@@ -273,6 +273,12 @@ Do not combine `--prepared-input-dir` with `--augmentation-dir`.
 
 - `prepared/`: original preparation in the preprocessing output; never overwritten.
 - `semantic_augmentation/donors.jsonl`: selected train-only donor sources.
+- `semantic_augmentation/reference_bindings.json`: source-only reference bindings
+  from the original prepared metadata. It binds each donor source and its opaque
+  URL/media tokens; no donor target is exported to the teacher. Generation uses
+  these bindings to recover source destinations, and candidate preparation
+  normalizes references again so each accepted source/target pair shares the
+  same binding map. Unknown or mismatched references fail admission.
 - `semantic_augmentation/generated/`: teacher request outcomes, source reviews,
   raw Stage 3 records, accepted records, category coverage and hash manifests.
 - `semantic_augmentation/`: source-filter, tokenizer and token-budget rejection
@@ -293,8 +299,43 @@ For portable reuse, transfer the **whole** `augmented/` directory, including
 byte-preserved evidence files bind the original preparation, teacher generation,
 donors and accepted Stage 3 targets. Import rejects missing or changed evidence;
 copying only train/validation JSONL files is not frozen-data reuse.
+New reference-aware bundles also include `augmentation_reference_bindings.json`:
+copy this optional evidence file whenever present. Its hash is bound by the
+augmentation and generation evidence. Older valid bundles without this optional
+sidecar remain supported; it must not be invented or added by hand.
 
-Failed generation keeps its diagnostics; retry with a fresh output directory.
+Failed generation keeps its diagnostics. To retry a failed standalone augmentation
+without preparing the original data again, repeat the **same standalone command**
+with the same output, source, tokenizer, seed and limits, adding `--resume --execute`:
+
+```bash
+python training/scripts/prepare_semantic_augmentation.py \
+  --profile 270m --model-dir /models/gemma270m \
+  --input-dir /data/original --output-dir /runs/preprocess_270m_muse_01 \
+  --resume --execute
+```
+
+Repeat any nondefault options from the original invocation as well. Resume checks
+the original raw-input hashes, byte-frozen preparation, tokenizer, prompt, limits,
+holdouts and producer contract before retrying. It preserves prior receipts in
+`resume_history/`; it does not regenerate or overwrite `prepared/`. Changed input,
+configuration or unsupported code lineage is rejected. A preparation interrupted
+before a verified base was recorded requires a fresh output directory. Legacy
+failed outputs from the specifically supported pre-reference-fix producer require
+their original generation manifest and provenance; a missing manifest cannot be
+reconstructed by guessing. Existing source approvals are reused only after their
+bindings are checked, while corrected Stage 3 outputs pass the normal admission
+and sealing gates again. No hand-edited IR is used.
+Standalone execution holds one output-specific process lock across validation,
+generation, sealing and verification. Receipts are atomically replaced, so an
+interrupted receipt write leaves the prior complete JSON available for inspection.
+
+An already completed run is a read-only verified no-op under `--resume`; changed
+bundle bytes are rejected. This flag belongs only to the standalone preprocessing
+command. It neither starts student training nor starts/stops the Muse server.
+Without `--execute`, the command remains plan-only. Training still consumes the
+result using `--augmentation --augmentation-dir .../augmented`, without Muse calls.
+
 Official checkpoint resume
 must omit both the augmentation flag and `--augmentation-dir`: it reuses the checkpoint's frozen dataset
 (including earlier augmentation) and must not generate new data mid-resume.
