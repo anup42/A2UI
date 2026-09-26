@@ -16,6 +16,7 @@ from urllib.request import Request
 
 from pipeline.cache import PromptCache
 from pipeline.common import load_prompt, render_prompt
+from pipeline.muse_prompt import compose_stage3_prompt, format_muse_source, uses_muse_stage3_prompt
 from pipeline.generation_audit import (
     attempt_summary, compact_exception, graph_acceptance_errors,
     incomplete_reason, record_attempt,
@@ -846,7 +847,8 @@ def _prepare_prompt_context(
         or os.getenv("GEMINI_STAGE3_PROMPT_MODE")
         or "system_prefix"
     ).strip().lower()
-    if provider not in {"gemini", "azure_openai", "openai"} or mode in {"inline", "legacy", "off", "0", "false"}:
+    supports_system_prefix = provider in {"gemini", "azure_openai", "openai"} or uses_muse_stage3_prompt(adapter.spec)
+    if not supports_system_prefix or mode in {"inline", "legacy", "off", "0", "false"}:
         return None, template
 
     placeholder = "{response_text}"
@@ -917,7 +919,7 @@ def run_stage3(
         raise FileNotFoundError(f"Missing Stage 3 prompt for {active_ir_format}: {prompt_path}")
     if not schema_path.exists():
         raise FileNotFoundError(f"Missing Stage 3 schema for {active_ir_format}: {schema_path}")
-    prompt_template = load_prompt(prompt_path)
+    prompt_template = compose_stage3_prompt(load_prompt(prompt_path), adapter.spec)
     prompt_version = _extract_prompt_version(prompt_template, prompt_path)
     system_prompt, user_prompt_template = _prepare_prompt_context(prompt_template, adapter, logger)
     schema = json.loads(schema_path.read_text(encoding="utf-8"))
@@ -1226,6 +1228,10 @@ def run_stage3(
         prompt_response_text = response_with_policy
         if asset_context:
             prompt_response_text = f"{response_with_policy}\n\n{asset_context}"
+
+        if uses_muse_stage3_prompt(adapter.spec):
+            response_with_policy = format_muse_source(masked_response_text, asset_policy)
+            prompt_response_text = format_muse_source(masked_response_text, asset_policy, asset_context)
 
         prompt = render_prompt(user_prompt_template, response_text=prompt_response_text)
         if effective_prompt_max_tokens:
