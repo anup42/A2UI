@@ -248,6 +248,48 @@ def test_official_augmentation_cli(options, monkeypatch, flags, expected):
     assert captured[0][1] == {"execute": False}
 
 
+def test_official_prepared_input_plan_forwards_frozen_bundle(options, monkeypatch):
+    manifest = options.input_dir / "manifest.json"
+    manifest.write_text("{}", encoding="utf-8")
+    files = sorted(options.input_dir.iterdir())
+    monkeypatch.setitem(sys.modules, "ir_training.data.prepared_input",
+                        SimpleNamespace(prepared_input_files=lambda path: files))
+    frozen = replace(options, input_dir=None, prepared_input_dir=options.input_dir)
+    plan = workflow.build_plan(frozen)
+    assert plan["preparation"]["options"]["prepared_input_dir"] == str(options.input_dir)
+    assert plan["preparation"]["options"]["input_dir"] is None
+    assert plan["preparation"]["source_files"] == list(map(str, files))
+    assert plan["paths"]["prepared"] == str(options.output_dir / "prepared")
+    assert "augment" not in plan["stages"]
+
+
+@pytest.mark.parametrize("fields,match", [
+    ({"input_dir": "raw"}, "Choose"),
+    ({"augmentation": "semantic"}, "cannot be combined"),
+    ({"augmentation": "rare_components"}, "cannot be combined"),
+    ({"resume_from_checkpoint": "checkpoint"}, "cannot override"),
+])
+def test_official_prepared_input_rejects_conflicting_modes(options, fields, match):
+    fields = {key: options.model_dir.parent / value if value in {"raw", "checkpoint"} else value
+              for key, value in fields.items()}
+    values = {"input_dir": None, "prepared_input_dir": options.input_dir, **fields}
+    with pytest.raises(ValueError, match=match):
+        workflow.build_plan(replace(options, **values))
+
+
+def test_official_prepared_input_cli_does_not_require_raw_input(options, monkeypatch):
+    spec = importlib.util.spec_from_file_location("prepared_official_cli", ROOT / "scripts/run_official_mobile_pipeline.py")
+    script = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(script)
+    captured = []
+    monkeypatch.setattr(script, "run_pipeline", lambda value, **kwargs: captured.append(value) or {})
+    args = []
+    for name in ("model_dir", "source_safetensors", "official_litertlm", "output_dir"):
+        args.extend(["--" + name.replace("_", "-"), str(getattr(options, name))])
+    assert script.main([*args, "--prepared-input-dir", str(options.input_dir)]) == 0
+    assert captured[0].input_dir is None and captured[0].prepared_input_dir == options.input_dir
+
+
 @pytest.mark.parametrize(
     "missing",
     [
@@ -639,10 +681,16 @@ def test_real_cpu_prepare_and_portable_configure_bind_all_evaluation_contracts(
         })
         previous = {p: p.read_bytes() for p in options.output_dir.rglob("*") if p.is_file()}
         options = replace(options, output_dir=options.output_dir.with_name("continued-mobile"),
+                          input_dir=None if horizon_mode == "epochs" else options.input_dir,
                           steps=None if horizon_mode == "epochs" else 40,
                           epochs=4 if horizon_mode == "epochs" else None,
                           resume_from_checkpoint=checkpoint,
                           lora_rank=None, lora_alpha=None, learning_rate=None, seed=None)
+        for mode in ("semantic", "rare_components"):
+            with pytest.raises(ValueError, match="cannot change data on resume"):
+                workflow.build_plan(replace(options, augmentation=mode))
+        with pytest.raises(ValueError, match="cannot override"):
+            workflow.build_plan(replace(options, input_dir=None, prepared_input_dir=prepared_root))
         for key, value in {"lora_rank": rank + 1, "lora_alpha": rank + 1,
                            "learning_rate": rate * 2, "seed": 20}.items():
             with pytest.raises(ValueError, match="cannot change on resume"):
@@ -651,6 +699,9 @@ def test_real_cpu_prepare_and_portable_configure_bind_all_evaluation_contracts(
         plan = workflow.build_plan(options)
         assert "augment" not in plan["stages"]
         assert Path(plan["paths"]["prepared"]) == prepared_root
+        if options.input_dir is None:
+            assert plan["options"]["input_dir"] == str(prepared_root.resolve())
+            assert plan["preparation"]["options"]["input_dir"] == str(prepared_root.resolve())
         options.output_dir.mkdir()
         workflow.run_stage(plan, "prepare")
         configured_files = workflow._configure(plan)
@@ -1044,6 +1095,30 @@ def test_cli_plan_mode_forwards_options_without_execution(options, monkeypatch, 
     assert '"status": "plan-only-fixture"' in output
     assert "Plan only. Nothing trained/exported" in output
     assert not options.output_dir.exists()
+
+
+@pytest.mark.parametrize("resume", [False, True])
+def test_cli_omits_source_only_for_explicit_resume(options, monkeypatch, resume):
+    spec = importlib.util.spec_from_file_location("source_free_resume_cli", ROOT / "scripts/run_official_mobile_pipeline.py")
+    script = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(script)
+    captured = []
+    monkeypatch.setattr(script, "run_pipeline", lambda value, **kwargs: captured.append(value) or {})
+    args = []
+    for name in ("model_dir", "source_safetensors", "official_litertlm", "output_dir"):
+        args.extend(["--" + name.replace("_", "-"), str(getattr(options, name))])
+    if resume:
+        assert script.main([*args, "--resume-from-checkpoint", str(options.model_dir.parent / "checkpoint-10")]) == 0
+        assert captured[0].input_dir is None and captured[0].prepared_input_dir is None
+    else:
+        with pytest.raises(SystemExit):
+            script.main(args)
+        assert captured == []
+
+
+def test_fresh_plan_still_requires_an_input_source(options):
+    with pytest.raises(ValueError, match="Choose --input-dir or --prepared-input-dir"):
+        workflow.build_plan(replace(options, input_dir=None))
 
 
 def test_no_op_export_stage_uses_isolated_cpu_exporter_and_validates_report(options, monkeypatch):

@@ -43,6 +43,7 @@ class GoldenTrainingOptions:
     profile: str = "e2b"
     source_run_dir: Path | None = None
     input_dir: Path | None = None
+    prepared_input_dir: Path | None = None
     devices: str = "auto"
     epochs: float = 1.0
     steps: int | None = None
@@ -110,7 +111,9 @@ def _options(options: GoldenTrainingOptions) -> dict[str, Any]:
     for name in ("model_dir", "output_dir", "source_run_dir", "input_dir", "preparation_cache_dir", "token_cache_dir"):
         if result[name] is not None:
             result[name] = str(Path(result[name]).expanduser().resolve())
-    if not result["input_dir"] and not result["source_run_dir"]:
+    if result["prepared_input_dir"] is not None:
+        result["prepared_input_dir"] = os.path.abspath(os.path.expanduser(str(result["prepared_input_dir"])))
+    if not result["input_dir"] and not result["source_run_dir"] and not result["prepared_input_dir"]:
         result["source_run_dir"] = str(repo_root() / "dataset/data/runs/dataset_v1")
     result["preparation_cache_dir"] = str(Path(result["preparation_cache_dir"] or Path(result["output_dir"]).parent / ".golden-preparation-cache").resolve())
     result["token_cache_dir"] = str(Path(result["token_cache_dir"] or Path(result["preparation_cache_dir"]) / "tokens").resolve())
@@ -119,13 +122,15 @@ def _options(options: GoldenTrainingOptions) -> dict[str, Any]:
     return result
 
 
-def build_plan(options: GoldenTrainingOptions, *, preparation_only: bool = False) -> dict[str, Any]:
+def build_plan(options: GoldenTrainingOptions, *, preparation_only: bool = False, tokenizer_only: bool = False) -> dict[str, Any]:
     """Read-only plan; preparation-only callers may bind separate eval limits.
 
     Such callers own training/evaluation configuration. Do not return runnable
     legacy stages, whose configure command still requires a shared limit.
     """
     values = _options(options)
+    if tokenizer_only and not preparation_only:
+        raise ValueError("tokenizer_only requires preparation_only=True; training still requires local weights")
     if options.tensorboard_detail not in {"minimal", "full"}:
         raise ValueError("--tensorboard-detail must be minimal or full")
     from ir_training.train.hyperparameters import review_overrides
@@ -147,8 +152,10 @@ def build_plan(options: GoldenTrainingOptions, *, preparation_only: bool = False
         raise ValueError("--progress-seconds must be positive")
     if options.profile not in {"e2b", "270m"} or (options.qat and options.profile != "270m"):
         raise ValueError("Profiles are e2b dense LoRA and 270m full SFT; --qat is only for 270m. Official E2B retained-scale QAT uses its separate launcher.")
-    if options.input_dir and options.source_run_dir:
-        raise ValueError("Choose --input-dir or --source-run-dir, not both")
+    if sum(value is not None for value in (options.input_dir, options.source_run_dir, options.prepared_input_dir)) > 1:
+        raise ValueError("Choose only one of --input-dir, --source-run-dir or --prepared-input-dir")
+    if options.prepared_input_dir and options.augmentation != "none":
+        raise ValueError("--prepared-input-dir cannot be combined with --augmentation; use the frozen bundle unchanged")
     if not math.isfinite(options.epochs) or options.epochs <= 0 or (options.steps is not None and options.steps <= 0):
         raise ValueError("Epochs/steps must be positive")
     if options.eval_steps <= 0 or options.golden_every_steps <= 0 or options.golden_every_steps % options.eval_steps:
@@ -164,16 +171,23 @@ def build_plan(options: GoldenTrainingOptions, *, preparation_only: bool = False
     if options.max_input_tokens + options.max_new_tokens > (8192 if options.profile == "e2b" else 32768):
         raise ValueError("Prompt plus generation budget exceeds the selected recipe context")
     model = Path(values["model_dir"])
-    if not (model / "config.json").is_file() or not (model / "tokenizer_config.json").is_file() or not any(model.glob("*.safetensors")):
-        raise ValueError("--model-dir must contain local dense HF safetensors, config.json and tokenizer_config.json; no weights are downloaded")
-    source = Path(values["input_dir"] or values["source_run_dir"])
-    source_files = [source / name for name in (("train.jsonl", "val.jsonl") if values["input_dir"] else ("genui.jsonl", "responses.jsonl"))]
+    if not (model / "config.json").is_file() or not (model / "tokenizer_config.json").is_file() or (not tokenizer_only and not any(model.glob("*.safetensors"))):
+        required = "config.json and tokenizer_config.json" if tokenizer_only else "local dense HF safetensors, config.json and tokenizer_config.json"
+        raise ValueError(f"--model-dir must contain {required}; no files are downloaded")
+    source = Path(values["prepared_input_dir"] or values["input_dir"] or values["source_run_dir"])
+    if values["prepared_input_dir"]:
+        from ir_training.data.prepared_input import prepared_input_files
+        source_files = prepared_input_files(source)
+    else:
+        source_files = [source / name for name in (("train.jsonl", "val.jsonl") if values["input_dir"] else ("genui.jsonl", "responses.jsonl"))]
     for path in source_files:
         if not path.is_file():
             raise FileNotFoundError(f"Required source is missing: {path}")
     output = Path(values["output_dir"])
     if output == model or output in model.parents or output == source or output in source.parents:
         raise ValueError("Output directory must not contain the model or source inputs")
+    if values["prepared_input_dir"] and output.is_relative_to(source):
+        raise ValueError("Output directory must be separate from the frozen prepared input")
     for key in ("preparation_cache_dir", "token_cache_dir"):
         cache = Path(values[key])
         if any(cache.is_relative_to(protected) or protected.is_relative_to(cache) for protected in (model, source, output)):
@@ -253,6 +267,9 @@ def _strict_rows(path: Path):
 
 
 def prepare_data(plan: dict[str, Any], *, tokenizer_loader: Callable | None = None) -> dict[str, Any]:
+    if plan["options"].get("prepared_input_dir"):
+        from ir_training.data.prepared_input import adopt_prepared_input
+        return adopt_prepared_input(plan, tokenizer_loader=tokenizer_loader)
     from ir_training.data.audit_filter import load_reserved_cohorts
     from ir_training.data.shared_prompt import validate_shared_prompt_contract
     from ir_training.eval.golden_set import load_fixed_golden_rows
@@ -514,6 +531,8 @@ def run_pipeline(options: GoldenTrainingOptions, *, execute: bool = False, prepa
             raise FileExistsError(f"Choose a fresh output directory or explicitly --continue-run a verified workflow: {output}")
         state = json.loads(record.read_text(encoding="utf-8"))
         previous_plan = state["plan"]
+        if "prepared_input_dir" not in previous_plan.get("options", {}):
+            previous_plan = {**previous_plan, "options": {**previous_plan["options"], "prepared_input_dir": None}}
         if previous_plan.get("options", {}).get("augmentation") in {"none", "rare_components"}:
             # Historical non-semantic runs predate these inert default fields.
             # Fill only absent fields with defaults, never requested overrides.
@@ -566,7 +585,9 @@ def run_pipeline(options: GoldenTrainingOptions, *, execute: bool = False, prepa
     def prepare() -> list[Path]:
         with _console_log(output / "logs/prepare.log"):
             prepare_data(plan, tokenizer_loader=tokenizer_loader)
-        return [*map(Path, plan["source_files"]), *sorted((output / "prepared").glob("*.json*")), output / "data_audit.json",
+        prepared_files = (sorted(path for path in (output / "prepared").rglob("*") if path.is_file())
+                          if options.prepared_input_dir else sorted((output / "prepared").glob("*.json*")))
+        return [*map(Path, plan["source_files"]), *prepared_files, output / "data_audit.json",
                 *[path for path in (output / "preparation_receipt.json", output / "cache_reuse.json") if path.exists()],
                 *[Path(item[key]) for item in plan["goldens"].values() for key in ("path", "benchmark_manifest_path")]]
     stage("prepare", prepare)

@@ -61,10 +61,11 @@ NO_OP_CHECKS = frozenset({
 @dataclass(frozen=True)
 class OfficialMobileOptions:
     model_dir: Path
-    input_dir: Path
+    input_dir: Path | None
     source_safetensors: Path
     official_litertlm: Path
     output_dir: Path
+    prepared_input_dir: Path | None = None
     exporter_python: Path | None = None
     devices: str = "auto"
     epochs: float | None = None
@@ -121,12 +122,22 @@ def build_plan(options: OfficialMobileOptions) -> dict[str, Any]:
                 "output_dir", "preparation_cache_dir", "resume_from_checkpoint"):
         if values[key] is not None:
             values[key] = str(Path(values[key]).expanduser().resolve())
+    if values["prepared_input_dir"] is not None:
+        values["prepared_input_dir"] = os.path.abspath(os.path.expanduser(str(values["prepared_input_dir"])))
     # venv/bin/python is often a symlink. Resolving it would silently use the
     # system interpreter and lose the isolated exporter dependencies on Linux.
     values["exporter_python"] = os.path.abspath(os.path.expanduser(
         str(values["exporter_python"] or sys.executable)))
     values["augmentation_python"] = os.path.abspath(os.path.expanduser(
         str(values["augmentation_python"] or sys.executable)))
+    if options.input_dir and options.prepared_input_dir:
+        raise ValueError("Choose --input-dir or --prepared-input-dir, not both")
+    if not options.input_dir and not options.prepared_input_dir and not values["resume_from_checkpoint"]:
+        raise ValueError("Choose --input-dir or --prepared-input-dir")
+    if options.prepared_input_dir and options.augmentation != "none":
+        raise ValueError("--prepared-input-dir cannot be combined with --augmentation")
+    if values["resume_from_checkpoint"] and options.prepared_input_dir:
+        raise ValueError("--prepared-input-dir cannot override the saved dataset on resume")
     if values["resume_from_checkpoint"] and options.augmentation != "none":
         raise ValueError("--augmentation cannot change data on resume; reuse the saved dataset without the flag or start a fresh experiment")
     resume = None
@@ -134,6 +145,10 @@ def build_plan(options: OfficialMobileOptions) -> dict[str, Any]:
         from ir_training.train.mobile_resume import horizon_record, source_config
         checkpoint = Path(values["resume_from_checkpoint"])
         source_path, saved, _ = source_config(checkpoint)
+        if values["input_dir"] is None:
+            # Only the read-only preparation plan needs an input path here.
+            # Resume itself uses the saved dataset and verifies its launch binding.
+            values["input_dir"] = str(Path(saved["run"]["dataset_dir"]).resolve())
         resume = {"checkpoint": str(checkpoint), "source_config": str(source_path),
                   "source_config_sha256": sha256(source_path),
                   "metadata_sha256": sha256(checkpoint / "training_metadata.json"),
@@ -184,7 +199,7 @@ def build_plan(options: OfficialMobileOptions) -> dict[str, Any]:
             raise ValueError("Continuation output must be fresh and separate from its source run")
     if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,95}", output.name):
         raise ValueError("Output directory name must be a safe run ID (1-96 characters)")
-    for protected in (seed, Path(values["input_dir"])):
+    for protected in (seed, Path(values["prepared_input_dir"] or values["input_dir"])):
         if output.is_relative_to(protected) or protected.is_relative_to(output):
             raise ValueError("Run output must be separate from model and input directories (no nested paths)")
     for path in (seed / "mobile_training_seed_manifest.json", seed / "mobile_qparams.json",
@@ -196,7 +211,8 @@ def build_plan(options: OfficialMobileOptions) -> dict[str, Any]:
             raise ValueError("Run output must not contain any input artifact")
     preparation = build_preparation_plan(
         GoldenTrainingOptions(
-            model_dir=seed, input_dir=Path(values["input_dir"]), output_dir=output,
+            model_dir=seed, input_dir=Path(values["input_dir"]) if values["input_dir"] else None, output_dir=output,
+            prepared_input_dir=Path(values["prepared_input_dir"]) if values["prepared_input_dir"] else None,
             # Only this shared CPU preparation is reused; its dense configure/train
             # commands are NEVER executed by the mobile workflow.
             epochs=values["epochs"], steps=values["steps"], eval_steps=options.eval_steps,
@@ -643,7 +659,9 @@ def run_stage(plan: dict, stage: str) -> list[Path]:
             return [output / "data_audit.json", source, source.parent / "preparation_report.json",
                     *sorted(prepared.glob("*.json*"))]
         prepare_data(plan["preparation"])
-        return [output / "data_audit.json", *sorted((output / "prepared").glob("*.json*")),
+        prepared_files = (sorted(path for path in (output / "prepared").rglob("*") if path.is_file())
+                          if values.get("prepared_input_dir") else sorted((output / "prepared").glob("*.json*")))
+        return [output / "data_audit.json", *prepared_files,
                 *map(Path, plan["preparation"]["source_files"])]
     if stage == "augment":
         if plan.get("resume") or values.get("augmentation", "none") == "none":

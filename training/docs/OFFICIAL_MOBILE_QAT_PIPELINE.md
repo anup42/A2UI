@@ -15,6 +15,15 @@ default. A continuation is available only through the explicit
 output directory. Output must be outside the model and input directories, and
 must not contain them.
 
+For Muse-augmented data, prefer the [standalone preprocessing runbook](SEMANTIC_AUGMENTATION.md):
+prepare an E2B tokenizer-bound bundle, stop Muse, then train with
+`--prepared-input-dir /absolute/path/to/preprocess/augmented --augmentation none`.
+The bundle already includes original training rows; do not append them again.
+This input mode is mutually exclusive with raw `--input-dir`
+and checks hashes, tokenizer, shared prompt and token limits before reuse. No
+teacher server is needed during training; the official seed/export/preflight
+requirements below still apply.
+
 The current workflow identifier is
 `e2b_retained_mobile_golden_bixby_no_mtp_v2`. Existing plan and execute commands
 remain unchanged, but v2 must start in a fresh output directory because it adds
@@ -221,7 +230,9 @@ Before planning a run, have all of the following locally:
    `generation_config.json` with them when supplied by the pinned checkpoint.
    The reconstruction script copies these files only when they are beside the
    source `config.json`.
-7. A source-bound `--input-dir` containing `train.jsonl` and `val.jsonl`.
+7. A source-bound `--input-dir` containing `train.jsonl` and `val.jsonl`, or a
+   compatible frozen bundle selected with `--prepared-input-dir` and
+   `--augmentation none` (never both raw and prepared input flags).
    Golden32, Golden35, and Bixby50 are repository-pinned evaluation artifacts;
    they must remain excluded from train and validation data.
 8. Enough fresh disk space for the reconstructed seed, adapter checkpoints,
@@ -449,8 +460,8 @@ of better quality or unchanged training memory usage.
 
 From the repository root, activate the existing QAT training environment and
 set the paths below. `INPUT` is the **same immutable improved dataset** containing
-source-bound `train.jsonl` and `val.jsonl`; this launcher does not regenerate or
-repair labels. `MODEL` must be the original verified reconstructed mobile seed,
+source-bound `train.jsonl` and `val.jsonl`; these default commands do not
+regenerate or repair labels. `MODEL` must be the original verified reconstructed mobile seed,
 not another run's merged checkpoint. Keep the same visible GPU selection for
 all three runs. The example uses four H100s; use `0,1,2,3,4,5,6,7` for eight.
 
@@ -496,6 +507,14 @@ The executions are sequential; do not launch three jobs on the same GPUs at
 once. Every execution needs a nonexistent per-run output directory. If a run
 fails, inspect it and choose a new directory for a fresh retry rather than
 rerunning all three into existing directories.
+
+For an already generated Muse bundle, keep the same `COMMON` settings but
+replace its `--input-dir "$INPUT"` entry with
+`--prepared-input-dir /absolute/path/to/preprocess_e2b/augmented` and add
+`--augmentation none`. All A/B/C runs must use that **same frozen bundle**;
+do not regenerate augmentation between trials. Finish preprocessing and stop
+Muse before launching these student jobs on its former GPUs. See the
+[step-by-step teacher/preparation/stop/train commands](SEMANTIC_AUGMENTATION.md).
 
 ### Keep the comparison budget fixed
 

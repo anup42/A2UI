@@ -25,8 +25,11 @@ def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--worker-stage", help=argparse.SUPPRESS)
     parser.add_argument("--plan-file", type=Path, help=argparse.SUPPRESS)
-    for name in ("model-dir", "input-dir", "source-safetensors", "official-litertlm", "output-dir"):
+    for name in ("model-dir", "source-safetensors", "official-litertlm", "output-dir"):
         parser.add_argument("--" + name, type=Path)
+    source = parser.add_mutually_exclusive_group()
+    source.add_argument("--input-dir", type=Path, help="Source train/val rows to reprepare")
+    source.add_argument("--prepared-input-dir", type=Path, help="Verified frozen bundle to adopt without generation or re-preparation")
     parser.add_argument("--exporter-python", type=Path, help="Retained-scale export environment; defaults to this Python. No generic converter is used.")
     parser.add_argument("--devices", default="auto", help="All scheduler-visible GPUs, or visible logical indices/UUIDs.")
     parser.add_argument("--epochs", type=float, help="Total epochs (fresh default: 2; resume default: saved horizon)")
@@ -73,9 +76,11 @@ def main(argv=None) -> int:
             return 0
         if args.plan_file is not None:
             parser.error("--plan-file requires --worker-stage")
-        for name in ("model_dir", "input_dir", "source_safetensors", "official_litertlm", "output_dir"):
+        for name in ("model_dir", "source_safetensors", "official_litertlm", "output_dir"):
             if getattr(args, name) is None:
                 parser.error("Missing --" + name.replace("_", "-"))
+        if args.input_dir is None and args.prepared_input_dir is None and args.resume_from_checkpoint is None:
+            parser.error("Missing --input-dir or --prepared-input-dir")
         values = vars(args).copy()
         execute = values.pop("execute")
         values.pop("worker_stage")

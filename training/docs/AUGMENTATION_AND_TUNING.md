@@ -4,6 +4,14 @@ Review date: 2026-09-14. This extends the dense E2B LoRA / Gemma 3 270M
 Golden training workflow. No GPU training or measured quality improvement is
 claimed by this implementation review.
 
+September 26 update: for **new semantic examples**, use the separate
+[Muse preprocessing workflow](SEMANTIC_AUGMENTATION.md): generate and validate
+once, stop Muse, then pass the frozen original-plus-augmented bundle through
+`--prepared-input-dir` with `--augmentation none`. Prepare separate bundles for
+the E2B and 270M tokenizers. Reuse one matching bundle across rank/LR trials;
+do not regenerate teacher data for every trial. The resampling experiments
+below are a different method and remain disabled by default.
+
 Bixby50 integration update: the current dense workflow includes Golden35 and
 Bixby50 as final-only holdouts. Bixby50 has captured source responses but no
 reference IR; see [the Bixby50 evaluation guide](bixby50_evaluation.md) for its
@@ -18,6 +26,12 @@ to existing correct examples; it does not create new facts, new layouts, or new
 semantic coverage. Do not paraphrase sources, invent actions/media, rewrite IR,
 or put quarantined records back into training as augmentation. Those approaches
 could recreate the source/target defects repaired in the archive.
+
+That warning applies to reusing old targets after changing their sources or
+bypassing source admission. The separate semantic workflow instead regenerates
+each new target through Stage 3 and applies source, isolation, graph and exact
+student-tokenizer gates. Automated Muse source review is not external fact
+verification; semantic augmentation still needs a controlled quality trial.
 
 The current v9 report records 112,842 training and 2,300 validation examples.
 Its manifest was checked again against SHA256

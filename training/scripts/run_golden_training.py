@@ -20,6 +20,8 @@ def build_parser(*, for_deployment: bool = False) -> argparse.ArgumentParser:
     source = parser.add_mutually_exclusive_group()
     source.add_argument("--source-run-dir", type=Path, help="Completed Stage3 run; default is checked-in dataset/data/runs/dataset_v1")
     source.add_argument("--input-dir", type=Path, help="Existing source-bound train.jsonl and val.jsonl; both are filtered and prompt-normalized")
+    if not for_deployment:
+        source.add_argument("--prepared-input-dir", type=Path, help="Adopt a verified frozen prepared bundle byte-for-byte; no preparation or teacher generation")
     parser.add_argument("--devices", default="auto")
     parser.add_argument("--epochs", type=float, default=1.0)
     parser.add_argument("--learning-rate", type=float, help="Optional profile learning-rate override")

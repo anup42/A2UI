@@ -4,6 +4,7 @@ import importlib.util
 import json
 from pathlib import Path
 import sys
+from types import SimpleNamespace
 
 import pytest
 
@@ -76,6 +77,87 @@ def test_plan_has_no_runtime_or_output_side_effects(options, monkeypatch):
     assert Path(command[command.index("--token-cache-dir") + 1]) == expected_cache / "tokens"
     assert "--token-cache" in command
     assert not expected_cache.exists()
+
+
+def test_prepared_plan_binds_all_bundle_files_without_default_raw_source(options, monkeypatch):
+    manifest = options.input_dir / "manifest.json"
+    manifest.write_text("{}", encoding="utf-8")
+    files = sorted(options.input_dir.iterdir())
+    monkeypatch.setitem(sys.modules, "ir_training.data.prepared_input",
+                        SimpleNamespace(prepared_input_files=lambda path: files))
+    frozen = replace(options, input_dir=None, prepared_input_dir=options.input_dir)
+    plan = workflow.build_plan(frozen)
+    assert plan["source_files"] == list(map(str, files))
+    assert plan["options"]["source_run_dir"] is None
+    assert plan["options"]["input_dir"] is None
+    assert plan["stages"][0] == "prepare" and "augment" not in plan["stages"]
+    command = workflow.configure_command(plan)
+    assert command[command.index("--dataset-dir") + 1] == str(options.output_dir / "prepared")
+
+
+@pytest.mark.parametrize("conflict", [{"input_dir": "raw"}, {"source_run_dir": "raw"},
+                                     {"augmentation": "semantic"}, {"augmentation": "rare_components"}])
+def test_prepared_input_rejects_raw_inputs_or_augmentation(options, conflict):
+    fields = {key: options.input_dir if value == "raw" else value for key, value in conflict.items()}
+    with pytest.raises(ValueError, match="Choose only one|cannot be combined"):
+        workflow.build_plan(replace(options, **{"input_dir": None, "prepared_input_dir": options.input_dir, **fields}))
+
+
+def test_prepared_input_delegates_before_raw_cache_or_filtering(options, monkeypatch):
+    calls = []
+    loader = lambda *_: FixtureTokenizer()
+    plan = {"options": {"prepared_input_dir": str(options.input_dir)}}
+    def adopt(received, *, tokenizer_loader):
+        calls.append((received, tokenizer_loader))
+        return {"mode": "frozen"}
+    monkeypatch.setitem(sys.modules, "ir_training.data.prepared_input",
+                        SimpleNamespace(adopt_prepared_input=adopt))
+    monkeypatch.setattr(workflow, "_prepare_uncached", lambda *a: pytest.fail("must not reprepare"))
+    assert workflow.prepare_data(plan, tokenizer_loader=loader) == {"mode": "frozen"}
+    assert calls == [(plan, loader)]
+
+
+def test_tokenizer_only_planning_requires_preparation_only_and_keeps_training_strict(options):
+    (options.model_dir / "model.safetensors").unlink()
+    with pytest.raises(ValueError, match="safetensors"):
+        workflow.build_plan(options)
+    with pytest.raises(ValueError, match="requires preparation_only"):
+        workflow.build_plan(options, tokenizer_only=True)
+    plan = workflow.build_plan(options, preparation_only=True, tokenizer_only=True)
+    assert set(plan) == {"options", "source_files", "shared_prompt", "goldens"}
+    assert not options.output_dir.exists()
+    (options.model_dir / "tokenizer_config.json").unlink()
+    with pytest.raises(ValueError, match="tokenizer_config"):
+        workflow.build_plan(options, preparation_only=True, tokenizer_only=True)
+
+
+def test_prepared_input_cli_is_mutually_exclusive_and_deployment_compatible(options):
+    spec = importlib.util.spec_from_file_location("prepared_golden_cli", ROOT / "scripts/run_golden_training.py")
+    script = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(script)
+    for deployment in (False, True):
+        parser = script.build_parser(for_deployment=deployment)
+        args = ["--model-dir", str(options.model_dir), "--output-dir", str(options.output_dir),
+                "--prepared-input-dir", str(options.input_dir)]
+        if deployment:
+            with pytest.raises(SystemExit):
+                parser.parse_args(args)
+            continue
+        parsed = parser.parse_args(args)
+        assert parsed.prepared_input_dir == options.input_dir and parsed.input_dir is None
+        with pytest.raises(SystemExit):
+            parser.parse_args([*args, "--input-dir", str(options.input_dir)])
+
+
+def test_continue_accepts_historical_missing_prepared_default_only(options):
+    prepare(options)
+    path = options.output_dir / "pipeline_manifest.json"
+    state = json.loads(path.read_text(encoding="utf-8"))
+    state["plan"]["options"].pop("prepared_input_dir")
+    path.write_text(json.dumps(state), encoding="utf-8")
+    continued = workflow.run_pipeline(options, prepare_only=True, continue_run=True,
+                                      tokenizer_loader=lambda *_: FixtureTokenizer())
+    assert continued["status"] == "prepared"
 
 
 def test_token_cache_flags_are_bound_and_forwarded(options, tmp_path):
