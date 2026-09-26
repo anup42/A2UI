@@ -295,6 +295,69 @@ and `mtime`, so repeat syncs copy only new or updated files. While sync is runni
 shows aggregate counters plus per-source phase, transfer mode, changed-file count, archive size,
 current file, copied/skipped/error counts, and recent sync messages.
 
+## Muse Glimmer 30B for A2UI Express Stage 3
+
+The `muse_glimmer_30b_sglang_reasoning_dflash` model entry generates the
+existing A2UI Express Stage 3 output from a source run's `queries.jsonl` and
+`responses.jsonl` into a separate Muse run. It uses the BF16 text decoder, Muse reasoning parser, and
+the official DFlash assistant. Stage 3 is text only, so the launcher omits the
+vision tower to leave more H100 memory for concurrent requests.
+
+Install a Muse-capable SGLang build on the Linux GPU host. At the time this
+profile was added, Meta and SGLang document the `muse-glimmer` branch or
+`lmsysorg/sglang:dev-muse-glimmer` image, not a released SGLang wheel. The
+launcher uses the Python branch installation:
+
+```bash
+python3 -m venv ~/venvs/muse-sglang
+source ~/venvs/muse-sglang/bin/activate
+python -m pip install --upgrade pip uv huggingface_hub
+git clone -b muse-glimmer https://github.com/sgl-project/sglang.git
+cd sglang
+uv pip install --prerelease=allow -e "python[all]"
+hf download meta-models/Muse-Glimmer-30B --local-dir /models/Muse-Glimmer-30B
+hf download meta-models/Muse-Glimmer-30B-assistant --local-dir /models/Muse-Glimmer-30B-assistant
+```
+
+Activate that Python environment and change into this A2UI repo in each shell.
+Use two shells on the H100 host. Substitute `--gpus 8` for an
+8-GPU node; the default is one replica per H100, so 4 GPUs create 4 endpoints
+and 8 GPUs create 8. Both commands must use the same GPU count, tensor
+parallel setting, and base port.
+
+```bash
+python dataset/scripts/run_muse_glimmer_stage3.py plan --gpus 4
+python dataset/scripts/run_muse_glimmer_stage3.py servers --gpus 4 \
+  --model-path /models/Muse-Glimmer-30B \
+  --draft-model-path /models/Muse-Glimmer-30B-assistant
+
+# In another shell, after the servers start:
+python dataset/scripts/run_muse_glimmer_stage3.py probe --gpus 4
+python dataset/scripts/run_muse_glimmer_stage3.py generate --gpus 4 \
+  --source-run-id dataset_v1 --run-id dataset_v1_muse_glimmer
+```
+
+`generate` checks every endpoint's served model, active DFlash configuration,
+reasoning channel, and final answer before writing Stage 3 records. It reads Stage 1/2 data from the source
+run, resumes missing records in the Muse output run, and processes all available
+Stage 2 responses by default. Use
+`--max-genui-total 10` for an initial ten-record run, then rerun without the
+limit to continue. The Stage 3 prompt and schema remain the repo's A2UI
+Express configuration.
+
+The starting profile uses a 32K context, 12,288 completion tokens (including
+reasoning), a 16K prompt cap, eight concurrent requests per server, BF16,
+high reasoning, and a 16-token DFlash block. These are candidate settings,
+not measured H100 throughput. If a single-GPU replica runs out of memory,
+run both commands with `--tp 2` to use two GPUs per replica. For the fastest
+setting on a particular host, compare valid Stage 3 records per minute and
+truncation/OOM counts at `--tp 1` versus `--tp 2` and
+`--requests-per-server 4`, `8`, and `16`; keep the best measured setting.
+
+References: [Meta SGLang deployment](https://dev.meta.ai/docs/muse-glimmer/sglang),
+[Meta prompting guide](https://dev.meta.ai/docs/muse-glimmer/prompting), and
+[SGLang Muse Glimmer recipe](https://docs.sglang.io/cookbook/autoregressive/Meta/MuseGlimmer).
+
 ## Local Qwen3 / DeepSeek
 
 Qwen and DeepSeek local models run directly via `transformers` in `LocalAdapter`.

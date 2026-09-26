@@ -91,7 +91,10 @@ class LocalAdapter(BaseLLMAdapter):
 
     def _model_is_large_reasoning_family(self) -> bool:
         model_name = (self.spec.model or "").lower()
-        return any(name in model_name for name in ("qwen", "deepseek", "gemma"))
+        return any(name in model_name for name in ("qwen", "deepseek", "gemma", "muse-glimmer"))
+
+    def _model_is_muse_glimmer(self) -> bool:
+        return "muse-glimmer" in (self.spec.model or "").lower()
 
     def _should_strip_thinking(self) -> bool:
         if self._model_is_large_reasoning_family():
@@ -525,8 +528,19 @@ class LocalAdapter(BaseLLMAdapter):
         if json_mode:
             body["response_format"] = {"type": "json_object"}
         if send_template_kwargs and thinking_setting:
-            # Leave the model's default intact unless reasoning is explicitly set.
-            body["chat_template_kwargs"] = {"enable_thinking": thinking_enabled}
+            if self._model_is_muse_glimmer():
+                # Muse reasons through its native to=self channel. Its chat
+                # template accepts reasoning_strength, not enable_thinking.
+                strength = (os.environ.get("LOCAL_VLLM_REASONING_STRENGTH") or "high").strip().lower()
+                if not thinking_enabled or strength not in {"low", "medium", "high", "xhigh"}:
+                    raise ValueError(
+                        "Muse Glimmer requires LOCAL_VLLM_ENABLE_THINKING=1 and "
+                        "LOCAL_VLLM_REASONING_STRENGTH=low|medium|high|xhigh"
+                    )
+                body["chat_template_kwargs"] = {"reasoning_strength": strength}
+            else:
+                # Leave the model's default intact unless reasoning is explicitly set.
+                body["chat_template_kwargs"] = {"enable_thinking": thinking_enabled}
 
         timeout_s = 60.0
         timeout_raw = (os.environ.get("LOCAL_VLLM_TIMEOUT_SECONDS") or "").strip()
@@ -683,6 +697,11 @@ class LocalAdapter(BaseLLMAdapter):
             completion_error = f"incomplete_completion: finish_reason={reason}"
         elif incomplete_inline:
             completion_error = "incomplete_completion: unclosed_reasoning_block"
+            complete = False
+        elif self._model_is_muse_glimmer() and any(
+            marker in text for marker in ("<|start|>", "<|message|>", "<|eom|>", "<|eot|>")
+        ):
+            completion_error = "incomplete_completion: Muse reasoning parser did not separate channels"
             complete = False
         elif not text.strip():
             completion_error = "incomplete_completion: empty_final_content"

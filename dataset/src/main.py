@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import shutil
 import sys
 import time
@@ -220,6 +221,20 @@ def _is_stage3_complete(
     existing = {str(row.get("ui_id") or "").strip() for row in iter_jsonl(genui_path)}
     existing.discard("")
     return expected.issubset(existing)
+
+
+def _stage3_input_run_paths(output_dir: Path, run_id: str, source_run_id: str | None, artifact_dir: str):
+    source_id = source_run_id or run_id
+    if source_run_id and (
+        source_id in {".", ".."} or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*", source_id)
+    ):
+        raise SystemExit("--stage3_source_run_id must be a single safe directory name")
+    paths = get_run_paths(output_dir, source_id, artifact_dir)
+    if source_run_id and (not paths.queries_path.is_file() or not paths.responses_path.is_file()):
+        raise SystemExit(
+            f"Stage 3 source run is missing queries.jsonl or responses.jsonl: {paths.run_dir}"
+        )
+    return paths
 
 
 def _ensure_list(value):
@@ -572,6 +587,12 @@ def main() -> None:
     parser.add_argument("--model", type=str, default=None, help="Model name from models.yaml")
     parser.add_argument("--benchmark_models", nargs="*", default=None, help="Benchmark models by name")
     parser.add_argument("--run_id", type=str, default=None, help="Override run id")
+    parser.add_argument(
+        "--stage3_source_run_id",
+        type=str,
+        default=None,
+        help="For Stage 3 only, read queries/responses from this run while writing outputs to --run_id.",
+    )
     parser.add_argument("--version", action="store_true", help="Print release/component versions and exit")
     parser.add_argument("--print_limits", action="store_true", help="Print configured model limits")
     parser.add_argument(
@@ -668,6 +689,8 @@ def main() -> None:
         help="Timeout (seconds) to wait for vLLM to be ready",
     )
     args = parser.parse_args()
+    if args.stage3_source_run_id and args.stage != 3:
+        parser.error("--stage3_source_run_id requires --stage 3")
 
     root = ROOT
     _load_env(root)
@@ -764,6 +787,13 @@ def main() -> None:
 
     run_id = args.run_id or _resolve_run_id(run_cfg)
     run_paths = get_run_paths(output_dir, run_id, run_cfg.get("artifact_dir", "artifacts"))
+    stage3_input_paths = _stage3_input_run_paths(
+        output_dir, run_id,
+        args.stage3_source_run_id if args.stage == 3 else None,
+        run_cfg.get("artifact_dir", "artifacts"),
+    )
+    if args.stage == 3 and args.stage3_source_run_id:
+        run_cfg["stage3_source_run_id"] = args.stage3_source_run_id
     logger = setup_logger(run_paths.run_dir)
 
     specs = load_model_specs(models_cfg)
@@ -920,7 +950,7 @@ def main() -> None:
     if args.stage == 3:
         stage3_candidates = int(run_cfg.get("genui_candidates_per_response", 1))
         if _is_stage3_complete(
-            run_paths.responses_path,
+            stage3_input_paths.responses_path,
             run_paths.genui_path,
             stage3_candidates,
             run_cfg.get("stage3_ir_formats"),
@@ -929,7 +959,7 @@ def main() -> None:
                 raise SystemExit(f"Missing genui file: {run_paths.genui_path}")
             aggregates = _compute_aggregates_with_backfill(
                 run_paths.genui_path,
-                run_paths.responses_path,
+                stage3_input_paths.responses_path,
                 eval_cfg.get("weights", {}),
                 eval_cfg.get("metric_version", "v5_4"),
             )
@@ -1019,8 +1049,8 @@ def main() -> None:
 
         if args.stage == 3:
             run_stage3(
-                queries_path=run_paths.queries_path,
-                responses_path=run_paths.responses_path,
+                queries_path=stage3_input_paths.queries_path,
+                responses_path=stage3_input_paths.responses_path,
                 prompt_path=stage3_prompt_path,
                 adapter=adapter,
                 genui_path=run_paths.genui_path,
