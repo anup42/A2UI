@@ -1,0 +1,100 @@
+[
+  {
+    "ui_id": "u_000015_01",
+    "response_id": "r_000015_01",
+    "codec_status": "strict_decode_and_wire_pass",
+    "truncated_balanced_references": [
+      {
+        "saved_destination": "https://en.wikipedia.org/wiki/The_Grand_Budapest_Hotel_(soundtrack",
+        "correct_source_destination": "https://en.wikipedia.org/wiki/The_Grand_Budapest_Hotel_(soundtrack)"
+      },
+      {
+        "saved_destination": "https://en.wikipedia.org/wiki/Lost_in_Translation_(soundtrack",
+        "correct_source_destination": "https://en.wikipedia.org/wiki/Lost_in_Translation_(soundtrack)"
+      },
+      {
+        "saved_destination": "https://en.wikipedia.org/wiki/Pan%27s_Labyrinth_(soundtrack",
+        "correct_source_destination": "https://en.wikipedia.org/wiki/Pan%27s_Labyrinth_(soundtrack)"
+      },
+      {
+        "saved_destination": "https://en.wikipedia.org/wiki/The_Shape_of_Water_(soundtrack",
+        "correct_source_destination": "https://en.wikipedia.org/wiki/The_Shape_of_Water_(soundtrack)"
+      }
+    ]
+  },
+  {
+    "ui_id": "u_000526_01",
+    "response_id": "r_000526_01",
+    "codec_status": "strict_decode_and_wire_pass",
+    "truncated_balanced_references": [
+      {
+        "saved_destination": "https://en.wikipedia.org/wiki/Blade_Runner_(soundtrack",
+        "correct_source_destination": "https://en.wikipedia.org/wiki/Blade_Runner_(soundtrack)"
+      },
+      {
+        "saved_destination": "https://en.wikipedia.org/wiki/The_Terminator_(soundtrack",
+        "correct_source_destination": "https://en.wikipedia.org/wiki/The_Terminator_(soundtrack)"
+      },
+      {
+        "saved_destination": "https://en.wikipedia.org/wiki/Back_to_the_Future_(soundtrack",
+        "correct_source_destination": "https://en.wikipedia.org/wiki/Back_to_the_Future_(soundtrack)"
+      }
+    ]
+  },
+  {
+    "ui_id": "u_000528_01",
+    "response_id": "r_000528_01",
+    "codec_status": "strict_decode_and_wire_pass",
+    "truncated_balanced_references": [
+      {
+        "saved_destination": "https://en.wikipedia.org/wiki/Donkey_Kong_(arcade_game",
+        "correct_source_destination": "https://en.wikipedia.org/wiki/Donkey_Kong_(arcade_game)"
+      },
+      {
+        "saved_destination": "https://en.wikipedia.org/wiki/Columns_(video_game",
+        "correct_source_destination": "https://en.wikipedia.org/wiki/Columns_(video_game)"
+      }
+    ]
+  },
+  {
+    "ui_id": "u_001547_01",
+    "response_id": "r_001547_01",
+    "codec_status": "strict_decode_and_wire_pass",
+    "truncated_balanced_references": [
+      {
+        "saved_destination": "https://en.wikipedia.org/wiki/Head_Hunters_(album",
+        "correct_source_destination": "https://en.wikipedia.org/wiki/Head_Hunters_(album)"
+      },
+      {
+        "saved_destination": "https://en.wikipedia.org/wiki/Heavy_Weather_(album",
+        "correct_source_destination": "https://en.wikipedia.org/wiki/Heavy_Weather_(album)"
+      }
+    ]
+  },
+  {
+    "ui_id": "u_001804_01",
+    "response_id": "r_001804_01",
+    "codec_status": "strict_decode_and_wire_pass",
+    "truncated_balanced_references": [
+      {
+        "saved_destination": "https://en.wikipedia.org/wiki/Anastasia_(1997_film",
+        "correct_source_destination": "https://en.wikipedia.org/wiki/Anastasia_(1997_film)"
+      },
+      {
+        "saved_destination": "https://en.wikipedia.org/wiki/The_Lion_King_(1994_film",
+        "correct_source_destination": "https://en.wikipedia.org/wiki/The_Lion_King_(1994_film)"
+      }
+    ]
+  },
+  {
+    "ui_id": "u_002317_01",
+    "response_id": "r_002317_01",
+    "codec_status": "strict_decode_and_wire_pass",
+    "truncated_balanced_references": [
+      {
+        "saved_destination": "https://en.wikipedia.org/wiki/Aria_(anime",
+        "correct_source_destination": "https://en.wikipedia.org/wiki/Aria_(anime)"
+      }
+    ]
+  }
+]

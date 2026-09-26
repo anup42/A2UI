@@ -17,6 +17,7 @@ from urllib.request import Request
 from pipeline.cache import PromptCache
 from pipeline.common import load_prompt, render_prompt
 from pipeline.muse_prompt import compose_stage3_prompt, format_muse_source, uses_muse_stage3_prompt
+from pipeline.reference_boundaries import reference_destination_errors, split_reference_suffix
 from pipeline.generation_audit import (
     attempt_summary, compact_exception, graph_acceptance_errors,
     incomplete_reason, record_attempt,
@@ -69,6 +70,7 @@ from pipeline.metrics import (
     metric_diagnostic_metadata,
 )
 from pipeline.storage import JsonlWriter, iter_jsonl
+from pipeline.source_quality import assess_source_quality
 from pipeline.toon_convert import encode_toon, roundtrip_ok
 from llm.base import BaseLLMAdapter, LLMRateLimitError
 from llm.http_transport import urlopen
@@ -88,7 +90,6 @@ _MODEL_REFERENCE_RE = re.compile(
     r")",
     re.IGNORECASE,
 )
-_MODEL_REFERENCE_TRAILING = ".,;:!?)]}"
 _MODEL_PLACEHOLDER_RE = re.compile(
     r"\[(?:IMAGE_URL|ICON_URL|MEDIA_URL|ACTION_URL|SOURCE_URL|URL|IMAGE_ASSET|ICON_ASSET|MEDIA_ASSET)_\d+\]"
 )
@@ -589,10 +590,9 @@ def _mask_model_references(
     def replace_match(match: re.Match[str]) -> str:
         quote = match.group("quote") or ""
         raw = match.group("quoted_local") or match.group(0)
-        trailing = ""
-        while raw and raw[-1] in _MODEL_REFERENCE_TRAILING:
-            trailing = raw[-1] + trailing
-            raw = raw[:-1]
+        # A closing parenthesis can be part of a valid URL, not punctuation.
+        # Quoted local paths have an explicit boundary and must remain exact.
+        raw, trailing = (raw, "") if quote else split_reference_suffix(raw)
         if not raw:
             return match.group(0)
         token = raw_to_placeholder.get(raw)
@@ -1079,6 +1079,7 @@ def run_stage3(
                 "intent": row.get("intent"),
                 "tags": row.get("tags") if isinstance(row.get("tags"), list) else [],
                 "query_text": row.get("query_text") if isinstance(row.get("query_text"), str) else "",
+                **{key: row[key] for key in ("source_contract", "source", "query_quality") if key in row},
             }
 
     existing_ids = {row.get("ui_id") for row in iter_jsonl(genui_path)}
@@ -1255,11 +1256,12 @@ def run_stage3(
             raise ValueError("A2UI Express completion must contain exactly one complete sentinel block")
         return native_payload, decode_express_completion(native_payload), False
 
-    def _validate_completion(native_payload: Any, canonical: Any) -> tuple[bool, list[str], bool]:
+    def _validate_completion(native_payload: Any, canonical: Any, references: dict) -> tuple[bool, list[str], bool]:
         valid, validation_errors, validator_ok = _validate_schema(schema, canonical, schema_path.parent)
         if not valid:
             return valid, validation_errors, validator_ok
         acceptance_errors = graph_acceptance_errors(canonical)
+        acceptance_errors.extend(reference_destination_errors(canonical, references))
         if acceptance_errors:
             return False, acceptance_errors, True
         # Apply the production wire gate on every attempt, including repaired
@@ -1538,7 +1540,7 @@ def run_stage3(
         if parsed_ok and genui_json is not None:
             initial_native_syntax_valid = True
             schema_valid_strict, schema_errors, validator_ok = _validate_completion(
-                parsed_native_payload, genui_json
+                parsed_native_payload, genui_json, task.get("asset_placeholder_map") or {}
             )
             # Keep catalog and production-wire diagnostics separate even
             # though the acceptance/repair gate now requires both.
@@ -1616,7 +1618,7 @@ def run_stage3(
                 continue
 
             schema_valid_strict, schema_errors, validator_ok = _validate_completion(
-                parsed_native_payload, genui_json
+                parsed_native_payload, genui_json, task.get("asset_placeholder_map") or {}
             )
             if schema_valid_strict:
                 schema_valid_lenient = True
@@ -1694,7 +1696,7 @@ def run_stage3(
                 continue
 
             schema_valid_strict, schema_errors, validator_ok = _validate_completion(
-                parsed_native_payload, genui_json
+                parsed_native_payload, genui_json, task.get("asset_placeholder_map") or {}
             )
             if schema_valid_strict:
                 schema_valid_lenient = True
@@ -2645,13 +2647,22 @@ def run_stage3(
                     continue
 
                 source_quality = response.get("source_quality") or {}
+                # Recheck hard failures even for old/missing success metadata.
+                # Only the original query can supply a trusted contract; never
+                # promote a generated response's contract or self-assessment.
+                current_source_quality = assess_source_quality(
+                    intent_lookup.get(query_id, {}), response_text,
+                )
+                if current_source_quality["status"] == "failed":
+                    source_quality = current_source_quality
                 if isinstance(source_quality, dict) and (
                     source_quality.get("training_eligibility") == "exclude"
                     or source_quality.get("status") == "failed"
                 ):
                     source_task = {"ui_id": ui_id, "response_id": response_id, "query_id": query_id,
                                    "response_text": response_text,
-                                   **{key: response[key] for key in ("source_quality", "query_quality", "scenario_family_id") if key in response}}
+                                   **{key: response[key] for key in ("query_quality", "scenario_family_id") if key in response},
+                                   "source_quality": source_quality}
                     writer.append({**source_task, **_audit_fields(source_task), "record_status": "quality_rejected",
                                    "source_format": active_ir_format, "assets": assets_list,
                                    "validation": {"generation_attempted": False, "semantic_acceptance_errors": ["source_contract_failed"]},

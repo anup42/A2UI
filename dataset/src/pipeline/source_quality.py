@@ -14,7 +14,7 @@ import re
 from typing import Any
 from urllib.parse import urlsplit
 
-VERSION = "source-quality-v1"
+VERSION = "source-quality-v1.1"
 MODALITIES = {"answer", "document", "dashboard", "interactive_tool"}
 _NUMBER = re.compile(r"[-+]?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?")
 _ACTION = re.compile(r"^\s*Action:\s*\[Button:\s*([^\]\n]+)\]\s*(.*?)\s*$", re.M)
@@ -108,9 +108,18 @@ def parse_actions(text: str) -> list[dict[str, str]]:
 def _url_issue(value: str) -> str | None:
     if not value or any(char.isspace() for char in value):
         return "empty_or_whitespace_destination"
+    # Stage2 action destinations must be executable references, not Stage3's
+    # symbolic URL tokens (including malformed/truncated variants).
+    if re.search(r"\[(?:URL|ACTION_URL|SOURCE_URL)_\d+", value, re.IGNORECASE):
+        return "unresolved_destination_placeholder"
     try:
         parsed = urlsplit(value)
         if parsed.scheme in {"http", "https"}:
+            # Literal ellipses in a destination path are an explicit truncation
+            # marker in generated sources. Do not decode or reject query text:
+            # a search for '...' is valid and is not a truncated destination.
+            if any(marker in parsed.netloc or marker in parsed.path for marker in ("...", "…")):
+                return "truncated_http_destination"
             host = parsed.hostname or ""
             if not host or host.startswith(".") or ".." in host or parsed.username is not None:
                 return "invalid_http_destination"

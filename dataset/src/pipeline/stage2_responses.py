@@ -15,6 +15,8 @@ from pathlib import Path
 
 from pipeline.common import extract_json, load_prompt, render_prompt
 from pipeline.image_resolver import enrich_response_with_commons_media
+from pipeline.muse_source_prompt import PROMPT_VERSION, select_stage2_prompt, uses_muse_source_prompt
+from pipeline.reference_boundaries import split_reference_suffix
 from pipeline.storage import JsonlWriter, iter_jsonl
 from pipeline.cache import PromptCache
 from pipeline.source_quality import assess_source_quality, asset_verification_metadata, source_contract_prompt
@@ -57,7 +59,7 @@ def _sleep_backoff(attempt: int) -> None:
     time.sleep(delay)
 
 
-_URL_RE = re.compile(r"https?://[^\s<>\"')]+")
+_URL_RE = re.compile(r"https?://[^\s<>\"']+")
 _ASSET_EXTENSIONS = {
     ".png",
     ".jpg",
@@ -688,7 +690,10 @@ def _apply_icon_catalog_postprocess(
 
 
 def _clean_url(value: str) -> str:
-    cleaned = value.strip().strip("()[]{}<>\"'").rstrip(".,;:)]}!?")
+    cleaned = value.strip().lstrip("([{<\"'")
+    cleaned, _ = split_reference_suffix(cleaned)
+    cleaned = cleaned.rstrip(">\"'")
+    cleaned, _ = split_reference_suffix(cleaned)
     if not cleaned:
         return ""
     cleaned = cleaned.split()[0]
@@ -827,11 +832,12 @@ def _asset_quality_check(
     min_valid_rate: float,
     icons_only_mode: bool = False,
     allow_unresolved_media: bool = False,
+    require_visual_media: bool = True,
 ) -> tuple[bool, str]:
     entries = _extract_asset_entries(response_text)
     has_image = any(item.get("kind") == "image" for item in entries)
     has_icon = any(item.get("kind") == "icon" for item in entries)
-    visual = _is_visual_intent(intent, tags)
+    visual = require_visual_media and _is_visual_intent(intent, tags)
     random_hosts = []
     for item in entries:
         url = str(item.get("url") or "")
@@ -866,12 +872,18 @@ def _build_real_asset_retry_prompt(
     reason: str,
     intent: str | None,
     tags: list[str] | None,
+    require_visual_media: bool = True,
 ) -> str:
-    visual = _is_visual_intent(intent, tags)
+    visual = require_visual_media and _is_visual_intent(intent, tags)
     visual_req = (
         "Include inline Media lines only when they are tied to the exact content block; do not add standalone Images or Icons sections."
         if visual
         else "Inline Media lines are optional unless clearly useful; do not add standalone Images or Icons sections."
+    )
+    uncertain_media_req = (
+        "- When uncertain about a verified image, use icon-only media and omit the image.\n"
+        if require_visual_media
+        else "- Media is optional: omit unsupported media when no valid reference is available; do not invent an icon or image. Validate any media you do declare.\n"
     )
     return (
         f"{base_prompt}\n\n"
@@ -883,7 +895,7 @@ def _build_real_asset_retry_prompt(
         "- Do NOT use upload.wikimedia.org, images.unsplash.com, cdn.pixabay.com, or deep images.pexels.com links (commonly blocked/dead in this pipeline). If using Wikimedia, use a verified commons.wikimedia.org/wiki/Special:FilePath/<filename> URL instead.\n"
         "- Do NOT use random or placeholder media hosts such as loremflickr.com, picsum.photos, placekitten.com, placehold.co, placeholder.com, or dummyimage.com.\n"
         "- Prefer direct verified image URLs (jpg/png/webp) with display-friendly size for cards (around 1200x800, landscape).\n"
-        "- When uncertain about a verified image, use icon-only media and omit the image.\n"
+        f"{uncertain_media_req}"
         "- For icons, prefer direct lightweight SVGs suitable for UI (roughly 64-256 px square), e.g.\n"
         "  https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/<icon-name>.svg\n"
         "- Keep each URL adjacent to the specific option/row it belongs to.\n"
@@ -1056,7 +1068,8 @@ def run_stage2(
     max_total: int | None = None,
     max_attempts: int = 3,
 ) -> None:
-    prompt_template = load_prompt(prompt_path)
+    prompt_template = select_stage2_prompt(load_prompt(prompt_path), adapter.spec)
+    muse_source_prompt = uses_muse_source_prompt(adapter.spec)
 
     existing_ids = {row.get("response_id") for row in iter_jsonl(responses_path)}
     existing_hashes = set()
@@ -1361,6 +1374,7 @@ def run_stage2(
                 real_asset_retry_min_valid_rate,
                 icons_only_mode=icons_only_mode,
                 allow_unresolved_media=_offline_mode_enabled() and _keep_unresolved_media_enabled(),
+                require_visual_media=not muse_source_prompt,
             )
 
             if not real_asset_retry_enabled or asset_quality_ok:
@@ -1379,6 +1393,7 @@ def run_stage2(
                 asset_quality_reason,
                 intent_value,
                 tags_list,
+                require_visual_media=not muse_source_prompt,
             )
             retry_prompt = (
                 f"{retry_prompt}\n\n"
@@ -1516,6 +1531,7 @@ def run_stage2(
             real_asset_retry_min_valid_rate,
             icons_only_mode=icons_only_mode,
             allow_unresolved_media=_offline_mode_enabled() and keep_unresolved_media,
+            require_visual_media=not muse_source_prompt,
         )
 
         record = {
@@ -1554,7 +1570,7 @@ def run_stage2(
                 "retry_prompt_used": selected_prompt != prompt,
             },
         }
-        _attach_source_quality(record, payload)
+        _attach_source_quality(record, payload, selected_prompt=selected_prompt)
         writer.append(record)
         logger.info(
             "Stage2 created response_id=%s assets=%s/%s",
@@ -1617,8 +1633,17 @@ def run_stage2(
         writer.append(record)
         logger.info("Stage2 created response_id=%s assets=0/error", payload["response_id"])
 
-    def _attach_source_quality(record: dict, payload: dict, *, processing_error: bool = False) -> None:
+    def _attach_source_quality(
+        record: dict, payload: dict, *, processing_error: bool = False,
+        selected_prompt: str | None = None,
+    ) -> None:
         source_query = payload["source_query"]
+        if muse_source_prompt:
+            record["gen"].update({
+                "prompt_version": PROMPT_VERSION,
+                "prompt_template_sha256": hash_text(prompt_template),
+                "prompt_sha256": hash_text(selected_prompt if selected_prompt is not None else payload["selected_prompt"]),
+            })
         record["source_quality"] = assess_source_quality(source_query, record["response_text"])
         # Preserve the task for downstream constraints, without rewriting text.
         record["query_text"] = source_query["query_text"]

@@ -46,9 +46,12 @@ EXAMPLES = re.findall(r"(?ms)^<a2ui>\n.*?^</a2ui>", PROMPT_PATH.read_text(encodi
          "handle secrets", "least-privilege", "committing credentials", "0 to 2", "evidence is missing"]),
     (3, ["Workshop schedule", "Day 1", "Day 2", "09:00", "10:00", "Design", "Review",
          "All times UTC", "Time allocation", "2 hours", "1 hour"]),
+    (4, ["Workshop kit comparison", "Kit A", "USD 24", "6", "Kit B", "USD 18", "4",
+         "Handling note", "Requires adult assistance for first setup", "replacement adhesive is not included",
+         "Ready to use indoors", "avoid direct water contact", "printed measurement guide for repeat sessions"]),
 ])
 def test_examples_compile_with_visible_complete_records_and_actions(index, required):
-    assert len(EXAMPLES) == 4
+    assert len(EXAMPLES) == 5
     graph = decode_express_completion(EXAMPLES[index])
     assert graph_acceptance_errors(graph) == []
     assert compile_express_to_wire(EXAMPLES[index])
@@ -78,6 +81,8 @@ def test_examples_compile_with_visible_complete_records_and_actions(index, requi
     for fact in required:
         assert fact in visible
     if index == 0:
+        assert graph["elements"]["flightIcon"]["props"]["url"] == "[ICON_URL_1]"
+        assert "Media:" not in visible and "[ICON_URL_1]" not in visible
         table = graph["elements"]["flights"]["props"]
         assert len(table["rows"]) == 2 and len(table["columns"]) == 5
         assert all(len(row) == len(table["columns"]) for row in table["rows"])
@@ -90,6 +95,30 @@ def test_examples_compile_with_visible_complete_records_and_actions(index, requi
     if index == 3:
         assert len(graph["state"]["schedule"]) == 2
         assert len(graph["state"]["allocation"]) == 2
+
+
+def test_comparison_notes_remain_complete_visible_and_associated_with_each_record():
+    graph = decode_express_completion(EXAMPLES[4])
+    elements = graph["elements"]
+    assert graph_acceptance_errors(graph) == []
+    assert compile_express_to_wire(EXAMPLES[4])
+    table = elements["kits"]["props"]
+    assert table["columns"] == ["Kit", "Price", "Pieces"]
+    assert table["rows"] == [["Kit A", "USD 24", "6"], ["Kit B", "USD 18", "4"]]
+    assert elements["root"]["children"] == [
+        "heading", "kits", "kitAHeading", "kitANote", "kitBHeading", "kitBNote",
+    ]
+    expected = {
+        "kitA": "Requires adult assistance for first setup; reusable tools are included, but replacement adhesive is not included.",
+        "kitB": "Ready to use indoors; avoid direct water contact, and keep the printed measurement guide for repeat sessions.",
+    }
+    for key, note in expected.items():
+        assert elements[key + "Heading"]["props"] == {
+            "text": ("Kit A" if key == "kitA" else "Kit B") + " — Handling note", "variant": "h3",
+        }
+        assert elements[key + "Note"]["props"]["text"] == note
+        assert note not in json.dumps(table)
+    assert elements["heading"]["props"]["variant"] == "h2"
 
 
 def test_prompt_code_example_preserves_literal_escapes():
@@ -138,7 +167,7 @@ def test_muse_rejects_ambiguous_source_placeholder(template):
 
 
 def test_disconnected_example_is_still_rejected():
-    disconnected = EXAMPLES[0].replace("[heading,flights,note,compare]", "[heading,note,compare]")
+    disconnected = EXAMPLES[0].replace("[heading,flightIcon,flights,note,compare]", "[heading,flightIcon,note,compare]")
     assert any("unreachable" in error for error in graph_acceptance_errors(decode_express_completion(disconnected)))
 
 

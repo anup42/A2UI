@@ -42,7 +42,7 @@ class ScriptedAdapter(BaseLLMAdapter):
                          cost_usd=None, model='scripted', provider='fake')
 
 
-def run_fake(tmp_path, monkeypatch, outputs, *, repairs=0, regens=0, budget=None, source=None, metric='legacy', source_quality=None):
+def run_fake(tmp_path, monkeypatch, outputs, *, repairs=0, regens=0, budget=None, source=None, metric='legacy', source_quality=None, source_query=None, response_fields=None):
     monkeypatch.setenv('STAGE3_FINAL_REGEN_ATTEMPTS', str(regens))
     monkeypatch.setenv('DATASET_OFFLINE_MODE', '1')
     monkeypatch.setattr('pipeline.stage3_genui._auto_download_response_assets', lambda **kw: pytest.fail('Stage3 must not download assets'))
@@ -50,8 +50,9 @@ def run_fake(tmp_path, monkeypatch, outputs, *, repairs=0, regens=0, budget=None
                 'response_text': source or 'Fit: comfortable',
                 'source_quality': source_quality or {'status':'needs_review'}, 'query_quality': {'status':'checks_passed'},
                 'scenario_family_id': 'family-1'}
+    response.update(response_fields or {})
     responses = tmp_path/'responses.jsonl'; responses.write_text(json.dumps(response)+'\n',encoding='utf-8')
-    queries = tmp_path/'queries.jsonl'; queries.write_text(json.dumps({'query_id':'q1','intent':'generic'})+'\n',encoding='utf-8')
+    queries = tmp_path/'queries.jsonl'; queries.write_text(json.dumps({'query_id':'q1','intent':'generic', **(source_query or {})})+'\n',encoding='utf-8')
     adapter = ScriptedAdapter(outputs)
     output = tmp_path/'genui.jsonl'
     run_stage3(queries_path=queries,responses_path=responses,
@@ -247,6 +248,44 @@ def test_failed_source_contract_skips_provider_with_explicit_rejection(tmp_path,
     assert rows[0]["record_status"]=="quality_rejected"
     assert rows[0]["validation"]["generation_attempted"] is False
     assert rows[0]["training_acceptance"]["blocking_reasons"]==["source_contract_failed"]
+
+
+@pytest.mark.parametrize("destination", ["https://example.test/truncated...", "[URL_2...]", "https://.jsdelivr.net/a"])
+@pytest.mark.parametrize("saved_quality", [{}, {"status": "checks_passed", "training_eligibility": "eligible"}])
+def test_source_preflight_rejects_bad_destinations_despite_stale_metadata(tmp_path, monkeypatch, destination, saved_quality):
+    source = f"Action: [Button: Open] {destination}"
+    adapter, rows = run_fake(tmp_path, monkeypatch, [], source=source,
+                             response_fields={"source_quality": saved_quality})
+    assert adapter.calls == []
+    assert rows[0]["record_status"] == "quality_rejected"
+    assert rows[0]["response_text"] == source
+    assert rows[0]["source_quality"]["status"] == "failed"
+    assert rows[0]["validation"]["generation_attempted"] is False
+
+
+def test_source_preflight_uses_original_contract_not_response_self_attestation(tmp_path, monkeypatch):
+    original_contract = {"version": 1, "calculations": [
+        {"id": "sum", "op": "sum", "values": [1, 2], "result_label": "Total"}]}
+    adapter, rows = run_fake(tmp_path, monkeypatch, [], source="Total: 4",
+                             source_query={"source_contract": original_contract},
+                             response_fields={"source_contract": {"version": 1},
+                                              "source_quality": {"status": "checks_passed"}})
+    assert adapter.calls == []
+    assert any(finding["code"] == "calculation_failed" for finding in rows[0]["source_quality"]["findings"])
+
+
+def test_source_preflight_does_not_promote_response_only_contract(tmp_path, monkeypatch):
+    adapter, rows = run_fake(tmp_path, monkeypatch, [VALID],
+                             response_fields={"source_contract": {"version": 999}})
+    assert len(adapter.calls) == 1
+    assert rows[0]["source_quality"] == {"status": "needs_review"}
+
+
+def test_source_preflight_preserves_legacy_example_actions(tmp_path, monkeypatch):
+    adapter, rows = run_fake(tmp_path, monkeypatch, [VALID],
+                             source="Action: [Button: Export] https://example.com/export")
+    assert len(adapter.calls) == 1
+    assert rows[0]["source_quality"] == {"status": "needs_review"}
 
 
 @pytest.mark.parametrize("blockers,review,expected",[(["renderer_missing_reference"],[],"quality_rejected"),([], ["possible_content_difference"],"accepted")])

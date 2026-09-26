@@ -126,6 +126,35 @@ class SourceQualityTests(unittest.TestCase):
             with self.subTest(malformed=malformed):
                 self.assertEqual("failed", assess_source_quality(query(source_contract=malformed), "Hello")["status"])
 
+    def test_truncated_and_unresolved_action_destinations_are_hard_failures(self):
+        cases = {
+            "https://www.glassdoor.co.in/Salaries/analyst-salary-SRCH_...": "truncated_http_destination",
+            "https://example.test/path/…": "truncated_http_destination",
+            "[URL_2...]": "unresolved_destination_placeholder",
+            "[URL_2]": "unresolved_destination_placeholder",
+            "https://example.test/[ACTION_URL_3]": "unresolved_destination_placeholder",
+        }
+        for destination, code in cases.items():
+            with self.subTest(destination=destination):
+                result = assess_source_quality(query(), f"Action: [Button: Open] {destination}")
+                self.assertEqual("exclude", result["training_eligibility"])
+                self.assertIn(code, [finding["code"] for finding in result["findings"]])
+
+    def test_url_checks_do_not_reject_query_ellipsis_or_symbolic_media(self):
+        for destination in ("https://example.test/search?q=...", "https://example.test/search?q=…",
+                            "https://example.test/a%2E%2E%2Eb", "https://[::1]/page",
+                            "mailto:person@example.test", "tel:+1234567890", "action://copy/text"):
+            with self.subTest(destination=destination):
+                result = assess_source_quality(query(), f"Media: Icon=[ICON_URL_1]\nAction: [Button: Open] {destination}")
+                self.assertNotEqual("failed", result["status"])
+
+    def test_response_self_attestation_is_not_a_source_contract(self):
+        response = json.dumps({"source_contract": contract(calculations=[{
+            "id": "sum", "op": "sum", "values": [1, 2], "result_label": "Total"}])}) + "\nTotal: 3"
+        result = assess_source_quality(query(), response)
+        self.assertFalse(result["contract_reviewed"])
+        self.assertEqual("needs_review", result["status"])
+
     def test_assets_are_separate_from_training_eligibility(self):
         offline = asset_verification_metadata(3, 0, 3, offline=True)
         self.assertEqual("skipped_offline", offline["verification_state"])

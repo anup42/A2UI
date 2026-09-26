@@ -1,0 +1,272 @@
+{
+  "review_date": "2026-09-26",
+  "archive": "dataset_muse_glimmer_100k_r1_stage123.tar.gz",
+  "archive_sha256": "46d6a6345b367df4088a0f2caf375225ab6fb1553f77f9e22911f0e0add4922c",
+  "archive_bytes": 16249926,
+  "files": {
+    "queries.jsonl": {
+      "bytes": 7142933,
+      "sha256": "f110797f66b63f236ed2558a3c9f08a337b82a30f520d6b078cce0842c97ef79"
+    },
+    "responses.jsonl": {
+      "bytes": 26814764,
+      "sha256": "c8b84723fe9e219e4da53d9efdd5e119c94c98214821c7b5cd35c1dff9b286e4"
+    },
+    "genui.jsonl": {
+      "bytes": 67128936,
+      "sha256": "4ce9685435dff62ccc012760617a9ab3888e9ec22eff9a32bf876ba7511f1b60"
+    }
+  },
+  "counts": {
+    "queries": 5000,
+    "responses": 5000,
+    "genui": 259,
+    "response_query_missing": 0,
+    "genui_response_missing": 0,
+    "genui_query_missing": 0,
+    "response_source_binding_mismatch": 0
+  },
+  "duplicates": {
+    "queries_ids": {},
+    "responses_ids": {},
+    "genui_ids": {},
+    "queries_exact_excess": 0,
+    "responses_exact_excess": 0
+  },
+  "stored_stage3": {
+    "record_status": {
+      "quality_rejected": 4,
+      "accepted": 255
+    },
+    "source_format": {
+      "a2ui_express_v1": 259
+    },
+    "generation_model": {
+      "meta-models/Muse-Glimmer-30B": 259
+    },
+    "prompt_version": {
+      "None": 3,
+      "muse_stage3_quality_v1": 256
+    },
+    "prompt_hashes": {
+      "prompt_sha256": {
+        "None": 259
+      },
+      "stage3_prompt_policy_version": {
+        "None": 259
+      }
+    },
+    "generation_complete": {
+      "None": 3,
+      "True": 256
+    },
+    "generation_errors": {
+      "source_contract_failed": 3,
+      "None": 256
+    },
+    "validation": {
+      "schema_valid_strict": {
+        "None": 3,
+        "True": 256
+      },
+      "standard_a2ui_valid": {
+        "None": 3,
+        "True": 256
+      },
+      "repair_applied": {
+        "None": 3,
+        "False": 248,
+        "True": 8
+      }
+    },
+    "eligible": {
+      "False": 259
+    },
+    "blocking_reasons": {
+      "source_contract_failed": 3,
+      "renderer_component_contract": 1
+    },
+    "review_reasons": {
+      "content_unit_fidelity": 256,
+      "exact_numbers_dates_units_fbeta": 217,
+      "missing_or_mismatched_action": 117,
+      "unsupported_semantic_media": 6,
+      "action_and_source_link_fidelity": 121,
+      "inferred_role_count_gap:chart": 7,
+      "unsupported_external_action": 5,
+      "missing_or_mismatched_role:chart": 2,
+      "table_content_difference": 1
+    }
+  },
+  "stored_source_quality": {
+    "status": {
+      "needs_review": 4988,
+      "failed": 12
+    },
+    "training_eligibility": {
+      "review": 4988,
+      "exclude": 12
+    },
+    "contract_reviewed": {
+      "False": 5000
+    },
+    "prose_fact_verification": {
+      "not_performed": 5000
+    },
+    "findings": {
+      "source_not_independently_reviewed": 5000,
+      "unverified_added_action": 9269,
+      "no_declared_checks_executed": 5000,
+      "empty_or_whitespace_destination": 12,
+      "interactive_modality_without_capability_packet": 17
+    }
+  },
+  "fresh_validation": {
+    "codec_status": {
+      "no_completion": 3,
+      "strict_decode_and_wire_pass": 256
+    },
+    "balanced_reference_corruption_rows": 6,
+    "balanced_reference_corruption_destinations": 14,
+    "stored_not_recomputed_representation_quality": {
+      "n": 256,
+      "mean": 90.61323434151852,
+      "median": 91.50855570639527,
+      "min": 73.71853314992639,
+      "max": 98.22412322013125
+    }
+  },
+  "manual_review": {
+    "sample_seed": 20260926,
+    "population": 259,
+    "reviewed": 100,
+    "reviewers": "Three Astra subagents; cross-review adjudication and primary-agent integration",
+    "source_verdicts": {
+      "needs_review": 43,
+      "usable": 38,
+      "reject": 19
+    },
+    "ui_verdicts": {
+      "keep": 93,
+      "reject": 1,
+      "regenerate": 6
+    },
+    "source_usable_and_ui_keep": 36,
+    "ui_ids": [
+      "u_000771_01",
+      "u_000774_01",
+      "u_000263_01",
+      "u_003581_01",
+      "u_003076_01",
+      "u_000780_01",
+      "u_003074_01",
+      "u_000517_01",
+      "u_001289_01",
+      "u_000264_01",
+      "u_001028_01",
+      "u_003071_01",
+      "u_003839_01",
+      "u_002318_01",
+      "u_002055_01",
+      "u_003077_01",
+      "u_001284_01",
+      "u_001031_01",
+      "u_001802_01",
+      "u_002061_01",
+      "u_003328_01",
+      "u_001550_01",
+      "u_000516_01",
+      "u_002058_01",
+      "u_002553_01",
+      "u_002057_01",
+      "u_000523_01",
+      "u_001037_01",
+      "u_002313_01",
+      "u_000518_01",
+      "u_000781_01",
+      "u_001033_01",
+      "u_003848_01",
+      "u_003835_01",
+      "u_001804_01",
+      "u_001288_01",
+      "u_001544_01",
+      "u_000521_01",
+      "u_001030_01",
+      "u_000265_01",
+      "u_002810_01",
+      "u_002816_01",
+      "u_002056_01",
+      "u_002051_01",
+      "u_002814_01",
+      "u_000258_01",
+      "u_002558_01",
+      "u_003067_01",
+      "u_000270_01",
+      "u_002820_01",
+      "u_001805_01",
+      "u_000261_01",
+      "u_002062_01",
+      "u_000773_01",
+      "u_001540_01",
+      "u_000526_01",
+      "u_003072_01",
+      "u_001551_01",
+      "u_003580_01",
+      "u_001806_01",
+      "u_002319_01",
+      "u_001539_01",
+      "u_003577_01",
+      "u_001552_01",
+      "u_001026_01",
+      "u_000524_01",
+      "u_001285_01",
+      "u_003326_01",
+      "u_001286_01",
+      "u_001287_01",
+      "u_002320_01",
+      "u_002059_01",
+      "u_001543_01",
+      "u_000007_01",
+      "u_003069_01",
+      "u_000513_01",
+      "u_000527_01",
+      "u_000002_01",
+      "u_003579_01",
+      "u_001796_01",
+      "u_001800_01",
+      "u_002308_01",
+      "u_003321_01",
+      "u_001545_01",
+      "u_003843_01",
+      "u_002316_01",
+      "u_003844_01",
+      "u_003065_01",
+      "u_001025_01",
+      "u_000520_01",
+      "u_000271_01",
+      "u_003335_01",
+      "u_001807_01",
+      "u_000268_01",
+      "u_001542_01",
+      "u_000772_01",
+      "u_000011_01",
+      "u_003836_01",
+      "u_003325_01",
+      "u_000003_01"
+    ]
+  },
+  "limitations": [
+    "Not independent external fact verification",
+    "No Android render/device testing",
+    "No live Muse generation, model training or repaired labels",
+    "Source usable is internal review, not training eligibility",
+    "Random sample is from259 archived Stage3 rows, not5000 independent source rows or100000 completed samples"
+  ],
+  "source_quality_after_new_checks": {
+    "validator_version": "source-quality-v1.1",
+    "failed": 56,
+    "needs_review": 4944,
+    "newly_failed_sources": 44,
+    "truncated_destinations": 51
+  }
+}

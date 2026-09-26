@@ -1,0 +1,466 @@
+{
+  "scope": "Offline deterministic reassessment of the 5000 original response records and authoritative query envelopes. No network checks, source rewrites, UI regeneration, or independent fact verification.",
+  "responses": 5000,
+  "action_lines": 9274,
+  "destination_error_counts": {
+    "truncated_http_destination": 51,
+    "empty_or_whitespace_destination": 12,
+    "unresolved_destination_placeholder": 0
+  },
+  "unique_sources_with_truncated_destinations": 44,
+  "unique_sources_with_existing_whitespace_errors": 12,
+  "newly_failed_sources": 44,
+  "reassessed_source_status_counts": {
+    "failed": 56,
+    "needs_review": 4944
+  },
+  "newly_failed_response_ids": [
+    "r_000007_01",
+    "r_000009_01",
+    "r_001294_01",
+    "r_001803_01",
+    "r_002822_01",
+    "r_002313_01",
+    "r_001043_01",
+    "r_001048_01",
+    "r_001302_01",
+    "r_002321_01",
+    "r_002322_01",
+    "r_003599_01",
+    "r_003096_01",
+    "r_000337_01",
+    "r_000593_01",
+    "r_000083_01",
+    "r_000085_01",
+    "r_001621_01",
+    "r_003149_01",
+    "r_003913_01",
+    "r_001617_01",
+    "r_003403_01",
+    "r_001910_01",
+    "r_001138_01",
+    "r_000900_01",
+    "r_003193_01",
+    "r_000393_01",
+    "r_002186_01",
+    "r_000147_01",
+    "r_001432_01",
+    "r_001688_01",
+    "r_003724_01",
+    "r_002759_01",
+    "r_001497_01",
+    "r_000227_01",
+    "r_001264_01",
+    "r_004113_01",
+    "r_004417_01",
+    "r_004424_01",
+    "r_004469_01",
+    "r_004603_01",
+    "r_004647_01",
+    "r_004657_01",
+    "r_004674_01"
+  ],
+  "notes": "The 4944 review-only rows are not independently verified or training-eligible. The scan detects syntactic truncation and declared contract failures, not fake-but-well-formed URL destinations, live link validity, arithmetic without typed contracts, or general factual truth.",
+  "validator_version": "source-quality-v1.1",
+  "failed_sources": [
+    {
+      "response_id": "r_000007_01",
+      "query_id": "q_000007",
+      "reasons": [
+        "truncated_http_destination"
+      ]
+    },
+    {
+      "response_id": "r_001794_01",
+      "query_id": "q_001794",
+      "reasons": [
+        "empty_or_whitespace_destination"
+      ]
+    },
+    {
+      "response_id": "r_000009_01",
+      "query_id": "q_000009",
+      "reasons": [
+        "truncated_http_destination"
+      ]
+    },
+    {
+      "response_id": "r_000780_01",
+      "query_id": "q_000780",
+      "reasons": [
+        "empty_or_whitespace_destination"
+      ]
+    },
+    {
+      "response_id": "r_001294_01",
+      "query_id": "q_001294",
+      "reasons": [
+        "truncated_http_destination",
+        "truncated_http_destination"
+      ]
+    },
+    {
+      "response_id": "r_001803_01",
+      "query_id": "q_001803",
+      "reasons": [
+        "truncated_http_destination",
+        "truncated_http_destination"
+      ]
+    },
+    {
+      "response_id": "r_002822_01",
+      "query_id": "q_002822",
+      "reasons": [
+        "truncated_http_destination"
+      ]
+    },
+    {
+      "response_id": "r_002313_01",
+      "query_id": "q_002313",
+      "reasons": [
+        "truncated_http_destination"
+      ]
+    },
+    {
+      "response_id": "r_001043_01",
+      "query_id": "q_001043",
+      "reasons": [
+        "truncated_http_destination"
+      ]
+    },
+    {
+      "response_id": "r_001048_01",
+      "query_id": "q_001048",
+      "reasons": [
+        "truncated_http_destination",
+        "truncated_http_destination"
+      ]
+    },
+    {
+      "response_id": "r_001302_01",
+      "query_id": "q_001302",
+      "reasons": [
+        "truncated_http_destination"
+      ]
+    },
+    {
+      "response_id": "r_002321_01",
+      "query_id": "q_002321",
+      "reasons": [
+        "truncated_http_destination"
+      ]
+    },
+    {
+      "response_id": "r_002322_01",
+      "query_id": "q_002322",
+      "reasons": [
+        "truncated_http_destination"
+      ]
+    },
+    {
+      "response_id": "r_003599_01",
+      "query_id": "q_003599",
+      "reasons": [
+        "truncated_http_destination"
+      ]
+    },
+    {
+      "response_id": "r_002831_01",
+      "query_id": "q_002831",
+      "reasons": [
+        "empty_or_whitespace_destination"
+      ]
+    },
+    {
+      "response_id": "r_003096_01",
+      "query_id": "q_003096",
+      "reasons": [
+        "truncated_http_destination"
+      ]
+    },
+    {
+      "response_id": "r_000830_01",
+      "query_id": "q_000830",
+      "reasons": [
+        "empty_or_whitespace_destination"
+      ]
+    },
+    {
+      "response_id": "r_000337_01",
+      "query_id": "q_000337",
+      "reasons": [
+        "truncated_http_destination"
+      ]
+    },
+    {
+      "response_id": "r_000593_01",
+      "query_id": "q_000593",
+      "reasons": [
+        "truncated_http_destination"
+      ]
+    },
+    {
+      "response_id": "r_000083_01",
+      "query_id": "q_000083",
+      "reasons": [
+        "truncated_http_destination",
+        "truncated_http_destination"
+      ]
+    },
+    {
+      "response_id": "r_000085_01",
+      "query_id": "q_000085",
+      "reasons": [
+        "truncated_http_destination",
+        "truncated_http_destination"
+      ]
+    },
+    {
+      "response_id": "r_001621_01",
+      "query_id": "q_001621",
+      "reasons": [
+        "truncated_http_destination"
+      ]
+    },
+    {
+      "response_id": "r_003149_01",
+      "query_id": "q_003149",
+      "reasons": [
+        "truncated_http_destination"
+      ]
+    },
+    {
+      "response_id": "r_003913_01",
+      "query_id": "q_003913",
+      "reasons": [
+        "truncated_http_destination"
+      ]
+    },
+    {
+      "response_id": "r_001617_01",
+      "query_id": "q_001617",
+      "reasons": [
+        "truncated_http_destination",
+        "truncated_http_destination",
+        "truncated_http_destination"
+      ]
+    },
+    {
+      "response_id": "r_003403_01",
+      "query_id": "q_003403",
+      "reasons": [
+        "truncated_http_destination"
+      ]
+    },
+    {
+      "response_id": "r_001890_01",
+      "query_id": "q_001890",
+      "reasons": [
+        "empty_or_whitespace_destination"
+      ]
+    },
+    {
+      "response_id": "r_001910_01",
+      "query_id": "q_001910",
+      "reasons": [
+        "truncated_http_destination"
+      ]
+    },
+    {
+      "response_id": "r_001138_01",
+      "query_id": "q_001138",
+      "reasons": [
+        "truncated_http_destination"
+      ]
+    },
+    {
+      "response_id": "r_000900_01",
+      "query_id": "q_000900",
+      "reasons": [
+        "truncated_http_destination"
+      ]
+    },
+    {
+      "response_id": "r_003193_01",
+      "query_id": "q_003193",
+      "reasons": [
+        "truncated_http_destination"
+      ]
+    },
+    {
+      "response_id": "r_000393_01",
+      "query_id": "q_000393",
+      "reasons": [
+        "truncated_http_destination"
+      ]
+    },
+    {
+      "response_id": "r_000654_01",
+      "query_id": "q_000654",
+      "reasons": [
+        "empty_or_whitespace_destination"
+      ]
+    },
+    {
+      "response_id": "r_002186_01",
+      "query_id": "q_002186",
+      "reasons": [
+        "truncated_http_destination"
+      ]
+    },
+    {
+      "response_id": "r_000147_01",
+      "query_id": "q_000147",
+      "reasons": [
+        "truncated_http_destination"
+      ]
+    },
+    {
+      "response_id": "r_001432_01",
+      "query_id": "q_001432",
+      "reasons": [
+        "truncated_http_destination"
+      ]
+    },
+    {
+      "response_id": "r_001688_01",
+      "query_id": "q_001688",
+      "reasons": [
+        "truncated_http_destination"
+      ]
+    },
+    {
+      "response_id": "r_003724_01",
+      "query_id": "q_003724",
+      "reasons": [
+        "truncated_http_destination"
+      ]
+    },
+    {
+      "response_id": "r_000965_01",
+      "query_id": "q_000965",
+      "reasons": [
+        "empty_or_whitespace_destination"
+      ]
+    },
+    {
+      "response_id": "r_002759_01",
+      "query_id": "q_002759",
+      "reasons": [
+        "truncated_http_destination"
+      ]
+    },
+    {
+      "response_id": "r_001497_01",
+      "query_id": "q_001497",
+      "reasons": [
+        "truncated_http_destination"
+      ]
+    },
+    {
+      "response_id": "r_003281_01",
+      "query_id": "q_003281",
+      "reasons": [
+        "empty_or_whitespace_destination"
+      ]
+    },
+    {
+      "response_id": "r_000227_01",
+      "query_id": "q_000227",
+      "reasons": [
+        "truncated_http_destination"
+      ]
+    },
+    {
+      "response_id": "r_000254_01",
+      "query_id": "q_000254",
+      "reasons": [
+        "empty_or_whitespace_destination"
+      ]
+    },
+    {
+      "response_id": "r_004330_01",
+      "query_id": "q_004330",
+      "reasons": [
+        "empty_or_whitespace_destination"
+      ]
+    },
+    {
+      "response_id": "r_001264_01",
+      "query_id": "q_001264",
+      "reasons": [
+        "truncated_http_destination"
+      ]
+    },
+    {
+      "response_id": "r_003309_01",
+      "query_id": "q_003309",
+      "reasons": [
+        "empty_or_whitespace_destination"
+      ]
+    },
+    {
+      "response_id": "r_004113_01",
+      "query_id": "q_004113",
+      "reasons": [
+        "truncated_http_destination"
+      ]
+    },
+    {
+      "response_id": "r_004417_01",
+      "query_id": "q_004417",
+      "reasons": [
+        "truncated_http_destination"
+      ]
+    },
+    {
+      "response_id": "r_004424_01",
+      "query_id": "q_004424",
+      "reasons": [
+        "truncated_http_destination"
+      ]
+    },
+    {
+      "response_id": "r_004469_01",
+      "query_id": "q_004469",
+      "reasons": [
+        "truncated_http_destination"
+      ]
+    },
+    {
+      "response_id": "r_004603_01",
+      "query_id": "q_004603",
+      "reasons": [
+        "truncated_http_destination"
+      ]
+    },
+    {
+      "response_id": "r_004647_01",
+      "query_id": "q_004647",
+      "reasons": [
+        "truncated_http_destination"
+      ]
+    },
+    {
+      "response_id": "r_004657_01",
+      "query_id": "q_004657",
+      "reasons": [
+        "truncated_http_destination"
+      ]
+    },
+    {
+      "response_id": "r_004674_01",
+      "query_id": "q_004674",
+      "reasons": [
+        "truncated_http_destination"
+      ]
+    },
+    {
+      "response_id": "r_004921_01",
+      "query_id": "q_004921",
+      "reasons": [
+        "empty_or_whitespace_destination"
+      ]
+    }
+  ]
+}

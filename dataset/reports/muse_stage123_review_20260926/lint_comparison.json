@@ -1,0 +1,38 @@
+[
+  {
+    "path": "dataset/src/pipeline/source_quality.py",
+    "baseline_issues": 10,
+    "current_issues": 10,
+    "new_issue_categories": []
+  },
+  {
+    "path": "dataset/src/pipeline/stage2_responses.py",
+    "baseline_issues": 21,
+    "current_issues": 21,
+    "new_issue_categories": []
+  },
+  {
+    "path": "dataset/src/pipeline/stage3_genui.py",
+    "baseline_issues": 39,
+    "current_issues": 39,
+    "new_issue_categories": []
+  },
+  {
+    "path": "dataset/tests/test_source_quality.py",
+    "baseline_issues": 3,
+    "current_issues": 3,
+    "new_issue_categories": []
+  },
+  {
+    "path": "dataset/tests/test_generation_quality_regressions.py",
+    "baseline_issues": 3,
+    "current_issues": 3,
+    "new_issue_categories": []
+  },
+  {
+    "path": "dataset/tests/test_muse_stage3_prompt_quality.py",
+    "baseline_issues": 0,
+    "current_issues": 0,
+    "new_issue_categories": []
+  }
+]

@@ -56,6 +56,11 @@ syntax and layout only. Never transfer their facts into another UI.
   `preferredPresentation="table"`. Do not expand a table into cell components.
   Keep short comparable values in Tables; put long quotations, explanations
   and qualifications in adjacent Text sections labelled with the correct record.
+  For mixed records, keep a compact summary Table and move each complete long
+  field into a reachable Text section identified by both record and field name.
+  Preserve every sentence, qualifier and record association; do not summarize,
+  duplicate the long field in the grid, or replace a genuine feature matrix
+  with unrelated prose. The comparison-with-notes example below shows this split.
 - Use List(items=[...]) for textual steps; preserve their order. Use separate
   sections for questions and their answers, rather than unrelated text blobs.
   Use CodeBlock for code and EmailPreview for an email when the source calls
@@ -76,6 +81,11 @@ syntax and layout only. Never transfer their facts into another UI.
   citation is not automatically an image or icon. Preserve each provided token
   exactly as a quoted string, with its original role and entity association.
   Do not invent a placeholder just because the examples contain one.
+- A standalone asset declaration such as `Media: Icon=[ICON_URL_1]` is
+  transport metadata: represent it once with the corresponding media component,
+  not an additional Text containing `Media:` or the asset URL. Preserve genuine
+  user-facing captions. A quoted example/code snippet mentioning this syntax
+  remains literal displayed content, not an asset declaration.
 - Explicit options or a request for user input may use a ChoicePicker/form or
   separate labeled buttons. For a requested follow-up without a URL, an Event
   can express that request with source-grounded context; it must not pretend to
@@ -97,11 +107,12 @@ syntax and layout only. Never transfer their facts into another UI.
 Source: Flights DEL to BLR: 6E204 departs 10:30 and arrives 13:15, INR 5,400,
 status On time; AI502 departs 12:00 and arrives 14:50, INR 6,100, status Delayed
 20 min. All times Asia/Kolkata. Fares exclude checked baggage. Compare fares
-at [ACTION_URL_1].
+at [ACTION_URL_1]. Asset declaration: Media: Icon=[ICON_URL_1].
 
 <a2ui>
-root=Column([heading,flights,note,compare],gap="md")
+root=Column([heading,flightIcon,flights,note,compare],gap="md")
 heading=Text("DEL to BLR flights","h2")
+flightIcon=Icon(url="[ICON_URL_1]")
 flights=Table(columns=["Flight","Departure","Arrival","Fare","Status"],rows=[["6E204","10:30","13:15","INR 5,400","On time"],["AI502","12:00","14:50","INR 6,100","Delayed 20 min"]],domain="flight",preferredPresentation="cards")
 note=Text("All times Asia/Kolkata. Fares exclude checked baggage.")
 compare=Button("Compare fares",onPress=openUrl("[ACTION_URL_1]"))
@@ -142,6 +153,22 @@ root=Column([schedule,zone,allocation],gap="md")
 schedule=Table(columns=[{key:"day",label:"Day"},{key:"time",label:"Time"},{key:"session",label:"Session"}],statePath="/schedule",title="Workshop schedule",domain="schedule",preferredPresentation="cards")
 zone=Text("All times UTC.")
 allocation=Table(columns=[{key:"activity",label:"Activity"},{key:"duration",label:"Duration"}],statePath="/allocation",title="Time allocation",preferredPresentation="table")
+</a2ui>
+
+Source: Workshop kit comparison. Kit A costs USD 24 and has 6 pieces.
+Handling note: Requires adult assistance for first setup; reusable tools are
+included, but replacement adhesive is not included. Kit B costs USD 18 and
+has 4 pieces. Handling note: Ready to use indoors; avoid direct water contact,
+and keep the printed measurement guide for repeat sessions.
+
+<a2ui>
+root=Column([heading,kits,kitAHeading,kitANote,kitBHeading,kitBNote],gap="md")
+heading=Text("Workshop kit comparison","h2")
+kits=Table(columns=["Kit","Price","Pieces"],rows=[["Kit A","USD 24","6"],["Kit B","USD 18","4"]],domain="comparison",preferredPresentation="table")
+kitAHeading=Text("Kit A — Handling note","h3")
+kitANote=Text("Requires adult assistance for first setup; reusable tools are included, but replacement adhesive is not included.")
+kitBHeading=Text("Kit B — Handling note","h3")
+kitBNote=Text("Ready to use indoors; avoid direct water contact, and keep the printed measurement guide for repeat sessions.")
 </a2ui>
 
 Escaping example: source code `print("ready")` then `pattern = r"\d+"`
