@@ -20,7 +20,7 @@ from typing import Any
 
 from ir_training.common.bounded_command import run_bounded_command
 from ir_training.common.config import load_yaml, training_root
-from ir_training.common.progress import Progress, log
+from ir_training.common.progress import log
 from ir_training.pipeline.golden_training import (
     GOLDENS,
     GoldenTrainingOptions,
@@ -603,7 +603,8 @@ def _assets(plan: dict) -> list[Path]:
         "report=probe_export_environment(Path(sys.argv[1])); _write(Path(sys.argv[2]),report); "
         "print(json.dumps(report, indent=2))"), values["official_litertlm"], str(environment_report)]
     run_bounded_command(command, output / "logs/export_environment.log", _environment(plan),
-                        timeout_seconds=300, progress_seconds=values["progress_seconds"])
+                        timeout_seconds=300, progress_seconds=values["progress_seconds"],
+                        emit_heartbeat=False)
     return [result, environment_report, *map(Path, inputs), seed / "mobile_training_seed_manifest.json", seed / "mobile_qparams.json"]
 
 
@@ -632,7 +633,8 @@ def run_stage(plan: dict, stage: str) -> list[Path]:
         env = _environment(plan)
         env["CUDA_VISIBLE_DEVICES"] = ""
         run_bounded_command(no_op_export_command(plan), output / "logs/no_op_export_worker.log", env,
-                            timeout_seconds=values["stage_timeout_seconds"], progress_seconds=values["progress_seconds"])
+                            timeout_seconds=values["stage_timeout_seconds"],
+                            progress_seconds=values["progress_seconds"], emit_heartbeat=False)
         _require_no_op_export(plan)
         return [Path(paths["no_op_export_report"])]
     if stage in {"preflight", "training"}:
@@ -652,7 +654,8 @@ def run_stage(plan: dict, stage: str) -> list[Path]:
         if not _json(launch_paths["preflight_report"]).get("all_passed"):
             raise ValueError("Training requires completed mobile preflights")
         run_bounded_command(launch["training_command"], launch_paths["training_log"], _environment(plan, gpu=True),
-                            timeout_seconds=values["stage_timeout_seconds"], progress_seconds=values["progress_seconds"])
+                            timeout_seconds=values["stage_timeout_seconds"],
+                            progress_seconds=values["progress_seconds"], emit_heartbeat=False)
         best = Path(paths["best_checkpoint"])
         metadata = _json(best / "training_metadata.json")
         if metadata.get("checkpoint_role") != "best_golden" or (metadata.get("best_golden_eval") or {}).get("metric") != SELECTOR:
@@ -666,7 +669,8 @@ def run_stage(plan: dict, stage: str) -> list[Path]:
         from ir_training.pipeline.golden_deployment import _evaluation
         cohort = stage.removeprefix("best_")
         run_bounded_command(evaluation_command(plan, cohort), output / f"logs/{stage}_worker.log", _environment(plan, gpu=True),
-                            timeout_seconds=values["stage_timeout_seconds"], progress_seconds=values["progress_seconds"])
+                            timeout_seconds=values["stage_timeout_seconds"],
+                            progress_seconds=values["progress_seconds"], emit_heartbeat=False)
         result, evidence = _evaluation(output / f"evaluations/{stage}", GOLDENS[cohort][1], artifact=Path(paths["best_checkpoint"]))
         if result.get("qat_applied") is not True:
             raise ValueError("Best checkpoint was not evaluated with retained-scale QAT active")
@@ -679,7 +683,8 @@ def run_stage(plan: dict, stage: str) -> list[Path]:
         env.pop("A2UI_CUDA_VISIBLE_DEVICES", None)
         env.pop("A2UI_EXCLUDE_CUDA_DEVICES", None)
         run_bounded_command(_mobile_command(plan, stage), output / f"logs/{stage}_worker.log", env,
-                            timeout_seconds=values["stage_timeout_seconds"], progress_seconds=values["progress_seconds"])
+                            timeout_seconds=values["stage_timeout_seconds"],
+                            progress_seconds=values["progress_seconds"], emit_heartbeat=False)
         if stage == "merge":
             return [path for path in sorted(Path(paths["merged"]).iterdir()) if path.is_file()]
         if stage == "export":
@@ -752,7 +757,8 @@ def run_pipeline(options: OfficialMobileOptions, *, execute: bool = False,
                 command = [sys.executable, str(training_root() / "scripts/run_official_mobile_pipeline.py"),
                            "--worker-stage", stage, "--plan-file", str(plan_path)]
                 command_runner(command, output / f"logs/{stage}.log", _environment(plan),
-                               timeout_seconds=options.stage_timeout_seconds, progress_seconds=options.progress_seconds)
+                               timeout_seconds=options.stage_timeout_seconds,
+                               progress_seconds=options.progress_seconds, emit_heartbeat=False)
                 receipt = _json(output / f"stage_receipts/{stage}.json")
                 if sha256(plan_path) != plan_digest or receipt.get("stage") != stage or receipt.get("plan_sha256") != plan_digest:
                     raise ValueError(f"Stage receipt is not bound to this run: {stage}")
@@ -802,9 +808,8 @@ def worker(plan_path: Path, stage: str) -> None:
             _verify_bindings(receipt.get("files") or {})
         if stage in {"merge", "export"} and (name == "training" or name.startswith("best_")):
             _verify_bindings(receipt.get("files") or {})
-    with Progress(f"Mobile {stage}", unit="stage", interval=plan["options"]["progress_seconds"]):
-        files = run_stage(plan, stage)
-        if sha256(plan_path) != plan_digest:
-            raise ValueError("Pipeline plan changed while the worker ran")
-        receipt = {"stage": stage, "plan_sha256": plan_digest, "files": _file_bindings(files)}
+    files = run_stage(plan, stage)
+    if sha256(plan_path) != plan_digest:
+        raise ValueError("Pipeline plan changed while the worker ran")
+    receipt = {"stage": stage, "plan_sha256": plan_digest, "files": _file_bindings(files)}
     _write(output / f"stage_receipts/{stage}.json", receipt)

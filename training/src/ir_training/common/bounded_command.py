@@ -38,10 +38,18 @@ def _stop(process: subprocess.Popen) -> None:
 
 
 def run_bounded_command(command: list[str], log: Path, environment: dict[str, str], *,
-                        timeout_seconds: float = 172800, progress_seconds: float = 10) -> None:
-    """Hard total-stage timeout, not an idle-output timeout (long kernels are valid)."""
+                        timeout_seconds: float = 172800, progress_seconds: float = 10,
+                        emit_heartbeat: bool = True) -> None:
+    """Run with a hard deadline while streaming all child output.
+
+    ``emit_heartbeat`` controls only the synthetic periodic status line. Callers
+    may disable it when higher-level logs or child progress output already cover
+    the same operation; timeout enforcement and subprocess teardown remain active.
+    """
     if not all(math.isfinite(x) and x > 0 for x in (timeout_seconds, progress_seconds)):
         raise ValueError("Command timeout and progress interval must be positive and finite")
+    if type(emit_heartbeat) is not bool:
+        raise ValueError("emit_heartbeat must be a boolean")
     log.parent.mkdir(parents=True, exist_ok=True)
     progress_log(f"Running {log.stem}; deadline {timeout_seconds:g}s; log: {log}")
     env = {**environment, "PYTHONUNBUFFERED": "1", "PYTHONIOENCODING": "utf-8"}
@@ -76,7 +84,7 @@ def run_bounded_command(command: list[str], log: Path, environment: dict[str, st
                 now = time.monotonic()
                 if now - started >= timeout_seconds:
                     raise TimeoutError(f"Stage {log.stem} exceeded {timeout_seconds:g}s. Partial logs retained: {log}")
-                if now - last_progress >= progress_seconds:
+                if emit_heartbeat and now - last_progress >= progress_seconds:
                     message = f"Stage {log.stem}: elapsed {now-started:.0f}s; process={process.pid}; deadline={timeout_seconds:g}s"
                     progress_log(message)
                     stream.write(message + "\n")

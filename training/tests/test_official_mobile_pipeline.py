@@ -782,6 +782,7 @@ def test_bounded_stage_failure_stops_before_export_and_always_writes_summary(opt
     assert [stage for stage, _, _ in calls] == ["assets", "prepare", "configure", "no_op_export", "preflight", "training"]
     assert all(call[1]["timeout_seconds"] == options.stage_timeout_seconds for call in calls)
     assert all(call[1]["progress_seconds"] == options.progress_seconds for call in calls)
+    assert all(call[1]["emit_heartbeat"] is False for call in calls)
     assert "export" not in {stage for stage, _, _ in calls}
     manifest = json.loads((options.output_dir / "official_mobile_manifest.json").read_text(encoding="utf-8"))
     assert manifest["status"] == "failed"
@@ -985,6 +986,7 @@ def test_no_op_export_stage_uses_isolated_cpu_exporter_and_validates_report(opti
     assert command[command.index("--zero-adapter-checkpoint") + 1] == str(options.model_dir.resolve())
     assert captured["env"]["CUDA_VISIBLE_DEVICES"] == ""
     assert captured["kwargs"]["timeout_seconds"] == options.stage_timeout_seconds
+    assert captured["kwargs"]["emit_heartbeat"] is False
     assert files == [Path(plan["paths"]["no_op_export_report"])]
 
 
