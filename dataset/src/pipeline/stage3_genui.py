@@ -1200,6 +1200,27 @@ def run_stage3(
         )
     stop = False
 
+    def _normalize_fidelity_repair_feedback(value: Any) -> dict[str, Any] | None:
+        if value is None:
+            return None
+        if not isinstance(value, dict) or set(value) != {"kind", "review_reasons", "attempt", "max_attempts"}:
+            raise ValueError("invalid_stage3_fidelity_repair_feedback")
+        reasons = value.get("review_reasons")
+        attempt = value.get("attempt")
+        maximum = value.get("max_attempts")
+        if value.get("kind") != "semantic_fidelity":
+            raise ValueError("invalid_stage3_fidelity_repair_kind")
+        if (
+            not isinstance(reasons, list)
+            or not 1 <= len(reasons) <= 32
+            or not all(isinstance(reason, str) and re.fullmatch(r"[a-z0-9_:-]{1,128}", reason) for reason in reasons)
+        ):
+            raise ValueError("invalid_stage3_fidelity_review_reasons")
+        if type(attempt) is not int or type(maximum) is not int or not 1 <= attempt <= maximum <= 3:
+            raise ValueError("invalid_stage3_fidelity_repair_attempt")
+        return {"kind": "semantic_fidelity", "review_reasons": list(dict.fromkeys(reasons)),
+                "attempt": attempt, "max_attempts": maximum}
+
     def _build_prompt_for(
         response_id: str,
         response_text: str,
@@ -1207,6 +1228,7 @@ def run_stage3(
         *,
         masked_response_text: str | None = None,
         raw_to_placeholder: dict[str, str] | None = None,
+        fidelity_repair_feedback: dict[str, Any] | None = None,
     ) -> str:
         masked_response_text = response_text if masked_response_text is None else masked_response_text
         raw_to_placeholder = raw_to_placeholder or {}
@@ -1231,8 +1253,16 @@ def run_stage3(
             prompt_response_text = f"{response_with_policy}\n\n{asset_context}"
 
         if uses_muse_stage3_prompt(adapter.spec):
-            response_with_policy = format_muse_source(masked_response_text, asset_policy)
-            prompt_response_text = format_muse_source(masked_response_text, asset_policy, asset_context)
+            def _muse_source(mapping: str = "") -> str:
+                payload = json.loads(format_muse_source(masked_response_text, asset_policy, mapping))
+                if fidelity_repair_feedback is not None:
+                    payload["repair_feedback"] = fidelity_repair_feedback
+                return json.dumps(payload, ensure_ascii=False)
+
+            response_with_policy = _muse_source()
+            prompt_response_text = _muse_source(asset_context)
+        elif fidelity_repair_feedback is not None:
+            raise ValueError("Stage 3 fidelity repair feedback is supported only for the pinned Muse teacher")
 
         prompt = render_prompt(user_prompt_template, response_text=prompt_response_text)
         if effective_prompt_max_tokens:
@@ -1322,6 +1352,8 @@ def run_stage3(
         for key in ("source_quality", "query_quality", "scenario_family_id"):
             if key in task:
                 fields[key] = task[key]
+        if task.get("stage3_repair_feedback") is not None:
+            fields["stage3_repair_feedback"] = task["stage3_repair_feedback"]
         return fields
 
     def _attach_reasoning_trace(record: dict[str, Any], reasoning_text: str | None,
@@ -2679,9 +2711,13 @@ def run_stage3(
                     assets_list,
                 )
                 try:
+                    fidelity_repair_feedback = _normalize_fidelity_repair_feedback(
+                        response.get("stage3_repair_feedback")
+                    )
                     prompt = _build_prompt_for(
                         response_id, response_text, assets_list,
                         masked_response_text=masked_response_text, raw_to_placeholder=raw_to_placeholder,
+                        fidelity_repair_feedback=fidelity_repair_feedback,
                     )
                 except ValueError as exc:
                     _record_generation_error({"ui_id": ui_id, "response_id": response_id, "query_id": query_id,
@@ -2705,6 +2741,7 @@ def run_stage3(
                     "intent": intent_info.get("intent"),
                     "tags": intent_info.get("tags"),
                     "query_text": intent_info.get("query_text") or "",
+                    "stage3_repair_feedback": fidelity_repair_feedback,
                     "prompt": prompt,
                     "prompt_hash": prompt_hash,
                     "phase_invocation_id": phase_invocation_id,
@@ -2776,4 +2813,3 @@ def run_stage3(
             logger.info("Stage3 completed created=%s", total_created)
     finally:
         _write_aggregates()
-

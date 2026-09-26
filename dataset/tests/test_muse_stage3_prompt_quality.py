@@ -190,6 +190,8 @@ def test_muse_system_message_retains_entire_canonical_contract(monkeypatch):
     assert combined.count("{response_text}") == 1
     system, user = _prepare_prompt_context(combined, BaseLLMAdapter(MUSE), logging.getLogger(__name__))
     assert "Visible content comes first" in system
+    assert "Fidelity regeneration feedback" in system
+    assert "private atomic-unit inventory" in system
     assert "Pinned catalog signatures" in system
     assert "{response_text}" not in system
     assert user.count("{response_text}") == 1
@@ -254,5 +256,50 @@ def test_real_stage3_applies_guidance_and_fails_closed_on_budget(tmp_path, monke
     assert payload["source_response"] == source
     assert "Asset reference policy" in payload["reference_metadata"]["asset_policy"]
     assert row["record_status"] == "accepted"
-    assert row["gen"]["prompt_version"] == "muse_stage3_quality_v1"
+    assert row["gen"]["prompt_version"] == "muse_stage3_quality_v2"
     assert row["model_completion_raw"] == valid
+
+
+def test_muse_fidelity_feedback_is_validated_prompt_metadata(tmp_path, monkeypatch):
+    monkeypatch.setenv("STAGE3_FINAL_REGEN_ATTEMPTS", "0")
+    monkeypatch.setenv("DATASET_OFFLINE_MODE", "1")
+    monkeypatch.setenv("LOCAL_MUSE_REQUIRE_REASONING", "0")
+    source = "Formula: x = 7. Source: [SOURCE_URL_1]."
+    valid = f'<a2ui>\nroot=Text({json.dumps(source)})\n</a2ui>'
+
+    class Adapter(BaseLLMAdapter):
+        def __init__(self):
+            super().__init__(MUSE)
+            self.calls = []
+
+        def generate(self, **kwargs):
+            self.calls.append(kwargs)
+            return LLMResult(text=valid, raw={}, latency_ms=1, input_tokens=10, output_tokens=20,
+                             cost_usd=None, model=self.spec.model, provider=self.spec.provider,
+                             finish_reason="stop", completion_complete=True)
+
+    feedback = {"kind": "semantic_fidelity",
+                "review_reasons": ["missing_or_mismatched_role:formula", "exact_numbers_dates_units_fbeta"],
+                "attempt": 1, "max_attempts": 2}
+    queries = tmp_path / "queries.jsonl"
+    responses = tmp_path / "responses.jsonl"
+    queries.write_text(json.dumps({"query_id": "q1"}) + "\n", encoding="utf-8")
+    responses.write_text(json.dumps({"query_id": "q1", "response_id": "r1", "n_idx": 1,
+                                     "response_text": source, "stage3_repair_feedback": feedback}) + "\n",
+                         encoding="utf-8")
+    adapter = Adapter()
+    output = tmp_path / "genui.jsonl"
+    run_stage3(queries_path=queries, responses_path=responses, prompt_path=BASE_PATH,
+               adapter=adapter, genui_path=output,
+               schema_path=ROOT / "schema/canonical_ui_graph_v1.schema.json",
+               artifacts_dir=tmp_path / "artifacts", candidates_per_response=1,
+               max_repair_attempts=0, max_tokens=2048, prompt_max_tokens=16000, seed=1,
+               rate_limiter=RateLimiter(0), cache=PromptCache(tmp_path / "cache", enabled=False),
+               logger=logging.getLogger(__name__), batch_size=1, max_attempts=1,
+               metric_version="legacy", ir_formats=[A2UI_EXPRESS_V1])
+    payload, _ = json.JSONDecoder().raw_decode(adapter.calls[0]["prompt"].split("Response:\n", 1)[1])
+    assert payload["source_response"] == source
+    assert payload["repair_feedback"] == feedback
+    row = json.loads(output.read_text(encoding="utf-8"))
+    assert row["response_text"] == source
+    assert row["stage3_repair_feedback"] == feedback

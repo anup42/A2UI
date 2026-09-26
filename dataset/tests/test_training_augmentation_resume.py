@@ -50,23 +50,140 @@ def test_completed_resume_uses_zero_teacher_calls_and_identical_projection(run):
     assert (output / "accepted_genui.jsonl").read_bytes() == before
 
 
-def test_rejected_labels_retry_new_stage3_directory_without_source_calls(run):
+def test_fidelity_rejection_regenerates_immediately_with_exact_feedback(run):
     _, output, calls, generate = run
     def reject_one(**kwargs):
         calls.append(kwargs)
         rows = [stage3_row(row) for row in api.read_jsonl(kwargs["responses_path"])]
-        rows[0]["training_acceptance"]["review_reasons"] = ["content_unit_fidelity"]
+        if len(calls) == 1:
+            rows[0]["training_acceptance"]["eligible"] = False
+            rows[0]["training_acceptance"]["review_reasons"] = [
+                "content_unit_fidelity", "action_and_source_link_fidelity",
+            ]
+        else:
+            assert len(rows) == 1
+            assert api.read_jsonl(kwargs["responses_path"])[0]["stage3_repair_feedback"] == {
+                "kind": "semantic_fidelity",
+                "review_reasons": ["content_unit_fidelity", "action_and_source_link_fidelity"],
+                "attempt": 1,
+                "max_attempts": 2,
+            }
         kwargs["genui_path"].write_text("".join(json.dumps(row) + "\n" for row in rows), encoding="utf-8")
-    assert generate(stage3_runner=reject_one)["accepted_rows"] == 2
-    preserved = (output / "stage3_attempts/000001/genui.jsonl").read_bytes()
     teacher = FakeTeacher()
-    manifest = generate(resume=True, adapter=teacher)
-    assert teacher.calls == []
+    manifest = generate(stage3_runner=reject_one, adapter=teacher)
     assert manifest["accepted_rows"] == manifest["attempted_rows"] == 3
-    assert len(api.read_jsonl(calls[-1]["responses_path"])) == 1
+    assert len(calls) == 2
+    assert len(teacher.calls) == 6
+    preserved = (output / "stage3_attempts/000001/genui.jsonl").read_bytes()
+    resumed_teacher = FakeTeacher()
+    manifest = generate(resume=True, adapter=resumed_teacher)
+    assert resumed_teacher.calls == []
+    assert len(calls) == 2
     assert calls[0]["genui_path"] != calls[1]["genui_path"]
     assert (output / "stage3_attempts/000001/genui.jsonl").read_bytes() == preserved
     assert len({row["response_id"] for row in api.read_jsonl(output / "accepted_genui.jsonl")}) == 3
+
+
+def test_fidelity_regeneration_budget_is_durable_and_not_bypassed(run):
+    _, output, calls, generate = run
+
+    def always_reject(**kwargs):
+        calls.append(kwargs)
+        rows = [stage3_row(row) for row in api.read_jsonl(kwargs["responses_path"])]
+        rows[0]["training_acceptance"]["eligible"] = False
+        rows[0]["training_acceptance"]["review_reasons"] = ["content_unit_fidelity"]
+        kwargs["genui_path"].write_text("".join(json.dumps(row) + "\n" for row in rows), encoding="utf-8")
+
+    with pytest.raises(RuntimeError, match="No eligible"):
+        generate(stage3_runner=always_reject, max_new_samples=1)
+    assert len(calls) == 3
+    state = engine._checked(next((output / "candidates").glob("*.json")))
+    assert state["status"] == "stage3_fidelity_rejected"
+    assert state["fidelity_regeneration_attempts"] == 2
+    no_more_calls = []
+    with pytest.raises(RuntimeError, match="No eligible"):
+        generate(resume=True, max_new_samples=1,
+                 stage3_runner=lambda **kwargs: no_more_calls.append(kwargs))
+    assert no_more_calls == []
+
+
+def test_only_exact_pre_fidelity_contract_is_compatible():
+    current = {
+        "version": api.VERSION,
+        "seed": 123,
+        "muse_stage3_prompt_sha256": next(iter(engine.FIDELITY_MUSE_PROMPT_HASHES)),
+        "fidelity_regeneration_policy": engine.FIDELITY_REGENERATION_POLICY,
+        "code_hashes": {"unchanged.py": "same", **{path: "new" for path in engine.PRE_FIDELITY_CODE_HASHES}},
+    }
+    saved = {
+        "version": api.VERSION,
+        "seed": 123,
+        "muse_stage3_prompt_sha256": next(iter(engine.PRE_FIDELITY_MUSE_PROMPT_HASHES)),
+        "code_hashes": {"unchanged.py": "same",
+                        **{path: next(iter(hashes)) for path, hashes in engine.PRE_FIDELITY_CODE_HASHES.items()}},
+    }
+    assert engine._known_fidelity_resume_upgrade(saved, current)
+    assert not engine._known_fidelity_resume_upgrade(dict(saved, seed=321), current)
+    tampered = json.loads(json.dumps(saved))
+    tampered["code_hashes"]["unchanged.py"] = "changed"
+    assert not engine._known_fidelity_resume_upgrade(tampered, current)
+
+
+def test_failed_pre_fidelity_pilot_resumes_existing_source_and_label(run):
+    _, output, calls, generate = run
+
+    def reject(**kwargs):
+        calls.append(kwargs)
+        rows = [stage3_row(row) for row in api.read_jsonl(kwargs["responses_path"])]
+        rows[0]["training_acceptance"]["eligible"] = False
+        rows[0]["training_acceptance"]["review_reasons"] = ["content_unit_fidelity"]
+        kwargs["genui_path"].write_text("".join(json.dumps(row) + "\n" for row in rows), encoding="utf-8")
+
+    with pytest.raises(RuntimeError, match="No eligible"):
+        generate(stage3_runner=reject, max_new_samples=1)
+
+    contract_path = output / "resume_contract.json"
+    current_contract = engine._checked(contract_path)
+    old_config = json.loads(json.dumps(current_contract["configuration"]))
+    old_config.pop("fidelity_regeneration_policy")
+    old_config["muse_stage3_prompt_sha256"] = min(engine.PRE_FIDELITY_MUSE_PROMPT_HASHES)
+    for path, hashes in engine.PRE_FIDELITY_CODE_HASHES.items():
+        old_config["code_hashes"][path] = min(hashes)
+    old_contract = {"configuration": old_config}
+    engine._atomic(contract_path, engine._envelope(old_contract))
+
+    state_path = next((output / "candidates").glob("*.json"))
+    state = engine._checked(state_path)
+    for key in ("fidelity_regeneration_attempts", "fidelity_regeneration_history",
+                "fidelity_review_reasons", "stage3_repair_feedback"):
+        state.pop(key, None)
+    state["status"] = "stage3_rejected"
+    state["contract_sha256"] = engine._hash(old_contract)
+    engine._atomic(state_path, engine._envelope(state))
+
+    manifest_path = output / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["resume_contract_sha256"] = engine._hash(old_contract)
+    manifest["projection_hashes"] = {
+        name: engine._digest(output / name) for name in (*engine.PROJECTIONS, "augmentation_audit.jsonl")
+    }
+    manifest["journal_hashes"] = {state_path.name: engine._digest(state_path)}
+    engine._atomic(manifest_path, manifest)
+
+    resume_calls = []
+    teacher = FakeTeacher()
+
+    def accept(**kwargs):
+        resume_calls.append(api.read_jsonl(kwargs["responses_path"]))
+        kwargs["genui_path"].write_text(
+            "".join(json.dumps(stage3_row(row)) + "\n" for row in resume_calls[-1]), encoding="utf-8"
+        )
+
+    resumed = generate(resume=True, max_new_samples=1, adapter=teacher, stage3_runner=accept)
+    assert teacher.calls == []
+    assert resumed["accepted_rows"] == 1
+    assert len(resume_calls) == 1
+    assert resume_calls[0][0]["stage3_repair_feedback"]["review_reasons"] == ["content_unit_fidelity"]
 
 
 def test_interrupted_stage3_recovers_completed_prefix_and_retries_only_missing(run):
@@ -197,6 +314,7 @@ def legacy_fixture(run, tmp_path):
     for field in ("resume_schema", "resume_contract_sha256", "reference_policy_version", "reference_bindings_sha256", "projection_hashes", "journal_hashes"):
         manifest.pop(field, None)
     manifest["code_hashes"] = {name: min(values) for name, values in engine.LEGACY_CODE_HASHES.items()}
+    manifest["muse_stage3_prompt_sha256"] = min(engine.PRE_FIDELITY_MUSE_PROMPT_HASHES)
     manifest["status"] = "failed"
     write_json(legacy / "manifest.json", manifest)
     return donors, legacy

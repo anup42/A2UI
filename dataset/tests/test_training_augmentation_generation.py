@@ -152,7 +152,8 @@ class AugmentationGenerationTests(unittest.TestCase):
         self.donors()
         def mutate(rows):
             rows[0]["training_acceptance"]["eligible"] = False
-            rows[1]["training_acceptance"]["review_reasons"] = ["content_unit_fidelity"]
+            rows[1]["training_acceptance"]["eligible"] = False
+            rows[1]["training_acceptance"]["review_reasons"] = ["dynamic_evidence_incomplete"]
             rows[2]["training_acceptance"]["blocking_reasons"] = ["production_invalid"]
             rows[3]["validation"]["schema_valid_strict"] = False
             rows[4]["validation"]["standard_a2ui_valid"] = False

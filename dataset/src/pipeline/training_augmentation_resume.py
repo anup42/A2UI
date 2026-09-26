@@ -22,6 +22,38 @@ from typing import Any
 from pipeline import training_augmentation as api
 
 RESUME_SCHEMA = 1
+FIDELITY_REGENERATION_POLICY = {
+    "version": "augmentation-stage3-fidelity-v1",
+    "max_regenerations": 2,
+}
+# Exact LF/CRLF identities from 84cfcf16. This is the only pre-policy durable
+# contract allowed to continue under the bounded fidelity regeneration code.
+PRE_FIDELITY_CODE_HASHES = {
+    "src/pipeline/training_augmentation.py": {
+        "dc69dc52e630985cadce8d53cf12d59283ab7dc89df558367a55d6d7d1e4416c",
+        "55fc3c833c87c23e9b68e3953ff7b8e946bc30c29b8265329e11e67602362e19",
+    },
+    "src/pipeline/training_augmentation_resume.py": {
+        "c6f51711c66216aa1ce96b698956ef8c76d38ad3a8cfffeaab909e4acaf82da8",
+        "09ac09d717b12ae34f656c1011a1baf95a9abea15b4381dc6f0944d03a5824a6",
+    },
+    "src/pipeline/stage3_genui.py": {
+        "213a09f7addf375f15b71f3ce7e507140c265c34ac0cbbcf2bc9dc16b72f90e5",
+        "f93b44c9f8a9d6a5cb31863e64c86fa67868692f232b3dd29343f1083aefa090",
+    },
+    "src/pipeline/muse_prompt.py": {
+        "d3590c3515dd1ae66e99eeffce81a402fdb1e0cad3d2640539f710e79149f6f9",
+        "c89d615d39e1ebb2e03eb6c8a5bd0ece8cb8cce76392aae2c4f608a6aac6966e",
+    },
+}
+PRE_FIDELITY_MUSE_PROMPT_HASHES = {
+    "f829fc9a7d020755fda04612a1fc8472d4bb5d910b8f4e7f9f011ac911da1eaa",
+    "bef0807bfbc7900ad9efaf952b9543cf9900ed16db3d3cb540ba9355df165bde",
+}
+FIDELITY_MUSE_PROMPT_HASHES = {
+    "352b008cced299e01e5cbfbdde288c715dbb3aa4bebd5149a06bd454b4fd5980",
+    "c8cb846b0e891c3ed17acd797061aaf2443805c53a1ea3f5492cc062347b7ae4",
+}
 LEGACY_CODE_HASHES = {
     "src/pipeline/training_augmentation.py": {"553f12c58348cdd60b0076ce6a6a473a7405f2de770e0099935db92eebc49e6c", "8ce8f27201495703b09b783e4ad6bca9d09fea6b1c87b74e7944d838d3304c90"},
     "scripts/generate_training_augmentations.py": {"a35a6154d00af1b50a02a519c4e4b89851649858c90f42026a5ad963c90f6846", "06d95ca166a9633b66d1a06f2ec9be0dccae7c65985fc9c17977220afa46c69e"},
@@ -159,11 +191,36 @@ def _configuration(donors_path, *, teacher_model, max_new_samples, seed, referen
               "teacher_prompt_sha256": api.text_hash(prompt), "recipes_sha256": _hash(api.RECIPES),
               "code_hashes": {path.relative_to(root).as_posix(): _digest(path) for path in sorted(code_paths)},
               "stage3_prompt_sha256": _digest(root / "prompts/genui_gen_mobile_a2ui_express_v1.md"),
-              "muse_stage3_prompt_sha256": _digest(root / "prompts/muse_stage3_quality_v1.md"),
+              "muse_stage3_prompt_sha256": _digest(root / "prompts/muse_stage3_quality_v2.md"),
               "contract_sha256": _digest(root / "schema/canonical_ui_graph_v1.schema.json"),
               "teacher_environment": effective_environment, "optional_environment_sha256": _hash(optional_environment),
-              "teacher_endpoints": os.environ.get("LOCAL_VLLM_ENDPOINTS") or spec.endpoint}
+              "teacher_endpoints": os.environ.get("LOCAL_VLLM_ENDPOINTS") or spec.endpoint,
+              "fidelity_regeneration_policy": FIDELITY_REGENERATION_POLICY}
     return config, donors, bindings, spec, prompt
+
+
+def _known_fidelity_resume_upgrade(saved: dict[str, Any], current: dict[str, Any]) -> bool:
+    """Recognize only the exact 84cfcf16 contract plus this policy upgrade."""
+    if "fidelity_regeneration_policy" in saved or current.get("fidelity_regeneration_policy") != FIDELITY_REGENERATION_POLICY:
+        return False
+    saved_fields = {key: value for key, value in saved.items()
+                    if key not in ("code_hashes", "muse_stage3_prompt_sha256")}
+    current_fields = {key: value for key, value in current.items()
+                      if key not in ("code_hashes", "muse_stage3_prompt_sha256", "fidelity_regeneration_policy")}
+    if (
+        saved_fields != current_fields
+        or saved.get("muse_stage3_prompt_sha256") not in PRE_FIDELITY_MUSE_PROMPT_HASHES
+        or current.get("muse_stage3_prompt_sha256") not in FIDELITY_MUSE_PROMPT_HASHES
+    ):
+        return False
+    saved_hashes = saved.get("code_hashes")
+    current_hashes = current.get("code_hashes")
+    if not isinstance(saved_hashes, dict) or not isinstance(current_hashes, dict) or set(saved_hashes) != set(current_hashes):
+        return False
+    changed = {path for path in saved_hashes if saved_hashes[path] != current_hashes[path]}
+    if changed != set(PRE_FIDELITY_CODE_HASHES):
+        return False
+    return all(saved_hashes[path] in allowed for path, allowed in PRE_FIDELITY_CODE_HASHES.items())
 
 
 def _legacy_validate(output: Path, config: dict[str, Any]) -> dict[str, Any]:
@@ -183,12 +240,18 @@ def _legacy_validate(output: Path, config: dict[str, Any]) -> dict[str, Any]:
     if manifest.get("teacher_prompt_sha256") != "ebf8131eb6bcfe21d0c8a5eaa4ca8f2d4119509bc452a2e28d242985a796b957":
         raise ValueError("Legacy source prompt is not the recognized baseline")
     # Exact known LF/CRLF byte identities only; do not normalize arbitrary code.
-    for field, hashes in {
-        "stage3_prompt_sha256": {"f354f2e6e65cd18fa72984f5e3eff7c60b99ccec660c2710c970a7d8eab60b13", "75e28a4ef75496f61420c7a85c56fee8b3fd0d49660850b77e0757ae12eb7b09"},
-        "muse_stage3_prompt_sha256": {"f829fc9a7d020755fda04612a1fc8472d4bb5d910b8f4e7f9f011ac911da1eaa", "bef0807bfbc7900ad9efaf952b9543cf9900ed16db3d3cb540ba9355df165bde"},
-        "contract_sha256": {"0c5c211e0ddf05e0e6f22b803dee6050a2141d4723e341a75ff3b4dd69384e83", "c2eebcf8ab825015fde06155ddde9690bddf5350576efdea2330be96257b0ef5"},
+    for field, (source_hashes, target_hashes) in {
+        "stage3_prompt_sha256": (
+            {"f354f2e6e65cd18fa72984f5e3eff7c60b99ccec660c2710c970a7d8eab60b13", "75e28a4ef75496f61420c7a85c56fee8b3fd0d49660850b77e0757ae12eb7b09"},
+            {"f354f2e6e65cd18fa72984f5e3eff7c60b99ccec660c2710c970a7d8eab60b13", "75e28a4ef75496f61420c7a85c56fee8b3fd0d49660850b77e0757ae12eb7b09"},
+        ),
+        "muse_stage3_prompt_sha256": (PRE_FIDELITY_MUSE_PROMPT_HASHES, FIDELITY_MUSE_PROMPT_HASHES),
+        "contract_sha256": (
+            {"0c5c211e0ddf05e0e6f22b803dee6050a2141d4723e341a75ff3b4dd69384e83", "c2eebcf8ab825015fde06155ddde9690bddf5350576efdea2330be96257b0ef5"},
+            {"0c5c211e0ddf05e0e6f22b803dee6050a2141d4723e341a75ff3b4dd69384e83", "c2eebcf8ab825015fde06155ddde9690bddf5350576efdea2330be96257b0ef5"},
+        ),
     }.items():
-        if manifest.get(field) not in hashes or config[field] not in hashes:
+        if manifest.get(field) not in source_hashes or config[field] not in target_hashes:
             raise ValueError(f"Legacy generation contract mismatch: {field}")
     accepted = output / "accepted_genui.jsonl"
     if not accepted.is_file() or _digest(accepted) != manifest.get("accepted_genui_sha256"):
@@ -215,7 +278,10 @@ def validate_generation_resume(donors_path, output_dir, *, teacher_model=api.DEF
     contract_path = output / "resume_contract.json"
     if contract_path.exists():
         contract = _checked(contract_path)
+        compatible_fidelity_upgrade = False
         if contract.get("configuration") != config:
+            compatible_fidelity_upgrade = _known_fidelity_resume_upgrade(contract.get("configuration", {}), config)
+        if contract.get("configuration") != config and not compatible_fidelity_upgrade:
             fields = sorted(key for key in config if contract.get("configuration", {}).get(key) != config[key])
             raise ValueError("Generation resume contract mismatch: " + ", ".join(fields))
         for name, digest in contract.get("legacy_origin", {}).get("files", {}).items():
@@ -252,9 +318,11 @@ def validate_generation_resume(donors_path, output_dir, *, teacher_model=api.DEF
                 for name, digest in manifest.get("journal_hashes", {}).items():
                     if _digest(output / "candidates" / name) != digest:
                         raise ValueError("Candidate journal hash mismatch")
-        return {"legacy_upgrade": False, "resume_contract_sha256": _hash(contract)}
+        return {"legacy_upgrade": False, "compatible_fidelity_upgrade": compatible_fidelity_upgrade,
+                "resume_contract_sha256": _hash(contract)}
     origin = _legacy_validate(output, config)
-    return {"legacy_upgrade": True, "resume_contract_sha256": _hash({"configuration": config, "legacy_origin": origin}), "legacy_origin": origin}
+    return {"legacy_upgrade": True, "compatible_fidelity_upgrade": False,
+            "resume_contract_sha256": _hash({"configuration": config, "legacy_origin": origin}), "legacy_origin": origin}
 
 
 @contextmanager
@@ -417,13 +485,51 @@ def _source_candidate(output, state, slot, donor, bindings, config, adapter, sys
 
 
 def _response(state):
-    return {"query_id": state["candidate_id"], "response_id": state["candidate_id"], "n_idx": 1,
-            "response_text": state["response_text"], "scenario_family_id": state["augmentation"]["source_group_id"]}
+    response = {"query_id": state["candidate_id"], "response_id": state["candidate_id"], "n_idx": 1,
+                "response_text": state["response_text"], "scenario_family_id": state["augmentation"]["source_group_id"]}
+    if state.get("stage3_repair_feedback") is not None:
+        response["stage3_repair_feedback"] = state["stage3_repair_feedback"]
+    return response
 
 
 def _query(state):
     return {"query_id": state["candidate_id"], "query_text": "Render this synthetic training example faithfully.",
             "scenario_family_id": state["augmentation"]["source_group_id"]}
+
+
+def _restore_fidelity_rejection(state: dict[str, Any]) -> bool:
+    if state.get("status") not in ("stage3_rejected", "stage3_fidelity_rejected"):
+        return False
+    row = state.get("last_stage3_record")
+    reasons = api.fidelity_regeneration_reasons(row, state.get("response_text", "")) if isinstance(row, dict) else []
+    if not reasons:
+        return False
+    changed = state.get("status") != "stage3_fidelity_rejected" or state.get("fidelity_review_reasons") != reasons
+    state["status"] = "stage3_fidelity_rejected"
+    state["fidelity_review_reasons"] = reasons
+    state.setdefault("fidelity_regeneration_attempts", 0)
+    return changed
+
+
+def _prepare_fidelity_regeneration(state: dict[str, Any]) -> bool:
+    if state.get("status") != "stage3_fidelity_rejected":
+        return False
+    maximum = FIDELITY_REGENERATION_POLICY["max_regenerations"]
+    attempts = state.get("fidelity_regeneration_attempts", 0)
+    reasons = state.get("fidelity_review_reasons")
+    if type(attempts) is not int or attempts < 0 or not isinstance(reasons, list) or not reasons:
+        raise ValueError("Malformed fidelity regeneration checkpoint")
+    if attempts >= maximum:
+        return False
+    attempts += 1
+    state["fidelity_regeneration_attempts"] = attempts
+    state["stage3_repair_feedback"] = {
+        "kind": "semantic_fidelity",
+        "review_reasons": reasons,
+        "attempt": attempts,
+        "max_attempts": maximum,
+    }
+    return True
 
 
 def _round_records(output, round_dir, states, *, fatal_error=None):
@@ -462,12 +568,26 @@ def _round_records(output, round_dir, states, *, fatal_error=None):
         if not reasons:
             state["accepted_record"] = dict(rows[0], augmentation=state["augmentation"])
             state["status"] = "accepted"
+            state.pop("fidelity_review_reasons", None)
+            state.pop("stage3_repair_feedback", None)
         else:
             state["status"] = "stage3_rejected"
+            state.pop("stage3_repair_feedback", None)
+            if len(rows) == 1:
+                _restore_fidelity_rejection(state)
+                if state["status"] == "stage3_fidelity_rejected":
+                    history = state.setdefault("fidelity_regeneration_history", [])
+                    history.append({"stage3_attempt": round_dir.relative_to(output).as_posix(),
+                                    "review_reasons": state["fidelity_review_reasons"],
+                                    "record_sha256": _hash(rows[0])})
+            if state["status"] != "stage3_fidelity_rejected":
+                state.pop("fidelity_review_reasons", None)
         state.pop("stage3_inflight", None)
         _save(output, state)
         _audit(output, {"candidate_id": candidate_id, "augmentation": state["augmentation"],
-                        "status": "stage3_rejected" if reasons else "accepted", "reasons": reasons,
+                        "status": state["status"], "reasons": reasons,
+                        "fidelity_review_reasons": state.get("fidelity_review_reasons", []),
+                        "fidelity_regeneration_attempts": state.get("fidelity_regeneration_attempts", 0),
                         "fatal_error": fatal_error, "stage3_attempt": round_dir.relative_to(output).as_posix()})
     for candidate_id in grouped:
         _audit(output, {"candidate_id": candidate_id, "status": "stage3_rejected", "reasons": ["unknown_source_binding"]})
@@ -519,7 +639,8 @@ def _run_stage3(output, states, pending, config, adapter, runner):
 
 
 def _publish(output, config, contract, states, *, fatal_error=None, running=False):
-    approved = [state for state in states.values() if state["status"] in ("source_approved", "stage3_rejected", "accepted")]
+    approved_statuses = ("source_approved", "stage3_rejected", "stage3_fidelity_rejected", "accepted")
+    approved = [state for state in states.values() if state["status"] in approved_statuses]
     accepted = [state["accepted_record"] for state in states.values() if state["status"] == "accepted"]
     _rows(output / "queries.jsonl", [_query(state) for state in approved])
     _rows(output / "responses.jsonl", [_response(state) for state in approved])
@@ -534,7 +655,7 @@ def _publish(output, config, contract, states, *, fatal_error=None, running=Fals
     for state in states.values():
         coverage = manifest["coverage"][state["augmentation"]["category"]]
         coverage["attempted"] += bool(state.get("attempted"))
-        coverage["source_approved"] += state["status"] in ("source_approved", "stage3_rejected", "accepted")
+        coverage["source_approved"] += state["status"] in approved_statuses
         coverage["accepted"] += state["status"] == "accepted"
     manifest["status"] = "running" if running else "failed" if fatal_error or not accepted else "completed"
     manifest["error"] = fatal_error or ("No eligible augmentation candidates" if not accepted and not running else None)
@@ -603,7 +724,7 @@ def generate(donors_path, output_dir, *, teacher_model=api.DEFAULT_TEACHER, max_
     else:
         if output.exists() and any(output.iterdir()):
             raise ValueError("Augmentation output directory must be empty; use --resume for a compatible run")
-        preflight = {"legacy_upgrade": False}
+        preflight = {"legacy_upgrade": False, "compatible_fidelity_upgrade": False}
     output.mkdir(parents=True, exist_ok=True)
     with _lock(output):
         if resume:
@@ -638,7 +759,8 @@ def generate(donors_path, output_dir, *, teacher_model=api.DEFAULT_TEACHER, max_
                 expected = _provenance(config, slot)
                 if any(state.get("augmentation", {}).get(key) != value for key, value in expected.items()):
                     raise ValueError("Candidate journal provenance mismatch")
-                if state["status"] in ("source_generated", "source_approved", "stage3_rejected", "accepted"):
+                if state["status"] in ("source_generated", "source_approved", "stage3_rejected",
+                                       "stage3_fidelity_rejected", "accepted"):
                     _, references = _context(slot, donor_by_id[slot["donor_id"]], bindings)
                     source, _ = _validated_source(state["generated"], slot["category"], references)
                     if source != state["response_text"] or api.text_hash(source) != state["augmentation"].get("source_sha256") or source.strip() in seen:
@@ -648,6 +770,8 @@ def generate(donors_path, output_dir, *, teacher_model=api.DEFAULT_TEACHER, max_
                         api.validate_review(state["review"], slot["category"])
                     if state["status"] == "accepted" and (api.admission_errors(state["accepted_record"], source) or state["accepted_record"].get("augmentation") != state["augmentation"]):
                         raise ValueError("Saved accepted candidate no longer passes admission")
+                    if _restore_fidelity_rejection(state):
+                        _save(output, state)
             else:
                 state = {"candidate_id": candidate_id, "contract_sha256": _hash(contract), "augmentation": _provenance(config, slot),
                          "status": "pending", "attempted": False, "artifacts": []}
@@ -669,11 +793,19 @@ def generate(donors_path, output_dir, *, teacher_model=api.DEFAULT_TEACHER, max_
                 adapter = build_adapter(spec)
             for slot in config["schedule"]:
                 state = states[slot["candidate_id"]]
-                if state["status"] not in ("accepted", "source_approved", "stage3_rejected"):
+                if state["status"] not in ("accepted", "source_approved", "stage3_rejected", "stage3_fidelity_rejected"):
                     _source_candidate(output, state, slot, donor_by_id[slot["donor_id"]], bindings, config, adapter, prompt, seen)
-            pending = [state for state in states.values() if state["status"] in ("source_approved", "stage3_rejected")]
+            pending = []
+            for state in states.values():
+                if state["status"] in ("source_approved", "stage3_rejected") or _prepare_fidelity_regeneration(state):
+                    pending.append(state)
             if pending:
                 fatal_error = _run_stage3(output, states, pending, config, adapter, stage3_runner)
+            while not fatal_error:
+                retry = [state for state in states.values() if _prepare_fidelity_regeneration(state)]
+                if not retry:
+                    break
+                fatal_error = _run_stage3(output, states, retry, config, adapter, stage3_runner)
         manifest = _publish(output, config, contract, states, fatal_error=fatal_error)
         if manifest["status"] != "completed":
             raise RuntimeError(f"Augmentation failed: {manifest['error']}; diagnostics: {output}")

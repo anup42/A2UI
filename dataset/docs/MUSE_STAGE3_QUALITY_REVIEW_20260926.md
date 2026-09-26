@@ -68,7 +68,7 @@ completed evaluations and no crash log for diagnosing a new runtime failure.
 
 The generated shared contract remains authoritative and is kept intact.
 `pipeline/muse_prompt.py` composes it with
-`prompts/muse_stage3_quality_v1.md` only for the registered local
+`prompts/muse_stage3_quality_v2.md` only for the registered local
 `meta-models/Muse-Glimmer-30B` model. The existing Muse launcher and cyclic
 generation commands pick up this composition automatically.
 
@@ -93,7 +93,7 @@ and output budgets are unchanged. This follows Meta's guidance to put specific
 task/output constraints in the system message and let its chat template control
 reasoning and turn markers ([Meta prompting guide](https://dev.meta.ai/docs/muse-glimmer/prompting)).
 
-The effective prompt has version `muse_stage3_quality_v1`. Existing request
+The effective prompt has version `muse_stage3_quality_v2`. Existing request
 hashes, attempt artifacts and phase-manifest prompt hashes bind the composed
 instructions. Context limits still fail closed rather than truncate source
 text; the additional instructions consume some of the existing prompt budget.

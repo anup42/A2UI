@@ -7,7 +7,7 @@ from pathlib import Path
 from llm.base import ModelSpec
 
 MUSE_MODEL = "meta-models/Muse-Glimmer-30B"
-PROMPT_PATH = Path(__file__).resolve().parents[2] / "prompts" / "muse_stage3_quality_v1.md"
+PROMPT_PATH = Path(__file__).resolve().parents[2] / "prompts" / "muse_stage3_quality_v2.md"
 
 
 def uses_muse_stage3_prompt(spec: ModelSpec) -> bool:

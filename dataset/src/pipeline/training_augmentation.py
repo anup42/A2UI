@@ -33,6 +33,24 @@ RECIPES = {
     "literal_media_references": "Stress exact punctuation, quotes, identifiers, Unicode and declared references. Use only supplied reference tokens in their declared roles, with useful media only; do not add decorative icons or invent placeholder tokens, destinations or assets. Never claim an asset exists or was downloaded.",
 }
 
+_FIDELITY_REVIEW_REASONS = frozenset({
+    "action_and_source_link_fidelity",
+    "content_unit_fidelity",
+    "exact_numbers_dates_units_fbeta",
+    "media_fidelity",
+    "missing_or_mismatched_action",
+    "missing_or_mismatched_media",
+    "missing_or_mismatched_table",
+    "table_content_difference",
+    "unsupported_external_action",
+    "unsupported_semantic_media",
+})
+_FIDELITY_REVIEW_PREFIXES = (
+    "inferred_role_count_gap:",
+    "missing_or_mismatched_role:",
+    "semantic_role_difference:",
+)
+
 
 def sha256_bytes(value: bytes) -> str:
     return hashlib.sha256(value).hexdigest()
@@ -112,8 +130,19 @@ def admission_errors(row: dict[str, Any], response_text: str) -> list[str]:
     acceptance = row.get("training_acceptance")
     if not isinstance(acceptance, dict) or acceptance.get("eligible") is not True:
         reasons.append("training_not_eligible")
-    if not isinstance(acceptance, dict) or acceptance.get("blocking_reasons") != [] or acceptance.get("review_reasons") != []:
-        reasons.append("training_blocking_or_review_reasons")
+    if not isinstance(acceptance, dict):
+        reasons.append("missing_training_acceptance")
+    else:
+        blockers = acceptance.get("blocking_reasons")
+        reviews = acceptance.get("review_reasons")
+        if not isinstance(blockers, list) or not all(isinstance(value, str) for value in blockers):
+            reasons.append("malformed_training_blocking_reasons")
+        else:
+            reasons.extend(f"blocking:{value}" for value in blockers)
+        if not isinstance(reviews, list) or not all(isinstance(value, str) for value in reviews):
+            reasons.append("malformed_training_review_reasons")
+        else:
+            reasons.extend(f"review:{value}" for value in reviews)
     validation = row.get("validation") or {}
     for field in ("schema_valid_strict", "standard_a2ui_valid"):
         if validation.get(field) is not True:
@@ -126,6 +155,41 @@ def admission_errors(row: dict[str, Any], response_text: str) -> list[str]:
     if row.get("source_format") != "a2ui_express_v1" or not isinstance(row.get("a2ui_express"), str) or not row["a2ui_express"].strip():
         reasons.append("missing_express_completion")
     return reasons
+
+
+def fidelity_regeneration_reasons(row: dict[str, Any], response_text: str) -> list[str]:
+    """Return exact, retryable fidelity review reasons for a sound Stage 3 row.
+
+    A regeneration is never used to bypass structural, production, provenance,
+    or source-binding failures. Unknown/new review reasons also fail closed until
+    their semantics are deliberately classified.
+    """
+    if row.get("record_status") != "accepted" or row.get("response_text") != response_text:
+        return []
+    acceptance = row.get("training_acceptance")
+    if not isinstance(acceptance, dict) or acceptance.get("eligible") is not False:
+        return []
+    if acceptance.get("blocking_reasons") != []:
+        return []
+    reviews = acceptance.get("review_reasons")
+    if not isinstance(reviews, list) or not reviews or not all(isinstance(value, str) and value for value in reviews):
+        return []
+    known = all(
+        value in _FIDELITY_REVIEW_REASONS
+        or any(value.startswith(prefix) and len(value) > len(prefix) for prefix in _FIDELITY_REVIEW_PREFIXES)
+        for value in reviews
+    )
+    if not known:
+        return []
+    validation = row.get("validation")
+    if not isinstance(validation, dict) or any(validation.get(field) is not True for field in ("schema_valid_strict", "standard_a2ui_valid")):
+        return []
+    gen = row.get("gen")
+    if not isinstance(gen, dict) or gen.get("completion_complete") is not True or gen.get("error"):
+        return []
+    if row.get("source_format") != "a2ui_express_v1" or not isinstance(row.get("a2ui_express"), str) or not row["a2ui_express"].strip():
+        return []
+    return list(dict.fromkeys(reviews))
 
 
 @contextmanager
