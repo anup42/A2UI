@@ -89,6 +89,13 @@ class OfficialMobileOptions:
     progress_seconds: float = 10
     stage_timeout_seconds: float = 172800
     generation_timeout_seconds: float = 7200
+    augmentation: str = "none"
+    augmentation_max_extra_fraction: float = 0.10
+    augmentation_max_family_repeats: int = 2
+    augmentation_teacher_model: str = "muse_glimmer_30b_sglang_reasoning_dflash"
+    augmentation_python: Path | None = None
+    augmentation_max_samples: int = 500
+    augmentation_timeout_seconds: float = 7200
     benchmark_android: bool = False
     adb: str = "adb"
     serial: str | None = None
@@ -118,6 +125,10 @@ def build_plan(options: OfficialMobileOptions) -> dict[str, Any]:
     # system interpreter and lose the isolated exporter dependencies on Linux.
     values["exporter_python"] = os.path.abspath(os.path.expanduser(
         str(values["exporter_python"] or sys.executable)))
+    values["augmentation_python"] = os.path.abspath(os.path.expanduser(
+        str(values["augmentation_python"] or sys.executable)))
+    if values["resume_from_checkpoint"] and options.augmentation != "none":
+        raise ValueError("--augmentation cannot change data on resume; reuse the saved dataset without the flag or start a fresh experiment")
     resume = None
     if values["resume_from_checkpoint"]:
         from ir_training.train.mobile_resume import horizon_record, source_config
@@ -195,13 +206,20 @@ def build_plan(options: OfficialMobileOptions) -> dict[str, Any]:
             prepare_workers=options.prepare_workers, preparation_cache=options.preparation_cache,
             preparation_cache_dir=options.preparation_cache_dir, progress_seconds=options.progress_seconds,
             tensorboard_root=options.tensorboard_root, learning_rate=values["learning_rate"], seed=values["seed"],
+            augmentation=options.augmentation,
+            augmentation_max_extra_fraction=options.augmentation_max_extra_fraction,
+            augmentation_max_family_repeats=options.augmentation_max_family_repeats,
+            augmentation_teacher_model=options.augmentation_teacher_model,
+            augmentation_python=options.augmentation_python,
+            augmentation_max_samples=options.augmentation_max_samples,
+            augmentation_timeout_seconds=options.augmentation_timeout_seconds,
         ),
         preparation_only=True,
     )
     preparation = {key: preparation[key] for key in ("options", "source_files", "shared_prompt", "goldens")}
     train_root = output / "training" / output.name
     paths = {
-        "prepared": Path(resume["prepared"]) if resume else output / "prepared",
+        "prepared": Path(resume["prepared"]) if resume else output / ("augmented" if options.augmentation != "none" else "prepared"),
         "source_config": output / "configs/mobile_training.yaml",
         "config": train_root / "launch/resolved_training_config.yaml",
         "launch_plan": train_root / "launch/launch_plan.json",
@@ -218,7 +236,7 @@ def build_plan(options: OfficialMobileOptions) -> dict[str, Any]:
     return {
         "schema_version": 1, "workflow": WORKFLOW, "options": values,
         "preparation": preparation, "resume": resume, "paths": {key: str(path) for key, path in paths.items()},
-        "stages": ["assets", "prepare", "configure", "no_op_export", "preflight", "training",
+        "stages": ["assets", "prepare", *(["augment"] if not resume and options.augmentation != "none" else []), "configure", "no_op_export", "preflight", "training",
                    *[f"best_{name}" for name in GOLDENS], "merge", "export",
                    *(["android_benchmark"] if options.benchmark_android else [])],
         "selection": {"cohort": "golden32", "metric": SELECTOR, "golden35_used": False, "bixby50_used": False},
@@ -627,6 +645,25 @@ def run_stage(plan: dict, stage: str) -> list[Path]:
         prepare_data(plan["preparation"])
         return [output / "data_audit.json", *sorted((output / "prepared").glob("*.json*")),
                 *map(Path, plan["preparation"]["source_files"])]
+    if stage == "augment":
+        if plan.get("resume") or values.get("augmentation", "none") == "none":
+            raise ValueError("Augmentation requires an explicitly enabled fresh run")
+        report = {}
+        if values["augmentation"] == "semantic":
+            from ir_training.data.semantic_augmentation import augment_training_at_startup
+            report = augment_training_at_startup(plan["preparation"])
+        else:
+            from ir_training.data.augmentation import augment_prepared_training
+            augment_prepared_training(output / "prepared", output / "augmented", seed=values["seed"],
+                max_extra_fraction=values["augmentation_max_extra_fraction"],
+                max_family_copies=values["augmentation_max_family_repeats"], progress_seconds=values["progress_seconds"])
+        _scripts()
+        from prepare_review_training import verify_prepared
+        verify_prepared(output / "augmented", output / "prepared/golden32.jsonl",
+                        golden35=output / "prepared/golden35.jsonl", bixby50=output / "prepared/bixby50.jsonl",
+                        max_sequence=values["max_seq_length"], max_prompt=values["max_input_tokens"])
+        return sorted({*[path for path in (output / "augmented").rglob("*") if path.is_file()],
+                       *map(Path, report.get("artifact_paths", []))})
     if stage == "configure":
         return _configure(plan)
     if stage == "no_op_export":

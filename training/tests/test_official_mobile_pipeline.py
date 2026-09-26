@@ -174,6 +174,80 @@ def test_plan_only_requires_official_mobile_artifacts_and_has_no_writes(options)
     assert plan["native_litert_golden_tests"] is False
 
 
+@pytest.mark.parametrize("mode", ["none", "rare_components", "semantic"])
+def test_augmentation_plan_routes_fresh_dataset_and_preserves_qat(options, mode):
+    plan = _plan(replace(options, augmentation=mode))
+    expected = "prepared" if mode == "none" else "augmented"
+    assert Path(plan["paths"]["prepared"]) == options.output_dir / expected
+    assert ("augment" in plan["stages"]) == (mode != "none")
+    assert plan["preparation"]["options"]["augmentation"] == mode
+    assert plan["preparation"]["options"]["augmentation_teacher_model"] == "muse_glimmer_30b_sglang_reasoning_dflash"
+    if mode != "none":
+        assert plan["stages"][:4] == ["assets", "prepare", "augment", "configure"]
+
+
+@pytest.mark.parametrize("mode", ["semantic", "rare_components"])
+def test_resume_rejects_new_augmentation_before_reading_checkpoint(options, mode):
+    with pytest.raises(ValueError, match="cannot change data on resume"):
+        workflow.build_plan(replace(options, augmentation=mode,
+            resume_from_checkpoint=options.output_dir.parent / "nonexistent-checkpoint"))
+    assert not options.output_dir.exists()
+
+
+@pytest.mark.parametrize("overrides", [{"augmentation": "invalid"}, {"augmentation_max_samples": 0},
+    {"augmentation_timeout_seconds": float("nan")}, {"augmentation_teacher_model": ""}])
+def test_augmentation_invalid_plan_controls(options, overrides):
+    with pytest.raises(ValueError):
+        workflow.build_plan(replace(options, **{"augmentation": "semantic", **overrides}))
+    assert not options.output_dir.exists()
+
+
+def test_official_semantic_stage_uses_shared_helper_and_binds_artifacts(options, monkeypatch):
+    import shutil
+    import ir_training.data.semantic_augmentation as semantic
+
+    enabled = replace(options, augmentation="semantic", prepare_workers=1)
+    plan = workflow.build_plan(enabled)
+    write_jsonl(options.input_dir / "train.jsonl", [_row("train-a"), _row("train-b")])
+    write_jsonl(options.input_dir / "val.jsonl", [_row("val-a"), _row("val-b")])
+    options.output_dir.mkdir()
+    workflow.prepare_data(plan["preparation"], tokenizer_loader=lambda *_: FixtureTokenizer())
+    calls = []
+    def augment(preparation):
+        calls.append(preparation)
+        shutil.copytree(options.output_dir / "prepared", options.output_dir / "augmented")
+        artifact = options.output_dir / "semantic_augmentation/candidates.jsonl"
+        artifact.parent.mkdir()
+        artifact.write_text("{}\n")
+        return {"artifact_paths": [str(artifact)]}
+    monkeypatch.setattr(semantic, "augment_training_at_startup", augment)
+    files = workflow.run_stage(plan, "augment")
+    assert calls == [plan["preparation"]]
+    assert options.output_dir / "semantic_augmentation/candidates.jsonl" in files
+    assert options.output_dir / "augmented/manifest.json" in files
+    for name in ("val", "golden32", "golden35", "bixby50"):
+        assert (options.output_dir / f"prepared/{name}.jsonl").read_bytes() == (options.output_dir / f"augmented/{name}.jsonl").read_bytes()
+    plan["resume"] = {"prepared": plan["paths"]["prepared"]}
+    with pytest.raises(ValueError, match="fresh run"):
+        workflow.run_stage(plan, "augment")
+
+
+@pytest.mark.parametrize("flags,expected", [([], "none"), (["--augmentation"], "semantic"),
+    (["--augmentation", "rare_components"], "rare_components")])
+def test_official_augmentation_cli(options, monkeypatch, flags, expected):
+    spec = importlib.util.spec_from_file_location("fixture_official_aug_cli", ROOT / "scripts/run_official_mobile_pipeline.py")
+    script = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(script)
+    captured = []
+    monkeypatch.setattr(script, "run_pipeline", lambda value, **kwargs: captured.append((value, kwargs)) or {})
+    args = []
+    for name in ("model_dir", "input_dir", "source_safetensors", "official_litertlm", "output_dir"):
+        args.extend(["--" + name.replace("_", "-"), str(getattr(options, name))])
+    assert script.main([*args, *flags]) == 0
+    assert captured[0][0].augmentation == expected
+    assert captured[0][1] == {"execute": False}
+
+
 @pytest.mark.parametrize(
     "missing",
     [
@@ -575,6 +649,8 @@ def test_real_cpu_prepare_and_portable_configure_bind_all_evaluation_contracts(
                 workflow.build_plan(replace(options, **{key: value}))
             assert not options.output_dir.exists()
         plan = workflow.build_plan(options)
+        assert "augment" not in plan["stages"]
+        assert Path(plan["paths"]["prepared"]) == prepared_root
         options.output_dir.mkdir()
         workflow.run_stage(plan, "prepare")
         configured_files = workflow._configure(plan)

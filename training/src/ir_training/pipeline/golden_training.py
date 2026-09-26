@@ -71,6 +71,10 @@ class GoldenTrainingOptions:
     augmentation: str = "none"
     augmentation_max_extra_fraction: float = 0.10
     augmentation_max_family_repeats: int = 2
+    augmentation_teacher_model: str = "muse_glimmer_30b_sglang_reasoning_dflash"
+    augmentation_python: Path | None = None
+    augmentation_max_samples: int = 500
+    augmentation_timeout_seconds: float = 7200
     evaluate_golden35: bool = True
     evaluate_bixby50: bool = True
     token_cache: bool = True
@@ -110,6 +114,8 @@ def _options(options: GoldenTrainingOptions) -> dict[str, Any]:
         result["source_run_dir"] = str(repo_root() / "dataset/data/runs/dataset_v1")
     result["preparation_cache_dir"] = str(Path(result["preparation_cache_dir"] or Path(result["output_dir"]).parent / ".golden-preparation-cache").resolve())
     result["token_cache_dir"] = str(Path(result["token_cache_dir"] or Path(result["preparation_cache_dir"]) / "tokens").resolve())
+    # Preserve venv interpreter symlinks instead of resolving to system Python.
+    result["augmentation_python"] = os.path.abspath(os.path.expanduser(str(result["augmentation_python"] or sys.executable)))
     return result
 
 
@@ -125,8 +131,11 @@ def build_plan(options: GoldenTrainingOptions, *, preparation_only: bool = False
     from ir_training.train.hyperparameters import review_overrides
     review_overrides(learning_rate=options.learning_rate, weight_decay=options.weight_decay,
                      warmup_ratio=options.warmup_ratio, logging_steps=options.logging_steps, seed=options.seed)
-    if options.augmentation not in {"none", "rare_components"}:
-        raise ValueError("--augmentation must be none or rare_components")
+    if options.augmentation not in {"none", "rare_components", "semantic"}:
+        raise ValueError("--augmentation must be none, rare_components or semantic")
+    if options.augmentation == "semantic":
+        from ir_training.data.semantic_augmentation import validate_semantic_options
+        validate_semantic_options(values)
     if not math.isfinite(options.augmentation_max_extra_fraction) or not 0 < options.augmentation_max_extra_fraction <= 0.5:
         raise ValueError("--augmentation-max-extra-fraction must be in (0, 0.5]")
     if type(options.augmentation_max_family_repeats) is not int or not 2 <= options.augmentation_max_family_repeats <= 5:
@@ -191,7 +200,7 @@ def build_plan(options: GoldenTrainingOptions, *, preparation_only: bool = False
         "exports_performed": False, "automatic_model_downloads": False,
         "golden35_role": "final evaluation only; never checkpoint selection" if options.evaluate_golden35 else "reserved, not evaluated in development trial",
         "bixby50_role": "source-only final holdout; never checkpoint selection" if options.evaluate_bixby50 else "reserved, not evaluated in development trial",
-        "note": "Final Golden32 always runs. Golden35 and Bixby50 run unless deferred for sequential tuning. Bixby50 has no reference IR. Augmentation only repeats validated training examples; no new semantic coverage.",
+        "note": "Final Golden32 always runs. Golden35 and Bixby50 run unless deferred for sequential tuning. Bixby50 has no reference IR. " + ("Semantic augmentation generates and validates train-only candidates at startup." if options.augmentation == "semantic" else "Augmentation only repeats validated training examples; no new semantic coverage."),
     }
     if preparation_only:
         return {key: plan[key] for key in ("options", "source_files", "shared_prompt", "goldens")}
@@ -504,7 +513,16 @@ def run_pipeline(options: GoldenTrainingOptions, *, execute: bool = False, prepa
         if not continue_run or not record.is_file():
             raise FileExistsError(f"Choose a fresh output directory or explicitly --continue-run a verified workflow: {output}")
         state = json.loads(record.read_text(encoding="utf-8"))
-        if state["plan"] != plan:
+        previous_plan = state["plan"]
+        if previous_plan.get("options", {}).get("augmentation") in {"none", "rare_components"}:
+            # Historical non-semantic runs predate these inert default fields.
+            # Fill only absent fields with defaults, never requested overrides.
+            defaults = _options(GoldenTrainingOptions(options.model_dir, options.output_dir))
+            previous_options = dict(previous_plan["options"])
+            for name in ("augmentation_teacher_model", "augmentation_python", "augmentation_max_samples", "augmentation_timeout_seconds"):
+                previous_options.setdefault(name, defaults[name])
+            previous_plan = {**previous_plan, "options": previous_options}
+        if previous_plan != plan:
             raise ValueError("Workflow options or prompt contract changed; do not reuse the run")
         with Progress("Verify completed stages before continuation", unit="stage", interval=options.progress_seconds):
             for completed_stage in state["completed"].values():
@@ -558,13 +576,19 @@ def run_pipeline(options: GoldenTrainingOptions, *, execute: bool = False, prepa
             sys.path.insert(0, str(repo_root() / "training/scripts"))
             from prepare_review_training import verify_prepared
             with _console_log(output / "logs/augmentation.log"):
-                augment_prepared_training(output / "prepared", output / "augmented", seed=options.seed,
-                    max_extra_fraction=options.augmentation_max_extra_fraction,
-                    max_family_copies=options.augmentation_max_family_repeats, progress_seconds=options.progress_seconds)
+                report = {}
+                if options.augmentation == "semantic":
+                    from ir_training.data.semantic_augmentation import augment_training_at_startup
+                    report = augment_training_at_startup(plan, tokenizer_loader=tokenizer_loader)
+                else:
+                    augment_prepared_training(output / "prepared", output / "augmented", seed=options.seed,
+                        max_extra_fraction=options.augmentation_max_extra_fraction,
+                        max_family_copies=options.augmentation_max_family_repeats, progress_seconds=options.progress_seconds)
                 verify_prepared(output / "augmented", output / "prepared/golden32.jsonl", golden35=output / "prepared/golden35.jsonl",
                                 bixby50=output / "prepared/bixby50.jsonl",
                                 max_sequence=options.max_seq_length, max_prompt=options.max_input_tokens)
-            return sorted((output / "augmented").glob("*.json*"))
+            return sorted({*[path for path in (output / "augmented").rglob("*") if path.is_file()],
+                           *map(Path, report.get("artifact_paths", []))})
         stage("augment", augment)
     if prepare_only:
         state.update(status="prepared", active_stage=None)

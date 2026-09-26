@@ -62,6 +62,9 @@ Use the same `--preparation-cache-dir` across runs (tokens default to its
 [startup controls](docs/GOLDEN_E2E_QUICKSTART.md#startup-progress-cpu-preparation-and-reuse).
 Optional rare-component resampling and matched-budget, one-at-a-time trials
 are documented in [Augmentation and tuning](docs/AUGMENTATION_AND_TUNING.md).
+For train-only Muse source augmentation with regenerated Stage 3 labels on
+Gemma 270M or official E2B QAT LoRA, see [semantic augmentation at startup](docs/SEMANTIC_AUGMENTATION.md).
+Enable it with `--augmentation`; it is off by default and requires a running Muse endpoint.
 Use `run_golden_experiments.py` to compare settings in TensorBoard while
 keeping Golden35 and Bixby50 out of trial selection. The unaugmented baseline stays default.
 For the E2B `LoRA selector ... matches no supported nn.Linear modules` startup

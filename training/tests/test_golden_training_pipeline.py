@@ -454,3 +454,61 @@ def test_optional_augmentation_routes_a_separate_copy_into_training(options, mon
     assert report["original_rows"] == 2 and report["added_rows"] == 0
     for name in ("val", "golden32", "golden35", "bixby50"):
         assert (options.output_dir / f"prepared/{name}.jsonl").read_bytes() == (options.output_dir / f"augmented/{name}.jsonl").read_bytes()
+
+
+@pytest.mark.parametrize("flags,expected", [([], "none"), (["--augmentation"], "semantic"),
+    (["--augmentation", "rare_components"], "rare_components"), (["--augmentation", "none"], "none")])
+def test_augmentation_cli_modes(options, flags, expected):
+    spec = importlib.util.spec_from_file_location("fixture_augmentation_cli", ROOT / "scripts/run_golden_training.py")
+    script = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(script)
+    parsed = script.build_parser().parse_args(["--profile", "270m", "--model-dir", str(options.model_dir),
+        "--output-dir", str(options.output_dir), *flags])
+    assert parsed.augmentation == expected
+    assert parsed.augmentation_teacher_model == "muse_glimmer_30b_sglang_reasoning_dflash"
+    assert parsed.augmentation_max_samples == 500
+
+
+@pytest.mark.parametrize("overrides", [{"augmentation_max_samples": 0}, {"augmentation_max_samples": True},
+    {"augmentation_timeout_seconds": 0}, {"augmentation_timeout_seconds": float("inf")},
+    {"augmentation_teacher_model": " "}])
+def test_semantic_augmentation_invalid_controls_fail_before_output(options, overrides):
+    with pytest.raises(ValueError):
+        workflow.build_plan(replace(options, augmentation="semantic", **overrides))
+    assert not options.output_dir.exists()
+
+
+def test_semantic_augmentation_stage_routes_and_binds_candidate_evidence(options, monkeypatch):
+    import shutil
+    import ir_training.data.semantic_augmentation as semantic
+
+    calls = []
+    def augment(plan, *, tokenizer_loader):
+        assert tokenizer_loader is not None
+        calls.append(plan)
+        output = Path(plan["options"]["output_dir"])
+        shutil.copytree(output / "prepared", output / "augmented")
+        candidate = output / "semantic_augmentation/generated/candidates.jsonl"
+        candidate.parent.mkdir(parents=True)
+        candidate.write_text("{}\n")
+        return {"artifact_paths": [str(candidate)]}
+
+    monkeypatch.setattr(semantic, "augment_training_at_startup", augment)
+    enabled = replace(options, profile="270m", augmentation="semantic")
+    dry = workflow.run_pipeline(enabled)
+    assert calls == [] and not options.output_dir.exists()
+    assert dry["stages"][:3] == ["prepare", "augment", "configure"]
+    state = prepare(enabled)
+    assert len(calls) == 1
+    assert list(state["completed"]) == ["prepare", "augment"]
+    candidate = options.output_dir / "semantic_augmentation/generated/candidates.jsonl"
+    assert str(candidate) in state["completed"]["augment"]["files"]
+    command = workflow.configure_command(state["plan"])
+    assert Path(command[command.index("--dataset-dir") + 1]) == options.output_dir / "augmented"
+    for name in ("val", "golden32", "golden35", "bixby50"):
+        assert (options.output_dir / f"prepared/{name}.jsonl").read_bytes() == (options.output_dir / f"augmented/{name}.jsonl").read_bytes()
+    workflow.run_pipeline(enabled, prepare_only=True, continue_run=True, tokenizer_loader=lambda *_: FixtureTokenizer())
+    assert len(calls) == 1
+    candidate.write_text("changed\n")
+    with pytest.raises(ValueError, match="Completed-stage artifact changed"):
+        workflow.run_pipeline(enabled, prepare_only=True, continue_run=True)

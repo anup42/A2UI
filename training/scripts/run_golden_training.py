@@ -29,7 +29,11 @@ def build_parser(*, for_deployment: bool = False) -> argparse.ArgumentParser:
     parser.add_argument("--logging-steps", type=int, default=10, help="Console/TensorBoard training metric cadence in optimizer updates")
     parser.add_argument("--gradient-checkpointing", action=argparse.BooleanOptionalAction, default=True, help="Disable only after a successful memory preflight on the target GPU")
     parser.add_argument("--attn-implementation", choices=("sdpa", "eager"), default="sdpa")
-    parser.add_argument("--augmentation", choices=("none", "rare_components"), default="none", help="Optional capped train-only rare-component resampling; no invented source text or IR")
+    parser.add_argument("--augmentation", nargs="?", const="semantic", choices=("none", "rare_components", "semantic"), default="none", help="Bare flag enables validated train-only Muse semantic augmentation; rare_components retains exact resampling")
+    parser.add_argument("--augmentation-teacher-model", default="muse_glimmer_30b_sglang_reasoning_dflash")
+    parser.add_argument("--augmentation-python", type=Path, help="Dataset generation Python environment; defaults to this interpreter")
+    parser.add_argument("--augmentation-max-samples", type=int, default=500, help="Maximum semantic candidate attempts")
+    parser.add_argument("--augmentation-timeout-seconds", type=float, default=7200)
     parser.add_argument("--augmentation-max-extra-fraction", type=float, default=0.10, help="Maximum added occurrences / original training rows; at most 0.5")
     parser.add_argument("--augmentation-max-family-repeats", type=int, default=2, help="Maximum TOTAL occurrences per source family including originals; existing larger families are never removed or repeated")
     if not for_deployment:
