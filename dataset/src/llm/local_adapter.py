@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import hashlib
+import logging
 import os
 import re
 import sys
@@ -15,6 +16,9 @@ from typing import Optional
 
 from .base import BaseLLMAdapter, LLMResult, completion_metadata, extract_reasoning_metadata, split_reasoning_from_text
 from .http_transport import urlopen
+
+
+_logger = logging.getLogger("dataset.llm.local_adapter")
 
 
 class LocalAdapter(BaseLLMAdapter):
@@ -586,6 +590,17 @@ class LocalAdapter(BaseLLMAdapter):
                 raise
             finally:
                 request_meta["latency_ms"] = (time.monotonic() - started) * 1000
+                if self._model_is_muse_glimmer():
+                    reasoning_strength = request_body.get("chat_template_kwargs", {}).get(
+                        "reasoning_strength", "server_default"
+                    )
+                    _logger.info(
+                        "Muse HTTP attempt=%s status=%s model=%s reasoning_strength=%s "
+                        "latency_ms=%.1f messages_sha256=%s",
+                        request_meta["attempt_index"], request_meta.get("status", "interrupted"),
+                        request_body.get("model"), reasoning_strength,
+                        request_meta["latency_ms"], request_meta["messages_sha256"],
+                    )
 
         def post_with_server_retries(request_body: dict[str, object]) -> str:
             retry_enabled = self._is_truthy(
@@ -624,7 +639,7 @@ class LocalAdapter(BaseLLMAdapter):
                         )
                     time.sleep(interval_s)
 
-        start = time.time()
+        start = time.monotonic()
         try:
             raw = post_with_server_retries(body)
         except Exception as exc:
@@ -661,7 +676,7 @@ class LocalAdapter(BaseLLMAdapter):
                 return LLMResult(
                     text="",
                     raw={"a2ui_request_attempts": request_attempts},
-                    latency_ms=(time.time() - start) * 1000,
+                    latency_ms=(time.monotonic() - start) * 1000,
                     input_tokens=0,
                     output_tokens=0,
                     cost_usd=None,
@@ -670,7 +685,7 @@ class LocalAdapter(BaseLLMAdapter):
                     error=message,
                 )
 
-        elapsed = (time.time() - start) * 1000
+        elapsed = (time.monotonic() - start) * 1000
         payload = json.loads(raw)
         payload["a2ui_request_attempts"] = request_attempts
         text = payload.get("choices", [{}])[0].get("message", {}).get("content", "")

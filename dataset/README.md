@@ -352,6 +352,24 @@ use 8,192-token output budgets by default, while Stage 3 uses 12,288. Change
 them with `--query-output-tokens`, `--response-output-tokens`, and
 `--output-tokens` if needed.
 
+Reasoning defaults to **high** for all three stages. Set
+`--reasoning-strength low|medium|high|xhigh` on `cycle` or `generate` to change
+it; the startup and timing logs report the selected level.
+
+Timing is enabled automatically. Each Muse HTTP attempt logs its latency in
+milliseconds, status, reasoning level, and request hash to the console and
+`<run>/run.log`, including failed requests and retries. Each stage invocation
+also prints elapsed seconds, newly written records/second, and seconds/record,
+and appends those measurements to `<run>/generation_timing.jsonl` with the GPU,
+tensor-parallel, replica, and concurrency settings. Resumed runs measure only
+new rows; failures retain partial progress. Stage wall time includes process
+startup, generation, retries, and validation; endpoint preflight and the final
+record-count scan are excluded. Record rates include cache hits and rejection
+rows, and seconds/record is amortized across concurrent requests. Individual
+HTTP latency includes server queuing, prompt processing, decoding, and network
+overhead. Stage 3 retains selected-call `gen.latency_ms` and summed attempt
+latency in `generation_totals.latency_ms` for sample-level analysis.
+
 `cycle` and `generate` check every endpoint's served model, active DFlash
 configuration, reasoning channel, and final answer before writing any records.
 For every generated Muse Stage 3 row, `genui.jsonl` preserves the exact

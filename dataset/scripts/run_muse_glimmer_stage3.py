@@ -20,6 +20,7 @@ import tempfile
 import time
 import urllib.error
 import urllib.request
+from datetime import datetime, timezone
 from pathlib import Path
 
 
@@ -442,6 +443,67 @@ def count_records(path: Path, require_muse: bool = False,
     return count
 
 
+def run_timed_stage(args: argparse.Namespace, stage: int, command: list[str],
+                    output_path: Path, records_before: int, requested_records: int,
+                    cycle_target: int | None = None) -> tuple[int, int | None]:
+    """Measure stage wall time separately from overlapping provider requests."""
+    started_at = datetime.now(timezone.utc).isoformat()
+    started = time.monotonic()
+    exit_code = None
+    error_type = None
+    output_error = None
+    records_after = None
+    try:
+        exit_code = subprocess.call(command, cwd=REPO_ROOT, env=client_env(args, stage))
+    except BaseException as exc:
+        error_type = type(exc).__name__
+        raise
+    finally:
+        elapsed = max(0.0, time.monotonic() - started)
+        try:
+            records_after = count_records(output_path, require_muse=True, require_reasoning=stage == 3)
+            if records_after < records_before:
+                output_error = "Stage output contains fewer records than before generation"
+        except (OSError, ValueError, RuntimeError) as exc:
+            output_error = str(exc)
+        added = records_after - records_before if records_after is not None and not output_error else None
+        rate = added / elapsed if added is not None and elapsed > 0 else None
+        seconds_per_record = elapsed / added if added is not None and added > 0 else None
+        status = (
+            "interrupted" if error_type == "KeyboardInterrupt"
+            else "failed" if error_type or exit_code != 0 or output_error
+            else "no_progress" if added == 0 else "completed"
+        )
+        summary = {
+            "started_at_utc": started_at, "run_id": args.run_id,
+            "mode": args.mode, "stage": stage, "cycle_target": cycle_target,
+            "requested_records": requested_records,
+            "records_before": records_before, "records_after": records_after,
+            "records_added": added, "elapsed_seconds": elapsed,
+            "records_per_second": rate, "seconds_per_record": seconds_per_record,
+            "status": status, "exit_code": exit_code, "error_type": error_type,
+            "output_error": output_error, "model": MODEL_ID,
+            "reasoning_strength": args.reasoning_strength,
+            "gpus": args.gpus, "tensor_parallel_size": args.tp,
+            "replicas": args.gpus // args.tp,
+            "client_concurrency": args.gpus // args.tp * args.requests_per_server,
+            "measurement": "stage_subprocess_wall_time",
+            "record_scope": "written rows, including cache hits and rejected rows",
+        }
+        timing_path = output_path.parent / "generation_timing.jsonl"
+        timing_path.parent.mkdir(parents=True, exist_ok=True)
+        with timing_path.open("a", encoding="utf-8") as handle:
+            handle.write(json.dumps(summary, ensure_ascii=False) + "\n")
+        rate_text = f"{rate:.3f}" if rate is not None else "unknown"
+        seconds_text = f"{seconds_per_record:.3f}" if seconds_per_record is not None else "n/a"
+        print(f"Muse Stage {stage} timing: elapsed={elapsed:.2f}s records_added={added} "
+              f"records/s={rate_text} seconds/record={seconds_text} status={status} "
+              f"reasoning={args.reasoning_strength}; saved to {timing_path}", flush=True)
+    if output_error and exit_code == 0:
+        raise RuntimeError(output_error)
+    return exit_code, records_after
+
+
 def cycle(args: argparse.Namespace) -> None:
     config = run_config()
     if (int(config.get("n_responses_per_query", 1)) != 1
@@ -462,7 +524,8 @@ def cycle(args: argparse.Namespace) -> None:
     }
     probe(args)  # Check the model, reasoning, and DFlash before any dataset write.
     print(f"Cyclic Muse generation: run={args.run_id} total={args.total} "
-          f"cycle_size={args.cycle_size} queries_per_intent={queries_per_intent}", flush=True)
+          f"cycle_size={args.cycle_size} queries_per_intent={queries_per_intent} "
+          f"reasoning={args.reasoning_strength}", flush=True)
     while min(counts.values()) < args.total:
         completed_floor = min(counts.values())
         target = min(args.total, (completed_floor // args.cycle_size + 1) * args.cycle_size)
@@ -472,11 +535,12 @@ def cycle(args: argparse.Namespace) -> None:
                 remaining = target - counts[stage]
                 command = stage_command(args, stage, remaining, queries_per_intent)
                 print(f"Stage {stage}: need {remaining}; {shlex.join(command)}", flush=True)
-                exit_code = subprocess.call(command, cwd=REPO_ROOT, env=client_env(args, stage))
+                exit_code, updated = run_timed_stage(
+                    args, stage, command, paths[stage], counts[stage], remaining, target,
+                )
                 if exit_code != 0:
                     raise RuntimeError(f"Stage {stage} exited with code {exit_code}; resume the same run after fixing it")
-                updated = count_records(paths[stage], require_muse=True,
-                                        require_reasoning=stage == 3)
+                assert updated is not None
                 print(f"Stage {stage}: {updated}/{target} (+{updated - counts[stage]})", flush=True)
                 if updated <= counts[stage]:
                     raise RuntimeError(f"Stage {stage} made no progress toward {target}; inspect the run before resuming")
@@ -493,16 +557,16 @@ def generate(args: argparse.Namespace) -> None:
     if not queries_path.is_file() or not responses_path.is_file():
         raise RuntimeError(f"Stage 3 needs queries.jsonl and responses.jsonl in {source_dir}")
     existing_output = output_dir / "genui.jsonl"
-    count_records(existing_output, require_muse=True, require_reasoning=True)
+    records_before = count_records(existing_output, require_muse=True, require_reasoning=True)
     response_count = count_records(responses_path)
     if response_count == 0:
         raise RuntimeError(f"No Stage 2 responses in {responses_path}")
     probe(args)  # Fail before any dataset writes if a replica or parser is wrong.
     command = stage3_command(args, response_count)
-    print(f"Generating A2UI Express Stage 3 for {args.run_id}: {shlex.join(command)}", flush=True)
-    exit_code = subprocess.call(command, cwd=REPO_ROOT, env=client_env(args))
-    if exit_code == 0:
-        count_records(existing_output, require_muse=True, require_reasoning=True)
+    print(f"Generating A2UI Express Stage 3 for {args.run_id} "
+          f"(reasoning={args.reasoning_strength}): {shlex.join(command)}", flush=True)
+    requested_records = args.max_genui_total or response_count
+    exit_code, _ = run_timed_stage(args, 3, command, existing_output, records_before, requested_records)
     raise SystemExit(exit_code)
 
 

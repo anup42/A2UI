@@ -239,6 +239,129 @@ def test_cycle_resumes_incomplete_chunk_before_advancing(tmp_path, monkeypatch):
         (2, 1), (3, 2), (1, 1), (2, 1), (3, 1)]
 
 
+def test_cycle_timing_measures_new_rows_and_partial_chunks(tmp_path, monkeypatch, capsys):
+    run = cyclic_repo(tmp_path, monkeypatch)
+    row = json.dumps({"gen": {"model": muse.MODEL_ID}}) + "\n"
+    (run / "queries.jsonl").write_text(row * 2, encoding="utf-8")
+    (run / "responses.jsonl").write_text(row, encoding="utf-8")
+    timing = run / "generation_timing.jsonl"
+    timing.write_text('{"previous_run":true}\n', encoding="utf-8")
+    monkeypatch.setattr(muse, "probe", lambda args: None)
+    monkeypatch.setattr(muse.subprocess, "call", mock_cycle_runner(run, []))
+    ticks = iter(range(0, 40, 4))
+    monkeypatch.setattr(muse.time, "monotonic", lambda: next(ticks))
+    args = muse.parse_args(["cycle", "--gpus", "8", "--tp", "2", "--run-id", "muse",
+                            "--cycle-size", "2", "--total", "3"])
+    muse.cycle(args)
+    summaries = [json.loads(line) for line in timing.read_text(encoding="utf-8").splitlines()]
+    assert summaries.pop(0) == {"previous_run": True}
+    assert [item["records_added"] for item in summaries] == [1, 2, 1, 1, 1]
+    assert [item["cycle_target"] for item in summaries] == [2, 2, 3, 3, 3]
+    for item in summaries:
+        assert item["elapsed_seconds"] == 4
+        assert item["records_per_second"] == item["records_added"] / 4
+        assert item["seconds_per_record"] == 4 / item["records_added"]
+        assert item["status"] == "completed" and item["exit_code"] == 0
+        assert item["reasoning_strength"] == "high"
+        assert (item["gpus"], item["tensor_parallel_size"], item["replicas"], item["client_concurrency"]) == (8, 2, 4, 32)
+    assert "Muse Stage 3 timing: elapsed=4.00s" in capsys.readouterr().out
+
+
+@pytest.mark.parametrize("exit_code", [0, 7])
+def test_cycle_timing_keeps_failures_and_no_progress(tmp_path, monkeypatch, exit_code):
+    run = cyclic_repo(tmp_path, monkeypatch)
+    monkeypatch.setattr(muse, "probe", lambda args: None)
+    ticks = iter([20, 24])
+    monkeypatch.setattr(muse.time, "monotonic", lambda: next(ticks))
+
+    def generate(command, cwd, env):
+        if exit_code:
+            (run / "queries.jsonl").write_text(json.dumps({"gen": {"model": muse.MODEL_ID}}) + "\n", encoding="utf-8")
+        return exit_code
+
+    monkeypatch.setattr(muse.subprocess, "call", generate)
+    args = muse.parse_args(["cycle", "--gpus", "4", "--run-id", "muse", "--cycle-size", "2", "--total", "2"])
+    with pytest.raises(RuntimeError, match="exited with code 7" if exit_code else "made no progress"):
+        muse.cycle(args)
+    summary = json.loads((run / "generation_timing.jsonl").read_text(encoding="utf-8"))
+    assert summary["status"] == ("failed" if exit_code else "no_progress")
+    assert summary["exit_code"] == exit_code
+    assert summary["records_added"] == (1 if exit_code else 0)
+    assert summary["records_per_second"] == (0.25 if exit_code else 0)
+    assert summary["seconds_per_record"] == (4 if exit_code else None)
+
+
+@pytest.mark.parametrize("failure", ["interrupt", "launch_error", "invalid_output"])
+def test_stage_timing_survives_interruption_and_invalid_output(tmp_path, monkeypatch, failure):
+    output = tmp_path / "queries.jsonl"
+    args = muse.parse_args(["cycle", "--gpus", "4", "--run-id", "muse", "--cycle-size", "1", "--total", "1"])
+    ticks = iter([10, 13])
+    monkeypatch.setattr(muse.time, "monotonic", lambda: next(ticks))
+
+    def generate(*args, **kwargs):
+        if failure == "interrupt":
+            raise KeyboardInterrupt()
+        if failure == "launch_error":
+            raise OSError("Cannot start child")
+        output.write_text("unfinished JSON", encoding="utf-8")
+        return 0
+
+    monkeypatch.setattr(muse.subprocess, "call", generate)
+    expected_error = {"interrupt": KeyboardInterrupt, "launch_error": OSError, "invalid_output": RuntimeError}[failure]
+    with pytest.raises(expected_error):
+        muse.run_timed_stage(args, 1, ["fake"], output, 0, 1, 1)
+    summary = json.loads((tmp_path / "generation_timing.jsonl").read_text(encoding="utf-8"))
+    assert summary["elapsed_seconds"] == 3
+    assert summary["status"] == ("interrupted" if failure == "interrupt" else "failed")
+    if failure == "invalid_output":
+        assert summary["output_error"] and summary["records_added"] is None
+        assert summary["records_per_second"] is None
+
+
+def test_generate_timing_records_reasoning_override(tmp_path, monkeypatch):
+    run = cyclic_repo(tmp_path, monkeypatch)
+    for name in ("queries.jsonl", "responses.jsonl"):
+        (run / name).write_text('{}\n{}\n', encoding="utf-8")
+    row = json.dumps({"gen": {"model": muse.MODEL_ID, "reasoning_source": "message.reasoning_content"},
+                      "reasoning_text": "Plan UI"}) + "\n"
+    (run / "genui.jsonl").write_text(row, encoding="utf-8")
+    monkeypatch.setattr(muse, "probe", lambda args: None)
+    ticks = iter([100, 102])
+    monkeypatch.setattr(muse.time, "monotonic", lambda: next(ticks))
+
+    def generate(command, cwd, env):
+        assert env["LOCAL_VLLM_REASONING_STRENGTH"] == "medium"
+        with (run / "genui.jsonl").open("a", encoding="utf-8") as handle:
+            handle.write(row)
+        return 0
+
+    monkeypatch.setattr(muse.subprocess, "call", generate)
+    args = muse.parse_args(["generate", "--gpus", "4", "--run-id", "muse",
+                            "--max-genui-total", "1", "--reasoning-strength", "medium"])
+    with pytest.raises(SystemExit) as completed:
+        muse.generate(args)
+    assert completed.value.code == 0
+    summary = json.loads((run / "generation_timing.jsonl").read_text(encoding="utf-8"))
+    assert summary["stage"] == 3 and summary["mode"] == "generate"
+    assert summary["reasoning_strength"] == "medium"
+    assert summary["records_before"] == 1 and summary["records_after"] == 2
+    assert summary["requested_records"] == 1 and summary["cycle_target"] is None
+    assert summary["records_per_second"] == 0.5 and summary["seconds_per_record"] == 2
+
+
+def test_completed_cycle_does_not_add_timing_rows(tmp_path, monkeypatch):
+    run = cyclic_repo(tmp_path, monkeypatch)
+    row = json.dumps({"gen": {"model": muse.MODEL_ID, "reasoning_source": "message.reasoning_content"},
+                      "reasoning_text": "Plan UI"}) + "\n"
+    for name in ("queries.jsonl", "responses.jsonl", "genui.jsonl"):
+        (run / name).write_text(row, encoding="utf-8")
+    monkeypatch.setattr(muse, "probe", lambda args: None)
+    monkeypatch.setattr(muse.subprocess, "call", lambda *args, **kwargs: pytest.fail("already complete"))
+    args = muse.parse_args(["cycle", "--gpus", "4", "--run-id", "muse", "--cycle-size", "1", "--total", "1"])
+    muse.cycle(args)
+    assert not (run / "generation_timing.jsonl").exists()
+
+
 def test_cycle_fails_if_stage_returns_without_new_records(tmp_path, monkeypatch):
     cyclic_repo(tmp_path, monkeypatch)
     monkeypatch.setattr(muse, "probe", lambda args: None)
