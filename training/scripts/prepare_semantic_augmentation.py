@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate and freeze Muse augmentation separately; never start student training."""
+"""Generate a saved Muse augmentation folder; never start student training."""
 from __future__ import annotations
 
 import argparse
@@ -20,7 +20,7 @@ def build_parser() -> argparse.ArgumentParser:
     source = parser.add_mutually_exclusive_group(required=True)
     source.add_argument("--input-dir", type=Path, help="Source-bound train.jsonl and val.jsonl")
     source.add_argument("--source-run-dir", type=Path, help="Completed dataset run with responses.jsonl and genui.jsonl")
-    parser.add_argument("--output-dir", type=Path, required=True, help="Fresh preprocessing directory; train later using its augmented/ subdirectory")
+    parser.add_argument("--output-dir", type=Path, required=True, help="Fresh augmentation job directory; publishes augmented/ for training's --augmentation-dir")
     parser.add_argument("--max-seq-length", type=int, default=4096)
     parser.add_argument("--max-input-tokens", type=int, help="Evaluation prompt limit; defaults to 5120 for E2B, 4096 for 270M")
     parser.add_argument("--max-new-tokens", type=int, default=2048)
@@ -53,10 +53,10 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(result, indent=2, ensure_ascii=False))
     else:
         print(json.dumps({key: result[key] for key in (
-            "status", "prepared_input_dir", "training_executed", "student_weights_loaded", "teacher_server_managed",
+            "status", "augmentation_dir", "training_executed", "student_weights_loaded", "teacher_server_managed",
         )}, indent=2))
-        print("Preparation finished. Stop the Muse server and verify GPU memory is released before training.")
-        print("Use --prepared-input-dir <path above> --augmentation none with a fresh training output directory.")
+        print("Saved augmentation is ready. This command does not launch training or manage the Muse server.")
+        print("To include it in an independent training run, keep --input-dir and add --augmentation --augmentation-dir <path above>.")
     return 0
 
 

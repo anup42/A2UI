@@ -16,13 +16,19 @@ output directory. Output must be outside the model and input directories, and
 must not contain them.
 
 For Muse-augmented data, prefer the [standalone preprocessing runbook](SEMANTIC_AUGMENTATION.md):
-prepare an E2B tokenizer-bound bundle, stop Muse, then train with
-`--prepared-input-dir /absolute/path/to/preprocess/augmented --augmentation none`.
-The bundle already includes original training rows; do not append them again.
-This input mode is mutually exclusive with raw `--input-dir`
-and checks hashes, tokenizer, shared prompt and token limits before reuse. No
-teacher server is needed during training; the official seed/export/preflight
-requirements below still apply.
+generation is an independent command that publishes an E2B tokenizer-bound
+folder. A training invocation keeps its original `--input-dir` and adds
+`--augmentation --augmentation-dir /absolute/path/to/augmentation-run/augmented`.
+The folder already includes original training rows; the consumer verifies
+the matching base data, hashes, tokenizer, shared prompt and token limits, then
+uses the combined dataset once without appending originals again. Training
+never contacts Muse or starts/stops its server. Semantic augmentation without
+the folder fails. The official seed/export/preflight requirements still apply.
+
+Explicit whole-bundle `--prepared-input-dir` reuse with `--augmentation none`
+remains available as an alternative, mutually exclusive with raw input and
+`--augmentation-dir`; it is not the preferred original-data-plus-augmentation
+interface.
 
 The current workflow identifier is
 `e2b_retained_mobile_golden_bixby_no_mtp_v2`. Existing plan and execute commands
@@ -230,7 +236,9 @@ Before planning a run, have all of the following locally:
    `generation_config.json` with them when supplied by the pinned checkpoint.
    The reconstruction script copies these files only when they are beside the
    source `config.json`.
-7. A source-bound `--input-dir` containing `train.jsonl` and `val.jsonl`, or a
+7. A source-bound `--input-dir` containing `train.jsonl` and `val.jsonl`.
+   Optionally add `--augmentation --augmentation-dir <sealed-augmentation-folder>`
+   whose original-data binding matches that input. Alternatively, use a
    compatible frozen bundle selected with `--prepared-input-dir` and
    `--augmentation none` (never both raw and prepared input flags).
    Golden32, Golden35, and Bixby50 are repository-pinned evaluation artifacts;
@@ -508,13 +516,12 @@ once. Every execution needs a nonexistent per-run output directory. If a run
 fails, inspect it and choose a new directory for a fresh retry rather than
 rerunning all three into existing directories.
 
-For an already generated Muse bundle, keep the same `COMMON` settings but
-replace its `--input-dir "$INPUT"` entry with
-`--prepared-input-dir /absolute/path/to/preprocess_e2b/augmented` and add
-`--augmentation none`. All A/B/C runs must use that **same frozen bundle**;
-do not regenerate augmentation between trials. Finish preprocessing and stop
-Muse before launching these student jobs on its former GPUs. See the
-[step-by-step teacher/preparation/stop/train commands](SEMANTIC_AUGMENTATION.md).
+For an already generated Muse folder, keep the same `COMMON` settings,
+including `--input-dir "$INPUT"`, and add
+`--augmentation --augmentation-dir /absolute/path/to/augmentation-run/augmented`.
+All A/B/C runs must use that **same frozen folder and original input**; do not
+regenerate augmentation between trials. These student commands never call or
+manage Muse. See the [independent generation and training commands](SEMANTIC_AUGMENTATION.md).
 
 ### Keep the comparison budget fixed
 

@@ -1,8 +1,8 @@
-"""Prepare a portable Muse-augmented dataset, then stop before student training.
+"""Generate a reusable Muse augmentation folder independently of training.
 
 Dataset code owns all teacher generation. This orchestration loads only the
-student tokenizer and reuses the same admission/isolation gates as startup
-augmentation. It never starts or stops a teacher server.
+student tokenizer and reuses the existing admission/isolation gates. It never
+starts or stops a teacher server or launches student training.
 """
 from __future__ import annotations
 
@@ -49,6 +49,8 @@ def prepare_semantic_dataset(
         raise ValueError("Standalone semantic preparation requires augmentation=semantic")
     if options.prepared_input_dir is not None:
         raise ValueError("Standalone augmentation takes raw input, not an already prepared bundle")
+    if options.augmentation_dir is not None:
+        raise ValueError("Standalone generation creates an augmentation folder; it does not consume --augmentation-dir")
     if options.input_dir is None and options.source_run_dir is None:
         raise ValueError("Choose an explicit --input-dir or --source-run-dir for standalone augmentation")
     plan = golden_training.build_plan(options, preparation_only=True, tokenizer_only=True)
@@ -59,7 +61,8 @@ def prepare_semantic_dataset(
     plan.update(workflow="standalone_muse_semantic_preparation_v1", stages=["prepare", "augment", "seal", "verify"])
     state = {"schema_version": 1, "status": "plan_only", "plan": plan,
              "training_executed": False, "student_weights_loaded": False,
-             "teacher_server_managed": False, "prepared_input_dir": str(output / "augmented")}
+             "teacher_server_managed": False, "augmentation_dir": str(output / "augmented"),
+             "prepared_input_dir": str(output / "augmented")}
     if not execute:
         return state
     # Deliberately no continuation: partial teacher runs require fresh output.

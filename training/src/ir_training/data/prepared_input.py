@@ -310,3 +310,91 @@ def adopt_prepared_input(plan: dict, *, tokenizer_loader=None) -> dict:
     report.update(destination_directory=str(destination), destination_files=copied)
     (output / "data_audit.json").write_text(_json(report) + "\n", encoding="utf-8")
     return report
+
+
+def adopt_prepared_augmentation(plan: dict, *, tokenizer_loader=None) -> dict:
+    """Adopt a sealed combined bundle only when its original base matches this run.
+
+    The caller has already prepared raw inputs into output/prepared. Copy the
+    complete bundle to output/augmented, never append it to those original rows.
+    No teacher, generation command, student weights or retokenization is used.
+    """
+    options = plan["options"]
+    if options.get("augmentation") != "semantic" or not options.get("augmentation_dir"):
+        raise ValueError("Offline semantic augmentation requires --augmentation and --augmentation-dir")
+    source = Path(options["augmentation_dir"]).absolute()
+    output = Path(options["output_dir"]).absolute()
+    _no_links(source)
+    _no_links(output)
+    source, output = source.resolve(), output.resolve()
+    if source.is_relative_to(output) or output.is_relative_to(source):
+        raise ValueError("Augmentation input and output must not overlap")
+    base, destination, receipt = output / "prepared", output / "augmented", output / "augmentation_import.json"
+    for path in (base, destination, receipt):
+        _no_links(path)
+    if destination.exists() or receipt.exists():
+        raise FileExistsError("Augmentation import requires fresh augmented/ and augmentation_import.json outputs")
+    # Require a completed fresh preparation before loading even the tokenizer.
+    prepared_input_files(base)
+    source_files = prepared_input_files(source)
+    if tokenizer_loader is None:
+        from ir_training.pipeline.golden_training import _load_tokenizer
+        tokenizer_loader = _load_tokenizer
+    loaded_tokenizer = None
+
+    def once(model_dir, profile):
+        nonlocal loaded_tokenizer
+        if loaded_tokenizer is None:
+            loaded_tokenizer = tokenizer_loader(model_dir, profile)
+        return loaded_tokenizer
+
+    def validation_plan(directory):
+        return {**plan, "options": {**options, "prepared_input_dir": str(directory)}}
+
+    base_report = validate_prepared_input(validation_plan(base), tokenizer_loader=once)
+    if base_report["augmentation"] is not None:
+        raise ValueError("Fresh base must not already contain augmentation")
+    source_report = validate_prepared_input(validation_plan(source), tokenizer_loader=once)
+    if source_report["augmentation"] is None:
+        raise ValueError("--augmentation-dir requires a sealed semantic bundle, not a plain preparation")
+    base_hashes, source_hashes = base_report["source_files"], source_report["source_files"]
+    original = _read(source / "augmentation_source_manifest.json")
+    current = checked_preparation_manifest(base)
+    for name in SPLITS:
+        if base_hashes[f"{name}.jsonl"] != (original.get("splits", {}).get(name) or {}).get("output_sha256"):
+            raise ValueError(f"Fresh base {name} differs from the augmentation's original preparation")
+    if current.get("shared_prompt") != original.get("shared_prompt"):
+        raise ValueError("Fresh base shared prompt differs from the augmentation's original preparation")
+    # Ignore producer-local paths, never tokenizer behavior or limits.
+    tokenizer_keys = ("class", "vocabulary_sha256", "chat_template_sha256", "chat_template_kwargs",
+                      "bos_token_id", "eos_token_id", "pad_token_id", "add_special_tokens",
+                      "max_seq_length", "max_input_tokens")
+    for key in tokenizer_keys:
+        if (current.get("tokenizer") or {}).get(key) != (original.get("tokenizer") or {}).get(key):
+            raise ValueError(f"Fresh base tokenizer differs from augmentation: {key}")
+    temporary = Path(tempfile.mkdtemp(prefix=".augmentation-import-", dir=output))
+    for path in source_files:
+        shutil.copyfile(path, temporary / path.name)
+    copied = {path.name: file_sha256(path) for path in prepared_input_files(temporary)}
+    current_source = {path.name: file_sha256(path) for path in prepared_input_files(source)}
+    current_base = {path.name: file_sha256(path) for path in prepared_input_files(base)}
+    if copied != source_hashes or current_source != source_hashes or current_base != base_hashes:
+        raise ValueError("Augmentation source or fresh base changed while importing; no bundle published")
+    for path in (destination, receipt):
+        _no_links(path)
+        if path.exists():
+            raise FileExistsError(path)
+    temporary.rename(destination)
+    report = {
+        **source_report, "mode": "reuse_verified_prepared_augmentation",
+        "destination_directory": str(destination), "destination_files": copied,
+        "base_directory": str(base), "base_files": base_hashes,
+        "base_validation": base_report, "combined_bundle_copied": True,
+        "original_rows_appended": False,
+        "artifact_paths": sorted({str(path) for path in [
+            *(source / name for name in source_hashes), *(base / name for name in base_hashes),
+            *(destination / name for name in copied), receipt,
+        ]}),
+    }
+    receipt.write_text(_json(report) + "\n", encoding="utf-8")
+    return report

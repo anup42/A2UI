@@ -16,6 +16,7 @@ sys.path.insert(0, str(ROOT / "training/src"))
 from ir_training.common.jsonl import write_jsonl
 from ir_training.data.express_preparation import prepare_splits
 from ir_training.data.prepared_input import (
+    adopt_prepared_augmentation,
     adopt_prepared_input,
     prepared_input_files,
     validate_prepared_input,
@@ -219,3 +220,130 @@ def test_rebound_prepared_candidate_cannot_forge_accepted_stage3(semantic_plan):
     save(source / "manifest.json", manifest)
     with pytest.raises(ValueError, match="unique Stage 3 evidence"):
         validate_prepared_input(semantic_plan, tokenizer_loader=load_tokenizer)
+
+
+@pytest.fixture
+def augmentation_plan(semantic_plan):
+    plan = deepcopy(semantic_plan)
+    source = Path(plan["options"]["prepared_input_dir"])
+    output = Path(plan["options"]["output_dir"])
+    output.mkdir()
+    shutil.copytree(source.parent / "prepared", output / "prepared")
+    plan["options"].update(augmentation="semantic", augmentation_dir=str(source), prepared_input_dir=None)
+    return plan
+
+
+def test_offline_augmentation_copies_combined_once_and_keeps_fresh_base(augmentation_plan, monkeypatch):
+    import subprocess
+
+    import pipeline.training_augmentation as generation
+
+    plan = augmentation_plan
+    output = Path(plan["options"]["output_dir"])
+    base = output / "prepared"
+    path = base / "manifest.json"
+    manifest = json.loads(path.read_text(encoding="utf-8"))
+    for entry in manifest["splits"].values():
+        entry["source_path"] = "/different/raw-input/location.jsonl"
+    manifest["tokenizer"]["name_or_path"] = "/different/local-tokenizer/location"
+    save(path, manifest)
+    before = {path.name: path.read_bytes() for path in prepared_input_files(base)}
+    calls = []
+
+    def loader(*_):
+        calls.append(True)
+        return SmallTokenizer()
+
+    def forbidden(*_, **__):
+        pytest.fail("Offline import must not generate or launch a subprocess")
+
+    monkeypatch.setattr(generation, "generate_training_augmentations", forbidden)
+    monkeypatch.setattr(subprocess, "Popen", forbidden)
+    monkeypatch.setattr(subprocess, "run", forbidden)
+    report = adopt_prepared_augmentation(plan, tokenizer_loader=loader)
+    assert calls == [True]
+    assert report["generation_executed"] is False
+    assert report["original_rows_appended"] is False
+    assert report["source_files"] == report["destination_files"]
+    assert {path.name: path.read_bytes() for path in prepared_input_files(base)} == before
+    originals = [json.loads(line) for line in before["train.jsonl"].decode().splitlines()]
+    combined = [json.loads(line) for line in (output / "augmented/train.jsonl").read_text(encoding="utf-8").splitlines()]
+    assert len(combined) == len(originals) + report["augmentation"]["added_rows"]
+    assert combined[:len(originals)] == originals
+    assert len({row["id"] for row in combined}) == len(combined)
+    for name in ("val", "golden32", "golden35", "bixby50"):
+        assert (output / f"augmented/{name}.jsonl").read_bytes() == before[f"{name}.jsonl"]
+    assert str(output / "augmentation_import.json") in report["artifact_paths"]
+    assert all(Path(path).is_file() for path in report["artifact_paths"])
+    with pytest.raises(FileExistsError):
+        adopt_prepared_augmentation(plan, tokenizer_loader=loader)
+
+
+def test_offline_augmentation_rejects_plain_bundle(plan):
+    source = Path(plan["options"]["prepared_input_dir"])
+    output = Path(plan["options"]["output_dir"])
+    output.mkdir()
+    shutil.copytree(source, output / "prepared")
+    plan["options"].update(augmentation="semantic", augmentation_dir=str(source))
+    with pytest.raises(ValueError, match="sealed semantic bundle"):
+        adopt_prepared_augmentation(plan, tokenizer_loader=load_tokenizer)
+
+
+@pytest.mark.parametrize("split", ["train", "val", "golden32", "golden35", "bixby50"])
+def test_offline_augmentation_requires_exact_fresh_base_splits(augmentation_plan, split):
+    plan = augmentation_plan
+    output = Path(plan["options"]["output_dir"])
+    base = output / "prepared"
+    path = base / f"{split}.jsonl"
+    with path.open("a", encoding="utf-8") as stream:
+        stream.write("\n")
+    manifest = json.loads((base / "manifest.json").read_text(encoding="utf-8"))
+    manifest["splits"][split]["output_sha256"] = file_sha256(path)
+    save(base / "manifest.json", manifest)
+    with pytest.raises(ValueError, match=f"Fresh base {split} differs"):
+        adopt_prepared_augmentation(plan, tokenizer_loader=load_tokenizer)
+    assert not (output / "augmented").exists()
+
+
+@pytest.mark.parametrize("change", ["missing_dir", "missing_base", "nested", "symlink", "limit"])
+def test_offline_augmentation_rejects_unsafe_input_layout_or_limits(augmentation_plan, change, monkeypatch):
+    plan = augmentation_plan
+    output = Path(plan["options"]["output_dir"])
+    if change == "missing_dir":
+        plan["options"]["augmentation_dir"] = None
+    elif change == "missing_base":
+        (output / "prepared").rename(output / "not_prepared")
+    elif change == "nested":
+        plan["options"]["augmentation_dir"] = str(output / "prepared")
+    elif change == "symlink":
+        source = Path(plan["options"]["augmentation_dir"])
+        original = Path.is_symlink
+        monkeypatch.setattr(Path, "is_symlink", lambda path: path == source or original(path))
+    else:
+        plan["options"]["max_seq_length"] = 2048
+    with pytest.raises(ValueError):
+        adopt_prepared_augmentation(plan, tokenizer_loader=load_tokenizer)
+    assert not (output / "augmented").exists()
+
+
+@pytest.mark.parametrize("changed", ["source", "base"])
+def test_offline_augmentation_copy_race_never_publishes(augmentation_plan, changed, monkeypatch):
+    import ir_training.data.prepared_input as module
+
+    plan = augmentation_plan
+    output = Path(plan["options"]["output_dir"])
+    changed_directory = Path(plan["options"]["augmentation_dir"]) if changed == "source" else output / "prepared"
+    original = shutil.copyfile
+
+    def copy_then_mutate(src, dst):
+        result = original(src, dst)
+        if Path(src).name == "train.jsonl":
+            with (changed_directory / "train.jsonl").open("a", encoding="utf-8") as stream:
+                stream.write("\n")
+        return result
+
+    monkeypatch.setattr(module.shutil, "copyfile", copy_then_mutate)
+    with pytest.raises(ValueError, match="changed while importing"):
+        adopt_prepared_augmentation(plan, tokenizer_loader=load_tokenizer)
+    assert not (output / "augmented").exists()
+    assert not (output / "augmentation_import.json").exists()

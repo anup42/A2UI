@@ -1,9 +1,14 @@
-# Generate with Muse, stop Muse, then train frozen data
+# Independent Muse augmentation and student training commands
 
-The preferred workflow is **standalone preprocessing before student training**:
-prepare and augment once, stop Muse, then train Gemma 270M or official E2B
-retained-scale QAT LoRA from the frozen `augmented/` bundle. No teacher is
-needed during student training. All commands below are Linux/Bash examples
+Augmentation generation and student training are **independent commands**.
+The standalone generator publishes a sealed augmentation folder. A training
+invocation takes its normal original dataset plus
+`--augmentation --augmentation-dir /path/to/augmentation-run/augmented`.
+Training never calls Muse, starts a generator, or manages a teacher server.
+The commands can run on separately allocated hosts/devices; this guide does
+not prescribe a chained server-start/generate/stop/train procedure.
+
+All commands below are Linux/Bash examples
 from the repository root; every `/models`, `/data`, `/runs` and `/envs` path is
 a placeholder to replace with an actual local path.
 
@@ -19,9 +24,11 @@ published training split already contains **all original admitted training
 rows plus accepted new rows**. Do not append the original rows again, concatenate
 raw generated records into it, or edit the frozen bundle.
 
-Startup `--augmentation semantic` remains available as an opt-in alternative;
-the training default remains `none`. Existing `rare_components` mode repeats
-validated examples without generating new labels.
+At training time, `--augmentation` is equivalent to `--augmentation semantic`
+and requires `--augmentation-dir`. Either form without the folder fails; it
+does not fall back to live generation. The default `none` keeps ordinary
+unaugmented training unchanged. Existing `rare_components` mode remains local
+resampling of validated examples, without new labels or teacher calls.
 
 ## Coverage and safeguards
 
@@ -57,7 +64,8 @@ examples are rejected whole, never silently truncated.
 - The teacher process has a two-hour deadline by default. No fallback teacher,
   automatic server launch, model download, or silent switch to resampling.
 - Zero accepted/admitted candidates, a deadline, a hash mismatch, or altered
-  evaluation artifacts stops the run before student training.
+  evaluation artifacts fails standalone generation instead of publishing a
+  successful augmentation result.
 
 Muse source review is an automated consistency assessment, **not independent
 fact checking or human review**. Synthetic examples are marked accordingly.
@@ -72,54 +80,38 @@ candidate during review, and the full Stage 3 prompt. Teacher context failures
 are audited rejections; Stage 3's source prompt cap is 16k estimated tokens and
 the student uses its own separate exact-token limit.
 
-## 1. Start and verify the teacher
+## Standalone generation environment
 
 The registered teacher is `muse_glimmer_30b_sglang_reasoning_dflash`. This version
 only accepts that registered Muse HTTP teacher; the model option is an explicit
 provenance identifier, not a generic fallback selector.
 
-Terminal A: start the existing foreground server supervisor with the approved
-Muse-capable SGLang environment. This example allocates four H100 GPUs as two
-TP=2 replicas on ports 30000 and 30001. Both the teacher and DFlash assistant
-must already be downloaded locally. This is a configuration example, not a
-measured memory/throughput guarantee; inspect the server logs and readiness
-probe before generation. Do not share these GPUs with a trainer.
+Use an already available, approved Muse endpoint on the generation host. For
+optional server management/readiness checks, the existing
+[`run_muse_glimmer_stage3.py`](../../dataset/scripts/run_muse_glimmer_stage3.py)
+provides separate `servers` and `probe` modes; inspect its `--help` for the
+selected host's configuration. Neither the generator nor trainer automatically
+starts or stops those servers. Allocate their devices independently from any
+student training job; concurrent jobs must not contend for the same GPU memory.
 
 ```bash
-/envs/muse/bin/python -u dataset/scripts/run_muse_glimmer_stage3.py servers \
-  --gpus 4 --gpu-ids 0,1,2,3 --tp 2 --base-port 30000 \
-  --model-path /models/Muse-Glimmer-30B \
-  --draft-model-path /models/Muse-Glimmer-30B-assistant \
-  --served-model muse-glimmer --context-length 32768 \
-  --log-dir /runs/muse_teacher_logs
-```
-
-Keep Terminal A running. Terminal B: probe the same two endpoints, then export
-their addresses for the standalone augmentation subprocess. The probe checks
-the served model, Muse parsers and DFlash configuration; it is not generation
-of an augmentation dataset.
-
-```bash
-/envs/dataset/bin/python dataset/scripts/run_muse_glimmer_stage3.py probe \
-  --gpus 4 --tp 2 --base-port 30000 --served-model muse-glimmer
-
-export LOCAL_VLLM_ENDPOINTS=http://127.0.0.1:30000/v1/chat/completions,http://127.0.0.1:30001/v1/chat/completions
+export LOCAL_VLLM_ENDPOINTS=http://127.0.0.1:30000/v1/chat/completions
 export LOCAL_VLLM_SERVED_MODEL=muse-glimmer
 ```
 
 Use your actual approved endpoint and served model alias. The augmentation
 subprocess enables Muse reasoning, bounds individual calls/retries and disables
 the shared prompt cache. It does not use a cloud API key or start a teacher.
-For a separate teacher host, supply its explicit endpoints to the probe using
-`--endpoints` and export the same reachable URLs; localhost here means the
-machine running the client.
+Export a comma-separated list for multiple endpoints. For a separate teacher
+host, use its reachable URLs; localhost here means the generation client host.
+These environment variables are not required for student training.
 
 `--augmentation-python` selects an interpreter with the repository's **dataset**
 dependencies installed. By default the current training interpreter is used.
 Interpreter symlinks are preserved so an isolated venv stays isolated. No new
 training-library dependencies are needed when augmentation is off.
 
-## 2. Prepare one frozen bundle per student tokenizer
+## Standalone command: generate an augmentation folder
 
 Run the standalone script in the training environment, using
 `--augmentation-python` for the separate dataset environment. Its `--model-dir`
@@ -177,31 +169,24 @@ The larger E2B evaluation-prompt limit does not allow a supervised training
 sequence to exceed 4096. `--max-new-tokens` is not the Muse teacher's output
 budget; teacher generation has its separate bounded configuration.
 
-## 3. Stop Muse before using the same GPUs for training
+The resulting augmentation folder is
+`/runs/preprocess_e2b_muse_01/augmented` or
+`/runs/preprocess_270m_muse_01/augmented`. Generation ends after publication
+and verification; it does not launch student training.
 
-After every required preparation completes successfully, press **Ctrl-C in
-Terminal A** and wait for its supervisor to stop its replicas and exit. It owns
-their process groups; do not use a broad process-kill command. Verify your
-allocated GPUs no longer contain Muse/SGLang worker processes and that their
-memory has been released before starting the student:
+## Independent training command: original data plus augmentation folder
 
-```bash
-nvidia-smi -i 0,1,2,3
-nvidia-smi --query-compute-apps=pid,process_name,used_memory --format=csv
-```
+Keep the normal `--input-dir` and add `--augmentation --augmentation-dir`
+pointing to the matching sealed `augmented/` folder. Golden also supports its
+normal `--source-run-dir` raw-source alternative. The consumer verifies that
+the original data matches the augmentation's bound base preparation, checks
+the tokenizer, shared prompt, independent sequence/evaluation-prompt limits
+and file hashes, and adopts the combined dataset exactly once. It does **not**
+concatenate the original rows onto the already combined folder.
 
-If Muse workers remain, inspect the supervisor logs and process ownership; do
-not kill unrelated jobs or proceed on the assumption that a closed terminal
-freed VRAM. The preparer does not automatically stop an external teacher.
-
-## 4. Train without teacher calls
-
-Both launchers accept `--prepared-input-dir` pointing to the published
-`augmented/` directory, with `--augmentation none`. Do not also pass raw
-`--input-dir` (or Golden's `--source-run-dir`). Reuse verifies file hashes and the exact
-tokenizer, shared prompt and sequence/input limits; a mismatch fails instead of
-retokenizing or silently generating replacement examples. A path change alone
-does not make an incompatible tokenizer acceptable.
+A different original dataset or incompatible tokenizer/limits fails instead
+of silently mixing data or generating replacements. The folder is required
+even if a Muse endpoint happens to be available; training never contacts it.
 
 ### Gemma 270M full SFT
 
@@ -212,11 +197,11 @@ are unchanged. The model directory here contains the **full student weights**.
 /envs/training/bin/python -u training/scripts/run_golden_training.py \
   --profile 270m \
   --model-dir /models/gemma270m \
-  --prepared-input-dir /runs/preprocess_270m_muse_01/augmented \
+  --input-dir /data/improved_dataset \
   --output-dir /runs/gemma270m_muse_aug_01 \
   --devices auto --seed 42 \
   --max-seq-length 4096 --max-input-tokens 4096 --max-new-tokens 2048 \
-  --augmentation none \
+  --augmentation --augmentation-dir /runs/preprocess_270m_muse_01/augmented \
   --execute
 ```
 
@@ -236,13 +221,13 @@ changed by augmentation.
   --model-dir /models/e2b_mobile_qat_seed \
   --source-safetensors /models/official_packed/model.safetensors \
   --official-litertlm /models/official_e2b.litertlm \
-  --prepared-input-dir /runs/preprocess_e2b_muse_01/augmented \
+  --input-dir /data/improved_dataset \
   --output-dir /runs/e2b_qat_lora_muse_aug_01 \
   --exporter-python /envs/retained_export/bin/python \
   --devices auto --seed 42 --microbatch 1 --effective-batch 32 \
   --epochs 2 --lora-rank 16 --lora-alpha 16 --learning-rate 1e-5 \
   --max-seq-length 4096 --max-input-tokens 5120 --max-new-tokens 2048 \
-  --augmentation none \
+  --augmentation --augmentation-dir /runs/preprocess_e2b_muse_01/augmented \
   --execute
 ```
 
@@ -255,7 +240,8 @@ for required seed, packed-source and export artifacts.
 ### Reuse exactly the same data for rank/LR ablations
 
 Point every E2B rank/LR trial at
-`/runs/preprocess_e2b_muse_01/augmented` with `--augmentation none`, unchanged
+the same original `--input-dir` plus
+`--augmentation --augmentation-dir /runs/preprocess_e2b_muse_01/augmented`, unchanged
 seed/lengths and the same original verified mobile seed. Use fresh run output
 directories. For example, compare rank/alpha 16/16 at `1e-5`, 32/32 at `1e-5`,
 and 16/16 at `5e-6` by changing only those flags and the training output path.
@@ -263,24 +249,25 @@ Do not rerun Muse for each trial or initialize a trial from another trial's
 trained adapter. These are experimental settings, not a proven optimum.
 
 The [official A/B/C commands](OFFICIAL_MOBILE_QAT_PIPELINE.md#controlled-qat-lora-experiments-run-a-run-b-and-run-c)
-can use this frozen bundle by replacing their `--input-dir "$INPUT"` with
-`--prepared-input-dir /runs/preprocess_e2b_muse_01/augmented --augmentation none`.
+can use this folder by keeping their `--input-dir "$INPUT"` and adding
+`--augmentation --augmentation-dir /runs/preprocess_e2b_muse_01/augmented`.
 The same frozen-data principle applies to 270M learning-rate comparisons, using
 the separately prepared 270M bundle.
 
-## Optional legacy startup mode
+## Migration and explicit whole-bundle reuse
 
-On a fresh ordinary launcher run, `--augmentation` (equivalent to
-`--augmentation semantic`) still prepares raw input and contacts Muse before
-student training. Use raw `--input-dir` (or Golden's `--source-run-dir`), not
-`--prepared-input-dir`, for this mode. Its augmentation controls and safeguards
-are unchanged; Golden's `--prepare-only` with semantic mode **does contact Muse**.
+Older commands that used bare `--augmentation` for live generation at startup
+must now supply a separately generated folder with `--augmentation-dir`.
+Move teacher-model/interpreter/attempt/deadline controls to the standalone
+generation command; they do not request model calls from the trainer.
+Golden's `--prepare-only` does not change this boundary: semantic mode consumes
+the supplied folder and does not contact Muse.
 
-Startup mode continues directly into student training and does not pause to
-stop an external teacher. Use a separate teacher host/GPU allocation if taking
-that path. For sequential reuse of the same GPUs, prefer the standalone
-preparer above. `rare_components` retains its existing row-resampling meaning
-and is not an alternative way to label new synthetic sources.
+The older explicit whole-bundle input route remains available:
+`--prepared-input-dir /path/to/augmented --augmentation none`, with no raw
+`--input-dir` or `--source-run-dir`. This selects a complete frozen preparation
+directly; it is not the preferred original-data-plus-augmentation interface.
+Do not combine `--prepared-input-dir` with `--augmentation-dir`.
 
 ## Artifacts, recovery and experiments
 
@@ -291,7 +278,7 @@ and is not an alternative way to label new synthetic sources.
 - `semantic_augmentation/`: source-filter, tokenizer and token-budget rejection
   evidence. Generation details are in `generation.log` and `generated/run.log`.
 - `augmented/`: published original-plus-augmented train split, copied holdouts
-  and updated manifest. This is the directory passed to `--prepared-input-dir`.
+  and updated manifest. This is the directory passed to `--augmentation-dir`.
   `augmentation.json` records added rows/tokens, recipe and provenance.
 
 Require a successful command and `augmentation_preparation_manifest.json`
@@ -309,7 +296,7 @@ copying only train/validation JSONL files is not frozen-data reuse.
 
 Failed generation keeps its diagnostics; retry with a fresh output directory.
 Official checkpoint resume
-must omit the augmentation flag: it reuses the checkpoint's frozen dataset
+must omit both the augmentation flag and `--augmentation-dir`: it reuses the checkpoint's frozen dataset
 (including earlier augmentation) and must not generate new data mid-resume.
 With explicit `--resume-from-checkpoint`, omit both `--input-dir` and
 `--prepared-input-dir` to reuse that saved, hash-bound dataset. A new

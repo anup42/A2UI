@@ -175,8 +175,10 @@ def test_plan_only_requires_official_mobile_artifacts_and_has_no_writes(options)
 
 
 @pytest.mark.parametrize("mode", ["none", "rare_components", "semantic"])
-def test_augmentation_plan_routes_fresh_dataset_and_preserves_qat(options, mode):
-    plan = _plan(replace(options, augmentation=mode))
+def test_augmentation_plan_routes_fresh_dataset_and_preserves_qat(options, monkeypatch, mode):
+    from ir_training.data import prepared_input
+    monkeypatch.setattr(prepared_input, "prepared_input_files", lambda path: [options.input_dir / "train.jsonl"])
+    plan = _plan(replace(options, augmentation=mode, augmentation_dir=options.input_dir if mode == "semantic" else None))
     expected = "prepared" if mode == "none" else "augmented"
     assert Path(plan["paths"]["prepared"]) == options.output_dir / expected
     assert ("augment" in plan["stages"]) == (mode != "none")
@@ -204,9 +206,18 @@ def test_augmentation_invalid_plan_controls(options, overrides):
 
 def test_official_semantic_stage_uses_shared_helper_and_binds_artifacts(options, monkeypatch):
     import shutil
-    import ir_training.data.semantic_augmentation as semantic
 
-    enabled = replace(options, augmentation="semantic", prepare_workers=1)
+    import ir_training.data.semantic_augmentation as semantic
+    from ir_training.data import prepared_input
+
+    bundle = options.output_dir.parent / "precomputed-augmentation"
+    bundle.mkdir()
+    artifact = bundle / "augmentation_generation_manifest.json"
+    artifact.write_text("{}\n")
+    monkeypatch.setattr(prepared_input, "prepared_input_files", lambda path: [artifact])
+    monkeypatch.setattr(semantic, "augment_training_at_startup", lambda *a, **k: pytest.fail("training must never generate"))
+
+    enabled = replace(options, augmentation="semantic", augmentation_dir=bundle, prepare_workers=1)
     plan = workflow.build_plan(enabled)
     write_jsonl(options.input_dir / "train.jsonl", [_row("train-a"), _row("train-b")])
     write_jsonl(options.input_dir / "val.jsonl", [_row("val-a"), _row("val-b")])
@@ -216,14 +227,13 @@ def test_official_semantic_stage_uses_shared_helper_and_binds_artifacts(options,
     def augment(preparation):
         calls.append(preparation)
         shutil.copytree(options.output_dir / "prepared", options.output_dir / "augmented")
-        artifact = options.output_dir / "semantic_augmentation/candidates.jsonl"
-        artifact.parent.mkdir()
-        artifact.write_text("{}\n")
         return {"artifact_paths": [str(artifact)]}
-    monkeypatch.setattr(semantic, "augment_training_at_startup", augment)
+    monkeypatch.setattr(prepared_input, "adopt_prepared_augmentation", augment, raising=False)
     files = workflow.run_stage(plan, "augment")
     assert calls == [plan["preparation"]]
-    assert options.output_dir / "semantic_augmentation/candidates.jsonl" in files
+    assert artifact in files
+    assert len(plan["preparation"]["source_files"]) == 2
+    assert plan["preparation"]["augmentation_source_files"] == [str(artifact)]
     assert options.output_dir / "augmented/manifest.json" in files
     for name in ("val", "golden32", "golden35", "bixby50"):
         assert (options.output_dir / f"prepared/{name}.jsonl").read_bytes() == (options.output_dir / f"augmented/{name}.jsonl").read_bytes()
@@ -243,9 +253,30 @@ def test_official_augmentation_cli(options, monkeypatch, flags, expected):
     args = []
     for name in ("model_dir", "input_dir", "source_safetensors", "official_litertlm", "output_dir"):
         args.extend(["--" + name.replace("_", "-"), str(getattr(options, name))])
-    assert script.main([*args, *flags]) == 0
+    directory_args = ["--augmentation-dir", str(options.input_dir)] if expected == "semantic" else []
+    assert script.main([*args, *flags, *directory_args]) == 0
     assert captured[0][0].augmentation == expected
+    assert captured[0][0].augmentation_dir == (options.input_dir if expected == "semantic" else None)
     assert captured[0][1] == {"execute": False}
+
+
+def test_official_semantic_requires_precomputed_directory_before_preparation(options, monkeypatch):
+    monkeypatch.setattr(workflow, "prepare_data", lambda *a, **k: pytest.fail("must not prepare"))
+    with pytest.raises(ValueError, match="requires --augmentation-dir"):
+        workflow.run_pipeline(replace(options, augmentation="semantic"), execute=True)
+    assert not options.output_dir.exists()
+
+
+@pytest.mark.parametrize("mode", ["none", "rare_components"])
+def test_official_directory_requires_semantic_mode(options, mode):
+    with pytest.raises(ValueError, match="requires semantic"):
+        workflow.build_plan(replace(options, augmentation=mode, augmentation_dir=options.input_dir))
+
+
+def test_official_resume_rejects_directory_without_generation_flag(options):
+    with pytest.raises(ValueError, match="cannot change the saved dataset"):
+        workflow.build_plan(replace(options, augmentation_dir=options.input_dir,
+                                    resume_from_checkpoint=options.output_dir.parent / "checkpoint-10"))
 
 
 def test_official_prepared_input_plan_forwards_frozen_bundle(options, monkeypatch):

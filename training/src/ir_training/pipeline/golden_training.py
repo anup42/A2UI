@@ -70,6 +70,7 @@ class GoldenTrainingOptions:
     gradient_checkpointing: bool = True
     attn_implementation: str = "sdpa"
     augmentation: str = "none"
+    augmentation_dir: Path | None = None
     augmentation_max_extra_fraction: float = 0.10
     augmentation_max_family_repeats: int = 2
     augmentation_teacher_model: str = "muse_glimmer_30b_sglang_reasoning_dflash"
@@ -113,6 +114,8 @@ def _options(options: GoldenTrainingOptions) -> dict[str, Any]:
             result[name] = str(Path(result[name]).expanduser().resolve())
     if result["prepared_input_dir"] is not None:
         result["prepared_input_dir"] = os.path.abspath(os.path.expanduser(str(result["prepared_input_dir"])))
+    if result["augmentation_dir"] is not None:
+        result["augmentation_dir"] = os.path.abspath(os.path.expanduser(str(result["augmentation_dir"])))
     if not result["input_dir"] and not result["source_run_dir"] and not result["prepared_input_dir"]:
         result["source_run_dir"] = str(repo_root() / "dataset/data/runs/dataset_v1")
     result["preparation_cache_dir"] = str(Path(result["preparation_cache_dir"] or Path(result["output_dir"]).parent / ".golden-preparation-cache").resolve())
@@ -138,6 +141,19 @@ def build_plan(options: GoldenTrainingOptions, *, preparation_only: bool = False
                      warmup_ratio=options.warmup_ratio, logging_steps=options.logging_steps, seed=options.seed)
     if options.augmentation not in {"none", "rare_components", "semantic"}:
         raise ValueError("--augmentation must be none, rare_components or semantic")
+    standalone = preparation_only and tokenizer_only
+    if options.prepared_input_dir and options.augmentation != "none":
+        raise ValueError("--prepared-input-dir cannot be combined with --augmentation; use the frozen bundle unchanged")
+    if options.augmentation_dir and (options.augmentation != "semantic" or options.prepared_input_dir):
+        raise ValueError("--augmentation-dir requires semantic augmentation with raw inputs, not --prepared-input-dir")
+    if options.augmentation == "semantic" and not options.augmentation_dir and not standalone:
+        raise ValueError("--augmentation requires --augmentation-dir with a precomputed sealed bundle; generate it separately. Legacy startup-generation runs require migration; training never starts Muse")
+    if standalone and options.augmentation_dir:
+        raise ValueError("Standalone generation cannot consume --augmentation-dir")
+    augmentation_files = []
+    if options.augmentation_dir:
+        from ir_training.data.prepared_input import prepared_input_files
+        augmentation_files = prepared_input_files(Path(values["augmentation_dir"]))
     if options.augmentation == "semantic":
         from ir_training.data.semantic_augmentation import validate_semantic_options
         validate_semantic_options(values)
@@ -188,10 +204,16 @@ def build_plan(options: GoldenTrainingOptions, *, preparation_only: bool = False
         raise ValueError("Output directory must not contain the model or source inputs")
     if values["prepared_input_dir"] and output.is_relative_to(source):
         raise ValueError("Output directory must be separate from the frozen prepared input")
+    protected_roots = [model, source, output]
+    if values["augmentation_dir"]:
+        augmentation_source = Path(values["augmentation_dir"])
+        if output.is_relative_to(augmentation_source) or augmentation_source.is_relative_to(output):
+            raise ValueError("Augmentation directory and run output must be separate")
+        protected_roots.append(augmentation_source)
     for key in ("preparation_cache_dir", "token_cache_dir"):
         cache = Path(values[key])
-        if any(cache.is_relative_to(protected) or protected.is_relative_to(cache) for protected in (model, source, output)):
-            raise ValueError(f"{key} must be outside and must not contain model, source or run output directories")
+        if any(cache.is_relative_to(protected) or protected.is_relative_to(cache) for protected in protected_roots):
+            raise ValueError(f"{key} must be outside and must not contain model, source, augmentation or run output directories")
     from ir_training.data.shared_prompt import create_shared_prompt_contract
     prompt = create_shared_prompt_contract(ordering="root-first")
     plan = {
@@ -214,10 +236,12 @@ def build_plan(options: GoldenTrainingOptions, *, preparation_only: bool = False
         "exports_performed": False, "automatic_model_downloads": False,
         "golden35_role": "final evaluation only; never checkpoint selection" if options.evaluate_golden35 else "reserved, not evaluated in development trial",
         "bixby50_role": "source-only final holdout; never checkpoint selection" if options.evaluate_bixby50 else "reserved, not evaluated in development trial",
-        "note": "Final Golden32 always runs. Golden35 and Bixby50 run unless deferred for sequential tuning. Bixby50 has no reference IR. " + ("Semantic augmentation generates and validates train-only candidates at startup." if options.augmentation == "semantic" else "Augmentation only repeats validated training examples; no new semantic coverage."),
+        "note": "Final Golden32 always runs. Golden35 and Bixby50 run unless deferred for sequential tuning. Bixby50 has no reference IR. " + ("Semantic augmentation imports a precomputed sealed bundle; training never starts Muse." if options.augmentation == "semantic" else "Augmentation only repeats validated training examples; no new semantic coverage."),
     }
+    if augmentation_files:
+        plan["augmentation_source_files"] = list(map(str, augmentation_files))
     if preparation_only:
-        return {key: plan[key] for key in ("options", "source_files", "shared_prompt", "goldens")}
+        return {key: plan[key] for key in ("options", "source_files", "shared_prompt", "goldens", "augmentation_source_files") if key in plan}
     return plan
 
 
@@ -531,6 +555,8 @@ def run_pipeline(options: GoldenTrainingOptions, *, execute: bool = False, prepa
             raise FileExistsError(f"Choose a fresh output directory or explicitly --continue-run a verified workflow: {output}")
         state = json.loads(record.read_text(encoding="utf-8"))
         previous_plan = state["plan"]
+        if "augmentation_dir" not in previous_plan.get("options", {}):
+            previous_plan = {**previous_plan, "options": {**previous_plan["options"], "augmentation_dir": None}}
         if "prepared_input_dir" not in previous_plan.get("options", {}):
             previous_plan = {**previous_plan, "options": {**previous_plan["options"], "prepared_input_dir": None}}
         if previous_plan.get("options", {}).get("augmentation") in {"none", "rare_components"}:
@@ -599,8 +625,11 @@ def run_pipeline(options: GoldenTrainingOptions, *, execute: bool = False, prepa
             with _console_log(output / "logs/augmentation.log"):
                 report = {}
                 if options.augmentation == "semantic":
-                    from ir_training.data.semantic_augmentation import augment_training_at_startup
-                    report = augment_training_at_startup(plan, tokenizer_loader=tokenizer_loader)
+                    from ir_training.data.prepared_input import (
+                        adopt_prepared_augmentation,
+                    )
+
+                    report = adopt_prepared_augmentation(plan, tokenizer_loader=tokenizer_loader)
                 else:
                     augment_prepared_training(output / "prepared", output / "augmented", seed=options.seed,
                         max_extra_fraction=options.augmentation_max_extra_fraction,

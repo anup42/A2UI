@@ -6,10 +6,15 @@ claimed by this implementation review.
 
 September 26 update: for **new semantic examples**, use the separate
 [Muse preprocessing workflow](SEMANTIC_AUGMENTATION.md): generate and validate
-once, stop Muse, then pass the frozen original-plus-augmented bundle through
-`--prepared-input-dir` with `--augmentation none`. Prepare separate bundles for
+in a standalone command. An independent training invocation keeps its original
+`--input-dir` and adds `--augmentation --augmentation-dir /path/to/augmentation-run/augmented`.
+Training never calls Muse or manages its server. The sealed folder contains
+original-plus-augmented data; the consumer verifies the base match and uses it
+once, without duplicating originals. Prepare separate bundles for
 the E2B and 270M tokenizers. Reuse one matching bundle across rank/LR trials;
-do not regenerate teacher data for every trial. The resampling experiments
+do not regenerate teacher data for every trial. Bare semantic augmentation
+without `--augmentation-dir` fails instead of generating data at startup.
+The resampling experiments
 below are a different method and remain disabled by default.
 
 Bixby50 integration update: the current dense workflow includes Golden35 and

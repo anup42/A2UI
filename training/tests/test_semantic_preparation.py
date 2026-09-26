@@ -109,6 +109,51 @@ def test_evidence_sealing_rejects_changed_donor_file(options, monkeypatch):
     assert receipt["status"] == "failed" and receipt["active_stage"] == "seal"
 
 
+@pytest.mark.parametrize("profile,max_input_tokens", [("e2b", 5120), ("270m", 4096)])
+def test_independent_training_includes_saved_augmentation_only_when_enabled(options, profile, max_input_tokens, monkeypatch):
+    options = replace(options, profile=profile, max_input_tokens=max_input_tokens)
+    teacher = Teacher()
+    saved = semantic_preparation.prepare_semantic_dataset(
+        options, execute=True, tokenizer_loader=lambda *_: Tokenizer(), command_runner=teacher,
+    )
+    bundle = Path(saved["augmentation_dir"])
+    original_bytes = (options.output_dir / "prepared/train.jsonl").read_bytes()
+    combined_bytes = (bundle / "train.jsonl").read_bytes()
+    assert original_bytes != combined_bytes and combined_bytes.startswith(original_bytes)
+    (options.model_dir / "model.safetensors").write_bytes(b"fixture, never loaded")
+    import ir_training.data.semantic_augmentation as semantic
+    from ir_training.data.prepared_input import adopt_prepared_augmentation
+
+    def forbidden(*args, **kwargs):
+        pytest.fail("Training must not invoke Muse or the standalone generator")
+    monkeypatch.setattr(semantic, "augment_training_at_startup", forbidden)
+    consumer = replace(options, augmentation_dir=bundle, output_dir=options.output_dir.parent / "with-augmentation")
+    if profile == "270m":
+        state = golden_training.run_pipeline(consumer, prepare_only=True,
+            tokenizer_loader=lambda *_: Tokenizer(), command_runner=forbidden)
+        assert list(state["completed"]) == ["prepare", "augment"]
+    else:
+        # Official mobile uses this shared CPU preparation with separate 4096/5120 limits.
+        plan = golden_training.build_plan(consumer, preparation_only=True)
+        consumer.output_dir.mkdir()
+        golden_training.prepare_data(plan, tokenizer_loader=lambda *_: Tokenizer())
+        adopt_prepared_augmentation(plan, tokenizer_loader=lambda *_: Tokenizer())
+    assert (consumer.output_dir / "prepared/train.jsonl").read_bytes() == original_bytes
+    assert (consumer.output_dir / "augmented/train.jsonl").read_bytes() == combined_bytes
+    for name in ("val", "golden32", "golden35", "bixby50"):
+        assert (consumer.output_dir / f"prepared/{name}.jsonl").read_bytes() == (consumer.output_dir / f"augmented/{name}.jsonl").read_bytes()
+    assert len(teacher.calls) == 1
+
+    plain = replace(consumer, augmentation="none", augmentation_dir=None,
+                    output_dir=options.output_dir.parent / "without-augmentation")
+    plan = golden_training.build_plan(plain, preparation_only=True)
+    plain.output_dir.mkdir()
+    golden_training.prepare_data(plan, tokenizer_loader=lambda *_: Tokenizer())
+    assert (plain.output_dir / "prepared/train.jsonl").read_bytes() == original_bytes
+    assert not (plain.output_dir / "augmented").exists()
+    assert len(teacher.calls) == 1
+
+
 @pytest.mark.parametrize("change,match", [
     ({"augmentation": "none"}, "augmentation=semantic"),
     ({"input_dir": None}, "explicit"),

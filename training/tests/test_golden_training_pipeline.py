@@ -154,6 +154,7 @@ def test_continue_accepts_historical_missing_prepared_default_only(options):
     path = options.output_dir / "pipeline_manifest.json"
     state = json.loads(path.read_text(encoding="utf-8"))
     state["plan"]["options"].pop("prepared_input_dir")
+    state["plan"]["options"].pop("augmentation_dir")
     path.write_text(json.dumps(state), encoding="utf-8")
     continued = workflow.run_pipeline(options, prepare_only=True, continue_run=True,
                                       tokenizer_loader=lambda *_: FixtureTokenizer())
@@ -179,6 +180,22 @@ def test_cache_locations_cannot_overlap_protected_directories(options, name, loc
     cache = protected if location == "parent" else protected / "cache"
     with pytest.raises(ValueError, match="must be outside"):
         workflow.build_plan(replace(options, **{name: cache}))
+    assert not options.output_dir.exists()
+
+
+@pytest.mark.parametrize("name", ["preparation_cache_dir", "token_cache_dir"])
+@pytest.mark.parametrize("relation", ["inside", "contains", "equal"])
+def test_cache_locations_cannot_overlap_saved_augmentation(options, tmp_path, monkeypatch, name, relation):
+    from ir_training.data import prepared_input
+
+    bundle = tmp_path / "bundle-parent" / "frozen"
+    bundle.mkdir(parents=True)
+    evidence = bundle / "manifest.json"
+    evidence.write_text("{}", encoding="utf-8")
+    monkeypatch.setattr(prepared_input, "prepared_input_files", lambda _: [evidence])
+    cache = {"inside": bundle / "cache", "contains": bundle.parent, "equal": bundle}[relation]
+    with pytest.raises(ValueError, match="must be outside"):
+        workflow.build_plan(replace(options, augmentation="semantic", augmentation_dir=bundle, **{name: cache}))
     assert not options.output_dir.exists()
 
 
@@ -549,6 +566,12 @@ def test_augmentation_cli_modes(options, flags, expected):
     assert parsed.augmentation == expected
     assert parsed.augmentation_teacher_model == "muse_glimmer_30b_sglang_reasoning_dflash"
     assert parsed.augmentation_max_samples == 500
+    if expected == "semantic":
+        imported = script.build_parser().parse_args(["--model-dir", str(options.model_dir),
+            "--output-dir", str(options.output_dir), "--input-dir", str(options.input_dir),
+            *flags, "--augmentation-dir", str(options.input_dir)])
+        assert imported.augmentation_dir == options.input_dir
+        assert imported.input_dir == options.input_dir
 
 
 @pytest.mark.parametrize("overrides", [{"augmentation_max_samples": 0}, {"augmentation_max_samples": True},
@@ -562,7 +585,16 @@ def test_semantic_augmentation_invalid_controls_fail_before_output(options, over
 
 def test_semantic_augmentation_stage_routes_and_binds_candidate_evidence(options, monkeypatch):
     import shutil
+
     import ir_training.data.semantic_augmentation as semantic
+    from ir_training.data import prepared_input
+
+    bundle = options.output_dir.parent / "precomputed-augmentation"
+    bundle.mkdir()
+    candidate = bundle / "augmentation_generation_manifest.json"
+    candidate.write_text("{}\n")
+    monkeypatch.setattr(prepared_input, "prepared_input_files", lambda path: [candidate])
+    monkeypatch.setattr(semantic, "augment_training_at_startup", lambda *a, **k: pytest.fail("training must never generate"))
 
     calls = []
     def augment(plan, *, tokenizer_loader):
@@ -570,20 +602,18 @@ def test_semantic_augmentation_stage_routes_and_binds_candidate_evidence(options
         calls.append(plan)
         output = Path(plan["options"]["output_dir"])
         shutil.copytree(output / "prepared", output / "augmented")
-        candidate = output / "semantic_augmentation/generated/candidates.jsonl"
-        candidate.parent.mkdir(parents=True)
-        candidate.write_text("{}\n")
         return {"artifact_paths": [str(candidate)]}
 
-    monkeypatch.setattr(semantic, "augment_training_at_startup", augment)
-    enabled = replace(options, profile="270m", augmentation="semantic")
+    monkeypatch.setattr(prepared_input, "adopt_prepared_augmentation", augment, raising=False)
+    enabled = replace(options, profile="270m", augmentation="semantic", augmentation_dir=bundle)
     dry = workflow.run_pipeline(enabled)
     assert calls == [] and not options.output_dir.exists()
     assert dry["stages"][:3] == ["prepare", "augment", "configure"]
     state = prepare(enabled)
     assert len(calls) == 1
     assert list(state["completed"]) == ["prepare", "augment"]
-    candidate = options.output_dir / "semantic_augmentation/generated/candidates.jsonl"
+    assert len(state["plan"]["source_files"]) == 2
+    assert state["plan"]["augmentation_source_files"] == [str(candidate)]
     assert str(candidate) in state["completed"]["augment"]["files"]
     command = workflow.configure_command(state["plan"])
     assert Path(command[command.index("--dataset-dir") + 1]) == options.output_dir / "augmented"
@@ -594,3 +624,27 @@ def test_semantic_augmentation_stage_routes_and_binds_candidate_evidence(options
     candidate.write_text("changed\n")
     with pytest.raises(ValueError, match="Completed-stage artifact changed"):
         workflow.run_pipeline(enabled, prepare_only=True, continue_run=True)
+
+
+def test_semantic_training_requires_precomputed_directory_before_preparation(options, monkeypatch):
+    monkeypatch.setattr(workflow, "prepare_data", lambda *a, **k: pytest.fail("must fail before preparation"))
+    with pytest.raises(ValueError, match="requires --augmentation-dir"):
+        workflow.run_pipeline(replace(options, augmentation="semantic"), prepare_only=True)
+    assert not options.output_dir.exists()
+    plan = workflow.build_plan(replace(options, augmentation="semantic"), preparation_only=True, tokenizer_only=True)
+    assert plan["options"]["augmentation_dir"] is None
+
+
+@pytest.mark.parametrize("mode", ["none", "rare_components"])
+def test_augmentation_directory_requires_semantic_mode(options, mode):
+    with pytest.raises(ValueError, match="requires semantic"):
+        workflow.build_plan(replace(options, augmentation=mode, augmentation_dir=options.input_dir))
+
+
+def test_semantic_directory_is_checked_during_planning(options):
+    missing = options.output_dir.parent / "missing-augmentation"
+    with pytest.raises((ValueError, FileNotFoundError)):
+        workflow.build_plan(replace(options, augmentation="semantic", augmentation_dir=missing))
+    with pytest.raises((ValueError, FileNotFoundError)):
+        workflow.build_plan(replace(options, augmentation="semantic", augmentation_dir=options.input_dir))
+    assert not options.output_dir.exists()

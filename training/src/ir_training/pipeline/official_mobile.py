@@ -91,6 +91,7 @@ class OfficialMobileOptions:
     stage_timeout_seconds: float = 172800
     generation_timeout_seconds: float = 7200
     augmentation: str = "none"
+    augmentation_dir: Path | None = None
     augmentation_max_extra_fraction: float = 0.10
     augmentation_max_family_repeats: int = 2
     augmentation_teacher_model: str = "muse_glimmer_30b_sglang_reasoning_dflash"
@@ -124,6 +125,8 @@ def build_plan(options: OfficialMobileOptions) -> dict[str, Any]:
             values[key] = str(Path(values[key]).expanduser().resolve())
     if values["prepared_input_dir"] is not None:
         values["prepared_input_dir"] = os.path.abspath(os.path.expanduser(str(values["prepared_input_dir"])))
+    if values["augmentation_dir"] is not None:
+        values["augmentation_dir"] = os.path.abspath(os.path.expanduser(str(values["augmentation_dir"])))
     # venv/bin/python is often a symlink. Resolving it would silently use the
     # system interpreter and lose the isolated exporter dependencies on Linux.
     values["exporter_python"] = os.path.abspath(os.path.expanduser(
@@ -140,6 +143,8 @@ def build_plan(options: OfficialMobileOptions) -> dict[str, Any]:
         raise ValueError("--prepared-input-dir cannot override the saved dataset on resume")
     if values["resume_from_checkpoint"] and options.augmentation != "none":
         raise ValueError("--augmentation cannot change data on resume; reuse the saved dataset without the flag or start a fresh experiment")
+    if values["resume_from_checkpoint"] and options.augmentation_dir:
+        raise ValueError("--augmentation-dir cannot change the saved dataset on resume")
     resume = None
     if values["resume_from_checkpoint"]:
         from ir_training.train.mobile_resume import horizon_record, source_config
@@ -223,6 +228,7 @@ def build_plan(options: OfficialMobileOptions) -> dict[str, Any]:
             preparation_cache_dir=options.preparation_cache_dir, progress_seconds=options.progress_seconds,
             tensorboard_root=options.tensorboard_root, learning_rate=values["learning_rate"], seed=values["seed"],
             augmentation=options.augmentation,
+            augmentation_dir=options.augmentation_dir,
             augmentation_max_extra_fraction=options.augmentation_max_extra_fraction,
             augmentation_max_family_repeats=options.augmentation_max_family_repeats,
             augmentation_teacher_model=options.augmentation_teacher_model,
@@ -232,7 +238,7 @@ def build_plan(options: OfficialMobileOptions) -> dict[str, Any]:
         ),
         preparation_only=True,
     )
-    preparation = {key: preparation[key] for key in ("options", "source_files", "shared_prompt", "goldens")}
+    preparation = {key: preparation[key] for key in ("options", "source_files", "shared_prompt", "goldens", "augmentation_source_files") if key in preparation}
     train_root = output / "training" / output.name
     paths = {
         "prepared": Path(resume["prepared"]) if resume else output / ("augmented" if options.augmentation != "none" else "prepared"),
@@ -668,8 +674,8 @@ def run_stage(plan: dict, stage: str) -> list[Path]:
             raise ValueError("Augmentation requires an explicitly enabled fresh run")
         report = {}
         if values["augmentation"] == "semantic":
-            from ir_training.data.semantic_augmentation import augment_training_at_startup
-            report = augment_training_at_startup(plan["preparation"])
+            from ir_training.data.prepared_input import adopt_prepared_augmentation
+            report = adopt_prepared_augmentation(plan["preparation"])
         else:
             from ir_training.data.augmentation import augment_prepared_training
             augment_prepared_training(output / "prepared", output / "augmented", seed=values["seed"],
