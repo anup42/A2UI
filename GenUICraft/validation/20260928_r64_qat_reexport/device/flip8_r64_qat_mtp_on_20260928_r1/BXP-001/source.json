@@ -1,0 +1,6 @@
+{
+  "id": "BXP-001",
+  "query": "Search the web and use reliable sources. Find Bengaluru's weather forecast for the next three days. Show the date, high and low temperature in Celsius, and rain probability in a table, followed by two planning tips. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 100-500 tokens; aim for 150-220 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+  "text": "| Date | High (°C) | Low (°C) | Rain probability |\n|---|---:|---:|---:|\n| Wed, Sep 9 | 31 | 20 | 57% |\n| Thu, Sep 10 | 30 | 21 | 55% |\n| Fri, Sep 11 | 30 | 21 | 55% |\n\nAccuWeather’s Bengaluru forecast shows cloudy or sunny-interval conditions through the next three days, with the highest rain chance on Wednesday and continued shower/thunderstorm potential on Thursday and Friday.[7][14]\n\n- Carry an umbrella or light rain jacket, especially for afternoon and evening plans.\n- Plan outdoor activities earlier in the day, when conditions are more likely to stay drier and slightly cooler.",
+  "domain": "Weather"
+}

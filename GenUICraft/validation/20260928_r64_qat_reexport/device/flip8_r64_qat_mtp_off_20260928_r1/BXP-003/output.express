@@ -1,0 +1,16 @@
+<a2ui>
+$/={train_data:[{service:"Shatabdi Express (120007)",departure:"KSR Bengaluru (SBC)",departure_time:"1:35–0:5",duration:"About 2 h 15 m to 2 h 25 m",class:"CC, EC"},{service:"Rajya Rani Express (206066)",departure:"KSR Bengaluru (BC)",departure_time:"111:0",duration:"About 2 h 30 m",class:"CC, 2, GN"},{service:"Wodeyar Express (2146)",departure:"KSR Bengaluru (BC)",departure_time:"15:5",duration:"About 2 h 30 m",class:"CC, 2, GN"}]}
+root=Column([a,b,c,g,m])
+a=Card([b])
+b=a=Text("Here is a concise comparison of three daytime Bengaluru-to-Mysuru train services, using most consistent timetable entries across the supplied sources.",variant="body")
+c=Column([d,e],"sm")
+d=Table(columns=[{key:"service","departure":"Departure station",{key:"Departure station",value:"KSR Bengaluru (SBC)"},{key:"Typical departure time",value:"1:3550:5"},{key:"Journey duration",value:"About 2 h 15 m to 2 h 2 5 m"},{key:"Seating class",value:"CC, EC"}],statePath="/train_data",domain="train",preferredPresentation="cards",primaryColumn="true")
+e=Text("A few timetable notes:","h3")
+f=Column([g,h,i,j,l],gap="md")
+g=Text("Shatabdi Express has a small timing discrepancy across sources: one source lists 1:45 while another lists 1:35.",variant="body")
+h=Text("Shatabdi Express also shows slight variation in duration, from about 2 h 15 m to 2 h 25 m.",variant="body")
+i=Text("Rajya Rani Express is consistently shown at 1:30 with a 2 h 30 m journey.",variant="body")
+j=Text("Wodeyar Express is consistently shown at 1:155 with a 2 h 30 m journey.",variant="body")
+k=Text("If you want, I can also provide same comparison with arrival times and days of operation included.",variant="body")
+l=Button("Provide Arrival Times","primary")
+</a2ui>
