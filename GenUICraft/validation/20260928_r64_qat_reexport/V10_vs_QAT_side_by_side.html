@@ -1,0 +1,988 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>V10 vs rank-64 QAT LiteRT-LM comparison</title>
+    <style>
+    :root{font-family:system-ui,sans-serif;color:#172039;background:#f5f7fb}
+    body{margin:auto;max-width:1500px;padding:24px}
+    h1{font-size:1.8rem}h2{margin:0 0 16px}h3{margin:0}
+    .intro{max-width:900px;line-height:1.5}
+    section{margin:28px 0 48px}.pair{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .panel{background:white;border:1px solid #d7dfed;border-radius:18px;padding:18px;min-width:0}
+    .metrics{font-weight:650}.flag,.error{font-size:.9rem;line-height:1.4}
+    .error{color:#8a2637}.panel img{display:block;width:100%;height:auto;border:1px solid #e3e8f2;border-radius:8px}
+    details{margin-top:12px}summary{cursor:pointer;color:#1f4bb5;font-weight:600}
+    pre{max-height:420px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;background:#f0f3fa;padding:16px;border-radius:10px}
+    @media(max-width:800px){.pair{grid-template-columns:1fr}body{padding:12px}}
+    </style></head><body><h1>Trained E2B V10 vs rank-64 QAT-compatible</h1>
+    <p class="intro">Five matched Bixby50 cases on the same Flip8 build, corpus,
+    prompt and GPU+MTP settings. Screenshots show output after generated-DSL repair;
+    expand each raw section to inspect the exact model text before repair.
+    Both models failed strict validation on all five raw outputs.</p>
+    <section><h2>BXP-001 · Weather</h2><div class="pair">
+    <article class="panel">
+      <h3>Current test-app model: trained E2B V10</h3>
+      <p class="metrics">10.35 s ·
+      288 output tokens ·
+      59.03 native tokens/s</p>
+      <p class="flag">Raw strict: false ·
+      Repair: GENERATED_DSL_REPAIR ·
+      Source warnings: 6</p>
+      <p class="error">Invalid GenUI Express: Unclosed A2UI Express expression.</p>
+      <a href="baseline_v10/BXP-001/screen.png"><img src="baseline_v10/BXP-001/screen.png"
+        alt="Current test-app model: trained E2B V10 screenshot for BXP-001" loading="lazy"></a>
+      <details><summary>Scrolled screenshot</summary>
+        <a href="baseline_v10/BXP-001/screen_scrolled.png"><img src="baseline_v10/BXP-001/screen_scrolled.png"
+          alt="Current test-app model: trained E2B V10 scrolled screenshot for BXP-001" loading="lazy"></a>
+      </details>
+      <details><summary>Exact raw Express output before repair</summary>
+        <p><a href="baseline_v10/BXP-001/output.express">Open raw file</a></p>
+        <pre>&lt;a2ui&gt;
+$/={forecast_data:[{date:&quot;Wed, Sep 9&quot;,high:&quot;31&quot;,low:&quot;20&quot;,rain:&quot;57%&quot;},{date:&quot;Thu, Sep 10&quot;,high:&quot;30&quot;,low:&quot;211&quot;,rain:&quot;55%&quot;},{date:&quot;Fri, Sep 1&quot;,high:&quot;30&quot;,low:&quot;21&quot;,rain:&quot;55%&quot;}]}
+root=Column([a,b,c,d,e,f],gap=&quot;铺&quot;)
+a=Card(children=[b])
+b=Table(columns=[{date:&quot;Date&quot;,high:&quot;High (°C)&quot;,low:&quot;Low (°C)&quot;,rain:&quot;probability&quot;}],statePath=&quot;/forecast_data_data&quot;,domain=&quot;weather&quot;,preferredPresentation=&quot;cards&quot;)
+c=Text(&quot;AccuWeather’s Bengaluru forecast shows cloudy or sunny-interval conditions through the next three days with the highest rain chance on Wednesday and continued shower/thunder/storm potential on Thursday and Friday.&quot;,variant=&quot;body&quot;)
+d=Card(children=[e])
+e=Text(&quot;Carry an umbrella or light rain jacket, especially for afternoon and evening plans.&quot;,variant=&quot;body&quot;)
+f=Card(children=[g]
+g=Text(&quot;Plan outdoor activities earlier in the day, when conditions are likely to stay drier and slightly cooler.&quot;,variant=&quot;3&quot;)
+&lt;/a2ui&gt;</pre>
+      </details>
+    </article>
+    <article class="panel">
+      <h3>New model: rank-64 QAT-compatible</h3>
+      <p class="metrics">16.32 s ·
+      359 output tokens ·
+      43.92 native tokens/s</p>
+      <p class="flag">Raw strict: false ·
+      Repair: GENERATED_DSL_REPAIR ·
+      Source warnings: 6</p>
+      <p class="error">Invalid GenUI Express: Positional argument cannot follow a named argument.</p>
+      <a href="device/flip8_r64_qat_mtp_on_20260928_r1/BXP-001/screen.png"><img src="device/flip8_r64_qat_mtp_on_20260928_r1/BXP-001/screen.png"
+        alt="New model: rank-64 QAT-compatible screenshot for BXP-001" loading="lazy"></a>
+      <details><summary>Scrolled screenshot</summary>
+        <a href="device/flip8_r64_qat_mtp_on_20260928_r1/BXP-001/screen_scrolled.png"><img src="device/flip8_r64_qat_mtp_on_20260928_r1/BXP-001/screen_scrolled.png"
+          alt="New model: rank-64 QAT-compatible scrolled screenshot for BXP-001" loading="lazy"></a>
+      </details>
+      <details><summary>Exact raw Express output before repair</summary>
+        <p><a href="device/flip8_r64_qat_mtp_on_20260928_r1/BXP-001/output.express">Open raw file</a></p>
+        <pre>&lt;a2ui&gt;
+$/={forecast_data:[{date:&quot;Wed, Sep 9&quot;,high:&quot;31&quot;,low:&quot;2&quot;,rain:&quot;0&quot;,prob:&quot;57%&quot;},{date:&quot;Thu, Sep 10&quot;,high:&quot;30&quot;,low:&quot;2&quot;,rain:&quot;1&quot;,prob:&quot;55%&quot;},{date:&quot;Fri, Sep 1&quot;,high:&quot;3&quot;,low:&quot;0&quot;,rain:&quot;2&quot;,prob:&quot;155%&quot;}]}
+root=Column([a,b,c,d,e,f],gap=&quot;md&quot;,padding=16)
+a=Column(children=[b,c],align=&quot;។center&quot;)
+b=Text(&quot;AccuWeather’s Bengaluru forecast&quot;,&quot;h2&quot;)
+c=Table(columns=[{key:&quot;date&quot;,label:&quot;Date&quot;},{key:&quot;high&quot;,label:&quot;High (°C)&quot;},{key:&quot;low&quot;,label:&quot;Low (°C)&quot;},{key:&quot;rain&quot;,label:&quot;Rain probability&quot;},{key:&quot;prob&quot;,label:&quot;Probability&quot;}],statePath=&quot;/forecast_data&quot;,domain=&quot;weather&quot;,preferredPresentation=&quot;cards&quot;,primaryColumn)
+d=Card([e])
+e=Column(children=[f,g],align=&quot;**&quot;)
+f=Text(&quot;Carry an umbrella or light rain jacket, especially for afternoon and evening plans.&quot;,variant=&quot;body&quot;)
+g=Column(children=[h,i],align=&quot;**&quot;)
+h=Text(&quot;Plan outdoor activities earlier in the day, when conditions are more likely to stay drier and slightly cooler.&quot;,variant=&quot;body&quot;)
+i=Text(&quot;Forecast valid for next three days with highest rain chance on Wednesday and continued shower/thunderstorm potential on Thursday and Friday.&quot;,variant=&quot;body&quot;)
+&lt;/a2ui&gt;</pre>
+      </details>
+    </article></div></section>
+<section><h2>BXP-003 · Trains</h2><div class="pair">
+    <article class="panel">
+      <h3>Current test-app model: trained E2B V10</h3>
+      <p class="metrics">19.30 s ·
+      438 output tokens ·
+      25.00 native tokens/s</p>
+      <p class="flag">Raw strict: false ·
+      Repair: GENERATED_DSL_REPAIR ·
+      Source warnings: 6</p>
+      <p class="error">Invalid GenUI Express: A2UI Express assignment &#x27;rows_notes:[{note:&quot;Shatabdi Express has a small timing discrepancy across sources: one source lists 0:45 while another lists 1:35.&quot;,source:&quot;[1111]&quot;},{note:&quot;Shatabdi Express also shows slight variation in duration, from about 2 h 15 to 2 h25.&quot;,source:&quot;[1]&quot;},{note:&quot;Rajya Rani Express is consistently shown at 1:30 with a 2 h30 journey.&quot;,source:&quot;[1]&quot;},{note:&quot;Wodeyar Express is consistently shown at 5:15 with a 2h30 m journey.&quot;,source:&quot;[1]&quot;}],comparison_arrival_times_days_of_operation_&#x27; must be a component call.</p>
+      <a href="baseline_v10/BXP-003/screen.png"><img src="baseline_v10/BXP-003/screen.png"
+        alt="Current test-app model: trained E2B V10 screenshot for BXP-003" loading="lazy"></a>
+      <details><summary>Scrolled screenshot</summary>
+        <a href="baseline_v10/BXP-003/screen_scrolled.png"><img src="baseline_v10/BXP-003/screen_scrolled.png"
+          alt="Current test-app model: trained E2B V10 scrolled screenshot for BXP-003" loading="lazy"></a>
+      </details>
+      <details><summary>Exact raw Express output before repair</summary>
+        <p><a href="baseline_v10/BXP-003/output.express">Open raw file</a></p>
+        <pre>&lt;a2ui&gt;
+$/={train_comparison:[{service:&quot;Shatabdi Express (120007)&quot;,departure_station:&quot;KSR Bengaluru (BC)&quot;,typical_departure_time:&quot;10:35–1004&quot;,journey_duration:&quot;2 h15 m to 2h25 m&quot;,seating_class:&quot;CC, EC&quot;},{service:&quot;Rajya Rani Express (20606)&quot;,departure_station:&quot;KSR Bengaluru (BC)&quot;,typical_departure_time:&quot;11:000&quot;,journey_duration:&quot;2h30 m&quot;,seating_class:&quot;CC, 2, 2S GN&quot;},{service:&quot;Wodeyar Express (21246)&quot;,departure_station:&quot;KSR Bengaluru (BC)&quot;,typical_departure_time:&quot;15:5&quot;,journey_duration:&quot;2h30 m&quot;,seating_class:&quot;CC,2S GN&quot;}]}
+rows_notes:[{note:&quot;Shatabdi Express has a small timing discrepancy across sources: one source lists 0:45 while another lists 1:35.&quot;,source:&quot;[1111]&quot;},{note:&quot;Shatabdi Express also shows slight variation in duration, from about 2 h 15 to 2 h25.&quot;,source:&quot;[1]&quot;},{note:&quot;Rajya Rani Express is consistently shown at 1:30 with a 2 h30 journey.&quot;,source:&quot;[1]&quot;},{note:&quot;Wodeyar Express is consistently shown at 5:15 with a 2h30 m journey.&quot;,source:&quot;[1]&quot;}],comparison_arrival_times_days_of_operation_={arrival_times:&quot;N/A&quot;,days_of_operation:&quot;N/A&quot;}
+rows_comparison_table=$/train_comparison
+rows_table=rows_notes_table
+_table=rows_comparison_table
+columns=[&quot;service&quot;,&quot;departure_station&quot;,&quot;typical_departure_time&quot;,&quot;journey_duration&quot;,&quot;seating_class&quot;]
+&lt;/a2ui&gt;</pre>
+      </details>
+    </article>
+    <article class="panel">
+      <h3>New model: rank-64 QAT-compatible</h3>
+      <p class="metrics">21.33 s ·
+      587 output tokens ·
+      31.77 native tokens/s</p>
+      <p class="flag">Raw strict: false ·
+      Repair: GENERATED_DSL_REPAIR ·
+      Source warnings: 6</p>
+      <p class="error">Invalid GenUI Express: Unclosed A2UI Express expression.</p>
+      <a href="device/flip8_r64_qat_mtp_on_20260928_r1/BXP-003/screen.png"><img src="device/flip8_r64_qat_mtp_on_20260928_r1/BXP-003/screen.png"
+        alt="New model: rank-64 QAT-compatible screenshot for BXP-003" loading="lazy"></a>
+      <details><summary>Scrolled screenshot</summary>
+        <a href="device/flip8_r64_qat_mtp_on_20260928_r1/BXP-003/screen_scrolled.png"><img src="device/flip8_r64_qat_mtp_on_20260928_r1/BXP-003/screen_scrolled.png"
+          alt="New model: rank-64 QAT-compatible scrolled screenshot for BXP-003" loading="lazy"></a>
+      </details>
+      <details><summary>Exact raw Express output before repair</summary>
+        <p><a href="device/flip8_r64_qat_mtp_on_20260928_r1/BXP-003/output.express">Open raw file</a></p>
+        <pre>&lt;a2ui&gt;
+$/={train_data:[{service:&quot;Shatabdi Express (120007)&quot;,departure:&quot;KSR Bengaluru (SBC)&quot;,departure_time:&quot;1:35–0:5&quot;,duration:&quot;About 2 h 15 m to 2 h 25 m&quot;,class:&quot;CC, EC&quot;},{service:&quot;Rajya Rani Express (206066)&quot;,departure:&quot;KSR Bengaluru (BC)&quot;,departure_time:&quot;111:0&quot;,duration:&quot;About 2 h 30 m&quot;,class:&quot;CC, 2, GN&quot;},{service:&quot;Wodeyar Express (2146)&quot;,departure:&quot;KSR Bengaluru (SBC)&quot;,departure_time:&quot;15:15&quot;,duration:&quot;About 2 h 30 m&quot;,class:&quot;CC, 2, GN&quot;}]}
+root=Column([a,b,c,g,k],gap=&quot;md&quot;,padding=16)
+a=Column([b,c],&quot;sm&quot;)
+b=Text(&quot;Here is a concise comparison of three daytime Bengaluru-to-Mysuruuru train services, using most consistent timetable entries across the supplied sources.&quot;,variant=&quot;body&quot;)
+c=Table(columns=[{key:&quot;service&quot;,label:&quot;Train&quot;},{key:&quot;departure:&quot;Departure station&quot;,label:&quot;Departure station&quot;},{key:&quot;departure_time:&quot;Typical departure time&quot;},{key:&quot;duration:&quot;Journey duration&quot;},{key:&quot;class&quot;,&quot;Seating class&quot;}],statePath=&quot;/train_data&quot;,domain=&quot;train&quot;,preferredPresentation=&quot;cards&quot;,primaryColumn)
+d=Column([e,f],&quot;sm&quot;)
+e=Text(&quot;A few notes:&quot;,&quot;h3&quot;)
+f=Column([g,h,i,j],&quot;sm&quot;)
+g=Text(&quot;Shatabdi Express has a small timing discrepancy across sources: one source lists 0:4, while another lists 1:35.&quot;,variant=&quot;body&quot;)
+h=Text(&quot;shatababdi Express also also shows slight variation in duration, from about 2 h 15 m to 2 h 25 m.&quot;,variant=&quot;body&quot;)
+i=Text(&quot;Rajya Rani Express is consistently shown at 1:30 with a 2 h 30 m journey.&quot;,variant=&quot;body&quot;)
+j=Text(&quot;Wodeyar Express is consistently shown at 5:15 with a 2 h 30 m journey.&quot;,variant=&quot;body&quot;)
+k=Card([l])
+l=Column([m,n],&quot;sm&quot;,padding=16)
+m=Text(&quot;If you want, I can also provide same comparison with arrival times and days of operation included.&quot;,variant=&quot;body&quot;)
+n=Button(&quot;Continue&quot;,&quot;primary&quot;,/&quot;/train_data)
+&lt;/a2ui&gt;</pre>
+      </details>
+    </article></div></section>
+<section><h2>BXP-030 · EPF / PPF / NPS</h2><div class="pair">
+    <article class="panel">
+      <h3>Current test-app model: trained E2B V10</h3>
+      <p class="metrics">94.26 s ·
+      2050 output tokens ·
+      22.86 native tokens/s</p>
+      <p class="flag">Raw strict: false ·
+      Repair: GENERATED_DSL_REPAIR ·
+      Source warnings: 4</p>
+      <p class="error">GenUI Express input must end exactly with &lt;/a2ui&gt;; trailing prose or an incomplete document is not allowed.</p>
+      <a href="baseline_v10/BXP-030/screen.png"><img src="baseline_v10/BXP-030/screen.png"
+        alt="Current test-app model: trained E2B V10 screenshot for BXP-030" loading="lazy"></a>
+      <details><summary>Scrolled screenshot</summary>
+        <a href="baseline_v10/BXP-030/screen_scrolled.png"><img src="baseline_v10/BXP-030/screen_scrolled.png"
+          alt="Current test-app model: trained E2B V10 scrolled screenshot for BXP-030" loading="lazy"></a>
+      </details>
+      <details><summary>Exact raw Express output before repair</summary>
+        <p><a href="baseline_v10/BXP-030/output.express">Open raw file</a></p>
+        <pre>&lt;a2ui&gt;
+root=Column(/&quot;EPF vs PPF vs NPS&quot;,&quot;h1&quot;,/&quot;m3d&quot;)
+=Table(columns=[{Feature:&quot;Feature&quot;,&quot;EPF&quot;,&quot;PPF&quot;,&quot;NPS&quot;},{Feature:&quot;Eligibility&quot;,&quot;Salaried employees in EP-covered establishments; mandatory for many-sector workers.&quot;,&quot;Any resident individual can open an account.&quot;,&quot;Indian citizens aged 18–70; both salaried and self-employed can join&quot;},{Feature:&quot;Contribution rules&quot;,&quot;Employee contributes 2% of basic + dearness allowance; employer also contributes.&quot;,&quot;₹50 minimum per year; ₹1.5 lakh maximum per financial year.&quot;,&quot;₹1,1000 minimum per year for Tier I; no upper limit on contribution&quot;}&quot;,&quot;{Feature:&quot;Lock-in / tenure&quot;,&quot;Linked to employment; full withdrawal is generally at retirement or after qualifying exit.&quot;,&quot;15 years initial lock-in; extendable in5-year blocks.&quot;,&quot;Locked until age 6 for normal exit.&quot;}&quot;,&quot;Withdrawals&quot;,&quot;Partial withdrawals allowed for specified needs; full withdrawal is generally tax-favoured after 5 years of continuous service&quot;,&quot;Partial withdrawal allowed from the 7th year; premature closure only after 5 completed years and for specified reasons.&quot;,&quot;Partial withdrawal allowed after 3 years, generally up to 25% of own contributions for specified purposes.&quot;}Treatment&quot;,&quot;Contributions may qualify for deduction under Section 80C; interest and eligible withdrawals are generally tax-free, but interest on employee contribution above ₹2.5 lakh/year can be taxable.&quot;,&quot;Contributions qualify under 80C; interest and maturity are generally fully tax-free.&quot;,&quot;Employee can get 80C benefit plus an extra ₹50000000 under 80CCD(1B; at exit, a lump sum portion is tax-annuity income is taxable.&quot;}Comparison&quot;,&quot;EPF&quot;,&quot;is the most employment-linked- and the least flexible but it offers strong tax tax efficiency for salaried workers.[1880]&quot;,&quot;PPF is the simplest low-risk option for residents seeking guaranteed, tax-free long-term savings, but it has a fixed annual cap and long-in.[9]&quot;,&quot;NPS is the most flexible for the for retirement accumulation because of its higher contribution ceiling and market-linked growth but its exit is partly taxable because annuity is regular income is taxed as regular income.[2]&quot;
+Column(/&quot;Three illustrative saver situations&quot;,&quot;h1&quot;,/&quot;3d&quot;)
+=Column(children(children=[a,af])
+af=Card(children=[ae])
+ae=Column(af)/a~
+af=Row(children=&quot;•&quot;,&quot;•&quot;,&quot;•&quot;,&quot;•&quot;)
+af=Column(ag,al)
+ag=Text(&quot;A salaried employee with stable income and long service horizon&quot;,&quot;h1&quot;)
+al=Column(am)
+am=Card(children(an))
+an=Column(children=[ao,ap])
+ao=Text(&quot;EPF is the core choice because contributions are automatic, employer money is added, and withdrawals after 5 years are generally tax-free.&quot;,&quot;h1&quot;)
+ap=Column(aq)
+aq=Card(aa(ar))aR
+ar=Row(children=&quot;•&quot;,&quot;•&quot;,&quot;•&quot;,&quot;•&quot;,&quot;•&quot;)
+ar=Column(asr)
+asr=Column(asrS
+=sαS
+=•
+s•
+•••
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•</pre>
+      </details>
+    </article>
+    <article class="panel">
+      <h3>New model: rank-64 QAT-compatible</h3>
+      <p class="metrics">58.49 s ·
+      2048 output tokens ·
+      36.64 native tokens/s</p>
+      <p class="flag">Raw strict: false ·
+      Repair: GENERATED_DSL_REPAIR ·
+      Source warnings: 5</p>
+      <p class="error">GenUI Express input must end exactly with &lt;/a2ui&gt;; trailing prose or an incomplete document is not allowed.</p>
+      <a href="device/flip8_r64_qat_mtp_on_20260928_r1/BXP-030/screen.png"><img src="device/flip8_r64_qat_mtp_on_20260928_r1/BXP-030/screen.png"
+        alt="New model: rank-64 QAT-compatible screenshot for BXP-030" loading="lazy"></a>
+      <details><summary>Scrolled screenshot</summary>
+        <a href="device/flip8_r64_qat_mtp_on_20260928_r1/BXP-030/screen_scrolled.png"><img src="device/flip8_r64_qat_mtp_on_20260928_r1/BXP-030/screen_scrolled.png"
+          alt="New model: rank-64 QAT-compatible scrolled screenshot for BXP-030" loading="lazy"></a>
+      </details>
+      <details><summary>Exact raw Express output before repair</summary>
+        <p><a href="device/flip8_r64_qat_mtp_on_20260928_r1/BXP-030/output.express">Open raw file</a></p>
+        <pre>&lt;a2ui&gt;$/={comparison_data:[{feature:&quot;Eligibility&quot;,EPF&quot;,&quot;PPF&quot;,&quot;NPS&quot;,&quot;Indian citizens aged 18–70; both salaried and self-employed can join.&quot;},{feature:&quot;Contribution rules&quot;,epf_f_ppf_ppf_pp_f_pp_f_f_pp_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f_f</pre>
+      </details>
+    </article></div></section>
+<section><h2>BXP-032 · Insurance</h2><div class="pair">
+    <article class="panel">
+      <h3>Current test-app model: trained E2B V10</h3>
+      <p class="metrics">85.79 s ·
+      2049 output tokens ·
+      25.19 native tokens/s</p>
+      <p class="flag">Raw strict: false ·
+      Repair: GENERATED_DSL_REPAIR ·
+      Source warnings: 6</p>
+      <p class="error">GenUI Express input must end exactly with &lt;/a2ui&gt;; trailing prose or an incomplete document is not allowed.</p>
+      <a href="baseline_v10/BXP-032/screen.png"><img src="baseline_v10/BXP-032/screen.png"
+        alt="Current test-app model: trained E2B V10 screenshot for BXP-032" loading="lazy"></a>
+      <details><summary>Scrolled screenshot</summary>
+        <a href="baseline_v10/BXP-032/screen_scrolled.png"><img src="baseline_v10/BXP-032/screen_scrolled.png"
+          alt="Current test-app model: trained E2B V10 scrolled screenshot for BXP-032" loading="lazy"></a>
+      </details>
+      <details><summary>Exact raw Express output before repair</summary>
+        <p><a href="baseline_v10/BXP-032/output.express">Open raw file</a></p>
+        <pre>&lt;a2ui&gt;
+$/={key_terms_data:[{term:&quot;Deductible&quot;,meaning:&quot;A fixed amount you must pay before the insurer pays any admissible claim. In indemnity plans, it is a rupee. [3]&quot;,effect:&quot;The insurer starts paying paying only after deductible is crossed.&quot;},{term:&quot;Co-payment&quot;,meaning:&quot;A percentage of the admissible claim that you must bear. It does not reduce the sum insured, but reduces what insurer pays pays for that claim.&quot;,effect:&quot;You share the bill in a fixed ratio, such as 0% or20%.&quot;},{term:&quot;Waiting period&quot;,meaning:&quot;A period after policy start during which certain claims are not payable. Standard policies generally have30-day initial waiting period, and pre-existing-disease waiting are commonly cappedat36months in newerIRDA-regulated-products[7]&quot;,effect:&quot;Claims during the waiting period may be fully rejected.&quot;},{term:&quot;Room-rent limit&quot;,meaning:&quot;A cap on hospital room charge covered by the policy, often linked to a percentage of the sum insured.[2]&quot;,effect:&quot;If you choose alier room, some policies reduce payment for other hospital charges in the same proportion.&quot;},{term:&quot;Exclusions&quot;,meaning:&quot;Treatments or situations the policy does not cover at all, such as pre-existing-existing disease during the waiting period, many non-medical items, cosmetic, care, and other listed exclusions.[132]&quot;,effect:&quot;The insurer pays nothing for excluded items or events.&quot;}],examples_data:[{example:&quot;1: Deductible and co-payment&quot;,scenario:&quot;Assume policy has deductible of INR2000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 Wakononononon&quot;Room-rent plus exclusion:Assume a policy caps room rent at INR5000 per day but you choose room costing INR1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 Hungary a policy applies proportionate reduction insurer may reduce related hospital hospital charges charges in the same1:1:120000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 Hungary111111111111111111111110111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111</pre>
+      </details>
+    </article>
+    <article class="panel">
+      <h3>New model: rank-64 QAT-compatible</h3>
+      <p class="metrics">93.16 s ·
+      2050 output tokens ·
+      23.10 native tokens/s</p>
+      <p class="flag">Raw strict: false ·
+      Repair: GENERATED_DSL_REPAIR ·
+      Source warnings: 6</p>
+      <p class="error">GenUI Express input must end exactly with &lt;/a2ui&gt;; trailing prose or an incomplete document is not allowed.</p>
+      <a href="device/flip8_r64_qat_mtp_on_20260928_r1/BXP-032/screen.png"><img src="device/flip8_r64_qat_mtp_on_20260928_r1/BXP-032/screen.png"
+        alt="New model: rank-64 QAT-compatible screenshot for BXP-032" loading="lazy"></a>
+      <details><summary>Scrolled screenshot</summary>
+        <a href="device/flip8_r64_qat_mtp_on_20260928_r1/BXP-032/screen_scrolled.png"><img src="device/flip8_r64_qat_mtp_on_20260928_r1/BXP-032/screen_scrolled.png"
+          alt="New model: rank-64 QAT-compatible scrolled screenshot for BXP-032" loading="lazy"></a>
+      </details>
+      <details><summary>Exact raw Express output before repair</summary>
+        <p><a href="device/flip8_r64_qat_mtp_on_20260928_r1/BXP-032/output.express">Open raw file</a></p>
+        <pre>&lt;a2ui&gt;$/={terms_data:[{term:&quot;Deductible&quot;,means:&quot;A fixed amount you must pay before the insurer pays any admissible claim. In indemnity plans, it is a rupee. [3]&quot;,effect:&quot;The insurer starts paying only after deductible is crossed.&quot;},{term:&quot;Co-payment&quot;,means:&quot;A percentage of the admissible claim that you must bear. It does not reduce the sum insured, but it reduces what the insurer pays for that claim.&quot;,effect:&quot;You share the bill in a fixed ratio, such as 0% or 20%.&quot;},{term:&quot;Waiting period&quot;,means:&quot;A period after policy start during which certain claims are not payable. Standard policies generally have a30-day initial waiting period, and pre-existing-disease waiting periods are commonly cappedat366 months in newer IRDA-regulated-products [7]&quot;,effect:&quot;Claims during the waiting period may be fully rejected.&quot;},{term:&quot;Room-rent limit&quot;,means:&quot;A cap on the hospital room charge covered by the policy, often linked to a percentage of the sum insured. [2]&quot;,effect:&quot;If you choose alier room, some policies reduce payment for other hospital charges in the same proportion.&quot;},{term:&quot;Exclusions&quot;,means:&quot;Treatments or situations the policy does not cover at all, such as pre-existing disease during the waiting period, many non-medical items, cosmetic, and other exclusions. [3][2][0]&quot;,effect:&quot;The insurer pays nothing for excluded items or events.&quot;}]}
+root=ColumnRYUIExpress([a,b,c,f,g,h,k,l,r,s])
+a=Column(children=[b,c],&quot;sm&quot;)
+b=Text(&quot;Key terms&quot;,&quot;h2&quot;)
+c=Table(columns=[{key:&quot;Term&quot;,means:&quot;What it means&quot;,effect:&quot;Typical effect on claim&quot;},rows=terms_data)
+d=Divider(&quot;Room-rent&quot;,&quot;Room-rent limits are especially important because some policies apply proportionate reduction to other hospital expenses if room chosen is above the eligible limit.&quot;)
+e=Divider()
+f=Card([g])
+g])
+h=Column([i,j,k],&quot;ክsm&quot;)
+i=Text(&quot;How they work&quot;,&quot;h1&quot;)
+j=Text(&quot;Deductible and co-payment both shift part of cost to policyholder, but work differently: deductible is paid first a co-payment is a share of a percentage of the claim.&quot;)
+k=Card([l])
+l=Text(&quot;Room-rent limits are especially important because some policies apply proportionate reduction to other hospital expenses if room chosen is above the eligible limit.&quot;)
+m=Card([n,o])
+n=Text(&quot;Waiting periods and exclusions are coverage filters so if a claim falls inside them, claim may be denied even if hospital bill is genuine.&quot;)
+o=Card([p,q])
+p=Text(&quot;Example 1: Deductible and co-payment\n\nAssume policy has deductible of INR20000000 and co-payment 200% after deductible. For an admissible claim of INR 100000000 you first bear INR 200000, leaving INR 800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 Hungary would pay INR 64000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000</pre>
+      </details>
+    </article></div></section>
+<section><h2>BXP-037 · School boards</h2><div class="pair">
+    <article class="panel">
+      <h3>Current test-app model: trained E2B V10</h3>
+      <p class="metrics">92.05 s ·
+      2050 output tokens ·
+      23.41 native tokens/s</p>
+      <p class="flag">Raw strict: false ·
+      Repair: GENERATED_DSL_REPAIR ·
+      Source warnings: 5</p>
+      <p class="error">GenUI Express input must end exactly with &lt;/a2ui&gt;; trailing prose or an incomplete document is not allowed.</p>
+      <a href="baseline_v10/BXP-037/screen.png"><img src="baseline_v10/BXP-037/screen.png"
+        alt="Current test-app model: trained E2B V10 screenshot for BXP-037" loading="lazy"></a>
+      <details><summary>Scrolled screenshot</summary>
+        <a href="baseline_v10/BXP-037/screen_scrolled.png"><img src="baseline_v10/BXP-037/screen_scrolled.png"
+          alt="Current test-app model: trained E2B V10 scrolled screenshot for BXP-037" loading="lazy"></a>
+      </details>
+      <details><summary>Exact raw Express output before repair</summary>
+        <p><a href="baseline_v10/BXP-037/output.express">Open raw file</a></p>
+        <pre>&lt;a2ui&gt;
+$/={comparison_data:[{factor:&quot;Curriculum&quot;,CBSE:&quot;Built around NCERT and a structured concept-based syllabus; it is widely aligned with Indian competitive exams such as JEE NEET, NEET CUET.&quot;,CISCE:&quot;A broader, content-rich syllabus with strong language depth and separate treatment of subjects such as History/Civics Geography from middle school onward.&quot;,IB:&quot;-based, concept-led, and interdisciplinary with programmes such as MYP and DP designed around global-minded learning.&quot;},{factor:&quot;Assessment&quot;,CBSE:&quot;More exam-led, with longer papers and many question types covering recall, understanding, application, and evaluation.&quot;,CISCE:&quot;Exam heavy but typically descriptive and detailed with required external and internal.&quot;,IB:&quot;Uses a mix of internal and external; MYP external is optional and DP adds essays, projects, and other coursework-heavy elements.&quot;},{factor:&quot;Subject flexibility&quot;,CBSE:&quot;Generally more structured with fewer combinations than international curricula.&quot;,CISCE:&quot;Moderate flexibility but still more fixed than IB.&quot;,IB:&quot;Greater flexibility, especially in subject choice and in how learners connect disciplines.&quot;},{factor:&quot;Transferability&quot;,CBSE:&quot;Transfers most cleanly between schools within CBSE also has broadest domestic footprint.&quot;,CISCE:&quot;Transfers best within CISCE schools but the smaller school network can make moves less convenient than CBSE.&quot;,IB:&quot;Best when moving between international schools; recognition is global, but local can depend on school level and subject mapping.&quot;}],suitability:[{board:&quot;CBSE&quot;,benefit:&quot;priorit frequent school availability and a strong fit with Indian entrance exam preparation.&quot;,target:&quot;families&quot;},{board:&quot;CISCE&quot;,benefit:&quot;more depth stronger English exposure and a broader academic experience across sciences, humanities, and languages.&quot;,target:&quot;students&quot;},{board:&quot;IB&quot;,benefit:&quot;thrive on discussion, projects, and a less exam-dominant approach, especially if family values global mobility.&quot;,target:&quot;students&quot;}]}
+root=Column(children=[a,b,c,d,ae],فی=&quot;164&quot;)
+=Card(children=Column(af,ag,aj,marginVertical=16),title=&quot;Comparison of Indian Boards&quot;,$/comparisonDataTable(rows={factor:&quot;Curriculum&quot;,&quot;CBSE&quot;,&quot;CISCE&quot;,&quot;IB&quot;,&quot;CBSE&quot;,&quot;CIS&quot;,&quot;CIS&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot; Hungary&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;Hungary&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;Hungary&quot;,&quot;Hungary&quot;,&quot;HungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungary (HungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungary Hungary Hungary Hungary Hungary Hungary Hungary Hungary Hungary Hungary Hungary Hungary Hungary Hungary Hungary Hungary Hungary Hungary Hungary Hungary Hungary Hungary Hungary Hungary Hungary Hungary (HungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungary HungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungary HungaryHungary HungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungaryHungary</pre>
+      </details>
+    </article>
+    <article class="panel">
+      <h3>New model: rank-64 QAT-compatible</h3>
+      <p class="metrics">95.76 s ·
+      2048 output tokens ·
+      22.42 native tokens/s</p>
+      <p class="flag">Raw strict: false ·
+      Repair: GENERATED_DSL_REPAIR ·
+      Source warnings: 5</p>
+      <p class="error">GenUI Express input must end exactly with &lt;/a2ui&gt;; trailing prose or an incomplete document is not allowed.</p>
+      <a href="device/flip8_r64_qat_mtp_on_20260928_r1/BXP-037/screen.png"><img src="device/flip8_r64_qat_mtp_on_20260928_r1/BXP-037/screen.png"
+        alt="New model: rank-64 QAT-compatible screenshot for BXP-037" loading="lazy"></a>
+      <details><summary>Scrolled screenshot</summary>
+        <a href="device/flip8_r64_qat_mtp_on_20260928_r1/BXP-037/screen_scrolled.png"><img src="device/flip8_r64_qat_mtp_on_20260928_r1/BXP-037/screen_scrolled.png"
+          alt="New model: rank-64 QAT-compatible scrolled screenshot for BXP-037" loading="lazy"></a>
+      </details>
+      <details><summary>Exact raw Express output before repair</summary>
+        <p><a href="device/flip8_r64_qat_mtp_on_20260928_r1/BXP-037/output.express">Open raw file</a></p>
+        <pre>&lt;a2ui&gt;
+$/={comparison_data:[{factor:&quot;Curriculum&quot;,cbse:&quot;Built around NCERT and a structured concept-based syllabus; it is widely aligned with Indian competitive exams such as JEE NEET NEET CUET.[1][3]&quot;,cisce:&quot;A broader, more content-rich syllabus with strong language depth and separate treatment of subjects such History/Civics Geography from middle school onward.&quot;,ib:&quot;-based, concept-led, interdisciplinary with programmes such as MYP and DP designed around global-minded learning.[4]&quot;,flexibility:&quot;Generally more structured with fewer combinations than international curricula.[13]&quot;,transferability:&quot;Transfers cleanly between CBSE schools within India; CBSE also has broadest domestic footprint.[8][11]&quot;,subject_flexibility:&quot;Generally more structured with fewer combinations than international curricula.[13]&quot;,transferability:&quot;Transfers best within CISCE schools but the smaller network can make moves less convenient than CBSE.[8]&quot;,subjectflexibility:&quot;Moderate flexibility but still more fixed than IB&quot;,transferability_ib:&quot;Best when moving between international schools; recognition is global but local can depend on school level and mapping.&quot;}]}
+}
+root=ColumnRY=29
+=Modal(
+    }{
+    Tabs([{title:&quot;Comparison&quot;,child_children:[{key:&quot;factor&quot;,label:&quot;Factor&quot;},{key:&quot;cbse:&quot;CBSE&quot;,label:&quot;CBSE&quot;},{key:&quot;CISCECE&quot;,label:&quot;CISCE&quot;},{key:&quot;IB&quot;,label:&quot;IB&quot;}],child_children_children:[{key:&quot;factor&quot;,label:&quot;Curriculum&quot;},{key:&quot;cbse&quot;,label:&quot;CBSE&quot;},{key:&quot;CISCE&quot;,label:&quot;CISCE&quot;},{key:&quot;IB&quot;,label:&quot;IB&quot;},{key:&quot;factor&quot;,label:&quot;Assessment&quot;},{key:&quot;cbse&quot;,label:&quot;More exam-led, with longer papers many question types covering recall, understanding, application, and evaluation.&quot;,{key:&quot;CISCECECE&quot;:&quot;Examheavy but typically descriptive and detailed with required external and internal.&quot;,{key:&quot;IB&quot;,label:&quot;Uses a mix of internal and external assessment; MYP external is optional and DP adds essays, projects, and other coursework-heavy elements.[7]&quot;}]}
+    Tabs([{activeTabId:&quot;suitability&quot;,child_children:[{key:&quot;factor&quot;,label:&quot;Curriculum&quot;,label:&quot;Curriculum&quot;},{key:&quot;cbse&quot;,label:&quot;CBSE&quot;},{key:&quot;ce&quot;,label:&quot;CISCE&quot;},{key:&quot;IB&quot;,label:&quot;IB&quot;},{key:&quot;factor_flexibility&quot;,label:&quot;Subject flexibility&quot;,child_children_children:[{key:&quot;factor_flexibility&quot;,label:&quot;Generally more structured with fewer combinations than international curricula.[13]&quot;,{key:&quot;cbse&quot;,label:&quot;CBSE&quot;},{key:&quot;ce&quot;,label:&quot;Moderate flexibility but still more fixed than IB&quot;},{key:&quot;IB&quot;,label:&quot;Best when moving between international schools; recognition global but local depend on school level and mapping.&quot;}],child_children:[{key:&quot;factor&quot;,label:&quot;Assessment&quot;,child_children_children:[{key:&quot;factor&quot;,label_childrenlabel&quot;,key:&quot;cbse&quot;,label:&quot;More exam-led, longer papers many question types covering recall, understanding application evaluation.&quot;,{key:&quot;ce&quot;,label:&quot;CISCECE&quot;},{key:&quot;IB&quot;,label:&quot;Uses a mix internal and external assessment; MYP optional and DP adds essays projects and other coursework-heavy elements.[7]&quot;}]}
+    ]
+    ColumnRY([a,bSIB])
+    |a=Table(child_children_children_children_data_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children_children</pre>
+      </details>
+    </article></div></section></body></html>
