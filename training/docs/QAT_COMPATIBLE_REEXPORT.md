@@ -78,3 +78,37 @@ In the new report, inspect:
 
 The small counterexample and mocked-buffer integration tests do not export the
 user's model on this PC. The actual weights remain on the training host.
+
+## Progress and runtime
+
+The exporter now writes timestamped progress to stderr, leaving stdout for the
+final JSON result. It reports the current stage, total elapsed time, stage
+elapsed time, and a heartbeat approximately every 10 seconds during long steps.
+The zero-adapter and trained-weight passes each report completed projections out
+of 205, including the projection name and time. File hashes performed directly
+by this script also report the current byte count in the heartbeat.
+
+The work runs on CPU: input hashing/provenance checks, baseline quantization,
+LoRA reconstruction and QAT checks, then package verification and writing.
+GPU inactivity is expected. There is no measured full rank-64 export time yet;
+five minutes with active CPU usage alone does not indicate a hang. Runtime
+depends on CPU, memory pressure, storage throughput, and checkpoint size. The
+output directory is created only after the tensor checks pass, so its absence
+during validation or quantization is expected.
+
+For an already-running export from the older source, inspect its process in a
+second Linux terminal:
+
+```bash
+pgrep -af '[b]uild_gemma4_retained_scale_litertlm.py'
+top -H -p <PID>
+```
+
+An increasing `TIME+` confirms CPU activity, though it does not prove useful
+progress. Updating the source adds logs only on the next invocation; keep a
+healthy current run running.
+
+To save both progress and the final result on a future run, use `set -o pipefail`
+before the command and append `2>&1 | tee "$RUN/qat_compatible_export.log"` to
+its final `--execute` line. Keep the log outside `$OUT`, since the exporter
+requires a fresh output directory.

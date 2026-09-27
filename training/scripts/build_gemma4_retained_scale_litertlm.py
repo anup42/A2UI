@@ -26,6 +26,9 @@ from __future__ import annotations
 import argparse
 import collections
 import contextlib
+from contextvars import ContextVar
+from datetime import datetime
+from functools import wraps
 import gc
 import hashlib
 import json
@@ -33,6 +36,8 @@ import math
 import os
 import re
 import sys
+import threading
+import time
 from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
@@ -69,6 +74,7 @@ from build_random_official_topology_parity import (
     _unpack_low_bit,
 )
 from ir_training.common.config import load_yaml, resolve_path
+from ir_training.common.progress import Progress
 from ir_training.export.litertlm_inspector import (
     LiteRTLMInspectionError,
     inspect_litertlm,
@@ -114,6 +120,67 @@ _LORA_KEY = re.compile(r"^(?P<module>.+)\.lora_(?P<side>[AB])(?:\.[^.]+)?\.weigh
 
 class RetainedScaleExportError(RuntimeError):
     """Raised when an exact retained-scale export gate cannot be proven."""
+
+
+_ACTIVE_PROGRESS: ContextVar[Any] = ContextVar("retained_export_progress", default=None)
+
+
+class _ExportProgress(Progress):
+    """Keep stderr live during hashing/native math; stdout remains final JSON."""
+
+    def __init__(self, *, interval: float = 10):
+        super().__init__("Checking export inputs", unit="stage", interval=interval)
+        self.phase_started = self.started
+        self.detail = "CPU export; GPU utilization is not expected"
+        self.message_lock = threading.Lock()
+
+    def phase(self, label: str) -> None:
+        with self.message_lock:
+            self.label = label
+            self.phase_started = time.monotonic()
+            self.detail = ""
+        self._emit("stage")
+
+    def update(self, detail: str, *, emit: bool = False) -> None:
+        with self.message_lock:
+            self.detail = detail
+        if emit:
+            self._emit("progress")
+
+    def _emit(self, status: str) -> None:
+        with self.message_lock:
+            now = time.monotonic()
+            print(
+                f"[{datetime.now().isoformat(timespec='seconds')}] export {status}; "
+                f"elapsed={now - self.started:.1f}s; phase={self.label}; "
+                f"phase_elapsed={now - self.phase_started:.1f}s"
+                + (f"; {self.detail}" if self.detail else ""),
+                file=sys.stderr, flush=True,
+            )
+
+
+def _progress_stage(label: str) -> None:
+    progress = _ACTIVE_PROGRESS.get()
+    if progress is not None:
+        progress.phase(label)
+
+
+def _progress_detail(detail: str, *, emit: bool = False) -> None:
+    progress = _ACTIVE_PROGRESS.get()
+    if progress is not None:
+        progress.update(detail, emit=emit)
+
+
+def _with_export_progress(function):
+    @wraps(function)
+    def wrapped(*args, **kwargs):
+        with _ExportProgress() as progress:
+            token = _ACTIVE_PROGRESS.set(progress)
+            try:
+                return function(*args, **kwargs)
+            finally:
+                _ACTIVE_PROGRESS.reset(token)
+    return wrapped
 
 
 def _inspect_official_model_sections(
@@ -162,9 +229,14 @@ def _official_artifact_sha_report(declared: str, observed: str) -> dict[str, Any
 
 def _sha256_file(path: Path, *, chunk_size: int = 8 * 1024 * 1024) -> str:
     digest = hashlib.sha256()
+    total = path.stat().st_size
+    completed = 0
+    _progress_detail(f"Hashing {path.name}; 0/{total:,} bytes")
     with path.open("rb") as handle:
         for block in iter(lambda: handle.read(chunk_size), b""):
             digest.update(block)
+            completed += len(block)
+            _progress_detail(f"Hashing {path.name}; {completed:,}/{total:,} bytes")
     return digest.hexdigest()
 
 
@@ -1569,6 +1641,7 @@ def _quantize_and_patch(
     lora_scaling: float | None = None,
     qat_compatible_weights: bool = False,
 ) -> tuple[bytearray, dict[str, Any]]:
+    _progress_stage(f"Quantizing {label} ({len(mutable_records)} projections)")
     mutable = bytearray(official_section)
     official_model = _schema_model(official_section)
     model = _schema_model(mutable)
@@ -1599,7 +1672,10 @@ def _quantize_and_patch(
         for index, (record, group) in enumerate(
             zip(mutable_records, groups, strict=True)
         ):
+            projection_started = time.monotonic()
             key = str(record["hf_weight_key"])
+            position = f"{index + 1}/{len(mutable_records)}"
+            _progress_detail(f"Projection {position}; {key}; loading and quantizing")
             entry = qparams.inventory[key]
             weight = checkpoint.load_float32(mappings[key])
             scale_tensor = qparams.load_scale(
@@ -1616,6 +1692,7 @@ def _quantize_and_patch(
                 working_set_bytes=working_set_bytes,
             )
             if parity_enabled:
+                _progress_detail(f"Projection {position}; {key}; checking base+LoRA merge")
                 base_key = base_mappings[key]
                 adapter_pair = adapter_mappings[key]
                 base_weight = base_checkpoint.load_float32(base_key)
@@ -1645,6 +1722,7 @@ def _quantize_and_patch(
                         raise RetainedScaleExportError("QAT-compatible LoRA A/B dtypes differ.")
                     # Keep the original merged checkpoint's provenance and merge
                     # proof. Only the package payload takes the QAT weight path.
+                    _progress_detail(f"Projection {position}; {key}; reconstructing QAT weights")
                     merged_raw = raw
                     raw, item, qat_proof = _qat_compatible_projection(
                         base_weight, lora_a, lora_b, scale,
@@ -1700,6 +1778,11 @@ def _quantize_and_patch(
             del weight, scale, raw
             if (index + 1) % 8 == 0:
                 gc.collect()
+            _progress_detail(
+                f"Completed {position}; {key}; "
+                f"projection_elapsed={time.monotonic() - projection_started:.1f}s",
+                emit=True,
+            )
     checks = {
         "processed_205": len(telemetry) == EXPECTED_MUTABLE_COUNT,
         "all_finite": all(item["finite"] for item in telemetry),
@@ -1968,6 +2051,7 @@ def _build_plan(
         raise RetainedScaleExportError(
             "Official artifact SHA-256 must be 64 lowercase hex characters."
         )
+    _progress_stage("Hashing official LiteRT-LM package")
     observed_sha = _sha256_file(official_path)
     official_identity = _official_artifact_sha_report(declared_sha, observed_sha)
     if not official_identity["verified"]:
@@ -2007,6 +2091,7 @@ def _build_plan(
             + ", ".join(str(path) for path in collisions)
         )
 
+    _progress_stage("Validating training configuration")
     config_report, config = _config_report(
         config_path, seed_manifest=seed_manifest, qparams_path=qparams_path
     )
@@ -2018,6 +2103,7 @@ def _build_plan(
             "Training config is not retained-scale deployable: " + ", ".join(failed)
         )
     model_config = dict(config.get("model", {}))
+    _progress_stage("Verifying materialized mobile seed and file hashes")
     seed_report = verify_configured_mobile_training_seed(
         model_config, base=ROOT, require_materialized=True
     )
@@ -2035,7 +2121,9 @@ def _build_plan(
         raise RetainedScaleExportError(
             "--zero-adapter-checkpoint must be the exact materialized directory bound by the seed manifest."
         )
+    _progress_stage("Loading retained quantization parameters")
     qparams = MobileQParams(qparams_path, base=ROOT)
+    _progress_stage("Inspecting official graph and projection inventory")
     inventory_section, records = _extract_inventory(
         official_path,
         TARGET_MODEL_TYPE,
@@ -2046,6 +2134,7 @@ def _build_plan(
         official_path, inventory_section
     )
     scope, mutable_records, frozen_records = _scope_report(records, qparams)
+    _progress_stage("Mapping merged checkpoint, seed, and adapter tensors")
     checkpoint_reader = SafetensorCheckpoint(checkpoint_path)
     zero_reader = SafetensorCheckpoint(zero_checkpoint_path)
     adapter_tensor_files = sorted(adapter_path.glob("adapter_model*.safetensors"))
@@ -2068,6 +2157,7 @@ def _build_plan(
         qparams,
         config,
     )
+    _progress_stage("Verifying selected adapter provenance and hashes")
     adapter_provenance = _best_adapter_provenance_report(
         adapter_path, config_path, qparams=qparams, seed_report=seed_report
     )
@@ -2079,6 +2169,7 @@ def _build_plan(
             "Adapter is not an export-eligible retained-scale best checkpoint: "
             + ", ".join(failed)
         )
+    _progress_stage("Verifying merged checkpoint provenance and hashes")
     merge_provenance = _merge_provenance_report(
         checkpoint_path,
         config_path,
@@ -2226,6 +2317,7 @@ def _build_plan(
     return plan, context
 
 
+@_with_export_progress
 def run(
     *,
     official_litertlm: str | Path,
@@ -2271,6 +2363,7 @@ def run(
 
     official_path: Path = context["official_path"]
     target_section = context["target_section"]
+    _progress_stage("Reading official target section")
     official_section = _read_section(official_path, target_section)
     qparams: MobileQParams = context["qparams"]
     records: list[dict[str, Any]] = context["records"]
@@ -2285,6 +2378,7 @@ def run(
         item["hf_weight_key"] = _normalize_official_key(source_key)
         enriched_records.append(item)
 
+    _progress_stage("Checking official weight and activation scales")
     official_weight_qparams = _weight_qparams_report(
         official_section, enriched_records, mutable_records, qparams
     )
@@ -2308,6 +2402,7 @@ def run(
         label="zero_adapter_seed",
         working_set_bytes=working_set_bytes,
     )
+    _progress_stage("Verifying zero-adapter byte identity")
     zero_exact = zero_section == official_section
     zero_report = {
         "quantization": zero_quantization,
@@ -2337,12 +2432,14 @@ def run(
         lora_scaling=context["lora_scaling"],
         qat_compatible_weights=qat_compatible_weights,
     )
+    _progress_stage("Verifying adapted buffers and frozen weights")
     buffer_diff = _buffer_diff_report(
         official_section, candidate_section, enriched_records, mutable_records
     )
     restore = _restore_official_payloads(
         official_section, candidate_section, mutable_records
     )
+    _progress_stage("Verifying candidate scales and graph identity")
     candidate_weight_qparams = _weight_qparams_report(
         candidate_section, enriched_records, mutable_records, qparams
     )
@@ -2426,10 +2523,12 @@ def run(
     report_partial: Path = context["report_partial_path"]
     # The plan required a fresh directory; keep that promise atomic at the
     # mutation boundary so a concurrently-created run is never reused.
+    _progress_stage("Writing candidate LiteRT-LM package")
     output_root.mkdir(parents=True, exist_ok=False)
     _write_package_exclusive(official_path, target_section, candidate_section, partial)
     mtp_section = context["mtp_section"]
     try:
+        _progress_stage("Verifying written package, tokenizer, and MTP section")
         package_checks, output_inspection = _package_identity_report(
             official_path,
             partial,
@@ -2508,6 +2607,7 @@ def run(
                 "Exporter publication collision: "
                 + ", ".join(str(path) for path in collisions)
             )
+        _progress_stage("Hashing and publishing verified package")
         output_sha = _sha256_file(partial)
         _link_no_clobber(partial, output_path)
         output_linked = True
@@ -2548,6 +2648,7 @@ def run(
         if partial.exists():
             partial.unlink()
         raise
+    _progress_detail(f"Package: {output_path}; report: {report_path}", emit=True)
     return result
 
 
