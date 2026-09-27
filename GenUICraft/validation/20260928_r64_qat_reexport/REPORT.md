@@ -31,10 +31,12 @@ promote this file to Bixby's default based on this sample.
   including raw `output.express`, repaired `a2ui.json`, per-case `result.json`,
   screens, and the [independent scored report](device/flip8_r64_qat_mtp_on_20260928_r1/REPORT.md).
 
-The filename and differing hash establish that the new file was tested, not
-that its export gates passed. The export JSON receipt was not supplied with
-the phone file, so package-to-checkpoint identity and the claimed QAT
-arithmetic remain unverified here.
+**Receipt follow-up:** the new export JSON was subsequently supplied on the
+phone. The [receipt audit](export_audit/REPORT.md) freshly binds it to both model
+copies and the existing training/merge metadata: 30/30 consistency checks pass,
+and the exporter records 28/28 gates passing, including the new QAT weight
+checks. This supports the intended corrected export; native checkpoint-to-LiteRT
+inference parity remains explicitly unverified.
 
 ## Five matched GPU+MTP cases
 
@@ -104,9 +106,9 @@ LiteRT-LM file's corresponding output is shorter than the old LiteRT-LM
 loop but remains malformed and corrupts the forecast. This shows a remaining
 checkpoint-to-phone behavior gap. The on-device results do not isolate whether
 remaining errors come from quantization, runtime behavior, or another export
-detail. The next useful parity check is the exact export receipt and a
-token-by-token comparison of the checkpoint, reconstructed weights, and phone
-on BXP-001/BXP-003.
+detail. With the [new export receipt now checked](export_audit/REPORT.md), the
+next useful parity check is a token-by-token comparison of the checkpoint,
+reconstructed weights, and native CPU/GPU on BXP-001/BXP-003.
 
 This is a **five-case device sample**, plus a two-case MTP-off control, not a
 Bixby50 pass or an independent audit of the facts in the source Markdown.

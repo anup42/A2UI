@@ -1,0 +1,159 @@
+{
+  "checked_at_utc": "2026-09-27T20:13:42.486085+00:00",
+  "device_serial": "R3GL203AKSF",
+  "scope": "Live file hashes and independent receipt consistency; exporter tensor gates not rerun.",
+  "receipt_sha256": "491ce76a9d00608fea148de92bf4403070af66cc716c0c31f674f66c7955d9e0",
+  "previous_receipt_sha256": "2cc37405508c84d30a23aad5ffd991c60002daba9c39d41782253727cea2c464",
+  "device_hashes": {
+    "source_model": {
+      "path": "/sdcard/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm",
+      "sha256": "de60d19c8e1ef06ed1032212d0d4ae5d9b0ec105db72db34a988453004e63e62"
+    },
+    "app_model": {
+      "path": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_models/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm",
+      "sha256": "de60d19c8e1ef06ed1032212d0d4ae5d9b0ec105db72db34a988453004e63e62"
+    },
+    "receipt": {
+      "path": "/sdcard/gemma4_retained_scale_code_only_report_r64_qat_compatible.json",
+      "sha256": "491ce76a9d00608fea148de92bf4403070af66cc716c0c31f674f66c7955d9e0"
+    }
+  },
+  "checks": {
+    "source_model_matches_receipt_hash": true,
+    "app_model_matches_receipt_hash": true,
+    "pulled_receipt_matches_device": true,
+    "different_from_previous_binary": true,
+    "correct_mode": true,
+    "correct_arithmetic": true,
+    "execution_recorded_successful": true,
+    "all_28_recorded_gates_true": true,
+    "all_plan_checks_true": true,
+    "all_package_checks_true": true,
+    "205_unique_qat_projections": true,
+    "205_unique_quantization_projections": true,
+    "same_projection_key_sets": true,
+    "all_effective_weight_checks_true": true,
+    "all_code_checks_true": true,
+    "all_dequantized_weight_checks_true": true,
+    "reference_export_packed_hashes_agree": true,
+    "original_merged_hashes_match_previous_receipt": true,
+    "histogram_totals_match_value_counts": true,
+    "changed_code_total_consistent": true,
+    "weight_value_total_consistent": true,
+    "clipping_total_consistent": true,
+    "native_parity_explicitly_unverified": true,
+    "training_metadata_hash_matches_local_file": true,
+    "merge_metadata_hash_matches_local_file": true,
+    "adapter_identity_unchanged_from_previous_receipt": true,
+    "resolved_training_config_identity_unchanged_from_previous_receipt": true,
+    "mobile_training_seed_identity_unchanged_from_previous_receipt": true,
+    "mobile_qparams_identity_unchanged_from_previous_receipt": true,
+    "merged_checkpoint_identity_unchanged_from_previous_receipt": true
+  },
+  "all_consistency_checks_passed": true,
+  "reported_export_gates": {
+    "zero_adapter_target_byte_exact": true,
+    "processed_205": true,
+    "base_lora_candidate_dtype_match_205": true,
+    "base_lora_candidate_bfloat16_205": true,
+    "base_lora_numerical_parity_205": true,
+    "base_lora_code_parity_205": true,
+    "base_delta_norms_finite_205": true,
+    "at_least_one_lora_delta_nonzero": true,
+    "changed_buffers_within_expected_205": true,
+    "at_least_one_trained_code_changed": true,
+    "restored_official_payload_target_byte_exact": true,
+    "frozen_72_byte_exact": true,
+    "weight_qparams_byte_exact": true,
+    "activation_a8_qparams_byte_exact": true,
+    "all_tensor_qparams_byte_exact": true,
+    "official_retained_weight_scales_exact": true,
+    "official_retained_a8_scales_exact": true,
+    "graph_layout_execution_identity": true,
+    "section_size_unchanged": true,
+    "qat_weight_code_parity_205": true,
+    "qat_dequantized_weight_forward_parity_205": true,
+    "exact_205_key_buffer_bijection": true,
+    "expected_bit_histogram": true,
+    "retained_qparams_verified": true,
+    "legacy_metadata_rejected": true,
+    "package_outside_target_byte_exact": true,
+    "mtp_byte_exact": true,
+    "package_parseable": true
+  },
+  "model_identity": {
+    "adapter_identity": {
+      "path": "/group-volume/k.anup/working_dir/e2b_v10_official_mobile_qat_lora_runD_r64_6144_8gpu_20260926_v1/training/e2b_v10_official_mobile_qat_lora_runD_r64_6144_8gpu_20260926_v1/best_golden_checkpoint",
+      "training_metadata_sha256": "3611813895c06bc3f2eef787fc9118eca021a5f6693f7a835e4cb47ff686e7d5",
+      "files": [
+        {
+          "path": "adapter_config.json",
+          "size": 8856,
+          "sha256": "9f6ce94ed1728e15a0c8d9363cc576fa354c51e4f2955553fef958d14a011e48"
+        },
+        {
+          "path": "adapter_model.safetensors",
+          "size": 386586368,
+          "sha256": "044f8f0b65bdfbe077253182ca4863645028a70343fae15910541b19765fd948"
+        }
+      ],
+      "verified": true
+    },
+    "resolved_training_config_identity": {
+      "path": "/group-volume/k.anup/working_dir/e2b_v10_official_mobile_qat_lora_runD_r64_6144_8gpu_20260926_v1/training/e2b_v10_official_mobile_qat_lora_runD_r64_6144_8gpu_20260926_v1/launch/resolved_training_config.yaml",
+      "sha256": "d8bc41ea87619604f50a6aab76dc43360847e26c0f44fb329cd520d9a442a424",
+      "verified": true
+    },
+    "mobile_training_seed_identity": {
+      "manifest_path": "/group-volume/k.anup/working_dir/e2b_mobile_qat_seed_20260919/mobile_training_seed_manifest.json",
+      "manifest_sha256": "44cb8e8ebc142c9dda9424dacade099bd202df52c6d5e2fd4dbf78c041683abc",
+      "transformation_plan_sha256": "03086afb123acf2c6f359d3cec2b1208f89529bca39e2d29f8b501e0918e3d5c",
+      "verified": true
+    },
+    "mobile_qparams_identity": {
+      "contract_path": "/group-volume/k.anup/working_dir/e2b_mobile_qat_seed_20260919/mobile_qparams.json",
+      "contract_sha256": "a7216608d806b1b46de2e8695c0b898b33cdee3ba42cf38a0de0df7dcda1732a",
+      "scale_storage_path": "/group-volume/k.anup/working_dir/e2b_mobile_qat_seed_20260919/mobile_qparams.safetensors",
+      "scale_storage_sha256": "c895e1877a15d74fd5890b4558783f46b04c274370c66c8da4c0a67a929d9c83",
+      "verified": true
+    },
+    "merged_checkpoint_identity": {
+      "path": "/group-volume/k.anup/working_dir/e2b_v10_official_mobile_qat_lora_runD_r64_6144_8gpu_20260926_v1/merged_best_hf",
+      "metadata_path": "/group-volume/k.anup/working_dir/e2b_v10_official_mobile_qat_lora_runD_r64_6144_8gpu_20260926_v1/merged_best_hf/qat_mtp_merge_metadata.json",
+      "metadata_sha256": "960252721fc415b3a5607e612d1973961208e6550db386969106a23d72baf929",
+      "file_verification": [
+        {
+          "path": "model.safetensors",
+          "expected_size": 10062508030,
+          "observed_size": 10062508030,
+          "expected_sha256": "1f831e8ab58f109d76cc31f5290680f4ca8e39378ea9f228a6bc2c1eed5b8841",
+          "observed_sha256": "1f831e8ab58f109d76cc31f5290680f4ca8e39378ea9f228a6bc2c1eed5b8841",
+          "valid": true
+        }
+      ],
+      "verified": true
+    }
+  },
+  "adapter_rank": 64,
+  "adapter_alpha": 64.0,
+  "adapter_scaling": 1.0,
+  "qat_reconstruction": {
+    "projections": 205,
+    "projections_with_changed_codes": 193,
+    "changed_codes": 132290,
+    "adapted_weight_values": 1835532288,
+    "changed_percent": 0.007207173682798218,
+    "clipped_values": 763370,
+    "clipped_percent": 0.0415884811719531,
+    "reconstruction_devices": [
+      "cpu"
+    ],
+    "matmul_dtypes": [
+      "F32"
+    ],
+    "autocast_settings": [
+      false
+    ]
+  },
+  "native_inference_parity_verified": false
+}

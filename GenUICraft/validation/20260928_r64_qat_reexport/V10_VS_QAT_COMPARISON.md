@@ -49,7 +49,8 @@ something, but cannot restore missing source facts or safely correct invented
 numbers. The scorer's raw generation reward is zero for both five-case runs,
 so manual source and screenshot review is necessary for the relative judgement.
 
-The QAT-compatible file still lacks its export JSON receipt on this computer;
-the different on-device hash proves it is a different file, not that all
-export gates passed. This comparison covers five of 50 Bixby cases, not the
-full corpus.
+The QAT-compatible file's export receipt was subsequently supplied and
+[audited](export_audit/REPORT.md): it matches the tested binary, records 28/28
+export gates passing, and passes 30/30 independent consistency checks. Native
+checkpoint-to-LiteRT inference parity remains unverified. This comparison
+covers five of 50 Bixby cases, not the full corpus.
