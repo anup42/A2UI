@@ -1,5 +1,10 @@
 # New rank-64 QAT-compatible export receipt audit
 
+**Subsequent inference experiment:** the same model now produces 2/2 raw-valid
+outputs on CPU and 0/2 on GPU with MTP disabled. This narrows the additional
+severe corruption to the deployed GPU stack; exact native parity is still not
+established. See the [fresh backend comparison](../../20260928_r64_accuracy_gap/REPORT.md).
+
 28 September 2026. The receipt was pulled from the connected `R3GL203AKSF`
 (`SM-F776U`) at `/sdcard/gemma4_retained_scale_code_only_report_r64_qat_compatible.json`.
 

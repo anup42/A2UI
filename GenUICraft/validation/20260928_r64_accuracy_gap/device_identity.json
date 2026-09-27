@@ -1,0 +1,15 @@
+{
+  "com.samsung.genuicraft": {
+    "path": "/data/app/~~0simzbCJTEAKlsUpEDYy5w==/com.samsung.genuicraft-Z9LTNnKeI4ph5ZxohBx-qA==/base.apk",
+    "sha256": "6791838cbc0371843670c9a467a9a48891c3899ef20458ed5520fcbd4b6da846"
+  },
+  "com.samsung.genuicraft.test": {
+    "path": "/data/app/~~Nsl_JgR8ck6HPqtzV12jbw==/com.samsung.genuicraft.test-59PbBBQQ7ochQrX7ARz7rA==/base.apk",
+    "sha256": "877cdbb9c5465db0c1172a6a3ce8b1bc4a20ba28a20db81c0539e79982c766c1"
+  },
+  "model": {
+    "path": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_models/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm",
+    "sha256": "de60d19c8e1ef06ed1032212d0d4ae5d9b0ec105db72db34a988453004e63e62"
+  },
+  "installed_app_metadata": "versionCode=2 minSdk=26 targetSdk=35\nversionName=1.1.0\nlastUpdateTime=2026-09-27 17:55:12\nfirstInstallTime=2026-09-03 21:44:00"
+}

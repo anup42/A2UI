@@ -1,0 +1,76 @@
+{
+  "model_sha256": "de60d19c8e1ef06ed1032212d0d4ae5d9b0ec105db72db34a988453004e63e62",
+  "checkpoint_prediction_file_sha256": "fd0ac6364f9e9dbc376a961f82c9944cfc2eec13ca25d35100408d8884d96c53",
+  "matched_source_rendered_prompt_input_count_runtime_and_device": true,
+  "native_token_ids_compared": false,
+  "cases": [
+    {
+      "id": "BXP-001",
+      "prompt_sha256": "ff0804511f69c3abbf9e38701afd1992230c86d94cace7896e21ed37b241b9d8",
+      "input_tokens": 3174,
+      "checkpoint": {
+        "raw_strict_valid": true,
+        "output_tokens": 312,
+        "raw_sha256": "223b8d5b45464912da4c18d1906d24d219fe031110b8f5be86021a18d03e58be",
+        "generation_reward_v5_4": 92.40809916089428
+      },
+      "cpu": {
+        "raw_strict_valid": true,
+        "python_raw_strict_valid": true,
+        "repair": "NONE",
+        "runtime": "LiteRT-LM/Gemma4/CPU",
+        "seconds": 33.356,
+        "output_tokens": 302,
+        "decode_tokens_per_second": 17.493171352887316,
+        "raw_sha256": "ec835d1214b014e0b9ffbf496272b1baa9bacafbb407d07777e1300633323369",
+        "generation_reward_v5_4": 91.1535697616677
+      },
+      "gpu": {
+        "raw_strict_valid": false,
+        "python_raw_strict_valid": false,
+        "repair": "GENERATED_DSL_REPAIR",
+        "runtime": "LiteRT-LM/Gemma4/GPU",
+        "seconds": 10.88,
+        "output_tokens": 236,
+        "decode_tokens_per_second": 37.74853956150842,
+        "raw_sha256": "f695c6d49380d58f2daa7961fe1e5fa9ac5e55a6761325b325b4087b4f3d4e56",
+        "generation_reward_v5_4": 0.0
+      },
+      "gpu_exactly_repeats_previous_mtp_off_output": true
+    },
+    {
+      "id": "BXP-003",
+      "prompt_sha256": "2b2bd3cd0bcccfe1e1f94b34d02f9c245b111ba08d2d1794ad78705ff923871c",
+      "input_tokens": 3394,
+      "checkpoint": {
+        "raw_strict_valid": true,
+        "output_tokens": 578,
+        "raw_sha256": "4b6da6c9a99762bf7f2de4a41bc017b63333bb6ceb453edc3428f357c572a6f2",
+        "generation_reward_v5_4": 99.006835443542
+      },
+      "cpu": {
+        "raw_strict_valid": true,
+        "python_raw_strict_valid": true,
+        "repair": "NONE",
+        "runtime": "LiteRT-LM/Gemma4/CPU",
+        "seconds": 58.763,
+        "output_tokens": 594,
+        "decode_tokens_per_second": 17.389555470737,
+        "raw_sha256": "a8b2eda0991dc99d88e8d775d857d95228283c9df68ef9688363494a3409f34a",
+        "generation_reward_v5_4": 40.0
+      },
+      "gpu": {
+        "raw_strict_valid": false,
+        "python_raw_strict_valid": false,
+        "repair": "GENERATED_DSL_REPAIR",
+        "runtime": "LiteRT-LM/Gemma4/GPU",
+        "seconds": 42.635,
+        "output_tokens": 586,
+        "decode_tokens_per_second": 14.337439950515241,
+        "raw_sha256": "d560800de587bfdd318b37175149dabb73a422ef25ebcefd3bb46801c311ca89",
+        "generation_reward_v5_4": 0.0
+      },
+      "gpu_exactly_repeats_previous_mtp_off_output": true
+    }
+  ]
+}

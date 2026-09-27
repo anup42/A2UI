@@ -1,0 +1,11 @@
+09-28 01:53:16.239 31429 31559 I tflite  : Replacing 1650 out of 2068 node(s) with delegate (TfLiteXNNPackDelegate) node, yielding 574 partitions for subgraph 0 (decode).
+09-28 01:53:18.466 31429 31559 I tflite  : Replacing 895 out of 1107 node(s) with delegate (TfLiteXNNPackDelegate) node, yielding 269 partitions for subgraph 1 (prefill_1024).
+09-28 01:53:18.470 31429 31559 I tflite  : Replacing 895 out of 1107 node(s) with delegate (TfLiteXNNPackDelegate) node, yielding 269 partitions for subgraph 2 (prefill_128).
+09-28 01:53:18.620 31429 31559 I GenUICraftRuntime: Gemma4 backend=CPU; MTP=false; MTPRequested=false; modelSupportsMtp=true; thinking=false; metrics=true
+09-28 01:53:19.181 31429 31597 I tflite  : Replacing 1924 out of 2235 node(s) with delegate (TfLiteXNNPackDelegate) node, yielding 155 partitions for subgraph 1 (prefill_1024).
+09-28 01:53:31.280 31429 31597 I tflite  : Replacing 1924 out of 2235 node(s) with delegate (TfLiteXNNPackDelegate) node, yielding 155 partitions for subgraph 2 (prefill_128).
+09-28 01:53:32.006 31429 31597 I tflite  : Replacing 3565 out of 4218 node(s) with delegate (TfLiteXNNPackDelegate) node, yielding 300 partitions for subgraph 0 (decode).
+09-28 01:55:32.174   508   571 I tflite  : Replacing 2068 out of 2068 node(s) with delegate (LITERT_CL) node, yielding 1 partitions for subgraph 0 (decode).
+09-28 01:55:34.281   508   571 I tflite  : Replacing 1107 out of 1107 node(s) with delegate (LITERT_CL) node, yielding 1 partitions for subgraph 1 (prefill_1024).
+09-28 01:55:34.458   508   571 I tflite  : Replacing 1107 out of 1107 node(s) with delegate (LITERT_CL) node, yielding 1 partitions for subgraph 2 (prefill_128).
+09-28 01:55:34.901   508   571 I GenUICraftRuntime: Gemma4 backend=GPU; MTP=false; MTPRequested=false; modelSupportsMtp=true; thinking=false; metrics=true

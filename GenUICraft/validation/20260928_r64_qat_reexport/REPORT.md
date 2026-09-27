@@ -1,5 +1,12 @@
 # Rank-64 QAT-compatible LiteRT-LM device check — 28 September 2026
 
+**CPU/GPU follow-up:** a fresh matched two-case experiment with this exact model
+and MTP disabled produced **2/2 raw-valid CPU outputs versus 0/2 on GPU**. CPU
+preserved the key forecast and train values; fresh GPU outputs exactly repeated
+the failures below. See the [backend isolation report](../20260928_r64_accuracy_gap/REPORT.md).
+The GPU results below remain valid, but should not be read as a backend-independent
+measure of the export's quality.
+
 **Result:** the new package changes generation and improves BXP-001's looping
 behavior, but it is not yet a reliable response-to-UI model. On the connected
 Galaxy Z Flip8, all five matched Bixby cases required generated-DSL repair,

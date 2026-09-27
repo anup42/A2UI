@@ -38,7 +38,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/** End-to-end device benchmark for the trained E2B v10 W4 checkpoint and frozen scaffold. */
+/** Trained E2B benchmark with a frozen prompt; backend=CPU/GPU enables matched diagnostics. */
 @RunWith(AndroidJUnit4::class)
 class GenUiTrainedBixby50Test {
     @Test
@@ -71,6 +71,9 @@ class GenUiTrainedBixby50Test {
             require(it in 1_000L..3_600_000L) { "caseTimeoutMs must be between 1000 and 3600000." }
         }
         val mtpEnabled = arguments.getString("mtp", "false") == "true"
+        val accelerator = arguments.getString("backend", "GPU")!!.trim().uppercase()
+        require(accelerator in setOf("CPU", "GPU")) { "backend must be CPU or GPU." }
+        require(accelerator != "CPU" || !mtpEnabled) { "CPU comparison requires mtp=false." }
         val sourceFallbackEnabled = arguments.getString("allowSourceTextFallback", "true") == "true"
         val generatedDslRepairEnabled = arguments.getString("allowGeneratedDslRepair", "false") == "true"
         val requireSourceIntegrity = arguments.getString("requireSourceIntegrity", "true") == "true"
@@ -115,7 +118,7 @@ class GenUiTrainedBixby50Test {
                 ),
                 "runtime" to mapOf(
                     "provider" to "gemma4_e2b",
-                    "accelerator" to "GPU",
+                    "accelerator" to accelerator,
                     "maxContextTokens" to 8_192,
                     "maxOutputTokens" to 2_048,
                     "thinkingEnabled" to false,
@@ -149,7 +152,7 @@ class GenUiTrainedBixby50Test {
         val provider = Gemma4Provider(
             Gemma4Config(
                 modelPath = modelFile.absolutePath,
-                accelerator = "GPU",
+                accelerator = accelerator,
                 maxContextTokens = 8_192,
                 maxOutputTokens = 2_048,
                 enableThinking = false,

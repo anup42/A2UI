@@ -1,0 +1,56 @@
+{
+  "runId": "flip8_r64_qat_cpu_20260928_r1",
+  "profile": "trained_e2b_v10_w4",
+  "startedAtEpochMs": 1790540595361,
+  "cases": [
+    "BXP-001",
+    "BXP-003"
+  ],
+  "corpus": {
+    "asset": "genuicraft_bixby50.jsonl",
+    "sha256": "fc46aa381957bed206f9e0f53e28edbb21b5096ca093985ad184fda73faaea0a",
+    "totalRows": 50,
+    "selectedRows": 2
+  },
+  "prompt": {
+    "asset": "genuicraft/prompts/e2b_v10_shared_prompt.json",
+    "assetSha256": "96803a39869fb21f9f58a0f0adccab6f7746a32f124dc9da83d7df62a9f7ccb8",
+    "contractSha256": "005ef700eee29a4429c895ac6c86580003c43d0ad35e67cbb92a9d4cf0e8c1d2",
+    "systemPromptSha256": "123de4de3558a7e70c30e6df147278b08d73630e6af47f25e2e1b7c09d082d39"
+  },
+  "model": {
+    "basename": "gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm",
+    "sizeBytes": 2588147712
+  },
+  "runtime": {
+    "provider": "gemma4_e2b",
+    "accelerator": "CPU",
+    "maxContextTokens": 8192,
+    "maxOutputTokens": 2048,
+    "thinkingEnabled": false,
+    "thinkingTokenBudget": 0,
+    "mtpEnabled": false,
+    "metricsEnabled": true,
+    "temperature": 0.0,
+    "repairAttempts": 0,
+    "sourceFallbackEnabled": false,
+    "generatedDslRepairEnabled": true,
+    "requireSourceIntegrity": false,
+    "warmSharedProvider": true,
+    "caseTimeoutMs": 360000
+  },
+  "device": {
+    "manufacturer": "samsung",
+    "brand": "samsung",
+    "model": "SM-F776U",
+    "device": "b8q",
+    "product": "b8qsqw",
+    "hardware": "qcom",
+    "sdkInt": 37,
+    "release": "17",
+    "supportedAbis": [
+      "arm64-v8a"
+    ],
+    "fingerprint": "samsung/b8qsqw/b8q:17/CP2A.260330.023/F776USQU0AZE3_OYN0AZE3:userdebug/test-keys"
+  }
+}

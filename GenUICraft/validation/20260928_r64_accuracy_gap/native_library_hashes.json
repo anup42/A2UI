@@ -1,0 +1,11 @@
+{
+  "apk_sha256": "6791838cbc0371843670c9a467a9a48891c3899ef20458ed5520fcbd4b6da846",
+  "arm64_libraries": {
+    "lib/arm64-v8a/libLiteRt.so": "97355a36cb8ac7628cf407773291e98da79f3ef184cc43cb0e57dedf5f0c0637",
+    "lib/arm64-v8a/libLiteRtGpuAccelerator.so": "9d7ae75ebeebdcbd8b45168ef6826fee1a1aa7fe6e4397b30f08e0ea7195736d",
+    "lib/arm64-v8a/libLiteRtOpenClAccelerator.so": "dfdcb6a551dc78a9dab88883ad6e8e2d9b090ecda383a5cea3731c6b9561d244",
+    "lib/arm64-v8a/libLiteRtRuntimeBuiltin.so": "314cc8e5dd6cefdaf2bf201a6bbd8d7502a16cb88d50ccdbc366b550bac9adad",
+    "lib/arm64-v8a/libLiteRtTopKOpenClSampler.so": "743371dcc1ee57d4e2d14e6d50075c424f6ba0df554f6bb94a8b0afc1e76e253",
+    "lib/arm64-v8a/liblitertlm_jni.so": "371cdedd8a3b24cfb81a21c0a760b89bc3e3d22e03e7402c518e4d8fe1d1402e"
+  }
+}
