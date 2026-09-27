@@ -16,6 +16,9 @@ official MTP section remain unchanged.
 
 The command is plan-only by default.  ``--execute`` is required to load projection
 values, patch a copy of the official package, or write an output artifact.
+``--qat-compatible-weights`` reconstructs the BF16-delta-before-add QAT weight
+forward from the verified seed and adapter; the supplied ordinary merged
+checkpoint remains a provenance and merge-verification input.
 """
 
 from __future__ import annotations
@@ -91,6 +94,7 @@ from ir_training.qat.numeric_preflight import numeric_preflight_provenance
 from reconstruct_gemma4_mobile_training_seed import _output_key
 
 MODE = "retained_scale_code_only_v1"
+QAT_WEIGHT_ARITHMETIC = "qat_bf16_delta_before_add_v1"
 TARGET_MODEL_TYPE = "tf_lite_prefill_decode"
 MTP_MODEL_TYPE = "tf_lite_mtp_drafter"
 EXPECTED_TARGET_COUNT = 277
@@ -1459,6 +1463,96 @@ def _base_lora_projection_parity(
     }
 
 
+def _qat_compatible_projection(
+    base_weight: np.ndarray,
+    lora_a: np.ndarray,
+    lora_b: np.ndarray,
+    retained_scale: np.ndarray,
+    *,
+    base_dtype: str,
+    adapter_dtype: str,
+    scaling: float,
+    bits: int,
+    working_set_bytes: int,
+) -> tuple[bytes, dict[str, Any], dict[str, Any]]:
+    """Encode the existing BF16-base/F32-adapter QAT evaluation forward.
+
+    Preserve the trained contract: round the delta to BF16 *before* addition.
+    This is an explicit CPU FP32-matmul reconstruction, not a claim that CUDA
+    matmul/autocast, activation quantization, or native inference are identical.
+    """
+    from types import SimpleNamespace
+
+    import torch
+
+    from ir_training.qat.fake_quant import _effective_lora_weight, fake_quantize_ste
+
+    if base_dtype.upper() != "BF16" or adapter_dtype.upper() != "F32":
+        raise RetainedScaleExportError(
+            "QAT-compatible weights require a BF16 base and F32 LoRA factors."
+        )
+    if bits not in (2, 4) or working_set_bytes <= 0 or not math.isfinite(scaling):
+        raise RetainedScaleExportError("Invalid QAT-compatible quantization settings.")
+    base, a, b, scales = (
+        np.asarray(value, dtype=np.float32)
+        for value in (base_weight, lora_a, lora_b, retained_scale)
+    )
+    if (
+        base.ndim != 2 or a.ndim != 2 or b.ndim != 2
+        or a.shape[0] != b.shape[1] or a.shape[1] != base.shape[1]
+        or b.shape[0] != base.shape[0] or scales.shape != (base.shape[0], 1)
+    ):
+        raise RetainedScaleExportError("QAT-compatible projection shapes differ.")
+    if not all(np.isfinite(value).all() for value in (base, a, b, scales)) or not (scales > 0).all():
+        raise RetainedScaleExportError("QAT-compatible inputs must be finite with positive scales.")
+    rows_per_chunk = max(1, working_set_bytes // max(int(base.shape[1]) * 32, 1))
+    weights = np.empty_like(base)
+    reference_chunks: list[bytes] = []
+    dequantized_forward_exact = True
+    effective_weight_exact = True
+    qmin, qmax = -(1 << (bits - 1)), (1 << (bits - 1)) - 1
+    a_tensor = torch.from_numpy(np.ascontiguousarray(a))
+    b_tensor = torch.from_numpy(np.ascontiguousarray(b))
+    with torch.no_grad(), torch.autocast("cpu", enabled=False):
+        for start in range(0, base.shape[0], rows_per_chunk):
+            end = min(start + rows_per_chunk, base.shape[0])
+            base_chunk = torch.from_numpy(np.ascontiguousarray(base[start:end])).to(torch.bfloat16)
+            delta = (b_tensor[start:end] @ a_tensor) * float(scaling)
+            module = SimpleNamespace(
+                base_layer=SimpleNamespace(weight=base_chunk),
+                get_delta_weight=lambda _adapter: delta,
+            )
+            reference_effective = _effective_lora_weight(module, ("default",))
+            effective = base_chunk + delta.to(torch.bfloat16)
+            effective_weight_exact = effective_weight_exact and torch.equal(effective, reference_effective)
+            scale_tensor = torch.from_numpy(np.ascontiguousarray(scales[start:end]))
+            reference_codes = torch.round(effective.float() / scale_tensor).clamp(qmin, qmax)
+            reference_chunks.append(_pack_litert_codes(reference_codes.to(torch.int8).numpy(), bits))
+            reference_forward = fake_quantize_ste(
+                effective, bits=bits, per_channel=True, scale_override=scale_tensor,
+                quantizer="ste_ai_edge", ste_gradient="clipped",
+            )
+            encoded_forward = (reference_codes * scale_tensor).to(torch.bfloat16)
+            dequantized_forward_exact = dequantized_forward_exact and torch.equal(reference_forward, encoded_forward)
+            weights[start:end] = effective.float().numpy()
+    raw, telemetry = _quantize_projection(weights, scales, bits=bits, working_set_bytes=working_set_bytes)
+    reference_raw = b"".join(reference_chunks)
+    proof = {
+        "weight_arithmetic": QAT_WEIGHT_ARITHMETIC,
+        "base_dtype": "BF16", "adapter_dtype": "F32", "delta_matmul_dtype": "F32",
+        "reconstruction_device": "cpu", "autocast_enabled": False,
+        "effective_weight_matches_qat_helper": bool(effective_weight_exact),
+        "code_exact": raw == reference_raw,
+        "dequantized_weight_forward_exact": bool(dequantized_forward_exact),
+        "reference_code_sha256": _sha256_bytes(reference_raw),
+        "export_code_sha256": _sha256_bytes(raw),
+        "native_inference_parity_verified": False,
+    }
+    if not all(proof[key] for key in ("effective_weight_matches_qat_helper", "code_exact", "dequantized_weight_forward_exact")):
+        raise RetainedScaleExportError("QAT-compatible codes differ from the CPU QAT weight forward.")
+    return raw, telemetry, proof
+
+
 def _quantize_and_patch(
     official_section: bytes,
     *,
@@ -1473,6 +1567,7 @@ def _quantize_and_patch(
     adapter_checkpoint: SafetensorCheckpoint | None = None,
     adapter_mappings: dict[str, dict[str, str]] | None = None,
     lora_scaling: float | None = None,
+    qat_compatible_weights: bool = False,
 ) -> tuple[bytearray, dict[str, Any]]:
     mutable = bytearray(official_section)
     official_model = _schema_model(official_section)
@@ -1492,7 +1587,10 @@ def _quantize_and_patch(
         raise RetainedScaleExportError(
             "Base+LoRA parity inputs must be supplied together or omitted together."
         )
+    if qat_compatible_weights and not parity_enabled:
+        raise RetainedScaleExportError("QAT-compatible export requires bound base and adapter parity inputs.")
     parity_rows: list[dict[str, Any]] = []
+    qat_rows: list[dict[str, Any]] = []
     with contextlib.ExitStack() as stack:
         stack.enter_context(checkpoint)
         if parity_enabled:
@@ -1542,6 +1640,27 @@ def _quantize_and_patch(
                     working_set_bytes=working_set_bytes,
                 )
                 parity_rows.append({"hf_weight_key": key, **parity})
+                if qat_compatible_weights:
+                    if adapter_checkpoint.entries[adapter_pair["a"]]["dtype"] != adapter_checkpoint.entries[adapter_pair["b"]]["dtype"]:
+                        raise RetainedScaleExportError("QAT-compatible LoRA A/B dtypes differ.")
+                    # Keep the original merged checkpoint's provenance and merge
+                    # proof. Only the package payload takes the QAT weight path.
+                    merged_raw = raw
+                    raw, item, qat_proof = _qat_compatible_projection(
+                        base_weight, lora_a, lora_b, scale,
+                        base_dtype=str(base_checkpoint.entries[base_key]["dtype"]),
+                        adapter_dtype=str(adapter_checkpoint.entries[adapter_pair["a"]]["dtype"]),
+                        scaling=float(lora_scaling), bits=int(entry["bits"]),
+                        working_set_bytes=working_set_bytes,
+                    )
+                    code_count = int(weight.size)
+                    qat_proof["changed_code_count_from_merged_checkpoint"] = int(np.count_nonzero(
+                        _unpack_litert_codes(raw, int(entry["bits"]), code_count)
+                        != _unpack_litert_codes(merged_raw, int(entry["bits"]), code_count)
+                    ))
+                    qat_proof["original_merged_code_sha256"] = _sha256_bytes(merged_raw)
+                    qat_rows.append({"hf_weight_key": key, **qat_proof})
+                    del merged_raw
                 del base_weight, lora_a, lora_b
             view_info = _buffer_view(model, int(group["buffer_index"]), mutable)
             if view_info is None:
@@ -1564,6 +1683,8 @@ def _quantize_and_patch(
                 )
             differs_from_official = not _buffer_views_equal(official_view_info[0], raw)
             view[:] = np.frombuffer(raw, dtype=np.uint8)
+            if qat_compatible_weights and not _buffer_views_equal(view, raw):
+                raise RetainedScaleExportError("Written package buffer differs from QAT-compatible codes.")
             item.update(
                 {
                     "hf_weight_key": key,
@@ -1615,6 +1736,13 @@ def _quantize_and_patch(
                 ),
             }
         )
+    if qat_compatible_weights:
+        checks.update({
+            "qat_weight_code_parity_205": len(qat_rows) == EXPECTED_MUTABLE_COUNT
+            and all(item["code_exact"] and item["effective_weight_matches_qat_helper"] for item in qat_rows),
+            "qat_dequantized_weight_forward_parity_205": len(qat_rows) == EXPECTED_MUTABLE_COUNT
+            and all(item["dequantized_weight_forward_exact"] for item in qat_rows),
+        })
     ratios = [
         float(item["delta_to_base_l2_ratio"])
         for item in parity_rows
@@ -1637,6 +1765,7 @@ def _quantize_and_patch(
         "telemetry": telemetry,
         "base_lora_parity": {
             "enabled": parity_enabled,
+            "scope": "original_supplied_merged_checkpoint",
             "projection_count": len(parity_rows),
             "numerical_exact_count": sum(
                 int(item["numerical_exact"]) for item in parity_rows
@@ -1653,6 +1782,16 @@ def _quantize_and_patch(
             "delta_to_base_l2_ratio_min": min(ratios) if ratios else None,
             "delta_to_base_l2_ratio_max": max(ratios) if ratios else None,
             "telemetry": parity_rows,
+        },
+        "qat_weight_reconstruction": {
+            "enabled": qat_compatible_weights,
+            "weight_arithmetic": QAT_WEIGHT_ARITHMETIC if qat_compatible_weights else None,
+            "projection_count": len(qat_rows),
+            "changed_code_count_from_merged_checkpoint": sum(
+                item["changed_code_count_from_merged_checkpoint"] for item in qat_rows
+            ),
+            "native_inference_parity_verified": False,
+            "telemetry": qat_rows,
         },
     }
 
@@ -2102,6 +2241,7 @@ def run(
     report: str | Path | None = None,
     execute: bool = False,
     working_set_bytes: int = 32 * 1024 * 1024,
+    qat_compatible_weights: bool = False,
 ) -> dict[str, Any]:
     plan, context = _build_plan(
         official_litertlm=official_litertlm,
@@ -2116,6 +2256,14 @@ def run(
         output_litertlm=output_litertlm,
         report=report,
     )
+    if qat_compatible_weights:
+        plan.update({
+            "mode": "retained_scale_qat_compatible_weights_v1",
+            "weight_arithmetic": QAT_WEIGHT_ARITHMETIC,
+            "package_weight_source": "verified_seed_plus_selected_adapter_qat_forward",
+            "merged_checkpoint_role": "original_provenance_and_merge_verification_only",
+            "native_inference_parity_verified": False,
+        })
     if not execute:
         return plan
     if working_set_bytes <= 0:
@@ -2187,6 +2335,7 @@ def run(
         adapter_checkpoint=context["adapter_reader"],
         adapter_mappings=context["adapter_mappings"],
         lora_scaling=context["lora_scaling"],
+        qat_compatible_weights=qat_compatible_weights,
     )
     buffer_diff = _buffer_diff_report(
         official_section, candidate_section, enriched_records, mutable_records
@@ -2261,6 +2410,9 @@ def run(
         "graph_layout_execution_identity": graph_identity["verified"],
         "section_size_unchanged": len(candidate_section) == len(official_section),
     }
+    if qat_compatible_weights:
+        for key in ("qat_weight_code_parity_205", "qat_dequantized_weight_forward_parity_205"):
+            prepackage_gates[key] = trained_quantization["checks"][key]
     if not all(prepackage_gates.values()):
         failed = [name for name, passed in prepackage_gates.items() if not passed]
         raise RetainedScaleExportError(
@@ -2420,6 +2572,10 @@ def main(argv: Iterable[str] | None = None) -> int:
     parser.add_argument("--report")
     parser.add_argument("--working-set-bytes", type=int, default=32 * 1024 * 1024)
     parser.add_argument(
+        "--qat-compatible-weights", action="store_true",
+        help="Reconstruct BF16-base/F32-adapter QAT weights (delta cast before add); retain original merge provenance. Native parity remains unverified.",
+    )
+    parser.add_argument(
         "--execute",
         action="store_true",
         help="Load/quantize projection values and write the gated package. Default is plan-only.",
@@ -2440,6 +2596,7 @@ def main(argv: Iterable[str] | None = None) -> int:
             report=args.report,
             execute=bool(args.execute),
             working_set_bytes=int(args.working_set_bytes),
+            qat_compatible_weights=args.qat_compatible_weights,
         )
     except (OSError, ValueError, RetainedScaleExportError) as exc:
         print(f"Gemma 4 retained-scale export failed: {exc}", file=sys.stderr)
