@@ -1,0 +1,611 @@
+09-28 02:34:20.803  6111  6111 F         : [DEFEX] Safeplace violation [task=sh (/system/bin/sh), child=/data/local/tmp/r64_gpu_controls/probe, uid=0]
+09-28 02:34:20.804  6111  6111 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls]
+09-28 02:34:20.804  6111  6111 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tests/product]
+09-28 02:34:20.804  6111  6111 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tests/system]
+09-28 02:34:20.804  6111  6111 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tests/unrestricted]
+09-28 02:34:20.804  6111  6111 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tests/vendor]
+09-28 02:34:20.804  6111  6111 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp]
+09-28 02:34:20.807  6111  6111 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls]
+09-28 02:34:20.807  6111  6111 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/liblitert-lm.so]
+09-28 02:34:20.841  6111  6111 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls]
+09-28 02:34:20.904  6111  6111 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/prompts/BXP-001.txt]
+09-28 02:34:22.084  6111  6111 I litert  : [environment.cc:36] Creating LiteRT environment with options
+09-28 02:34:22.084  6111  6111 W litert  : [npu_registry.cc:34] NPU accelerator could not be loaded and registered: kLiteRtStatusErrorInvalidArgument.
+09-28 02:34:22.084  6111  6111 I litert  : [accelerator_registry.cc:54] RegisterAccelerator: ptr=0xb400007724a07e10, name=LiteRT GPU
+09-28 02:34:22.084  6111  6111 I litert  : [gpu_registry.cc:87] Statically linked GPU accelerator registered.
+09-28 02:34:22.084  6111  6111 I litert  : [accelerator_registry.cc:54] RegisterAccelerator: ptr=0xb400007724a07990, name=CpuAccelerator
+09-28 02:34:22.084  6111  6111 I litert  : [cpu_registry.cc:75] XNNPACK CPU accelerator registered.
+09-28 02:34:22.163  6111  6111 I litert  : [environment.cc:36] Creating LiteRT environment with options
+09-28 02:34:22.163  6111  6111 W litert  : [npu_registry.cc:34] NPU accelerator could not be loaded and registered: kLiteRtStatusErrorInvalidArgument.
+09-28 02:34:22.163  6111  6111 I litert  : [accelerator_registry.cc:54] RegisterAccelerator: ptr=0xb400007724a07690, name=LiteRT GPU
+09-28 02:34:22.163  6111  6111 I litert  : [gpu_registry.cc:87] Statically linked GPU accelerator registered.
+09-28 02:34:22.163  6111  6111 I litert  : [accelerator_registry.cc:54] RegisterAccelerator: ptr=0xb400007724a08bf0, name=CpuAccelerator
+09-28 02:34:22.163  6111  6111 I litert  : [cpu_registry.cc:75] XNNPACK CPU accelerator registered.
+09-28 02:34:22.163  6111  6111 W native  : W0000 00:00:1790543062.163624    6111 litert_lm_loader.cc:291] Section not found:
+09-28 02:34:22.163  6111  6111 W native  : W0000 00:00:1790543062.163683    6111 litert_lm_loader.cc:291] Section not found:
+09-28 02:34:22.163  6111  6111 I litert  : [magic_number_utils.cc:101] Loaded: num_subgraphs=976, num_signatures=4
+09-28 02:34:22.163  6111  6111 I litert  : [magic_number_utils.cc:109]   signature=decode, subgraph_index=0, num_tensors=2703, num_inputs=35, num_outputs=32, num_ops=2068
+09-28 02:34:22.163  6111  6111 I litert  : [magic_number_utils.cc:109]   signature=prefill_1024, subgraph_index=1, num_tensors=1454, num_inputs=35, num_outputs=30, num_ops=1107
+09-28 02:34:22.163  6111  6111 I litert  : [magic_number_utils.cc:109]   signature=prefill_128, subgraph_index=2, num_tensors=1454, num_inputs=35, num_outputs=30, num_ops=1107
+09-28 02:34:22.163  6111  6111 I litert  : [magic_number_utils.cc:109]   signature=verify, subgraph_index=3, num_tensors=2887, num_inputs=35, num_outputs=32, num_ops=2243
+09-28 02:34:22.163  6111  6111 I litert  : [magic_number_utils.cc:113] Magic number configs: num_configs=1
+09-28 02:34:22.163  6111  6111 I litert  : [magic_number_utils.cc:120]   config[0]: magic_number=32003, target_number=8192, signature_prefix=null
+09-28 02:34:22.164  6111  6111 I litert  : [magic_number_utils.cc:536] 439 tensors of signature decode have been updated for magic number  32003 to target number 8192
+09-28 02:34:22.164  6111  6111 I litert  : [magic_number_utils.cc:536] 271 tensors of signature prefill_1024 have been updated for magic number  32003 to target number 8192
+09-28 02:34:22.164  6111  6111 I litert  : [magic_number_utils.cc:536] 270 tensors of signature prefill_128 have been updated for magic number  32003 to target number 8192
+09-28 02:34:20.993  6111  6111 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-001.cache]
+09-28 02:34:22.165  6111  6111 I litert  : [magic_number_utils.cc:536] 444 tensors of signature verify have been updated for magic number  32003 to target number 8192
+09-28 02:34:22.165  6111  6111 I litert  : [compiled_model.cc:833] Flatbuffer model initialized directly from incoming litert model.
+09-28 02:34:22.165  6111  6111 I tflite  : Initialized TensorFlow Lite runtime.
+09-28 02:34:21.036  6111  6111 E kgsl-3d0: kgsl_open - CPR Rev ID: 0x1
+09-28 02:34:22.243  6111  6111 I native  : I0000 00:00:1790543062.242843    6111 delegate_opencl.cc:603] options->hint_waiting_for_completion: false
+09-28 02:34:22.243  6111  6111 I native  : I0000 00:00:1790543062.243097    6111 delegate_opencl.cc:605] options->kernel_batch_size: -1
+09-28 02:34:22.306  6111  6111 I AdrenoGLES-0: QUALCOMM build                   : f16ae4095f, I3d930c56e3
+09-28 02:34:22.306  6111  6111 I AdrenoGLES-0: Build Date                       : 04/16/26
+09-28 02:34:22.306  6111  6111 I AdrenoGLES-0: OpenGL ES Shader Compiler Version: E031.50.19.22
+09-28 02:34:22.306  6111  6111 I AdrenoGLES-0: Local Branch                     :
+09-28 02:34:22.306  6111  6111 I AdrenoGLES-0: Remote Branch                    : refs/tags/AU_LINUX_ANDROID_LA.VENDOR.16.2.0.R4.11.00.00.1474.011
+09-28 02:34:22.306  6111  6111 I AdrenoGLES-0: Remote Branch                    : NONE
+09-28 02:34:22.306  6111  6111 I AdrenoGLES-0: Reconstruct Branch               : NOTHING
+09-28 02:34:22.306  6111  6111 I AdrenoGLES-0: Build Config                     : C P 20.0.0 AArch64
+09-28 02:34:22.306  6111  6111 I AdrenoGLES-0: Driver Path                      : /vendor/lib64/egl/libGLESv2_adreno.so
+09-28 02:34:22.306  6111  6111 I AdrenoGLES-0: Driver Version                   : 0842.19.9
+09-28 02:34:22.306  6111  6111 I AdrenoGLES-0: Process Name                     : probe
+09-28 02:34:22.306  6111  6111 W libbinder.BackendUnifiedServiceManager: Thread Pool max thread count is 0. Cannot cache binder as linkToDeath cannot be implemented. serviceName: android.hardware.graphics.allocator.IAllocator/default
+09-28 02:34:22.310  6111  6111 D qdgralloc: Fetching IMapper5 from QtiMapper5
+09-28 02:34:22.315  6111  6111 I SnapAlloc: Graphics lib is available
+09-28 02:34:22.318  6111  6111 I AdrenoGLES-0: PFP: 0x01510594, ME: 0x01510025
+09-28 02:34:21.148  6111  6111 E kgsl-3d0: kgsl_open - CPR Rev ID: 0x1
+09-28 02:34:22.322  6111  6111 E Adreno-AppProfiles: QSPM AIDL service doesn't exist
+09-28 02:34:22.322  6111  6111 I AdrenoUtils: <ReadGpuID:1333>: Reading chip ID through GSL
+09-28 02:34:22.323  6111  6111 E libEGL  : call to OpenGL ES API with no current context (logged once per thread)
+09-28 02:34:22.324  6111  6111 I litert  : [environment.cc:47] Adding options to the existing LiteRT environment
+09-28 02:34:22.324  6111  6111 I tflite  : Loaded OpenCL library with dlopen.
+09-28 02:34:22.324  6111  6111 I litert  : [gpu_environment.cc:220] Created OpenCL device from provided device id and platform id.
+09-28 02:34:22.324  6111  6111 I litert  : [gpu_environment.cc:283] Reusing provided EGL environment.
+09-28 02:34:22.324  6111  6111 I litert  : [gpu_environment.h:155] Created LiteRT GpuEnvironment.
+09-28 02:34:21.182  6111  6111 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-001.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_weight_cache.bi
+09-28 02:34:23.510  6111  6111 I native  : I0000 00:00:1790543063.510096    6111 delegate_kernel.cc:330] Total 32 external tensors are used for delegate inputs and outputs
+09-28 02:34:23.510  6111  6111 I native  : I0000 00:00:1790543063.510806    6111 delegate_kernel.cc:906] Initializing OpenCL-based API from serialized data.
+09-28 02:34:22.339  6111  6111 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-001.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_weight_cache.bi
+09-28 02:34:22.341  6111  6111 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-001.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.b
+09-28 02:34:23.174  6111  6111 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-001.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.b
+09-28 02:34:23.175  6111  6111 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-001.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.b
+09-28 02:34:23.222  6111  6111 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-001.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_weight_cache.bi
+09-28 02:34:23.223  6111  6111 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-001.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_weight_cache.bi
+09-28 02:34:24.393  6111  6111 I native  : I0000 00:00:1790543064.393089    6111 delegate_kernel.cc:330] Total 31 external tensors are used for delegate inputs and outputs
+09-28 02:34:24.393  6111  6111 I native  : I0000 00:00:1790543064.393266    6111 delegate_kernel.cc:906] Initializing OpenCL-based API from serialized data.
+09-28 02:34:23.223  6111  6111 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-001.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.b
+09-28 02:34:24.059  6111  6111 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-001.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.b
+09-28 02:34:24.060  6111  6111 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-001.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.b
+09-28 02:34:24.086  6111  6111 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-001.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_weight_cache.bi
+09-28 02:34:25.256  6111  6111 I native  : I0000 00:00:1790543065.256506    6111 delegate_kernel.cc:330] Total 31 external tensors are used for delegate inputs and outputs
+09-28 02:34:25.256  6111  6111 I native  : I0000 00:00:1790543065.256663    6111 delegate_kernel.cc:906] Initializing OpenCL-based API from serialized data.
+09-28 02:34:24.086  6111  6111 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-001.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.b
+09-28 02:34:24.527  6111  6111 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-001.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.b
+09-28 02:34:24.544  6111  6111 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-001.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_weight_cache.bi
+09-28 02:34:25.715  6111  6111 I native  : I0000 00:00:1790543065.715013    6111 delegate_kernel.cc:330] Total 32 external tensors are used for delegate inputs and outputs
+09-28 02:34:25.715  6111  6111 I native  : I0000 00:00:1790543065.715146    6111 delegate_kernel.cc:906] Initializing OpenCL-based API from serialized data.
+09-28 02:34:24.545  6111  6111 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-001.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.b
+09-28 02:34:25.162  6111  6111 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-001.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.b
+09-28 02:34:25.163  6111  6111 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-001.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.b
+09-28 02:34:26.342  6111  6111 I litert  : [environment.cc:36] Creating LiteRT environment with options
+09-28 02:34:26.342  6111  6111 W litert  : [npu_registry.cc:34] NPU accelerator could not be loaded and registered: kLiteRtStatusErrorInvalidArgument.
+09-28 02:34:26.342  6111  6111 I litert  : [accelerator_registry.cc:54] RegisterAccelerator: ptr=0xb40000772512a9f0, name=LiteRT GPU
+09-28 02:34:26.343  6111  6111 I litert  : [gpu_registry.cc:87] Statically linked GPU accelerator registered.
+09-28 02:34:26.343  6111  6111 I litert  : [accelerator_registry.cc:54] RegisterAccelerator: ptr=0xb40000772512b530, name=CpuAccelerator
+09-28 02:34:26.343  6111  6111 I litert  : [cpu_registry.cc:75] XNNPACK CPU accelerator registered.
+09-28 02:34:26.392  6111  6111 I litert  : [magic_number_utils.cc:101] Loaded: num_subgraphs=1, num_signatures=1
+09-28 02:34:26.392  6111  6111 I litert  : [magic_number_utils.cc:109]   signature=embedder, subgraph_index=0, num_tensors=16, num_inputs=1, num_outputs=1, num_ops=8
+09-28 02:34:26.392  6111  6111 I litert  : [magic_number_utils.cc:113] Magic number configs: num_configs=1
+09-28 02:34:26.392  6111  6111 I litert  : [magic_number_utils.cc:120]   config[0]: magic_number=32003, target_number=8192, signature_prefix=null
+09-28 02:34:26.392  6111  6111 I litert  : [compiled_model.cc:833] Flatbuffer model initialized directly from incoming litert model.
+09-28 02:34:26.393  6111  6111 W litert  : [compiled_model.cc:986] You should provide the `DispatchLibraryDir` option to use NPU.
+09-28 02:34:26.393  6111  6111 I tflite  : Created TensorFlow Lite XNNPACK delegate for CPU.
+09-28 02:34:26.393  6111  6111 I litert  : [magic_number_utils.cc:101] Loaded: num_subgraphs=1, num_signatures=1
+09-28 02:34:26.393  6111  6111 I litert  : [magic_number_utils.cc:109]   signature=eoi, subgraph_index=0, num_tensors=1, num_inputs=0, num_outputs=1, num_ops=0
+09-28 02:34:26.393  6111  6111 I litert  : [magic_number_utils.cc:113] Magic number configs: num_configs=1
+09-28 02:34:26.393  6111  6111 I litert  : [magic_number_utils.cc:120]   config[0]: magic_number=32003, target_number=8192, signature_prefix=null
+09-28 02:34:26.393  6111  6111 I litert  : [compiled_model.cc:833] Flatbuffer model initialized directly from incoming litert model.
+09-28 02:34:26.393  6111  6111 I litert  : [compiled_model.cc:1790] Tracked constant output tensor eoi_embedding with locked address
+09-28 02:34:26.393  6111  6111 I litert  : [magic_number_utils.cc:109]   signature=eoa, subgraph_index=0, num_tensors=1, num_inputs=0, num_outputs=1, num_ops=0
+09-28 02:34:26.393  6111  6111 I litert  : [compiled_model.cc:1790] Tracked constant output tensor eoa_embedding with locked address
+09-28 02:34:26.408  6111  6111 I litert  : [magic_number_utils.cc:101] Loaded: num_subgraphs=1, num_signatures=1
+09-28 02:34:26.408  6111  6111 I litert  : [magic_number_utils.cc:109]   signature=per_layer_embedder, subgraph_index=0, num_tensors=83, num_inputs=1, num_outputs=1, num_ops=42
+09-28 02:34:26.408  6111  6111 I litert  : [magic_number_utils.cc:113] Magic number configs: num_configs=1
+09-28 02:34:26.408  6111  6111 I litert  : [magic_number_utils.cc:120]   config[0]: magic_number=32003, target_number=8192, signature_prefix=null
+09-28 02:34:26.408  6111  6111 I litert  : [compiled_model.cc:833] Flatbuffer model initialized directly from incoming litert model.
+09-28 02:34:26.523  6111  6111 W litert  : [compiled_model.cc:986] You should provide the `DispatchLibraryDir` option to use NPU.
+09-28 02:34:25.357  6111  6111 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-001.input_token_ids.txt]
+09-28 02:34:25.358  6111  6111 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-001.input_token_ids.txt]
+09-28 02:34:28.546  6111  6119 W native  : W0000 00:00:1790543068.544474    6119 tasks.cc:490] Failed to get prefill profile summary: INVALID_ARGUMENT: ERROR: [third_party/odml/litert_lm/runtime/executor/llm_litert_compiled_model_executor.cc:1763]
+09-28 02:34:28.546  6111  6119 W native  : └ ERROR: [./third_party/odml/litert/litert/cc/litert_profiler.h:91]
+09-28 02:34:28.546  6111  6119 W native  : === Source Location Trace: ===
+09-28 02:34:28.546  6111  6119 W native  : ./third_party/odml/litert/litert/cc/litert_macros.h:547
+09-28 02:34:28.808  6111  6119 I tflite  : Loaded OpenCL library with dlopen.
+09-28 02:34:28.809  6111  6119 I litert  : [environment.cc:36] Creating LiteRT environment with options
+09-28 02:34:28.809  6111  6119 W litert  : [npu_registry.cc:34] NPU accelerator could not be loaded and registered: kLiteRtStatusErrorInvalidArgument.
+09-28 02:34:28.809  6111  6119 I litert  : [gpu_registry.cc:101] Attempting to load GPU accelerator(libLiteRtGpuAccelerator.so).
+09-28 02:34:28.811  6111  6119 I litert  : [gpu_registry.cc:101] Attempting to load GPU accelerator(libLiteRtClGlAccelerator.so).
+09-28 02:34:28.812  6111  6119 I litert  : [gpu_registry.cc:101] Attempting to load GPU accelerator(libLiteRtOpenClAccelerator.so).
+09-28 02:34:28.817  6111  6119 I litert  : [gpu_registry.cc:101] Attempting to load GPU accelerator(libLiteRtWebGpuAccelerator.so).
+09-28 02:34:28.817  6111  6119 I litert  : [gpu_registry.cc:101] Attempting to load GPU accelerator(libLiteRtVulkanAccelerator.so).
+09-28 02:34:28.817  6111  6119 W litert  : [gpu_registry.cc:131] GPU accelerator could not be loaded and registered.
+09-28 02:34:28.817  6111  6119 I litert  : [accelerator_registry.cc:54] RegisterAccelerator: ptr=0xb40000772512c1f0, name=CpuAccelerator
+09-28 02:34:28.817  6111  6119 I litert  : [cpu_registry.cc:75] XNNPACK CPU accelerator registered.
+09-28 02:34:34.246  6111  6119 W native  : W0000 00:00:1790543074.246293    6119 tasks.cc:672] Failed to get decode profile summary: INVALID_ARGUMENT: ERROR: [third_party/odml/litert_lm/runtime/executor/llm_litert_compiled_model_executor.cc:1763]
+09-28 02:34:34.246  6111  6119 W native  : └ ERROR: [./third_party/odml/litert/litert/cc/litert_profiler.h:91]
+09-28 02:34:34.246  6111  6119 W native  : === Source Location Trace: ===
+09-28 02:34:34.246  6111  6119 W native  : ./third_party/odml/litert/litert/cc/litert_macros.h:547
+09-28 02:34:33.076  6111  6111 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-001.raw.txt]
+09-28 02:34:33.081  6111  6111 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-001.output_retokenized_ids.txt]
+09-28 02:34:34.270  6111  6111 I litert  : [accelerator_registry.cc:43] DestroyAccelerator: ptr=0xb40000772512c1f0, name=CpuAccelerator
+09-28 02:34:34.440  6111  6111 E libEGL  : call to OpenGL ES API with no current context (logged once per thread)
+09-28 02:34:34.440  6111  6111 I litert  : [accelerator_registry.cc:43] DestroyAccelerator: ptr=0xb400007724a08bf0, name=CpuAccelerator
+09-28 02:34:34.440  6111  6111 I litert  : [accelerator_registry.cc:43] DestroyAccelerator: ptr=0xb400007724a07690, name=LiteRT GPU
+09-28 02:34:34.483  6111  6111 I litert  : [accelerator_registry.cc:43] DestroyAccelerator: ptr=0xb40000772512b530, name=CpuAccelerator
+09-28 02:34:34.483  6111  6111 I litert  : [accelerator_registry.cc:43] DestroyAccelerator: ptr=0xb40000772512a9f0, name=LiteRT GPU
+09-28 02:34:33.313  6111  6111 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-001.metrics.json]
+09-28 02:34:35.497  6238  6238 F         : [DEFEX] Safeplace violation [task=sh (/system/bin/sh), child=/data/local/tmp/r64_gpu_controls/probe, uid=0]
+09-28 02:34:35.498  6238  6238 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls]
+09-28 02:34:35.499  6238  6238 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tests/product]
+09-28 02:34:35.499  6238  6238 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tests/system]
+09-28 02:34:35.499  6238  6238 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tests/unrestricted]
+09-28 02:34:35.499  6238  6238 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tests/vendor]
+09-28 02:34:35.499  6238  6238 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp]
+09-28 02:34:35.504  6238  6238 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls]
+09-28 02:34:35.504  6238  6238 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/liblitert-lm.so]
+09-28 02:34:35.505  6238  6238 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls]
+09-28 02:34:35.555  6238  6238 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls]
+09-28 02:34:36.796  6238  6238 I litert  : [environment.cc:36] Creating LiteRT environment with options
+09-28 02:34:36.796  6238  6238 W litert  : [npu_registry.cc:34] NPU accelerator could not be loaded and registered: kLiteRtStatusErrorInvalidArgument.
+09-28 02:34:36.796  6238  6238 I litert  : [accelerator_registry.cc:54] RegisterAccelerator: ptr=0xb400007e6fc12110, name=LiteRT GPU
+09-28 02:34:36.796  6238  6238 I litert  : [gpu_registry.cc:87] Statically linked GPU accelerator registered.
+09-28 02:34:36.796  6238  6238 I litert  : [accelerator_registry.cc:54] RegisterAccelerator: ptr=0xb400007e6fc123b0, name=CpuAccelerator
+09-28 02:34:36.796  6238  6238 I litert  : [cpu_registry.cc:75] XNNPACK CPU accelerator registered.
+09-28 02:34:35.624  6238  6238 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/prompts/BXP-003.txt]
+09-28 02:34:35.625  6238  6238 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/prompts/BXP-003.txt]
+09-28 02:34:36.861  6238  6238 I litert  : [environment.cc:36] Creating LiteRT environment with options
+09-28 02:34:36.862  6238  6238 W litert  : [npu_registry.cc:34] NPU accelerator could not be loaded and registered: kLiteRtStatusErrorInvalidArgument.
+09-28 02:34:36.862  6238  6238 I litert  : [accelerator_registry.cc:54] RegisterAccelerator: ptr=0xb400007e6fc11ab0, name=LiteRT GPU
+09-28 02:34:36.862  6238  6238 I litert  : [gpu_registry.cc:87] Statically linked GPU accelerator registered.
+09-28 02:34:36.862  6238  6238 I litert  : [accelerator_registry.cc:54] RegisterAccelerator: ptr=0xb400007e6fc13970, name=CpuAccelerator
+09-28 02:34:36.862  6238  6238 I litert  : [cpu_registry.cc:75] XNNPACK CPU accelerator registered.
+09-28 02:34:36.862  6238  6238 W native  : W0000 00:00:1790543076.862191    6238 litert_lm_loader.cc:291] Section not found:
+09-28 02:34:36.862  6238  6238 W native  : W0000 00:00:1790543076.862284    6238 litert_lm_loader.cc:291] Section not found:
+09-28 02:34:36.862  6238  6238 I litert  : [magic_number_utils.cc:101] Loaded: num_subgraphs=976, num_signatures=4
+09-28 02:34:36.862  6238  6238 I litert  : [magic_number_utils.cc:109]   signature=decode, subgraph_index=0, num_tensors=2703, num_inputs=35, num_outputs=32, num_ops=2068
+09-28 02:34:36.862  6238  6238 I litert  : [magic_number_utils.cc:109]   signature=prefill_1024, subgraph_index=1, num_tensors=1454, num_inputs=35, num_outputs=30, num_ops=1107
+09-28 02:34:36.862  6238  6238 I litert  : [magic_number_utils.cc:109]   signature=prefill_128, subgraph_index=2, num_tensors=1454, num_inputs=35, num_outputs=30, num_ops=1107
+09-28 02:34:36.862  6238  6238 I litert  : [magic_number_utils.cc:109]   signature=verify, subgraph_index=3, num_tensors=2887, num_inputs=35, num_outputs=32, num_ops=2243
+09-28 02:34:36.862  6238  6238 I litert  : [magic_number_utils.cc:113] Magic number configs: num_configs=1
+09-28 02:34:36.862  6238  6238 I litert  : [magic_number_utils.cc:120]   config[0]: magic_number=32003, target_number=8192, signature_prefix=null
+09-28 02:34:36.863  6238  6238 I litert  : [magic_number_utils.cc:536] 439 tensors of signature decode have been updated for magic number  32003 to target number 8192
+09-28 02:34:35.692  6238  6238 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-003.cache]
+09-28 02:34:36.863  6238  6238 I litert  : [magic_number_utils.cc:536] 271 tensors of signature prefill_1024 have been updated for magic number  32003 to target number 8192
+09-28 02:34:36.864  6238  6238 I litert  : [magic_number_utils.cc:536] 270 tensors of signature prefill_128 have been updated for magic number  32003 to target number 8192
+09-28 02:34:36.865  6238  6238 I litert  : [magic_number_utils.cc:536] 444 tensors of signature verify have been updated for magic number  32003 to target number 8192
+09-28 02:34:36.865  6238  6238 I litert  : [compiled_model.cc:833] Flatbuffer model initialized directly from incoming litert model.
+09-28 02:34:36.865  6238  6238 I tflite  : Initialized TensorFlow Lite runtime.
+09-28 02:34:35.740  6238  6238 E kgsl-3d0: kgsl_open - CPR Rev ID: 0x1
+09-28 02:34:36.915  6238  6238 I native  : I0000 00:00:1790543076.915352    6238 delegate_opencl.cc:603] options->hint_waiting_for_completion: false
+09-28 02:34:36.915  6238  6238 I native  : I0000 00:00:1790543076.915527    6238 delegate_opencl.cc:605] options->kernel_batch_size: -1
+09-28 02:34:36.939  6238  6238 I AdrenoGLES-0: QUALCOMM build                   : f16ae4095f, I3d930c56e3
+09-28 02:34:36.939  6238  6238 I AdrenoGLES-0: Build Date                       : 04/16/26
+09-28 02:34:36.939  6238  6238 I AdrenoGLES-0: OpenGL ES Shader Compiler Version: E031.50.19.22
+09-28 02:34:36.939  6238  6238 I AdrenoGLES-0: Local Branch                     :
+09-28 02:34:36.939  6238  6238 I AdrenoGLES-0: Remote Branch                    : refs/tags/AU_LINUX_ANDROID_LA.VENDOR.16.2.0.R4.11.00.00.1474.011
+09-28 02:34:36.939  6238  6238 I AdrenoGLES-0: Remote Branch                    : NONE
+09-28 02:34:36.939  6238  6238 I AdrenoGLES-0: Reconstruct Branch               : NOTHING
+09-28 02:34:36.939  6238  6238 I AdrenoGLES-0: Build Config                     : C P 20.0.0 AArch64
+09-28 02:34:36.939  6238  6238 I AdrenoGLES-0: Driver Path                      : /vendor/lib64/egl/libGLESv2_adreno.so
+09-28 02:34:36.939  6238  6238 I AdrenoGLES-0: Driver Version                   : 0842.19.9
+09-28 02:34:36.939  6238  6238 I AdrenoGLES-0: Process Name                     : probe
+09-28 02:34:36.940  6238  6238 W libbinder.BackendUnifiedServiceManager: Thread Pool max thread count is 0. Cannot cache binder as linkToDeath cannot be implemented. serviceName: android.hardware.graphics.allocator.IAllocator/default
+09-28 02:34:36.942  6238  6238 D qdgralloc: Fetching IMapper5 from QtiMapper5
+09-28 02:34:36.949  6238  6238 I SnapAlloc: Graphics lib is available
+09-28 02:34:36.951  6238  6238 I AdrenoGLES-0: PFP: 0x01510594, ME: 0x01510025
+09-28 02:34:36.952  6238  6238 E Adreno-AppProfiles: QSPM AIDL service doesn't exist
+09-28 02:34:36.952  6238  6238 I AdrenoUtils: <ReadGpuID:1333>: Reading chip ID through GSL
+09-28 02:34:36.953  6238  6238 E libEGL  : call to OpenGL ES API with no current context (logged once per thread)
+09-28 02:34:35.781  6238  6238 E kgsl-3d0: kgsl_open - CPR Rev ID: 0x1
+09-28 02:34:36.954  6238  6238 I litert  : [environment.cc:47] Adding options to the existing LiteRT environment
+09-28 02:34:36.954  6238  6238 I tflite  : Loaded OpenCL library with dlopen.
+09-28 02:34:36.954  6238  6238 I litert  : [gpu_environment.cc:220] Created OpenCL device from provided device id and platform id.
+09-28 02:34:36.954  6238  6238 I litert  : [gpu_environment.cc:283] Reusing provided EGL environment.
+09-28 02:34:36.954  6238  6238 I litert  : [gpu_environment.h:155] Created LiteRT GpuEnvironment.
+09-28 02:34:35.812  6238  6238 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-003.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_weight_cache.bi
+09-28 02:34:39.200  6238  6238 I native  : I0000 00:00:1790543079.200619    6238 delegate_kernel.cc:330] Total 32 external tensors are used for delegate inputs and outputs
+09-28 02:34:38.029  6238  6238 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-003.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_weight_cache.bi
+09-28 02:34:39.201  6238  6238 I native  : I0000 00:00:1790543079.200993    6238 delegate_kernel.cc:906] Initializing OpenCL-based API from serialized data.
+09-28 02:34:38.030  6238  6238 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-003.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_weight_cache.bi
+09-28 02:34:38.031  6238  6238 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-003.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.b
+09-28 02:34:39.704  6238  6238 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-003.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.b
+09-28 02:34:39.705  6238  6238 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-003.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.b
+09-28 02:34:39.824  6238  6238 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-003.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_weight_cache.bi
+09-28 02:34:40.994  6238  6238 I native  : I0000 00:00:1790543080.994693    6238 delegate_kernel.cc:330] Total 31 external tensors are used for delegate inputs and outputs
+09-28 02:34:40.994  6238  6238 I native  : I0000 00:00:1790543080.994842    6238 delegate_kernel.cc:906] Initializing OpenCL-based API from serialized data.
+09-28 02:34:39.824  6238  6238 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-003.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.b
+09-28 02:34:41.857  6238  6238 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-003.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.b
+09-28 02:34:41.858  6238  6238 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-003.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.b
+09-28 02:34:41.921  6238  6238 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-003.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_weight_cache.bi
+09-28 02:34:41.922  6238  6238 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-003.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_weight_cache.bi
+09-28 02:34:41.922  6238  6238 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-003.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.b
+09-28 02:34:43.092  6238  6238 I native  : I0000 00:00:1790543083.092465    6238 delegate_kernel.cc:330] Total 31 external tensors are used for delegate inputs and outputs
+09-28 02:34:43.092  6238  6238 I native  : I0000 00:00:1790543083.092688    6238 delegate_kernel.cc:906] Initializing OpenCL-based API from serialized data.
+09-28 02:34:43.027  6238  6238 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-003.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.b
+09-28 02:34:43.029  6238  6238 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-003.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.b
+09-28 02:34:43.068  6238  6238 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-003.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_weight_cache.bi
+09-28 02:34:43.069  6238  6238 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-003.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_weight_cache.bi
+09-28 02:34:43.069  6238  6238 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-003.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.b
+09-28 02:34:44.239  6238  6238 I native  : I0000 00:00:1790543084.239676    6238 delegate_kernel.cc:330] Total 32 external tensors are used for delegate inputs and outputs
+09-28 02:34:44.239  6238  6238 I native  : I0000 00:00:1790543084.239804    6238 delegate_kernel.cc:906] Initializing OpenCL-based API from serialized data.
+09-28 02:34:44.556  6238  6238 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-003.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.b
+09-28 02:34:44.558  6238  6238 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-003.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.b
+09-28 02:34:45.751  6238  6238 I litert  : [environment.cc:36] Creating LiteRT environment with options
+09-28 02:34:45.751  6238  6238 W litert  : [npu_registry.cc:34] NPU accelerator could not be loaded and registered: kLiteRtStatusErrorInvalidArgument.
+09-28 02:34:45.751  6238  6238 I litert  : [accelerator_registry.cc:54] RegisterAccelerator: ptr=0xb400007e70335410, name=LiteRT GPU
+09-28 02:34:45.751  6238  6238 I litert  : [gpu_registry.cc:87] Statically linked GPU accelerator registered.
+09-28 02:34:45.751  6238  6238 I litert  : [accelerator_registry.cc:54] RegisterAccelerator: ptr=0xb400007e70335890, name=CpuAccelerator
+09-28 02:34:45.751  6238  6238 I litert  : [cpu_registry.cc:75] XNNPACK CPU accelerator registered.
+09-28 02:34:45.856  6238  6238 I litert  : [magic_number_utils.cc:101] Loaded: num_subgraphs=1, num_signatures=1
+09-28 02:34:45.856  6238  6238 I litert  : [magic_number_utils.cc:109]   signature=embedder, subgraph_index=0, num_tensors=16, num_inputs=1, num_outputs=1, num_ops=8
+09-28 02:34:45.856  6238  6238 I litert  : [magic_number_utils.cc:113] Magic number configs: num_configs=1
+09-28 02:34:45.856  6238  6238 I litert  : [magic_number_utils.cc:120]   config[0]: magic_number=32003, target_number=8192, signature_prefix=null
+09-28 02:34:45.856  6238  6238 I litert  : [compiled_model.cc:833] Flatbuffer model initialized directly from incoming litert model.
+09-28 02:34:45.859  6238  6238 W litert  : [compiled_model.cc:986] You should provide the `DispatchLibraryDir` option to use NPU.
+09-28 02:34:45.859  6238  6238 I tflite  : Created TensorFlow Lite XNNPACK delegate for CPU.
+09-28 02:34:45.859  6238  6238 I litert  : [magic_number_utils.cc:101] Loaded: num_subgraphs=1, num_signatures=1
+09-28 02:34:45.859  6238  6238 I litert  : [magic_number_utils.cc:109]   signature=eoi, subgraph_index=0, num_tensors=1, num_inputs=0, num_outputs=1, num_ops=0
+09-28 02:34:45.859  6238  6238 I litert  : [magic_number_utils.cc:113] Magic number configs: num_configs=1
+09-28 02:34:45.859  6238  6238 I litert  : [magic_number_utils.cc:120]   config[0]: magic_number=32003, target_number=8192, signature_prefix=null
+09-28 02:34:45.860  6238  6238 I litert  : [compiled_model.cc:833] Flatbuffer model initialized directly from incoming litert model.
+09-28 02:34:45.860  6238  6238 W litert  : [compiled_model.cc:986] You should provide the `DispatchLibraryDir` option to use NPU.
+09-28 02:34:45.860  6238  6238 I litert  : [compiled_model.cc:1790] Tracked constant output tensor eoi_embedding with locked address
+09-28 02:34:45.860  6238  6238 I litert  : [magic_number_utils.cc:101] Loaded: num_subgraphs=1, num_signatures=1
+09-28 02:34:45.860  6238  6238 I litert  : [magic_number_utils.cc:109]   signature=eoa, subgraph_index=0, num_tensors=1, num_inputs=0, num_outputs=1, num_ops=0
+09-28 02:34:45.860  6238  6238 I litert  : [magic_number_utils.cc:113] Magic number configs: num_configs=1
+09-28 02:34:45.860  6238  6238 I litert  : [magic_number_utils.cc:120]   config[0]: magic_number=32003, target_number=8192, signature_prefix=null
+09-28 02:34:45.860  6238  6238 I litert  : [compiled_model.cc:1790] Tracked constant output tensor eoa_embedding with locked address
+09-28 02:34:45.861  6238  6238 I litert  : [magic_number_utils.cc:101] Loaded: num_subgraphs=1, num_signatures=1
+09-28 02:34:45.861  6238  6238 I litert  : [magic_number_utils.cc:109]   signature=per_layer_embedder, subgraph_index=0, num_tensors=83, num_inputs=1, num_outputs=1, num_ops=42
+09-28 02:34:45.861  6238  6238 I litert  : [magic_number_utils.cc:113] Magic number configs: num_configs=1
+09-28 02:34:45.861  6238  6238 I litert  : [magic_number_utils.cc:120]   config[0]: magic_number=32003, target_number=8192, signature_prefix=null
+09-28 02:34:45.861  6238  6238 I litert  : [compiled_model.cc:833] Flatbuffer model initialized directly from incoming litert model.
+09-28 02:34:45.945  6238  6238 W litert  : [compiled_model.cc:986] You should provide the `DispatchLibraryDir` option to use NPU.
+09-28 02:34:44.782  6238  6238 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-003.input_token_ids.txt]
+09-28 02:34:48.016  6238  6243 W native  : W0000 00:00:1790543088.016726    6243 tasks.cc:490] Failed to get prefill profile summary: INVALID_ARGUMENT: ERROR: [third_party/odml/litert_lm/runtime/executor/llm_litert_compiled_model_executor.cc:1763]
+09-28 02:34:48.016  6238  6243 W native  : └ ERROR: [./third_party/odml/litert/litert/cc/litert_profiler.h:91]
+09-28 02:34:48.016  6238  6243 W native  : === Source Location Trace: ===
+09-28 02:34:48.016  6238  6243 W native  : ./third_party/odml/litert/litert/cc/litert_macros.h:547
+09-28 02:34:48.503  6238  6243 I tflite  : Loaded OpenCL library with dlopen.
+09-28 02:34:48.503  6238  6243 I litert  : [environment.cc:36] Creating LiteRT environment with options
+09-28 02:34:48.504  6238  6243 W litert  : [npu_registry.cc:34] NPU accelerator could not be loaded and registered: kLiteRtStatusErrorInvalidArgument.
+09-28 02:34:48.504  6238  6243 I litert  : [gpu_registry.cc:101] Attempting to load GPU accelerator(libLiteRtGpuAccelerator.so).
+09-28 02:34:48.504  6238  6243 I litert  : [gpu_registry.cc:101] Attempting to load GPU accelerator(libLiteRtClGlAccelerator.so).
+09-28 02:34:48.505  6238  6243 I litert  : [gpu_registry.cc:101] Attempting to load GPU accelerator(libLiteRtOpenClAccelerator.so).
+09-28 02:34:48.506  6238  6243 I litert  : [gpu_registry.cc:101] Attempting to load GPU accelerator(libLiteRtWebGpuAccelerator.so).
+09-28 02:34:48.507  6238  6243 I litert  : [gpu_registry.cc:101] Attempting to load GPU accelerator(libLiteRtVulkanAccelerator.so).
+09-28 02:34:48.507  6238  6243 W litert  : [gpu_registry.cc:131] GPU accelerator could not be loaded and registered.
+09-28 02:34:48.507  6238  6243 I litert  : [accelerator_registry.cc:54] RegisterAccelerator: ptr=0xb400007e6fcad090, name=CpuAccelerator
+09-28 02:34:48.507  6238  6243 I litert  : [cpu_registry.cc:75] XNNPACK CPU accelerator registered.
+09-28 02:35:10.157  6238  6243 W native  : W0000 00:00:1790543110.157224    6243 tasks.cc:672] Failed to get decode profile summary: INVALID_ARGUMENT: ERROR: [third_party/odml/litert_lm/runtime/executor/llm_litert_compiled_model_executor.cc:1763]
+09-28 02:35:10.157  6238  6243 W native  : └ ERROR: [./third_party/odml/litert/litert/cc/litert_profiler.h:91]
+09-28 02:35:10.157  6238  6243 W native  : === Source Location Trace: ===
+09-28 02:35:10.157  6238  6243 W native  : ./third_party/odml/litert/litert/cc/litert_macros.h:547
+09-28 02:35:08.988  6238  6238 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-003.raw.txt]
+09-28 02:35:08.990  6238  6238 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-003.output_retokenized_ids.txt]
+09-28 02:35:10.177  6238  6238 I litert  : [accelerator_registry.cc:43] DestroyAccelerator: ptr=0xb400007e6fcad090, name=CpuAccelerator
+09-28 02:35:10.412  6238  6238 E libEGL  : call to OpenGL ES API with no current context (logged once per thread)
+09-28 02:35:10.412  6238  6238 I litert  : [accelerator_registry.cc:43] DestroyAccelerator: ptr=0xb400007e6fc13970, name=CpuAccelerator
+09-28 02:35:10.412  6238  6238 I litert  : [accelerator_registry.cc:43] DestroyAccelerator: ptr=0xb400007e6fc11ab0, name=LiteRT GPU
+09-28 02:35:10.489  6238  6238 I litert  : [accelerator_registry.cc:43] DestroyAccelerator: ptr=0xb400007e70335890, name=CpuAccelerator
+09-28 02:35:09.319  6238  6238 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_default_r2/BXP-003.metrics.json]
+09-28 02:35:10.489  6238  6238 I litert  : [accelerator_registry.cc:43] DestroyAccelerator: ptr=0xb400007e70335410, name=LiteRT GPU
+09-28 02:35:43.596  6354  6354 F         : [DEFEX] Safeplace violation [task=sh (/system/bin/sh), child=/data/local/tmp/r64_gpu_controls/probe, uid=0]
+09-28 02:35:43.597  6354  6354 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls]
+09-28 02:35:43.597  6354  6354 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tests/product]
+09-28 02:35:43.597  6354  6354 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tests/system]
+09-28 02:35:43.597  6354  6354 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tests/unrestricted]
+09-28 02:35:43.597  6354  6354 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tests/vendor]
+09-28 02:35:43.597  6354  6354 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp]
+09-28 02:35:43.600  6354  6354 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls]
+09-28 02:35:43.600  6354  6354 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/liblitert-lm.so]
+09-28 02:35:43.680  6354  6354 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls]
+09-28 02:35:44.951  6354  6354 I litert  : [environment.cc:36] Creating LiteRT environment with options
+09-28 02:35:44.951  6354  6354 W litert  : [npu_registry.cc:34] NPU accelerator could not be loaded and registered: kLiteRtStatusErrorInvalidArgument.
+09-28 02:35:44.951  6354  6354 I litert  : [accelerator_registry.cc:54] RegisterAccelerator: ptr=0xb40000796ae0fcf0, name=LiteRT GPU
+09-28 02:35:44.951  6354  6354 I litert  : [gpu_registry.cc:87] Statically linked GPU accelerator registered.
+09-28 02:35:44.951  6354  6354 I litert  : [accelerator_registry.cc:54] RegisterAccelerator: ptr=0xb40000796ae10650, name=CpuAccelerator
+09-28 02:35:44.951  6354  6354 I litert  : [cpu_registry.cc:75] XNNPACK CPU accelerator registered.
+09-28 02:35:43.779  6354  6354 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/prompts/BXP-001.txt]
+09-28 02:35:43.780  6354  6354 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/prompts/BXP-001.txt]
+09-28 02:35:45.049  6354  6354 I litert  : [environment.cc:36] Creating LiteRT environment with options
+09-28 02:35:45.049  6354  6354 W litert  : [npu_registry.cc:34] NPU accelerator could not be loaded and registered: kLiteRtStatusErrorInvalidArgument.
+09-28 02:35:45.049  6354  6354 I litert  : [accelerator_registry.cc:54] RegisterAccelerator: ptr=0xb40000796ae0f510, name=LiteRT GPU
+09-28 02:35:45.049  6354  6354 I litert  : [gpu_registry.cc:87] Statically linked GPU accelerator registered.
+09-28 02:35:45.049  6354  6354 I litert  : [accelerator_registry.cc:54] RegisterAccelerator: ptr=0xb40000796ae11190, name=CpuAccelerator
+09-28 02:35:45.049  6354  6354 I litert  : [cpu_registry.cc:75] XNNPACK CPU accelerator registered.
+09-28 02:35:45.049  6354  6354 W native  : W0000 00:00:1790543145.049714    6354 litert_lm_loader.cc:291] Section not found:
+09-28 02:35:45.049  6354  6354 W native  : W0000 00:00:1790543145.049825    6354 litert_lm_loader.cc:291] Section not found:
+09-28 02:35:45.050  6354  6354 I litert  : [magic_number_utils.cc:101] Loaded: num_subgraphs=976, num_signatures=4
+09-28 02:35:45.050  6354  6354 I litert  : [magic_number_utils.cc:109]   signature=decode, subgraph_index=0, num_tensors=2703, num_inputs=35, num_outputs=32, num_ops=2068
+09-28 02:35:45.050  6354  6354 I litert  : [magic_number_utils.cc:109]   signature=prefill_1024, subgraph_index=1, num_tensors=1454, num_inputs=35, num_outputs=30, num_ops=1107
+09-28 02:35:45.050  6354  6354 I litert  : [magic_number_utils.cc:109]   signature=prefill_128, subgraph_index=2, num_tensors=1454, num_inputs=35, num_outputs=30, num_ops=1107
+09-28 02:35:45.050  6354  6354 I litert  : [magic_number_utils.cc:109]   signature=verify, subgraph_index=3, num_tensors=2887, num_inputs=35, num_outputs=32, num_ops=2243
+09-28 02:35:45.050  6354  6354 I litert  : [magic_number_utils.cc:113] Magic number configs: num_configs=1
+09-28 02:35:45.050  6354  6354 I litert  : [magic_number_utils.cc:120]   config[0]: magic_number=32003, target_number=8192, signature_prefix=null
+09-28 02:35:45.051  6354  6354 I litert  : [magic_number_utils.cc:536] 439 tensors of signature decode have been updated for magic number  32003 to target number 8192
+09-28 02:35:45.051  6354  6354 I litert  : [magic_number_utils.cc:536] 271 tensors of signature prefill_1024 have been updated for magic number  32003 to target number 8192
+09-28 02:35:45.052  6354  6354 I litert  : [magic_number_utils.cc:536] 270 tensors of signature prefill_128 have been updated for magic number  32003 to target number 8192
+09-28 02:35:45.052  6354  6354 I litert  : [magic_number_utils.cc:536] 444 tensors of signature verify have been updated for magic number  32003 to target number 8192
+09-28 02:35:45.052  6354  6354 I litert  : [compiled_model.cc:833] Flatbuffer model initialized directly from incoming litert model.
+09-28 02:35:45.053  6354  6354 I tflite  : Initialized TensorFlow Lite runtime.
+09-28 02:35:43.880  6354  6354 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-001.cache]
+09-28 02:35:43.943  6354  6354 E kgsl-3d0: kgsl_open - CPR Rev ID: 0x1
+09-28 02:35:45.119  6354  6354 I native  : I0000 00:00:1790543145.119703    6354 delegate_opencl.cc:603] options->hint_waiting_for_completion: false
+09-28 02:35:45.119  6354  6354 I native  : I0000 00:00:1790543145.119893    6354 delegate_opencl.cc:605] options->kernel_batch_size: -1
+09-28 02:35:45.152  6354  6354 I AdrenoGLES-0: QUALCOMM build                   : f16ae4095f, I3d930c56e3
+09-28 02:35:45.152  6354  6354 I AdrenoGLES-0: Build Date                       : 04/16/26
+09-28 02:35:45.152  6354  6354 I AdrenoGLES-0: OpenGL ES Shader Compiler Version: E031.50.19.22
+09-28 02:35:45.152  6354  6354 I AdrenoGLES-0: Local Branch                     :
+09-28 02:35:45.152  6354  6354 I AdrenoGLES-0: Remote Branch                    : refs/tags/AU_LINUX_ANDROID_LA.VENDOR.16.2.0.R4.11.00.00.1474.011
+09-28 02:35:45.152  6354  6354 I AdrenoGLES-0: Remote Branch                    : NONE
+09-28 02:35:45.152  6354  6354 I AdrenoGLES-0: Reconstruct Branch               : NOTHING
+09-28 02:35:45.152  6354  6354 I AdrenoGLES-0: Build Config                     : C P 20.0.0 AArch64
+09-28 02:35:45.152  6354  6354 I AdrenoGLES-0: Driver Path                      : /vendor/lib64/egl/libGLESv2_adreno.so
+09-28 02:35:45.152  6354  6354 I AdrenoGLES-0: Driver Version                   : 0842.19.9
+09-28 02:35:45.152  6354  6354 I AdrenoGLES-0: Process Name                     : probe
+09-28 02:35:45.152  6354  6354 W libbinder.BackendUnifiedServiceManager: Thread Pool max thread count is 0. Cannot cache binder as linkToDeath cannot be implemented. serviceName: android.hardware.graphics.allocator.IAllocator/default
+09-28 02:35:45.155  6354  6354 D qdgralloc: Fetching IMapper5 from QtiMapper5
+09-28 02:35:45.163  6354  6354 I SnapAlloc: Graphics lib is available
+09-28 02:35:45.166  6354  6354 I AdrenoGLES-0: PFP: 0x01510594, ME: 0x01510025
+09-28 02:35:45.167  6354  6354 E Adreno-AppProfiles: QSPM AIDL service doesn't exist
+09-28 02:35:45.168  6354  6354 I AdrenoUtils: <ReadGpuID:1333>: Reading chip ID through GSL
+09-28 02:35:45.169  6354  6354 E libEGL  : call to OpenGL ES API with no current context (logged once per thread)
+09-28 02:35:43.996  6354  6354 E kgsl-3d0: kgsl_open - CPR Rev ID: 0x1
+09-28 02:35:45.170  6354  6354 I litert  : [environment.cc:47] Adding options to the existing LiteRT environment
+09-28 02:35:45.170  6354  6354 I tflite  : Loaded OpenCL library with dlopen.
+09-28 02:35:45.170  6354  6354 I litert  : [gpu_environment.cc:220] Created OpenCL device from provided device id and platform id.
+09-28 02:35:45.171  6354  6354 I litert  : [gpu_environment.cc:283] Reusing provided EGL environment.
+09-28 02:35:45.171  6354  6354 I litert  : [gpu_environment.h:155] Created LiteRT GpuEnvironment.
+09-28 02:35:45.171  6354  6354 I litert  : [environment.cc:47] Adding options to the existing LiteRT environment
+09-28 02:35:44.038  6354  6354 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-001.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_weight_cache.bin]
+09-28 02:35:44.039  6354  6354 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-001.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_weight_cache.bin]
+09-28 02:35:45.689  6354  6354 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-001.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_weight_cache.bin]
+09-28 02:35:46.860  6354  6354 I native  : I0000 00:00:1790543146.860413    6354 delegate_kernel.cc:330] Total 32 external tensors are used for delegate inputs and outputs
+09-28 02:35:46.860  6354  6354 I native  : I0000 00:00:1790543146.860928    6354 delegate_kernel.cc:906] Initializing OpenCL-based API from serialized data.
+09-28 02:35:45.691  6354  6354 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-001.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.bin]
+09-28 02:35:47.619  6354  6354 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-001.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.bin]
+09-28 02:35:47.621  6354  6354 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-001.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.bin]
+09-28 02:35:47.739  6354  6354 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-001.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_weight_cache.bin]
+09-28 02:35:47.740  6354  6354 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-001.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_weight_cache.bin]
+09-28 02:35:48.910  6354  6354 I native  : I0000 00:00:1790543148.910471    6354 delegate_kernel.cc:330] Total 31 external tensors are used for delegate inputs and outputs
+09-28 02:35:48.910  6354  6354 I native  : I0000 00:00:1790543148.910758    6354 delegate_kernel.cc:906] Initializing OpenCL-based API from serialized data.
+09-28 02:35:47.740  6354  6354 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-001.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.bin]
+09-28 02:35:49.659  6354  6354 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-001.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.bin]
+09-28 02:35:49.661  6354  6354 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-001.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.bin]
+09-28 02:35:49.721  6354  6354 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-001.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_weight_cache.bin]
+09-28 02:35:49.722  6354  6354 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-001.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_weight_cache.bin]
+09-28 02:35:50.892  6354  6354 I native  : I0000 00:00:1790543150.892093    6354 delegate_kernel.cc:330] Total 31 external tensors are used for delegate inputs and outputs
+09-28 02:35:50.892  6354  6354 I native  : I0000 00:00:1790543150.892337    6354 delegate_kernel.cc:906] Initializing OpenCL-based API from serialized data.
+09-28 02:35:49.722  6354  6354 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-001.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.bin]
+09-28 02:35:50.681  6354  6354 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-001.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.bin]
+09-28 02:35:50.682  6354  6354 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-001.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.bin]
+09-28 02:35:50.719  6354  6354 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-001.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_weight_cache.bin]
+09-28 02:35:50.720  6354  6354 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-001.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_weight_cache.bin]
+09-28 02:35:51.890  6354  6354 I native  : I0000 00:00:1790543151.890446    6354 delegate_kernel.cc:330] Total 32 external tensors are used for delegate inputs and outputs
+09-28 02:35:51.890  6354  6354 I native  : I0000 00:00:1790543151.890657    6354 delegate_kernel.cc:906] Initializing OpenCL-based API from serialized data.
+09-28 02:35:50.720  6354  6354 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-001.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.bin]
+09-28 02:35:52.034  6354  6354 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-001.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.bin]
+09-28 02:35:52.036  6354  6354 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-001.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.bin]
+09-28 02:35:53.228  6354  6354 I litert  : [environment.cc:36] Creating LiteRT environment with options
+09-28 02:35:53.228  6354  6354 W litert  : [npu_registry.cc:34] NPU accelerator could not be loaded and registered: kLiteRtStatusErrorInvalidArgument.
+09-28 02:35:53.228  6354  6354 I litert  : [accelerator_registry.cc:54] RegisterAccelerator: ptr=0xb40000796b5d0670, name=LiteRT GPU
+09-28 02:35:53.228  6354  6354 I litert  : [gpu_registry.cc:87] Statically linked GPU accelerator registered.
+09-28 02:35:53.228  6354  6354 I litert  : [accelerator_registry.cc:54] RegisterAccelerator: ptr=0xb40000796b5cffb0, name=CpuAccelerator
+09-28 02:35:53.229  6354  6354 I litert  : [cpu_registry.cc:75] XNNPACK CPU accelerator registered.
+09-28 02:35:53.333  6354  6354 I litert  : [magic_number_utils.cc:101] Loaded: num_subgraphs=1, num_signatures=1
+09-28 02:35:53.333  6354  6354 I litert  : [magic_number_utils.cc:109]   signature=embedder, subgraph_index=0, num_tensors=16, num_inputs=1, num_outputs=1, num_ops=8
+09-28 02:35:53.333  6354  6354 I litert  : [magic_number_utils.cc:113] Magic number configs: num_configs=1
+09-28 02:35:53.333  6354  6354 I litert  : [magic_number_utils.cc:120]   config[0]: magic_number=32003, target_number=8192, signature_prefix=null
+09-28 02:35:53.333  6354  6354 I litert  : [compiled_model.cc:833] Flatbuffer model initialized directly from incoming litert model.
+09-28 02:35:53.335  6354  6354 W litert  : [compiled_model.cc:986] You should provide the `DispatchLibraryDir` option to use NPU.
+09-28 02:35:53.335  6354  6354 I tflite  : Created TensorFlow Lite XNNPACK delegate for CPU.
+09-28 02:35:53.336  6354  6354 I litert  : [magic_number_utils.cc:101] Loaded: num_subgraphs=1, num_signatures=1
+09-28 02:35:53.336  6354  6354 I litert  : [magic_number_utils.cc:109]   signature=eoa, subgraph_index=0, num_tensors=1, num_inputs=0, num_outputs=1, num_ops=0
+09-28 02:35:53.336  6354  6354 I litert  : [magic_number_utils.cc:113] Magic number configs: num_configs=1
+09-28 02:35:53.336  6354  6354 I litert  : [magic_number_utils.cc:120]   config[0]: magic_number=32003, target_number=8192, signature_prefix=null
+09-28 02:35:53.336  6354  6354 I litert  : [compiled_model.cc:833] Flatbuffer model initialized directly from incoming litert model.
+09-28 02:35:53.336  6354  6354 W litert  : [compiled_model.cc:986] You should provide the `DispatchLibraryDir` option to use NPU.
+09-28 02:35:53.336  6354  6354 I litert  : [compiled_model.cc:1790] Tracked constant output tensor eoa_embedding with locked address
+09-28 02:35:53.336  6354  6354 I litert  : [magic_number_utils.cc:109]   signature=eoi, subgraph_index=0, num_tensors=1, num_inputs=0, num_outputs=1, num_ops=0
+09-28 02:35:53.337  6354  6354 I litert  : [compiled_model.cc:1790] Tracked constant output tensor eoi_embedding with locked address
+09-28 02:35:53.337  6354  6354 I litert  : [magic_number_utils.cc:101] Loaded: num_subgraphs=1, num_signatures=1
+09-28 02:35:53.337  6354  6354 I litert  : [magic_number_utils.cc:109]   signature=per_layer_embedder, subgraph_index=0, num_tensors=83, num_inputs=1, num_outputs=1, num_ops=42
+09-28 02:35:53.337  6354  6354 I litert  : [magic_number_utils.cc:113] Magic number configs: num_configs=1
+09-28 02:35:53.337  6354  6354 I litert  : [magic_number_utils.cc:120]   config[0]: magic_number=32003, target_number=8192, signature_prefix=null
+09-28 02:35:53.337  6354  6354 I litert  : [compiled_model.cc:833] Flatbuffer model initialized directly from incoming litert model.
+09-28 02:35:53.414  6354  6354 W litert  : [compiled_model.cc:986] You should provide the `DispatchLibraryDir` option to use NPU.
+09-28 02:35:52.250  6354  6354 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-001.input_token_ids.txt]
+09-28 02:35:52.251  6354  6354 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-001.input_token_ids.txt]
+09-28 02:35:56.149  6354  6361 W native  : W0000 00:00:1790543156.149497    6361 tasks.cc:490] Failed to get prefill profile summary: INVALID_ARGUMENT: ERROR: [third_party/odml/litert_lm/runtime/executor/llm_litert_compiled_model_executor.cc:1763]
+09-28 02:35:56.149  6354  6361 W native  : └ ERROR: [./third_party/odml/litert/litert/cc/litert_profiler.h:91]
+09-28 02:35:56.149  6354  6361 W native  : === Source Location Trace: ===
+09-28 02:35:56.149  6354  6361 W native  : ./third_party/odml/litert/litert/cc/litert_macros.h:547
+09-28 02:35:56.605  6354  6361 I tflite  : Loaded OpenCL library with dlopen.
+09-28 02:35:56.606  6354  6361 I litert  : [environment.cc:36] Creating LiteRT environment with options
+09-28 02:35:56.606  6354  6361 W litert  : [npu_registry.cc:34] NPU accelerator could not be loaded and registered: kLiteRtStatusErrorInvalidArgument.
+09-28 02:35:56.606  6354  6361 I litert  : [gpu_registry.cc:101] Attempting to load GPU accelerator(libLiteRtGpuAccelerator.so).
+09-28 02:35:56.607  6354  6361 I litert  : [gpu_registry.cc:101] Attempting to load GPU accelerator(libLiteRtClGlAccelerator.so).
+09-28 02:35:56.607  6354  6361 I litert  : [gpu_registry.cc:101] Attempting to load GPU accelerator(libLiteRtOpenClAccelerator.so).
+09-28 02:35:56.611  6354  6361 I litert  : [gpu_registry.cc:101] Attempting to load GPU accelerator(libLiteRtWebGpuAccelerator.so).
+09-28 02:35:56.611  6354  6361 I litert  : [gpu_registry.cc:101] Attempting to load GPU accelerator(libLiteRtVulkanAccelerator.so).
+09-28 02:35:56.612  6354  6361 W litert  : [gpu_registry.cc:131] GPU accelerator could not be loaded and registered.
+09-28 02:35:56.612  6354  6361 I litert  : [accelerator_registry.cc:54] RegisterAccelerator: ptr=0xb40000796b910030, name=CpuAccelerator
+09-28 02:35:56.612  6354  6361 I litert  : [cpu_registry.cc:75] XNNPACK CPU accelerator registered.
+09-28 02:36:03.822  6354  6361 W native  : W0000 00:00:1790543163.822243    6361 tasks.cc:672] Failed to get decode profile summary: INVALID_ARGUMENT: ERROR: [third_party/odml/litert_lm/runtime/executor/llm_litert_compiled_model_executor.cc:1763]
+09-28 02:36:03.822  6354  6361 W native  : └ ERROR: [./third_party/odml/litert/litert/cc/litert_profiler.h:91]
+09-28 02:36:03.822  6354  6361 W native  : === Source Location Trace: ===
+09-28 02:36:03.822  6354  6361 W native  : ./third_party/odml/litert/litert/cc/litert_macros.h:547
+09-28 02:36:02.652  6354  6354 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-001.raw.txt]
+09-28 02:36:02.654  6354  6354 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-001.output_retokenized_ids.txt]
+09-28 02:36:03.836  6354  6354 I litert  : [accelerator_registry.cc:43] DestroyAccelerator: ptr=0xb40000796b910030, name=CpuAccelerator
+09-28 02:36:04.150  6354  6354 E libEGL  : call to OpenGL ES API with no current context (logged once per thread)
+09-28 02:36:04.150  6354  6354 I litert  : [accelerator_registry.cc:43] DestroyAccelerator: ptr=0xb40000796ae11190, name=CpuAccelerator
+09-28 02:36:04.150  6354  6354 I litert  : [accelerator_registry.cc:43] DestroyAccelerator: ptr=0xb40000796ae0f510, name=LiteRT GPU
+09-28 02:36:04.228  6354  6354 I litert  : [accelerator_registry.cc:43] DestroyAccelerator: ptr=0xb40000796b5cffb0, name=CpuAccelerator
+09-28 02:36:03.058  6354  6354 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-001.metrics.json]
+09-28 02:36:04.228  6354  6354 I litert  : [accelerator_registry.cc:43] DestroyAccelerator: ptr=0xb40000796b5d0670, name=LiteRT GPU
+09-28 02:36:05.176  6496  6496 F         : [DEFEX] Safeplace violation [task=sh (/system/bin/sh), child=/data/local/tmp/r64_gpu_controls/probe, uid=0]
+09-28 02:36:05.177  6496  6496 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls]
+09-28 02:36:05.177  6496  6496 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tests/product]
+09-28 02:36:05.178  6496  6496 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tests/system]
+09-28 02:36:05.178  6496  6496 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tests/unrestricted]
+09-28 02:36:05.178  6496  6496 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tests/vendor]
+09-28 02:36:05.178  6496  6496 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp]
+09-28 02:36:05.182  6496  6496 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls]
+09-28 02:36:05.182  6496  6496 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/liblitert-lm.so]
+09-28 02:36:05.215  6496  6496 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls]
+09-28 02:36:05.293  6496  6496 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/prompts/BXP-003.txt]
+09-28 02:36:06.467  6496  6496 I litert  : [environment.cc:36] Creating LiteRT environment with options
+09-28 02:36:06.467  6496  6496 W litert  : [npu_registry.cc:34] NPU accelerator could not be loaded and registered: kLiteRtStatusErrorInvalidArgument.
+09-28 02:36:06.467  6496  6496 I litert  : [accelerator_registry.cc:54] RegisterAccelerator: ptr=0xb400007c69011990, name=LiteRT GPU
+09-28 02:36:05.296  6496  6496 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/prompts/BXP-003.txt]
+09-28 02:36:06.467  6496  6496 I litert  : [gpu_registry.cc:87] Statically linked GPU accelerator registered.
+09-28 02:36:06.467  6496  6496 I litert  : [accelerator_registry.cc:54] RegisterAccelerator: ptr=0xb400007c690119f0, name=CpuAccelerator
+09-28 02:36:06.467  6496  6496 I litert  : [cpu_registry.cc:75] XNNPACK CPU accelerator registered.
+09-28 02:36:06.544  6496  6496 I litert  : [environment.cc:36] Creating LiteRT environment with options
+09-28 02:36:06.544  6496  6496 W litert  : [npu_registry.cc:34] NPU accelerator could not be loaded and registered: kLiteRtStatusErrorInvalidArgument.
+09-28 02:36:06.544  6496  6496 I litert  : [accelerator_registry.cc:54] RegisterAccelerator: ptr=0xb400007c690117b0, name=LiteRT GPU
+09-28 02:36:06.544  6496  6496 I litert  : [gpu_registry.cc:87] Statically linked GPU accelerator registered.
+09-28 02:36:06.544  6496  6496 I litert  : [accelerator_registry.cc:54] RegisterAccelerator: ptr=0xb400007c69012950, name=CpuAccelerator
+09-28 02:36:06.544  6496  6496 I litert  : [cpu_registry.cc:75] XNNPACK CPU accelerator registered.
+09-28 02:36:06.544  6496  6496 W native  : W0000 00:00:1790543166.544874    6496 litert_lm_loader.cc:291] Section not found:
+09-28 02:36:06.545  6496  6496 W native  : W0000 00:00:1790543166.545101    6496 litert_lm_loader.cc:291] Section not found:
+09-28 02:36:06.545  6496  6496 I litert  : [magic_number_utils.cc:101] Loaded: num_subgraphs=976, num_signatures=4
+09-28 02:36:05.375  6496  6496 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-003.cache]
+09-28 02:36:06.545  6496  6496 I litert  : [magic_number_utils.cc:109]   signature=decode, subgraph_index=0, num_tensors=2703, num_inputs=35, num_outputs=32, num_ops=2068
+09-28 02:36:06.545  6496  6496 I litert  : [magic_number_utils.cc:109]   signature=prefill_1024, subgraph_index=1, num_tensors=1454, num_inputs=35, num_outputs=30, num_ops=1107
+09-28 02:36:06.545  6496  6496 I litert  : [magic_number_utils.cc:109]   signature=prefill_128, subgraph_index=2, num_tensors=1454, num_inputs=35, num_outputs=30, num_ops=1107
+09-28 02:36:06.545  6496  6496 I litert  : [magic_number_utils.cc:109]   signature=verify, subgraph_index=3, num_tensors=2887, num_inputs=35, num_outputs=32, num_ops=2243
+09-28 02:36:06.545  6496  6496 I litert  : [magic_number_utils.cc:113] Magic number configs: num_configs=1
+09-28 02:36:06.545  6496  6496 I litert  : [magic_number_utils.cc:120]   config[0]: magic_number=32003, target_number=8192, signature_prefix=null
+09-28 02:36:06.546  6496  6496 I litert  : [magic_number_utils.cc:536] 439 tensors of signature decode have been updated for magic number  32003 to target number 8192
+09-28 02:36:06.547  6496  6496 I litert  : [magic_number_utils.cc:536] 271 tensors of signature prefill_1024 have been updated for magic number  32003 to target number 8192
+09-28 02:36:06.547  6496  6496 I litert  : [magic_number_utils.cc:536] 270 tensors of signature prefill_128 have been updated for magic number  32003 to target number 8192
+09-28 02:36:06.549  6496  6496 I litert  : [magic_number_utils.cc:536] 444 tensors of signature verify have been updated for magic number  32003 to target number 8192
+09-28 02:36:06.549  6496  6496 I litert  : [compiled_model.cc:833] Flatbuffer model initialized directly from incoming litert model.
+09-28 02:36:06.549  6496  6496 I tflite  : Initialized TensorFlow Lite runtime.
+09-28 02:36:05.445  6496  6496 E kgsl-3d0: kgsl_open - CPR Rev ID: 0x1
+09-28 02:36:06.621  6496  6496 I native  : I0000 00:00:1790543166.621683    6496 delegate_opencl.cc:603] options->hint_waiting_for_completion: false
+09-28 02:36:06.621  6496  6496 I native  : I0000 00:00:1790543166.621918    6496 delegate_opencl.cc:605] options->kernel_batch_size: -1
+09-28 02:36:06.656  6496  6496 I AdrenoGLES-0: QUALCOMM build                   : f16ae4095f, I3d930c56e3
+09-28 02:36:06.656  6496  6496 I AdrenoGLES-0: Build Date                       : 04/16/26
+09-28 02:36:06.656  6496  6496 I AdrenoGLES-0: OpenGL ES Shader Compiler Version: E031.50.19.22
+09-28 02:36:06.656  6496  6496 I AdrenoGLES-0: Local Branch                     :
+09-28 02:36:06.656  6496  6496 I AdrenoGLES-0: Remote Branch                    : refs/tags/AU_LINUX_ANDROID_LA.VENDOR.16.2.0.R4.11.00.00.1474.011
+09-28 02:36:06.656  6496  6496 I AdrenoGLES-0: Remote Branch                    : NONE
+09-28 02:36:06.656  6496  6496 I AdrenoGLES-0: Reconstruct Branch               : NOTHING
+09-28 02:36:06.656  6496  6496 I AdrenoGLES-0: Build Config                     : C P 20.0.0 AArch64
+09-28 02:36:06.656  6496  6496 I AdrenoGLES-0: Driver Path                      : /vendor/lib64/egl/libGLESv2_adreno.so
+09-28 02:36:06.656  6496  6496 I AdrenoGLES-0: Driver Version                   : 0842.19.9
+09-28 02:36:06.656  6496  6496 I AdrenoGLES-0: Process Name                     : probe
+09-28 02:36:06.657  6496  6496 W libbinder.BackendUnifiedServiceManager: Thread Pool max thread count is 0. Cannot cache binder as linkToDeath cannot be implemented. serviceName: android.hardware.graphics.allocator.IAllocator/default
+09-28 02:36:06.660  6496  6496 D qdgralloc: Fetching IMapper5 from QtiMapper5
+09-28 02:36:06.666  6496  6496 I SnapAlloc: Graphics lib is available
+09-28 02:36:06.668  6496  6496 I AdrenoGLES-0: PFP: 0x01510594, ME: 0x01510025
+09-28 02:36:05.497  6496  6496 E kgsl-3d0: kgsl_open - CPR Rev ID: 0x1
+09-28 02:36:06.669  6496  6496 E Adreno-AppProfiles: QSPM AIDL service doesn't exist
+09-28 02:36:06.669  6496  6496 I AdrenoUtils: <ReadGpuID:1333>: Reading chip ID through GSL
+09-28 02:36:06.670  6496  6496 E libEGL  : call to OpenGL ES API with no current context (logged once per thread)
+09-28 02:36:06.672  6496  6496 I litert  : [environment.cc:47] Adding options to the existing LiteRT environment
+09-28 02:36:06.672  6496  6496 I tflite  : Loaded OpenCL library with dlopen.
+09-28 02:36:06.672  6496  6496 I litert  : [gpu_environment.cc:220] Created OpenCL device from provided device id and platform id.
+09-28 02:36:06.672  6496  6496 I litert  : [gpu_environment.cc:283] Reusing provided EGL environment.
+09-28 02:36:06.672  6496  6496 I litert  : [gpu_environment.h:155] Created LiteRT GpuEnvironment.
+09-28 02:36:05.542  6496  6496 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-003.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_weight_cache.bin]
+09-28 02:36:05.543  6496  6496 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-003.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_weight_cache.bin]
+09-28 02:36:08.474  6496  6496 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-003.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_weight_cache.bin]
+09-28 02:36:09.645  6496  6496 I native  : I0000 00:00:1790543169.645423    6496 delegate_kernel.cc:330] Total 32 external tensors are used for delegate inputs and outputs
+09-28 02:36:09.646  6496  6496 I native  : I0000 00:00:1790543169.646162    6496 delegate_kernel.cc:906] Initializing OpenCL-based API from serialized data.
+09-28 02:36:08.476  6496  6496 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-003.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.bin]
+09-28 02:36:10.529  6496  6496 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-003.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.bin]
+09-28 02:36:10.531  6496  6496 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-003.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.bin]
+09-28 02:36:10.658  6496  6496 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-003.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_weight_cache.bin]
+09-28 02:36:11.829  6496  6496 I native  : I0000 00:00:1790543171.828912    6496 delegate_kernel.cc:330] Total 31 external tensors are used for delegate inputs and outputs
+09-28 02:36:11.829  6496  6496 I native  : I0000 00:00:1790543171.829225    6496 delegate_kernel.cc:906] Initializing OpenCL-based API from serialized data.
+09-28 02:36:10.659  6496  6496 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-003.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.bin]
+09-28 02:36:12.969  6496  6496 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-003.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.bin]
+09-28 02:36:12.971  6496  6496 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-003.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.bin]
+09-28 02:36:13.045  6496  6496 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-003.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_weight_cache.bin]
+09-28 02:36:13.046  6496  6496 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-003.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_weight_cache.bin]
+09-28 02:36:14.216  6496  6496 I native  : I0000 00:00:1790543174.216543    6496 delegate_kernel.cc:330] Total 31 external tensors are used for delegate inputs and outputs
+09-28 02:36:14.216  6496  6496 I native  : I0000 00:00:1790543174.216839    6496 delegate_kernel.cc:906] Initializing OpenCL-based API from serialized data.
+09-28 02:36:13.046  6496  6496 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-003.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.bin]
+09-28 02:36:14.464  6496  6496 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-003.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.bin]
+09-28 02:36:14.466  6496  6496 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-003.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.bin]
+09-28 02:36:14.519  6496  6496 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-003.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_weight_cache.bin]
+09-28 02:36:14.520  6496  6496 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-003.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_weight_cache.bin]
+09-28 02:36:15.691  6496  6496 I native  : I0000 00:00:1790543175.690955    6496 delegate_kernel.cc:330] Total 32 external tensors are used for delegate inputs and outputs
+09-28 02:36:15.691  6496  6496 I native  : I0000 00:00:1790543175.691341    6496 delegate_kernel.cc:906] Initializing OpenCL-based API from serialized data.
+09-28 02:36:14.521  6496  6496 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-003.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.bin]
+09-28 02:36:16.476  6496  6496 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-003.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.bin]
+09-28 02:36:16.479  6496  6496 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-003.cache/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm_1790536704_2588147712_mldrift_program_cache.bin]
+09-28 02:36:17.683  6496  6496 I litert  : [environment.cc:36] Creating LiteRT environment with options
+09-28 02:36:17.684  6496  6496 W litert  : [npu_registry.cc:34] NPU accelerator could not be loaded and registered: kLiteRtStatusErrorInvalidArgument.
+09-28 02:36:17.684  6496  6496 I litert  : [accelerator_registry.cc:54] RegisterAccelerator: ptr=0xb400007c697d1ad0, name=LiteRT GPU
+09-28 02:36:17.684  6496  6496 I litert  : [gpu_registry.cc:87] Statically linked GPU accelerator registered.
+09-28 02:36:17.684  6496  6496 I litert  : [accelerator_registry.cc:54] RegisterAccelerator: ptr=0xb400007c697d1fb0, name=CpuAccelerator
+09-28 02:36:17.684  6496  6496 I litert  : [cpu_registry.cc:75] XNNPACK CPU accelerator registered.
+09-28 02:36:17.828  6496  6496 I litert  : [magic_number_utils.cc:101] Loaded: num_subgraphs=1, num_signatures=1
+09-28 02:36:17.828  6496  6496 I litert  : [magic_number_utils.cc:109]   signature=embedder, subgraph_index=0, num_tensors=16, num_inputs=1, num_outputs=1, num_ops=8
+09-28 02:36:17.828  6496  6496 I litert  : [magic_number_utils.cc:113] Magic number configs: num_configs=1
+09-28 02:36:17.828  6496  6496 I litert  : [magic_number_utils.cc:120]   config[0]: magic_number=32003, target_number=8192, signature_prefix=null
+09-28 02:36:17.828  6496  6496 I litert  : [compiled_model.cc:833] Flatbuffer model initialized directly from incoming litert model.
+09-28 02:36:17.832  6496  6496 W litert  : [compiled_model.cc:986] You should provide the `DispatchLibraryDir` option to use NPU.
+09-28 02:36:17.832  6496  6496 I tflite  : Created TensorFlow Lite XNNPACK delegate for CPU.
+09-28 02:36:17.832  6496  6496 I litert  : [magic_number_utils.cc:101] Loaded: num_subgraphs=1, num_signatures=1
+09-28 02:36:17.832  6496  6496 I litert  : [magic_number_utils.cc:109]   signature=eoa, subgraph_index=0, num_tensors=1, num_inputs=0, num_outputs=1, num_ops=0
+09-28 02:36:17.832  6496  6496 I litert  : [magic_number_utils.cc:113] Magic number configs: num_configs=1
+09-28 02:36:17.832  6496  6496 I litert  : [magic_number_utils.cc:120]   config[0]: magic_number=32003, target_number=8192, signature_prefix=null
+09-28 02:36:17.832  6496  6496 I litert  : [compiled_model.cc:833] Flatbuffer model initialized directly from incoming litert model.
+09-28 02:36:17.832  6496  6496 I litert  : [compiled_model.cc:1790] Tracked constant output tensor eoa_embedding with locked address
+09-28 02:36:17.832  6496  6496 I litert  : [magic_number_utils.cc:109]   signature=eoi, subgraph_index=0, num_tensors=1, num_inputs=0, num_outputs=1, num_ops=0
+09-28 02:36:17.833  6496  6496 W litert  : [compiled_model.cc:986] You should provide the `DispatchLibraryDir` option to use NPU.
+09-28 02:36:17.833  6496  6496 I litert  : [compiled_model.cc:1790] Tracked constant output tensor eoi_embedding with locked address
+09-28 02:36:17.834  6496  6496 I litert  : [magic_number_utils.cc:101] Loaded: num_subgraphs=1, num_signatures=1
+09-28 02:36:17.834  6496  6496 I litert  : [magic_number_utils.cc:109]   signature=per_layer_embedder, subgraph_index=0, num_tensors=83, num_inputs=1, num_outputs=1, num_ops=42
+09-28 02:36:17.834  6496  6496 I litert  : [magic_number_utils.cc:113] Magic number configs: num_configs=1
+09-28 02:36:17.834  6496  6496 I litert  : [magic_number_utils.cc:120]   config[0]: magic_number=32003, target_number=8192, signature_prefix=null
+09-28 02:36:17.834  6496  6496 I litert  : [compiled_model.cc:833] Flatbuffer model initialized directly from incoming litert model.
+09-28 02:36:17.948  6496  6496 W litert  : [compiled_model.cc:986] You should provide the `DispatchLibraryDir` option to use NPU.
+09-28 02:36:16.788  6496  6496 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-003.input_token_ids.txt]
+09-28 02:36:23.857  6496  6520 W native  : W0000 00:00:1790543183.855848    6520 tasks.cc:490] Failed to get prefill profile summary: INVALID_ARGUMENT: ERROR: [third_party/odml/litert_lm/runtime/executor/llm_litert_compiled_model_executor.cc:1763]
+09-28 02:36:23.857  6496  6520 W native  : └ ERROR: [./third_party/odml/litert/litert/cc/litert_profiler.h:91]
+09-28 02:36:23.857  6496  6520 W native  : === Source Location Trace: ===
+09-28 02:36:23.857  6496  6520 W native  : ./third_party/odml/litert/litert/cc/litert_macros.h:547
+09-28 02:36:24.543  6496  6520 I tflite  : Loaded OpenCL library with dlopen.
+09-28 02:36:24.544  6496  6520 I litert  : [environment.cc:36] Creating LiteRT environment with options
+09-28 02:36:24.544  6496  6520 W litert  : [npu_registry.cc:34] NPU accelerator could not be loaded and registered: kLiteRtStatusErrorInvalidArgument.
+09-28 02:36:24.544  6496  6520 I litert  : [gpu_registry.cc:101] Attempting to load GPU accelerator(libLiteRtGpuAccelerator.so).
+09-28 02:36:24.545  6496  6520 I litert  : [gpu_registry.cc:101] Attempting to load GPU accelerator(libLiteRtClGlAccelerator.so).
+09-28 02:36:24.546  6496  6520 I litert  : [gpu_registry.cc:101] Attempting to load GPU accelerator(libLiteRtOpenClAccelerator.so).
+09-28 02:36:24.547  6496  6520 I litert  : [gpu_registry.cc:101] Attempting to load GPU accelerator(libLiteRtWebGpuAccelerator.so).
+09-28 02:36:24.548  6496  6520 I litert  : [gpu_registry.cc:101] Attempting to load GPU accelerator(libLiteRtVulkanAccelerator.so).
+09-28 02:36:24.549  6496  6520 W litert  : [gpu_registry.cc:131] GPU accelerator could not be loaded and registered.
+09-28 02:36:24.549  6496  6520 I litert  : [accelerator_registry.cc:54] RegisterAccelerator: ptr=0xb400007c69b150f0, name=CpuAccelerator
+09-28 02:36:24.549  6496  6520 I litert  : [cpu_registry.cc:75] XNNPACK CPU accelerator registered.
+09-28 02:37:09.084  6496  6520 W native  : W0000 00:00:1790543229.084400    6520 tasks.cc:672] Failed to get decode profile summary: INVALID_ARGUMENT: ERROR: [third_party/odml/litert_lm/runtime/executor/llm_litert_compiled_model_executor.cc:1763]
+09-28 02:37:09.084  6496  6520 W native  : └ ERROR: [./third_party/odml/litert/litert/cc/litert_profiler.h:91]
+09-28 02:37:09.084  6496  6520 W native  : === Source Location Trace: ===
+09-28 02:37:09.084  6496  6520 W native  : ./third_party/odml/litert/litert/cc/litert_macros.h:547
+09-28 02:37:07.915  6496  6496 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-003.raw.txt]
+09-28 02:37:07.919  6496  6496 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-003.output_retokenized_ids.txt]
+09-28 02:37:09.108  6496  6496 I litert  : [accelerator_registry.cc:43] DestroyAccelerator: ptr=0xb400007c69b150f0, name=CpuAccelerator
+09-28 02:37:09.483  6496  6496 E libEGL  : call to OpenGL ES API with no current context (logged once per thread)
+09-28 02:37:09.483  6496  6496 I litert  : [accelerator_registry.cc:43] DestroyAccelerator: ptr=0xb400007c69012950, name=CpuAccelerator
+09-28 02:37:09.483  6496  6496 I litert  : [accelerator_registry.cc:43] DestroyAccelerator: ptr=0xb400007c690117b0, name=LiteRT GPU
+09-28 02:37:09.580  6496  6496 I litert  : [accelerator_registry.cc:43] DestroyAccelerator: ptr=0xb400007c697d1fb0, name=CpuAccelerator
+09-28 02:37:08.410  6496  6496 F         : [DEFEX] Immutable root violation [task=probe (/data/local/tmp/r64_gpu_controls/probe), access to:/data/local/tmp/r64_gpu_controls/results/gpu_fp32/BXP-003.metrics.json]
+09-28 02:37:09.580  6496  6496 I litert  : [accelerator_registry.cc:43] DestroyAccelerator: ptr=0xb400007c697d1ad0, name=LiteRT GPU

@@ -1,0 +1,19 @@
+{
+  "serial": "R3GL203AKSF",
+  "variant": "gpu_default",
+  "probe_sha256": "292799fefadfe34b013921ceab192b03e58780e327d11ce673ae4da15a2870b5",
+  "library_sha256": "e9cbdddb0f1c693c549e1cde40bf90ad8aaa124d15944d0dd18faaf016dd6938",
+  "model_sha256": "de60d19c8e1ef06ed1032212d0d4ae5d9b0ec105db72db34a988453004e63e62",
+  "cases": [
+    "BXP-001",
+    "BXP-003"
+  ],
+  "runs": [
+    {
+      "id": "BXP-001",
+      "command": "cd /data/local/tmp/r64_gpu_controls && LD_LIBRARY_PATH=/data/local/tmp/r64_gpu_controls /data/local/tmp/r64_gpu_controls/probe --model /sdcard/Android/data/com.samsung.genuicraft/files/sdk_models/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm --prompt /data/local/tmp/r64_gpu_controls/prompts/BXP-001.txt --output-prefix /data/local/tmp/r64_gpu_controls/results/gpu_default/BXP-001 --max-context 8192 --max-output 2048 --backend gpu",
+      "exit_code": 126,
+      "host_wall_seconds": 0.0470000000204891
+    }
+  ]
+}

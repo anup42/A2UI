@@ -1,0 +1,50 @@
+{
+  "transformation": "Log files only: LF line endings and trailing whitespace removed; raw model output files unchanged. Captured log bytes kept locally under diagnostics/original_logs.",
+  "files": [
+    {
+      "path": "native_device_logcat.log",
+      "captured_sha256": "0a8333dcf12e9daf3985d66354813e32c9b18bff08b77401ef747e86bdc06843",
+      "normalized_sha256": "c60f98689cacdb5aa4d4cc8edde927fe1dabf217554011ff7ac10682580b82fd"
+    },
+    {
+      "path": "gpu_baseline_initial/BXP-001.native.log",
+      "captured_sha256": "74ada156059bc39bc73f079ede6824115b5ce06f2b7e3277e9007368ae070e62",
+      "normalized_sha256": "57b3e8b6a55df00327d7181132c035223baf868b624bd9b11811b6bd49c938b7"
+    },
+    {
+      "path": "gpu_cpu_sampler/BXP-001.native.log",
+      "captured_sha256": "1d8443ba7326773ec3c2cfd4d6a35f60912eaf4080d34a429d3b0fa4389fc411",
+      "normalized_sha256": "73fcc4d8ec8c98410845b89a2311a64338b3408b361372b35a2eaa454cec520c"
+    },
+    {
+      "path": "gpu_cpu_sampler/BXP-003.native.log",
+      "captured_sha256": "6b0f6922a7362c7677a2cd364248019ac79799fb80dafa8c1fe5fdc1d10e84ef",
+      "normalized_sha256": "50f7730e693217989626436b75cec5d1e02d30e598214bc1c73e17e91bd239cb"
+    },
+    {
+      "path": "gpu_default/BXP-001.native.log",
+      "captured_sha256": "7ff6af1c9eabe0751024c67a4b8b5e5b65e409c3173ce945e745d6122b953881",
+      "normalized_sha256": "827ff007f253d3b79eab9e42507f2e1a1c732ab8b6121de13a5d1bf3e89b59bb"
+    },
+    {
+      "path": "gpu_default_r2/BXP-001.native.log",
+      "captured_sha256": "726547f7f55e4d4bbc6dd3f1aeec6a45955fae5e859ede25dda925bbb285d309",
+      "normalized_sha256": "ccef7111af0c3a00666f530e015d6a54c700f09ef714677acc127162d32e41b9"
+    },
+    {
+      "path": "gpu_default_r2/BXP-003.native.log",
+      "captured_sha256": "5edabdc343f7437fe43c6f92b18358857c77a4424941214b9af6c972575d5321",
+      "normalized_sha256": "431c294290b1bb77dccf2c292d9ac7aaaed9e2c82d56d1a2afa09d941b0ec8c4"
+    },
+    {
+      "path": "gpu_fp32/BXP-001.native.log",
+      "captured_sha256": "3b1480313020947fe35afc8ebc697aa299826a115e2affcdea3bbf816582d782",
+      "normalized_sha256": "5af63d65585f2978bae0615317e5b63c121110228ea1b7535297f5b4c24a7156"
+    },
+    {
+      "path": "gpu_fp32/BXP-003.native.log",
+      "captured_sha256": "90dd8c21c5360d07b411ec887601ef9a41547e0deaec786ab9badbf3bf45e087",
+      "normalized_sha256": "9b8505a34f26a510dec39ba9a0819d7385d488682d8039f3b0597d32ef236534"
+    }
+  ]
+}

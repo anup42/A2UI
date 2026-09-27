@@ -1,0 +1,22 @@
+{
+  "release": "v0.16.0 C API 0.1.0 (v0.16.1 shares source commit)",
+  "release_url": "https://github.com/google-ai-edge/LiteRT-LM/releases/download/v0.16.0/litert_lm_c_api-0.1.0.zip",
+  "release_archive_sha256": "f0f3ae7b5730af783d1f018f7ad9a8de20c25fedf01af4e35fc11d4382246f7d",
+  "libraries": {
+    "liblitert-lm.so": "e9cbdddb0f1c693c549e1cde40bf90ad8aaa124d15944d0dd18faaf016dd6938",
+    "libLiteRt.so": "97355a36cb8ac7628cf407773291e98da79f3ef184cc43cb0e57dedf5f0c0637",
+    "libLiteRtOpenClAccelerator.so": "dfdcb6a551dc78a9dab88883ad6e8e2d9b090ecda383a5cea3731c6b9561d244",
+    "libLiteRtTopKOpenClSampler.so": "743371dcc1ee57d4e2d14e6d50075c424f6ba0df554f6bb94a8b0afc1e76e253"
+  },
+  "model_sha256": "de60d19c8e1ef06ed1032212d0d4ae5d9b0ec105db72db34a988453004e63e62",
+  "device_serial": "R3GL203AKSF",
+  "device_model": "SM-F776U",
+  "source_commit": "924e79c",
+  "controls": {
+    "baseline": "GPU / default FP16 / GPU sampler",
+    "cpu_sampler": "GPU / default FP16 / explicit CPU sampler with FP32 logits",
+    "fp32": "GPU / explicit FP32 activation type / GPU sampler"
+  },
+  "baseline_required": "Compare new C API GPU raw output with already recorded JNI GPU output before interpreting control results.",
+  "production_app_modified": false
+}

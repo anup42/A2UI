@@ -1,0 +1,6 @@
+{
+  "rendered_prompt_with_bos_sha256": "ff0804511f69c3abbf9e38701afd1992230c86d94cace7896e21ed37b241b9d8",
+  "native_input_file_sha256": "5ea6b46744f887b66bc20f0a0a0e00f708491419f0bb7650cf0686b6ce83bcd3",
+  "bos_inserted_by_native_session": true,
+  "expected_input_tokens": 3174
+}

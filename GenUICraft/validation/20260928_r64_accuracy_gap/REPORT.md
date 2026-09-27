@@ -1,5 +1,10 @@
 # Checkpoint / LiteRT accuracy gap: CPU versus GPU isolation
 
+**Follow-up completed:** explicit CPU sampling still reproduces both GPU FP16
+failures exactly; forcing GPU FP32 on the unchanged model restores 2/2 valid
+raw outputs with correct numbers. See the [native precision controls](../20260928_r64_gpu_controls/REPORT.md).
+This narrows the severe additional loss to GPU FP16 execution before sampling.
+
 28 September 2026. **A fresh controlled test localizes a substantial part of
 the observed failure to the deployed GPU execution stack. The exact same
 quantized model produces 2/2 valid raw outputs on CPU and 0/2 on GPU, with MTP
