@@ -94,6 +94,39 @@ def test_zero3_save_failure_is_not_replaced_with_shard_only_fallback(monkeypatch
         trainer.save_model()
 
 
+@pytest.mark.parametrize("save_fails", [False, True])
+def test_non_zero3_save_temporarily_clears_generation_cache_implementation(
+    monkeypatch, save_fails
+):
+    observed = []
+
+    class Base:
+        def save_model(self, output_dir, _internal_call=False):
+            observed.append(self.model.generation_config.cache_implementation)
+            if save_fails:
+                raise ValueError("save failed")
+
+    monkeypatch.setenv("WORLD_SIZE", "1")
+    checked = sft._build_checked_causal_lm_trainer(Base)
+    trainer = object.__new__(checked)
+    trainer.model = SimpleNamespace(
+        generation_config=SimpleNamespace(
+            cache_implementation="hybrid",
+            use_cache=False,
+        )
+    )
+
+    if save_fails:
+        with pytest.raises(ValueError, match="save failed"):
+            trainer.save_model("checkpoint")
+    else:
+        trainer.save_model("checkpoint")
+
+    assert observed == [None]
+    assert trainer.model.generation_config.cache_implementation == "hybrid"
+    assert trainer.model.generation_config.use_cache is False
+
+
 @pytest.mark.parametrize("stage", [2, 3])
 def test_golden_callback_wiring_preserves_separate_eval_budget(tmp_path, monkeypatch, stage):
     monkeypatch.setattr(sft, "build_golden_set_eval_callback", lambda **kwargs: kwargs)

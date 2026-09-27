@@ -1736,7 +1736,16 @@ def _build_checked_causal_lm_trainer(base_trainer_cls: Any, training_cfg: dict[s
                     tokenizer=getattr(self, "processing_class", None),
                 )
                 return
-            return super().save_model(output_dir, _internal_call=_internal_call)
+            generation_config = getattr(getattr(self, "model", None), "generation_config", None)
+            missing = object()
+            cache_implementation = getattr(generation_config, "cache_implementation", missing)
+            if cache_implementation is missing:
+                return super().save_model(output_dir, _internal_call=_internal_call)
+            generation_config.cache_implementation = None
+            try:
+                return super().save_model(output_dir, _internal_call=_internal_call)
+            finally:
+                generation_config.cache_implementation = cache_implementation
 
         def _build_accelerator_args(self, **kwargs: Any) -> dict[str, Any]:
             """Set backend-specific policy before Trainer constructs Accelerator."""
