@@ -43,11 +43,18 @@ dependencyResolutionManagement {
     }
 }
 // consumer module
-implementation("com.samsung.genuicraft:genuicraft:0.5.1")
+implementation("com.samsung.genuicraft:genuicraft:0.5.2")
 ```
 
 Version 0.5.0 removes the remote server provider and its public configuration API.
-Conversion now uses the SDK's on-device LiteRT model profiles.
+Conversion uses the SDK's on-device LiteRT model profiles.
+
+Version 0.5.2 adds citation previews and a collapsible Sources section. Host-provided
+source IDs, titles, URLs and optional descriptions are stored in the compiled document.
+Tapping a known citation opens its details; only **Open website** invokes the host's
+URL callback. Source excerpts are not sent to the formatting model. Hosts with their
+own source controls can pass `showSources = false` to `GenUiContent`, or set
+`GenUiView.showSources = false` before rendering; citation previews remain enabled.
 
 Version 0.4.2 refines the train cards with compact ticket styling, full-width departure times,
 and wrapping duration/seating details. See the [Fold7 visual check](validation/20260922_train_card_polish_fold7/REPORT.md).

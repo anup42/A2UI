@@ -7,7 +7,13 @@ data class GenUiRequest(
     val sources: List<GenUiSource> = emptyList(),
 )
 
-data class GenUiSource(val id: String, val url: String, val title: String? = null)
+data class GenUiSource(
+    val id: String,
+    val url: String,
+    val title: String? = null,
+    /** Optional source-provided excerpt; displayed as attribution, never sent to the formatting model. */
+    val description: String? = null,
+)
 
 data class GenUiDocument(
     val express: String,

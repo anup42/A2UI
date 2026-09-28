@@ -8,7 +8,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import coil.ImageLoader
@@ -19,6 +22,9 @@ import com.samsung.genuicraft.sdk.internal.renderer.FlatRendererHost
 import com.samsung.genuicraft.sdk.internal.renderer.FlatSpecContent
 import com.samsung.genuicraft.sdk.internal.renderer.GenUiNativeRenderer
 import com.samsung.genuicraft.sdk.internal.renderer.LocalFlatSpecTextHorizontalPadding
+import com.samsung.genuicraft.sdk.internal.renderer.LocalSourceCitations
+import com.samsung.genuicraft.sdk.internal.renderer.SourceCitationContext
+import com.samsung.genuicraft.sdk.internal.renderer.SourceCitationDialog
 import com.samsung.genuicraft.sdk.internal.theme.GenUiRendererTheme
 
 /** Renders a compiled document without starting a model or provider. */
@@ -28,11 +34,43 @@ fun GenUiContent(
     modifier: Modifier = Modifier,
     onAction: (GenUiAction) -> Unit = {},
 ) {
+    GenUiContent(document, modifier, onAction, showSources = true)
+}
+
+/** Renders a document with optional host-owned source disclosure. */
+@Composable
+fun GenUiContent(
+    document: GenUiDocument,
+    modifier: Modifier = Modifier,
+    onAction: (GenUiAction) -> Unit = {},
+    showSources: Boolean,
+) = GenUiContentImpl(document, modifier, onAction, showSources)
+
+@Composable
+internal fun GenUiContentImpl(
+    document: GenUiDocument,
+    modifier: Modifier = Modifier,
+    onAction: (GenUiAction) -> Unit = {},
+    showSources: Boolean = true,
+    onSourcePreviewChanged: (Boolean) -> Unit = {},
+) {
     val renderResult = remember(document.a2uiJson, document.express) {
         val input = document.a2uiJson.ifBlank { document.express }
         GenUiNativeRenderer.render(input, sourceDir = null)
     }
     val callbackHost = remember(onAction) { CallbackRendererHost(onAction) }
+    val sources = remember(document.express, document.a2uiJson) { SourceAttribution.read(document) }
+    var previewSource by remember(document.express, document.a2uiJson) {
+        mutableStateOf<GenUiSource?>(null)
+    }
+    val citationContext = SourceCitationContext(
+        sources = sources,
+        onPreview = { source ->
+            onSourcePreviewChanged(true)
+            previewSource = source
+        },
+        showSources = showSources,
+    )
 
     GenUiRendererTheme {
         if (renderResult.errorMessage != null) {
@@ -45,7 +83,10 @@ fun GenUiContent(
         }
 
         Surface(modifier = modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.background) {
-            CompositionLocalProvider(LocalFlatSpecTextHorizontalPadding provides 0.dp) {
+            CompositionLocalProvider(
+                LocalFlatSpecTextHorizontalPadding provides 0.dp,
+                LocalSourceCitations provides citationContext,
+            ) {
                 Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 16.dp)) {
                     renderResult.surfaces.forEach { surface ->
                         val spec = surface.canonicalSpec ?: return@forEach
@@ -60,6 +101,14 @@ fun GenUiContent(
                 }
             }
         }
+        SourceCitationDialog(
+            source = previewSource,
+            onDismiss = {
+                previewSource = null
+                onSourcePreviewChanged(false)
+            },
+            onOpenUrl = callbackHost::openUrl,
+        )
     }
 }
 

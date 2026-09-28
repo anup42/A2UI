@@ -89,7 +89,7 @@ class GenUiConverterTest {
 
     @Test fun `source attribution is added without asking the model to preserve metadata`() = runBlocking {
         val stub = Stub(mutableListOf(program("Ready. [7]")))
-        val result = GenUiConverter.withPrompt(stub, "contract").convert(GenUiRequest("Ready. [7]", sources=listOf(GenUiSource("7", "https://www.who.int/", "WHO report"))))
+        val result = GenUiConverter.withPrompt(stub, "contract").convert(GenUiRequest("Ready. [7]", sources=listOf(GenUiSource("7", "https://www.who.int/", "WHO report", "Exact source excerpt."))))
         assertTrue(result.toString(), result is GenUiConversionResult.Success)
         val sourceRecord = com.google.gson.JsonParser.parseString(
             stub.lastPrompt!!.user.substringAfterLast('\n'),
@@ -97,9 +97,11 @@ class GenUiConverterTest {
         assertEquals("7", sourceRecord.get("id").asString)
         assertEquals("https://www.who.int/", sourceRecord.get("url").asString)
         assertEquals("WHO report", sourceRecord.get("title").asString)
+        assertFalse(stub.lastPrompt!!.user.contains("Exact source excerpt."))
         val document = (result as GenUiConversionResult.Success).document
         assertTrue(document.express.contains("[7] WHO report"))
         assertTrue(document.express.contains("https://www.who.int/"))
+        assertEquals("Exact source excerpt.", SourceAttribution.read(document).single().description)
     }
 
     @Test fun `public http source remains an exact host controlled link`() = runBlocking {
@@ -119,6 +121,7 @@ class GenUiConverterTest {
             GenUiRequest("Ready", query="q".repeat(8001)),
             GenUiRequest("Ready", sources=listOf(GenUiSource("7", "tel:123"))),
             GenUiRequest("Ready", sources=listOf(GenUiSource("7", "https://example.com/report"))),
+            GenUiRequest("Ready", sources=listOf(GenUiSource("7", "https://www.who.int/", description="x".repeat(4001)))),
             GenUiRequest("Ready", sources=List(101) { GenUiSource("$it", "https://www.who.int/") }),
         ).forEach { request ->
             val stub = Stub(mutableListOf())

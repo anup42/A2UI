@@ -63,7 +63,7 @@ import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
-import androidx.compose.material3.Text
+import com.samsung.genuicraft.sdk.internal.renderer.CitationText as Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -1204,6 +1204,8 @@ internal fun RenderFlatSourceSection(
     wrapInCard: Boolean,
     showTitle: Boolean
 ) {
+    val citationContext = LocalSourceCitations.current
+    if (citationContext?.showSources == false) return
     val dedupedLinks = section.links.distinctBy { flatCanonicalSourceUrl(it.url) }
     if (dedupedLinks.isEmpty()) {
         return
@@ -1212,6 +1214,24 @@ internal fun RenderFlatSourceSection(
         ?.let(NativeSourceParsing::normalizeSourceHeadingToken)
         ?.takeIf { it.isNotBlank() }
         ?: "Sources"
+    // The compiler normalizes element IDs and source labels without titles may
+    // fall back to the domain. Match only URLs supplied by the host.
+    val hostSources = citationContext?.sources.orEmpty()
+    val isHostAttribution = title.equals("Sources", ignoreCase = true) &&
+        hostSources.isNotEmpty() &&
+        dedupedLinks.map { it.url }.toSet() == hostSources.map { it.url }.toSet()
+    // Keep every source ID even when several IDs point to the same URL.
+    val displayedSources = if (isHostAttribution) {
+        hostSources.map { source ->
+            source to ParsedButton(
+                label = "[${source.id}] ${source.title?.takeIf(String::isNotBlank) ?: source.url}",
+                url = source.url,
+            )
+        }
+    } else {
+        dedupedLinks.map { null to it }
+    }
+    var expanded by remember(section, citationContext?.sources) { mutableStateOf(false) }
 
     @Composable
     fun SourceContent(contentModifier: Modifier = Modifier) {
@@ -1219,16 +1239,26 @@ internal fun RenderFlatSourceSection(
             modifier = contentModifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            if (showTitle) {
-                Text(
-                    text = title,
+            TextButton(
+                onClick = { expanded = !expanded },
+                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).semantics {
+                    stateDescription = if (expanded) "Expanded" else "Collapsed"
+                },
+            ) {
+                androidx.compose.material3.Text(
+                    text = "$title (${displayedSources.size}) ${if (expanded) "▴" else "▾"}",
                     style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.semantics { heading() }
+                    modifier = if (showTitle) Modifier.semantics { heading() } else Modifier,
                 )
             }
-            dedupedLinks.forEach { source ->
-                RenderFlatSourceRow(source, onOpenUrl)
+            if (expanded) displayedSources.forEach { (hostSource, link) ->
+                RenderFlatSourceRow(
+                    source = link,
+                    onOpenUrl = onOpenUrl,
+                    onPreview = hostSource?.let { known ->
+                        { citationContext?.onPreview?.invoke(known); Unit }
+                    },
+                )
             }
         }
     }
@@ -1239,7 +1269,7 @@ internal fun RenderFlatSourceSection(
                 .fillMaxWidth()
                 .padding(vertical = 4.dp)
                 .semantics(mergeDescendants = false) {
-                    contentDescription = "$title, ${dedupedLinks.size} links"
+                    contentDescription = "$title, ${displayedSources.size} links"
                 },
             colors = flatSpecCardColors(),
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
@@ -1258,7 +1288,8 @@ internal fun RenderFlatSourceSection(
 @Composable
 internal fun RenderFlatSourceRow(
     source: ParsedButton,
-    onOpenUrl: (String) -> Unit
+    onOpenUrl: (String) -> Unit,
+    onPreview: (() -> Unit)? = null,
 ) {
     val label = source.label
         .takeIf { it.isNotBlank() }
@@ -1268,9 +1299,11 @@ internal fun RenderFlatSourceRow(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(14.dp))
-            .clickable(role = Role.Button) { onOpenUrl(source.url) }
+            .clickable(role = Role.Button) {
+                if (onPreview != null) onPreview() else onOpenUrl(source.url)
+            }
             .semantics(mergeDescendants = true) {
-                contentDescription = "Open source $label"
+                contentDescription = "${if (onPreview != null) "View" else "Open"} source $label"
                 role = Role.Button
             },
         shape = RoundedCornerShape(14.dp),
@@ -1300,14 +1333,14 @@ internal fun RenderFlatSourceRow(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
-                Text(
+                androidx.compose.material3.Text(
                     text = parseBoldMarkdown(label),
                     style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
-                Text(
+                androidx.compose.material3.Text(
                     text = urlHint,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,

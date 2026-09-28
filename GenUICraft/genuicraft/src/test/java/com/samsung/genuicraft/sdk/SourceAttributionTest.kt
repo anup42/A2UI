@@ -7,6 +7,36 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class SourceAttributionTest {
+    @Test fun `source IDs excerpts and literal text survive wire document restoration`() {
+        val sources = listOf(
+            GenUiSource("1", "https://www.who.int/", "Report", "Exact source excerpt with \${value} and [11]."),
+            GenUiSource("11", "https://www.who.int/", "Another reference", null),
+        )
+        val original = GenUiCompiler.compile("<a2ui>\nroot=Text(\"Ready [1][11]\")\n</a2ui>")
+        val attached = SourceAttribution.append(original, sources)
+        val restored = GenUiCompiler.compile(attached.a2uiJson)
+        assertEquals(sources, SourceAttribution.read(restored))
+        assertEquals(sources, SourceAttribution.read(restored.copy(express = "")))
+    }
+
+    @Test fun `old persisted SDK buttons retain original citation IDs without invented descriptions`() {
+        val original = GenUiCompiler.compile("<a2ui>\nroot=Text(\"Ready [11]\")\n</a2ui>")
+        val source = GenUiSource("11", "https://www.who.int/", "Report")
+        val graph = A2uiExpressCodec.decode(SourceAttribution.append(original, listOf(source)).express)
+        graph.getAsJsonObject("state").remove("__genuicraft_sources")
+        val legacy = GenUiCompiler.compile(A2uiExpressCodec.encode(graph))
+        assertEquals(legacy.express, listOf(source), SourceAttribution.read(legacy))
+    }
+
+    @Test fun `ambiguous metadata IDs do not create a citation binding`() {
+        val original = GenUiCompiler.compile("<a2ui>\nroot=Text(\"Ready\")\n</a2ui>")
+        val document = SourceAttribution.append(original, listOf(
+            GenUiSource("1", "https://www.who.int/", "First"),
+            GenUiSource("1", "https://www.who.int/news", "Second"),
+        ))
+        assertTrue(SourceAttribution.read(document).isEmpty())
+    }
+
     @Test fun `host source labels stay literal while callback URLs remain exact`() {
         val source = GenUiSource("\${INDEX}", "https://www.who.int/?q=%24%7BHOME%7D", "Open \${HOME} <a2ui> example")
         val original = GenUiCompiler.compile("<a2ui>\nroot=Text(\"Ready\")\n</a2ui>")
