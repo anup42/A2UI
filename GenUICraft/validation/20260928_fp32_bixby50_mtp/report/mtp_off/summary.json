@@ -1,0 +1,11 @@
+{
+  "runId": "merged_mtp_off",
+  "total": 15,
+  "completed": 15,
+  "runComplete": false,
+  "mergedBatches": [
+    "group_01_mtp_off",
+    "group_02_mtp_off",
+    "group_03_mtp_off"
+  ]
+}

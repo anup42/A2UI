@@ -1,0 +1,35 @@
+{
+  "epochMs": 1790570292598,
+  "batch": "group_03_mtp_on",
+  "stage": "running",
+  "thermalStatus": 2,
+  "temperaturesC": {
+    "AP": 50.9,
+    "BAT": 41.8,
+    "CP": 46.2,
+    "PA": 50.4,
+    "SKIN": 43.1,
+    "SUBBAT": 35.8,
+    "USB": 32.9
+  },
+  "gpuClockHz": 578000000,
+  "gpuMaxClockHz": 578000000,
+  "gpuBusyCounters": [
+    "912034",
+    "1003117"
+  ],
+  "runStatus": {
+    "runId": "fp32_full_group_03_mtp_on_1790570140",
+    "state": "running",
+    "completed": 2,
+    "total": 5,
+    "updatedAtEpochMs": 1790570257191
+  },
+  "completedBatches": [
+    "group_01_mtp_off",
+    "group_01_mtp_on",
+    "group_02_mtp_on",
+    "group_02_mtp_off",
+    "group_03_mtp_off"
+  ]
+}

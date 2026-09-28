@@ -1,0 +1,9 @@
+{
+  "state": "stopped_at_user_request",
+  "completedGenerations": 27,
+  "completedOff": 15,
+  "completedOn": 12,
+  "pairedCases": 12,
+  "interruptedCase": "BXP-013 MTP on",
+  "resumed": false
+}

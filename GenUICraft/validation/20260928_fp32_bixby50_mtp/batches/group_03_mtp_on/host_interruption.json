@@ -1,0 +1,19 @@
+{
+  "reason": "user_requested_stop",
+  "stoppedAtUtc": "2026-09-28T04:39:32.9240749Z",
+  "selectedCases": [
+    "BXP-011",
+    "BXP-012",
+    "BXP-013",
+    "BXP-014",
+    "BXP-015"
+  ],
+  "completedCases": [
+    "BXP-011",
+    "BXP-012"
+  ],
+  "interruptedCase": "BXP-013",
+  "runId": "fp32_full_group_03_mtp_on_1790570140",
+  "inferenceResumed": false,
+  "sessionAcceptanceUnavailableReason": "App inference was stopped at user request before normal engine-session teardown."
+}

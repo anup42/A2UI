@@ -1,0 +1,92 @@
+INSTRUMENTATION_STATUS: class=com.samsung.genuicraft.GenUiTrainedBixby50Test
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+com.samsung.genuicraft.GenUiTrainedBixby50Test:
+INSTRUMENTATION_STATUS: test=convertAndRenderTrainedBixby50
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: stream=BXP-001 valid (1/5)
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-002 render_invalid (2/5)
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-003 valid (3/5)
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-004 valid (4/5)
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-005 valid (5/5)
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.samsung.genuicraft.GenUiTrainedBixby50Test
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: runComplete=true, allValid=false; artifacts: /storage/emulated/0/Android/data/com.samsung.genuicraft/files/sdk_benchmark/fp32_full_group_01_mtp_on_1790568891
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.samsung.genuicraft.GenUiTrainedBixby50Test$convertAndRenderTrainedBixby50$1.invokeSuspend(GenUiTrainedBixby50Test.kt:384)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at kotlinx.coroutines.UndispatchedCoroutine.afterResume(CoroutineContext.kt:266)
+	at kotlinx.coroutines.AbstractCoroutine.resumeWith(AbstractCoroutine.kt:100)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:47)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:101)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:263)
+	at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:95)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:69)
+	at kotlinx.coroutines.BuildersKt.runBlocking(dex-id-79f02561dc9ba5c2d888affee75b357fe5f93e99:1)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking$default(Builders.kt:47)
+	at kotlinx.coroutines.BuildersKt.runBlocking$default(dex-id-79f02561dc9ba5c2d888affee75b357fe5f93e99:1)
+	at com.samsung.genuicraft.GenUiTrainedBixby50Test.convertAndRenderTrainedBixby50(GenUiTrainedBixby50Test.kt:50)
+
+INSTRUMENTATION_STATUS: stream=
+Error in convertAndRenderTrainedBixby50(com.samsung.genuicraft.GenUiTrainedBixby50Test):
+java.lang.AssertionError: runComplete=true, allValid=false; artifacts: /storage/emulated/0/Android/data/com.samsung.genuicraft/files/sdk_benchmark/fp32_full_group_01_mtp_on_1790568891
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.samsung.genuicraft.GenUiTrainedBixby50Test$convertAndRenderTrainedBixby50$1.invokeSuspend(GenUiTrainedBixby50Test.kt:384)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at kotlinx.coroutines.UndispatchedCoroutine.afterResume(CoroutineContext.kt:266)
+	at kotlinx.coroutines.AbstractCoroutine.resumeWith(AbstractCoroutine.kt:100)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:47)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:101)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:263)
+	at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:95)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:69)
+	at kotlinx.coroutines.BuildersKt.runBlocking(dex-id-79f02561dc9ba5c2d888affee75b357fe5f93e99:1)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking$default(Builders.kt:47)
+	at kotlinx.coroutines.BuildersKt.runBlocking$default(dex-id-79f02561dc9ba5c2d888affee75b357fe5f93e99:1)
+	at com.samsung.genuicraft.GenUiTrainedBixby50Test.convertAndRenderTrainedBixby50(GenUiTrainedBixby50Test.kt:50)
+
+INSTRUMENTATION_STATUS: test=convertAndRenderTrainedBixby50
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 181.982
+There was 1 failure:
+1) convertAndRenderTrainedBixby50(com.samsung.genuicraft.GenUiTrainedBixby50Test)
+java.lang.AssertionError: runComplete=true, allValid=false; artifacts: /storage/emulated/0/Android/data/com.samsung.genuicraft/files/sdk_benchmark/fp32_full_group_01_mtp_on_1790568891
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.samsung.genuicraft.GenUiTrainedBixby50Test$convertAndRenderTrainedBixby50$1.invokeSuspend(GenUiTrainedBixby50Test.kt:384)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at kotlinx.coroutines.UndispatchedCoroutine.afterResume(CoroutineContext.kt:266)
+	at kotlinx.coroutines.AbstractCoroutine.resumeWith(AbstractCoroutine.kt:100)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:47)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:101)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:263)
+	at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:95)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:69)
+	at kotlinx.coroutines.BuildersKt.runBlocking(dex-id-79f02561dc9ba5c2d888affee75b357fe5f93e99:1)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking$default(Builders.kt:47)
+	at kotlinx.coroutines.BuildersKt.runBlocking$default(dex-id-79f02561dc9ba5c2d888affee75b357fe5f93e99:1)
+	at com.samsung.genuicraft.GenUiTrainedBixby50Test.convertAndRenderTrainedBixby50(GenUiTrainedBixby50Test.kt:50)
+
+FAILURES!!!
+Tests run: 1,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1
