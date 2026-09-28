@@ -2,6 +2,11 @@ package com.samsung.genuicraft
 
 import android.os.Build
 import android.os.Bundle
+import android.os.PowerManager
+import android.os.BatteryManager
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -198,6 +203,8 @@ class GenUiTrainedBixby50Test {
                         addProperty("elapsedMs", 0L)
                         addProperty("firstInRun", index == 0)
                         addProperty("attempts", 0)
+                        addProperty("startedAtEpochMs", System.currentTimeMillis())
+                        add("deviceBefore", gson.toJsonTree(deviceState(context)))
                         add("metrics", JsonNull.INSTANCE)
                     }
                     val caseStarted = System.nanoTime()
@@ -316,6 +323,8 @@ class GenUiTrainedBixby50Test {
                         report.add("metrics", gson.toJsonTree(recorder.metricMap()))
                     }
                     report.addProperty("caseElapsedMs", elapsedMs(caseStarted))
+                    report.addProperty("finishedAtEpochMs", System.currentTimeMillis())
+                    report.add("deviceAfter", gson.toJsonTree(deviceState(context)))
                     finishCase(runDir, caseDir, report, reports, runId, cases.size, gson)
                     instrumentation.sendStatus(0, Bundle().apply {
                         putString(
@@ -329,7 +338,15 @@ class GenUiTrainedBixby50Test {
         } finally {
             withContext(NonCancellable) {
                 try {
-                    provider.closeAndAwait()
+                    // Acceptance is an engine-session statistic, not a per-case estimate.
+                    try {
+                        runCatching { provider.finishGenerationMetrics() }.fold(
+                            onSuccess = { writeJson(File(runDir, "session_metrics.json"), it, gson) },
+                            onFailure = { writeJson(File(runDir, "session_metrics.json"), mapOf("error" to it.toString()), gson) },
+                        )
+                    } finally {
+                        provider.closeAndAwait()
+                    }
                 } catch (failure: Exception) {
                     providerCloseError = failure.message ?: failure.javaClass.simpleName
                 }
@@ -487,7 +504,7 @@ class GenUiTrainedBixby50Test {
                 providerCallMs = elapsedMs(started)
                 writeJson(
                     File(caseDir, "metrics.json"),
-                    linkedMapOf(
+                    linkedMapOf<String, Any?>(
                         "providerCallMs" to providerCallMs,
                         "runtime" to output?.runtime,
                         "outputCharacters" to output?.text?.length,
@@ -496,7 +513,7 @@ class GenUiTrainedBixby50Test {
                         "actualOutputTokens" to output?.metrics?.outputTokens,
                         "decodeTokensPerSecond" to output?.metrics?.decodeTokensPerSecond,
                         "error" to providerError,
-                    ),
+                    ).apply { putAll(metricMap()) },
                     gson,
                 )
             }
@@ -507,6 +524,27 @@ class GenUiTrainedBixby50Test {
             "outputTokens" to (output?.metrics?.outputTokens ?: output?.outputTokens),
             "decodeTokensPerSecond" to output?.metrics?.decodeTokensPerSecond,
             "providerCallMs" to providerCallMs,
+            "prefillTokensPerSecond" to output?.metrics?.prefillTokensPerSecond,
+            "timeToFirstTokenSeconds" to output?.metrics?.timeToFirstTokenSeconds,
+            "engineInitializationSeconds" to output?.metrics?.engineInitializationSeconds,
+            "engineInitializedForRequest" to output?.metrics?.engineInitializedForRequest,
+            "nativeInitializationPhaseSeconds" to output?.metrics?.nativeInitializationPhaseSeconds,
+            "finishReason" to output?.finishReason?.name,
+            "finishDetail" to output?.finishDetail,
+        )
+    }
+
+    private fun deviceState(context: Context): Map<String, Any?> {
+        val battery = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+        return linkedMapOf(
+            "epochMs" to System.currentTimeMillis(),
+            "thermalStatus" to if (Build.VERSION.SDK_INT >= 29) {
+                context.getSystemService(PowerManager::class.java)?.currentThermalStatus
+            } else null,
+            "batteryTemperatureC" to battery?.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, -1)
+                ?.takeIf { it >= 0 }?.div(10.0),
+            "batteryLevel" to battery?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1),
+            "plugged" to battery?.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1),
         )
     }
 
