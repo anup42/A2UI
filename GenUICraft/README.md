@@ -43,11 +43,17 @@ dependencyResolutionManagement {
     }
 }
 // consumer module
-implementation("com.samsung.genuicraft:genuicraft:0.5.2")
+implementation("com.samsung.genuicraft:genuicraft:0.5.3")
 ```
 
 Version 0.5.0 removes the remote server provider and its public configuration API.
 Conversion uses the SDK's on-device LiteRT model profiles.
+
+Version 0.5.3 replaces spacious train tickets with compact grouped rows, wrapping
+labeled details and thin separators. Clear railway tables with generic detail
+headings such as `Journey` also use this route. Supplied values and inline source
+previews are preserved. The [device visual check](validation/20260929_compact_railway/REPORT.md)
+measured a 36% shorter three-train block at the same font size.
 
 Version 0.5.2 adds citation previews and a collapsible Sources section. Host-provided
 source IDs, titles, URLs and optional descriptions are stored in the compiled document.

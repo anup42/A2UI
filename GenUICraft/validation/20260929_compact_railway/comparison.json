@@ -1,0 +1,19 @@
+{
+  "before_table_bounds_px": [
+    78,
+    335,
+    1002,
+    1409
+  ],
+  "after_table_bounds_px": [
+    78,
+    891,
+    1002,
+    1578
+  ],
+  "before_height_px": 1074,
+  "after_height_px": 687,
+  "fixture_sha256": "a9a761281b2a6521c7f3b77ec79069b49460d64bb0a2c8fe611dfb14d103a4c8",
+  "all_fixture_values_visible": true,
+  "height_reduction_percent": 36.0
+}

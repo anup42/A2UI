@@ -1,0 +1,13 @@
+<a2ui>
+$/={__genuicraft_sources:[{id:"1",url:"https://enquiry.indianrail.gov.in/",title:"Indian Railways enquiry",description:"Synthetic QA source 1: public railway enquiry site."},{id:"11",url:"https://enquiry.indianrail.gov.in/ntes/",title:"National Train Enquiry System",description:"Synthetic QA source 11: public train enquiry site."}],trains:[{service:"Shatabdi Express",number:"12007",departure:"10:35 [1]",journey:"about 2 h 20 m"},{service:"Rajya Rani Express",number:"20660",departure:"11:30",journey:"about 2 h 30 m"},{service:"Wodeyar Express",number:"12614",departure:"15:15",journey:"about 2 h 30 m"}]}
+root=Column([title,explanation,travel_details,train_card,sdk_source_2],gap="md",padding=16)
+title=Text("Synthetic sources QA • not model output","h2")
+explanation=Text("Tap citation chips to inspect source previews, then open and close Sources below.","caption")
+travel_details=Text("Travel details [1][11]","body")
+train_card=Card([train_table,train_note],title="Bengaluru to Mysuru • fixture timetable")
+train_table=Table(columns=[{key:"service",label:"Service"},{key:"number",label:"Train"},{key:"departure",label:"Departure"},{key:"journey",label:"Journey"}],statePath="/trains",domain="comparison",preferredPresentation="cards",primaryColumn="service")
+train_note=Text("Times are illustrative fixture values; check the linked railway sites for live details.","caption")
+sdk_source_0=Button("[1] Indian Railways enquiry","secondary",onPress=openUrl("https://enquiry.indianrail.gov.in/"))
+sdk_source_1=Button("[11] National Train Enquiry System","secondary",onPress=openUrl("https://enquiry.indianrail.gov.in/ntes/"))
+sdk_source_2=Card([sdk_source_0,sdk_source_1],title="Sources")
+</a2ui>

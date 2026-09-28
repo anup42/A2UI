@@ -43,8 +43,9 @@ internal object NativeTrainSemantics {
         val durationIndex = rolesByIndex.indexOfFirst { it == TrainFieldRole.DURATION }.takeIf { it >= 0 }
         val seatingIndex = rolesByIndex.indexOfFirst { it == TrainFieldRole.SEATING }.takeIf { it >= 0 }
 
-        val profileIndexes = listOfNotNull(stationIndex, departureIndex, durationIndex, seatingIndex)
-        if ((stationIndex == null && departureIndex == null) || profileIndexes.size < 2) return null
+        // Compact rail tables can use generic detail headings (for example Journey/Fare).
+        // Retain those as labeled extras instead of sending a clear train table to generic cards.
+        if ((stationIndex == null && departureIndex == null) || headers.size < 3) return null
 
         val representedIndexes = setOfNotNull(
             serviceIndex,
@@ -56,7 +57,15 @@ internal object NativeTrainSemantics {
         val mappedRows = ArrayList<NativeTrainRow>(rows.size)
         for (row in rows) {
             val service = fieldAt(headers, row, serviceIndex, TrainFieldRole.SERVICE) ?: return null
-            val station = stationIndex?.let { fieldAt(headers, row, it, TrainFieldRole.STATION) }
+            val station = stationIndex?.let { index ->
+                fieldAt(headers, row, index, TrainFieldRole.STATION)?.let { field ->
+                    // Bare "Departure" can be a time or a station. Only expand it to station
+                    // when a separate departure-time column makes that meaning unambiguous.
+                    if (normalizedHeaders[index] == "departure" && departureIndex == null) {
+                        field.copy(label = friendlyHeaderLabel(headers[index]))
+                    } else field
+                }
+            }
             val departure = departureIndex?.let { fieldAt(headers, row, it, TrainFieldRole.DEPARTURE) }
             val duration = durationIndex?.let { fieldAt(headers, row, it, TrainFieldRole.DURATION) }
             val seating = seatingIndex?.let { fieldAt(headers, row, it, TrainFieldRole.SEATING) }

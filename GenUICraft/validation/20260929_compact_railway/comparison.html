@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Compact railway cards — SDK 0.5.3</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #f5f7fb; color: #172033; font: 16px/1.5 system-ui,sans-serif; }
+  main { max-width: 1100px; padding: 32px 24px; margin: auto; }
+  h1 { font-size: 30px; letter-spacing: -.7px; margin: 0 0 8px; }
+  p { max-width: 850px; color: #526077; }
+  .badge { display: inline-block; color: #1455bd; font-weight: 700; margin-bottom: 12px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  article { background: white; border: 1px solid #dfe5ef; border-radius: 20px; padding: 20px; }
+  h2 { margin: 0 0 4px; font-size: 19px; }
+  article p { margin: 0 0 16px; font-size: 14px; }
+  svg { width: 100%; display: block; }
+  a { color: #1758bd; }
+  .note { font-size: 14px; margin-top: 24px; }
+  @media(max-width:700px) { .grid { grid-template-columns: 1fr; } }
+</style>
+<main>
+  <span class="badge">SDK 0.5.3 · Connected-device check</span>
+  <h1>36% less height. The same train details.</h1>
+  <p>Smaller gaps, clear service names and wrapping details replace repeated labels and padded chips. These are views of the same synthetic fixture, not newly generated model output.</p>
+  <div class="grid">
+    <article>
+      <h2>Before · 1,074 px</h2>
+      <p>Repeated “Service” labels, padded fields and large row gaps.</p>
+      <svg viewBox="78 335 924 1074" role="img" aria-label="Before: three trains displayed in spacious comparison cards"><image href="before.png" width="1080" height="2520"/></svg>
+    </article>
+    <article>
+      <h2>After · 687 px</h2>
+      <p>One compact group, thin separators and preserved inline citations.</p>
+      <svg viewBox="78 891 924 687" role="img" aria-label="After: three compact railway rows with names, train numbers, journey and departure details"><image href="after.png" width="1080" height="2520"/></svg>
+    </article>
+  </div>
+  <p class="note">Both card regions are displayed at the same width. Device: SM-F776U, font scale 1.0. Region bounds come from Android's UI hierarchy. Full screenshots remain unchanged: <a href="before.png">before</a> · <a href="after.png">after</a> · <a href="citation.png">citation preview</a> · <a href="large_text.png">130% text</a>.</p>
+  <p class="note">19 targeted tests passed. The shared SDK and updated demo are installed; the Bixby source patch still requires rebuilding in the Bixby environment. <a href="REPORT.md">Validation report</a>.</p>
+</main>
+</html>

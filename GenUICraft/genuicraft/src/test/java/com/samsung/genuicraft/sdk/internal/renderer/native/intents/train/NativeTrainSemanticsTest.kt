@@ -7,6 +7,37 @@ import org.junit.Test
 
 class NativeTrainSemanticsTest {
     @Test
+    fun buildTrainRows_keepsCompactRailHeadersAndCitationValuesWithoutGuessingTimeOrStation() {
+        val result = NativeTrainSemantics.buildTrainRows(
+            headers = listOf("Service", "Train", "Departure", "Journey"),
+            rows = listOf(listOf("Shatabdi Express", "12007", "10:35 [1]", "about 2 h 20 m")),
+        )!!.single()
+
+        assertEquals(NativeTrainField("Service", "Shatabdi Express"), result.service)
+        assertEquals(NativeTrainField("Departure", "10:35 [1]"), result.station)
+        assertNull(result.departure)
+        assertNull(result.duration)
+        assertEquals(listOf(NativeTrainField("Train", "12007"), NativeTrainField("Journey", "about 2 h 20 m")), result.extraFields)
+    }
+
+    @Test
+    fun buildTrainRows_compactMappingStillRequiresRailIdentityAndUsableDetails() {
+        assertNull(NativeTrainSemantics.buildTrainRows(
+            listOf("Service", "Departure", "Journey"),
+            listOf(listOf("Option A", "Central", "Route A")),
+        ))
+        assertNull(NativeTrainSemantics.buildTrainRows(
+            listOf("Train", "Fare"), listOf(listOf("Express", "700")),
+        ))
+        val result = NativeTrainSemantics.buildTrainRows(
+            listOf("Train", "Departure", "Fare (INR)"),
+            listOf(listOf("Express [11]", "City Central", "700")),
+        )!!.single()
+        assertEquals(NativeTrainField("Departure", "City Central"), result.station)
+        assertEquals(NativeTrainField("Fare (INR)", "700"), result.extraFields.single())
+    }
+
+    @Test
     fun buildTrainRows_mapsRecoveredComparisonWithoutCorrectingGeneratedValues() {
         val rows = NativeTrainSemantics.buildTrainRows(
             headers = listOf(

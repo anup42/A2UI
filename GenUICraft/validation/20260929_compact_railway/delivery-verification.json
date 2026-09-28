@@ -1,0 +1,33 @@
+{
+  "sdk_version": "0.5.3",
+  "zip": "Bixby-GenUICraft-Compact-Railway-20260929.zip",
+  "zip_files": 40,
+  "zip_sha256": "050a231e3e788efd2b00f14a3198920221a874e804e2e62832ad4167f6b35e68",
+  "zip_matches_bixby_checkout": true,
+  "nullable_conversation_fix_retained": true,
+  "app_reference_matches_sdk": true,
+  "tests": [
+    {
+      "suite": "NativeTrainSemanticsTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "ExplicitTablePresentationTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "CitationTextTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "bixby_apk_built_or_tested": false
+}
