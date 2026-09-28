@@ -1,0 +1,62 @@
+{
+  "device": "SM_F776U",
+  "sdk_version": "0.5.4",
+  "qa_apk_sha256": "fbc77a27005f790cf0094901c2fa284cbb65fe0d7352cba173a6b60606902f5f",
+  "qa_compose_versions": {
+    "META-INF/androidx.compose.foundation_foundation.version": "1.11.4",
+    "META-INF/androidx.compose.foundation_foundation-layout.version": "1.11.4",
+    "META-INF/androidx.compose.material3_material3.version": "1.5.0-alpha17"
+  },
+  "demo_compose_versions": {
+    "META-INF/androidx.compose.foundation_foundation.version": "1.7.5",
+    "META-INF/androidx.compose.foundation_foundation-layout.version": "1.7.5",
+    "META-INF/androidx.compose.material3_material3.version": "1.3.1"
+  },
+  "qa_matches_installed_bixby_compose": true,
+  "old_sdk_qa_crash_pid": 19137,
+  "fixed_sdk_qa_pids": [
+    20276,
+    20683,
+    21432
+  ],
+  "fixed_pids_androidruntime_error_lines": 0,
+  "tests": [
+    {
+      "case": "three compact train rows with exact fixture values",
+      "pass": true
+    },
+    {
+      "case": "inline train citation opens Indian Railways source1 popup",
+      "pass": true
+    },
+    {
+      "case": "Sources expands to source1 and source11",
+      "pass": true
+    },
+    {
+      "case": "saved weather and train in answer host",
+      "pass": true
+    },
+    {
+      "case": "weather GenUICraft to original Bixby and back",
+      "pass": true
+    },
+    {
+      "case": "Recreate restores saved visual answer",
+      "pass": true
+    },
+    {
+      "case": "historical railway Express replay",
+      "pass": true,
+      "limitation": "Unmodified old fixture retains its old malformed text; not a new generation."
+    },
+    {
+      "case": "demo older Compose reference capture",
+      "pass": true,
+      "captured": 2,
+      "requested": 2
+    }
+  ],
+  "new_bixby_apk_built_or_installed": false,
+  "new_model_inference_run_for_fix": false
+}

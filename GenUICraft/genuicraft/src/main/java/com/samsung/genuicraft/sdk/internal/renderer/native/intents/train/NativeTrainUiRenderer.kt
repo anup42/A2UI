@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
+import com.samsung.genuicraft.sdk.internal.renderer.RendererFlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -50,7 +50,7 @@ internal object NativeTrainUiRenderer {
         ) {
             // An enclosing card may already name the route. Do not add another default heading.
             title?.takeIf(String::isNotBlank)?.let { suppliedTitle ->
-                FlowRow(
+                RendererFlowRow(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalArrangement = Arrangement.spacedBy(2.dp),
                 ) {
@@ -123,7 +123,7 @@ internal object NativeTrainUiRenderer {
                 )
             }
             // Natural-width fields share a line where space permits; long values wrap intact.
-            FlowRow(
+            RendererFlowRow(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalArrangement = Arrangement.spacedBy(3.dp),

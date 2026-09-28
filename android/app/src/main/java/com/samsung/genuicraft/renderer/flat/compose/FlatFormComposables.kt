@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
@@ -296,7 +295,7 @@ internal fun RenderChoicePicker(
             color = MaterialTheme.colorScheme.onSurface
         )
         Spacer(Modifier.height(6.dp))
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        RendererFlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             options.forEach { (optionLabel, optionValue) ->
                 val active = selected.contains(optionValue)
                 val commit: (Set<String>) -> Unit = { next ->

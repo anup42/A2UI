@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
@@ -231,7 +230,7 @@ internal fun RenderEmailPreview(props: Map<String, Any?>, modifier: Modifier = M
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
                 if (metadata.isNotEmpty()) {
-                    FlowRow(
+                    RendererFlowRow(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
@@ -311,7 +310,7 @@ internal fun RenderEmailPreview(props: Map<String, Any?>, modifier: Modifier = M
                     }
                 }
 
-                FlowRow(
+                RendererFlowRow(
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {

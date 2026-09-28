@@ -1,6 +1,6 @@
 # GenUICraft implementation contract
 
-Standalone Android library, version 0.5.3, module `:genuicraft`, public package `com.samsung.genuicraft.sdk`.
+Standalone Android library, version 0.5.4, module `:genuicraft`, public package `com.samsung.genuicraft.sdk`.
 The independent project lives under A2UI/GenUICraft. Do not build Bixby. Test the actual published AAR in the existing A2UI/android app.
 
 ## Ownership
@@ -46,6 +46,6 @@ Native streaming stops a component-reference decode loop at 20 repeated referenc
 
 ## Integration and validation
 
-Bixby: classify using actual provider metadata, accumulate streaming response by request, convert once complete, cancel stale work, show native GenUiView/Compose result. Preserve citations/source metadata, TTS/history. A2UI failure must show error/retry; never label fallback text as model success. When its SDK integration is refreshed, consume the complete Maven publication; the current library coordinate is `com.samsung.genuicraft:genuicraft:0.5.3`. The host selects an on-device model profile. Document exact source extraction/classification limitations rather than guessing.
+Bixby: classify using actual provider metadata, accumulate streaming response by request, convert once complete, cancel stale work, show native GenUiView/Compose result. Preserve citations/source metadata, TTS/history. A2UI failure must show error/retry; never label fallback text as model success. When its SDK integration is refreshed, consume the complete Maven publication; the current library coordinate is `com.samsung.genuicraft:genuicraft:0.5.4`. The host selects an on-device model profile. Document exact source extraction/classification limitations rather than guessing.
 
 Test app: actual built AAR dependency, dedicated SDK demo/benchmark route, Bixby50 assets copied from `tmp/bixby_perplexity_check/run_50_exact/responses.jsonl`. On-device profiles, renderer-only replay, content/citation preservation, latency, screenshots and failure details. Keep benchmark outputs separate from source. Report cold initialization, successful raw generations, repaired generations and failures distinctly.

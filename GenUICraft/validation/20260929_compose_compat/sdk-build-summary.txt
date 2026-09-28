@@ -1,0 +1,15 @@
+> Task :genuicraft:bundleLibRuntimeToJarDebug
+> Task :genuicraft:bundleLibCompileToJarDebug
+> Task :genuicraft:processReleaseJavaRes
+> Task :genuicraft:mergeReleaseJavaResource
+> Task :genuicraft:syncReleaseLibJars
+> Task :genuicraft:compileDebugUnitTestKotlin
+> Task :genuicraft:bundleReleaseAar
+> Task :genuicraft:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :genuicraft:processDebugUnitTestJavaRes UP-TO-DATE
+> Task :genuicraft:testDebugUnitTest
+> Task :genuicraft:generateMetadataFileForReleasePublication
+> Task :genuicraft:publishReleasePublicationToLocalBuildRepository
+
+BUILD SUCCESSFUL in 56s
+60 actionable tasks: 16 executed, 44 up-to-date

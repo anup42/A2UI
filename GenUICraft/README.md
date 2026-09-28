@@ -43,11 +43,20 @@ dependencyResolutionManagement {
     }
 }
 // consumer module
-implementation("com.samsung.genuicraft:genuicraft:0.5.3")
+implementation("com.samsung.genuicraft:genuicraft:0.5.4")
 ```
 
 Version 0.5.0 removes the remote server provider and its public configuration API.
 Conversion uses the SDK's on-device LiteRT model profiles.
+
+Version 0.5.4 replaces experimental Compose `FlowRow` calls with an SDK-owned
+wrapping layout. This avoids the missing older `FlowRowOverflow` method signature
+when a host resolves newer Compose libraries. The layout retains wrapping,
+spacing, RTL placement and weighted metric cards. Validate the published AAR with
+`python tools/check_compose_flow_abi.py genuicraft/build/outputs/aar/genuicraft-release.aar`
+and test consumers with their actual Compose dependency versions.
+See the [0.5.4 compatibility report](validation/20260929_compose_compat/REPORT.md)
+for the reproduced Bixby crash, artifact checks and device evidence.
 
 Version 0.5.3 replaces spacious train tickets with compact grouped rows, wrapping
 labeled details and thin separators. Clear railway tables with generic detail

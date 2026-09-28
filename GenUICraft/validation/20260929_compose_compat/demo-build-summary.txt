@@ -1,0 +1,15 @@
+w: file:///C:/Users/anupk/Documents/git/A2UI/android/app/src/main/java/com/samsung/genuicraft/renderer/GenUiNativeRenderer.kt:1177:25 'when' is exhaustive so 'else' is redundant here.
+w: file:///C:/Users/anupk/Documents/git/A2UI/android/app/src/main/java/com/samsung/genuicraft/renderer/flat/parse/FlatSpecParserCore.kt:330:40 No cast needed.
+
+> Task :app:compileDebugJavaWithJavac UP-TO-DATE
+> Task :app:dexBuilderDebug
+> Task :app:mergeDebugGlobalSynthetics UP-TO-DATE
+> Task :app:processDebugJavaRes
+> Task :app:mergeProjectDexDebug
+> Task :app:mergeDebugJavaResource
+> Task :app:packageDebug
+> Task :app:createDebugApkListingFileRedirect UP-TO-DATE
+> Task :app:assembleDebug
+
+BUILD SUCCESSFUL in 2m 26s
+42 actionable tasks: 11 executed, 31 up-to-date

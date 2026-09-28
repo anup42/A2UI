@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
@@ -698,7 +697,7 @@ object GenUiNativeRenderer {
                             }))
                 }
             if (allShortTexts) {
-                FlowRow(
+                RendererFlowRow(
                     modifier = actionModifier,
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                     verticalArrangement = Arrangement.spacedBy(6.dp)
@@ -834,7 +833,7 @@ object GenUiNativeRenderer {
             justifyToken in setOf("between", "spacebetween", "around", "spacearound", "evenly", "spaceevenly")
 
         if (allButtons && children.size > 1) {
-            FlowRow(
+            RendererFlowRow(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = horizontalArrangement,
                 verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -1080,7 +1079,7 @@ object GenUiNativeRenderer {
                 }
 
                 is TextBlock.Actions -> {
-                    FlowRow(
+                    RendererFlowRow(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
@@ -1107,7 +1106,7 @@ object GenUiNativeRenderer {
                 }
 
                 is TextBlock.TagRow -> {
-                    FlowRow(
+                    RendererFlowRow(
                         horizontalArrangement = Arrangement.spacedBy(6.dp),
                         verticalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
@@ -1435,7 +1434,7 @@ object GenUiNativeRenderer {
             if (labeledIcons.isEmpty()) {
                 return
             }
-            FlowRow(
+            RendererFlowRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
@@ -1500,7 +1499,7 @@ object GenUiNativeRenderer {
 
                     val inlineIcons = iconBuckets.getOrElse(index) { emptyList() }
                     if (inlineIcons.isNotEmpty()) {
-                        FlowRow(
+                        RendererFlowRow(
                             horizontalArrangement = Arrangement.spacedBy(6.dp),
                             verticalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
@@ -1860,7 +1859,7 @@ object GenUiNativeRenderer {
                 colors = genUiCardColors(GenUiCardTone.Neutral),
                 elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
             ) {
-                FlowRow(
+                RendererFlowRow(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(12.dp),
@@ -1938,7 +1937,7 @@ object GenUiNativeRenderer {
 
                         val inlineIcons = iconBuckets[index]
                         if (inlineIcons.isNotEmpty()) {
-                            FlowRow(
+                            RendererFlowRow(
                                 horizontalArrangement = Arrangement.spacedBy(6.dp),
                                 verticalArrangement = Arrangement.spacedBy(6.dp)
                             ) {

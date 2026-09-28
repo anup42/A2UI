@@ -1,0 +1,43 @@
+{
+  "sdk": {
+    "tests": 27,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "suites": [
+      {
+        "suite": "com.samsung.genuicraft.sdk.internal.renderer.CitationTextTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.samsung.genuicraft.sdk.internal.renderer.ExplicitTablePresentationTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.samsung.genuicraft.sdk.internal.renderer.native.intents.train.NativeTrainSemanticsTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.samsung.genuicraft.sdk.internal.renderer.RendererFlowRowTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ]
+  },
+  "isolated_host_guard": {
+    "tests": 7,
+    "passed": true,
+    "scope": "synchronous card creation/cleanup"
+  }
+}

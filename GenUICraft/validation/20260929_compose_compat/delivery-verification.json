@@ -1,0 +1,27 @@
+{
+  "sdk_version": "0.5.4",
+  "sdk_aar_sha256": "df0a67d276b63c15fbea76fdf614b1650d20d9963b0cc725d7e6c1161610698b",
+  "zip": "Bixby-GenUICraft-Compose-Compatibility-20260929.zip",
+  "zip_sha256": "c40aa81646013213066bab61896a9f3a875008ee21c30e3faeb1d4d222288eeb",
+  "zip_files": 40,
+  "zip_matches_current_bixby_checkout": true,
+  "zip_contents_verified": {
+    "sdk_publication": 20,
+    "changed_bixby_sources": 3,
+    "unchanged_bixby_files": 17
+  },
+  "nullable_conversation_manager_sha256": "302b535aed04186c993c8db0d72ba227dd7faa57802b49ccd6987ed5c8eb7cdf",
+  "abi": {
+    "old_0.5.3": {
+      "classes": 536,
+      "flow_layout_referencing_classes": 13
+    },
+    "new_0.5.4": {
+      "classes": 543,
+      "flow_layout_referencing_classes": 0
+    }
+  },
+  "test_summary": "test-summary.json",
+  "bixby_apk_rebuilt": false,
+  "fixed_sdk_device_validation": "not assessed by this verifier"
+}

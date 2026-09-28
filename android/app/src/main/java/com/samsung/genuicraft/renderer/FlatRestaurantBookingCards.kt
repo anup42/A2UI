@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
@@ -348,7 +347,7 @@ internal fun renderRestaurantRowsIfPossible(
                         )
                     }
                     if (tags.isNotEmpty()) {
-                        FlowRow(
+                        RendererFlowRow(
                             horizontalArrangement = Arrangement.spacedBy(7.dp),
                             verticalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
@@ -357,7 +356,7 @@ internal fun renderRestaurantRowsIfPossible(
                             }
                         }
                     }
-                    FlowRow(
+                    RendererFlowRow(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -590,7 +589,7 @@ internal fun renderBookingRowsIfPossible(
                         }
                     }
                     if (amenities.isNotEmpty()) {
-                        FlowRow(
+                        RendererFlowRow(
                             horizontalArrangement = Arrangement.spacedBy(7.dp),
                             verticalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
@@ -600,7 +599,7 @@ internal fun renderBookingRowsIfPossible(
                         }
                     }
                     if (chips.isNotEmpty()) {
-                        FlowRow(
+                        RendererFlowRow(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                             verticalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
@@ -616,7 +615,7 @@ internal fun renderBookingRowsIfPossible(
                         photosDataUrl?.takeIf { it != actionUrl && it != mapsUrl && it != websiteUrl }?.let { "Photos" to (Icons.Filled.Image to it) }
                     )
                     if (actions.isNotEmpty()) {
-                        FlowRow(
+                        RendererFlowRow(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                             verticalArrangement = Arrangement.spacedBy(8.dp)

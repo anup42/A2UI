@@ -1,0 +1,125 @@
+{
+  "aar": "genuicraft-0.5.3.aar",
+  "sha256": "8be3df8f21b28633b92fe040a1a220cba16e1918ae04e66e9a52f06d2bb6ab03",
+  "class_count": 536,
+  "passed": false,
+  "findings": [
+    {
+      "jar": "classes.jar",
+      "class": "com/samsung/genuicraft/sdk/internal/renderer/FlatChartRenderKt.class",
+      "references": [
+        "androidx/compose/foundation/layout/FlowLayoutKt",
+        "androidx/compose/foundation/layout/FlowRowOverflow",
+        "androidx/compose/foundation/layout/FlowRowScope"
+      ]
+    },
+    {
+      "jar": "classes.jar",
+      "class": "com/samsung/genuicraft/sdk/internal/renderer/FlatEmailPreviewRenderKt.class",
+      "references": [
+        "androidx/compose/foundation/layout/FlowLayoutKt",
+        "androidx/compose/foundation/layout/FlowRowOverflow",
+        "androidx/compose/foundation/layout/FlowRowScope"
+      ]
+    },
+    {
+      "jar": "classes.jar",
+      "class": "com/samsung/genuicraft/sdk/internal/renderer/FlatItineraryHeroCardsKt.class",
+      "references": [
+        "androidx/compose/foundation/layout/FlowLayoutKt",
+        "androidx/compose/foundation/layout/FlowRowOverflow",
+        "androidx/compose/foundation/layout/FlowRowScope"
+      ]
+    },
+    {
+      "jar": "classes.jar",
+      "class": "com/samsung/genuicraft/sdk/internal/renderer/FlatRestaurantBookingCardsKt.class",
+      "references": [
+        "androidx/compose/foundation/layout/FlowLayoutKt",
+        "androidx/compose/foundation/layout/FlowRowOverflow",
+        "androidx/compose/foundation/layout/FlowRowScope"
+      ]
+    },
+    {
+      "jar": "classes.jar",
+      "class": "com/samsung/genuicraft/sdk/internal/renderer/FlatSpecRendererKt.class",
+      "references": [
+        "androidx/compose/foundation/layout/FlowLayoutKt",
+        "androidx/compose/foundation/layout/FlowRowOverflow",
+        "androidx/compose/foundation/layout/FlowRowScope"
+      ]
+    },
+    {
+      "jar": "classes.jar",
+      "class": "com/samsung/genuicraft/sdk/internal/renderer/GenUiNativeRenderer.class",
+      "references": [
+        "androidx/compose/foundation/layout/FlowLayoutKt",
+        "androidx/compose/foundation/layout/FlowRowOverflow",
+        "androidx/compose/foundation/layout/FlowRowScope"
+      ]
+    },
+    {
+      "jar": "classes.jar",
+      "class": "com/samsung/genuicraft/sdk/internal/renderer/flat/compose/FlatFormComposablesKt.class",
+      "references": [
+        "androidx/compose/foundation/layout/FlowLayoutKt",
+        "androidx/compose/foundation/layout/FlowRowOverflow",
+        "androidx/compose/foundation/layout/FlowRowScope"
+      ]
+    },
+    {
+      "jar": "classes.jar",
+      "class": "com/samsung/genuicraft/sdk/internal/renderer/flat/compose/FlatPrimitiveComposablesKt.class",
+      "references": [
+        "androidx/compose/foundation/layout/FlowLayoutKt",
+        "androidx/compose/foundation/layout/FlowRowOverflow",
+        "androidx/compose/foundation/layout/FlowRowScope"
+      ]
+    },
+    {
+      "jar": "classes.jar",
+      "class": "com/samsung/genuicraft/sdk/internal/renderer/flat/domain/FlatComparisonDomainKt.class",
+      "references": [
+        "androidx/compose/foundation/layout/FlowLayoutKt",
+        "androidx/compose/foundation/layout/FlowRowOverflow",
+        "androidx/compose/foundation/layout/FlowRowScope"
+      ]
+    },
+    {
+      "jar": "classes.jar",
+      "class": "com/samsung/genuicraft/sdk/internal/renderer/flat/domain/FlatItineraryDomainKt.class",
+      "references": [
+        "androidx/compose/foundation/layout/FlowLayoutKt",
+        "androidx/compose/foundation/layout/FlowRowOverflow",
+        "androidx/compose/foundation/layout/FlowRowScope"
+      ]
+    },
+    {
+      "jar": "classes.jar",
+      "class": "com/samsung/genuicraft/sdk/internal/renderer/flat/domain/FlatWeatherClimateDomainKt.class",
+      "references": [
+        "androidx/compose/foundation/layout/FlowLayoutKt",
+        "androidx/compose/foundation/layout/FlowRowOverflow",
+        "androidx/compose/foundation/layout/FlowRowScope"
+      ]
+    },
+    {
+      "jar": "classes.jar",
+      "class": "com/samsung/genuicraft/sdk/internal/renderer/native/intents/train/NativeTrainUiRenderer.class",
+      "references": [
+        "androidx/compose/foundation/layout/FlowLayoutKt",
+        "androidx/compose/foundation/layout/FlowRowOverflow",
+        "androidx/compose/foundation/layout/FlowRowScope"
+      ]
+    },
+    {
+      "jar": "classes.jar",
+      "class": "com/samsung/genuicraft/sdk/internal/renderer/native/intents/weather/NativeWeatherUiRenderer.class",
+      "references": [
+        "androidx/compose/foundation/layout/FlowLayoutKt",
+        "androidx/compose/foundation/layout/FlowRowOverflow",
+        "androidx/compose/foundation/layout/FlowRowScope"
+      ]
+    }
+  ]
+}

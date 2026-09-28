@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
@@ -3546,7 +3545,7 @@ internal fun TravelItineraryActionRow(
     actions: List<Pair<String, Pair<ImageVector, String>>>,
     onOpenUrl: (String) -> Unit
 ) {
-    FlowRow(
+    RendererFlowRow(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalArrangement = Arrangement.spacedBy(7.dp)
@@ -4384,7 +4383,7 @@ internal fun RestaurantRatingChips(
     price: String
 ) {
     if (rating.isBlank() && reviews.isBlank() && price.isBlank()) return
-    FlowRow(
+    RendererFlowRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
@@ -4894,7 +4893,7 @@ internal fun NewsMetaChips(article: NewsArticleCardRow) {
         listOfNotNull(article.published.takeIf { it.isNotBlank() })
     }.take(4)
     if (chips.isEmpty()) return
-    FlowRow(
+    RendererFlowRow(
         horizontalArrangement = Arrangement.spacedBy(7.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
@@ -4914,7 +4913,7 @@ internal fun NewsActions(
     val articleUrl = article.articleUrl.takeIf { it.isNotBlank() }
     val sourceUrl = article.sourceUrl.takeIf { it.isNotBlank() && it != articleUrl }
     if (articleUrl == null && sourceUrl == null) return
-    FlowRow(
+    RendererFlowRow(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -6139,7 +6138,7 @@ internal fun PlaylistCoverArt(
 @Composable
 internal fun PlaylistMetaTags(tags: List<String>) {
     if (tags.isEmpty()) return
-    FlowRow(
+    RendererFlowRow(
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
@@ -6292,7 +6291,7 @@ internal fun RenderMetricTableCards(
     numericColumns: Set<Int>
 ) {
     if (rows.isEmpty()) return
-    FlowRow(
+    RendererFlowRow(
         modifier = modifier
             .fillMaxWidth()
             .semantics {
@@ -6477,7 +6476,7 @@ internal fun RankedFlightEndpointCell(
 @Composable
 internal fun RankedFlightChipRow(chips: List<String>, accent: Color) {
     if (chips.isEmpty()) return
-    FlowRow(
+    RendererFlowRow(
         horizontalArrangement = Arrangement.spacedBy(7.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
