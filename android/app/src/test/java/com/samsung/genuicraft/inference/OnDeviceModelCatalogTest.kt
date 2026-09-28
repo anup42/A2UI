@@ -43,6 +43,7 @@ class OnDeviceModelCatalogTest {
 
         assertEquals("gemma4_e2b_a2ui_mobile", canonical.id)
         assertEquals(canonical, v10Alias)
+        assertEquals(canonical, OnDeviceModelCatalog.entryForModelPath("gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm"))
         assertEquals("gemma4_e2b_a2ui_mobile.litertlm", canonical.fileName)
         assertEquals(8_192, canonical.maxContextTokens)
         assertEquals(2_048, canonical.maxOutputTokens)
@@ -53,6 +54,7 @@ class OnDeviceModelCatalogTest {
         assertFalse(canonical.isDownloadable)
         assertEquals(
             listOf(
+                "sdk_models/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm",
                 "sdk_models/gemma4_e2b_a2ui_mobile.litertlm",
                 "sdk_models/e2b_v10_w4.litertlm",
             ),

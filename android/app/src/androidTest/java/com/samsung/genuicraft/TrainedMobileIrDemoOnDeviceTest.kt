@@ -73,7 +73,7 @@ class TrainedMobileIrDemoOnDeviceTest {
             assertEquals("Unexpected trained-model output limit", 2_048, entry.maxOutputTokens)
 
             val modelFile = entry.localFile(context).canonicalFile
-            assertEquals(MODEL_FILE_NAME, modelFile.name)
+            assertEquals(entry, OnDeviceModelCatalog.entryForModelPath(modelFile.absolutePath))
             assertEquals("sdk_models", modelFile.parentFile?.name)
             assertTrue("Trained mobile model is missing: ${modelFile.absolutePath}", modelFile.isFile)
             assertTrue("Trained mobile model is unreadable: ${modelFile.absolutePath}", modelFile.canRead())
@@ -227,6 +227,7 @@ class TrainedMobileIrDemoOnDeviceTest {
                     result.renderResult.errorMessage.isNullOrBlank(),
                 )
                 assertTrue("Runtime did not report GPU execution: $runtime", runtime.contains("GPU", true))
+                assertTrue("Trained runtime did not report FP32 execution: $runtime", runtime.contains("FP32"))
                 assertEquals("Runtime MTP identity disagrees with the selected setting: $runtime", mtpEnabled, runtimeHasMtp)
                 assertTrue(
                     "Input-token metrics were not reported: ${result.stage3InputTokens}",
@@ -527,7 +528,6 @@ class TrainedMobileIrDemoOnDeviceTest {
 
     private companion object {
         const val MODEL_ID = "gemma4_e2b_a2ui_mobile"
-        const val MODEL_FILE_NAME = "gemma4_e2b_a2ui_mobile.litertlm"
         const val FIRST_QUERY_ID = "q_001374"
         const val EXPRESS_FORMAT_ID = "a2ui_express_v1"
         const val ARTIFACT_ROOT = "trained_mobile_ir_demo"

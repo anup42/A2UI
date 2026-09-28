@@ -63,7 +63,7 @@ internal fun trainedE2bW4Readiness(modelPath: String): LocalModelReadiness {
     }
     return LocalModelReadiness(
         usable = true,
-        message = "Ready · ${formatDownloadBytes(modelFile.length())} · GPU",
+        message = "Ready · ${formatDownloadBytes(modelFile.length())} · GPU FP32",
     )
 }
 

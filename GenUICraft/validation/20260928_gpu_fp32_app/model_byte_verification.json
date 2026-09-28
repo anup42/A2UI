@@ -1,0 +1,13 @@
+{
+  "original": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_models/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm",
+  "prepared": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_models/genuicraft-gpu-fp32/db9255fcdaed213fd2c17cc4e5007e5bb710d643d478a0032f3bafde0dd3c967/model-gpu-fp32.litertlm",
+  "byte_differences_1_based_octal": [
+    "299 61 63",
+    "300 66 62"
+  ],
+  "sha256sum": [
+    "de60d19c8e1ef06ed1032212d0d4ae5d9b0ec105db72db34a988453004e63e62  /sdcard/Android/data/com.samsung.genuicraft/files/sdk_models/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm",
+    "974b7f921f19aad96405f78073acf4c8f0642b97769110cd46b8c68e8c1332df  /sdcard/Android/data/com.samsung.genuicraft/files/sdk_models/genuicraft-gpu-fp32/db9255fcdaed213fd2c17cc4e5007e5bb710d643d478a0032f3bafde0dd3c967/model-gpu-fp32.litertlm"
+  ],
+  "only_two_bytes_differ": true
+}

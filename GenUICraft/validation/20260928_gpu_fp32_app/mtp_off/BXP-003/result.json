@@ -1,0 +1,43 @@
+{
+  "id": "BXP-003",
+  "status": "valid",
+  "strictValid": true,
+  "renderValid": true,
+  "elapsedMs": 49048,
+  "firstInRun": false,
+  "attempts": 1,
+  "metrics": {
+    "inputTokens": 3394,
+    "outputTokens": 571,
+    "decodeTokensPerSecond": 13.05971899507665,
+    "providerCallMs": 48966
+  },
+  "provider": "gemma4_e2b",
+  "providerCalls": 1,
+  "rawStrictValid": true,
+  "runtime": "LiteRT-LM/Gemma4/GPU+FP32",
+  "renderedPromptSha256": "2b2bd3cd0bcccfe1e1f94b34d02f9c245b111ba08d2d1794ad78705ff923871c",
+  "repairKind": "NONE",
+  "usedFallback": false,
+  "sourceFidelityWarnings": 7,
+  "warnings": [
+    "Runtime: LiteRT-LM/Gemma4/GPU+FP32",
+    "Generated-output diagnostic mode: renders repaired model output; no source-text fallback.",
+    "Source fidelity warning: generated output may omit or change source details. It is not a faithful conversion.",
+    "Source fidelity: Conversion must use literal content, without generated state.",
+    "Source fidelity: Conversion must use literal source content.",
+    "Source fidelity: Missing citation markers: [[3], [11], [10]]",
+    "Source fidelity: Missing or changed numeric facts (including signs/units): [12007, 10:35, 10:45, 2, 15, 25, 20660, 11:30, 30, 12614, 15:15]",
+    "Source fidelity: Missing source wording: [bengaluru, to, shatabdi, express, 12007, ksr, sbc, 10, 35, 45, about, 2, h, 15, m, 25, cc, ec, rajya, rani, 20660, 11, 30, 2s, gn]",
+    "Source fidelity: Added or duplicated visible wording: [arrival, times, view]",
+    "Source fidelity: Visible source wording order or multiplicity changed.",
+    "Trained E2B output passed strict compilation only."
+  ],
+  "rendererContractValid": true,
+  "rendererWarnings": [],
+  "screenCaptured": true,
+  "scrolledScreenCaptured": true,
+  "currentCaseVisible": true,
+  "rendererErrorVisible": false,
+  "caseElapsedMs": 51559
+}

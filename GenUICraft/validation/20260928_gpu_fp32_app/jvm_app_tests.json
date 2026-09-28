@@ -1,0 +1,32 @@
+[
+  {
+    "name": "com.samsung.genuicraft.GenUiSdkModelUiTest",
+    "tests": "7",
+    "skipped": "0",
+    "failures": "0",
+    "errors": "0",
+    "timestamp": "2026-09-28T03:42:46",
+    "hostname": "NOTEBOOK-PC",
+    "time": "0.372"
+  },
+  {
+    "name": "com.samsung.genuicraft.inference.OnDeviceModelCatalogTest",
+    "tests": "4",
+    "skipped": "0",
+    "failures": "0",
+    "errors": "0",
+    "timestamp": "2026-09-28T03:42:46",
+    "hostname": "NOTEBOOK-PC",
+    "time": "0.044"
+  },
+  {
+    "name": "com.samsung.genuicraft.pipeline.TrainedStage3BridgeTest",
+    "tests": "9",
+    "skipped": "0",
+    "failures": "0",
+    "errors": "0",
+    "timestamp": "2026-09-28T03:42:46",
+    "hostname": "NOTEBOOK-PC",
+    "time": "0.288"
+  }
+]

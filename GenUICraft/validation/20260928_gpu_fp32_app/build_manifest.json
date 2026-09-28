@@ -1,0 +1,23 @@
+{
+  "sdk_version": "0.5.1",
+  "runtime": "com.google.ai.edge.litertlm:litertlm-android:0.16.1",
+  "device_serial": "R3GL203AKSF",
+  "device_model": "SM-F776U",
+  "artifacts": [
+    {
+      "path": "GenUICraft/genuicraft/build/outputs/aar/genuicraft-release.aar",
+      "bytes": 9620583,
+      "sha256": "c941025ff1fdba2e4964412b138d690cd2ddd3f5c25bc57c8791b12e4e99d836"
+    },
+    {
+      "path": "android/app/build/outputs/apk/debug/app-debug.apk",
+      "bytes": 203337013,
+      "sha256": "bb2f4b255ff0132efca7ce5a3de68efac2ecf7d8ba5f31f69af02692c4053428"
+    },
+    {
+      "path": "android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk",
+      "bytes": 1495149,
+      "sha256": "c76a79f98892fced032eaf7b00e7c85413cdd07f1a58c3b1acf2d6b1a634b756"
+    }
+  ]
+}

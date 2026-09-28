@@ -2,6 +2,7 @@ package com.samsung.genuicraft.sdk
 
 import android.content.Context
 import com.samsung.genuicraft.sdk.provider.Gemma4Config
+import com.samsung.genuicraft.sdk.provider.Gemma4GpuPrecision
 import com.samsung.genuicraft.sdk.provider.LiteRtModelRunner
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.coroutineContext
@@ -43,6 +44,7 @@ object GenUiModelProfiles {
             thinkingTokenBudget = 0,
             enableSpeculativeDecoding = enableMtp,
             enableMetrics = enableMetrics,
+            gpuPrecision = Gemma4GpuPrecision.FP32,
         )
     }
 }

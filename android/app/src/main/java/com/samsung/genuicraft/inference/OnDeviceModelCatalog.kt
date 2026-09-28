@@ -92,7 +92,7 @@ object OnDeviceModelCatalog {
             id = "gemma4_e2b_a2ui_mobile",
             displayName = "Trained Gemma 4 E2B (A2UI Mobile)",
             subtitle =
-                "Current trained A2UI Express model for GenUI IR. GPU required; " +
+                "Trained A2UI Express model with GPU FP32 for improved accuracy. " +
                     "MTP is available when the package includes its drafter.",
             repoId = "local/gemma-4-e2b-a2ui-mobile",
             fileName = "gemma4_e2b_a2ui_mobile.litertlm",
@@ -106,6 +106,7 @@ object OnDeviceModelCatalog {
             trainingCompatiblePrompt = true,
             usesTrainedSdkConverter = true,
             additionalLocalRelativePaths = listOf(
+                "sdk_models/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm",
                 "sdk_models/gemma4_e2b_a2ui_mobile.litertlm",
                 "sdk_models/e2b_v10_w4.litertlm",
             ),

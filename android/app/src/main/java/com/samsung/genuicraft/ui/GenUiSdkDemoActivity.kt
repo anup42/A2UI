@@ -361,8 +361,8 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                                 managedReadyFile != null -> "On-device GPU · ready offline"
                                             e2bModelChoice == E2bModelChoice.OFFICIAL_E2B ->
                                                 "On-device GPU · model setup required"
-                                            trainedModelReadiness.usable -> "Trained on-device GPU · model ready"
-                                            else -> "Trained on-device GPU · model setup required"
+                                            trainedModelReadiness.usable -> "Trained on-device GPU FP32 · model ready"
+                                            else -> "Trained on-device GPU FP32 · model setup required"
                                         },
                                         style = MaterialTheme.typography.bodySmall,
                                         color = if (
@@ -445,7 +445,8 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                             }
                                         } else {
                                             Text(
-                                                "GPU · MTP follows Settings and requires a bundled drafter.",
+                                                "GPU FP32 · First use prepares a cached copy (~2.6 GB). " +
+                                                    "MTP follows Settings and requires a bundled drafter.",
                                                 style = MaterialTheme.typography.bodySmall,
                                             )
                                             OutlinedTextField(

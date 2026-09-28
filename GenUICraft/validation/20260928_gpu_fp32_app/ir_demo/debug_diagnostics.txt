@@ -1,0 +1,7 @@
+collection=best_effort_non_gating
+maximumBackwardSwipes=16
+screenshotCaptured=true
+Runtime: LiteRT-LM/Gemma4/GPU+FP32+MTP
+579 tokens | 13.11 tokens/s
+IR demo started for q_001374
+IR backend: on_device_litert

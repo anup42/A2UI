@@ -43,7 +43,7 @@ dependencyResolutionManagement {
     }
 }
 // consumer module
-implementation("com.samsung.genuicraft:genuicraft:0.5.0")
+implementation("com.samsung.genuicraft:genuicraft:0.5.1")
 ```
 
 Version 0.5.0 removes the remote server provider and its public configuration API.
@@ -111,6 +111,12 @@ when (result) {
 session.closeAndAwait()
 ```
 
+Since 0.5.1, the shared trained profile uses GPU FP32 execution to mitigate the
+observed FP16 accuracy loss. The library prepares a reusable metadata-only model
+copy (~2.6 GB extra storage on first use); quantized weights and the source file
+stay unchanged. Debug runtime names include `GPU+FP32` and retain the MTP status.
+See [GPU precision and cache behavior](ON_DEVICE_RUNTIME.md#trained-model-gpu-precision-051).
+
 The same session supports the official source-bound route through
 `GenUiConversionProfile.SOURCE_BOUND` and the trained model route through its dedicated profile. Model discovery, UI preferences, host actions,
 and dispatching callbacks to the UI thread remain host responsibilities. Low-level
@@ -136,6 +142,7 @@ val provider = Gemma4Provider(Gemma4Config(
     enableThinking = false,
     thinkingTokenBudget = 0,
     enableSpeculativeDecoding = false,
+    gpuPrecision = Gemma4GpuPrecision.FP32,
     enableMetrics = true,
 ))
 val converter = GenUiTrainedConverter(context, provider)

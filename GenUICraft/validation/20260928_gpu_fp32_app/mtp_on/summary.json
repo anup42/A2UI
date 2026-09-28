@@ -1,0 +1,21 @@
+{
+  "runId": "fp32_app_mtp_on_20260928",
+  "profile": "trained_e2b_v10_w4",
+  "total": 2,
+  "completed": 2,
+  "strictValid": 2,
+  "strictInvalid": 0,
+  "renderValid": 2,
+  "renderInvalid": 0,
+  "renderNotAttempted": 0,
+  "valid": 2,
+  "invalid": 0,
+  "timeouts": 0,
+  "runtimeErrors": 0,
+  "caseErrors": 0,
+  "providerCalls": 2,
+  "providerCloseError": null,
+  "runComplete": true,
+  "allValid": true,
+  "finishedAtEpochMs": 1790567141827
+}

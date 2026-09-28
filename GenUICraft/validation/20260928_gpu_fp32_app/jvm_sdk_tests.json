@@ -1,0 +1,32 @@
+[
+  {
+    "name": "com.samsung.genuicraft.sdk.GenUiSessionTest",
+    "tests": "8",
+    "skipped": "0",
+    "failures": "0",
+    "errors": "0",
+    "timestamp": "2026-09-28T03:41:33",
+    "hostname": "NOTEBOOK-PC",
+    "time": "4.207"
+  },
+  {
+    "name": "com.samsung.genuicraft.sdk.provider.Gemma4ProviderTest",
+    "tests": "15",
+    "skipped": "0",
+    "failures": "0",
+    "errors": "0",
+    "timestamp": "2026-09-28T03:41:37",
+    "hostname": "NOTEBOOK-PC",
+    "time": "0.263"
+  },
+  {
+    "name": "com.samsung.genuicraft.sdk.provider.GpuFp32ModelCacheTest",
+    "tests": "8",
+    "skipped": "0",
+    "failures": "0",
+    "errors": "0",
+    "timestamp": "2026-09-28T03:41:38",
+    "hostname": "NOTEBOOK-PC",
+    "time": "0.136"
+  }
+]

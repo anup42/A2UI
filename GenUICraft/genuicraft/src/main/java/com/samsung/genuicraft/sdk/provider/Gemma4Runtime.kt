@@ -94,7 +94,7 @@ internal class LiteRtGemma4Runtime(
         var engineInitializationWallSeconds: Double? = null
         val state = engineState ?: run {
             val initializationStartedNanos = System.nanoTime()
-            initializeEngine().also {
+            initializeEngine(requestCancelled).also {
                 engineInitializationWallSeconds =
                     (System.nanoTime() - initializationStartedNanos).coerceAtLeast(0L) /
                     1_000_000_000.0
@@ -253,13 +253,20 @@ internal class LiteRtGemma4Runtime(
         }
     }
 
-    private fun initializeEngine(): EngineState {
+    private fun initializeEngine(requestCancelled: AtomicBoolean): EngineState {
+        val fp32 = config.gpuPrecision == Gemma4GpuPrecision.FP32
+        val model = if (fp32) {
+            GpuFp32ModelCache.prepare(File(config.modelPath), config.cacheDir?.let(::File)) {
+                throwIfRequestStopped(requestCancelled)
+            }
+        } else File(config.modelPath)
+        throwIfRequestStopped(requestCancelled)
         if (config.accelerator == Gemma4Accelerator.GPU) {
             Gemma4NativeLibraries.ensureGpuRuntimeLoaded()
         }
         // Capability belongs to the package, independent of whether this host requested MTP.
         // Keep it truthful in diagnostics when speculative decoding is explicitly disabled.
-        val modelHasMtp = modelSupportsMtp(config.modelPath)
+        val modelHasMtp = modelSupportsMtp(model.absolutePath)
         val useMtp = resolveSpeculativeDecoding(
             accelerator = config.accelerator,
             enabledByHost = config.enableSpeculativeDecoding,
@@ -269,7 +276,10 @@ internal class LiteRtGemma4Runtime(
             Gemma4Accelerator.GPU -> Backend.GPU()
             Gemma4Accelerator.CPU -> Backend.CPU(config.cpuThreads)
         }
-        val cacheDir = config.cacheDir?.let(::prepareCacheDirectory)
+        // Separate shader caches as well as model paths from the earlier FP16 execution.
+        val cacheDir = if (fp32) {
+            prepareCacheDirectory(File(config.cacheDir?.let(::File) ?: model.parentFile, "gpu-fp32-shaders").absolutePath)
+        } else config.cacheDir?.let(::prepareCacheDirectory)
 
         var initializedEngine: Engine? = null
         LiteRtRuntimeFlags.withEngineFlags(
@@ -281,7 +291,7 @@ internal class LiteRtGemma4Runtime(
                 // the process-global experimental flag enabled.
                 initializedEngine = Engine(
                     EngineConfig(
-                        modelPath = config.modelPath,
+                        modelPath = model.absolutePath,
                         backend = backend,
                         maxNumTokens = config.maxContextTokens,
                         cacheDir = cacheDir,
@@ -294,10 +304,11 @@ internal class LiteRtGemma4Runtime(
         }
         val engine = checkNotNull(initializedEngine)
         val mtpSuffix = if (useMtp) "+MTP" else ""
-        android.util.Log.i("GenUICraftRuntime", "Gemma4 backend=${config.accelerator.name}; MTP=$useMtp; MTPRequested=${config.enableSpeculativeDecoding}; modelSupportsMtp=$modelHasMtp; thinking=${config.enableThinking}; metrics=${config.enableMetrics}")
+        val precisionSuffix = if (fp32) "+FP32" else ""
+        android.util.Log.i("GenUICraftRuntime", "Gemma4 backend=${config.accelerator.name}; precision=${config.gpuPrecision}; MTP=$useMtp; MTPRequested=${config.enableSpeculativeDecoding}; modelSupportsMtp=$modelHasMtp; thinking=${config.enableThinking}; metrics=${config.enableMetrics}; model=${model.absolutePath}")
         return EngineState(
             engine = engine,
-            runtimeIdentity = "LiteRT-LM/Gemma4/${config.accelerator.name}$mtpSuffix",
+            runtimeIdentity = "LiteRT-LM/Gemma4/${config.accelerator.name}$precisionSuffix$mtpSuffix",
             speculativeDecodingEnabled = useMtp,
         )
     }

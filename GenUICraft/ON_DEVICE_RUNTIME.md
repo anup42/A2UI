@@ -4,7 +4,7 @@
 
 ## Host setup
 
-The published `com.samsung.genuicraft:genuicraft:0.5.0` POM declares `com.google.ai.edge.litertlm:litertlm-android:0.16.1` and `kotlinx-coroutines-android:1.9.0` as runtime dependencies. Consume the Maven publication rather than copying only `genuicraft-0.5.0.aar`; a bare AAR does not carry transitive dependencies. LiteRT-LM supplies its JNI bridge for `arm64-v8a` and `x86_64`. The GenUICraft AAR supplies the additional ARM64 LiteRT/OpenCL libraries described below.
+The published `com.samsung.genuicraft:genuicraft:0.5.1` POM declares `com.google.ai.edge.litertlm:litertlm-android:0.16.1` and `kotlinx-coroutines-android:1.9.0` as runtime dependencies. Consume the Maven publication rather than copying only `genuicraft-0.5.1.aar`; a bare AAR does not carry transitive dependencies. LiteRT-LM supplies its JNI bridge for `arm64-v8a` and `x86_64`. The GenUICraft AAR supplies the additional ARM64 LiteRT/OpenCL libraries described below.
 
 Pass an absolute path to a readable, nonempty `.litertlm` file that the host app has permission to access:
 
@@ -29,6 +29,50 @@ val cpuProvider = Gemma4Provider(
 ```
 
 There is no silent GPU-to-CPU fallback. The packaged GPU runtime supports `arm64-v8a`; GPU initialization on any other ABI fails with an actionable error. Successful output identifies the actual runtime as `LiteRT-LM/Gemma4/GPU`, `LiteRT-LM/Gemma4/GPU+MTP`, or `LiteRT-LM/Gemma4/CPU`.
+
+## Trained model GPU precision (0.5.1)
+
+`GenUiModelProfiles.trainedE2b()` selects `Gemma4GpuPrecision.FP32`. This shared
+profile applies to GenUICraft SDK / Bixby50, GenUI pipeline and IR Demo consumers.
+The official E2B profile retains `MODEL_DEFAULT`. GPU and the MTP switch remain
+available; runtime telemetry identifies `GPU+FP32` or `GPU+FP32+MTP`.
+
+On the rank-64 QAT-compatible export, controlled BXP-001/BXP-003 probes recovered
+raw valid output by changing GPU arithmetic from FP16 to FP32. Changing only
+the sampler did not recover it. This is a mitigation verified on selected cases,
+not proof of checkpoint parity across Bixby50. See the
+[controlled diagnosis](validation/20260928_r64_gpu_controls/REPORT.md).
+
+LiteRT-LM 0.16.1's released Kotlin API does not expose an activation precision
+override. The SDK therefore prepares a cached copy using the runtime's
+[`prefer_activation_type` metadata](https://github.com/google-ai-edge/LiteRT-LM/blob/v0.16.1/runtime/engine/engine_settings.cc).
+The bounded schema reader locates the `tf_lite_prefill_decode` section and changes
+its existing `fp16` string to `fp32`. This selects the native
+[FP32 GPU compilation option](https://github.com/google-ai-edge/LiteRT-LM/blob/v0.16.1/runtime/executor/llm_executor_settings_utils.cc).
+The source package, every weight/graph/tokenizer byte, other modality preferences,
+and drafter section remain unchanged. No private native ABI bridge is included.
+
+First use needs an extra model-sized allocation (~2.6 GB for the tested export)
+and adds copy/checksum time to engine initialization. The copy lives under
+`<cacheDir or model parent>/genuicraft-gpu-fp32/<fingerprint>/`; shader caches are
+separate from FP16. Subsequent sessions reuse it. Path, source size, modification
+time and header checksum identify a source revision; replacing model payloads
+while preserving all of these attributes is unsupported. A manifest records
+original and prepared SHA-256 hashes. Preparation is serialized, cancellable and
+atomically published. Missing/aliased/unsupported metadata or insufficient disk
+space produces an actionable error, never a silent FP16 downgrade.
+
+Interrupted copies are discarded and rebuilt on retry. Cached source revisions
+are retained so a separate live engine is not disrupted; once all providers are
+closed, hosts can remove `genuicraft-gpu-fp32` and `gpu-fp32-shaders` to reclaim
+space. Cache reuse trusts app-owned payloads with unchanged size, timestamp and
+header; full recorded hashes are provenance, not a full-file checksum on every
+generation.
+
+Hosts calling `Gemma4Config` directly can select
+`gpuPrecision = Gemma4GpuPrecision.FP32` on GPU. Prefer the shared trained profile
+so host views cannot accidentally omit the accuracy setting. This changes
+execution precision; it does not dequantize or re-export the stored weights.
 
 ## Lifecycle and limits
 

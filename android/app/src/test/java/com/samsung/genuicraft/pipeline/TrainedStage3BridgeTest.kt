@@ -58,6 +58,7 @@ class TrainedStage3BridgeTest {
             )
 
             assertEquals("GPU", config.accelerator)
+            assertEquals(com.samsung.genuicraft.sdk.provider.Gemma4GpuPrecision.FP32, config.gpuPrecision)
             assertEquals(8_192, config.maxContextTokens)
             assertEquals(2_048, config.maxOutputTokens)
             assertFalse(config.enableThinking)

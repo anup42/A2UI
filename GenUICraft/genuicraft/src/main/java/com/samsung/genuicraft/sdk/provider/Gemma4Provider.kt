@@ -10,6 +10,9 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.sync.Mutex
 
+/** GPU arithmetic precision. Quantized weights are unchanged by either setting. */
+enum class Gemma4GpuPrecision { MODEL_DEFAULT, FP32 }
+
 /** Configuration for the on-device Gemma 4 LiteRT-LM runtime. */
 data class Gemma4Config(
     val modelPath: String,
@@ -23,6 +26,8 @@ data class Gemma4Config(
     val enableSpeculativeDecoding: Boolean = true,
     /** Opt in to native token counts and decode throughput; no text-based estimates are returned. */
     val enableMetrics: Boolean = false,
+    /** FP32 prepares a cached package with FP32 text-executor metadata; requires GPU. */
+    val gpuPrecision: Gemma4GpuPrecision = Gemma4GpuPrecision.MODEL_DEFAULT,
 )
 
 /**
@@ -141,6 +146,7 @@ internal data class ValidatedGemma4Config(
     val thinkingTokenBudget: Int,
     val enableSpeculativeDecoding: Boolean,
     val enableMetrics: Boolean,
+    val gpuPrecision: Gemma4GpuPrecision,
 )
 
 internal enum class Gemma4Accelerator {
@@ -178,6 +184,9 @@ private fun Gemma4Config.validate(): ValidatedGemma4Config {
     require(thinkingTokenBudget >= -1) {
         "Gemma 4 thinkingTokenBudget must be -1 (model/runtime default) or non-negative."
     }
+    require(gpuPrecision == Gemma4GpuPrecision.MODEL_DEFAULT || parsedAccelerator == Gemma4Accelerator.GPU) {
+        "Gemma 4 gpuPrecision applies only to the GPU accelerator."
+    }
 
     val normalizedCacheDir = cacheDir?.trim()?.takeIf { it.isNotEmpty() }?.let { path ->
         val directory = File(path)
@@ -195,6 +204,7 @@ private fun Gemma4Config.validate(): ValidatedGemma4Config {
         thinkingTokenBudget = thinkingTokenBudget,
         enableSpeculativeDecoding = enableSpeculativeDecoding,
         enableMetrics = enableMetrics,
+        gpuPrecision = gpuPrecision,
     )
 }
 

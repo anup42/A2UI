@@ -1,0 +1,19 @@
+<a2ui>
+$/={"income_breakdown":[{"frequency":"Hourly","gross_amount":"$36.06","details":"Annual Salary / 2,080 Hours"},{"frequency":"Weekly","gross_amount":"$1,442.31","details":"Annual Salary / 52 Weeks"},{"frequency":"Bi-Weekly","gross_amount":"$2,884.62","details":"Annual Salary / 26 Pay Periods"},{"frequency":"Semi-Monthly","gross_amount":"$3,125.00","details":"Annual Salary / 24 Pay Periods"},{"frequency":"Monthly","gross_amount":"$6,250.00","details":"Annual Salary / 12 Months"}]}
+root=Column([a,b,c,h,i,j,k,l,m,n,o],"md",padding=16)
+a=Text("Salary Conversion Overview","h2")
+b=Text("Based on an annual salary of $75,000, your pre-tax hourly wage is approximately $36.06. This calculation assumes a standard full-time schedule without unpaid time off.","body")
+c=Card([d])
+d=Column([e,f,g],"sm",padding=16)
+e=Text("Calculation Context","h3")
+f=Text("The conversion uses the specific figures provided in your query to determine the gross hourly rate.","body")
+g=Text("• Total Work Hours: 2,080 hours per year (40 hours x 52 weeks)\n• Pay Frequency: The breakdown below illustrates how this salary translates across different pay periods before taxes or deductions are applied.","body")
+h=Text("Gross Income Breakdown","h2")
+i=Table(columns=[{key:"frequency",label:"Frequency"},{key:"gross_amount",label:"Gross Amount"},{key:"details",label:"Calculation Details"}],statePath="/income_breakdown",domain="formula",preferredPresentation="table",numericColumns=["gross_amount"])
+j=Text("Quick Actions","h2")
+k=Button("Calculate Take-Home Pay","primary",onPress=openUrl("https://www.paycheckcity.com/calculator/salary"))
+l=Button("Bureau of Labor Statistics Wage Data","primary",onPress=openUrl("https://www.bls.gov/bls/blswage.htm"))
+m=Text("Calculator","h3")
+n=Icon("[ICON_URL_1]")
+o=Icon("[ICON_URL_2]")
+</a2ui>

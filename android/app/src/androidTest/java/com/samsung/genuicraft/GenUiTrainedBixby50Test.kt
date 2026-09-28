@@ -74,6 +74,9 @@ class GenUiTrainedBixby50Test {
         val accelerator = arguments.getString("backend", "GPU")!!.trim().uppercase()
         require(accelerator in setOf("CPU", "GPU")) { "backend must be CPU or GPU." }
         require(accelerator != "CPU" || !mtpEnabled) { "CPU comparison requires mtp=false." }
+        val gpuPrecision = com.samsung.genuicraft.sdk.provider.Gemma4GpuPrecision.valueOf(
+            arguments.getString("gpuPrecision", if (accelerator == "GPU") "FP32" else "MODEL_DEFAULT")!!.trim().uppercase(),
+        )
         val sourceFallbackEnabled = arguments.getString("allowSourceTextFallback", "true") == "true"
         val generatedDslRepairEnabled = arguments.getString("allowGeneratedDslRepair", "false") == "true"
         val requireSourceIntegrity = arguments.getString("requireSourceIntegrity", "true") == "true"
@@ -119,6 +122,7 @@ class GenUiTrainedBixby50Test {
                 "runtime" to mapOf(
                     "provider" to "gemma4_e2b",
                     "accelerator" to accelerator,
+                    "gpuPrecision" to gpuPrecision.name,
                     "maxContextTokens" to 8_192,
                     "maxOutputTokens" to 2_048,
                     "thinkingEnabled" to false,
@@ -153,6 +157,7 @@ class GenUiTrainedBixby50Test {
             Gemma4Config(
                 modelPath = modelFile.absolutePath,
                 accelerator = accelerator,
+                gpuPrecision = gpuPrecision,
                 maxContextTokens = 8_192,
                 maxOutputTokens = 2_048,
                 enableThinking = false,

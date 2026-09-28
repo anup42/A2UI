@@ -114,6 +114,7 @@ class GenUiSessionTest {
     @Test fun trainedConfigurationIsSharedAndRejectsCpuForThisExport() {
         val config = GenUiModelProfiles.trainedE2b("model.litertlm", true, true, "AUTO")
         assertEquals("GPU", config.accelerator)
+        assertEquals(com.samsung.genuicraft.sdk.provider.Gemma4GpuPrecision.FP32, config.gpuPrecision)
         assertEquals(8192, config.maxContextTokens)
         assertEquals(2048, config.maxOutputTokens)
         assertFalse(config.enableThinking)
