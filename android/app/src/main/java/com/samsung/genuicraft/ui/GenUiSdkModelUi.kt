@@ -4,8 +4,7 @@ import com.samsung.genuicraft.sdk.GenUiTrainedConverter
 import com.samsung.genuicraft.sdk.GenUiProvider
 import com.samsung.genuicraft.sdk.GenUiModelProfiles
 import com.samsung.genuicraft.sdk.provider.Gemma4Config
-import java.io.File
-import java.util.Locale
+import com.samsung.genuicraft.sdk.provider.Gemma4GpuPrecision
 import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.ensureActive
@@ -40,32 +39,8 @@ internal data class LocalModelReadiness(
     val message: String,
 )
 
-internal fun trainedE2bW4Readiness(modelPath: String): LocalModelReadiness {
-    val normalizedPath = modelPath.trim()
-    if (normalizedPath.isEmpty()) {
-        return LocalModelReadiness(false, "Trained E2B model path is empty.")
-    }
-    val modelFile = File(normalizedPath)
-    if (!modelFile.isAbsolute) {
-        return LocalModelReadiness(false, "Trained E2B model path must be absolute.")
-    }
-    if (!modelFile.name.lowercase(Locale.US).endsWith(".litertlm")) {
-        return LocalModelReadiness(false, "Trained E2B model must be a .litertlm file.")
-    }
-    if (!modelFile.isFile) {
-        return LocalModelReadiness(false, "Trained E2B model not found: $normalizedPath")
-    }
-    if (!modelFile.canRead()) {
-        return LocalModelReadiness(false, "Trained E2B model is not readable: $normalizedPath")
-    }
-    if (modelFile.length() <= 0L) {
-        return LocalModelReadiness(false, "Trained E2B model is empty: $normalizedPath")
-    }
-    return LocalModelReadiness(
-        usable = true,
-        message = "Ready · ${formatDownloadBytes(modelFile.length())} · GPU FP32",
-    )
-}
+internal fun trainedE2bW4Readiness(modelPath: String): LocalModelReadiness =
+    selectTrainedE2bModel(modelPath, InferenceBackendSettings.TrainedE2bGpuPrecision.FP32).readiness
 
 internal fun sdkDemoActionAvailability(
     working: Boolean,
@@ -91,10 +66,12 @@ internal fun trainedE2bW4Config(
     modelPath: String,
     enableMetrics: Boolean,
     enableMtp: Boolean = false,
+    gpuPrecision: Gemma4GpuPrecision = Gemma4GpuPrecision.FP32,
 ): Gemma4Config = GenUiModelProfiles.trainedE2b(
     modelPath = modelPath,
     enableMtp = enableMtp,
     enableMetrics = enableMetrics,
+    gpuPrecision = gpuPrecision,
 )
 
 internal fun sdkDemoProviderKey(
@@ -102,8 +79,9 @@ internal fun sdkDemoProviderKey(
     modelPath: String,
     enableMetrics: Boolean,
     enableMtp: Boolean = e2bModelChoice == E2bModelChoice.OFFICIAL_E2B,
+    gpuPrecision: Gemma4GpuPrecision = Gemma4GpuPrecision.FP32,
 ): String =
-    "gemma:profile=${e2bModelChoice.profile}:path=${modelPath.trim()}:metrics=$enableMetrics:mtp=$enableMtp"
+    "gemma:profile=${e2bModelChoice.profile}:path=${modelPath.trim()}:metrics=$enableMetrics:mtp=$enableMtp:precision=$gpuPrecision"
 
 /** Fully releases an old native provider before a replacement can be constructed. */
 internal suspend fun closeProviderBeforeReplacement(provider: GenUiProvider?) {

@@ -1,0 +1,22 @@
+09-30 03:47:33.334 10907 10989 I GenUICraftFp16: Installed scoped Q/DQ float arithmetic adapter for pinned OpenCL compiler
+09-30 03:47:40.335 10907 10989 I GenUICraftRuntime: Gemma4 backend=GPU; precision=FP16_CORRECTED; MTP=false; MTPRequested=false; modelSupportsMtp=true; thinking=false; metrics=true; model=/storage/emulated/0/Android/data/com.samsung.genuicraft/files/sdk_models/model-fp16-corrected.litertlm
+09-30 03:47:51.500 10907 10989 I GenUICraftFp16: policy=genuicraft-fp16-rope-qdq-v1 qdq_programs=0; qdq_blocks=0; rejected=0
+09-30 04:17:33.975 13882 13974 I GenUICraftFp16: Installed scoped Q/DQ adapter: libLiteRt.so
+09-30 04:17:33.975 13882 13974 I GenUICraftFp16: Installed scoped Q/DQ adapter: libLiteRtOpenClAccelerator.so
+09-30 04:17:33.975 13882 13974 I GenUICraftFp16: Installed scoped Q/DQ adapter: libLiteRtTopKOpenClSampler.so
+09-30 04:17:33.975 13882 13974 I GenUICraftFp16: Installed scoped Q/DQ adapter: liblitertlm_jni.so
+09-30 04:17:41.077 13882 13974 I GenUICraftRuntime: Gemma4 backend=GPU; precision=FP16_CORRECTED; MTP=false; MTPRequested=false; modelSupportsMtp=true; thinking=false; metrics=true; model=/storage/emulated/0/Android/data/com.samsung.genuicraft/files/sdk_models/model-fp16-corrected.litertlm
+09-30 04:17:52.497 13882 13974 I GenUICraftFp16: policy=genuicraft-fp16-rope-qdq-v1 source_programs=185; qdq_programs=43; qdq_blocks=197; rejected=0
+09-30 04:18:19.859 13882 13974 I GenUICraftFp16: policy=genuicraft-fp16-rope-qdq-v1 source_programs=185; qdq_programs=43; qdq_blocks=197; rejected=0
+09-30 04:18:58.263 14319 14417 I GenUICraftFp16: Installed scoped Q/DQ adapter: libLiteRt.so
+09-30 04:18:58.263 14319 14417 I GenUICraftFp16: Installed scoped Q/DQ adapter: libLiteRtTopKOpenClSampler.so
+09-30 04:18:58.264 14319 14417 I GenUICraftFp16: Installed scoped Q/DQ adapter: libLiteRtOpenClAccelerator.so
+09-30 04:18:58.264 14319 14417 I GenUICraftFp16: Installed scoped Q/DQ adapter: liblitertlm_jni.so
+09-30 04:19:01.876 14319 14417 I GenUICraftRuntime: Gemma4 backend=GPU; precision=FP32; MTP=false; MTPRequested=false; modelSupportsMtp=true; thinking=false; metrics=true; model=/storage/emulated/0/Android/data/com.samsung.genuicraft/files/sdk_models/genuicraft-gpu-fp32/db9255fcdaed213fd2c17cc4e5007e5bb710d643d478a0032f3bafde0dd3c967/model-gpu-fp32.litertlm
+09-30 04:33:00.460 17667 17752 I GenUICraftFp16: Installed scoped Q/DQ adapter: libLiteRt.so
+09-30 04:33:00.460 17667 17752 I GenUICraftFp16: Installed scoped Q/DQ adapter: libLiteRtOpenClAccelerator.so
+09-30 04:33:00.460 17667 17752 I GenUICraftFp16: Installed scoped Q/DQ adapter: libLiteRtTopKOpenClSampler.so
+09-30 04:33:00.460 17667 17752 I GenUICraftFp16: Installed scoped Q/DQ adapter: liblitertlm_jni.so
+09-30 04:33:28.879 17667 17752 I GenUICraftRuntime: Gemma4 backend=GPU; precision=FP16_CORRECTED; MTP=true; MTPRequested=true; modelSupportsMtp=true; thinking=false; metrics=true; model=/storage/emulated/0/Android/data/com.samsung.genuicraft/files/sdk_models/model-fp16-corrected.litertlm
+09-30 04:34:07.589 17667 17752 I GenUICraftFp16: policy=genuicraft-fp16-rope-qdq-v1 source_programs=235; qdq_programs=49; qdq_blocks=206; rejected=0
+09-30 04:34:31.522 17667 17752 I GenUICraftFp16: policy=genuicraft-fp16-rope-qdq-v1 source_programs=235; qdq_programs=49; qdq_blocks=206; rejected=0

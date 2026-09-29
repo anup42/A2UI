@@ -22,6 +22,7 @@ internal class GenUiSdkDemoViewModel(application: Application) : AndroidViewMode
     var editorVisible by mutableStateOf(true)
     var generationMetrics by mutableStateOf<GenerationMetricsUiState?>(null)
     var lastRuntime by mutableStateOf<String?>(null)
+    var lastPrecision by mutableStateOf<String?>(null)
     var generationTrace by mutableStateOf(SdkGenerationTrace())
     var workspaceRevision by mutableStateOf(0L)
         private set
@@ -54,6 +55,7 @@ internal class GenUiSdkDemoViewModel(application: Application) : AndroidViewMode
         workspaceRevision++
         generationMetrics = null
         lastRuntime = null
+        lastPrecision = null
         generationTrace = SdkGenerationTrace()
         document = value
         status = message
@@ -83,9 +85,12 @@ internal class GenUiSdkDemoViewModel(application: Application) : AndroidViewMode
         modelPathForRun: String,
         metricsForRun: Boolean,
         mtpForRun: Boolean,
+        gpuPrecisionForRun: Gemma4GpuPrecision = Gemma4GpuPrecision.FP32,
         // Injectable provider keeps lifecycle tests independent of network or native model timing.
         providerFactory: () -> GenUiProvider = {
-            createSdkDemoProvider(e2bModelChoiceForRun, modelPathForRun, metricsForRun, mtpForRun)
+            createSdkDemoProvider(
+                e2bModelChoiceForRun, modelPathForRun, metricsForRun, mtpForRun, gpuPrecisionForRun,
+            )
         },
     ) {
         if (working) return
@@ -93,11 +98,18 @@ internal class GenUiSdkDemoViewModel(application: Application) : AndroidViewMode
         document = null
         generationMetrics = null
         lastRuntime = null
+        lastPrecision = if (e2bModelChoiceForRun == E2bModelChoice.TRAINED_E2B_V10_W4) {
+            when (gpuPrecisionForRun) {
+                Gemma4GpuPrecision.MODEL_DEFAULT -> "Requested GPU model default"
+                Gemma4GpuPrecision.FP32 -> "Requested GPU FP32"
+                Gemma4GpuPrecision.FP16_CORRECTED -> "Requested GPU FP16 (corrected)"
+            }
+        } else null
         working = true
         editorVisible = false
         generationTrace = SdkGenerationTrace(phase = SdkGenerationPhase.GENERATING)
         val runId = ++generationRunId
-        status = "Generating IR…"
+        status = "Generating IR…" + lastPrecision?.let { " · $it" }.orEmpty()
         val sourceForRun = source
         activeJob = viewModelScope.launch {
             var captureForRun: GenUiSession? = null
@@ -107,6 +119,7 @@ internal class GenUiSdkDemoViewModel(application: Application) : AndroidViewMode
                     modelPath = modelPathForRun,
                     enableMetrics = metricsForRun,
                     enableMtp = mtpForRun,
+                    gpuPrecision = gpuPrecisionForRun,
                 )
                 val provider = if (
                     providerKey == activeProviderKey &&
@@ -238,6 +251,7 @@ private fun createSdkDemoProvider(
     modelPathForRun: String,
     metricsForRun: Boolean,
     mtpForRun: Boolean,
+    gpuPrecisionForRun: Gemma4GpuPrecision,
 ): GenUiProvider =
     Gemma4Provider(
         if (e2bModelChoiceForRun == E2bModelChoice.TRAINED_E2B_V10_W4) {
@@ -245,6 +259,7 @@ private fun createSdkDemoProvider(
                 modelPath = modelPathForRun,
                 enableMetrics = metricsForRun,
                 enableMtp = mtpForRun,
+                gpuPrecision = gpuPrecisionForRun,
             )
         } else {
             Gemma4Config(

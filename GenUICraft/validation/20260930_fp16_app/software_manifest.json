@@ -1,0 +1,53 @@
+{
+  "created_at": "2026-09-29T22:56:18.363879+00:00",
+  "sdk_version": "0.5.8",
+  "git_base": "8a67b6c6ac402ab79e0624bce8aaacb1b1bfb176",
+  "files": {
+    "android/app/build/outputs/apk/debug/app-debug.apk": {
+      "bytes": 224882058,
+      "sha256": "1675415b5e55ff226ec03ca3cae2dd8049234c608df06cc83c6d678d5f70cecd"
+    },
+    "android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk": {
+      "bytes": 1523005,
+      "sha256": "4d35f938199e425e58a4ed39a0a62b123aceff71fafde181c2085ec9abd70141"
+    },
+    "GenUICraft/build/repo/com/samsung/genuicraft/genuicraft/0.5.8/genuicraft-0.5.8.aar": {
+      "bytes": 11084366,
+      "sha256": "7d643becc9cc5f6ebbc28ef08f5f2743caff274cfbca53cfcdac9cac73555eeb"
+    },
+    "GenUICraft/genuicraft/src/main/jniLibs/arm64-v8a/libGenUiFp16Correction.so": {
+      "bytes": 5743976,
+      "sha256": "535881ff6edcdcef1ca426b0144de51ea845a9a1f2d3d8d5bcdd88e82ac776d4"
+    },
+    "GenUICraft/genuicraft/src/main/cpp/fp16_correction.cc": {
+      "bytes": 10296,
+      "sha256": "5b7568d28d64648030feb5dda5ed90fd1ec5917ab4c0063234628d6ecb207d60"
+    },
+    "GenUICraft/tools/prepare_fp16_model.py": {
+      "bytes": 19149,
+      "sha256": "6997e74dc296ed9226dbe28937e5afbe09a1d4f892f977be604ac5a5e54aa6a9"
+    },
+    "GenUICraft/tools/verify_fp16_model.py": {
+      "bytes": 22853,
+      "sha256": "e6f09fad934720c290430447d02c1dad60e5737a9d80d97582bb8109a17453cd"
+    },
+    "GenUICraft/tools/run_fp16_app_comparison.py": {
+      "bytes": 17161,
+      "sha256": "9cf62a4eb86fbed70ba38fd457cf050a33d94afedd88103264ef06fc20eb1b39"
+    },
+    "GenUICraft/tools/report_fp16_app_comparison.py": {
+      "bytes": 14875,
+      "sha256": "4bee0d14815c587f8abaf9e39eae5fe65a26e43574fe4fae4d04d1e902f75dcc"
+    },
+    "android/app/src/androidTest/java/com/samsung/genuicraft/Gemma4Fp16ComparisonTest.kt": {
+      "bytes": 20293,
+      "sha256": "d222137f2b3189c25744945ec5994c17d91543197db5eadb696c4df45d8ab5cf"
+    }
+  },
+  "validation": {
+    "sdk_unit_tests": 441,
+    "app_focused_tests": 17,
+    "test_failures": 0,
+    "model_verification": "model_verification.txt"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "serial": "R3GL203AKSF",
+  "deviceModel": "SM-F776U",
+  "mainApkPath": "/data/app/~~Uoum3M7g-a8mbYw_zaNyGg==/com.samsung.genuicraft-wH0ceYg48lkEf0bsplvVPQ==/base.apk",
+  "mainApkSha256": "1675415b5e55ff226ec03ca3cae2dd8049234c608df06cc83c6d678d5f70cecd",
+  "testApkPath": "/data/app/~~A9VhyvZyqvosfZCMslUJBg==/com.samsung.genuicraft.test-i2aAe2Dhn2uKtWgsXx6jGQ==/base.apk",
+  "testApkDeviceSha256": "4d35f938199e425e58a4ed39a0a62b123aceff71fafde181c2085ec9abd70141",
+  "testApkHostSha256": "4d35f938199e425e58a4ed39a0a62b123aceff71fafde181c2085ec9abd70141",
+  "models": {
+    "FP32": {
+      "path": "/storage/emulated/0/Android/data/com.samsung.genuicraft/files/sdk_models/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm",
+      "sha256": "de60d19c8e1ef06ed1032212d0d4ae5d9b0ec105db72db34a988453004e63e62"
+    },
+    "FP16_CORRECTED": {
+      "path": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_models/model-fp16-corrected.litertlm",
+      "sha256": "7f01bdf1c6ba9bdf658e57c75001fc35a42edad88238bc5dab0a5f7dcf3de373"
+    }
+  },
+  "correctedManifestHostSha256": "88956f4b0f9665e12ecdc77c3896489cbd528a3082fd30d7d0726b595275e4b3"
+}

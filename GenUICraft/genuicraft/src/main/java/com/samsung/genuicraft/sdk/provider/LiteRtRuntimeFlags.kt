@@ -13,6 +13,17 @@ import com.google.ai.edge.litertlm.ExperimentalFlags
 internal object LiteRtRuntimeFlags {
     private val lock = Any()
 
+    fun <T> withGpuPrecision(correctedFp16: Boolean, block: () -> T): T = synchronized(lock) {
+        // Some compiler variants create additional kernels on the first prefill/decode.
+        // Keep the policy selected through generation, and serialize other SDK engine setup.
+        if (correctedFp16) GpuFp16Correction.enableForCompilation()
+        try {
+            block()
+        } finally {
+            if (correctedFp16) GpuFp16Correction.disableForCompilation()
+        }
+    }
+
     fun <T> withEngineFlags(
         speculativeDecoding: Boolean,
         benchmark: Boolean? = null,

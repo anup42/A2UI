@@ -92,8 +92,8 @@ object OnDeviceModelCatalog {
             id = "gemma4_e2b_a2ui_mobile",
             displayName = "Trained Gemma 4 E2B (A2UI Mobile)",
             subtitle =
-                "Trained A2UI Express model with GPU FP32 for improved accuracy. " +
-                    "MTP is available when the package includes its drafter.",
+                "Trained A2UI Express model. Select GPU FP32 or a prepared corrected FP16 " +
+                    "package; MTP needs a compatible drafter.",
             repoId = "local/gemma-4-e2b-a2ui-mobile",
             fileName = "gemma4_e2b_a2ui_mobile.litertlm",
             downloadUrl = null,

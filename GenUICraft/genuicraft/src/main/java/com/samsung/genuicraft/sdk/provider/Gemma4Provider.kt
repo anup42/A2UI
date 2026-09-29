@@ -11,7 +11,12 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.sync.Mutex
 
 /** GPU arithmetic precision. Quantized weights are unchanged by either setting. */
-enum class Gemma4GpuPrecision { MODEL_DEFAULT, FP32 }
+enum class Gemma4GpuPrecision {
+    MODEL_DEFAULT,
+    FP32,
+    /** Prepared RoPE model plus guarded float Q/DQ arithmetic, with FP16 tensor storage. */
+    FP16_CORRECTED,
+}
 
 /** Configuration for the on-device Gemma 4 LiteRT-LM runtime. */
 data class Gemma4Config(

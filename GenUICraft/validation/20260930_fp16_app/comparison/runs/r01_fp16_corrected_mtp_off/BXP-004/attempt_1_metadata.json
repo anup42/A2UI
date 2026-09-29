@@ -1,0 +1,17 @@
+{
+  "complete": true,
+  "elapsedNanos": 164298917333,
+  "runtime": "LiteRT-LM/Gemma4/GPU+FP16_CORRECTED",
+  "finishReason": "COMPLETED",
+  "finishDetail": null,
+  "metrics": {
+    "decodeTokensPerSecond": 12.805164312683237,
+    "engineInitializationSeconds": null,
+    "engineInitializedForRequest": false,
+    "inputTokens": 3327,
+    "nativeInitializationPhaseSeconds": null,
+    "outputTokens": 2048,
+    "prefillTokensPerSecond": 767.527469062968,
+    "timeToFirstTokenSeconds": 4.412791771999999
+  }
+}

@@ -2,6 +2,7 @@
 # A minified host otherwise removes SamplerConfig.getTopK() and aborts in
 # nativeCreateConversation before GenUICraft can recover the conversion.
 -keep class com.google.ai.edge.litertlm.** { *; }
+-keep class com.samsung.genuicraft.sdk.provider.GpuFp16Correction { *; }
 
 # Benchmark getters are also accessed reflectively by the SDK.
 -keepclassmembers class com.google.ai.edge.litertlm.Conversation {

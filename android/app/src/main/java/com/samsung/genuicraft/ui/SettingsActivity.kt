@@ -131,6 +131,9 @@ private fun SettingsScreen(
     var onDeviceMtpEnabled by remember {
         mutableStateOf(InferenceBackendSettings.getOnDeviceMtpEnabled(context))
     }
+    var trainedE2bGpuPrecision by remember {
+        mutableStateOf(InferenceBackendSettings.getTrainedE2bGpuPrecision(context))
+    }
     var onDeviceModelRefreshKey by remember { mutableIntStateOf(0) }
     var onDeviceDownloadError by remember { mutableStateOf<String?>(null) }
     val onDeviceDownloadProgress = remember { mutableStateMapOf<String, Float?>() }
@@ -779,6 +782,74 @@ private fun SettingsScreen(
                                 HorizontalDivider(
                                     color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f),
                                 )
+                                if (OnDeviceModelCatalog.entryForModelPath(onDeviceModelPath)
+                                        ?.usesTrainedSdkConverter == true
+                                ) {
+                                    val trainedSelection = remember(
+                                        onDeviceModelPath, trainedE2bGpuPrecision, onDeviceModelRefreshKey,
+                                    ) {
+                                        selectTrainedE2bModel(onDeviceModelPath, trainedE2bGpuPrecision)
+                                    }
+                                    Text(
+                                        text = stringResource(id = R.string.settings_trained_precision_title),
+                                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                                    )
+                                    InferenceBackendSettings.TrainedE2bGpuPrecision.entries.forEach { precision ->
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .clickable {
+                                                    trainedE2bGpuPrecision = precision
+                                                    InferenceBackendSettings.setTrainedE2bGpuPrecision(context, precision)
+                                                },
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                        ) {
+                                            RadioButton(
+                                                selected = trainedE2bGpuPrecision == precision,
+                                                onClick = {
+                                                    trainedE2bGpuPrecision = precision
+                                                    InferenceBackendSettings.setTrainedE2bGpuPrecision(context, precision)
+                                                },
+                                            )
+                                            Text(precision.displayName, style = MaterialTheme.typography.bodyMedium)
+                                        }
+                                    }
+                                    Text(
+                                        text = trainedSelection.readiness.message,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = if (trainedSelection.readiness.usable) {
+                                            MaterialTheme.colorScheme.onSurfaceVariant
+                                        } else MaterialTheme.colorScheme.error,
+                                    )
+                                    if (trainedE2bGpuPrecision ==
+                                        InferenceBackendSettings.TrainedE2bGpuPrecision.FP16_CORRECTED
+                                    ) {
+                                        Text(
+                                            text = stringResource(id = R.string.settings_trained_precision_experimental),
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        )
+                                        Text(
+                                            text = "Prepared package: ${trainedSelection.modelPath}",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        )
+                                        if (onDeviceMtpEnabled && !trainedSelection.mtpSupported) {
+                                            Text(
+                                                text = stringResource(id = R.string.settings_trained_precision_mtp_unavailable),
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            )
+                                        }
+                                    }
+                                    TextButton(onClick = { onDeviceModelRefreshKey++ }) {
+                                        Text(stringResource(id = R.string.settings_trained_precision_check))
+                                    }
+                                    HorizontalDivider(
+                                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f),
+                                    )
+                                }
                                 OnDeviceModelCatalog.visibleEntries.forEach { entry ->
                                     val downloaded = onDeviceModelRefreshKey.let { entry.isDownloaded(context) }
                                     val selected = downloaded && onDeviceModelPath == entry.localPath(context)

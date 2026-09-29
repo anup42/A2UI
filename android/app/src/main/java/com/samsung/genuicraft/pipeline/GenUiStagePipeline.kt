@@ -2340,14 +2340,18 @@ class GenUiStagePipeline(private val appContext: Context) {
             if (warnings.none { it == message }) warnings += message
         }
         val modelPath = InferenceBackendSettings.getOnDeviceModelPath(appContext)
+        val precision = InferenceBackendSettings.getTrainedE2bGpuPrecision(appContext)
+        val modelSelection = selectTrainedE2bModel(modelPath, precision)
         val profile = com.samsung.genuicraft.inference.OnDeviceModelCatalog
             .entryForModelPath(modelPath)
         val mtpEnabled = profile?.enableSpeculativeDecoding == true &&
+            modelSelection.mtpSupported &&
             InferenceBackendSettings.getOnDeviceMtpEnabled(appContext)
         val accelerator = InferenceBackendSettings.getOnDeviceAccelerator(appContext)
 
         addWarningOnce("IR output format: A2UI Express v1 (trained SDK converter)")
-        addWarningOnce("On-device Gemma IR model: $modelPath")
+        addWarningOnce("On-device Gemma IR model: ${modelSelection.modelPath}")
+        addWarningOnce("On-device Gemma GPU precision: ${precision.displayName}")
         addWarningOnce("On-device Gemma accelerator: GPU (setting=${accelerator.rawValue})")
         addWarningOnce(if (mtpEnabled) "On-device Gemma MTP: enabled" else "On-device Gemma MTP: disabled")
         addWarningOnce(

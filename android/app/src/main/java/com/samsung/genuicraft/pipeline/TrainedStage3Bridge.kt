@@ -4,6 +4,7 @@ import android.content.Context
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.samsung.genuicraft.InferenceBackendSettings
+import com.samsung.genuicraft.selectTrainedE2bModel
 import com.samsung.genuicraft.inference.OnDeviceModelCatalog
 import com.samsung.genuicraft.sdk.GenUiConversionResult
 import com.samsung.genuicraft.sdk.GenUiModelOutput
@@ -16,6 +17,7 @@ import com.samsung.genuicraft.sdk.GenUiConversionProfile
 import com.samsung.genuicraft.sdk.GenUiGenerationObserver
 import com.samsung.genuicraft.sdk.GenUiModelProfiles
 import com.samsung.genuicraft.sdk.provider.Gemma4Config
+import com.samsung.genuicraft.sdk.provider.Gemma4GpuPrecision
 import com.samsung.genuicraft.sdk.provider.Gemma4Provider
 import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.CancellationException
@@ -73,11 +75,13 @@ internal object TrainedStage3Bridge {
         modelPath: String,
         accelerator: InferenceBackendSettings.Accelerator,
         enableMtp: Boolean,
+        gpuPrecision: Gemma4GpuPrecision = Gemma4GpuPrecision.FP32,
     ): Gemma4Config = GenUiModelProfiles.trainedE2b(
         modelPath = modelPath,
         accelerator = accelerator.name,
         enableMtp = enableMtp,
         enableMetrics = true,
+        gpuPrecision = gpuPrecision,
     )
 
     suspend fun convert(
@@ -87,11 +91,29 @@ internal object TrainedStage3Bridge {
         queryText: String,
         onPartialText: ((String) -> Unit)? = null,
     ): Result {
+        val selection = selectTrainedE2bModel(
+            modelPath,
+            InferenceBackendSettings.getTrainedE2bGpuPrecision(context),
+        )
+        if (!selection.readiness.usable) {
+            return Result.Failure(
+                message = selection.readiness.message,
+                rawGeneratedText = null,
+                prompt = null,
+                inputTokens = null,
+                outputTokens = null,
+                outputTokensPerSecond = null,
+                runtimeBackend = null,
+                renderedPromptSha256 = null,
+            )
+        }
         val config = runCatching {
             configFor(
-                modelPath = modelPath,
+                modelPath = selection.modelPath,
                 accelerator = InferenceBackendSettings.getOnDeviceAccelerator(context),
-                enableMtp = InferenceBackendSettings.getOnDeviceMtpEnabled(context),
+                enableMtp = selection.mtpSupported &&
+                    InferenceBackendSettings.getOnDeviceMtpEnabled(context),
+                gpuPrecision = selection.gpuPrecision,
             )
         }.getOrElse { error ->
             return Result.Failure(

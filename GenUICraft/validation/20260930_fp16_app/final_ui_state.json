@@ -1,0 +1,172 @@
+[
+  {
+    "text": "GenUICraft SDK",
+    "content-desc": "",
+    "bounds": "[48,144][453,211]"
+  },
+  {
+    "text": "Markdown to an interactive A2UI experience",
+    "content-desc": "",
+    "bounds": "[48,211][772,309]"
+  },
+  {
+    "text": "Settings",
+    "content-desc": "",
+    "bounds": "[808,198][996,257]"
+  },
+  {
+    "text": "Ready · 42666 ms · 1 attempt(s)",
+    "content-desc": "",
+    "bounds": "[90,369][672,475]"
+  },
+  {
+    "text": "Active runtime · LiteRT-LM/Gemma4/GPU+FP16_CORRECTED+MTP",
+    "content-desc": "",
+    "bounds": "[90,475][672,553]"
+  },
+  {
+    "text": "Requested GPU FP16 (corrected)",
+    "content-desc": "",
+    "bounds": "[90,553][576,592]"
+  },
+  {
+    "text": "3174 in · 302 out · 20.19 token/s decode",
+    "content-desc": "",
+    "bounds": "[90,592][672,670]"
+  },
+  {
+    "text": "Edit input",
+    "content-desc": "",
+    "bounds": "[738,491][954,550]"
+  },
+  {
+    "text": "BXP-001 · Search the web and use reliable sources. Find Bengaluru's weather forecast for the next three days. Show the date, high and low temperature in Celsius, and rain probability in a table, followed by two planning tips. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 100-500 tokens; aim for 150-220 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+    "content-desc": "",
+    "bounds": "[48,730][1032,776]"
+  },
+  {
+    "text": "",
+    "content-desc": "SDK generation workspace",
+    "bounds": "[48,806][1032,2340]"
+  },
+  {
+    "text": "",
+    "content-desc": "Generation phase: IR ready",
+    "bounds": "[48,806][1032,920]"
+  },
+  {
+    "text": "✓ Generate",
+    "content-desc": "",
+    "bounds": "[48,815][364,863]"
+  },
+  {
+    "text": "✓ Recover",
+    "content-desc": "",
+    "bounds": "[382,815][698,863]"
+  },
+  {
+    "text": "✓ Render",
+    "content-desc": "",
+    "bounds": "[716,815][1032,863]"
+  },
+  {
+    "text": "IR ready",
+    "content-desc": "",
+    "bounds": "[48,881][167,920]"
+  },
+  {
+    "text": "",
+    "content-desc": "IR output",
+    "bounds": "[48,932][540,1076]"
+  },
+  {
+    "text": "Inspect IR",
+    "content-desc": "",
+    "bounds": "[194,977][395,1030]"
+  },
+  {
+    "text": "",
+    "content-desc": "Preview rendered UI",
+    "bounds": "[540,932][1032,1076]"
+  },
+  {
+    "text": "Preview",
+    "content-desc": "",
+    "bounds": "[706,977][867,1030]"
+  },
+  {
+    "text": "AccuWeather’s Bengaluru forecast",
+    "content-desc": "",
+    "bounds": "[96,1238][984,1402]"
+  },
+  {
+    "text": "",
+    "content-desc": "Wed, Sep 9. 31°C / 20°C. Rain Probability: 57%",
+    "bounds": "[96,1438][984,1918]"
+  },
+  {
+    "text": "Wed, Sep 9",
+    "content-desc": "",
+    "bounds": "[150,1513][330,1555]"
+  },
+  {
+    "text": "31°C / 20°C",
+    "content-desc": "",
+    "bounds": "[150,1573][559,1664]"
+  },
+  {
+    "text": "",
+    "content-desc": "Weather condition",
+    "bounds": "[750,1504][918,1672]"
+  },
+  {
+    "text": "High / Low",
+    "content-desc": "",
+    "bounds": "[180,1747][338,1786]"
+  },
+  {
+    "text": "31°C / 20°C",
+    "content-desc": "",
+    "bounds": "[180,1795][371,1837]"
+  },
+  {
+    "text": "Rain Probability",
+    "content-desc": "",
+    "bounds": "[582,1747][820,1786]"
+  },
+  {
+    "text": "57%",
+    "content-desc": "",
+    "bounds": "[582,1795][651,1837]"
+  },
+  {
+    "text": "Temperature trend",
+    "content-desc": "",
+    "bounds": "[132,1990][430,2032]"
+  },
+  {
+    "text": "31°C / 20°C",
+    "content-desc": "",
+    "bounds": "[757,1990][948,2032]"
+  },
+  {
+    "text": "",
+    "content-desc": "Weather temperature trend. Wed: 31°C / 20°C. Thu: 30°C / 21°C. Fri: 30°C / 21°C",
+    "bounds": "[132,2050][948,2194]"
+  },
+  {
+    "text": "Wed",
+    "content-desc": "",
+    "bounds": "[132,2212][198,2251]"
+  },
+  {
+    "text": "Thu",
+    "content-desc": "",
+    "bounds": "[526,2212][582,2251]"
+  },
+  {
+    "text": "Fri",
+    "content-desc": "",
+    "bounds": "[910,2212][948,2251]"
+  }
+]

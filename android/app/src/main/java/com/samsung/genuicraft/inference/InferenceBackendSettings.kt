@@ -23,6 +23,7 @@ object InferenceBackendSettings {
     private const val KEY_ON_DEVICE_MODEL_PATH = "on_device_model_path"
     private const val KEY_ON_DEVICE_ACCELERATOR = "on_device_accelerator"
     private const val KEY_ON_DEVICE_MTP_ENABLED = "e2b_mtp_enabled"
+    private const val KEY_TRAINED_E2B_GPU_PRECISION = "trained_e2b_gpu_precision"
     private const val KEY_RENDER_WITHOUT_OUTER_CARD = "render_without_outer_card"
     private const val KEY_RENDER_CARD_TRANSPARENCY = "render_card_transparency"
     private const val KEY_RENDER_BACKGROUND_TRANSPARENCY = "render_background_transparency"
@@ -35,6 +36,7 @@ object InferenceBackendSettings {
     const val DEFAULT_ON_DEVICE_MODEL_PATH = ""
     val DEFAULT_ON_DEVICE_ACCELERATOR = Accelerator.AUTO
     const val DEFAULT_ON_DEVICE_MTP_ENABLED = true
+    val DEFAULT_TRAINED_E2B_GPU_PRECISION = TrainedE2bGpuPrecision.FP32
     const val DEFAULT_RENDER_WITHOUT_OUTER_CARD = true
     const val DEFAULT_RENDER_CARD_TRANSPARENCY = 0.22f
     const val MIN_RENDER_CARD_TRANSPARENCY = 0.08f
@@ -72,6 +74,17 @@ object InferenceBackendSettings {
                 return entries.firstOrNull { it.rawValue.equals(normalized, ignoreCase = true) }
                     ?: AUTO
             }
+        }
+    }
+
+    enum class TrainedE2bGpuPrecision(val rawValue: String, val displayName: String) {
+        FP32("fp32", "FP32"),
+        FP16_CORRECTED("fp16_corrected", "FP16 (corrected)");
+
+        companion object {
+            fun fromRawValue(value: String?): TrainedE2bGpuPrecision =
+                entries.firstOrNull { it.rawValue.equals(value?.trim(), ignoreCase = true) }
+                    ?: FP32
         }
     }
 
@@ -332,6 +345,20 @@ object InferenceBackendSettings {
         context.getSharedPreferences(SDK_DEMO_PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
             .putBoolean(KEY_ON_DEVICE_MTP_ENABLED, enabled)
+            .apply()
+    }
+
+    /** One trained-E2B precision choice for SDK demo and both Stage 3 demo routes. */
+    fun getTrainedE2bGpuPrecision(context: Context): TrainedE2bGpuPrecision =
+        TrainedE2bGpuPrecision.fromRawValue(
+            context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .getString(KEY_TRAINED_E2B_GPU_PRECISION, DEFAULT_TRAINED_E2B_GPU_PRECISION.rawValue)
+        )
+
+    fun setTrainedE2bGpuPrecision(context: Context, precision: TrainedE2bGpuPrecision) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putString(KEY_TRAINED_E2B_GPU_PRECISION, precision.rawValue)
             .apply()
     }
 

@@ -1,0 +1,17 @@
+{
+  "complete": true,
+  "elapsedNanos": 42726484150,
+  "runtime": "LiteRT-LM/Gemma4/GPU+FP32+MTP",
+  "finishReason": "COMPLETED",
+  "finishDetail": null,
+  "metrics": {
+    "decodeTokensPerSecond": 13.130265804528866,
+    "engineInitializationSeconds": null,
+    "engineInitializedForRequest": false,
+    "inputTokens": 3327,
+    "nativeInitializationPhaseSeconds": null,
+    "outputTokens": 430,
+    "prefillTokensPerSecond": 334.4709856725496,
+    "timeToFirstTokenSeconds": 10.0232110625
+  }
+}

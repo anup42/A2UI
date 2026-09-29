@@ -49,6 +49,10 @@
     <string name="settings_on_device_accelerator_npu">NPU (experimental)</string>
     <string name="settings_on_device_mtp_title">MTP drafter</string>
     <string name="settings_on_device_mtp_description">Use bundled multi-token prediction on capable Gemma 4 models. Gemma 3 270M has no drafter, so this setting does not apply to it.</string>
+    <string name="settings_trained_precision_title">Trained E2B GPU precision</string>
+    <string name="settings_trained_precision_mtp_unavailable">MTP will be off for FP16 until the prepared manifest confirms a corrected drafter. The MTP preference remains available for FP32.</string>
+    <string name="settings_trained_precision_check">Check prepared model</string>
+    <string name="settings_trained_precision_experimental">Experimental FP16: tested with MTP on. Use FP32 when MTP is off; FP16 can produce repetitive output.</string>
     <string name="settings_on_device_downloaded">Downloaded</string>
     <string name="settings_on_device_not_downloaded">Not downloaded</string>
     <string name="settings_on_device_download">Download</string>

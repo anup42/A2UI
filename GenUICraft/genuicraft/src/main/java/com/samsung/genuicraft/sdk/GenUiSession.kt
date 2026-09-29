@@ -31,6 +31,7 @@ object GenUiModelProfiles {
         enableMtp: Boolean = false,
         enableMetrics: Boolean = false,
         accelerator: String = "GPU",
+        gpuPrecision: Gemma4GpuPrecision = Gemma4GpuPrecision.FP32,
     ): Gemma4Config {
         require(accelerator.uppercase(java.util.Locale.ROOT) in setOf("AUTO", "GPU")) {
             "The trained A2UI Mobile model requires GPU. Select Auto or GPU in Settings."
@@ -44,7 +45,7 @@ object GenUiModelProfiles {
             thinkingTokenBudget = 0,
             enableSpeculativeDecoding = enableMtp,
             enableMetrics = enableMetrics,
-            gpuPrecision = Gemma4GpuPrecision.FP32,
+            gpuPrecision = gpuPrecision,
         )
     }
 }

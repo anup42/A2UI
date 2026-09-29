@@ -1,0 +1,13 @@
+{
+  "label": "r01_fp32_mtp_on",
+  "precision": "FP32",
+  "mtpRequested": true,
+  "completed": 3,
+  "total": 3,
+  "runComplete": true,
+  "rawStrictValid": 2,
+  "repairedStrictValid": 3,
+  "sdkRenderSmokeValid": 3,
+  "closeError": null,
+  "finishedAtEpochMs": 1790722951711
+}

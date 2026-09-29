@@ -1,0 +1,9 @@
+{
+  "label": "r01_fp16_corrected_mtp_off",
+  "remoteDir": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_fp16_comparison/fp16cmp_sep30_r01_fp16_corrected_mtp_off_1790722324",
+  "localDir": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_fp16_app\\comparison\\runs\\r01_fp16_corrected_mtp_off",
+  "instrumentationExitCode": 0,
+  "hostElapsedSeconds": 308.094000000041,
+  "failure": null,
+  "pullError": null
+}

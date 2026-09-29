@@ -1,0 +1,10 @@
+{
+  "apk": "android\\app\\build\\outputs\\apk\\debug\\app-debug.apk",
+  "apk_sha256": "59ed2219e7de6ebd83f95416ae7e9bd1f8954c66892457d0f7da94af5e481c51",
+  "installed_apk_sha256": "59ed2219e7de6ebd83f95416ae7e9bd1f8954c66892457d0f7da94af5e481c51",
+  "native_adapter_sha256": "535881ff6edcdcef1ca426b0144de51ea845a9a1f2d3d8d5bcdd88e82ac776d4",
+  "serial": "R3GL203AKSF",
+  "saved_precision": "fp16_corrected",
+  "saved_mtp": true,
+  "change_after_benchmark": "UI explanatory text only; benchmarked AAR and model unchanged"
+}

@@ -90,6 +90,8 @@ internal class LiteRtGemma4Runtime(
         maxOutputTokens: Int,
         onPartialText: ((String) -> Unit)?,
     ): Gemma4RuntimeOutput = submitCancellable { requestCancelled ->
+        if (config.accelerator == Gemma4Accelerator.GPU) Gemma4NativeLibraries.ensureGpuRuntimeLoaded()
+        LiteRtRuntimeFlags.withGpuPrecision(config.gpuPrecision == Gemma4GpuPrecision.FP16_CORRECTED) {
         check(!closed.get()) { "Gemma 4 runtime has been closed." }
         var engineInitializationWallSeconds: Double? = null
         val state = engineState ?: run {
@@ -162,6 +164,7 @@ internal class LiteRtGemma4Runtime(
             )
             val responseText = if (onPartialText == null) stream.text.trim() else stream.text
             throwIfRequestStopped(requestCancelled)
+            if (config.gpuPrecision == Gemma4GpuPrecision.FP16_CORRECTED) GpuFp16Correction.requireApplied()
             val metrics = if (config.enableMetrics) {
                 runCatching {
                     readGemma4GenerationMetrics(
@@ -187,6 +190,7 @@ internal class LiteRtGemma4Runtime(
         } finally {
             activeConversation.compareAndSet(conversation, null)
             conversation.close()
+        }
         }
     }
 
@@ -255,11 +259,13 @@ internal class LiteRtGemma4Runtime(
 
     private fun initializeEngine(requestCancelled: AtomicBoolean): EngineState {
         val fp32 = config.gpuPrecision == Gemma4GpuPrecision.FP32
+        val correctedFp16 = config.gpuPrecision == Gemma4GpuPrecision.FP16_CORRECTED
         val model = if (fp32) {
             GpuFp32ModelCache.prepare(File(config.modelPath), config.cacheDir?.let(::File)) {
                 throwIfRequestStopped(requestCancelled)
             }
-        } else File(config.modelPath)
+        } else if (correctedFp16) GpuFp16Correction.validateModel(config)
+        else File(config.modelPath)
         throwIfRequestStopped(requestCancelled)
         if (config.accelerator == Gemma4Accelerator.GPU) {
             Gemma4NativeLibraries.ensureGpuRuntimeLoaded()
@@ -279,6 +285,11 @@ internal class LiteRtGemma4Runtime(
         // Separate shader caches as well as model paths from the earlier FP16 execution.
         val cacheDir = if (fp32) {
             prepareCacheDirectory(File(config.cacheDir?.let(::File) ?: model.parentFile, "gpu-fp32-shaders").absolutePath)
+        } else if (correctedFp16) {
+            // Compile once per process so every corrected runtime proves the adapter was applied.
+            // Engines within the process reuse their compiled cache and native patch counters.
+            prepareCacheDirectory(File(config.cacheDir?.let(::File) ?: model.parentFile,
+                GpuFp16Correction.POLICY + "-shaders/" + android.os.Process.myPid()).absolutePath)
         } else config.cacheDir?.let(::prepareCacheDirectory)
 
         var initializedEngine: Engine? = null
@@ -304,7 +315,7 @@ internal class LiteRtGemma4Runtime(
         }
         val engine = checkNotNull(initializedEngine)
         val mtpSuffix = if (useMtp) "+MTP" else ""
-        val precisionSuffix = if (fp32) "+FP32" else ""
+        val precisionSuffix = if (fp32) "+FP32" else if (correctedFp16) "+FP16_CORRECTED" else ""
         android.util.Log.i("GenUICraftRuntime", "Gemma4 backend=${config.accelerator.name}; precision=${config.gpuPrecision}; MTP=$useMtp; MTPRequested=${config.enableSpeculativeDecoding}; modelSupportsMtp=$modelHasMtp; thinking=${config.enableThinking}; metrics=${config.enableMetrics}; model=${model.absolutePath}")
         return EngineState(
             engine = engine,
@@ -390,6 +401,11 @@ internal object Gemma4NativeLibraries {
             try {
                 System.loadLibrary("LiteRt")
                 System.loadLibrary("LiteRtTopKOpenClSampler")
+                // Install before the compiler resolves OpenCL symbols, including when an FP32
+                // engine is initialized first. The adapter forwards unchanged unless selected.
+                runCatching { GpuFp16Correction.installIfAvailable() }.onFailure {
+                    android.util.Log.w("GenUICraftFp16", "FP16 adapter unavailable; existing precision modes remain usable", it)
+                }
             } catch (failure: LinkageError) {
                 throw IllegalStateException(
                     "Gemma 4 GPU initialization could not load the packaged ARM64 LiteRT " +

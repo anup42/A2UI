@@ -3,6 +3,7 @@ package com.samsung.genuicraft
 import com.samsung.genuicraft.sdk.GenUiModelOutput
 import com.samsung.genuicraft.sdk.GenUiPrompt
 import com.samsung.genuicraft.sdk.GenUiProvider
+import com.samsung.genuicraft.sdk.provider.Gemma4GpuPrecision
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.cancelAndJoin
@@ -61,6 +62,18 @@ class GenUiSdkModelUiTest {
         )
         assertEquals(E2bModelChoice.OFFICIAL_E2B, E2bModelChoice.fromPreference(null))
         assertEquals(E2bModelChoice.OFFICIAL_E2B, E2bModelChoice.fromPreference("future"))
+        assertEquals(
+            InferenceBackendSettings.TrainedE2bGpuPrecision.FP32,
+            InferenceBackendSettings.TrainedE2bGpuPrecision.fromRawValue(null),
+        )
+        assertEquals(
+            InferenceBackendSettings.TrainedE2bGpuPrecision.FP16_CORRECTED,
+            InferenceBackendSettings.TrainedE2bGpuPrecision.fromRawValue("FP16_CORRECTED"),
+        )
+        assertEquals(
+            InferenceBackendSettings.TrainedE2bGpuPrecision.FP32,
+            InferenceBackendSettings.TrainedE2bGpuPrecision.fromRawValue("model_default"),
+        )
     }
 
     @Test
@@ -117,6 +130,53 @@ class GenUiSdkModelUiTest {
         val readiness = trainedE2bW4Readiness(ready.absolutePath)
         assertTrue(readiness.usable)
         assertTrue(readiness.message.contains("GPU"))
+    }
+
+    @Test
+    fun correctedFp16RequiresPreparedSiblingAndMatchingManifest() {
+        val original = temporaryFolder.newFile("gemma4_e2b_a2ui_mobile.litertlm").apply {
+            writeBytes(byteArrayOf(1, 2, 3))
+        }
+        val fp32 = selectTrainedE2bModel(
+            original.absolutePath, InferenceBackendSettings.TrainedE2bGpuPrecision.FP32,
+        )
+        assertEquals(original.absolutePath, fp32.modelPath)
+        assertEquals(Gemma4GpuPrecision.FP32, fp32.gpuPrecision)
+        assertTrue(fp32.readiness.usable)
+
+        val corrected = selectTrainedE2bModel(
+            original.absolutePath, InferenceBackendSettings.TrainedE2bGpuPrecision.FP16_CORRECTED,
+        )
+        assertFalse(corrected.readiness.usable)
+        assertEquals(CORRECTED_FP16_MODEL_FILE_NAME, java.io.File(corrected.modelPath).name)
+
+        val correctedFile = temporaryFolder.newFile(CORRECTED_FP16_MODEL_FILE_NAME).apply {
+            writeBytes(byteArrayOf(4, 5, 6, 7))
+        }
+        assertFalse(selectTrainedE2bModel(
+            original.absolutePath, InferenceBackendSettings.TrainedE2bGpuPrecision.FP16_CORRECTED,
+        ).readiness.usable)
+
+        val manifest = java.io.File("${correctedFile.absolutePath}.fp16.json")
+        manifest.writeText(correctedManifest(modelBytes = correctedFile.length(), drafterCorrected = false))
+        val ready = selectTrainedE2bModel(
+            original.absolutePath, InferenceBackendSettings.TrainedE2bGpuPrecision.FP16_CORRECTED,
+        )
+        assertEquals(correctedFile.absolutePath, ready.modelPath)
+        assertEquals(Gemma4GpuPrecision.FP16_CORRECTED, ready.gpuPrecision)
+        assertTrue(ready.readiness.message, ready.readiness.usable)
+        assertFalse(ready.mtpSupported)
+        assertTrue(ready.readiness.message.contains("MTP unavailable"))
+
+        manifest.writeText(correctedManifest(modelBytes = correctedFile.length() + 1L))
+        assertFalse(selectTrainedE2bModel(
+            original.absolutePath, InferenceBackendSettings.TrainedE2bGpuPrecision.FP16_CORRECTED,
+        ).readiness.usable)
+
+        manifest.writeText(correctedManifest(modelBytes = correctedFile.length(), drafterCorrected = true))
+        assertTrue(selectTrainedE2bModel(
+            original.absolutePath, InferenceBackendSettings.TrainedE2bGpuPrecision.FP16_CORRECTED,
+        ).mtpSupported)
     }
 
     @Test
@@ -181,6 +241,16 @@ class GenUiSdkModelUiTest {
         assertFalse(disabled.enableSpeculativeDecoding)
         assertEquals(disabled, enabled.copy(enableSpeculativeDecoding = false))
         assertFalse("MTP toggle must not change the trained prompt's thinking mode", enabled.enableThinking)
+        assertNotEquals(
+            sdkDemoProviderKey(E2bModelChoice.TRAINED_E2B_V10_W4, "/models/e2b.litertlm", true, false),
+            sdkDemoProviderKey(
+                E2bModelChoice.TRAINED_E2B_V10_W4,
+                "/models/e2b.litertlm",
+                true,
+                false,
+                Gemma4GpuPrecision.FP16_CORRECTED,
+            ),
+        )
     }
 
     @Test
@@ -198,4 +268,17 @@ class GenUiSdkModelUiTest {
         assertFalse(config.enableSpeculativeDecoding)
         assertTrue(config.enableMetrics)
     }
+
+    private fun correctedManifest(modelBytes: Long, drafterCorrected: Boolean = false): String = """
+        {
+          "schema_version": 1,
+          "precision_policy": "genuicraft-fp16-rope-qdq-v1",
+          "max_context_tokens": 8192,
+          "target_rope_corrected": true,
+          "drafter_rope_corrected": $drafterCorrected,
+          "source_sha256": "${"a".repeat(64)}",
+          "model_sha256": "${"b".repeat(64)}",
+          "model_bytes": $modelBytes
+        }
+    """.trimIndent()
 }

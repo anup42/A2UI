@@ -1,0 +1,13 @@
+{
+  "label": "r01_fp16_corrected_mtp_off",
+  "precision": "FP16_CORRECTED",
+  "mtpRequested": false,
+  "completed": 3,
+  "total": 3,
+  "runComplete": true,
+  "rawStrictValid": 1,
+  "repairedStrictValid": 3,
+  "sdkRenderSmokeValid": 3,
+  "closeError": null,
+  "finishedAtEpochMs": 1790722635420
+}

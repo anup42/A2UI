@@ -67,6 +67,19 @@ class TrainedStage3BridgeTest {
             assertTrue(config.enableMetrics)
         }
 
+        val corrected = TrainedStage3Bridge.configFor(
+            modelPath = "/models/model-fp16-corrected.litertlm",
+            accelerator = InferenceBackendSettings.Accelerator.AUTO,
+            enableMtp = false,
+            gpuPrecision = com.samsung.genuicraft.sdk.provider.Gemma4GpuPrecision.FP16_CORRECTED,
+        )
+        assertEquals(
+            com.samsung.genuicraft.sdk.provider.Gemma4GpuPrecision.FP16_CORRECTED,
+            corrected.gpuPrecision,
+        )
+        assertEquals("/models/model-fp16-corrected.litertlm", corrected.modelPath)
+        assertFalse(corrected.enableSpeculativeDecoding)
+
         listOf(
             InferenceBackendSettings.Accelerator.CPU,
             InferenceBackendSettings.Accelerator.NPU,
