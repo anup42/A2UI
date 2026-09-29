@@ -1,0 +1,7 @@
+<a2ui>
+$/={__genuicraft_sources:[{id:"1",url:"https://enquiry.indianrail.gov.in/",title:"Indian Railways enquiry",description:"Synthetic QA source: fixture values only."}],train_schedule:[{train:"Vande Bharat Express",travel_time:"1h 36m",fare:"Not listed",train_number:"20172"},{train:"Gatimaan Express",travel_time:"1h 40m",fare:"₹605 (Chair Car) [1]",train_number:"12050"},{train:"Shatabdi Express",travel_time:"1h 55m",fare:"Illustrative fare",train_number:"12002"}]}
+root=Column([title,table,note],gap="sm",padding=16)
+title=Text("Train Schedule","h2")
+table=Table(columns=[{key:"train",label:"Train"},{key:"travel_time",label:"Travel Time"},{key:"fare",label:"Fare"},{key:"train_number",label:"Train Number"}],statePath="/train_schedule",domain="comparison",preferredPresentation="cards",primaryColumn="train")
+note=Text("End of synthetic railway fixture • not a new model generation or verified timetable.","caption")
+</a2ui>

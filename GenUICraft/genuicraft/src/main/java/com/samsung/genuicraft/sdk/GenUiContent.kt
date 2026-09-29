@@ -13,6 +13,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import coil.ImageLoader
 import com.google.gson.Gson
@@ -53,6 +54,7 @@ internal fun GenUiContentImpl(
     onAction: (GenUiAction) -> Unit = {},
     showSources: Boolean = true,
     onSourcePreviewChanged: (Boolean) -> Unit = {},
+    embeddedMode: Boolean = false,
 ) {
     val renderResult = remember(document.a2uiJson, document.express) {
         val input = document.a2uiJson.ifBlank { document.express }
@@ -73,21 +75,30 @@ internal fun GenUiContentImpl(
     )
 
     GenUiRendererTheme {
+        val contentPadding = if (embeddedMode) 4.dp else 16.dp
         if (renderResult.errorMessage != null) {
             Text(
                 text = "Unable to render GenUI: ${renderResult.errorMessage}",
                 color = MaterialTheme.colorScheme.error,
-                modifier = modifier.padding(16.dp),
+                modifier = modifier.padding(horizontal = if (embeddedMode) 0.dp else 16.dp, vertical = contentPadding),
             )
             return@GenUiRendererTheme
         }
 
-        Surface(modifier = modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.background) {
+        Surface(
+            modifier = modifier.fillMaxWidth(),
+            color = if (embeddedMode) Color.Transparent else MaterialTheme.colorScheme.background,
+        ) {
             CompositionLocalProvider(
                 LocalFlatSpecTextHorizontalPadding provides 0.dp,
                 LocalSourceCitations provides citationContext,
             ) {
-                Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 16.dp)) {
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(
+                        horizontal = if (embeddedMode) 0.dp else 16.dp,
+                        vertical = contentPadding,
+                    ),
+                ) {
                     renderResult.surfaces.forEach { surface ->
                         val spec = surface.canonicalSpec ?: return@forEach
                         FlatSpecContent(

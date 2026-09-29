@@ -1,0 +1,33 @@
+{
+  "date": "2026-09-29",
+  "device": "Samsung Galaxy Z Fold7 SM-F966B",
+  "android": 16,
+  "display": "folded cover display",
+  "qa_package": "com.samsung.genuicraft.expandedqa",
+  "qa_process_ids": [
+    27539,
+    28518
+  ],
+  "qa_code": "Actual staged GenUiHostView, GenUiInlineGeometry and answer_slots.js, consuming SDK 0.5.5.",
+  "compose_runtime": "BOM 2026.06.01, Foundation 1.11.4, Material3 1.5.0-alpha17",
+  "inputs": [
+    "saved BXP-001 weather result",
+    "synthetic Delhi-Agra railway Table fixture"
+  ],
+  "new_model_inference": false,
+  "full_bixby_rebuilt": false,
+  "main_demo_build_install": "passed",
+  "qa_host_build_install": "passed",
+  "selector_height_css_px": 32,
+  "sdk_embedded_horizontal_padding_dp": 0,
+  "sdk_embedded_vertical_padding_dp": 4,
+  "rail_row_horizontal_padding_dp": 12,
+  "nested_vertical_scroll_views": 0,
+  "weather_natural_height_px": 2473,
+  "train_natural_height_px": 912,
+  "parent_scroll_after_drag_css_px": 494.8571472167969,
+  "citation_close_preserves_parent_position": true,
+  "view_toggle": "passed",
+  "fatal_markers_for_qa_pids_in_captured_window": 0,
+  "log_scope": "30-minute captured log buffer, filtered to QA process IDs for fatal/linkage markers; not a general stability guarantee."
+}

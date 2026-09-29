@@ -142,6 +142,73 @@ class NativeTrainSemanticsTest {
     }
 
     @Test
+    fun buildTrainRows_groupsTravelTimeFareAndNumberWithoutTimetableColumns() {
+        val rows = NativeTrainSemantics.buildTrainRows(
+            headers = listOf("Train", "Travel Time", "Fare", "Train Number", "Booking link"),
+            rows = listOf(
+                listOf("Gatimaan Express [1]", "1 h 40 m [11]", "₹755 [1]", "12050", "https://example.org/a"),
+                listOf("Taj Express [2]", "2 h 35 m", "₹185 [2]", "12280", "https://example.org/b")
+            ),
+            title = "Delhi to Agra trains"
+        )
+
+        assertNotNull(rows)
+        assertEquals(2, rows!!.size)
+        assertEquals(NativeTrainField("Train", "Gatimaan Express [1]"), rows[0].service)
+        assertEquals(NativeTrainField("Travel Time", "1 h 40 m [11]"), rows[0].duration)
+        assertNull(rows[0].station)
+        assertNull(rows[0].departure)
+        assertEquals(
+            listOf(
+                NativeTrainField("Fare", "₹755 [1]"),
+                NativeTrainField("Train Number", "12050"),
+                NativeTrainField("Booking link", "https://example.org/a")
+            ),
+            rows[0].extraFields
+        )
+        assertEquals("Taj Express [2]", rows[1].service.value)
+        assertEquals("₹185 [2]", rows[1].extraFields.first().value)
+    }
+
+    @Test
+    fun buildTrainRows_prefersNameOverNumberAndFallsBackPerRowWithoutLosingNumber() {
+        val rows = NativeTrainSemantics.buildTrainRows(
+            headers = listOf("Train Number", "Fare", "Travel Time", "Train Name"),
+            rows = listOf(
+                listOf("12050", "₹755", "1 h 40 m", "Gatimaan Express"),
+                listOf("12280", "₹185", "2 h 35 m", "")
+            )
+        )!!
+
+        assertEquals(NativeTrainField("Train Name", "Gatimaan Express"), rows[0].service)
+        assertEquals(listOf(NativeTrainField("Train Number", "12050"), NativeTrainField("Fare", "₹755")), rows[0].extraFields)
+        assertEquals(NativeTrainField("Train Number", "12280"), rows[1].service)
+        assertEquals(listOf(NativeTrainField("Fare", "₹185")), rows[1].extraFields)
+        assertEquals("2 h 35 m", rows[1].duration?.value)
+    }
+
+    @Test
+    fun buildTrainRows_rejectsFareOnlyOrMissingDurationWithoutTimetableEvidence() {
+        assertNull(NativeTrainSemantics.buildTrainRows(
+            headers = listOf("Train", "Fare", "Train Number"),
+            rows = listOf(listOf("Gatimaan", "₹755", "12050"))
+        ))
+        assertNull(NativeTrainSemantics.buildTrainRows(
+            headers = listOf("Train", "Travel Time", "Fare"),
+            rows = listOf(listOf("Gatimaan", "", "₹755"))
+        ))
+        assertNull(NativeTrainSemantics.buildTrainRows(
+            headers = listOf("Service", "Travel Time", "Fare"),
+            rows = listOf(listOf("Option A", "2 h", "₹755")),
+            title = "Comparison"
+        ))
+        assertNull(NativeTrainSemantics.buildTrainRows(
+            headers = listOf("Train", "Flight number", "Travel Time", "Fare"),
+            rows = listOf(listOf("Gatimaan", "AI 101", "2 h", "₹755"))
+        ))
+    }
+
+    @Test
     fun buildTrainRows_rejectsGenericAndConflictingDomainTables() {
         val genericHeaders = listOf("service", "departure", "departure_time", "duration", "class")
         val genericRows = listOf(listOf("Option A", "Central", "10:00", "2 h", "Standard"))

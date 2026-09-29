@@ -36,19 +36,20 @@ internal object NativeTrainSemantics {
         }
 
         val rolesByIndex = normalizedHeaders.map(::roleForHeader)
-        val serviceIndex = rolesByIndex.indexOfFirst { it == TrainFieldRole.SERVICE }.takeIf { it >= 0 }
-            ?: return null
+        val serviceIndexes = rolesByIndex.indices
+            .filter { rolesByIndex[it] == TrainFieldRole.SERVICE }
+            .sortedWith(compareBy { serviceHeaderPriority(normalizedHeaders[it]) })
+        if (serviceIndexes.isEmpty()) return null
         val stationIndex = rolesByIndex.indexOfFirst { it == TrainFieldRole.STATION }.takeIf { it >= 0 }
         val departureIndex = rolesByIndex.indexOfFirst { it == TrainFieldRole.DEPARTURE }.takeIf { it >= 0 }
         val durationIndex = rolesByIndex.indexOfFirst { it == TrainFieldRole.DURATION }.takeIf { it >= 0 }
         val seatingIndex = rolesByIndex.indexOfFirst { it == TrainFieldRole.SEATING }.takeIf { it >= 0 }
 
-        // Compact rail tables can use generic detail headings (for example Journey/Fare).
-        // Retain those as labeled extras instead of sending a clear train table to generic cards.
-        if ((stationIndex == null && departureIndex == null) || headers.size < 3) return null
+        // Some comparisons provide travel time and fare without timetable columns. Duration is
+        // sufficient travel detail when the table also identifies a train; fare alone is not.
+        if ((stationIndex == null && departureIndex == null && durationIndex == null) || headers.size < 3) return null
 
-        val representedIndexes = setOfNotNull(
-            serviceIndex,
+        val detailIndexes = setOfNotNull(
             stationIndex,
             departureIndex,
             durationIndex,
@@ -56,6 +57,8 @@ internal object NativeTrainSemantics {
         )
         val mappedRows = ArrayList<NativeTrainRow>(rows.size)
         for (row in rows) {
+            val serviceIndex = serviceIndexes.firstOrNull { index -> !row.getOrNull(index).isNullOrBlank() }
+                ?: return null
             val service = fieldAt(headers, row, serviceIndex, TrainFieldRole.SERVICE) ?: return null
             val station = stationIndex?.let { index ->
                 fieldAt(headers, row, index, TrainFieldRole.STATION)?.let { field ->
@@ -70,11 +73,11 @@ internal object NativeTrainSemantics {
             val duration = durationIndex?.let { fieldAt(headers, row, it, TrainFieldRole.DURATION) }
             val seating = seatingIndex?.let { fieldAt(headers, row, it, TrainFieldRole.SEATING) }
 
-            // A row with only an identity cannot be rendered as a train schedule without guessing.
-            if (station == null && departure == null) return null
+            // A row with only an identity or fare cannot be rendered as a rail comparison.
+            if (station == null && departure == null && duration == null) return null
 
             val extraFields = row.indices.mapNotNull { index ->
-                if (index in representedIndexes) return@mapNotNull null
+                if (index == serviceIndex || index in detailIndexes) return@mapNotNull null
                 val value = row[index]
                 if (value.isBlank()) return@mapNotNull null
                 NativeTrainField(
@@ -157,6 +160,12 @@ internal object NativeTrainSemantics {
 
             else -> null
         }
+    }
+
+    private fun serviceHeaderPriority(header: String): Int = when {
+        header.hasAnyToken("number", "no") -> 2
+        header.hasAnyToken("name", "service") -> 0
+        else -> 1
     }
 
     private fun semanticLabel(rawHeader: String, role: TrainFieldRole): String {

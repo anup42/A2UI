@@ -1,0 +1,46 @@
+{
+  "sdk_junit": [
+    {
+      "name": "com.samsung.genuicraft.sdk.GenUiViewTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "com.samsung.genuicraft.sdk.internal.renderer.CitationTextTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "com.samsung.genuicraft.sdk.internal.renderer.ExplicitTablePresentationTest",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "com.samsung.genuicraft.sdk.internal.renderer.native.intents.train.NativeTrainSemanticsTest",
+      "tests": "11",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "com.samsung.genuicraft.sdk.internal.renderer.RendererFlowRowTest",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0"
+    }
+  ],
+  "host_javascript": {
+    "passed": 8,
+    "failed": 0,
+    "command": "node --test answer_slots.test.js"
+  },
+  "host_extracted_jvm": {
+    "passed": 5,
+    "failed": 0,
+    "command": "python run_host_tests.py"
+  },
+  "host_test_location": "tmp/bixby_expanded_layout/tests",
+  "host_test_limit": "Source-extracted regression fixture, not the full proprietary Bixby test suite."
+}

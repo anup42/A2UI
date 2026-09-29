@@ -43,11 +43,22 @@ dependencyResolutionManagement {
     }
 }
 // consumer module
-implementation("com.samsung.genuicraft:genuicraft:0.5.4")
+implementation("com.samsung.genuicraft:genuicraft:0.5.5")
 ```
 
 Version 0.5.0 removes the remote server provider and its public configuration API.
 Conversion uses the SDK's on-device LiteRT model profiles.
+
+Version 0.5.5 adds `GenUiView.embeddedMode` for answers inside a host-owned
+scrolling conversation. Set it before `render` and use `onContentSizeChanged`
+to reserve the measured pixel height in the parent. Embedded content has no
+internal vertical scroll container, no extra horizontal outer padding, and a
+transparent background. The host forwards vertical drags to its conversation;
+taps and horizontal controls remain interactive. Standalone views retain their
+existing scroll container and padding. Railway comparisons that supply travel
+time and fare without departure/station columns now use compact train rows.
+See the [embedded Bixby layout report](validation/20260929_expanded_bixby_layout/REPORT.md)
+for device measurements, compact train screenshots and merge-delivery details.
 
 Version 0.5.4 replaces experimental Compose `FlowRow` calls with an SDK-owned
 wrapping layout. This avoids the missing older `FlowRowOverflow` method signature

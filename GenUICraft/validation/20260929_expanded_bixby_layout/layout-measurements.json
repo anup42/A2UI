@@ -1,0 +1,258 @@
+{
+  "initial": {
+    "native": [
+      {
+        "width": 997,
+        "height": 2473,
+        "top": 615,
+        "visible": true,
+        "nestedScrollViews": 0
+      }
+    ],
+    "web": {
+      "scrollY": 0,
+      "viewportWidth": 411,
+      "viewportHeight": 870,
+      "bodyHeight": 2232,
+      "slots": [
+        {
+          "height": 941.1130981445312,
+          "top": 234,
+          "width": 379.4285888671875
+        },
+        {
+          "height": 0,
+          "top": 1820.6131591796875,
+          "width": 379.4285888671875
+        }
+      ],
+      "buttons": [
+        {
+          "text": "GenUICraft",
+          "height": 32
+        },
+        {
+          "text": "Bixby",
+          "height": 32
+        },
+        {
+          "text": "GenUICraft",
+          "height": 32
+        },
+        {
+          "text": "Bixby",
+          "height": 32
+        }
+      ]
+    }
+  },
+  "scroll": {
+    "native": [
+      {
+        "width": 997,
+        "height": 2473,
+        "top": -684,
+        "visible": true,
+        "nestedScrollViews": 0
+      }
+    ],
+    "web": {
+      "scrollY": 494.8571472167969,
+      "viewportWidth": 411,
+      "viewportHeight": 870,
+      "bodyHeight": 2232,
+      "slots": [
+        {
+          "height": 941.1130981445312,
+          "top": -260.8571472167969,
+          "width": 379.4285888671875
+        },
+        {
+          "height": 0,
+          "top": 1325.7559814453125,
+          "width": 379.4285888671875
+        }
+      ],
+      "buttons": [
+        {
+          "text": "GenUICraft",
+          "height": 32
+        },
+        {
+          "text": "Bixby",
+          "height": 32
+        },
+        {
+          "text": "GenUICraft",
+          "height": 32
+        },
+        {
+          "text": "Bixby",
+          "height": 32
+        }
+      ]
+    }
+  },
+  "train": {
+    "native": [
+      {
+        "width": 997,
+        "height": 2473,
+        "top": -2316,
+        "visible": false,
+        "nestedScrollViews": 0
+      },
+      {
+        "width": 997,
+        "height": 912,
+        "top": 912,
+        "visible": true,
+        "nestedScrollViews": 0
+      }
+    ],
+    "web": {
+      "scrollY": 1475.047607421875,
+      "viewportWidth": 411,
+      "viewportHeight": 870,
+      "bodyHeight": 2345,
+      "slots": [
+        {
+          "height": 941.1130981445312,
+          "top": -1241.047607421875,
+          "width": 379.4285888671875
+        },
+        {
+          "height": 347.06549072265625,
+          "top": 345.56549072265625,
+          "width": 379.4285888671875
+        }
+      ],
+      "buttons": [
+        {
+          "text": "GenUICraft",
+          "height": 32
+        },
+        {
+          "text": "Bixby",
+          "height": 32
+        },
+        {
+          "text": "GenUICraft",
+          "height": 32
+        },
+        {
+          "text": "Bixby",
+          "height": 32
+        }
+      ]
+    }
+  },
+  "after_citation": {
+    "native": [
+      {
+        "width": 997,
+        "height": 2473,
+        "top": -2316,
+        "visible": false,
+        "nestedScrollViews": 0
+      },
+      {
+        "width": 997,
+        "height": 912,
+        "top": 912,
+        "visible": true,
+        "nestedScrollViews": 0
+      }
+    ],
+    "web": {
+      "scrollY": 1475.047607421875,
+      "viewportWidth": 411,
+      "viewportHeight": 870,
+      "bodyHeight": 2345,
+      "slots": [
+        {
+          "height": 941.1130981445312,
+          "top": -1241.047607421875,
+          "width": 379.4285888671875
+        },
+        {
+          "height": 347.06549072265625,
+          "top": 345.56549072265625,
+          "width": 379.4285888671875
+        }
+      ],
+      "buttons": [
+        {
+          "text": "GenUICraft",
+          "height": 32
+        },
+        {
+          "text": "Bixby",
+          "height": 32
+        },
+        {
+          "text": "GenUICraft",
+          "height": 32
+        },
+        {
+          "text": "Bixby",
+          "height": 32
+        }
+      ]
+    }
+  },
+  "final": {
+    "native": [
+      {
+        "width": 997,
+        "height": 2473,
+        "top": -2291,
+        "visible": true,
+        "nestedScrollViews": 0
+      },
+      {
+        "width": 997,
+        "height": 912,
+        "top": 911,
+        "visible": true,
+        "nestedScrollViews": 0
+      }
+    ],
+    "web": {
+      "scrollY": 1107.047607421875,
+      "viewportWidth": 411,
+      "viewportHeight": 870,
+      "bodyHeight": 1977,
+      "slots": [
+        {
+          "height": 941.1130981445312,
+          "top": -873.047607421875,
+          "width": 379.4285888671875
+        },
+        {
+          "height": 347.06549072265625,
+          "top": 345.56549072265625,
+          "width": 379.4285888671875
+        }
+      ],
+      "buttons": [
+        {
+          "text": "GenUICraft",
+          "height": 32
+        },
+        {
+          "text": "Bixby",
+          "height": 32
+        },
+        {
+          "text": "GenUICraft",
+          "height": 32
+        },
+        {
+          "text": "Bixby",
+          "height": 32
+        }
+      ]
+    }
+  }
+}
