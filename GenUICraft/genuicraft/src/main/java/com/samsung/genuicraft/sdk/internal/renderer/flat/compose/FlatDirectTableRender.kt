@@ -422,7 +422,7 @@ internal fun RenderDirectTable(
         )
         return
     }
-    if (table.renderMode == FlatTableRenderMode.FLIGHT_CARDS && shouldUseNativeFlightCards(headers)) {
+    if (table.renderMode == FlatTableRenderMode.FLIGHT_CARDS && shouldUseNativeFlightCards(headers, table.rows)) {
         val flightRows = NativeFlightSemantics.buildFlightRows(headers, table.rows)
         if (!flightRows.isNullOrEmpty()) {
             NativeFlightUiRenderer.RenderFlightRows(flightRows, onOpenUrl = onOpenUrl)

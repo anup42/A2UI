@@ -914,25 +914,33 @@ internal fun limitActionCandidate(candidate: Any?, actionBudget: Int): Any? {
 }
 
 internal fun FlatSpec.withCollapsedRootHorizontalPadding(): FlatSpec {
-    val rootElement = elements[root] ?: return this
-    val rootType = rootElement.type.trim().lowercase()
-    if (rootType !in setOf("stack", "column", "row", "list", "container", "box")) return this
-
-    val props = rootElement.props
-    val hasAllPadding = props.containsKey("padding")
-    val hasHorizontalPadding = props.containsKey("paddingHorizontal")
-    if (!hasAllPadding && !hasHorizontalPadding) return this
-
-    val adjustedProps = props.toMutableMap()
-    if (hasAllPadding && !adjustedProps.containsKey("paddingVertical")) {
-        adjustedProps["paddingVertical"] = props["padding"]
+    val adjusted = elements.toMutableMap()
+    val pending = ArrayDeque<String>().apply { add(root) }
+    val visited = mutableSetOf<String>()
+    while (pending.isNotEmpty()) {
+        val id = pending.removeFirst()
+        if (!visited.add(id)) continue
+        val element = elements[id] ?: continue
+        val type = element.type.trim().lowercase()
+        if (type !in setOf("stack", "column", "row", "list", "container", "box")) continue
+        // The host already supplies the page gutter. Follow full-width layout wrappers,
+        // but leave card interiors, fixed-width panels and side-by-side cells alone.
+        if (id != root && asDp(element.props["width"]) != null) continue
+        val props = element.props.toMutableMap()
+        for (spacing in listOf("padding", "margin")) {
+            if (!props.containsKey(spacing) && !props.containsKey("${spacing}Horizontal")) continue
+            if (props.containsKey(spacing) && !props.containsKey("${spacing}Vertical")) {
+                props["${spacing}Vertical"] = props[spacing]
+            }
+            props.remove(spacing)
+            props["${spacing}Horizontal"] = 0
+        }
+        if (props != element.props) adjusted[id] = element.copy(props = props)
+        if (type != "row" && !(type == "stack" && stackDirection(props) == "horizontal")) {
+            pending.addAll(element.children)
+        }
     }
-    adjustedProps.remove("padding")
-    adjustedProps["paddingHorizontal"] = 0
-
-    return copy(
-        elements = elements + (root to rootElement.copy(props = adjustedProps))
-    )
+    return if (adjusted == elements) this else copy(elements = adjusted)
 }
 
 @Composable
@@ -2652,7 +2660,7 @@ internal fun inferEntityPrimaryColumnIndex(headers: List<String>, primaryColumn:
     return 0
 }
 
-internal fun shouldUseNativeFlightCards(headers: List<String>): Boolean {
+internal fun shouldUseNativeFlightCards(headers: List<String>, rows: List<List<String>> = emptyList()): Boolean {
     val normalized = headers.map(::normalizeTableHeaderForMatch)
     val routeSignals = normalized.count { header ->
         header.contains("depart") ||
@@ -2671,7 +2679,8 @@ internal fun shouldUseNativeFlightCards(headers: List<String>): Boolean {
             header.contains("justification") ||
             header.contains("reason")
     }
-    return routeSignals >= 2 && rankedComparisonSignals < 2
+    return rankedComparisonSignals < 2 &&
+        (routeSignals >= 2 || NativeFlightSemantics.hasCombinedFlightTimes(headers, rows))
 }
 
 internal fun rankedFlightColumnIndex(headers: List<String>, keywords: List<String>): Int? {

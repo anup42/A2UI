@@ -116,7 +116,7 @@ internal object NativeFlightUiRenderer {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 14.dp, vertical = 12.dp),
+                            .padding(horizontal = 10.dp, vertical = 12.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         Row(
@@ -246,6 +246,13 @@ internal object NativeFlightUiRenderer {
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
+                        }
+                        row.details.forEach { (label, value) ->
+                            Text(
+                                text = "$label: $value",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
                         actionUrl?.let { safeUrl ->
                             Button(

@@ -262,7 +262,7 @@ internal fun RenderRankedFlightComparisonCards(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 11.dp),
+                        .padding(horizontal = 10.dp, vertical = 11.dp),
                     verticalArrangement = Arrangement.spacedBy(9.dp)
                 ) {
                     Row(
@@ -421,7 +421,7 @@ internal fun RenderFlightItineraryTableCards(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 10.dp),
+                        .padding(horizontal = 10.dp, vertical = 10.dp),
                     verticalArrangement = Arrangement.spacedBy(9.dp)
                 ) {
                     Row(

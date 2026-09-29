@@ -82,7 +82,8 @@ internal data class FlightRow(
     val status: String?,
     val logoUrl: String? = null,
     val actionUrl: String? = null,
-    val actionLabel: String? = null
+    val actionLabel: String? = null,
+    val details: List<Pair<String, String>> = emptyList()
 )
 
 internal data class FlightPoint(

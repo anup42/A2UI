@@ -321,6 +321,18 @@ class FlatSpecRendererSupportTest {
     }
 
     @Test
+    fun nativeFlightCards_acceptCombinedTimesAndKeepComparisonRouting() {
+        val headers = listOf("Flight Number", "Departure", "Details", "Fare", "Booking", "Date")
+        val rows = listOf(listOf("IndiGo 6E 6353", "04:40–07:10", "nonstop, approximately 2h 30m", "₹6,889", "[5][12]", "tomorrow"))
+        assertTrue(shouldUseNativeFlightCards(headers, rows))
+        assertFalse(shouldUseNativeFlightCards(headers, listOf(rows.single().toMutableList().apply { this[1] = "04:40" })))
+        assertTrue(shouldUseNativeFlightCards(listOf("Airline", "Departure", "Arrival", "Fare")))
+        assertFalse(shouldUseNativeFlightCards(
+            headers + listOf("Rank", "Reason"), rows.map { it + listOf("1", "Cheapest") }
+        ))
+    }
+
+    @Test
     fun extractDirectTableModel_infersPlaylistFromSongArtistPhaseColumns() {
         val props = mapOf<String, Any?>(
             "columns" to listOf(

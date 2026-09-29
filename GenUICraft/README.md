@@ -43,11 +43,21 @@ dependencyResolutionManagement {
     }
 }
 // consumer module
-implementation("com.samsung.genuicraft:genuicraft:0.5.6")
+implementation("com.samsung.genuicraft:genuicraft:0.5.7")
 ```
 
 Version 0.5.0 removes the remote server provider and its public configuration API.
 Conversion uses the SDK's on-device LiteRT model profiles.
+
+Version 0.5.7 recognizes combined flight-time ranges such as `04:40–07:10` in
+the shared native flight-card route, including explicit AM/PM and next-day offsets.
+Duration and stops can share a Details cell; source citations and dates remain
+visible without turning citation IDs into booking URLs. Page-level nested layout
+wrappers no longer add horizontal padding on top of the host gutter. Vertical
+spacing, card interiors and side-by-side cells retain their layout, and flight
+cards use 10 dp of horizontal content padding.
+See the [flight and spacing verification](validation/20260930_flight_ranges_padding/REPORT.md)
+for unchanged-document device replays, measured bounds and the Bixby handoff.
 
 Version 0.5.6 improves generated Express recovery and comparison presentation.
 Opt-in generated-output repair reconnects static answer components omitted from the

@@ -8,6 +8,41 @@ import com.samsung.genuicraft.renderer.native.NativeTextFormatter
 import java.util.Locale
 
 internal object NativeFlightSemantics {
+    private val flightClock = Regex(
+        """(?<![\d:])(\d{1,2}):([0-5]\d)(?:\s*(AM|PM))?(?:\s*(?:\(\s*\+(\d+)\s*\)|\+(\d+)))?(?![\d:])""",
+        RegexOption.IGNORE_CASE
+    )
+    private val rangeSeparator = Regex("""->|[-\u2013\u2014\u2192]|\bto\b""", RegexOption.IGNORE_CASE)
+    private val airportAroundSeparator = Regex("""\s*(?:\(?[A-Z]{3}\)?)?\s*""")
+
+    /** Split only an explicit two-clock range; never infer a day offset or a missing time. */
+    fun parseFlightTimeRange(value: String?): Pair<String, String>? {
+        val text = NativeTextFormatter.sanitizeDisplayText(value.orEmpty())
+        val clocks = flightClock.findAll(text).toList()
+        if (clocks.size != 2 || clocks.any { !isValidFlightClock(it) }) return null
+        val betweenStart = clocks[0].range.last + 1
+        val between = text.substring(betweenStart, clocks[1].range.first)
+        val separator = rangeSeparator.find(between) ?: return null
+        if (!airportAroundSeparator.matches(between.substring(0, separator.range.first)) ||
+            !airportAroundSeparator.matches(between.substring(separator.range.last + 1))) return null
+        val split = betweenStart + separator.range.first
+        return text.substring(0, split).trim() to
+            text.substring(split + separator.value.length).trim()
+    }
+
+    private fun isValidFlightClock(match: MatchResult): Boolean {
+        val hours = match.groupValues[1].toInt()
+        return hours in if (match.groupValues[3].isBlank()) 0..23 else 1..12
+    }
+
+    fun hasCombinedFlightTimes(header: List<String>, body: List<List<String>>): Boolean {
+        val columns = detectFlightColumns(header) ?: return false
+        return body.any { row ->
+            parseFlightTimeRange(readCell(row, columns.depart)) != null ||
+                parseFlightTimeRange(readCell(row, columns.arrive)) != null
+        }
+    }
+
     fun parseFlightPoint(value: String?, fallbackCode: String?): FlightPoint {
         val raw = NativeTextFormatter.sanitizeDisplayText(value.orEmpty()).trim()
         val fallback = NativeTextFormatter.sanitizeDisplayText(fallbackCode.orEmpty()).ifBlank { null }
@@ -32,12 +67,11 @@ internal object NativeFlightSemantics {
         if (cleaned.isBlank()) {
             return null
         }
-        val match = Regex("""\b(\d{1,2}:\d{2})(?:\s?(AM|PM))?(?:\+(\d+))?\b""", RegexOption.IGNORE_CASE)
-            .find(cleaned)
+        val match = flightClock.find(cleaned)?.takeIf(::isValidFlightClock)
             ?: return null
-        val hhmm = match.groupValues[1]
-        val suffix = match.groupValues.getOrNull(2).orEmpty().uppercase(Locale.US)
-        val dayOffset = match.groupValues.getOrNull(3).orEmpty()
+        val hhmm = "${match.groupValues[1]}:${match.groupValues[2]}"
+        val suffix = match.groupValues[3].uppercase(Locale.US)
+        val dayOffset = match.groupValues[4].ifBlank { match.groupValues[5] }
         val ampm = if (suffix.isBlank()) "" else " $suffix"
         val plus = if (dayOffset.isBlank()) "" else "+$dayOffset"
         return "$hhmm$ampm$plus"
@@ -103,9 +137,6 @@ internal object NativeFlightSemantics {
     ): String? {
         canonicalizeStopLabel(rawStops)?.let { return it }
         canonicalizeStopLabel(rawStatus)?.let { return it }
-        if (!depart.isNullOrBlank() && !arrive.isNullOrBlank()) {
-            return "Non-stop"
-        }
         return null
     }
 
@@ -204,7 +235,7 @@ internal object NativeFlightSemantics {
             .replace("Â₹", "\u20B9")
         return Regex("""(?i)(?:\u20B9|rs\.?|inr)\s*\d[\d,]*(?:\.\d+)?""").containsMatchIn(withRupee) ||
             Regex("""(?i)\bfrom\s*(?:\u20B9|rs\.?|inr)?\s*\d""").containsMatchIn(withRupee) ||
-            Regex("""\b\d{4,}\b""").containsMatchIn(withRupee)
+            Regex("""\d[\d,]{3,}(?:\.\d+)?""").matches(withRupee)
     }
 
     fun looksLikeAirlineValue(value: String): Boolean {
@@ -232,20 +263,37 @@ internal object NativeFlightSemantics {
             if (airline.isBlank()) {
                 return@mapNotNull null
             }
+            val rawDepart = readCell(row, columns.depart)
+            val rawArrive = readCell(row, columns.arrive)
+            val departRange = parseFlightTimeRange(rawDepart)
+            val arriveRange = parseFlightTimeRange(rawArrive)
+            val actionUrl = readCell(row, columns.actionUrl)?.takeIf(::looksLikeActionUrl)
+            val representedColumns = setOfNotNull(
+                columns.airline, columns.depart, columns.arrive, columns.duration, columns.stops,
+                columns.fare, columns.status, columns.logo,
+                columns.actionUrl.takeIf { actionUrl != null },
+                columns.actionLabel.takeIf { actionUrl != null }
+            )
+            val details = header.indices.filterNot { it in representedColumns }.mapNotNull { index ->
+                val value = readCell(row, index) ?: return@mapNotNull null
+                val label = if (Regex("""(?:\s*\[\d+])+\s*""").matches(value)) "Sources" else header[index]
+                label to value
+            }
             FlightRow(
                 airline = airline,
-                depart = readCell(row, columns.depart),
+                depart = departRange?.first ?: rawDepart ?: arriveRange?.first,
                 originCode = originCode,
-                arrive = readCell(row, columns.arrive),
+                arrive = arriveRange?.second ?: rawArrive ?: departRange?.second,
                 destinationCode = destinationCode,
                 duration = readCell(row, columns.duration),
                 stops = readCell(row, columns.stops),
                 fare = readCell(row, columns.fare),
                 status = readCell(row, columns.status),
                 logoUrl = readCell(row, columns.logo)?.takeIf(::looksLikeMediaUrl),
-                actionUrl = readCell(row, columns.actionUrl)?.takeIf(::looksLikeActionUrl),
+                actionUrl = actionUrl,
                 actionLabel = readCell(row, columns.actionLabel)
-                    ?.takeIf { it.isNotBlank() && !looksLikeActionUrl(it) }
+                    ?.takeIf { it.isNotBlank() && !looksLikeActionUrl(it) },
+                details = details
             )
         }
         return rows.takeIf { it.isNotEmpty() }
@@ -281,6 +329,10 @@ internal object NativeFlightSemantics {
         )
             ?: return null
         val depart = findHeaderIndex(normalized, listOf("depart", "departure", "takeoff", "from", "origin"), exclude = setOfNotNull(airline, logo))
+            ?: normalized.indices.firstOrNull { index ->
+                index !in setOfNotNull(airline, logo) &&
+                    normalized[index] in setOf("time", "times", "timing", "timings", "schedule", "flight time", "flight times")
+            }
         val arrive = findHeaderIndex(normalized, listOf("arrive", "arrival", "landing", "to", "destination"), exclude = setOfNotNull(airline, logo, depart))
         val duration = findHeaderIndex(normalized, listOf("duration", "travel time", "elapsed"), exclude = setOfNotNull(airline, logo, depart, arrive))
         val stops = findHeaderIndex(normalized, listOf("stop", "stops", "layover", "connection", "type"), exclude = setOfNotNull(airline, logo, depart, arrive, duration))
@@ -349,7 +401,7 @@ internal object NativeFlightSemantics {
                 ?.takeIf { score(it, predicate) >= 0.5f }
         }
 
-        val timeScore: (String) -> Boolean = { looksLikeTimeValue(it) }
+        val timeScore: (String) -> Boolean = { looksLikeTimeValue(it) || parseFlightTimeRange(it) != null }
         val durationScore: (String) -> Boolean = { looksLikeDurationValue(it) }
         val fareScore: (String) -> Boolean = { looksLikeFareValue(it) }
         val stopScore: (String) -> Boolean = { canonicalizeStopLabel(it) != null }
@@ -372,10 +424,12 @@ internal object NativeFlightSemantics {
         }
 
         if (depart == null || score(depart, timeScore) < 0.5f) {
-            depart = bestIndex(indices, timeScore, exclude = setOfNotNull(airline, logo, actionUrl, actionLabel))
+            bestIndex(indices, timeScore, exclude = setOfNotNull(airline, arrive, logo, actionUrl, actionLabel))
+                ?.let { depart = it }
         }
         if (arrive == null || score(arrive, timeScore) < 0.5f || arrive == depart) {
-            arrive = bestIndex(indices, timeScore, exclude = setOfNotNull(airline, depart, logo, actionUrl, actionLabel))
+            bestIndex(indices, timeScore, exclude = setOfNotNull(airline, depart, logo, actionUrl, actionLabel))
+                ?.let { arrive = it }
         }
         if (duration == null || score(duration, durationScore) < 0.4f) {
             duration = bestIndex(indices, durationScore, exclude = setOfNotNull(airline, depart, arrive, logo, actionUrl, actionLabel))
@@ -384,7 +438,8 @@ internal object NativeFlightSemantics {
             fare = bestIndex(indices, fareScore, exclude = setOfNotNull(airline, depart, arrive, duration, stops, logo, actionUrl, actionLabel))
         }
         if (stops == null || score(stops, stopScore) < 0.4f) {
-            stops = bestIndex(indices, stopScore, exclude = setOfNotNull(airline, depart, arrive, duration, fare, logo, actionUrl, actionLabel))
+            // A generated Details cell can contain both duration and stops.
+            stops = bestIndex(indices, stopScore, exclude = setOfNotNull(airline, depart, arrive, fare, logo, actionUrl, actionLabel))
         }
 
         return detected.copy(

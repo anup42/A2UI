@@ -1,0 +1,90 @@
+{
+  "sdk_version": "0.5.7",
+  "aar_sha256": "61373fb515765536f498842b129da24510eaaa12bff211a96c0c0073dc9f5ec2",
+  "device": "SM-F776U",
+  "serial": "R3GL203AKSF",
+  "density_dpi": 480,
+  "qa_package": "com.samsung.genuicraft.compatqa",
+  "real_model_inference": false,
+  "replayed_documents_are_saved_repaired_output": true,
+  "bixby_apk_rebuilt_or_replaced": false,
+  "fixtures": {
+    "combined": {
+      "express": "9b0c877149d2b4063407260ca1c64f4052225780615c9b4b3d782a4228b7284d",
+      "a2ui.json": "4831cd6de19ad1ab018ef6f634158a820437b0193b7e77f2b104e9f79bf7d4ff"
+    },
+    "padding": {
+      "express": "54c6671482af154866cbfe15061e765a463ee43b31bf8b11d75bb5479dab7572",
+      "a2ui.json": "86436cc8b3bf5ff394f8f2a4e77ca489cc4320b8e0f4143eb7d52fae18916d41"
+    }
+  },
+  "padding_text_bounds_before": "[120,174][960,572]",
+  "padding_text_bounds_after": "[72,174][1008,503]",
+  "padding_first_card_bounds_before": "[120,1332][960,1686]",
+  "padding_first_card_bounds_after": "[72,1194][1008,1548]",
+  "content_width_pixels_before": 840,
+  "content_width_pixels_after": 936,
+  "nested_horizontal_padding_removed_dp_per_side": 16,
+  "flight_card_content_padding_dp": 10,
+  "source_5_preview_verified": true,
+  "sdk_tests": {
+    "com.samsung.genuicraft.sdk.internal.renderer.FlatContentPaddingTest": {
+      "tests": 2,
+      "failures": 0,
+      "errors": 0
+    },
+    "com.samsung.genuicraft.sdk.internal.renderer.FlatSpecRendererSupportTest": {
+      "tests": 61,
+      "failures": 0,
+      "errors": 0
+    },
+    "com.samsung.genuicraft.sdk.internal.renderer.native.intents.flight.NativeFlightSemanticsTest": {
+      "tests": 8,
+      "failures": 0,
+      "errors": 0
+    }
+  },
+  "app_tests": {
+    "com.samsung.genuicraft.renderer.FlatContentPaddingTest": {
+      "tests": 2,
+      "failures": 0,
+      "errors": 0
+    },
+    "com.samsung.genuicraft.renderer.FlatSpecRendererSupportTest": {
+      "tests": 61,
+      "failures": 1,
+      "errors": 0
+    },
+    "com.samsung.genuicraft.renderer.native.intents.flight.NativeFlightSemanticsTest": {
+      "tests": 8,
+      "failures": 0,
+      "errors": 0
+    }
+  },
+  "app_unrelated_failure": "extractDirectTableModel_routesUiStateTableToProcessCards: expected PROCESS_CARDS but got TABLE_HORIZONTAL_SCROLL for preferredPresentation=table. Test and routing policy were unchanged by this patch.",
+  "merge_zip": "Bixby-GenUICraft-Flight-Padding-0.5.7.zip",
+  "merge_zip_sha256": "31424eb425eaecb3af728fb795d9cce64d8910a79ea7aec00df361156f1a6667",
+  "merge_files": {
+    "Renderer/build.gradle.kts": "a3ca99d98075362412bfacdb05c0315aa2682585b1ff79be12e642b9deb25f40",
+    "aars/genuicraft-maven/com/samsung/genuicraft/genuicraft/0.5.7/genuicraft-0.5.7-sources.jar": "81640a0c3e6cdfc854c354cf2a8493d2be93b93c2ba1aa7b7db933f0bb3fbbba",
+    "aars/genuicraft-maven/com/samsung/genuicraft/genuicraft/0.5.7/genuicraft-0.5.7-sources.jar.md5": "6efb4dd9c24ad092023a5e6413faefd08e00ca28d6d9a11255531fb330267e54",
+    "aars/genuicraft-maven/com/samsung/genuicraft/genuicraft/0.5.7/genuicraft-0.5.7-sources.jar.sha1": "199c964046582f915840d60e0eba4e6aef3551da8279c9fdbc9ea6dfcabb3271",
+    "aars/genuicraft-maven/com/samsung/genuicraft/genuicraft/0.5.7/genuicraft-0.5.7-sources.jar.sha256": "60279b19ba5120c33b77d0e1cd25dc0880cc9553501e93a5dfc24d1f1bb39472",
+    "aars/genuicraft-maven/com/samsung/genuicraft/genuicraft/0.5.7/genuicraft-0.5.7-sources.jar.sha512": "c7bb6456a59396dcec8c96098ba253771d79609ce97cec5e717800d666182a92",
+    "aars/genuicraft-maven/com/samsung/genuicraft/genuicraft/0.5.7/genuicraft-0.5.7.aar": "61373fb515765536f498842b129da24510eaaa12bff211a96c0c0073dc9f5ec2",
+    "aars/genuicraft-maven/com/samsung/genuicraft/genuicraft/0.5.7/genuicraft-0.5.7.aar.md5": "f4faf650ccbd9c9f8d197639622eddb39eb626a258c6419939fe9dc98bebdbe6",
+    "aars/genuicraft-maven/com/samsung/genuicraft/genuicraft/0.5.7/genuicraft-0.5.7.aar.sha1": "2c13a598e3f09928065dda77df83ac0eef7b8ad9468e5ffc0603a98bcc178c14",
+    "aars/genuicraft-maven/com/samsung/genuicraft/genuicraft/0.5.7/genuicraft-0.5.7.aar.sha256": "906a23a4c6cbb8e6f24539499ca075c08f199d9057b02c941cb881ef9e2ec889",
+    "aars/genuicraft-maven/com/samsung/genuicraft/genuicraft/0.5.7/genuicraft-0.5.7.aar.sha512": "0a1d45068ccc3766f6f74870b41ba0f4c39ec0f240f939da5cbf37e127795ccd",
+    "aars/genuicraft-maven/com/samsung/genuicraft/genuicraft/0.5.7/genuicraft-0.5.7.module": "2d16039baa0d34729af1416e21c1c5e99b4b876662a7611b73b8f402cc0c204f",
+    "aars/genuicraft-maven/com/samsung/genuicraft/genuicraft/0.5.7/genuicraft-0.5.7.module.md5": "eec6341f391b89400089c6db9c545eba1cbfbe656266ce0ae2e810743357f228",
+    "aars/genuicraft-maven/com/samsung/genuicraft/genuicraft/0.5.7/genuicraft-0.5.7.module.sha1": "d76021cac34fcbabefbcddc265a5755753bf30ff1daf2949ceaba66aaebe2d5f",
+    "aars/genuicraft-maven/com/samsung/genuicraft/genuicraft/0.5.7/genuicraft-0.5.7.module.sha256": "4b652dd8d4860d325aef2a1e070c95332f0a98ca298507d401e89b88ea12826a",
+    "aars/genuicraft-maven/com/samsung/genuicraft/genuicraft/0.5.7/genuicraft-0.5.7.module.sha512": "37458d5998b990d06f71479d56f927b488267b7285fb1a92c0b8a5f7c02508e1",
+    "aars/genuicraft-maven/com/samsung/genuicraft/genuicraft/0.5.7/genuicraft-0.5.7.pom": "16cec7ebb74495fdb40e2dd6022e382f64ecaa7b35a03286c1dfb08559fa0ead",
+    "aars/genuicraft-maven/com/samsung/genuicraft/genuicraft/0.5.7/genuicraft-0.5.7.pom.md5": "a5629b3b35744eca6e6ff9626838164b3594c991954ad858af406a3adec39862",
+    "aars/genuicraft-maven/com/samsung/genuicraft/genuicraft/0.5.7/genuicraft-0.5.7.pom.sha1": "7bfffa148871cd96ad83857f4ad445c19f65e067374ce6178b49cd736b084e13",
+    "aars/genuicraft-maven/com/samsung/genuicraft/genuicraft/0.5.7/genuicraft-0.5.7.pom.sha256": "040f984f1c21732f730a0aa8a85c1839e8b8da33a910f97da92007178b651772",
+    "aars/genuicraft-maven/com/samsung/genuicraft/genuicraft/0.5.7/genuicraft-0.5.7.pom.sha512": "f7fb78e9f38f0a375c07980e020a458bb2c221111e18160c6a22dc86d3a95ba3"
+  }
+}
