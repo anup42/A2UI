@@ -1,0 +1,40 @@
+{
+  "id": "BXP-015",
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "sourceRunId": "presentation_input_r64_fp32_off",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "presentation_input_r64_fp32_off/BXP-015/output.express",
+  "sourceExpressSha256": "1205143885a79210a18bd271081ae28b8cfd6ac3eb19b0b339412467f730e4e4",
+  "generatedDslRepairAccepted": true,
+  "repairKind": "NONE",
+  "repairDiagnostics": [],
+  "sourceIntegrityEvaluated": true,
+  "sourceIntegrityAccepted": true,
+  "sourceIntegrityDiagnostics": [],
+  "recoveredExpressSha256": "9ad5f61e771488412310871f59d4ca0f7ca73d4c8e415b357e214086e99a81b8",
+  "recoveredJsonSha256": "d8180c630e6a362d9c3614d0c799c3c3ca4ad39ac54c0dce758d75059f766166",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 10
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 10
+    }
+  ],
+  "verticalSwipes": 1,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 1957
+}

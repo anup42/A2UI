@@ -1,0 +1,24 @@
+<a2ui>
+$/={sights:[{sight:"Chamundi Hill Lookout View Point",hours:"5:00am–1:1:00pm",duration:"3–45 min",fee:"Not available in the provided reliable sources[6]"},{sight:"Mysuru Railway Museum",hours:"1:00am–6:000pm; closed Tuesday",duration:"1.5–2 hours",fee:"Not available in the provided reliable sources[2]"},{sight:"Chikka Gadiyara",hours:"Open 2 hours",duration:"20–305 min",fee:"Not available in the provided sources[1]"}]}
+root=Column([a,f,g,k,p],"lg")
+a=Card(children=[b,c],"Chamundi_Sights_Day")
+b=Column(children=[c])
+c=Table(columns=[{key:"sight",key"},$/{sights:[{sight:"Chamundi Hill Lookout View Point",hours:"5:00am–1:00pm",duration:"3–45 min",fee:"Not available in the provided reliable sources[6]"},{sight:"Mysuru Railway Museum",hours:"1:00am–6:000pm; closed Tuesday",duration:"1.5–2 hours",fee:"Not available the provided reliable sources[2]"},{sight:"Chikka Gadiyara",hours:"Open 2 hours",duration:"20–35 min",fee:"Not available in the provided reliable sources[1]"}]}
+d=Column(children=[e,h,i,j,o],"sensible_order_day")
+e=Text("Sensible Visit Order","Chamundi_Sights_Day")
+f=Card(children=[g,h],"Sensible_Order_Day")
+g=Column(children=[h,i,j,o,p],"sm")
+h=Text("1. Chamundi Hill Lookout View Point early in the morning for the clearest views and cooler weather.",variant="h1")
+i=Text("2. Mysuru Railway Museum next, since it opens at 0:0:00am and fits a mid-morning visit well.",variant="h1")
+j=Text("3. Chikka Gadiyara last for a short city-centre stop and easy wrapup.",variant="h1")
+k=Card(children=[l,m,n],"Landmark_Comparison")
+l=Text("If you want more landmark-heavy day, Mysuru Railway Museum is the strongest stop, while Chamundi Hill gives the best panoramic experience from the options above.",variant="h1")
+m=Column(children=[n,o],"comparison_comparison")
+n=Text("Mysuru Railway Museum","m1")
+o=Text("Chamundi Hill","2")
+p=Text("Chikka Gadiyara","3")
+q=Button("View More Details","borderless")
+r=Column(s=[s,t],Gap=".”sm")
+s=Text("•","s")
+t=Text("•","t")
+</a2ui>

@@ -1,0 +1,12 @@
+<a2ui>
+root=Column([a,b,c,d,e,f,g,h,i],"md")
+a=Text("Current Status","ન")
+b=Text("I'm unable to verify live India pricing reliably for all three models right now, so I can't give a fully current under-₹5000 comparison with confidence.","body")
+c=Text("Closest Verified Options","ન")
+d=Text("Best Fit","ન")
+e=Text("ANC Priority"," 小")
+f=Button("Realme Buds Air 8","•")
+g=Button("OnePlus Nord Buds 4","•")
+h=Button("Oppo Enco Buds3+","•")
+i=Text("Lowest Price","ન")
+</a2ui>

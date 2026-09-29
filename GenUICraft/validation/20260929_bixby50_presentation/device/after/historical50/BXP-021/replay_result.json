@@ -1,0 +1,50 @@
+{
+  "id": "BXP-021",
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "sourceRunId": "presentation_input_historical50",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "presentation_input_historical50/BXP-021/output.express",
+  "sourceExpressSha256": "0bbfb2f360eabbbcdd50035a8beb9c8cc08055b44442db44d0605cde2360e38c",
+  "generatedDslRepairAccepted": true,
+  "repairKind": "GENERATED_DSL_REPAIR",
+  "repairDiagnostics": [
+    "Strict compile rejected output: Invalid GenUI Express: children must contain non-empty component references.",
+    "Salvaged 13 additional complete generated string literal value(s) from damaged structure.",
+    "Ignored 11 key, style, corrupt, duplicate, or over-budget string literal(s).",
+    "Rebuilt a generated-literal List; source text was not used."
+  ],
+  "sourceIntegrityEvaluated": true,
+  "sourceIntegrityAccepted": false,
+  "sourceIntegrityFailure": "Strict compile rejected output: Invalid GenUI Express: children must contain non-empty component references. Generated repair candidate 1 (GENERATED_DSL) applied: Salvaged 13 additional complete generated string literal value(s) from damaged structure.; Ignored 11 key, style, corrupt, duplicate, or over-budget string literal(s).; Rebuilt a generated-literal List; source text was not used. Generated repair candidate 1 failed mechanical source integrity: Missing citation markers: [[2]]; Added or duplicated numeric facts: [1]; Missing source wording: [discovery, the, mature, offerings]; Added or duplicated visible wording: [ન1, of, age, view, more, details, source, tiny]; Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+  "recoveredExpressSha256": "cb2c9daccbf81fbb8bfb647292d16533bcd8ad0a27100b330faadbd0a8ac290d",
+  "recoveredJsonSha256": "954b4927395eb405fb343cfc5c27d82adbc48453362859dcaebfef3908d01af1",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 24
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 24
+    },
+    {
+      "name": "vertical_2",
+      "screenshot": true,
+      "visibleTextNodes": 24
+    }
+  ],
+  "verticalSwipes": 2,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 3119
+}

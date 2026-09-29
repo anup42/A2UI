@@ -1,0 +1,59 @@
+INSTRUMENTATION_STATUS: class=com.samsung.genuicraft.GenUiSdkBixby50Test
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+com.samsung.genuicraft.GenUiSdkBixby50Test:
+INSTRUMENTATION_STATUS: test=replaySavedBixbyCorpus
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: stream=BXP-001 generated_dsl_repair_no_fallback rendered (1/12); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-002 generated_dsl_repair_no_fallback rendered (2/12); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-003 generated_dsl_repair_no_fallback rendered (3/12); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-004 generated_dsl_repair_no_fallback rendered (4/12); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-005 generated_dsl_repair_no_fallback rendered (5/12); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-006 generated_dsl_repair_no_fallback rendered (6/12); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-007 generated_dsl_repair_no_fallback rendered (7/12); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-008 generated_dsl_repair_no_fallback rendered (8/12); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-009 generated_dsl_repair_no_fallback rendered (9/12); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-010 generated_dsl_repair_no_fallback rendered (10/12); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-011 generated_dsl_repair_no_fallback rendered (11/12); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-012 generated_dsl_repair_no_fallback rendered (12/12); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.samsung.genuicraft.GenUiSdkBixby50Test
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=replaySavedBixbyCorpus
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: stream=
+
+Time: 39.961
+
+OK (1 test)
+
+
+INSTRUMENTATION_CODE: -1

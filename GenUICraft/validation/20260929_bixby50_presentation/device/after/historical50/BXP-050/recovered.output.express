@@ -1,0 +1,9 @@
+<a2ui>
+root=Column([a,c,d,e,f],"md")
+a=Column([b],"md")
+b=Table(columns=["signal","ocean","effect","reason"],rows=[["El Niño","Warmer central/eastern Pacific","Below-normal rainfall, more dry spells, higher heat risk","Weakens moisture flow and circulation"],["La Niña","Cooler central/eastern Pacific","Above-normal rainfall","Strengthens circulation and moisture transport"],["Positive IOD","West Indian Ocean warmer than east","Often supports stronger monsoon rain","Adds moisture and can counter El Niño"],["Negative IOD","East Indian Ocean warmer than west","Often weakens monsoon rain","Reduces convection and worsens El Niño's impact"]],title="Comparison rows",domain="comparison",preferredPresentation="cards")
+c=Text("How these climate signals affect Indian monsoon","sg1")
+d=Text("El Niño is the warm phase of ENSO in the tropical Pacific and it usually suppresses the Indian summer monsoon by weakening large-scale circulation and moisture transport toward India.[1110]","body")
+e=Text("La Niña is the cool phase of ENSO and it usually strengthens the monsoon by supporting stronger monsoon circulation and moisture supply, raises the chance of above-normal rainfall.","body")
+f=Text("The Indian Ocean Dipole","2")
+</a2ui>

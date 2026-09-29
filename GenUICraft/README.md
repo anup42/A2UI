@@ -43,11 +43,24 @@ dependencyResolutionManagement {
     }
 }
 // consumer module
-implementation("com.samsung.genuicraft:genuicraft:0.5.5")
+implementation("com.samsung.genuicraft:genuicraft:0.5.6")
 ```
 
 Version 0.5.0 removes the remote server provider and its public configuration API.
 Conversion uses the SDK's on-device LiteRT model profiles.
+
+Version 0.5.6 improves generated Express recovery and comparison presentation.
+Opt-in generated-output repair reconnects static answer components omitted from the
+root, preserves usable generated table labels and column order, and keeps guarded
+UI templates dormant. Comparison cards put prices and other requested highlights
+first while long fields use readable labeled detail rows. These changes preserve
+generated content; they cannot restore facts or citations the model never produced.
+One-column tables now display their generated values, and long explanatory text
+mistagged as a heading uses body typography. Ranked text rows use entity cards;
+metric cards retain every nonblank field and its label instead of dropping
+additional columns. See the
+[Bixby50 presentation and recovery review](validation/20260929_bixby50_presentation/REPORT.md)
+for the saved-output device comparison and its source-fidelity limits.
 
 Version 0.5.5 adds `GenUiView.embeddedMode` for answers inside a host-owned
 scrolling conversation. Set it before `render` and use `onContentSizeChanged`

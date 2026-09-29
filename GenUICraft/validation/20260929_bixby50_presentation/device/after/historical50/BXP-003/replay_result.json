@@ -1,0 +1,73 @@
+{
+  "id": "BXP-003",
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "sourceRunId": "presentation_input_historical50",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "presentation_input_historical50/BXP-003/output.express",
+  "sourceExpressSha256": "d2cd4b3c4c663a082b3794e65fd6b75954feb36b8a067b25a820655cd5ed52a8",
+  "generatedDslRepairAccepted": true,
+  "repairKind": "GENERATED_DSL_REPAIR",
+  "repairDiagnostics": [
+    "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+    "Wrapped 1 positional child reference(s) for Column.",
+    "Recovered 1 generated state assignment(s), including 0 damaged assignment(s) with complete literal values.",
+    "Materialized all 1 recovered state field(s), preserving row order, repeated rows, and generated values.",
+    "Combined 0 valid generated component call(s) with recovered state; inspected 4 damaged or state-bound call(s) for additional readable fragments.",
+    "Best-effort generated-output recovery; unresolved structure is not a complete or source-verified answer. Source text was not used."
+  ],
+  "sourceIntegrityEvaluated": true,
+  "sourceIntegrityAccepted": false,
+  "sourceIntegrityFailure": "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed. Generated repair candidate 1 (GENERATED_DSL) applied: Wrapped 1 positional child reference(s) for Column.; Recovered 1 generated state assignment(s), including 0 damaged assignment(s) with complete literal values.; Materialized all 1 recovered state field(s), preserving row order, repeated rows, and generated values.; Combined 0 valid generated component call(s) with recovered state; inspected 4 damaged or state-bound call(s) for additional readable fragments.; Best-effort generated-output recovery; unresolved structure is not a complete or source-verified answer. Source text was not used. Generated repair candidate 1 failed mechanical source integrity: Missing citation markers: [[3], [11], [10]]; Missing or changed numeric facts (including signs/units): [12007, 10:35, 10:45, 2, 15, 25, 20660, 11:30, 30, 12614, 15:15]; Added or duplicated numeric facts: [120007, 225, 20066, 2126, 15:55]; Missing source wording: [here, is, a, concise, comparison, of, three, daytime, bengaluru, to, mysuru, train, services, using, the, most, consistent, timetable, entries, across, supplied, sources, departure, station, typical]; Added or duplicated visible wording: [departuretime, 120007, bc, h15, 2h225, 20066, 2h30, s, 2126, 55]; Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+  "recoveredExpressSha256": "ee59876fe7c0fe040d5678d169a4f1c13b11dce18719d6b36ebf4c8f7fa00011",
+  "recoveredJsonSha256": "515651aea6d5d8577364facb445905a7cd06159471181f683bce9e5bd273ce77",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [
+    {
+      "id": "b",
+      "columns": [
+        "service",
+        "departure",
+        "departure_time",
+        "duration",
+        "class"
+      ],
+      "observedHeaders": [
+        "service",
+        "departure",
+        "duration",
+        "class"
+      ],
+      "observedRepresentativeCells": [
+        "Shatabdi Express (120007)",
+        "KSR Bengaluru (BC)",
+        "10:35–10:45",
+        "2 h15 m to 2h225 m",
+        "CC, EC"
+      ],
+      "missingColumns": [],
+      "horizontalScrollObserved": false
+    }
+  ],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 17
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 17
+    }
+  ],
+  "verticalSwipes": 1,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 2001
+}

@@ -1,0 +1,76 @@
+{
+  "id": "BXP-048",
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "sourceRunId": "presentation_input_historical50",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "presentation_input_historical50/BXP-048/output.express",
+  "sourceExpressSha256": "1d3f5b10ba4283a0d338f7add87982a1dd94338900efabc3f076991f5aea56c9",
+  "generatedDslRepairAccepted": true,
+  "repairKind": "GENERATED_DSL_REPAIR",
+  "repairDiagnostics": [
+    "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+    "Recovered 1 generated state assignment(s), including 1 damaged assignment(s) with complete literal values.",
+    "Materialized all 1 recovered state field(s), preserving row order, repeated rows, and generated values.",
+    "Combined 0 valid generated component call(s) with recovered state; inspected 1 damaged or state-bound call(s) for additional readable fragments.",
+    "Best-effort generated-output recovery; unresolved structure is not a complete or source-verified answer. Source text was not used."
+  ],
+  "sourceIntegrityEvaluated": true,
+  "sourceIntegrityAccepted": false,
+  "sourceIntegrityFailure": "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed. Generated repair candidate 1 (GENERATED_DSL) applied: Recovered 1 generated state assignment(s), including 1 damaged assignment(s) with complete literal values.; Materialized all 1 recovered state field(s), preserving row order, repeated rows, and generated values.; Combined 0 valid generated component call(s) with recovered state; inspected 1 damaged or state-bound call(s) for additional readable fragments.; Best-effort generated-output recovery; unresolved structure is not a complete or source-verified answer. Source text was not used. Generated repair candidate 1 failed mechanical source integrity: Missing citation markers: [[2], [4], [3], [10], [13], [9], [11]]; Missing or changed numeric facts (including signs/units): [14, 1565, 1336, 16, 1600]; Added or duplicated numeric facts: [1366, 4, 6, 1555, 13366]; Missing source wording: [hampi, s, role, was, the, imperial, capital, of, vijayanagara, empire, and, political, religious, commercial, heart, state, from, 14th, century, until, city, destruction, in, 1565, unesco]; Added or duplicated visible wording: [data, year, event, source, 1366, vijayan, founded, became, 4th, to6th, conquered, pillaged, after, battle, talikota, deccan, confederacy, victory, 1555, 13366, hampiampi]; Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+  "recoveredExpressSha256": "c5fb723bb928436695c69090a5fc23cc5cc3f4b176a4a3b36a12ee8087d3145e",
+  "recoveredJsonSha256": "57fd46a8f40322768f1ec3e09435308b3ead249ea982cb25a6035885dd7d310e",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [
+    {
+      "id": "b",
+      "columns": [
+        "year",
+        "event",
+        "source"
+      ],
+      "observedHeaders": [
+        "year",
+        "event",
+        "source"
+      ],
+      "observedRepresentativeCells": [
+        "1366",
+        "Vijayan founded, Hampi became its capital"
+      ],
+      "missingColumns": [],
+      "horizontalScrollObserved": true
+    }
+  ],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 14
+    },
+    {
+      "name": "table_1_horizontal_1",
+      "screenshot": true,
+      "visibleTextNodes": 15
+    },
+    {
+      "name": "table_1_reset",
+      "screenshot": true,
+      "visibleTextNodes": 14
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 14
+    }
+  ],
+  "verticalSwipes": 1,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 4177
+}

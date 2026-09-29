@@ -1,0 +1,969 @@
+[
+  {
+    "id": "BXP-001",
+    "kind": "generated_dsl_repair_no_fallback",
+    "replayMode": "express_repair_only",
+    "sourceRunId": "presentation_input_r64_fp32_off",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "presentation_input_r64_fp32_off/BXP-001/output.express",
+    "sourceExpressSha256": "ec835d1214b014e0b9ffbf496272b1baa9bacafbb407d07777e1300633323369",
+    "generatedDslRepairAccepted": true,
+    "repairKind": "NONE",
+    "repairDiagnostics": [],
+    "sourceIntegrityEvaluated": true,
+    "sourceIntegrityAccepted": false,
+    "sourceIntegrityFailure": "Strictly compiled generated document failed mechanical source integrity: Conversion must use literal content, without generated state.; Conversion must use literal source content.; Missing citation markers: [[7], [14]]; Missing or changed numeric facts (including signs/units): [9, 31, 20, 57%, 10, 30, 21, 55%, 11]; Missing source wording: [wed, sep, 9, 31, 20, 57, thu, 10, 30, 21, 55, fri, 11, shows]; Visible source wording order or multiplicity changed. Generated repair candidate 1 (STRUCTURAL) applied:  Generated repair candidate 1 failed mechanical source integrity: Conversion must use literal content, without generated state.; Conversion must use literal source content.; Missing citation markers: [[7], [14]]; Missing or changed numeric facts (including signs/units): [9, 31, 20, 57%, 10, 30, 21, 55%, 11]; Missing source wording: [wed, sep, 9, 31, 20, 57, thu, 10, 30, 21, 55, fri, 11, shows]; Visible source wording order or multiplicity changed. Generated repair candidate 2 (GENERATED_DSL) applied: Recovered 1 generated state assignment(s), including 0 damaged assignment(s) with complete literal values.; Materialized all 1 recovered state field(s), preserving row order, repeated rows, and generated values.; Combined 4 valid generated component call(s) with recovered state; inspected 2 damaged or state-bound call(s) for additional readable fragments.; Best-effort generated-output recovery; unresolved structure is not a complete or source-verified answer. Source text was not used. Generated repair candidate 2 failed mechanical source integrity: Missing citation markers: [[7], [14]]; Missing source wording: [shows]; Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+    "recoveredExpressSha256": "59671e3b384c5410c8dfe6883c1d6b18a51009c8c69b54737c9b4c5a4af4b5db",
+    "recoveredJsonSha256": "9bcf92af1dbff4e8cfd30cbe17c3c156895e0f0572d485df0b32ba93677fb3a0",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Date",
+          "High (°C)",
+          "Low (°C)",
+          "Rain probability"
+        ],
+        "observedHeaders": [
+          "Rain probability"
+        ],
+        "observedRepresentativeCells": [],
+        "missingColumns": [
+          "Date",
+          "High (°C)",
+          "Low (°C)"
+        ],
+        "horizontalScrollObserved": false
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 26
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 26
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 26
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [
+      "Unobserved table columns (b): [Date, High (°C), Low (°C)]"
+    ],
+    "status": "rendered",
+    "replayElapsedMs": 3383
+  },
+  {
+    "id": "BXP-002",
+    "kind": "generated_dsl_repair_no_fallback",
+    "replayMode": "express_repair_only",
+    "sourceRunId": "presentation_input_r64_fp32_off",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "presentation_input_r64_fp32_off/BXP-002/output.express",
+    "sourceExpressSha256": "8ff64d5608c1d53089b225541b4543cfe6e28bf8110ef6995517cfdc929b7dfc",
+    "generatedDslRepairAccepted": true,
+    "repairKind": "GENERATED_DSL_REPAIR",
+    "repairDiagnostics": [
+      "Generated static answer components were unreachable or repeated; repairing the rendered graph.",
+      "Generated repair candidate 1 (STRUCTURAL) applied: ",
+      "Candidate still had unreachable or repeated static answer components; continuing graph repair.",
+      "Attached previously unreachable generated component 'e' to root.",
+      "Attached previously unreachable generated component 'f' to root.",
+      "Recovered a complete generated DSL graph without source fallback."
+    ],
+    "sourceIntegrityEvaluated": true,
+    "sourceIntegrityAccepted": true,
+    "sourceIntegrityDiagnostics": [
+      "Generated static answer components were unreachable or repeated; repairing the rendered graph.",
+      "Strictly compiled generated document failed mechanical source integrity: Conversion must not hide source content in unreachable elements: [e, f, g, h, i]; Missing citation markers: [[5], [7]]; Missing or changed numeric facts (including signs/units): [2.5]; Missing source wording: [pollution, category, poor, main, pollutant, pm2, 5, outdoor, activity, guidance, for, the, air, can, cause, breathing, discomfort, so, children, older, adults, and, people, with, respiratory]; Visible source wording order or multiplicity changed.",
+      "Generated repair candidate 1 (STRUCTURAL) applied: ",
+      "Candidate still had unreachable or repeated static answer components; continuing graph repair.",
+      "Generated repair candidate 1 failed mechanical source integrity: Conversion must not hide source content in unreachable elements: [e, f, g, h, i]; Missing citation markers: [[5], [7]]; Missing or changed numeric facts (including signs/units): [2.5]; Missing source wording: [pollution, category, poor, main, pollutant, pm2, 5, outdoor, activity, guidance, for, the, air, can, cause, breathing, discomfort, so, children, older, adults, and, people, with, respiratory]; Visible source wording order or multiplicity changed.",
+      "Attached previously unreachable generated component 'e' to root.",
+      "Attached previously unreachable generated component 'f' to root.",
+      "Recovered a complete generated DSL graph without source fallback."
+    ],
+    "recoveredExpressSha256": "42b07a4514b70e554e7cfc4adeaae76730acff50b532807259b23529dd93d8de",
+    "recoveredJsonSha256": "311cfd20007a700143cfb5431fb5c7201e941696464a58182838d45d15b1cb09",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 7
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 7
+      }
+    ],
+    "verticalSwipes": 1,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 2092
+  },
+  {
+    "id": "BXP-003",
+    "kind": "generated_dsl_repair_no_fallback",
+    "replayMode": "express_repair_only",
+    "sourceRunId": "presentation_input_r64_fp32_off",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "presentation_input_r64_fp32_off/BXP-003/output.express",
+    "sourceExpressSha256": "1161435a54a7f852892f803e11b73d25b61e1a1c3794c8adf070431844df4e94",
+    "generatedDslRepairAccepted": true,
+    "repairKind": "NONE",
+    "repairDiagnostics": [],
+    "sourceIntegrityEvaluated": true,
+    "sourceIntegrityAccepted": false,
+    "sourceIntegrityFailure": "Strictly compiled generated document failed mechanical source integrity: Conversion must use literal content, without generated state.; Conversion must use literal source content.; Missing citation markers: [[3], [11], [10]]; Missing or changed numeric facts (including signs/units): [12007, 10:35, 10:45, 2, 15, 25, 20660, 11:30, 30, 12614, 15:15]; Missing source wording: [bengaluru, to, shatabdi, express, 12007, ksr, sbc, 10, 35, 45, about, 2, h, 15, m, 25, cc, ec, rajya, rani, 20660, 11, 30, 2s, gn]; Added or duplicated visible wording: [arrival, times, view]; Visible source wording order or multiplicity changed. Generated repair candidate 1 (STRUCTURAL) applied:  Generated repair candidate 1 failed mechanical source integrity: Conversion must use literal content, without generated state.; Conversion must use literal source content.; Missing citation markers: [[3], [11], [10]]; Missing or changed numeric facts (including signs/units): [12007, 10:35, 10:45, 2, 15, 25, 20660, 11:30, 30, 12614, 15:15]; Missing source wording: [bengaluru, to, shatabdi, express, 12007, ksr, sbc, 10, 35, 45, about, 2, h, 15, m, 25, cc, ec, rajya, rani, 20660, 11, 30, 2s, gn]; Added or duplicated visible wording: [arrival, times, view]; Visible source wording order or multiplicity changed. Generated repair candidate 2 (GENERATED_DSL) applied: Recovered 1 generated state assignment(s), including 0 damaged assignment(s) with complete literal values.; Materialized all 1 recovered state field(s), preserving row order, repeated rows, and generated values.; Combined 8 valid generated component call(s) with recovered state; inspected 5 damaged or state-bound call(s) for additional readable fragments.; Best-effort generated-output recovery; unresolved structure is not a complete or source-verified answer. Source text was not used. Generated repair candidate 2 failed mechanical source integrity: Missing citation markers: [[3], [11], [10]]; Added or duplicated visible wording: [arrival, times, view]; Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+    "recoveredExpressSha256": "6c365e65c489343be6cbd5f387d8498044be3559f4a6f33c43e13323c4c55df3",
+    "recoveredJsonSha256": "a3f16f327632afccee34b879bd1623aa38a6548332e16d6b83c291e680b3b0c1",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Train service",
+          "Departure station",
+          "Typical departure time",
+          "Journey duration",
+          "Seating class"
+        ],
+        "observedHeaders": [
+          "Train service",
+          "Departure station",
+          "Typical departure time",
+          "Journey duration",
+          "Seating class"
+        ],
+        "observedRepresentativeCells": [],
+        "missingColumns": [],
+        "horizontalScrollObserved": false
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 22
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 23
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 23
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 3367
+  },
+  {
+    "id": "BXP-004",
+    "kind": "generated_dsl_repair_no_fallback",
+    "replayMode": "express_repair_only",
+    "sourceRunId": "presentation_input_r64_fp32_off",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "presentation_input_r64_fp32_off/BXP-004/output.express",
+    "sourceExpressSha256": "22dd1cca5d0c6adfb5ce4b21bc173df11994fda4fe60a536cfb5e8951889f277",
+    "generatedDslRepairAccepted": true,
+    "repairKind": "GENERATED_DSL_REPAIR",
+    "repairDiagnostics": [
+      "Generated static answer components were unreachable or repeated; repairing the rendered graph.",
+      "Generated repair candidate 1 (STRUCTURAL) applied: ",
+      "Candidate still had unreachable or repeated static answer components; continuing graph repair.",
+      "Attached previously unreachable generated component 'n' to root.",
+      "Recovered a complete generated DSL graph without source fallback."
+    ],
+    "sourceIntegrityEvaluated": true,
+    "sourceIntegrityAccepted": false,
+    "sourceIntegrityFailure": "Generated static answer components were unreachable or repeated; repairing the rendered graph. Strictly compiled generated document failed mechanical source integrity: Conversion must not hide source content in unreachable elements: [n]; Missing citation markers: [[2], [11], [5], [6], [13], [3], [4], [7], [1], [9]]; Missing source wording: [and, or, the, checked, excess, on, route, fare, be, can, exact, pricing, vary, by, booking, channel, so, rules, ticket, page, should, before, travel]; Visible source wording order or multiplicity changed. Generated repair candidate 1 (STRUCTURAL) applied:  Candidate still had unreachable or repeated static answer components; continuing graph repair. Generated repair candidate 1 failed mechanical source integrity: Conversion must not hide source content in unreachable elements: [n]; Missing citation markers: [[2], [11], [5], [6], [13], [3], [4], [7], [1], [9]]; Missing source wording: [and, or, the, checked, excess, on, route, fare, be, can, exact, pricing, vary, by, booking, channel, so, rules, ticket, page, should, before, travel]; Visible source wording order or multiplicity changed. Generated repair candidate 2 (GENERATED_DSL) applied: Attached previously unreachable generated component 'n' to root.; Recovered a complete generated DSL graph without source fallback. Generated repair candidate 2 failed mechanical source integrity: Missing citation markers: [[2], [11], [5], [6], [13], [3], [4], [7], [1], [9]] Generated repair candidate 3 (GENERATED_DSL) applied: Recovered 0 generated state assignment(s), including 0 damaged assignment(s) with complete literal values.; Materialized all 0 recovered state field(s), preserving row order, repeated rows, and generated values.; Combined 14 valid generated component call(s) with recovered state; inspected 1 damaged or state-bound call(s) for additional readable fragments.; Best-effort generated-output recovery; unresolved structure is not a complete or source-verified answer. Source text was not used. Generated repair candidate 3 failed mechanical source integrity: Missing citation markers: [[2], [11], [5], [6], [13], [3], [4], [7], [1], [9]] No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+    "recoveredExpressSha256": "2c00b9414017a7400a66c2c9061057cbefcde3d454956375bb2c8c4863fe584a",
+    "recoveredJsonSha256": "5d5ebd3fe6da944ecd16bce935d5a4621415790aa3e6cc0e4c0a72d0dfab1e59",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 14
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 14
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 14
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 3159
+  },
+  {
+    "id": "BXP-005",
+    "kind": "generated_dsl_repair_no_fallback",
+    "replayMode": "express_repair_only",
+    "sourceRunId": "presentation_input_r64_fp32_off",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "presentation_input_r64_fp32_off/BXP-005/output.express",
+    "sourceExpressSha256": "a79e47c49163ddb89130dd7091a18493625767c454cc0422f56d11fde958c10a",
+    "generatedDslRepairAccepted": true,
+    "repairKind": "GENERATED_DSL_REPAIR",
+    "repairDiagnostics": [
+      "Generated static answer components were unreachable or repeated; repairing the rendered graph.",
+      "Generated repair candidate 1 (STRUCTURAL) applied: ",
+      "Candidate still had unreachable or repeated static answer components; continuing graph repair.",
+      "Removed repeated or cyclic child 'c' from 'root'.",
+      "Removed repeated or cyclic child 'i' from 'h'.",
+      "Attached previously unreachable generated component 'g' to root.",
+      "Removed repeated or cyclic child 'p' from 'o'.",
+      "Attached previously unreachable generated component 'n' to root.",
+      "Attached previously unreachable generated component 't' to root.",
+      "Recovered a complete generated DSL graph without source fallback."
+    ],
+    "sourceIntegrityEvaluated": true,
+    "sourceIntegrityAccepted": false,
+    "sourceIntegrityFailure": "Generated static answer components were unreachable or repeated; repairing the rendered graph. Strictly compiled generated document failed mechanical source integrity: Conversion must render each element exactly once; repeated child: c; Conversion must not hide source content in unreachable elements: [i, j, k, l, m, n, o, p, q, r]; Generated actions may only open an exact supplied HTTP(S) URL.; Missing citation markers: [[1], [6], [13], [5], [8], [2], [3], [4]]; Missing or changed numeric facts (including signs/units): [1, 3, 5]; Missing source wording: [hours, 5, and, the, purple, green, lines, yellow, line, in, evening, rv, road, to, station, options, single, journey, tokens, are, available, for, one, trip, smart]; Added or duplicated visible wording: [information]; Visible source wording order or multiplicity changed. Generated repair candidate 1 (STRUCTURAL) applied:  Candidate still had unreachable or repeated static answer components; continuing graph repair. Generated repair candidate 1 failed mechanical source integrity: Conversion must render each element exactly once; repeated child: c; Conversion must not hide source content in unreachable elements: [i, j, k, l, m, n, o, p, q, r]; Generated actions may only open an exact supplied HTTP(S) URL.; Missing citation markers: [[1], [6], [13], [5], [8], [2], [3], [4]]; Missing or changed numeric facts (including signs/units): [1, 3, 5]; Missing source wording: [hours, 5, and, the, purple, green, lines, yellow, line, in, evening, rv, road, to, station, options, single, journey, tokens, are, available, for, one, trip, smart]; Added or duplicated visible wording: [information]; Visible source wording order or multiplicity changed. Generated repair candidate 2 (GENERATED_DSL) applied: Removed repeated or cyclic child 'c' from 'root'.; Removed repeated or cyclic child 'i' from 'h'.; Attached previously unreachable generated component 'g' to root.; Removed repeated or cyclic child 'p' from 'o'.; Attached previously unreachable generated component 'n' to root.; Attached previously unreachable generated component 't' to root.; Recovered a complete generated DSL graph without source fallback. Generated repair candidate 2 failed mechanical source integrity: Conversion must not hide source content in unreachable elements: [aa]; Generated actions may only open an exact supplied HTTP(S) URL.; Missing citation markers: [[1], [6], [13], [5], [8], [2], [3], [4]]; Added or duplicated visible wording: [travel, information]; Visible source wording order or multiplicity changed. Generated repair candidate 3 (GENERATED_DSL) applied: Recovered 0 generated state assignment(s), including 0 damaged assignment(s) with complete literal values.; Materialized all 0 recovered state field(s), preserving row order, repeated rows, and generated values.; Combined 19 valid generated component call(s) with recovered state; inspected 9 damaged or state-bound call(s) for additional readable fragments.; Best-effort generated-output recovery; unresolved structure is not a complete or source-verified answer. Source text was not used. Generated repair candidate 3 failed mechanical source integrity: Generated actions may only open an exact supplied HTTP(S) URL.; Missing citation markers: [[1], [6], [13], [5], [8], [2], [3], [4]]; Added or duplicated visible wording: [travel, information, continue]; Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+    "recoveredExpressSha256": "bbfb8e24b9b32bf89b9f8ba1ebb1a0bfdb585e6a3c7cc4b4864f428d20ab937f",
+    "recoveredJsonSha256": "a78af7d37c78bd32ab29b6f78b5d3833c60953aafaeb17b38c54183da6d066dd",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 14
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 16
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 16
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 3267
+  },
+  {
+    "id": "BXP-006",
+    "kind": "generated_dsl_repair_no_fallback",
+    "replayMode": "express_repair_only",
+    "sourceRunId": "presentation_input_r64_fp32_off",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "presentation_input_r64_fp32_off/BXP-006/output.express",
+    "sourceExpressSha256": "92bc56c1f90257557f082a5eb6a5c7cc38a41b5e23389fa8ede5a9605877a4cc",
+    "generatedDslRepairAccepted": true,
+    "repairKind": "GENERATED_DSL_REPAIR",
+    "repairDiagnostics": [
+      "Strict compile rejected output: Invalid GenUI Express: Element 'm' references missing 'q'.",
+      "Removed dangling child 'q' from 'm'.",
+      "Recovered a complete generated DSL graph without source fallback."
+    ],
+    "sourceIntegrityEvaluated": true,
+    "sourceIntegrityAccepted": false,
+    "sourceIntegrityFailure": "Strict compile rejected output: Invalid GenUI Express: Element 'm' references missing 'q'. Generated repair candidate 1 (GENERATED_DSL) applied: Removed dangling child 'q' from 'm'.; Recovered a complete generated DSL graph without source fallback. Generated repair candidate 1 failed mechanical source integrity: Conversion must use literal content, without generated state.; Conversion must use literal source content.; Missing citation markers: [[2], [4], [11], [10], [3], [8], [15], [7], [9], [13]]; Missing or changed numeric facts (including signs/units): [250, 255km, 270km, 4.5, 6, 5.5, 265km]; Added or duplicated numeric facts: [2, 1, 37044656, 10, 4, 54, 822432, 327, 5340761, 5, 914, 58, 0, 3581, 42]; Missing source wording: [the, to, madikeri, mysuru, hunsur, kushalnagar, route, and, hassan, commonly, generally, a, corridor, road, stop, bengaluru, about, 250, 255, km, sometimes, cited, up, 270, depending]; Added or duplicated visible wording: [is, you, thank, using, a2ui, express, this, generated, model, contract, v1, from, pinned, grammar, catalog, profile, quality, policy, 37044656eb10e4c4a4a54c822432f327c5340761b5bfe914b58fa0db3581cf42, b5571b35b1af2629361d66e896d59c7dbc5b27aaea17492c274933f6125b518e, c0259faae3a08bdb245faf9bb2abe0798b665ddb95c1b174f7e7c5d09ae52b83, 299b206f0280f3a622bcab96a8f6d32d113432e473174b8790fc5a266693de0e]; Visible source wording order or multiplicity changed. Generated repair candidate 2 (GENERATED_DSL) applied: Recovered 1 generated state assignment(s), including 0 damaged assignment(s) with complete literal values.; Materialized all 1 recovered state field(s), preserving row order, repeated rows, and generated values.; Combined 14 valid generated component call(s) with recovered state; inspected 3 damaged or state-bound call(s) for additional readable fragments.; Best-effort generated-output recovery; unresolved structure is not a complete or source-verified answer. Source text was not used. Generated repair candidate 2 failed mechanical source integrity: Missing citation markers: [[2], [4], [11]]; Added or duplicated numeric facts: [6, 2, 1, 37044656, 10, 4, 54, 822432, 327, 5340761, 5, 914, 58, 0, 3581]; Added or duplicated visible wording: [a, for, is, you, thank, using, a2ui, express, this, generated, model, contract, v1, from, pinned, grammar, catalog, profile, quality, policy, 37044656eb10e4c4a4a54c822432f327c5340761b5bfe914b58fa0db3581cf42, b5571b35b1af2629361d66e896d59c7dbc5b27aaea17492c274933f6125b518e, c0259faae3a08bdb245faf9bb2abe0798b665ddb95c1b174f7e7c5d09ae52b83, 299b206f0280f3a622bcab96a8f6d32d113432e473174b8790fc5a266693de0e]; Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+    "recoveredExpressSha256": "6a38a75ce196962d4fad8fe5d4ba173e5e7e15b10024ee70366933bb4b312ba7",
+    "recoveredJsonSha256": "9cdc82011ba2552e60bdf83809457e6dc7444d82c35f325b179510321d175d59",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "c",
+        "columns": [
+          "Route",
+          "Approx. distance",
+          "Usual travel time",
+          "Road conditions",
+          "Useful stop"
+        ],
+        "observedHeaders": [
+          "Route",
+          "Approx. distance",
+          "Usual travel time",
+          "Road conditions",
+          "Useful stop"
+        ],
+        "observedRepresentativeCells": [],
+        "missingColumns": [],
+        "horizontalScrollObserved": false
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 21
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 12
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 11
+      },
+      {
+        "name": "vertical_3",
+        "screenshot": true,
+        "visibleTextNodes": 11
+      }
+    ],
+    "verticalSwipes": 3,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 5937
+  },
+  {
+    "id": "BXP-007",
+    "kind": "generated_dsl_repair_no_fallback",
+    "replayMode": "express_repair_only",
+    "sourceRunId": "presentation_input_r64_fp32_off",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "presentation_input_r64_fp32_off/BXP-007/output.express",
+    "sourceExpressSha256": "529cbb4673f571f989b1c58c7b733965f4c68c5fc8d0fdc18f84c1c6a71c015e",
+    "generatedDslRepairAccepted": true,
+    "repairKind": "GENERATED_DSL_REPAIR",
+    "repairDiagnostics": [
+      "Generated static answer components were unreachable or repeated; repairing the rendered graph.",
+      "Generated repair candidate 1 (STRUCTURAL) applied: ",
+      "Candidate still had unreachable or repeated static answer components; continuing graph repair.",
+      "Removed repeated or cyclic child 'g' from 'root'.",
+      "Attached previously unreachable generated component 'i' to root.",
+      "Recovered a complete generated DSL graph without source fallback."
+    ],
+    "sourceIntegrityEvaluated": true,
+    "sourceIntegrityAccepted": false,
+    "sourceIntegrityFailure": "Generated static answer components were unreachable or repeated; repairing the rendered graph. Strictly compiled generated document failed mechanical source integrity: Conversion must render each element exactly once; repeated child: g; Conversion must not hide source content in unreachable elements: [i]; Conversion must use literal content, without generated state.; Conversion must use literal source content.; Missing citation markers: [[6], [2], [1]]; Missing or changed numeric facts (including signs/units): [5:00, 11:00, 30, 45, 10:00, 6:00, 1.5, 2, 24, 20]; Missing source wording: [day, mysuru, hours, chamundi, hill, lookout, view, point, 5, 00, am, 11, pm, 30, 45, min, not, available, in, the, provided, reliable, sources, railway, museum]; Visible source wording order or multiplicity changed. Generated repair candidate 1 (STRUCTURAL) applied:  Candidate still had unreachable or repeated static answer components; continuing graph repair. Generated repair candidate 1 failed mechanical source integrity: Conversion must render each element exactly once; repeated child: g; Conversion must not hide source content in unreachable elements: [i]; Conversion must use literal content, without generated state.; Conversion must use literal source content.; Missing citation markers: [[6], [2], [1]]; Missing or changed numeric facts (including signs/units): [5:00, 11:00, 30, 45, 10:00, 6:00, 1.5, 2, 24, 20]; Missing source wording: [day, mysuru, hours, chamundi, hill, lookout, view, point, 5, 00, am, 11, pm, 30, 45, min, not, available, in, the, provided, reliable, sources, railway, museum]; Visible source wording order or multiplicity changed. Generated repair candidate 2 (GENERATED_DSL) applied: Removed repeated or cyclic child 'g' from 'root'.; Attached previously unreachable generated component 'i' to root.; Recovered a complete generated DSL graph without source fallback. Generated repair candidate 2 failed mechanical source integrity: Conversion must use literal content, without generated state.; Conversion must use literal source content.; Missing citation markers: [[6], [2], [1]]; Missing or changed numeric facts (including signs/units): [5:00, 11:00, 30, 45, 10:00, 6:00, 1.5, 2, 24, 20]; Missing source wording: [mysuru, hours, chamundi, hill, lookout, view, point, 5, 00, am, 11, pm, 30, 45, min, not, available, in, the, provided, reliable, sources, railway, museum, 10]; Visible source wording order or multiplicity changed. Generated repair candidate 3 (GENERATED_DSL) applied: Recovered 1 generated state assignment(s), including 0 damaged assignment(s) with complete literal values.; Materialized all 1 recovered state field(s), preserving row order, repeated rows, and generated values.; Combined 6 valid generated component call(s) with recovered state; inspected 4 damaged or state-bound call(s) for additional readable fragments.; Best-effort generated-output recovery; unresolved structure is not a complete or source-verified answer. Source text was not used. Generated repair candidate 3 failed mechanical source integrity: Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+    "recoveredExpressSha256": "0bbdbc7128b9eab0a33eb8def94453e2092afcdd21bf7eaeee58cc61f282b3cf",
+    "recoveredJsonSha256": "0ce2a8b6719674c43075d8eafb5437bc59bfbf7c0982f4fc698c5ffcca6ccd24",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Sight",
+          "Opening hours",
+          "Usual visit duration",
+          "Published adult entry fee"
+        ],
+        "observedHeaders": [
+          "Sight",
+          "Opening hours",
+          "Usual visit duration",
+          "Published adult entry fee"
+        ],
+        "observedRepresentativeCells": [],
+        "missingColumns": [],
+        "horizontalScrollObserved": false
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 28
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 24
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 24
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 4000
+  },
+  {
+    "id": "BXP-008",
+    "kind": "generated_dsl_repair_no_fallback",
+    "replayMode": "express_repair_only",
+    "sourceRunId": "presentation_input_r64_fp32_off",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "presentation_input_r64_fp32_off/BXP-008/output.express",
+    "sourceExpressSha256": "7912a110369ee05b2c18e1dcb94939a3698b3661d8d559b738ef8a0ba4e83715",
+    "generatedDslRepairAccepted": true,
+    "repairKind": "GENERATED_DSL_REPAIR",
+    "repairDiagnostics": [
+      "Strict compile rejected output: Invalid GenUI Express: Element 'root' references missing 'd'.",
+      "Removed dangling child 'd' from 'root'.",
+      "Recovered a complete generated DSL graph without source fallback."
+    ],
+    "sourceIntegrityEvaluated": true,
+    "sourceIntegrityAccepted": false,
+    "sourceIntegrityFailure": "Strict compile rejected output: Invalid GenUI Express: Element 'root' references missing 'd'. Generated repair candidate 1 (GENERATED_DSL) applied: Removed dangling child 'd' from 'root'.; Recovered a complete generated DSL graph without source fallback. Generated repair candidate 1 failed mechanical source integrity: Conversion must use literal content, without generated state.; Conversion must use literal source content.; Missing citation markers: [[2], [4], [5]]; Missing or changed numeric facts (including signs/units): [₹1, 200, 6:30, 11:30, 2:00, 8:00, 12:00, 2:30, 7:00, 12:30, 4:00, 9:30, 6:00, 3:00]; Missing source wording: [breakfast, central, vidyarthi, bhavan, basavanagudi, gandhi, bazaar, south, indian, classics, widely, known, for, its, crisp, dosas, 1, 200, 6, 30am, 11, 2, 00pm, 8, on]; Visible source wording order or multiplicity changed. Generated repair candidate 2 (GENERATED_DSL) applied: Recovered 1 generated state assignment(s), including 0 damaged assignment(s) with complete literal values.; Materialized all 1 recovered state field(s), preserving row order, repeated rows, and generated values.; Combined 2 valid generated component call(s) with recovered state; inspected 2 damaged or state-bound call(s) for additional readable fragments.; Best-effort generated-output recovery; unresolved structure is not a complete or source-verified answer. Source text was not used. Generated repair candidate 2 failed mechanical source integrity: Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+    "recoveredExpressSha256": "fe1f8a7342680a0e4b626c45a4ca44335147ea595987d8545013209d4c8a4e66",
+    "recoveredJsonSha256": "3f41573c3abe91dfea78cec6bfaac31544eb0e34f28bb9340284788ac6c308ff",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Restaurant",
+          "Neighborhood",
+          "Signature dish",
+          "Approx. cost per person",
+          "Opening hours"
+        ],
+        "observedHeaders": [
+          "Restaurant",
+          "Neighborhood",
+          "Signature dish",
+          "Approx. cost per person",
+          "Opening hours"
+        ],
+        "observedRepresentativeCells": [],
+        "missingColumns": [],
+        "horizontalScrollObserved": false
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 30
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 29
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 29
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 3340
+  },
+  {
+    "id": "BXP-009",
+    "kind": "generated_dsl_repair_no_fallback",
+    "replayMode": "express_repair_only",
+    "sourceRunId": "presentation_input_r64_fp32_off",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "presentation_input_r64_fp32_off/BXP-009/output.express",
+    "sourceExpressSha256": "1fef84b96b46c04b8ede8ea97395f07130631488367e14e72462f09385e7e43b",
+    "generatedDslRepairAccepted": true,
+    "repairKind": "GENERATED_DSL_REPAIR",
+    "repairDiagnostics": [
+      "Generated static answer components were unreachable or repeated; repairing the rendered graph.",
+      "Generated repair candidate 1 (STRUCTURAL) applied: ",
+      "Candidate still had unreachable or repeated static answer components; continuing graph repair.",
+      "Removed repeated or cyclic child 'h' from 'root'.",
+      "Attached previously unreachable generated component 'n' to root.",
+      "Attached previously unreachable generated component 'o' to root.",
+      "Attached previously unreachable generated component 'u' to root.",
+      "Recovered a complete generated DSL graph without source fallback."
+    ],
+    "sourceIntegrityEvaluated": true,
+    "sourceIntegrityAccepted": true,
+    "sourceIntegrityDiagnostics": [
+      "Generated static answer components were unreachable or repeated; repairing the rendered graph.",
+      "Strictly compiled generated document failed mechanical source integrity: Conversion must render each element exactly once; repeated child: h; Conversion must not hide source content in unreachable elements: [n, o, p, q, r, s, t, u]; Missing citation markers: [[4]]; Missing source wording: [access, to, sights, for, central, jaipur, and, major, by, the, city, transport, road, usually, than, outer, atmosphere, more, residential, less, old, core, main, drawback, heritage]; Visible source wording order or multiplicity changed.",
+      "Generated repair candidate 1 (STRUCTURAL) applied: ",
+      "Candidate still had unreachable or repeated static answer components; continuing graph repair.",
+      "Generated repair candidate 1 failed mechanical source integrity: Conversion must render each element exactly once; repeated child: h; Conversion must not hide source content in unreachable elements: [n, o, p, q, r, s, t, u]; Missing citation markers: [[4]]; Missing source wording: [access, to, sights, for, central, jaipur, and, major, by, the, city, transport, road, usually, than, outer, atmosphere, more, residential, less, old, core, main, drawback, heritage]; Visible source wording order or multiplicity changed.",
+      "Removed repeated or cyclic child 'h' from 'root'.",
+      "Attached previously unreachable generated component 'n' to root.",
+      "Attached previously unreachable generated component 'o' to root.",
+      "Attached previously unreachable generated component 'u' to root.",
+      "Recovered a complete generated DSL graph without source fallback."
+    ],
+    "recoveredExpressSha256": "213a245504079ee553e28a258c360506cb8476e0d58a3b2f96abd13dba7b0bf8",
+    "recoveredJsonSha256": "f522ffa3d4d1ca501e821695083a2747db4fa5b524c31e3d10ad3bcab232cc31",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 13
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 13
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 13
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 3153
+  },
+  {
+    "id": "BXP-010",
+    "kind": "generated_dsl_repair_no_fallback",
+    "replayMode": "express_repair_only",
+    "sourceRunId": "presentation_input_r64_fp32_off",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "presentation_input_r64_fp32_off/BXP-010/output.express",
+    "sourceExpressSha256": "1f58dd21318ad271e19935cd0449bcbd1bd227faf1db72a856d6eb3c634f1532",
+    "generatedDslRepairAccepted": true,
+    "repairKind": "NONE",
+    "repairDiagnostics": [],
+    "sourceIntegrityEvaluated": true,
+    "sourceIntegrityAccepted": false,
+    "sourceIntegrityFailure": "Strictly compiled generated document failed mechanical source integrity: Conversion must use literal content, without generated state.; Conversion must use literal source content.; Missing citation markers: [[6], [2], [7]]; Missing or changed numeric facts (including signs/units): [4, ₹3999, 55dB, 54, 8, ₹3799, 58, 3, ₹2999, 32dB, 43]; Missing source wording: [to, a, oneplus, nord, buds, 4, pro, 3, 999, up, 55db, anc, 54, hours, total, playback, main, trade, off, strong, feature, set, but, the, review]; Added or duplicated visible wording: [model, price, features]; Visible source wording order or multiplicity changed. Generated repair candidate 1 (STRUCTURAL) applied:  Generated repair candidate 1 failed mechanical source integrity: Conversion must use literal content, without generated state.; Conversion must use literal source content.; Missing citation markers: [[6], [2], [7]]; Missing or changed numeric facts (including signs/units): [4, ₹3999, 55dB, 54, 8, ₹3799, 58, 3, ₹2999, 32dB, 43]; Missing source wording: [to, a, oneplus, nord, buds, 4, pro, 3, 999, up, 55db, anc, 54, hours, total, playback, main, trade, off, strong, feature, set, but, the, review]; Added or duplicated visible wording: [model, price, features]; Visible source wording order or multiplicity changed. Generated repair candidate 2 (GENERATED_DSL) applied: Recovered 1 generated state assignment(s), including 0 damaged assignment(s) with complete literal values.; Materialized all 1 recovered state field(s), preserving row order, repeated rows, and generated values.; Combined 5 valid generated component call(s) with recovered state; inspected 4 damaged or state-bound call(s) for additional readable fragments.; Best-effort generated-output recovery; unresolved structure is not a complete or source-verified answer. Source text was not used. Generated repair candidate 2 failed mechanical source integrity: Added or duplicated visible wording: [model, price, features, trade, off]; Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+    "recoveredExpressSha256": "b02ff8b540164bcd58d7201d8f8a41e5c74c759de3307fe3f22be09d2efead6d",
+    "recoveredJsonSha256": "9cdb24a9396ab4fa130af4bc9375e1efef9aaf2215e5de8804617b508f9b190b",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "d",
+        "columns": [
+          "Model",
+          "Price",
+          "Features/Trade-off"
+        ],
+        "observedHeaders": [
+          "Model",
+          "Price",
+          "Features/Trade-off"
+        ],
+        "observedRepresentativeCells": [],
+        "missingColumns": [],
+        "horizontalScrollObserved": false
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 20
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 19
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 19
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 3275
+  },
+  {
+    "id": "BXP-011",
+    "kind": "generated_dsl_repair_no_fallback",
+    "replayMode": "express_repair_only",
+    "sourceRunId": "presentation_input_r64_fp32_off",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "presentation_input_r64_fp32_off/BXP-011/output.express",
+    "sourceExpressSha256": "3bf9e7972919ef6bd8f16f26c0ecb8d75abe436632eded13885d6bd3c9eca146",
+    "generatedDslRepairAccepted": true,
+    "repairKind": "NONE",
+    "repairDiagnostics": [],
+    "sourceIntegrityEvaluated": true,
+    "sourceIntegrityAccepted": false,
+    "sourceIntegrityFailure": "Strictly compiled generated document failed mechanical source integrity: Conversion must use literal content, without generated state.; Conversion must use literal source content.; Missing citation markers: [[9], [16], [10], [21], [36], [22], [31], [38], [37], [40]]; Missing or changed numeric facts (including signs/units): [5, ₹24999, 6.77, 120Hz, 7100mAh, 80, 6, 36, ₹28999, 6.7, 5000mAh, 10, ₹20255, ₹22999, 7300mAh]; Missing source wording: [battery, software, support, oneplus, nord, ce, 5, from, 24, 999, 6, 77, inch, amoled, 120hz, 7, 100mah, 80w, charging, years, of, buyers, wanting, a, big]; Visible source wording order or multiplicity changed. Generated repair candidate 1 (STRUCTURAL) applied:  Generated repair candidate 1 failed mechanical source integrity: Conversion must use literal content, without generated state.; Conversion must use literal source content.; Missing citation markers: [[9], [16], [10], [21], [36], [22], [31], [38], [37], [40]]; Missing or changed numeric facts (including signs/units): [5, ₹24999, 6.77, 120Hz, 7100mAh, 80, 6, 36, ₹28999, 6.7, 5000mAh, 10, ₹20255, ₹22999, 7300mAh]; Missing source wording: [battery, software, support, oneplus, nord, ce, 5, from, 24, 999, 6, 77, inch, amoled, 120hz, 7, 100mah, 80w, charging, years, of, buyers, wanting, a, big]; Visible source wording order or multiplicity changed. Generated repair candidate 2 (GENERATED_DSL) applied: Recovered 1 generated state assignment(s), including 0 damaged assignment(s) with complete literal values.; Materialized all 1 recovered state field(s), preserving row order, repeated rows, and generated values.; Combined 5 valid generated component call(s) with recovered state; inspected 3 damaged or state-bound call(s) for additional readable fragments.; Best-effort generated-output recovery; unresolved structure is not a complete or source-verified answer. Source text was not used. Generated repair candidate 2 failed mechanical source integrity: Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+    "recoveredExpressSha256": "9025cf6900373a64d5e567d08b73fc4d4d7d9c87eed99660cc7829503a48199c",
+    "recoveredJsonSha256": "7f84fdbb4a88877262268312d14c088a8abffd56dcd195b2af7881783a09a05d",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Model",
+          "Indicative price",
+          "Display",
+          "Battery",
+          "Software support",
+          "Best for"
+        ],
+        "observedHeaders": [
+          "Model",
+          "Indicative price",
+          "Display",
+          "Battery",
+          "Software support",
+          "Best for"
+        ],
+        "observedRepresentativeCells": [],
+        "missingColumns": [],
+        "horizontalScrollObserved": false
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 33
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 29
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 29
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 3456
+  },
+  {
+    "id": "BXP-012",
+    "kind": "generated_dsl_repair_no_fallback",
+    "replayMode": "express_repair_only",
+    "sourceRunId": "presentation_input_r64_fp32_off",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "presentation_input_r64_fp32_off/BXP-012/output.express",
+    "sourceExpressSha256": "b6051be0a530f96e38b80c029abec37c38bfd2921a777f398ebebb219a78803e",
+    "generatedDslRepairAccepted": true,
+    "repairKind": "GENERATED_DSL_REPAIR",
+    "repairDiagnostics": [
+      "Generated static answer components were unreachable or repeated; repairing the rendered graph.",
+      "Generated repair candidate 1 (STRUCTURAL) applied: ",
+      "Candidate still had unreachable or repeated static answer components; continuing graph repair.",
+      "Removed repeated or cyclic child 'g' from 'root'.",
+      "Attached previously unreachable generated component 'i' to root.",
+      "Recovered a complete generated DSL graph without source fallback."
+    ],
+    "sourceIntegrityEvaluated": true,
+    "sourceIntegrityAccepted": false,
+    "sourceIntegrityFailure": "Generated static answer components were unreachable or repeated; repairing the rendered graph. Strictly compiled generated document failed mechanical source integrity: Conversion must render each element exactly once; repeated child: g; Conversion must not hide source content in unreachable elements: [i]; Conversion must use literal content, without generated state.; Conversion must use literal source content.; Missing citation markers: [[2], [12], [1], [7], [4], [5]]; Missing or changed numeric facts (including signs/units): [5GB]; Missing source wording: [app, offline, use, export, free, plan, microsoft, onenote, works, on, android, and, web, backed, notebooks, sync, when, you, reconnect, cross, device, through, onedrive, support, is]; Visible source wording order or multiplicity changed. Generated repair candidate 1 (STRUCTURAL) applied:  Candidate still had unreachable or repeated static answer components; continuing graph repair. Generated repair candidate 1 failed mechanical source integrity: Conversion must render each element exactly once; repeated child: g; Conversion must not hide source content in unreachable elements: [i]; Conversion must use literal content, without generated state.; Conversion must use literal source content.; Missing citation markers: [[2], [12], [1], [7], [4], [5]]; Missing or changed numeric facts (including signs/units): [5GB]; Missing source wording: [app, offline, use, export, free, plan, microsoft, onenote, works, on, android, and, web, backed, notebooks, sync, when, you, reconnect, cross, device, through, onedrive, support, is]; Visible source wording order or multiplicity changed. Generated repair candidate 2 (GENERATED_DSL) applied: Removed repeated or cyclic child 'g' from 'root'.; Attached previously unreachable generated component 'i' to root.; Recovered a complete generated DSL graph without source fallback. Generated repair candidate 2 failed mechanical source integrity: Conversion must use literal content, without generated state.; Conversion must use literal source content.; Missing citation markers: [[2], [12], [1], [7], [4], [5]]; Missing or changed numeric facts (including signs/units): [5GB]; Missing source wording: [offline, use, export, free, plan, microsoft, onenote, works, on, android, and, web, backed, notebooks, sync, when, you, reconnect, cross, device, through, onedrive, support, is, available]; Visible source wording order or multiplicity changed. Generated repair candidate 3 (GENERATED_DSL) applied: Recovered 1 generated state assignment(s), including 0 damaged assignment(s) with complete literal values.; Materialized all 1 recovered state field(s), preserving row order, repeated rows, and generated values.; Combined 6 valid generated component call(s) with recovered state; inspected 4 damaged or state-bound call(s) for additional readable fragments.; Best-effort generated-output recovery; unresolved structure is not a complete or source-verified answer. Source text was not used. Generated repair candidate 3 failed mechanical source integrity: Missing citation markers: [[1]]; Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+    "recoveredExpressSha256": "3096b3ec9fcad274b5a7bbd3fcbb72465ebb8ed3669db321a2d2ebe631cb1ca9",
+    "recoveredJsonSha256": "1d47eb99a77c9f4562731921af1adbd8f4c790c4bc98c63fc42ed4594f5cef69",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "App",
+          "Offline use",
+          "Synchronization",
+          "Export options",
+          "Biggest free-plan restriction"
+        ],
+        "observedHeaders": [
+          "App",
+          "Offline use",
+          "Synchronization",
+          "Export options",
+          "Biggest free-plan restriction"
+        ],
+        "observedRepresentativeCells": [],
+        "missingColumns": [],
+        "horizontalScrollObserved": false
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 29
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 21
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 21
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 3429
+  },
+  {
+    "id": "BXP-013",
+    "kind": "generated_dsl_repair_no_fallback",
+    "replayMode": "express_repair_only",
+    "sourceRunId": "presentation_input_r64_fp32_off",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "presentation_input_r64_fp32_off/BXP-013/output.express",
+    "sourceExpressSha256": "4c31ee5b8f157a735066f877f235e1d4fdebf3d2bbaed8fbff4f6fe8d0b08ea6",
+    "generatedDslRepairAccepted": true,
+    "repairKind": "GENERATED_DSL_REPAIR",
+    "repairDiagnostics": [
+      "Strict compile rejected output: Invalid GenUI Express: Element 'i' references missing 'k'.",
+      "Removed dangling child 'k' from 'i'.",
+      "Removed dangling child 'l' from 'i'.",
+      "Removed repeated or cyclic child 'h' from 'root'.",
+      "Removed repeated or cyclic child 'x' from 'v'.",
+      "Removed repeated or cyclic child 'y' from 'v'.",
+      "Attached previously unreachable generated component 'u' to root.",
+      "Attached previously unreachable generated component 'aa' to root.",
+      "Attached previously unreachable generated component 'ad' to root.",
+      "Recovered a complete generated DSL graph without source fallback."
+    ],
+    "sourceIntegrityEvaluated": true,
+    "sourceIntegrityAccepted": false,
+    "sourceIntegrityFailure": "Strict compile rejected output: Invalid GenUI Express: Element 'i' references missing 'k'. Generated repair candidate 1 (GENERATED_DSL) applied: Removed dangling child 'k' from 'i'.; Removed dangling child 'l' from 'i'.; Removed repeated or cyclic child 'h' from 'root'.; Removed repeated or cyclic child 'x' from 'v'.; Removed repeated or cyclic child 'y' from 'v'.; Attached previously unreachable generated component 'u' to root.; Attached previously unreachable generated component 'aa' to root.; Attached previously unreachable generated component 'ad' to root.; Recovered a complete generated DSL graph without source fallback. Generated repair candidate 1 failed mechanical source integrity: Conversion must use literal content, without generated state.; Conversion must use literal source content.; Missing or changed numeric facts (including signs/units): [6.25%, ₹3, 19, 2026]; Missing source wording: [retail, sbi, hdfc, bank, icici, rate, 6, 25, the, deposit, domestic, term, below, 3, crore, page, shown, current, grid, snapshot, 19, august, 2026, cited, in]; Visible source wording order or multiplicity changed. Generated repair candidate 2 (GENERATED_DSL) applied: Recovered 1 generated state assignment(s), including 0 damaged assignment(s) with complete literal values.; Materialized all 1 recovered state field(s), preserving row order, repeated rows, and generated values.; Combined 16 valid generated component call(s) with recovered state; inspected 11 damaged or state-bound call(s) for additional readable fragments.; Best-effort generated-output recovery; unresolved structure is not a complete or source-verified answer. Source text was not used. Generated repair candidate 2 failed mechanical source integrity: Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+    "recoveredExpressSha256": "a7da98ea1d50551f2663a78158a3e0cb5959fc31bbc84bdd27b2cd2e7a128639",
+    "recoveredJsonSha256": "b438850dcfa7effe74f95b8e58fd4c827d54e9d0446143f151ec0e4211802fd6",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "y",
+        "columns": [
+          "Bank",
+          "One-year retail FD rate",
+          "Assumed deposit size",
+          "Rate date / effective date"
+        ],
+        "observedHeaders": [
+          "Bank",
+          "One-year retail FD rate",
+          "Assumed deposit size",
+          "Rate date / effective date"
+        ],
+        "observedRepresentativeCells": [],
+        "missingColumns": [],
+        "horizontalScrollObserved": false
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 10
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 15
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 24
+      },
+      {
+        "name": "vertical_3",
+        "screenshot": true,
+        "visibleTextNodes": 24
+      }
+    ],
+    "verticalSwipes": 3,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 5967
+  },
+  {
+    "id": "BXP-014",
+    "kind": "generated_dsl_repair_no_fallback",
+    "replayMode": "express_repair_only",
+    "sourceRunId": "presentation_input_r64_fp32_off",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "presentation_input_r64_fp32_off/BXP-014/output.express",
+    "sourceExpressSha256": "d73d815523c028a9617c8937d76ac504de9564b47f24a5240c50e8c05adbcb62",
+    "generatedDslRepairAccepted": true,
+    "repairKind": "NONE",
+    "repairDiagnostics": [],
+    "sourceIntegrityEvaluated": true,
+    "sourceIntegrityAccepted": false,
+    "sourceIntegrityFailure": "Strictly compiled generated document failed mechanical source integrity: Conversion must use literal content, without generated state.; Conversion must use literal source content.; Missing citation markers: [[18], [12], [3]]; Missing or changed numeric facts (including signs/units): [95.5614, 28, -2026, 14:23:47, 111.2956, 129.8867]; Missing source wording: [quoted, usd, inr, 95, 5614, as, of, 28, aug, 2026, 14, 23, 47, ist, eur, 111, 2956, gbp, 129, 8867]; Added or duplicated visible wording: [currency, rate]; Visible source wording order or multiplicity changed. Generated repair candidate 1 (STRUCTURAL) applied:  Generated repair candidate 1 failed mechanical source integrity: Conversion must use literal content, without generated state.; Conversion must use literal source content.; Missing citation markers: [[18], [12], [3]]; Missing or changed numeric facts (including signs/units): [95.5614, 28, -2026, 14:23:47, 111.2956, 129.8867]; Missing source wording: [quoted, usd, inr, 95, 5614, as, of, 28, aug, 2026, 14, 23, 47, ist, eur, 111, 2956, gbp, 129, 8867]; Added or duplicated visible wording: [currency, rate]; Visible source wording order or multiplicity changed. Generated repair candidate 2 (GENERATED_DSL) applied: Recovered 1 generated state assignment(s), including 0 damaged assignment(s) with complete literal values.; Materialized all 1 recovered state field(s), preserving row order, repeated rows, and generated values.; Combined 3 valid generated component call(s) with recovered state; inspected 4 damaged or state-bound call(s) for additional readable fragments.; Best-effort generated-output recovery; unresolved structure is not a complete or source-verified answer. Source text was not used. Generated repair candidate 2 failed mechanical source integrity: Missing citation markers: [[18], [12], [3]]; Missing source wording: [quoted, as, of]; Added or duplicated visible wording: [currency, rate]; Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+    "recoveredExpressSha256": "6e21e978870d52fa0835603a9413110655a78aa782184434fad918a6fbaa23ce",
+    "recoveredJsonSha256": "566411d23720898d7456a2c2c47f327d637d7b84908bee841fd4abab4fa3e631",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Currency",
+          "Rate",
+          "Quoted As Of"
+        ],
+        "observedHeaders": [
+          "Currency",
+          "Rate",
+          "Quoted As Of"
+        ],
+        "observedRepresentativeCells": [],
+        "missingColumns": [],
+        "horizontalScrollObserved": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 17
+      },
+      {
+        "name": "table_1_horizontal_1",
+        "screenshot": true,
+        "visibleTextNodes": 17
+      },
+      {
+        "name": "table_1_reset",
+        "screenshot": true,
+        "visibleTextNodes": 17
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 17
+      }
+    ],
+    "verticalSwipes": 1,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 4317
+  },
+  {
+    "id": "BXP-015",
+    "kind": "generated_dsl_repair_no_fallback",
+    "replayMode": "express_repair_only",
+    "sourceRunId": "presentation_input_r64_fp32_off",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "presentation_input_r64_fp32_off/BXP-015/output.express",
+    "sourceExpressSha256": "1205143885a79210a18bd271081ae28b8cfd6ac3eb19b0b339412467f730e4e4",
+    "generatedDslRepairAccepted": true,
+    "repairKind": "NONE",
+    "repairDiagnostics": [],
+    "sourceIntegrityEvaluated": true,
+    "sourceIntegrityAccepted": true,
+    "sourceIntegrityDiagnostics": [],
+    "recoveredExpressSha256": "9ad5f61e771488412310871f59d4ca0f7ca73d4c8e415b357e214086e99a81b8",
+    "recoveredJsonSha256": "d8180c630e6a362d9c3614d0c799c3c3ca4ad39ac54c0dce758d75059f766166",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 10
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 10
+      }
+    ],
+    "verticalSwipes": 1,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 1932
+  }
+]

@@ -1,0 +1,9 @@
+<a2ui>
+root=Column([a,c,d,e,f],"md")
+a=Column([b],"md")
+b=Table(columns=["country","visa","permitted_stay","fee","rules"],rows=[["Thailand","Visa exemption for Indian passport holders for tourism; Thai embassy note says longer stays can use e-visa if needed [212]","Up to 30 days from 5 September 26 under the revised exemption scheme","Visa exemption: no fee published; e-visa fee not confirmed in the official snippets I could verify","Checked against Thai embassy notices dated 6 July 26 and 1926 rule notice"],["Vietnam","E-visa is the standard route; India is not Vietnam’s visa-exemption list [117]","Up to 9 days for the official e-visa","USD 5 single-entry or USD 0 multiple-entry","Checked against sources published 3 March 26 and 8 July 26"],["Sri Lanka","ETA is required for short visits; free ETA scheme applies to selected nationalities but the checked the do not show India in that free list [1232]","Standard tourist is 30 days","ETA fee for SAARC countries is listed as USD 20 or USD 5 on arrival in the old fee schedule but current India-specific fee was not clearly verified from official sources","Checked against Sri Lankan immigration pages and ETA guidance, including 2 May 26 free-ETA notice and ETA guidance"]],title="Passport rules",domain="generic",preferredPresentation="cards")
+c=Text("Current entry rules for Indian passports"," Hungary")
+d=Text("Thailand’s official notices show a changed regime in 6, so stay period depends on the effective date; the most recent embassy notice says the new 3-day exemption starts from 19 6.","body")
+e=Text("Vietnam remains the simplest to state: Indian ordinary passport holders need a visa, and the official e-visa route is the normal path.","body")
+f=Text("Sri Lanka’s official pages confirm ETA and a 0-day tourist period, but available snippets do not clearly state a current India-specific fee, so I cannot confirm figure with confidence.","body")
+</a2ui>

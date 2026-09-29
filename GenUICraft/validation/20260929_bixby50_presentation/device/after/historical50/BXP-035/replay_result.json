@@ -1,0 +1,81 @@
+{
+  "id": "BXP-035",
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "sourceRunId": "presentation_input_historical50",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "presentation_input_historical50/BXP-035/output.express",
+  "sourceExpressSha256": "285ea0ad3bf215bf3ff4855318b2b9deecad6a3f94ebdccfd0d43d423aeb85a6",
+  "generatedDslRepairAccepted": true,
+  "repairKind": "GENERATED_DSL_REPAIR",
+  "repairDiagnostics": [
+    "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+    "Normalized invalid gap value 'মা' to 'md'.",
+    "Recovered 1 generated state assignment(s), including 0 damaged assignment(s) with complete literal values.",
+    "Materialized all 1 recovered state field(s), preserving row order, repeated rows, and generated values.",
+    "Combined 8 valid generated component call(s) with recovered state; inspected 12 damaged or state-bound call(s) for additional readable fragments.",
+    "Best-effort generated-output recovery; unresolved structure is not a complete or source-verified answer. Source text was not used."
+  ],
+  "sourceIntegrityEvaluated": true,
+  "sourceIntegrityAccepted": false,
+  "sourceIntegrityFailure": "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed. Generated repair candidate 1 (GENERATED_DSL) applied: Normalized invalid gap value 'মা' to 'md'.; Recovered 1 generated state assignment(s), including 0 damaged assignment(s) with complete literal values.; Materialized all 1 recovered state field(s), preserving row order, repeated rows, and generated values.; Combined 8 valid generated component call(s) with recovered state; inspected 12 damaged or state-bound call(s) for additional readable fragments.; Best-effort generated-output recovery; unresolved structure is not a complete or source-verified answer. Source text was not used. Generated repair candidate 1 failed mechanical source integrity: Missing citation markers: [[1], [5], [8], [40], [13], [6], [16], [10], [11], [21]]; Missing or changed numeric facts (including signs/units): [150, 2, 1, 5, 10, 12, -15, -12]; Added or duplicated numeric facts: [-100, 0, -2, -5, -112]; Missing source wording: [four, plan, this, is, designed, for, a, healthy, sedentary, adult, and, follows, public, guidance, to, build, toward, about, 150, minutes, of, moderate, walking, per, plus]; Added or duplicated visible wording: [data, 100, pushups, 0, 112, pushup, toetoe, singlelegstand]; Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+  "recoveredExpressSha256": "217a92bcead2e84af71f299452488753eae65a19b4f64bbb68b8a5ccb88b72ef",
+  "recoveredJsonSha256": "53d8337dad87991271f4d7a4efd9eabd5877cafdbfa8cf2bf2b165fc69ca6dc1",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [
+    {
+      "id": "b",
+      "columns": [
+        "week",
+        "walk",
+        "strength",
+        "recovery"
+      ],
+      "observedHeaders": [
+        "week",
+        "walk",
+        "strength",
+        "recovery"
+      ],
+      "observedRepresentativeCells": [
+        "Week 1",
+        "Walk 5 days: 10-100 minutes at a comfortable brisk pace; use the can talk not sing test to stay moderate.",
+        "2 days,after walk or on separate days: chair-to-stands, wall pushups, glute bridges, standing calf raises, bird-dogs. Do 1 set 6-8 reps each.",
+        "2 full days with light stretching or easy strolling only"
+      ],
+      "missingColumns": [],
+      "horizontalScrollObserved": true
+    }
+  ],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 25
+    },
+    {
+      "name": "table_1_horizontal_1",
+      "screenshot": true,
+      "visibleTextNodes": 25
+    },
+    {
+      "name": "table_1_reset",
+      "screenshot": true,
+      "visibleTextNodes": 25
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 25
+    }
+  ],
+  "verticalSwipes": 1,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 4218
+}

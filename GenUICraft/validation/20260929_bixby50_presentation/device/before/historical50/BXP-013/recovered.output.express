@@ -1,0 +1,5 @@
+<a2ui>
+root=Column([a],"md")
+a=Column([b],"md")
+b=Table(columns=["bank"],rows=[["SBI"]],title="Rate data",domain="generic",preferredPresentation="cards")
+</a2ui>

@@ -1,0 +1,12 @@
+<a2ui>
+root=Column([a,c,d,e,f,g,h,i],"md")
+a=Column([b],"md")
+b=Table(columns=["service","departure","time","duration","class"],rows=[["Shatabdi Express (12007)","KSR Bengaluru (SBC)","10:35–10:45","About 2 h 15 m to 2 h 25 m","CC, EC"],["Rajya Rani Express (20660)","KSR Bengaluru (SBC)","11:30","About 2 h 30 m","CC, 2S, GN"],["Wodeyar Express (12614)","KSR Bengaluru (SBC)","15:15","About 2 h 30 m","CC, 2S, GN"]],title="Trains",domain="generic",preferredPresentation="cards")
+c=Text("Here is a concise comparison of three daytime Bengaluru-to-Mysuru train services, using the most consistent timetable entries across the supplied sources.","body")
+d=Text("A few timetable notes:","h2")
+e=Text("Shatabdi Express has a small timing discrepancy across sources: one source lists 10:45, while another lists 10:35.","body")
+f=Text("Shatabdi Express also shows slight variation in duration, from about 2 h 15 m to 2 h 25 m.","body")
+g=Text("Rajya Rani Express is consistently shown at 11:30 with a 2 h 30 m journey.","body")
+h=Text("Wodeyar Express is consistently shown at 15:15 with a 2 h 30 m journey.","body")
+i=Text("If you want, I can also provide the same comparison with arrival times and days of operation included.","body")
+</a2ui>

@@ -1,0 +1,131 @@
+{
+  "id": "BXP-019",
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "sourceRunId": "presentation_input_historical50",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "presentation_input_historical50/BXP-019/output.express",
+  "sourceExpressSha256": "b86f544def965b28c7bd53bf7f3acba467d96f80f9b8ce96546f2b7de3e1ec2b",
+  "generatedDslRepairAccepted": true,
+  "repairKind": "GENERATED_DSL_REPAIR",
+  "repairDiagnostics": [
+    "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+    "Wrapped 2 positional child reference(s) for Row.",
+    "Normalized invalid align value 'попере' to 'start'.",
+    "Wrapped 2 positional child reference(s) for Column.",
+    "Wrapped 1 positional child reference(s) for Card.",
+    "Recovered 2 generated state assignment(s), including 2 damaged assignment(s) with complete literal values.",
+    "Materialized all 2 recovered state field(s), preserving row order, repeated rows, and generated values.",
+    "Combined 7 valid generated component call(s) with recovered state; inspected 14 damaged or state-bound call(s) for additional readable fragments.",
+    "Best-effort generated-output recovery; unresolved structure is not a complete or source-verified answer. Source text was not used."
+  ],
+  "sourceIntegrityEvaluated": true,
+  "sourceIntegrityAccepted": false,
+  "sourceIntegrityFailure": "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed. Generated repair candidate 1 (GENERATED_DSL) applied: Wrapped 2 positional child reference(s) for Row.; Normalized invalid align value 'попере' to 'start'.; Wrapped 2 positional child reference(s) for Column.; Wrapped 1 positional child reference(s) for Card.; Recovered 2 generated state assignment(s), including 2 damaged assignment(s) with complete literal values.; Materialized all 2 recovered state field(s), preserving row order, repeated rows, and generated values.; Combined 7 valid generated component call(s) with recovered state; inspected 14 damaged or state-bound call(s) for additional readable fragments.; Best-effort generated-output recovery; unresolved structure is not a complete or source-verified answer. Source text was not used. Generated repair candidate 1 failed mechanical source integrity: Missing citation markers: [[29], [31], [4], [17], [19]]; Missing or changed numeric facts (including signs/units): [13, ₹2199, ₹659, 16, 1, -4, ₹1920, $24.99]; Added or duplicated numeric facts: [3, ₹299, ₹699]; Missing source wording: [op, age, rating, support, players, indicative, india, two, 13, online, features, supports, 199, steamdb, shows, 659, on, or, 16, to, register, an, ea, account, depending]; Added or duplicated visible wording: [game, data, rows, coop, image, it, takes, 3, friend, s, pass, a, 699, best, fit, details, pure, player, full, teamwork, focus, free, access, second, relaxed]; Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+  "recoveredExpressSha256": "e43b7b7a201abbc4001591e86dae059263b701446da4a7d0601300feb49fcc99",
+  "recoveredJsonSha256": "f3a2380914fc5d7d03ee336b1bc41b02730d6324a0f3036cba4341b15d39d033",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [
+    {
+      "id": "b",
+      "columns": [
+        "game",
+        "age",
+        "coop",
+        "players",
+        "price",
+        "image"
+      ],
+      "observedHeaders": [
+        "game",
+        "age",
+        "coop",
+        "players",
+        "price",
+        "image"
+      ],
+      "observedRepresentativeCells": [
+        "It Takes",
+        "3+",
+        "Online co-op; Friend’s Pass supports inviting a friend",
+        "2",
+        "₹2,99; SteamDB shows ₹699 on a past promotion [1][21][40]"
+      ],
+      "missingColumns": [],
+      "horizontalScrollObserved": true
+    },
+    {
+      "id": "c",
+      "columns": [
+        "fit",
+        "game",
+        "details",
+        "image"
+      ],
+      "observedHeaders": [
+        "fit",
+        "game",
+        "details",
+        "image"
+      ],
+      "observedRepresentativeCells": [
+        "Best pure two-player co-op",
+        "It Takes",
+        "with full teamwork focus and free Friend’s Pass access for a second player[11]"
+      ],
+      "missingColumns": [],
+      "horizontalScrollObserved": true
+    }
+  ],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 32
+    },
+    {
+      "name": "table_1_horizontal_1",
+      "screenshot": true,
+      "visibleTextNodes": 32
+    },
+    {
+      "name": "table_1_horizontal_2",
+      "screenshot": true,
+      "visibleTextNodes": 32
+    },
+    {
+      "name": "table_1_horizontal_3",
+      "screenshot": true,
+      "visibleTextNodes": 31
+    },
+    {
+      "name": "table_1_reset",
+      "screenshot": true,
+      "visibleTextNodes": 32
+    },
+    {
+      "name": "table_2_horizontal_1",
+      "screenshot": true,
+      "visibleTextNodes": 29
+    },
+    {
+      "name": "table_2_reset",
+      "screenshot": true,
+      "visibleTextNodes": 32
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 32
+    }
+  ],
+  "verticalSwipes": 1,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 10686
+}

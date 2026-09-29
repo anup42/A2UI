@@ -15,6 +15,275 @@ import org.junit.Test
 class GenUiRecoveryContentTest {
 
     @Test
+    fun capturedFp32RestaurantRepairPreservesGeneratedColumnLabelsAndValues() {
+        val raw = File("../validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_on/BXP-008/output.express")
+            .readText(Charsets.UTF_8)
+        val outcome = recover(raw)
+        val graph = graph(outcome)
+        val tables = graph.getAsJsonObject("elements").entrySet().map { it.value.asJsonObject }
+            .filter { it.get("type")?.asString == "Table" }
+        assertEquals("Recovered state should be represented by one table", 1, tables.size)
+        val props = tables.single().getAsJsonObject("props")
+        assertEquals(
+            listOf("Restaurant", "Neighborhood", "Signature dish", "Approx. cost per person", "Opening hours"),
+            props.getAsJsonArray("columns").map { it.asJsonObject.get("label").asString },
+        )
+        assertEquals("restaurant", props.get("primaryColumn").asString)
+        assertTableRows(graph, "Vidyarthi Bhavan", listOf(
+            listOf("Vidyarthi Bhavan", "Basavanagudi (Gandhi Bazaar)",
+                "South Indian breakfast classics; widely known for its crisp dosas", "₹1–200",
+                "6:30am–11:30am, 2:00pm–8:00pm on Mon–Thu; closed Fri; 6:30am–12:00pm, 2:30pm–8:00pm on Sat–Sun[2]"),
+            listOf("Central Tiffin Room", "Malleshwaram", "Benne dosas, bajji, and coffee", "₹1–200",
+                "7:00am–12:30pm, 4:00pm–9:30pm daily[4]"),
+            listOf("Brahmins' Coffee Bar", "Shankarapura, near Shankar Mutt Road", "Idli, vada, and coffee",
+                "₹1–200", "6:00am–12:00pm, 3:00pm–7:00pm Mon–Sat; closed Sun[5]"),
+        ))
+        assertFalse("Additional recovered text" in leafStrings(graph))
+    }
+
+    @Test
+    fun capturedFp32FdRepairKeepsTitleBeforeModelAuthoredComparisonTable() {
+        val raw = File("../validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_off/BXP-013/output.express")
+            .readText(Charsets.UTF_8)
+        val outcome = recover(raw)
+        val graph = graph(outcome)
+        assertEquals("One-year FD rates", reachableTextValues(graph).first())
+        val state = graph.getAsJsonObject("state")
+        assertTrue("Complete state-backed table should retain generated state", state.has("quick_view_data"))
+        val table = graph.getAsJsonObject("elements").entrySet().map { it.value.asJsonObject }
+            .single { it.get("type")?.asString == "Table" }
+        val props = table.getAsJsonObject("props")
+        assertEquals("/quick_view_data", props.get("statePath").asString)
+        assertEquals(
+            listOf("Bank", "One-year retail FD rate", "Assumed deposit size", "Rate date / effective date"),
+            props.getAsJsonArray("columns").map { it.asJsonObject.get("label").asString },
+        )
+        assertTableRows(graph, "SBI", listOf(
+            listOf("SBI", "6.25%", "Below ₹3 crore",
+                "Current retail grid shown on SBI’s retail domestic term-deposit page"),
+            listOf("HDFC Bank", "6.25%", "Below ₹3 crore", "19 August 2026"),
+            listOf("ICICI Bank", "6.25%", "Below ₹3 crore",
+                "Current retail grid shown in the cited rate snapshot"),
+        ))
+    }
+
+    @Test
+    fun unusedGeneratedStatePreventsChoosingAPrunedCompleteGraph() {
+        val raw = """
+            <a2ui>
+            ${'$'}/={used:[{name:"Shown"}],unused:[{name:"Otherwise lost"}]}
+            root=Column([heading,table,broken])
+            heading=Text("Answer")
+            table=Table(columns=[{key:"name",label:"Name"}],statePath="/used")
+            broken=Card([missing])
+            </a2ui>
+        """.trimIndent()
+        val graph = graph(recover(raw))
+        assertTrue("Generated unused state must remain visible in salvage", "Otherwise lost" in leafStrings(graph))
+    }
+
+    @Test
+    fun completeGraphPreservesReachableRepeatStateWhenAnOrphanNeedsAttachment() {
+        val raw = """
+            <a2ui>
+            ${'$'}/={rows:[{name:"First"},{name:"Second"}]}
+            root=Column([heading,repeated])
+            heading=Text("Repeated results")
+            repeated=Column([template],repeat={statePath:"/rows",template:"template"})
+            template=Text("${'$'}item.name")
+            orphan=Text("Final generated note")
+            </a2ui>
+        """.trimIndent()
+        val graph = graph(recover(raw))
+        assertTrue(graph.getAsJsonObject("state").has("rows"))
+        assertTrue(graph.getAsJsonObject("elements").entrySet().any { (_, rawElement) ->
+            rawElement.asJsonObject.getAsJsonObject("repeat")?.get("statePath")?.asString == "/rows"
+        })
+        assertEquals("Repeated results", reachableTextValues(graph).first())
+        assertTrue("Final generated note" in reachableTextValues(graph))
+    }
+
+    @Test
+    fun nestedBoundTableKeepsGeneratedSchemaWhenCompleteGraphIsRecoverable() {
+        val raw = """
+            <a2ui>
+            ${'$'}/={data:{rows:[{name:"First",percent:"57%"}]}}
+            root=Column([heading,table,broken])
+            heading=Text("Forecast")
+            table=Table(columns=[{key:"name",label:"Day"},{key:"percent",label:"Rain probability"}],statePath="/data/rows")
+            broken=Card([missing])
+            </a2ui>
+        """.trimIndent()
+        val graph = graph(recover(raw))
+        assertEquals("Forecast", reachableTextValues(graph).first())
+        val table = graph.getAsJsonObject("elements").entrySet().map { it.value.asJsonObject }
+            .single { it.get("type")?.asString == "Table" }
+        assertEquals("/data/rows", table.getAsJsonObject("props").get("statePath").asString)
+        assertEquals(listOf("Day", "Rain probability"),
+            table.getAsJsonObject("props").getAsJsonArray("columns").map { it.asJsonObject.get("label").asString })
+    }
+
+    @Test
+    fun capturedStrictAqiAttachesGeneratedGuidanceWithoutChangingLiteralText() {
+        val raw = File("../validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_off/BXP-002/output.express")
+            .readText(Charsets.UTF_8)
+        GenUiCompiler.compile(raw)
+        val outcome = recover(raw)
+        val graph = graph(outcome)
+        val visible = reachableTextValues(graph)
+        assertEquals(1, visible.count { it == "Main pollutant: PM2.5 [5][7]" })
+        assertEquals(1, visible.count { it == "Outdoor-activity guidance" })
+        assertTrue(visible.any { it.startsWith("For the Poor category, air pollution can cause breathing discomfort") })
+    }
+
+    @Test
+    fun capturedStrictMetroAttachesPassAndInterchangeDetailsWithoutRepeatingHeadings() {
+        val raw = File("../validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_on/BXP-005/output.express")
+            .readText(Charsets.UTF_8)
+        GenUiCompiler.compile(raw)
+        val visible = reachableTextValues(graph(recover(raw)))
+        assertEquals(1, visible.count { it == "Ticket and pass options" })
+        assertEquals(1, visible.count { it == "Interchange stations" })
+        assertTrue(visible.any { it.startsWith("Tourist passes listed in current fare guides include 1-day") })
+        assertTrue(visible.any { it.startsWith("The main interchange is Nadaprabhu Kempegowda Station") })
+        assertTrue(visible.any { it.startsWith("Buy a token for one trip") })
+    }
+
+    @Test
+    fun orphanRepairPrunesAlreadyVisibleChildrenAndLeavesConditionalContentDormant() {
+        val raw = """
+            <a2ui>
+            root=Column([heading,detail])
+            heading=Text("Heading")
+            detail=Text("Existing detail")
+            orphan=Card([detail,new_detail])
+            new_detail=Text("New detail")
+            dormant=Column([conditional_child],visible=false)
+            conditional_child=Text("Conditional detail")
+            </a2ui>
+        """.trimIndent()
+        val graph = graph(recover(raw))
+        val visible = reachableTextValues(graph)
+        assertEquals(1, visible.count { it == "Existing detail" })
+        assertEquals(1, visible.count { it == "New detail" })
+        assertFalse("Conditional detail" in visible)
+    }
+
+    @Test
+    fun deliberateRepeatedTemplateDoesNotTriggerGraphRepair() {
+        val raw = """
+            <a2ui>
+            ${'$'}/={rows:["A","B"]}
+            root=Column([repeated,repeated])
+            repeated=Column([template],repeat={statePath:"/rows",template:"template"})
+            template=Text("Repeated template")
+            </a2ui>
+        """.trimIndent()
+        val outcome = GenUiCompiler.compileWithRepair(raw, allowSourceTextFallback = false, allowGeneratedDslRepair = true)
+        assertEquals(GenUiRepairKind.NONE, outcome.repairKind)
+    }
+
+    @Test
+    fun graphRepairDoesNotLetGuardedBranchesStealVisibleRootContent() {
+        listOf(
+            "hidden=Column([detail],visible=false)",
+            "hidden=Column([detail],repeat={statePath:\"/rows\",template:\"detail\"})",
+        ).forEach { guarded ->
+            val raw = """
+                <a2ui>
+                ${'$'}/={rows:[]}
+                root=Column([hidden,detail])
+                $guarded
+                detail=Text("Important visible fact")
+                orphan=Text("Another generated fact")
+                </a2ui>
+            """.trimIndent()
+            val graph = graph(recover(raw))
+            val elements = graph.getAsJsonObject("elements")
+            val detailId = elements.entrySet().single { (_, element) ->
+                element.asJsonObject.get("type")?.asString == "Text" &&
+                    element.asJsonObject.getAsJsonObject("props")?.get("text")?.asString == "Important visible fact"
+            }.key
+            assertTrue("Direct visible reference was lost for $guarded",
+                elements.getAsJsonObject("root").getAsJsonArray("children").any { it.asString == detailId })
+        }
+    }
+
+    @Test
+    fun orphanModalContentIsNotPromotedIntoTheMainAnswer() {
+        val raw = """
+            <a2ui>
+            root=Column([answer])
+            answer=Text("Visible answer")
+            dormant_modal=Modal(trigger=button,content=modal_text)
+            button=Button("Open details")
+            modal_text=Text("Dormant modal content")
+            </a2ui>
+        """.trimIndent()
+        val outcome = GenUiCompiler.compileWithRepair(raw, allowSourceTextFallback = false, allowGeneratedDslRepair = true)
+        assertEquals(GenUiRepairKind.NONE, outcome.repairKind)
+    }
+
+    @Test
+    fun recoveredTableWithSameRowsButDifferentUnitsIsNotDeduplicated() {
+        val raw = """
+            <a2ui>
+            root=Column([first])
+            first=Table(columns=["Rain chance"],rows=[["57"]])
+            second=Table(columns=["Rain chance (%)"],rows=[["57"]])
+            </a2ui>
+        """.trimIndent()
+        val graph = graph(recover(raw))
+        val labels = graph.getAsJsonObject("elements").entrySet().map { it.value.asJsonObject }
+            .filter { it.get("type")?.asString == "Table" }
+            .map { it.getAsJsonObject("props").getAsJsonArray("columns").first().asString }
+        assertEquals(listOf("Rain chance", "Rain chance (%)"), labels)
+    }
+
+    @Test
+    fun equalStatusTextSurvivesInDistinctGeneratedEntityCards() {
+        val raw = """
+            <a2ui>
+            root=Column([first])
+            first=Card([first_status],title="Cafe A")
+            first_status=Text("Open now")
+            second=Card([second_status],title="Cafe B")
+            second_status=Text("Open now")
+            </a2ui>
+        """.trimIndent()
+        val graph = graph(recover(raw))
+        assertEquals(2, reachableTextValues(graph).count { it == "Open now" })
+        val titles = graph.getAsJsonObject("elements").entrySet().mapNotNull { (_, rawElement) ->
+            rawElement.asJsonObject.takeIf { it.get("type")?.asString == "Card" }
+                ?.getAsJsonObject("props")?.get("title")?.asString
+        }
+        assertEquals(listOf("Cafe A", "Cafe B"), titles)
+    }
+
+    @Test
+    fun sharedStatusElementStaysReferencedByBothVisibleEntityCards() {
+        val raw = """
+            <a2ui>
+            root=Column([first,second])
+            first=Card([shared_status],title="Cafe A")
+            second=Card([shared_status],title="Cafe B")
+            shared_status=Text("Open now")
+            orphan=Text("Another generated fact")
+            </a2ui>
+        """.trimIndent()
+        val graph = graph(recover(raw))
+        val elements = graph.getAsJsonObject("elements")
+        val sharedId = elements.entrySet().single { (_, rawElement) ->
+            rawElement.asJsonObject.get("type")?.asString == "Text" &&
+                rawElement.asJsonObject.getAsJsonObject("props")?.get("text")?.asString == "Open now"
+        }.key
+        val cards = elements.entrySet().map { it.value.asJsonObject }
+            .filter { it.get("type")?.asString == "Card" }
+        assertEquals(2, cards.size)
+        assertTrue(cards.all { card -> card.getAsJsonArray("children").any { it.asString == sharedId } })
+    }
+
+    @Test
     fun capturedBxp003RetainsAllThreeTrainRowsAndSurvivingText() {
         val outcome = recoverCaptured(
             resource = "/recovery/BXP-003.raw.express",
@@ -360,6 +629,22 @@ class GenUiRecoveryContentTest {
         value.isJsonArray -> value.asJsonArray.flatMap(::leafStrings)
         value.isJsonObject -> value.asJsonObject.entrySet().flatMap { (_, child) -> leafStrings(child) }
         else -> emptyList()
+    }
+
+    private fun reachableTextValues(graph: JsonObject): List<String> {
+        val elements = graph.getAsJsonObject("elements")
+        val texts = mutableListOf<String>()
+        val visiting = mutableSetOf<String>()
+        fun visit(id: String) {
+            if (!visiting.add(id)) return
+            val element = elements.getAsJsonObject(id) ?: return
+            if (element.get("type")?.asString == "Text") {
+                element.getAsJsonObject("props")?.get("text")?.asString?.let(texts::add)
+            }
+            element.getAsJsonArray("children")?.forEach { visit(it.asString) }
+        }
+        visit(graph.get("root").asString)
+        return texts
     }
 
     private fun rowSignature(values: List<String>): String =

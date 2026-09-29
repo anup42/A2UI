@@ -1,0 +1,744 @@
+{
+  "schema": "genuicraft.bixby50_presentation_findings.v1",
+  "auditDate": "2026-09-29",
+  "interpretation": "Historical artifact review only. Graph reachability is compiled structure; screenshot status is separate. Marker presence does not prove citation association or source truth. An archived source-text fallback is not a model success.",
+  "aggregate": {
+    "archivedOriginal": {
+      "completed": 50,
+      "rawStrictValid": 0,
+      "outputCapCases": 29,
+      "generatedRepairAccepted": 48,
+      "generatedRepairSourceIntegrityAccepted": 0,
+      "sourceFallbackCompiledAndRendered": 50,
+      "generatedRepairStrategies": {
+        "component-call salvage": 21,
+        "generated-state literalization": 16,
+        "complete graph normalization": 1,
+        "rejected": 2,
+        "generated-literal salvage": 10
+      },
+      "generatedRepairIntegrityCodes": {
+        "CIT-": 46,
+        "NUM-": 37,
+        "TXT-": 48,
+        "TXT+": 45,
+        "ORDER": 48,
+        "NUM+": 31
+      }
+    },
+    "r64GpuFp32": {
+      "mtp_off": {
+        "completed": 15,
+        "rawStrictValid": 12,
+        "generatedRepairUsed": 3,
+        "rendererContractAccepted": 15,
+        "screenCaptured": 14,
+        "withUnreachableMeaningfulText": 6,
+        "withSourceCitationMarkerAbsentFromReachableContent": 9,
+        "withRepeatedReachableReference": 4
+      },
+      "mtp_on": {
+        "completed": 12,
+        "rawStrictValid": 8,
+        "generatedRepairUsed": 4,
+        "rendererContractAccepted": 12,
+        "screenCaptured": 11,
+        "withUnreachableMeaningfulText": 4,
+        "withSourceCitationMarkerAbsentFromReachableContent": 8,
+        "withRepeatedReachableReference": 1
+      }
+    }
+  },
+  "findings": [
+    {
+      "priority": "P0",
+      "caseId": "BXP-001",
+      "domain": "Weather",
+      "modes": [
+        "mtp_off",
+        "mtp_on"
+      ],
+      "kind": "value_not_generated",
+      "observation": "MTP-on raw-valid weather table changes rain values 57%/55%/55% into bare 57/55/55; off keeps percent signs. Both omit [7][14]. Graph is fully reachable, so edge repair cannot restore units.",
+      "evidence": [
+        {
+          "sourcePath": "GenUICraft/validation/20260921_e2b_mobile_full50/native/BXP-001/source.json",
+          "rawPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_off/BXP-001/output.express",
+          "compiledPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_off/BXP-001/a2ui.json",
+          "screenPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_off/BXP-001/screen.png",
+          "rawStrictValid": true,
+          "repairKind": "NONE",
+          "graphCounts": {
+            "reachableNodes": 6,
+            "totalNodes": 6,
+            "reachableTextNodes": 4,
+            "totalTextNodes": 4,
+            "reachableTables": 1,
+            "totalTables": 1
+          },
+          "missingVisibleCitationMarkers": [
+            "[14]",
+            "[7]"
+          ],
+          "repeatedReachableReferences": []
+        },
+        {
+          "sourcePath": "GenUICraft/validation/20260921_e2b_mobile_full50/native/BXP-001/source.json",
+          "rawPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_on/BXP-001/output.express",
+          "compiledPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_on/BXP-001/a2ui.json",
+          "screenPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_on/BXP-001/screen.png",
+          "rawStrictValid": true,
+          "repairKind": "NONE",
+          "graphCounts": {
+            "reachableNodes": 6,
+            "totalNodes": 6,
+            "reachableTextNodes": 4,
+            "totalTextNodes": 4,
+            "reachableTables": 1,
+            "totalTables": 1
+          },
+          "missingVisibleCitationMarkers": [
+            "[14]",
+            "[7]"
+          ],
+          "repeatedReachableReferences": []
+        }
+      ]
+    },
+    {
+      "priority": "P0",
+      "caseId": "BXP-002",
+      "domain": "Air quality",
+      "modes": [
+        "mtp_off",
+        "mtp_on"
+      ],
+      "kind": "generated_but_unreachable",
+      "observation": "Both raw-valid AQI graphs leave PM2.5, [5][7], and all outdoor-activity guidance in disconnected components. BXP-002 screenshot capture was unconfirmed in both historical modes; graph evidence alone establishes the omission.",
+      "evidence": [
+        {
+          "sourcePath": "GenUICraft/validation/20260921_e2b_mobile_full50/native/BXP-002/source.json",
+          "rawPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_off/BXP-002/output.express",
+          "compiledPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_off/BXP-002/a2ui.json",
+          "screenPath": null,
+          "rawStrictValid": true,
+          "repairKind": "NONE",
+          "graphCounts": {
+            "reachableNodes": 5,
+            "totalNodes": 10,
+            "reachableTextNodes": 4,
+            "totalTextNodes": 7,
+            "reachableTables": 0,
+            "totalTables": 0
+          },
+          "missingVisibleCitationMarkers": [
+            "[5]",
+            "[7]"
+          ],
+          "repeatedReachableReferences": []
+        },
+        {
+          "sourcePath": "GenUICraft/validation/20260921_e2b_mobile_full50/native/BXP-002/source.json",
+          "rawPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_on/BXP-002/output.express",
+          "compiledPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_on/BXP-002/a2ui.json",
+          "screenPath": null,
+          "rawStrictValid": true,
+          "repairKind": "NONE",
+          "graphCounts": {
+            "reachableNodes": 5,
+            "totalNodes": 10,
+            "reachableTextNodes": 4,
+            "totalTextNodes": 7,
+            "reachableTables": 0,
+            "totalTables": 0
+          },
+          "missingVisibleCitationMarkers": [
+            "[5]",
+            "[7]"
+          ],
+          "repeatedReachableReferences": []
+        }
+      ]
+    },
+    {
+      "priority": "P0",
+      "caseId": "BXP-004",
+      "domain": "Airline baggage",
+      "modes": [
+        "mtp_off",
+        "mtp_on"
+      ],
+      "kind": "generated_but_unreachable",
+      "observation": "Both raw-valid baggage graphs hide the route/channel-dependent excess-price caveat; on also hides a higher-fare allowance exception. All 11 source citation markers are absent from visible compiled content.",
+      "evidence": [
+        {
+          "sourcePath": "GenUICraft/validation/20260921_e2b_mobile_full50/native/BXP-004/source.json",
+          "rawPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_off/BXP-004/output.express",
+          "compiledPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_off/BXP-004/a2ui.json",
+          "screenPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_off/BXP-004/screen.png",
+          "rawStrictValid": true,
+          "repairKind": "NONE",
+          "graphCounts": {
+            "reachableNodes": 14,
+            "totalNodes": 15,
+            "reachableTextNodes": 13,
+            "totalTextNodes": 14,
+            "reachableTables": 0,
+            "totalTables": 0
+          },
+          "missingVisibleCitationMarkers": [
+            "[11]",
+            "[13]",
+            "[15]",
+            "[1]",
+            "[2]",
+            "[3]",
+            "[4]",
+            "[5]",
+            "[6]",
+            "[7]",
+            "[9]"
+          ],
+          "repeatedReachableReferences": []
+        },
+        {
+          "sourcePath": "GenUICraft/validation/20260921_e2b_mobile_full50/native/BXP-004/source.json",
+          "rawPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_on/BXP-004/output.express",
+          "compiledPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_on/BXP-004/a2ui.json",
+          "screenPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_on/BXP-004/screen.png",
+          "rawStrictValid": true,
+          "repairKind": "NONE",
+          "graphCounts": {
+            "reachableNodes": 13,
+            "totalNodes": 15,
+            "reachableTextNodes": 12,
+            "totalTextNodes": 14,
+            "reachableTables": 0,
+            "totalTables": 0
+          },
+          "missingVisibleCitationMarkers": [
+            "[11]",
+            "[13]",
+            "[15]",
+            "[1]",
+            "[2]",
+            "[3]",
+            "[4]",
+            "[5]",
+            "[6]",
+            "[7]",
+            "[9]"
+          ],
+          "repeatedReachableReferences": []
+        }
+      ]
+    },
+    {
+      "priority": "P0",
+      "caseId": "BXP-005",
+      "domain": "Urban transport",
+      "modes": [
+        "mtp_off",
+        "mtp_on"
+      ],
+      "kind": "generated_but_unreachable",
+      "observation": "Metro ticket types, 1/3/5-day passes, interchange details, and rider guidance were generated but mostly disconnected. Off visibly repeats operating hours; its compiled graph references one reachable node twice.",
+      "evidence": [
+        {
+          "sourcePath": "GenUICraft/validation/20260921_e2b_mobile_full50/native/BXP-005/source.json",
+          "rawPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_off/BXP-005/output.express",
+          "compiledPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_off/BXP-005/a2ui.json",
+          "screenPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_off/BXP-005/screen.png",
+          "rawStrictValid": true,
+          "repairKind": "NONE",
+          "graphCounts": {
+            "reachableNodes": 9,
+            "totalNodes": 28,
+            "reachableTextNodes": 6,
+            "totalTextNodes": 18,
+            "reachableTables": 0,
+            "totalTables": 0
+          },
+          "missingVisibleCitationMarkers": [
+            "[13]",
+            "[1]",
+            "[2]",
+            "[3]",
+            "[4]",
+            "[5]",
+            "[6]",
+            "[8]"
+          ],
+          "repeatedReachableReferences": [
+            "c"
+          ]
+        },
+        {
+          "sourcePath": "GenUICraft/validation/20260921_e2b_mobile_full50/native/BXP-005/source.json",
+          "rawPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_on/BXP-005/output.express",
+          "compiledPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_on/BXP-005/a2ui.json",
+          "screenPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_on/BXP-005/screen.png",
+          "rawStrictValid": true,
+          "repairKind": "NONE",
+          "graphCounts": {
+            "reachableNodes": 9,
+            "totalNodes": 27,
+            "reachableTextNodes": 6,
+            "totalTextNodes": 20,
+            "reachableTables": 0,
+            "totalTables": 0
+          },
+          "missingVisibleCitationMarkers": [
+            "[4]",
+            "[5]",
+            "[8]"
+          ],
+          "repeatedReachableReferences": []
+        }
+      ]
+    },
+    {
+      "priority": "P1",
+      "caseId": "BXP-006",
+      "domain": "Road trips",
+      "modes": [
+        "mtp_off",
+        "mtp_on"
+      ],
+      "kind": "unsupported_generated_content",
+      "observation": "Off requires generated DSL repair and renders model-contract boilerplate plus grammar/catalog/profile/quality hashes as visible Text; on is raw-valid and avoids this leakage. Off repairs table labels down to keys.",
+      "evidence": [
+        {
+          "sourcePath": "GenUICraft/validation/20260921_e2b_mobile_full50/native/BXP-006/source.json",
+          "rawPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_off/BXP-006/output.express",
+          "compiledPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_off/BXP-006/a2ui.json",
+          "screenPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_off/BXP-006/screen.png",
+          "rawStrictValid": false,
+          "repairKind": "GENERATED_DSL_REPAIR",
+          "graphCounts": {
+            "reachableNodes": 17,
+            "totalNodes": 17,
+            "reachableTextNodes": 14,
+            "totalTextNodes": 14,
+            "reachableTables": 1,
+            "totalTables": 1
+          },
+          "missingVisibleCitationMarkers": [
+            "[11]",
+            "[2]",
+            "[4]"
+          ],
+          "repeatedReachableReferences": []
+        },
+        {
+          "sourcePath": "GenUICraft/validation/20260921_e2b_mobile_full50/native/BXP-006/source.json",
+          "rawPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_on/BXP-006/output.express",
+          "compiledPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_on/BXP-006/a2ui.json",
+          "screenPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_on/BXP-006/screen.png",
+          "rawStrictValid": true,
+          "repairKind": "NONE",
+          "graphCounts": {
+            "reachableNodes": 14,
+            "totalNodes": 14,
+            "reachableTextNodes": 12,
+            "totalTextNodes": 12,
+            "reachableTables": 1,
+            "totalTables": 1
+          },
+          "missingVisibleCitationMarkers": [
+            "[11]",
+            "[2]",
+            "[4]"
+          ],
+          "repeatedReachableReferences": []
+        }
+      ]
+    },
+    {
+      "priority": "P1",
+      "caseId": "BXP-007",
+      "domain": "Sightseeing",
+      "modes": [
+        "mtp_off",
+        "mtp_on"
+      ],
+      "kind": "generated_but_unreachable",
+      "observation": "Both raw-valid Mysuru graphs retain the sights table but hide the final comparative recommendation and repeat one visit-order step.",
+      "evidence": [
+        {
+          "sourcePath": "GenUICraft/validation/20260921_e2b_mobile_full50/native/BXP-007/source.json",
+          "rawPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_off/BXP-007/output.express",
+          "compiledPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_off/BXP-007/a2ui.json",
+          "screenPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_off/BXP-007/screen.png",
+          "rawStrictValid": true,
+          "repairKind": "NONE",
+          "graphCounts": {
+            "reachableNodes": 9,
+            "totalNodes": 10,
+            "reachableTextNodes": 5,
+            "totalTextNodes": 6,
+            "reachableTables": 1,
+            "totalTables": 1
+          },
+          "missingVisibleCitationMarkers": [],
+          "repeatedReachableReferences": [
+            "g"
+          ]
+        },
+        {
+          "sourcePath": "GenUICraft/validation/20260921_e2b_mobile_full50/native/BXP-007/source.json",
+          "rawPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_on/BXP-007/output.express",
+          "compiledPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_on/BXP-007/a2ui.json",
+          "screenPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_on/BXP-007/screen.png",
+          "rawStrictValid": true,
+          "repairKind": "NONE",
+          "graphCounts": {
+            "reachableNodes": 9,
+            "totalNodes": 10,
+            "reachableTextNodes": 5,
+            "totalTextNodes": 6,
+            "reachableTables": 1,
+            "totalTables": 1
+          },
+          "missingVisibleCitationMarkers": [],
+          "repeatedReachableReferences": [
+            "g"
+          ]
+        }
+      ]
+    },
+    {
+      "priority": "P1",
+      "caseId": "BXP-008",
+      "domain": "Restaurants",
+      "modes": [
+        "mtp_off",
+        "mtp_on"
+      ],
+      "kind": "repair_weakens_labels",
+      "observation": "Both restaurant graphs need generated DSL repair. Rows survive but the source header 'Approx. cost per person' becomes bare 'cost', dropping the price qualifier.",
+      "evidence": [
+        {
+          "sourcePath": "GenUICraft/validation/20260921_e2b_mobile_full50/native/BXP-008/source.json",
+          "rawPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_off/BXP-008/output.express",
+          "compiledPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_off/BXP-008/a2ui.json",
+          "screenPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_off/BXP-008/screen.png",
+          "rawStrictValid": false,
+          "repairKind": "GENERATED_DSL_REPAIR",
+          "graphCounts": {
+            "reachableNodes": 5,
+            "totalNodes": 5,
+            "reachableTextNodes": 2,
+            "totalTextNodes": 2,
+            "reachableTables": 1,
+            "totalTables": 1
+          },
+          "missingVisibleCitationMarkers": [],
+          "repeatedReachableReferences": []
+        },
+        {
+          "sourcePath": "GenUICraft/validation/20260921_e2b_mobile_full50/native/BXP-008/source.json",
+          "rawPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_on/BXP-008/output.express",
+          "compiledPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_on/BXP-008/a2ui.json",
+          "screenPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_on/BXP-008/screen.png",
+          "rawStrictValid": false,
+          "repairKind": "GENERATED_DSL_REPAIR",
+          "graphCounts": {
+            "reachableNodes": 5,
+            "totalNodes": 5,
+            "reachableTextNodes": 2,
+            "totalTextNodes": 2,
+            "reachableTables": 1,
+            "totalTables": 1
+          },
+          "missingVisibleCitationMarkers": [],
+          "repeatedReachableReferences": []
+        }
+      ]
+    },
+    {
+      "priority": "P0",
+      "caseId": "BXP-009",
+      "domain": "Accommodation",
+      "modes": [
+        "mtp_off",
+        "mtp_on"
+      ],
+      "kind": "mixed_reachability_and_non_generation",
+      "observation": "Off is raw-valid but hides the Vaishali Nagar section and one C-Scheme downside. On repair reconnects Vaishali material, but the C-Scheme downside was never generated and all three source citation markers disappear.",
+      "evidence": [
+        {
+          "sourcePath": "GenUICraft/validation/20260921_e2b_mobile_full50/native/BXP-009/source.json",
+          "rawPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_off/BXP-009/output.express",
+          "compiledPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_off/BXP-009/a2ui.json",
+          "screenPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_off/BXP-009/screen.png",
+          "rawStrictValid": true,
+          "repairKind": "NONE",
+          "graphCounts": {
+            "reachableNodes": 14,
+            "totalNodes": 22,
+            "reachableTextNodes": 9,
+            "totalTextNodes": 15,
+            "reachableTables": 0,
+            "totalTables": 0
+          },
+          "missingVisibleCitationMarkers": [
+            "[4]"
+          ],
+          "repeatedReachableReferences": [
+            "h"
+          ]
+        },
+        {
+          "sourcePath": "GenUICraft/validation/20260921_e2b_mobile_full50/native/BXP-009/source.json",
+          "rawPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_on/BXP-009/output.express",
+          "compiledPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_on/BXP-009/a2ui.json",
+          "screenPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_on/BXP-009/screen.png",
+          "rawStrictValid": false,
+          "repairKind": "GENERATED_DSL_REPAIR",
+          "graphCounts": {
+            "reachableNodes": 22,
+            "totalNodes": 22,
+            "reachableTextNodes": 14,
+            "totalTextNodes": 14,
+            "reachableTables": 0,
+            "totalTables": 0
+          },
+          "missingVisibleCitationMarkers": [
+            "[3]",
+            "[4]",
+            "[6]"
+          ],
+          "repeatedReachableReferences": []
+        }
+      ]
+    },
+    {
+      "priority": "P1",
+      "caseId": "BXP-012",
+      "domain": "Productivity software",
+      "modes": [
+        "mtp_off",
+        "mtp_on"
+      ],
+      "kind": "mixed_reachability_and_non_generation",
+      "observation": "Off raw-valid notes-app output generates the free-tier/export uncertainty caveat but leaves it disconnected. On repair makes its generated graph reachable, but the caveat was never generated; both lose [1].",
+      "evidence": [
+        {
+          "sourcePath": "GenUICraft/validation/20260921_e2b_mobile_full50/native/BXP-012/source.json",
+          "rawPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_off/BXP-012/output.express",
+          "compiledPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_off/BXP-012/a2ui.json",
+          "screenPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_off/BXP-012/screen.png",
+          "rawStrictValid": true,
+          "repairKind": "NONE",
+          "graphCounts": {
+            "reachableNodes": 9,
+            "totalNodes": 10,
+            "reachableTextNodes": 5,
+            "totalTextNodes": 6,
+            "reachableTables": 1,
+            "totalTables": 1
+          },
+          "missingVisibleCitationMarkers": [
+            "[1]"
+          ],
+          "repeatedReachableReferences": [
+            "g"
+          ]
+        },
+        {
+          "sourcePath": "GenUICraft/validation/20260921_e2b_mobile_full50/native/BXP-012/source.json",
+          "rawPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_on/BXP-012/output.express",
+          "compiledPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_on/BXP-012/a2ui.json",
+          "screenPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_on/BXP-012/screen.png",
+          "rawStrictValid": false,
+          "repairKind": "GENERATED_DSL_REPAIR",
+          "graphCounts": {
+            "reachableNodes": 8,
+            "totalNodes": 8,
+            "reachableTextNodes": 5,
+            "totalTextNodes": 5,
+            "reachableTables": 1,
+            "totalTables": 1
+          },
+          "missingVisibleCitationMarkers": [
+            "[1]"
+          ],
+          "repeatedReachableReferences": []
+        }
+      ]
+    },
+    {
+      "priority": "P1",
+      "caseId": "BXP-013",
+      "domain": "Bank deposits",
+      "modes": [
+        "mtp_off"
+      ],
+      "kind": "repair_reorders_and_weakens_table",
+      "observation": "Bank-deposit repair reaches all 19 components and retains the substantive source sections, yet moves the quick-view table ahead of the title and changes descriptive table headers to bank/rate/size/date. Screenshot confirms table-first layout.",
+      "evidence": [
+        {
+          "sourcePath": "GenUICraft/validation/20260921_e2b_mobile_full50/native/BXP-013/source.json",
+          "rawPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_off/BXP-013/output.express",
+          "compiledPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_off/BXP-013/a2ui.json",
+          "screenPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_off/BXP-013/screen.png",
+          "rawStrictValid": false,
+          "repairKind": "GENERATED_DSL_REPAIR",
+          "graphCounts": {
+            "reachableNodes": 19,
+            "totalNodes": 19,
+            "reachableTextNodes": 16,
+            "totalTextNodes": 16,
+            "reachableTables": 1,
+            "totalTables": 1
+          },
+          "missingVisibleCitationMarkers": [],
+          "repeatedReachableReferences": []
+        }
+      ]
+    },
+    {
+      "priority": "P1",
+      "caseId": "BXP-014",
+      "domain": "Foreign exchange",
+      "modes": [
+        "mtp_off"
+      ],
+      "kind": "citations_not_generated",
+      "observation": "FX rates and date rows are represented in a reachable table, but raw/compiled output omits all source citation markers [18][12][3], including the marker tied to the quoted timestamp.",
+      "evidence": [
+        {
+          "sourcePath": "GenUICraft/validation/20260921_e2b_mobile_full50/native/BXP-014/source.json",
+          "rawPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_off/BXP-014/output.express",
+          "compiledPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_off/BXP-014/a2ui.json",
+          "screenPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_off/BXP-014/screen.png",
+          "rawStrictValid": true,
+          "repairKind": "NONE",
+          "graphCounts": {
+            "reachableNodes": 7,
+            "totalNodes": 7,
+            "reachableTextNodes": 3,
+            "totalTextNodes": 3,
+            "reachableTables": 1,
+            "totalTables": 1
+          },
+          "missingVisibleCitationMarkers": [
+            "[12]",
+            "[18]",
+            "[3]"
+          ],
+          "repeatedReachableReferences": []
+        }
+      ]
+    },
+    {
+      "priority": "P2",
+      "caseId": "BXP-015",
+      "domain": "Cricket",
+      "modes": [
+        "mtp_off"
+      ],
+      "kind": "positive_control",
+      "observation": "Cricket output is raw-valid and all 14 components/10 text nodes are reachable; the source score and cited date are preserved in the compiled graph. Useful regression case.",
+      "evidence": [
+        {
+          "sourcePath": "GenUICraft/validation/20260921_e2b_mobile_full50/native/BXP-015/source.json",
+          "rawPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_off/BXP-015/output.express",
+          "compiledPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_off/BXP-015/a2ui.json",
+          "screenPath": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_off/BXP-015/screen.png",
+          "rawStrictValid": true,
+          "repairKind": "NONE",
+          "graphCounts": {
+            "reachableNodes": 14,
+            "totalNodes": 14,
+            "reachableTextNodes": 10,
+            "totalTextNodes": 10,
+            "reachableTables": 0,
+            "totalTables": 0
+          },
+          "missingVisibleCitationMarkers": [],
+          "repeatedReachableReferences": []
+        }
+      ]
+    },
+    {
+      "priority": "P0",
+      "caseId": "BXP-029",
+      "domain": "Income tax",
+      "modes": [
+        "archived"
+      ],
+      "kind": "value_corruption_after_salvage",
+      "observation": "Archived original raw is invalid. Generated-literal salvage turns source ₹50 lakh into ₹500 lakh and ₹5,000 into ₹500000, with source table associations lost. Never accept this as factual tax guidance.",
+      "evidence": [
+        {
+          "sourcePath": "GenUICraft/validation/20260921_e2b_mobile_full50/native/BXP-029/source.json",
+          "rawPath": "GenUICraft/validation/20260921_e2b_mobile_full50/native/BXP-029/output.express",
+          "generatedRepairPath": "GenUICraft/validation/20260921_e2b_mobile_full50_dsl_repair_only_r5/BXP-029/recovered.output.a2ui.json",
+          "rawStrictValid": false,
+          "repairAccepted": true,
+          "sourceIntegrityAccepted": false,
+          "graphCounts": {
+            "reachableNodes": 1,
+            "totalNodes": 1,
+            "reachableTextNodes": 0,
+            "totalTextNodes": 0
+          }
+        }
+      ]
+    },
+    {
+      "priority": "P0",
+      "caseId": "BXP-032",
+      "domain": "Health insurance",
+      "modes": [
+        "archived"
+      ],
+      "kind": "value_corruption_after_salvage",
+      "observation": "Archived original raw is invalid. Generated-literal salvage turns the source 10% co-payment example into 0% and leaks parser debris such as 'effect:'; examples and exclusions are missing.",
+      "evidence": [
+        {
+          "sourcePath": "GenUICraft/validation/20260921_e2b_mobile_full50/native/BXP-032/source.json",
+          "rawPath": "GenUICraft/validation/20260921_e2b_mobile_full50/native/BXP-032/output.express",
+          "generatedRepairPath": "GenUICraft/validation/20260921_e2b_mobile_full50_dsl_repair_only_r5/BXP-032/recovered.output.a2ui.json",
+          "rawStrictValid": false,
+          "repairAccepted": true,
+          "sourceIntegrityAccepted": false,
+          "graphCounts": {
+            "reachableNodes": 1,
+            "totalNodes": 1,
+            "reachableTextNodes": 0,
+            "totalTextNodes": 0
+          }
+        }
+      ]
+    },
+    {
+      "priority": "P0",
+      "caseId": "BXP-047",
+      "domain": "Battery technology",
+      "modes": [
+        "archived"
+      ],
+      "kind": "value_corruption_after_salvage",
+      "observation": "Archived original raw is invalid. Generated-literal salvage changes battery figures including 30% to 3%, 2025 to 205, and 90–160 Wh/kg to 90–600 Wh/kg; table relationships are lost.",
+      "evidence": [
+        {
+          "sourcePath": "GenUICraft/validation/20260921_e2b_mobile_full50/native/BXP-047/source.json",
+          "rawPath": "GenUICraft/validation/20260921_e2b_mobile_full50/native/BXP-047/output.express",
+          "generatedRepairPath": "GenUICraft/validation/20260921_e2b_mobile_full50_dsl_repair_only_r5/BXP-047/recovered.output.a2ui.json",
+          "rawStrictValid": false,
+          "repairAccepted": true,
+          "sourceIntegrityAccepted": false,
+          "graphCounts": {
+            "reachableNodes": 1,
+            "totalNodes": 1,
+            "reachableTextNodes": 0,
+            "totalTextNodes": 0
+          }
+        }
+      ]
+    }
+  ]
+}

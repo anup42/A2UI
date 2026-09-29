@@ -1,0 +1,5 @@
+<a2ui>
+root=Column([a],"md")
+a=Column([b],"md")
+b=Table(columns=["year","event","source"],rows=[["1366","Vijayan founded, Hampi became its capital","[1]"],["4th to6th centuries","city expanded into a major capital with temples, royal spaces, markets, roads, and waterworks",""],["1565","conquered, pillaged after Battle of Talikota and Deccan confederacy’s victory",""],["1555","conquered, pillaged after Battle of Talikota and Deccan confederacy’s victory","[6]"],["13366","Vijayan was founded, Hampiampi became its capital",""]],title="Timeline data",domain="generic",preferredPresentation="cards")
+</a2ui>

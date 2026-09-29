@@ -1,0 +1,85 @@
+Gradle root: C:\Users\anupk\Documents\git\A2UI\android
+Module: :app
+Variant: Debug
+Device: R3CY30QFWLP
+Tasks: :app:assembleDebug :app:installDebug
+> Task :app:generateRendererCapabilities UP-TO-DATE
+> Task :app:stageGenUiCompatibleLegacyJni UP-TO-DATE
+> Task :app:syncIntentFixtures UP-TO-DATE
+> Task :app:verifyGenUiPromptMirror
+> Task :app:verifyLauncherIconAssets
+> Task :app:preBuild
+> Task :app:preDebugBuild
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:generateDebugBuildConfig UP-TO-DATE
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest UP-TO-DATE
+> Task :app:processDebugManifest UP-TO-DATE
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+> Task :app:processDebugResources UP-TO-DATE
+> Task :app:javaPreCompileDebug UP-TO-DATE
+> Task :app:mergeDebugShaders UP-TO-DATE
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets UP-TO-DATE
+> Task :app:compressDebugAssets UP-TO-DATE
+> Task :app:desugarDebugFileDependencies UP-TO-DATE
+> Task :app:checkDebugDuplicateClasses UP-TO-DATE
+> Task :app:mergeExtDexDebug UP-TO-DATE
+> Task :app:mergeLibDexDebug UP-TO-DATE
+> Task :app:mergeDebugJniLibFolders UP-TO-DATE
+> Task :app:mergeDebugNativeLibs UP-TO-DATE
+> Task :app:stripDebugDebugSymbols UP-TO-DATE
+> Task :app:validateSigningDebug UP-TO-DATE
+> Task :app:writeDebugAppMetadata UP-TO-DATE
+> Task :app:writeDebugSigningConfigVersions UP-TO-DATE
+> Task :app:compileDebugKotlin
+w: file:///C:/Users/anupk/Documents/git/A2UI/android/app/src/main/java/com/samsung/genuicraft/pipeline/FlatSpecIngestor.kt:30:57 'static enum entry FLAT_SPEC_V1: GenUiIrFormat' is deprecated. FlatSpec is legacy import/comparison-only; never select it for inference.
+w: file:///C:/Users/anupk/Documents/git/A2UI/android/app/src/main/java/com/samsung/genuicraft/pipeline/FlatSpecIngestor.kt:38:57 'static enum entry FLAT_SPEC_V1: GenUiIrFormat' is deprecated. FlatSpec is legacy import/comparison-only; never select it for inference.
+w: file:///C:/Users/anupk/Documents/git/A2UI/android/app/src/main/java/com/samsung/genuicraft/pipeline/FlatSpecIngestor.kt:87:40 'val flatSpec: JsonObject' is deprecated. Use canonicalGraph; FlatSpec is read-only migration terminology.
+w: file:///C:/Users/anupk/Documents/git/A2UI/android/app/src/main/java/com/samsung/genuicraft/pipeline/FlatSpecIngestor.kt:88:67 'static enum entry FLAT_SPEC_V1: GenUiIrFormat' is deprecated. FlatSpec is legacy import/comparison-only; never select it for inference.
+w: file:///C:/Users/anupk/Documents/git/A2UI/android/app/src/main/java/com/samsung/genuicraft/pipeline/GenUiStagePipeline.kt:3094:62 Unnecessary non-null assertion (!!) on a non-null receiver of type 'String'.
+w: file:///C:/Users/anupk/Documents/git/A2UI/android/app/src/main/java/com/samsung/genuicraft/pipeline/GenUiStagePipeline.kt:3235:39 Unnecessary non-null assertion (!!) on a non-null receiver of type 'String'.
+w: file:///C:/Users/anupk/Documents/git/A2UI/android/app/src/main/java/com/samsung/genuicraft/pipeline/GenUiStagePipeline.kt:3237:47 Unnecessary non-null assertion (!!) on a non-null receiver of type 'String'.
+w: file:///C:/Users/anupk/Documents/git/A2UI/android/app/src/main/java/com/samsung/genuicraft/pipeline/GenUiStagePipeline.kt:3238:51 Unnecessary non-null assertion (!!) on a non-null receiver of type 'String'.
+w: file:///C:/Users/anupk/Documents/git/A2UI/android/app/src/main/java/com/samsung/genuicraft/pipeline/PipelineJsonExtractor.kt:221:32 Unnecessary safe call on a non-null receiver of type 'JsonObject'.
+w: file:///C:/Users/anupk/Documents/git/A2UI/android/app/src/main/java/com/samsung/genuicraft/pipeline/PipelineJsonExtractor.kt:225:30 Unnecessary safe call on a non-null receiver of type 'JsonObject'.
+w: file:///C:/Users/anupk/Documents/git/A2UI/android/app/src/main/java/com/samsung/genuicraft/renderer/FlatRendererApi.kt:42:9 'fun onDiagnostic(message: String): Unit' is deprecated. Override onDiagnostic(FlatDiagnostic) instead.
+w: file:///C:/Users/anupk/Documents/git/A2UI/android/app/src/main/java/com/samsung/genuicraft/renderer/GenUiNativeRenderer.kt:1177:25 'when' is exhaustive so 'else' is redundant here.
+w: file:///C:/Users/anupk/Documents/git/A2UI/android/app/src/main/java/com/samsung/genuicraft/renderer/flat/compose/FlatIconCatalog.kt:117:26 'val Icons.Filled.TrendingUp: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.TrendingUp.
+w: file:///C:/Users/anupk/Documents/git/A2UI/android/app/src/main/java/com/samsung/genuicraft/renderer/flat/compose/FlatIconCatalog.kt:118:26 'val Icons.Filled.TrendingDown: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.TrendingDown.
+w: file:///C:/Users/anupk/Documents/git/A2UI/android/app/src/main/java/com/samsung/genuicraft/renderer/flat/compose/FlatIconCatalog.kt:135:26 'val Icons.Filled.Article: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.Article.
+w: file:///C:/Users/anupk/Documents/git/A2UI/android/app/src/main/java/com/samsung/genuicraft/renderer/flat/compose/FlatIconCatalog.kt:161:26 'val Icons.Filled.Help: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.Help.
+w: file:///C:/Users/anupk/Documents/git/A2UI/android/app/src/main/java/com/samsung/genuicraft/renderer/flat/compose/FlatIconCatalog.kt:163:26 'val Icons.Filled.Chat: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.Chat.
+w: file:///C:/Users/anupk/Documents/git/A2UI/android/app/src/main/java/com/samsung/genuicraft/renderer/flat/parse/FlatSpecParserCore.kt:330:40 No cast needed.
+w: file:///C:/Users/anupk/Documents/git/A2UI/android/app/src/main/java/com/samsung/genuicraft/renderer/native/NativePayloadParser.kt:316:32 Unnecessary safe call on a non-null receiver of type 'String'.
+w: file:///C:/Users/anupk/Documents/git/A2UI/android/app/src/main/java/com/samsung/genuicraft/ui/GenUiAssistantActivity.kt:190:60 'static field SOFT_INPUT_ADJUST_RESIZE: Int' is deprecated. Deprecated in Java.
+w: file:///C:/Users/anupk/Documents/git/A2UI/android/app/src/main/java/com/samsung/genuicraft/ui/GenUiAssistantActivity.kt:1274:44 Unnecessary safe call on a non-null receiver of type 'GenUiNativeRenderer.RenderResult'.
+w: file:///C:/Users/anupk/Documents/git/A2UI/android/app/src/main/java/com/samsung/genuicraft/ui/theme/GenUiComposeTheme.kt:331:16 'var statusBarColor: Int' is deprecated. Deprecated in Java.
+w: file:///C:/Users/anupk/Documents/git/A2UI/android/app/src/main/java/com/samsung/genuicraft/ui/theme/GenUiComposeTheme.kt:332:16 'var navigationBarColor: Int' is deprecated. Deprecated in Java.
+
+> Task :app:compileDebugJavaWithJavac UP-TO-DATE
+> Task :app:dexBuilderDebug
+> Task :app:mergeDebugGlobalSynthetics UP-TO-DATE
+> Task :app:processDebugJavaRes UP-TO-DATE
+> Task :app:mergeProjectDexDebug
+> Task :app:mergeDebugJavaResource
+> Task :app:packageDebug
+> Task :app:createDebugApkListingFileRedirect UP-TO-DATE
+> Task :app:assembleDebug
+
+> Task :app:installDebug
+Installing APK 'app-debug.apk' on 'SM-F966B - 16' for :app:debug
+Installed on 1 device.
+
+BUILD SUCCESSFUL in 1m 2s
+43 actionable tasks: 8 executed, 35 up-to-date

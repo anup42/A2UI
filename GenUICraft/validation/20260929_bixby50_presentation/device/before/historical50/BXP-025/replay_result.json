@@ -1,0 +1,107 @@
+{
+  "id": "BXP-025",
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "sourceRunId": "presentation_input_historical50",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "presentation_input_historical50/BXP-025/output.express",
+  "sourceExpressSha256": "5a2df353b0ee566a8863006e29b0bf6422d5bccf2256ae9b761d00a94373f5dd",
+  "generatedDslRepairAccepted": true,
+  "repairKind": "GENERATED_DSL_REPAIR",
+  "repairDiagnostics": [
+    "Strict compile rejected output: Invalid GenUI Express: Unclosed A2UI Express expression.",
+    "Recovered 1 generated state assignment(s), including 0 damaged assignment(s) with complete literal values.",
+    "Materialized all 2 recovered state field(s), preserving row order, repeated rows, and generated values.",
+    "Combined 0 valid generated component call(s) with recovered state; inspected 1 damaged or state-bound call(s) for additional readable fragments.",
+    "Best-effort generated-output recovery; unresolved structure is not a complete or source-verified answer. Source text was not used."
+  ],
+  "sourceIntegrityEvaluated": true,
+  "sourceIntegrityAccepted": false,
+  "sourceIntegrityFailure": "Strict compile rejected output: Invalid GenUI Express: Unclosed A2UI Express expression. Generated repair candidate 1 (GENERATED_DSL) applied: Recovered 1 generated state assignment(s), including 0 damaged assignment(s) with complete literal values.; Materialized all 2 recovered state field(s), preserving row order, repeated rows, and generated values.; Combined 0 valid generated component call(s) with recovered state; inspected 1 damaged or state-bound call(s) for additional readable fragments.; Best-effort generated-output recovery; unresolved structure is not a complete or source-verified answer. Source text was not used. Generated repair candidate 1 failed mechanical source integrity: Missing citation markers: [[1]]; Missing or changed numeric facts (including signs/units): [7, 10, 101]; Added or duplicated numeric facts: [1]; Missing source wording: [7, day, plan, 10, min, practice, and, beginner, lesson, is, dialogue, note, audio, free, hindipod101, tools, this, built, around, friendly, access]; Added or duplicated visible wording: [source, content, benefit, hindi1, hindi101]; Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+  "recoveredExpressSha256": "ef89bfc32b262bae1b4bb5a8d75ac172371d2d366436c816b4ff64cdffe8d557",
+  "recoveredJsonSha256": "61b959f9ef6ab4484eefdbf1f9b8ff2bcf1d48321ee707864d1c1bbd016d3292",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [
+    {
+      "id": "b",
+      "columns": [
+        "day",
+        "speaking",
+        "listening"
+      ],
+      "observedHeaders": [
+        "day",
+        "speaking",
+        "listening"
+      ],
+      "observedRepresentativeCells": [
+        "1",
+        "Practice greetings and introduce yourself aloud.",
+        "Listen to a short beginner greeting lesson."
+      ],
+      "missingColumns": [],
+      "horizontalScrollObserved": true
+    },
+    {
+      "id": "c",
+      "columns": [
+        "source",
+        "content",
+        "benefit"
+      ],
+      "observedHeaders": [
+        "source",
+        "content",
+        "benefit"
+      ],
+      "observedRepresentativeCells": [
+        "Hindi1",
+        "free lessons and beginner pathways including absolute-beginner and 1 level content, plus audio/video lessons speaking practice.",
+        "Hindi101’s free account also includes weekly free lessons word-of-the-day content, and audio/dialogue tools for listening practice."
+      ],
+      "missingColumns": [],
+      "horizontalScrollObserved": true
+    }
+  ],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 34
+    },
+    {
+      "name": "table_1_horizontal_1",
+      "screenshot": true,
+      "visibleTextNodes": 34
+    },
+    {
+      "name": "table_1_reset",
+      "screenshot": true,
+      "visibleTextNodes": 34
+    },
+    {
+      "name": "table_2_horizontal_1",
+      "screenshot": true,
+      "visibleTextNodes": 32
+    },
+    {
+      "name": "table_2_reset",
+      "screenshot": true,
+      "visibleTextNodes": 34
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 34
+    }
+  ],
+  "verticalSwipes": 1,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 6565
+}

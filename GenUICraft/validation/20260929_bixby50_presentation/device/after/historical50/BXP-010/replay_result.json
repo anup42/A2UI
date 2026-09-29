@@ -1,0 +1,52 @@
+{
+  "id": "BXP-010",
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "sourceRunId": "presentation_input_historical50",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "presentation_input_historical50/BXP-010/output.express",
+  "sourceExpressSha256": "42874a1fbe413f19c4c08df010cd875c870c82cea3b02f89eefed62d22b17c39",
+  "generatedDslRepairAccepted": true,
+  "repairKind": "GENERATED_DSL_REPAIR",
+  "repairDiagnostics": [
+    "Strict compile rejected output: Invalid GenUI Express: children must be an array.",
+    "Wrapped scalar children reference 'a' in an array.",
+    "Wrapped scalar children reference 'e' in an array.",
+    "Wrapped scalar children reference 'h' in an array.",
+    "Canonicalized property 'Gap' to 'gap'.",
+    "Wrapped 1 positional child reference(s) for Column.",
+    "Wrapped 1 positional child reference(s) for Row.",
+    "Recovered 0 generated state assignment(s), including 0 damaged assignment(s) with complete literal values.",
+    "Materialized all 0 recovered state field(s), preserving row order, repeated rows, and generated values.",
+    "Combined 9 valid generated component call(s) with recovered state; inspected 11 damaged or state-bound call(s) for additional readable fragments.",
+    "Best-effort generated-output recovery; unresolved structure is not a complete or source-verified answer. Source text was not used."
+  ],
+  "sourceIntegrityEvaluated": true,
+  "sourceIntegrityAccepted": false,
+  "sourceIntegrityFailure": "Strict compile rejected output: Invalid GenUI Express: children must be an array. Generated repair candidate 1 (GENERATED_DSL) applied: Wrapped scalar children reference 'a' in an array.; Wrapped scalar children reference 'e' in an array.; Wrapped scalar children reference 'h' in an array.; Canonicalized property 'Gap' to 'gap'.; Wrapped 1 positional child reference(s) for Column.; Wrapped 1 positional child reference(s) for Row.; Recovered 0 generated state assignment(s), including 0 damaged assignment(s) with complete literal values.; Materialized all 0 recovered state field(s), preserving row order, repeated rows, and generated values.; Combined 9 valid generated component call(s) with recovered state; inspected 11 damaged or state-bound call(s) for additional readable fragments.; Best-effort generated-output recovery; unresolved structure is not a complete or source-verified answer. Source text was not used. Generated repair candidate 1 failed mechanical source integrity: Missing citation markers: [[6], [2], [7]]; Missing or changed numeric facts (including signs/units): [4, ₹3999, 55dB, 54, 8, ₹3799, 58, 3, ₹2999, 32dB, 43]; Missing source wording: [to, a, 5, 000, oneplus, nord, buds, 4, pro, 3, 999, up, 55db, anc, 54, hours, total, playback, main, trade, off, strong, feature, set, but]; Added or duplicated visible wording: [5000, buds3]; Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+  "recoveredExpressSha256": "8785703b0c425fea1c8d9c1edb35e8eac51d640bb759aebc48f43f01be1b437e",
+  "recoveredJsonSha256": "fb7e7456648632bb678b55b9b721f6311cf611b96cb7db075abbb373157a97b0",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 9
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 9
+    }
+  ],
+  "verticalSwipes": 1,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 1981
+}

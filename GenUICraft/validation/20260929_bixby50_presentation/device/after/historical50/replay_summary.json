@@ -1,0 +1,21 @@
+{
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "runId": "presentation_after_historical50_r3",
+  "sourceRunId": "presentation_input_historical50",
+  "total": 50,
+  "rendered": 48,
+  "failed": 2,
+  "repairRejected": 2,
+  "renderFailures": 0,
+  "renderedWithCoverageIssues": 0,
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "repairCounts": {
+    "GENERATED_DSL_REPAIR": 48
+  },
+  "sourceIntegrityAccepted": 0,
+  "sourceIntegrityRejected": 48,
+  "sourceIntegrityNotEvaluated": 2,
+  "sourceTextFallbacks": 0
+}

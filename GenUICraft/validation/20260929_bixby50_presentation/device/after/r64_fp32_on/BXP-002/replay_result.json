@@ -1,0 +1,56 @@
+{
+  "id": "BXP-002",
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "sourceRunId": "presentation_input_r64_fp32_on",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "presentation_input_r64_fp32_on/BXP-002/output.express",
+  "sourceExpressSha256": "8ff64d5608c1d53089b225541b4543cfe6e28bf8110ef6995517cfdc929b7dfc",
+  "generatedDslRepairAccepted": true,
+  "repairKind": "GENERATED_DSL_REPAIR",
+  "repairDiagnostics": [
+    "Generated static answer components were unreachable or repeated; repairing the rendered graph.",
+    "Generated repair candidate 1 (STRUCTURAL) applied: ",
+    "Candidate still had unreachable or repeated static answer components; continuing graph repair.",
+    "Attached previously unreachable generated component 'e' to root.",
+    "Attached previously unreachable generated component 'f' to root.",
+    "Recovered a complete generated DSL graph without source fallback."
+  ],
+  "sourceIntegrityEvaluated": true,
+  "sourceIntegrityAccepted": true,
+  "sourceIntegrityDiagnostics": [
+    "Generated static answer components were unreachable or repeated; repairing the rendered graph.",
+    "Strictly compiled generated document failed mechanical source integrity: Conversion must not hide source content in unreachable elements: [e, f, g, h, i]; Missing citation markers: [[5], [7]]; Missing or changed numeric facts (including signs/units): [2.5]; Missing source wording: [pollution, category, poor, main, pollutant, pm2, 5, outdoor, activity, guidance, for, the, air, can, cause, breathing, discomfort, so, children, older, adults, and, people, with, respiratory]; Visible source wording order or multiplicity changed.",
+    "Generated repair candidate 1 (STRUCTURAL) applied: ",
+    "Candidate still had unreachable or repeated static answer components; continuing graph repair.",
+    "Generated repair candidate 1 failed mechanical source integrity: Conversion must not hide source content in unreachable elements: [e, f, g, h, i]; Missing citation markers: [[5], [7]]; Missing or changed numeric facts (including signs/units): [2.5]; Missing source wording: [pollution, category, poor, main, pollutant, pm2, 5, outdoor, activity, guidance, for, the, air, can, cause, breathing, discomfort, so, children, older, adults, and, people, with, respiratory]; Visible source wording order or multiplicity changed.",
+    "Attached previously unreachable generated component 'e' to root.",
+    "Attached previously unreachable generated component 'f' to root.",
+    "Recovered a complete generated DSL graph without source fallback."
+  ],
+  "recoveredExpressSha256": "42b07a4514b70e554e7cfc4adeaae76730acff50b532807259b23529dd93d8de",
+  "recoveredJsonSha256": "311cfd20007a700143cfb5431fb5c7201e941696464a58182838d45d15b1cb09",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 7
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 7
+    }
+  ],
+  "verticalSwipes": 1,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 1975
+}

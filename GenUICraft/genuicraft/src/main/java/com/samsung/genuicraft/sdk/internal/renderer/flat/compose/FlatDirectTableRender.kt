@@ -162,7 +162,7 @@ internal fun extractDirectTableModel(
 ): FlatDirectTableModel? {
     val rows = resolveDirectTableRows(props, state)
     val columns = resolveDirectTableColumns(props, rows)
-    if (columns.size < 2) return null
+    if (columns.isEmpty()) return null
 
     val resolvedRows = rows.map { row -> resolveDirectTableRow(row, columns, state) }
     val headerLabels = columns.map { column -> column.label }
@@ -198,6 +198,8 @@ internal fun extractDirectTableModel(
         domain == "news" -> FlatTableRenderMode.NEWS_CARDS
         domain == "playlist" -> FlatTableRenderMode.PLAYLIST_CARDS
         domain == "product" -> FlatTableRenderMode.PRODUCT_CARDS
+        explicitPreferredPresentation == "cards" && shape == FlatTableShape.ENTITY_ROW ->
+            FlatTableRenderMode.RESPONSIVE_CARD_ROWS
         compactScreen && shape in setOf(
             FlatTableShape.PLAYLIST,
             FlatTableShape.ENTITY_ROW,
@@ -238,6 +240,13 @@ internal fun RenderDirectTable(
     val table = extractDirectTableModel(props, state, compactPortrait) ?: return
     val headers = table.columns.map { column -> column.label }
     val tableModifier = applyStackModifier(modifier, props, "vertical")
+    if (table.columns.size == 1 && !hasExplicitTablePresentation(props)) {
+        RenderSingleColumnTable(
+            content = singleColumnTableContent(props["title"]?.toString(), headers.first(), table.rows),
+            modifier = tableModifier
+        )
+        return
+    }
     // An explicit table request preserves header meaning and units. Heuristic card routes may
     // omit column labels or suppress summary rows, so they must not override this request.
     if (hasExplicitTablePresentation(props)) {
@@ -449,7 +458,8 @@ internal fun RenderDirectTable(
         return
     }
     val cardsRequested =
-        table.renderMode == FlatTableRenderMode.WEATHER_CARDS ||
+        table.preferredPresentation == "cards" ||
+            table.renderMode == FlatTableRenderMode.WEATHER_CARDS ||
             table.renderMode == FlatTableRenderMode.FLIGHT_CARDS ||
             table.renderMode == FlatTableRenderMode.BOOKING_CARDS ||
             table.renderMode == FlatTableRenderMode.RESTAURANT_CARDS ||
@@ -569,7 +579,8 @@ internal fun RenderDirectTable(
             spacing = spacing,
             primaryColumn = table.primaryColumn,
             highlightColumns = table.highlightColumns,
-            onOpenUrl = onOpenUrl
+            onOpenUrl = onOpenUrl,
+            tableTitle = props["title"]?.toString()
         )
         AdaptiveTablePresentation.PLAYLIST_ROWS -> RenderPlaylistTableRows(
             headers = headers,
@@ -583,7 +594,8 @@ internal fun RenderDirectTable(
             rows = table.rows,
             modifier = tableModifier,
             spacing = spacing,
-            numericColumns = numericColumnIndexes(table.columns, table.rows, table.numericColumns)
+            numericColumns = numericColumnIndexes(table.columns, table.rows, table.numericColumns),
+            title = props["title"]?.toString()
         )
         AdaptiveTablePresentation.TABLE,
         AdaptiveTablePresentation.HORIZONTAL_TABLE,
@@ -595,5 +607,55 @@ internal fun RenderDirectTable(
             stickyFirstColumn = presentation == AdaptiveTablePresentation.STICKY_HORIZONTAL_TABLE,
             numericColumns = numericColumnIndexes(table.columns, table.rows, table.numericColumns)
         )
+    }
+}
+
+internal data class SingleColumnTableContent(
+    val title: String?,
+    val label: String,
+    val values: List<String>
+)
+
+internal fun singleColumnTableContent(
+    rawTitle: String?,
+    header: String,
+    rows: List<List<String>>
+): SingleColumnTableContent = SingleColumnTableContent(
+    title = rawTitle?.trim()?.takeIf { it.isNotBlank() },
+    label = header.trim(),
+    values = rows.mapNotNull { row -> row.firstOrNull()?.trim()?.takeIf { it.isNotBlank() } }
+)
+
+@Composable
+private fun RenderSingleColumnTable(content: SingleColumnTableContent, modifier: Modifier = Modifier) {
+    if (content.values.isEmpty()) return
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        content.title?.let { title ->
+            Text(
+                text = parseBoldMarkdown(title),
+                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                modifier = Modifier.semantics { heading() }
+            )
+        }
+        content.values.forEachIndexed { index, value ->
+            if (index > 0) HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                content.label.takeIf { it.isNotBlank() && it != "Column 1" }?.let { label ->
+                    Text(
+                        text = label,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Text(
+                    text = parseBoldMarkdown(value),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+        }
     }
 }

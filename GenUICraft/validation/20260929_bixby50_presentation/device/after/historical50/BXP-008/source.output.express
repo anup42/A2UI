@@ -1,0 +1,12 @@
+<a2ui>
+root=Column(children=[a,f],Gap="md")
+a=Card(children=[b,c])
+b=Column(children=[c,d,e,f],Gap="铺")
+c=Text("Three established vegetarian breakfast restaurants in central Bengaluru"," بالای1")
+d=Table(columns=[{Restaurant:"Restaurant","Neighborhood","Signature dish","Approx. cost per person","Opening hours","Opening hours"}],statePath="/restaurants/restaurants",domain="generic",preferredPresentation="cards")
+e=Column(children=[f,g,h,i],Gap="sma")
+f=Text("Vidyarthi Bhavan is the best fit if you want a classic breakfast institution in Basavanagudi while Central Tiffin Room is most the famous Malleshwaram stop for benne dosa. Brahmins' Coffee Bar is a compact, long-running Shankarapura option with earliest opening among three.",variant="body")
+g=Text("Vidyarthi Bhavan","sg1")
+h=Text("Central Tiffin Room","sg")
+i=Text("Brahmins' Coffee Bar","sg")
+</a2ui>

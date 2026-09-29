@@ -1,0 +1,7 @@
+/inputs/
+/renderer-mirror.patch
+/before_r64_fp32_off.instrumentation.txt
+/sdk-build.log
+/sdk-build-final.log
+/device/intermediate_before_chart_fix/
+/preview/

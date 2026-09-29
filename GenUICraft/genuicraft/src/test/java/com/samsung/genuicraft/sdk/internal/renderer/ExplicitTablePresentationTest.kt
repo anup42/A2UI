@@ -3,7 +3,9 @@ package com.samsung.genuicraft.sdk.internal.renderer
 import com.google.gson.JsonParser
 import com.samsung.genuicraft.sdk.internal.renderer.flat.compose.extractDirectTableModel
 import com.samsung.genuicraft.sdk.internal.renderer.flat.compose.hasExplicitTablePresentation
+import com.samsung.genuicraft.sdk.internal.renderer.flat.compose.singleColumnTableContent
 import com.samsung.genuicraft.sdk.internal.renderer.flat.compose.table.extractFlatTableModel
+import com.samsung.genuicraft.sdk.internal.renderer.flat.domain.entityCardRowContent
 import com.samsung.genuicraft.sdk.internal.renderer.flat.domain.looksLikeStudyPlanTable
 import com.samsung.genuicraft.sdk.internal.renderer.flat.domain.looksLikeTravelItineraryTable
 import com.samsung.genuicraft.sdk.internal.renderer.flat.domain.responsiveScheduleCardContent
@@ -12,6 +14,149 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ExplicitTablePresentationTest {
+    @Test fun `ranked text entities keep every cell when two other columns look numeric`() {
+        val headers = listOf("rank", "artist", "chart", "date")
+        val rows = listOf(
+            listOf("1", "Ariana Grande", "5", "September 5, 20 26"),
+            listOf("2", "Ella Langley", "2", "September 5, 2026"),
+            listOf("3", "Tame Impala", "3", "September 5, 20 26"),
+            listOf("4", "Ariana Grande", "4", "September 5, 20 26"),
+            listOf("5", "Karol G With Jud Judeline & rusowsky", "5", "September 5, 2026")
+        )
+        val model = requireNotNull(extractDirectTableModel(
+            mapOf("columns" to headers, "rows" to rows, "title" to "Chart data",
+                "domain" to "generic", "preferredPresentation" to "cards"),
+            emptyMap(), compactScreen = true
+        ))
+        assertEquals(FlatTableShape.ENTITY_ROW, model.shape)
+        assertEquals(FlatTableRenderMode.RESPONSIVE_CARD_ROWS, model.renderMode)
+        assertEquals(AdaptiveTablePresentation.ENTITY_CARDS,
+            selectAdaptiveTablePresentation(model, 412, false, true, true))
+        val primaryIndex = inferEntityPrimaryColumnIndex(headers, model.primaryColumn)
+        assertEquals(1, primaryIndex)
+        rows.forEachIndexed { rowIndex, row ->
+            val content = entityCardRowContent(headers, row, rowIndex, primaryIndex, emptyList())
+            assertEquals(row[1], content.title)
+            assertEquals(headers.zip(row), content.representedSourceCells.map { it.label to it.value })
+        }
+    }
+
+    @Test fun `genuine multi-column metrics retain labels and all numeric fields`() {
+        val headers = listOf("KPI", "current", "previous")
+        val rows = listOf(listOf("Revenue", "120", "100"), listOf("Orders", "15", "12"))
+        val model = requireNotNull(extractDirectTableModel(
+            mapOf("columns" to headers, "rows" to rows, "title" to "Quarterly metrics",
+                "domain" to "generic", "preferredPresentation" to "cards"),
+            emptyMap(), compactScreen = true
+        ))
+        assertEquals(FlatTableShape.NUMERIC_METRICS, model.shape)
+        assertEquals(AdaptiveTablePresentation.METRIC_CARDS,
+            selectAdaptiveTablePresentation(model, 412, false, true, true))
+        val numericColumns = numericColumnIndexes(model.columns, model.rows, model.numericColumns)
+        rows.forEachIndexed { rowIndex, row ->
+            val content = metricCardRowContent(headers, row, rowIndex, numericColumns)
+            assertEquals("KPI", content.titleCell?.label)
+            assertEquals("current", content.valueCell?.label)
+            assertEquals("previous", content.detailCells.single().label)
+            assertEquals(headers.zip(row), content.representedSourceCells.map { it.label to it.value })
+        }
+    }
+
+    @Test fun `single column generated fragments retain title label and every row value`() {
+        val examples = listOf(
+            Triple("Rate data", "bank", listOf("SBI")),
+            Triple(
+                "Verification tips",
+                "tip",
+                listOf("If the message is unexpected, treat it as suspicious even if logo and wording look professional.")
+            ),
+            Triple(
+                "Security after clicking tip",
+                "tip",
+                listOf(
+                    "Report suspicious messages promptly; NCSC advises forwarding suspicious email and not clicking links in it, and CISA recommends reporting phishing so defenders can act quickly"
+                )
+            )
+        )
+        examples.forEach { (title, label, values) ->
+            val props = mapOf<String, Any?>(
+                "title" to title,
+                "columns" to listOf(label),
+                "rows" to values.map(::listOf),
+                "domain" to "generic",
+                "preferredPresentation" to "cards"
+            )
+            val model = requireNotNull(extractDirectTableModel(props, emptyMap(), true))
+            assertEquals(listOf(label), model.columns.map { it.label })
+            assertEquals(values.map(::listOf), model.rows)
+            assertEquals(
+                values,
+                singleColumnTableContent(title, label, model.rows).values
+            )
+            assertEquals(title, singleColumnTableContent(title, label, model.rows).title)
+        }
+        val inferred = requireNotNull(
+            extractDirectTableModel(mapOf("rows" to listOf(listOf("Generated value"))), emptyMap(), true)
+        )
+        assertEquals("Column 1", inferred.columns.single().label)
+        assertEquals(listOf("Generated value"), singleColumnTableContent(null, "Column 1", inferred.rows).values)
+    }
+
+    @Test fun `explicit one column table retains the grid request`() {
+        val props = mapOf<String, Any?>(
+            "title" to "Verified categories",
+            "columns" to listOf("Category"),
+            "rows" to listOf(listOf("Transport"), listOf("Food")),
+            "preferredPresentation" to "table"
+        )
+        val model = requireNotNull(extractDirectTableModel(props, emptyMap(), true))
+        assertTrue(hasExplicitTablePresentation(props))
+        assertEquals(listOf("Category"), model.columns.map { it.label })
+        assertEquals(listOf(listOf("Transport"), listOf("Food")), model.rows)
+        assertEquals(FlatTableRenderMode.TABLE_HORIZONTAL_SCROLL, model.renderMode)
+    }
+
+    @Test fun `generic repaired restaurant and bank tables honor requested entity cards`() {
+        val examples = listOf(
+            listOf("restaurant", "neighborhood", "signature", "cost", "hours") to listOf(
+                "Vidyarthi Bhavan",
+                "Basavanagudi (Gandhi Bazaar)",
+                "South Indian breakfast classics; widely known for its crisp dosas",
+                "₹1–200",
+                "6:30am–11:30am, 2:00pm–8:00pm on Mon–Thu; closed Fri[2]"
+            ),
+            listOf("bank", "rate", "size", "date") to listOf(
+                "SBI",
+                "6.25%",
+                "Below ₹3 crore",
+                "Current retail grid shown on SBI’s retail domestic term-deposit page"
+            )
+        )
+        examples.forEach { (headers, row) ->
+            val props = mapOf<String, Any?>(
+                "columns" to headers,
+                "rows" to listOf(row),
+                "domain" to "generic",
+                "preferredPresentation" to "cards"
+            )
+            listOf(360, 800).forEach { width ->
+                val model = requireNotNull(extractDirectTableModel(props, emptyMap(), width < 600))
+                assertEquals(headers, model.columns.map { it.label })
+                assertEquals(listOf(row), model.rows)
+                assertEquals(FlatTableShape.ENTITY_ROW, model.shape)
+                assertEquals(FlatTableRenderMode.RESPONSIVE_CARD_ROWS, model.renderMode)
+                assertEquals(
+                    AdaptiveTablePresentation.ENTITY_CARDS,
+                    selectAdaptiveTablePresentation(model, width, false, true, true)
+                )
+            }
+            val grid = requireNotNull(
+                extractDirectTableModel(props + ("preferredPresentation" to "table"), emptyMap(), true)
+            )
+            assertEquals(FlatTableRenderMode.TABLE_HORIZONTAL_SCROLL, grid.renderMode)
+        }
+    }
+
     @Test fun `explicit two-column table retains meaning and units instead of key-value cards`() {
         val headers = listOf("Reading", "Temperature (°C)")
         val rows = listOf(listOf("Inside", "21"), listOf("Outside", "14"))

@@ -1,0 +1,11 @@
+<a2ui>
+root=Column([a,c,d,e,f,g,h],"md")
+a=Column([b],"md")
+b=Table(columns=["model","price","battery","software","best_for","buyers"],rows=[["OnePlus Nord CE 5","₹249999","6.77-inch AMOLED, 20Hz","7, 10mAh, 8W charging","66 years of software support","Buyers wanting a big battery smooth everyday performance"],["Galaxy A36 5G","₹289999","6.77-inch Super AMOLED, 120Hz","5,0,0mAh","6 OS upgrades and 6 years security updates","Buyers who want longest support and a balanced all-rounder"],["iQOO Z1","₹22225555–₹2229999","6.7.7-inch AMOLED, 120Hz","7,30mAh, 9W charging","2 Android upgrades and 3 years security patches","Buyers prioritizing battery life fast charging"]],title="Phones phones data data",domain="generic",preferredPresentation="cards")
+c=Text("Three phones under ₹30,0"," بالای ₹3 Phones")
+d=Text("Quick Pick","সাধারণ পছন্দ")
+e=Text("Nord CE5","•Best mix of price, battery, and support")
+f=Text("Galaxy A36 5G","•Long-term updates matter most")
+g=Text("iQOO Z1","•Maximum battery endurance is top priority")
+h=Text("Buyers prioritizing battery life and fast charging","Buyers prioritizing battery life and fast charging")
+</a2ui>

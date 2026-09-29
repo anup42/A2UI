@@ -1,0 +1,8 @@
+<a2ui>
+root=Column([a,b,c,d,e],"md")
+a=Text("Three established vegetarian breakfast restaurants in central Bengaluru"," بالای1")
+b=Text("Vidyarthi Bhavan is the best fit if you want a classic breakfast institution in Basavanagudi while Central Tiffin Room is most the famous Malleshwaram stop for benne dosa. Brahmins' Coffee Bar is a compact, long-running Shankarapura option with earliest opening among three.","body")
+c=Text("Vidyarthi Bhavan","sg1")
+d=Text("Central Tiffin Room","sg")
+e=Text("Brahmins' Coffee Bar","sg")
+</a2ui>

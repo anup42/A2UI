@@ -776,13 +776,18 @@ internal fun RenderText(props: Map<String, Any?>, modifier: Modifier = Modifier)
         else -> ""
     }
     val normalizedVariantSource = if (rawVariant.isBlank()) impliedHeadingVariant else rawVariant
-    val variant = when {
+    val requestedVariant = when {
         normalizedVariantSource == "h1" || normalizedVariantSource.contains("headline-large") -> "h1"
         normalizedVariantSource == "h2" || normalizedVariantSource.contains("headline") || normalizedVariantSource.contains("title-large") -> "h2"
         normalizedVariantSource == "h3" || normalizedVariantSource.contains("title") || normalizedVariantSource.contains("subtitle") || normalizedVariantSource.contains("heading") -> "h3"
         normalizedVariantSource.contains("caption") || normalizedVariantSource.contains("label") || normalizedVariantSource.contains("body-small") -> "caption"
         normalizedVariantSource.contains("chip") -> "chip"
         else -> normalizedVariantSource
+    }
+    val variant = if (shouldRenderProseHeadingAsBody(markdown.content.text, requestedVariant)) {
+        "body"
+    } else {
+        requestedVariant
     }
     val horizontalPadding = asFlatSpacingDp(props["textPaddingHorizontal"])
         ?: asFlatSpacingDp(props["paddingHorizontal"])
@@ -844,6 +849,15 @@ internal fun RenderText(props: Map<String, Any?>, modifier: Modifier = Modifier)
                 .accessibilitySemantics(props = props)
         )
     }
+}
+
+/** A complete explanatory sentence should not consume a viewport as a display heading. */
+internal fun shouldRenderProseHeadingAsBody(text: String, variant: String): Boolean {
+    if (variant !in setOf("h1", "h2", "h3")) return false
+    val trimmed = text.trim()
+    if (trimmed.length < 90 || '\n' in trimmed) return false
+    if (!trimmed.endsWith('.') && !trimmed.endsWith('!') && !trimmed.endsWith('?')) return false
+    return trimmed.split(Regex("\\s+")).size >= 14
 }
 
 // moved from FlatSpecRenderer.kt (RenderDivider)

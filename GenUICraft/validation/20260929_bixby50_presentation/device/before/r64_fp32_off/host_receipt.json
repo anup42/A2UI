@@ -1,0 +1,155 @@
+{
+  "sdkVersion": "0.5.5",
+  "serial": "R3CY30QFWLP",
+  "installedMainApkSha256": "74be4729bb3c35584ba8cd31d182fd9869cff0be74ebc9ca0cac91e5eecc1d18",
+  "display": "Physical size: 1080x2520\n",
+  "newInference": false,
+  "sourceManifest": {
+    "suite": "r64_fp32_off",
+    "runId": "presentation_input_r64_fp32_off",
+    "count": 15,
+    "cases": [
+      {
+        "id": "BXP-001",
+        "source": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_off/BXP-001/output.express",
+        "sha256": "ec835d1214b014e0b9ffbf496272b1baa9bacafbb407d07777e1300633323369"
+      },
+      {
+        "id": "BXP-002",
+        "source": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_off/BXP-002/output.express",
+        "sha256": "8ff64d5608c1d53089b225541b4543cfe6e28bf8110ef6995517cfdc929b7dfc"
+      },
+      {
+        "id": "BXP-003",
+        "source": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_off/BXP-003/output.express",
+        "sha256": "1161435a54a7f852892f803e11b73d25b61e1a1c3794c8adf070431844df4e94"
+      },
+      {
+        "id": "BXP-004",
+        "source": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_off/BXP-004/output.express",
+        "sha256": "22dd1cca5d0c6adfb5ce4b21bc173df11994fda4fe60a536cfb5e8951889f277"
+      },
+      {
+        "id": "BXP-005",
+        "source": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_off/BXP-005/output.express",
+        "sha256": "a79e47c49163ddb89130dd7091a18493625767c454cc0422f56d11fde958c10a"
+      },
+      {
+        "id": "BXP-006",
+        "source": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_off/BXP-006/output.express",
+        "sha256": "92bc56c1f90257557f082a5eb6a5c7cc38a41b5e23389fa8ede5a9605877a4cc"
+      },
+      {
+        "id": "BXP-007",
+        "source": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_off/BXP-007/output.express",
+        "sha256": "529cbb4673f571f989b1c58c7b733965f4c68c5fc8d0fdc18f84c1c6a71c015e"
+      },
+      {
+        "id": "BXP-008",
+        "source": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_off/BXP-008/output.express",
+        "sha256": "7912a110369ee05b2c18e1dcb94939a3698b3661d8d559b738ef8a0ba4e83715"
+      },
+      {
+        "id": "BXP-009",
+        "source": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_off/BXP-009/output.express",
+        "sha256": "1fef84b96b46c04b8ede8ea97395f07130631488367e14e72462f09385e7e43b"
+      },
+      {
+        "id": "BXP-010",
+        "source": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_off/BXP-010/output.express",
+        "sha256": "1f58dd21318ad271e19935cd0449bcbd1bd227faf1db72a856d6eb3c634f1532"
+      },
+      {
+        "id": "BXP-011",
+        "source": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_off/BXP-011/output.express",
+        "sha256": "3bf9e7972919ef6bd8f16f26c0ecb8d75abe436632eded13885d6bd3c9eca146"
+      },
+      {
+        "id": "BXP-012",
+        "source": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_off/BXP-012/output.express",
+        "sha256": "b6051be0a530f96e38b80c029abec37c38bfd2921a777f398ebebb219a78803e"
+      },
+      {
+        "id": "BXP-013",
+        "source": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_off/BXP-013/output.express",
+        "sha256": "4c31ee5b8f157a735066f877f235e1d4fdebf3d2bbaed8fbff4f6fe8d0b08ea6"
+      },
+      {
+        "id": "BXP-014",
+        "source": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_off/BXP-014/output.express",
+        "sha256": "d73d815523c028a9617c8937d76ac504de9564b47f24a5240c50e8c05adbcb62"
+      },
+      {
+        "id": "BXP-015",
+        "source": "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_off/BXP-015/output.express",
+        "sha256": "1205143885a79210a18bd271081ae28b8cfd6ac3eb19b0b339412467f730e4e4"
+      }
+    ],
+    "newInference": false,
+    "kind": "captured_model_output_replay",
+    "profile": "corrected_rank64_gpu_fp32",
+    "provenanceNote": "Historical captures. Keep separate; not a fresh full50 evaluation of the rank64 model."
+  },
+  "command": [
+    "C:\\Users\\anupk\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.EXE",
+    "-s",
+    "R3CY30QFWLP",
+    "shell",
+    "am",
+    "instrument",
+    "-w",
+    "-r",
+    "-e",
+    "class",
+    "com.samsung.genuicraft.GenUiSdkBixby50Test#replaySavedBixbyCorpus",
+    "-e",
+    "replayMode",
+    "express_repair_only",
+    "-e",
+    "sourceRunId",
+    "presentation_input_r64_fp32_off",
+    "-e",
+    "runId",
+    "presentation_before_r64_fp32_off_r2",
+    "-e",
+    "cases",
+    "BXP-001,BXP-002,BXP-003,BXP-004,BXP-005,BXP-006,BXP-007,BXP-008,BXP-009,BXP-010,BXP-011,BXP-012,BXP-013,BXP-014,BXP-015",
+    "-e",
+    "maxVerticalSwipes",
+    "7",
+    "-e",
+    "maxHorizontalSwipes",
+    "4",
+    "-e",
+    "renderFontScale",
+    "1.0",
+    "-e",
+    "renderDark",
+    "false",
+    "com.samsung.genuicraft.test/androidx.test.runner.AndroidJUnitRunner"
+  ],
+  "hostElapsedSeconds": 60.875,
+  "adbExitCode": 0,
+  "summary": {
+    "kind": "generated_dsl_repair_no_fallback",
+    "replayMode": "express_repair_only",
+    "runId": "presentation_before_r64_fp32_off_r2",
+    "sourceRunId": "presentation_input_r64_fp32_off",
+    "total": 15,
+    "rendered": 15,
+    "failed": 0,
+    "repairRejected": 0,
+    "renderFailures": 0,
+    "renderedWithCoverageIssues": 1,
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "repairCounts": {
+      "GENERATED_DSL_REPAIR": 3,
+      "NONE": 12
+    },
+    "sourceIntegrityAccepted": 3,
+    "sourceIntegrityRejected": 12,
+    "sourceIntegrityNotEvaluated": 0,
+    "sourceTextFallbacks": 0
+  }
+}

@@ -1,0 +1,20 @@
+<a2ui>
+$/={"routes":[{"route":"Bengaluru → Mysuru → Hunsur → Kushalnagar → Madikeri","distance":"About 250–255 km, sometimes cited up to 270 km depending on exact start point and detours[10]","time":"About 4.5–6 hours, commonly around 5.5–6 hours","conditions":"Mostly smooth and well-maintained, especially on the Bengaluru–Mysuru Expressway; traffic can build up on the Mysuru corridor, and the final stretch near Madikeri becomes hilly/ghat road[3][8][15]","stop":"Namdroling Monastery, Bylakuppe[7][9]"},{"route":"Bengaluru → Hassan → Kushalnagar → Madikeri","distance":"About 265 km","time":"About 5.5–6 hours","conditions":"Generally described as smoother and less traffic-heavy than the Mysuru-side route, with a more straightforward long-drive feel[13]","stop":"Hassan for a meal break or coffee stop"}]}
+root=Column([a,b,c,d,e,f,g,h,i,j,k,l,m],"md",padding=16)
+a=Text("The two main driving routes to Madikeri are the Mysuru–Hunsur–Kushalnagar route and the Hassan–Kushalnagar route. The Mysuru route is the most commonly recommended and generally the most convenient for first-time travelers, while the Hassan route is usually a good alternative when you want to avoid the Mysuru corridor.","h2")
+b=Text("Route comparison","h2")
+c=Table(columns=[{key:"route",label:"Route"},{key:"distance",label:"Approx. distance"},{key:"time",label:"Usual travel time"},{key:"conditions",label:"Road conditions"},{key:"stop",label:"Useful stop"}],statePath="/routes",domain="comparison",preferredPresentation="cards",primaryColumn="route",numericColumns=["distance","time"])
+d=Text("Which route feels different in practice","h2")
+e=Text("The Mysuru–Hunsur route is the default choice for most travelers because the expressway portion is fast and the route is easy to follow.","h3")
+f=Text("The Hassan route is usually chosen as an alternative when travelers want a different highway alignment and sometimes less congestion, though the available sources still describe the Mysuru-side route more often in detail.","h3")
+g=Text("On both routes, the last approach into Madikeri is hillier, and road speed usually drops in the ghat section near town.","h3")
+h=Text("Best single stop on each route","h2")
+i=Text("Mysuru–Hunsur route: Namdroling Monastery, Bylakuppe is the most useful and popular stop because it sits directly along the Coorg approach and breaks up the drive well.","h3")
+j=Text("Hassan route: Hassan is the practical stop for food, fuel, and a short rest before continuing toward Kushalnagar and Madikeri.","h3")
+k=Text("If you want, I can also give you the best route for early morning departure, toll estimate, or a family-friendly stop plan for the drive.","h3")
+l=Text("Thank you for using A2UI Express!","caption")
+m=Column([n,o,p],"sm")
+n=Text("This is a generated model contract.","caption")
+o=Text("A2UI Express v1","caption")
+p=Text("Generated from pinned grammar/catalog/profile/quality policy: grammar=37044656eb10e4c4a4a54c822432f327c5340761b5bfe914b58fa0db3581cf42 catalog=b5571b35b1af2629361d66e896d59c7dbc5b27aaea17492c274933f6125b518e profile=c0259faae3a08bdb245faf9bb2abe0798b665ddb95c1b174f7e7c5d09ae52b83 quality=299b206f0280f3a622bcab96a8f6d32d113432e473174b8790fc5a266693de0e")
+</a2ui>

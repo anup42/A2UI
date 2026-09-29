@@ -1,0 +1,6 @@
+<a2ui>
+root=Column([a],"md")
+a=Column([b,c],"md")
+b=Table(columns=["item","Status","Ready"],rows=[["Comparison","Ready","No"]],title="Comparison message",domain="comparison",preferredPresentation="cards")
+c=Text("Ready: No")
+</a2ui>

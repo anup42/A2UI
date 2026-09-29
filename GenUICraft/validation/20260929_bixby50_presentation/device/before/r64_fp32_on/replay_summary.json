@@ -1,0 +1,22 @@
+{
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "runId": "presentation_before_r64_fp32_on_r2",
+  "sourceRunId": "presentation_input_r64_fp32_on",
+  "total": 12,
+  "rendered": 12,
+  "failed": 0,
+  "repairRejected": 0,
+  "renderFailures": 0,
+  "renderedWithCoverageIssues": 1,
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "repairCounts": {
+    "GENERATED_DSL_REPAIR": 4,
+    "NONE": 8
+  },
+  "sourceIntegrityAccepted": 1,
+  "sourceIntegrityRejected": 11,
+  "sourceIntegrityNotEvaluated": 0,
+  "sourceTextFallbacks": 0
+}

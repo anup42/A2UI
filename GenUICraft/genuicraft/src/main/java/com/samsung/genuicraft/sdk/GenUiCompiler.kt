@@ -70,8 +70,10 @@ object GenUiCompiler {
             val document = strict.getOrThrow()
             val integrity = sourceText?.let { ContentIntegrity.check(GenUiRequest(it), document) }.orEmpty()
             val recoverBindings = allowGeneratedDslRepair && A2uiExpressGeneralRepair.hasUnresolvedDataBindings(document.express)
-            if (integrity.isEmpty() && !recoverBindings) return GenUiCompileOutcome(document, GenUiRepairKind.NONE)
+            val recoverGraph = allowGeneratedDslRepair && A2uiExpressGeneralRepair.hasRecoverableGraphDefects(document.express)
+            if (integrity.isEmpty() && !recoverBindings && !recoverGraph) return GenUiCompileOutcome(document, GenUiRepairKind.NONE)
             if (recoverBindings) diagnostics += "Generated table/chart data bindings were unresolved; recovering generated data and readable fragments."
+            if (recoverGraph) diagnostics += "Generated static answer components were unreachable or repeated; repairing the rendered graph."
             if (integrity.isNotEmpty()) diagnostics += "Strictly compiled generated document failed mechanical source integrity: ${integrity.joinToString("; ")}"
         } else {
             strict.exceptionOrNull()?.message?.let { diagnostics += "Strict compile rejected output: $it" }
@@ -83,7 +85,8 @@ object GenUiCompiler {
                 val document = compiled.getOrThrow()
                 val integrity = sourceText?.let { ContentIntegrity.check(GenUiRequest(it), document) }.orEmpty()
                 val recoverBindings = allowGeneratedDslRepair && A2uiExpressGeneralRepair.hasUnresolvedDataBindings(document.express)
-                if (integrity.isEmpty() && !recoverBindings) {
+                val recoverGraph = allowGeneratedDslRepair && A2uiExpressGeneralRepair.hasRecoverableGraphDefects(document.express)
+                if (integrity.isEmpty() && !recoverBindings && !recoverGraph) {
                     return GenUiCompileOutcome(
                         document = document,
                         repairKind = when (repair.kind) {
@@ -95,6 +98,7 @@ object GenUiCompiler {
                 }
                 diagnostics += "Generated repair candidate ${index + 1} (${repair.kind}) applied: ${repair.changes.joinToString("; ")}"
                 if (recoverBindings) diagnostics += "Candidate still had unresolved data bindings; continuing generated-content recovery."
+                if (recoverGraph) diagnostics += "Candidate still had unreachable or repeated static answer components; continuing graph repair."
                 if (integrity.isNotEmpty()) diagnostics += "Generated repair candidate ${index + 1} failed mechanical source integrity: ${integrity.joinToString("; ")}"
             } else {
                 diagnostics += "Generated repair candidate ${index + 1} (${repair.kind}) applied: ${repair.changes.joinToString("; ")}"

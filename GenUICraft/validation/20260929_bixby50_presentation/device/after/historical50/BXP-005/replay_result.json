@@ -1,0 +1,55 @@
+{
+  "id": "BXP-005",
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "sourceRunId": "presentation_input_historical50",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "presentation_input_historical50/BXP-005/output.express",
+  "sourceExpressSha256": "44bfeb341e818942286f1a066322d1c4dc071474cf9f1fa4ce5d69561e7c71ad",
+  "generatedDslRepairAccepted": true,
+  "repairKind": "GENERATED_DSL_REPAIR",
+  "repairDiagnostics": [
+    "Strict compile rejected output: Invalid GenUI Express: Stack.gap must be one of none, sm, md, lg, xl.",
+    "Normalized invalid gap value '🚚' to 'md'.",
+    "Normalized invalid gap value 's' to 'md'.",
+    "Canonicalized property 'Alignment' to 'align'.",
+    "Normalized invalid align value 'попере' to 'start'.",
+    "Recovered 0 generated state assignment(s), including 0 damaged assignment(s) with complete literal values.",
+    "Materialized all 0 recovered state field(s), preserving row order, repeated rows, and generated values.",
+    "Combined 18 valid generated component call(s) with recovered state; inspected 17 damaged or state-bound call(s) for additional readable fragments.",
+    "Best-effort generated-output recovery; unresolved structure is not a complete or source-verified answer. Source text was not used."
+  ],
+  "sourceIntegrityEvaluated": true,
+  "sourceIntegrityAccepted": false,
+  "sourceIntegrityFailure": "Strict compile rejected output: Invalid GenUI Express: Stack.gap must be one of none, sm, md, lg, xl. Generated repair candidate 1 (GENERATED_DSL) applied: Normalized invalid gap value '🚚' to 'md'.; Normalized invalid gap value 's' to 'md'.; Canonicalized property 'Alignment' to 'align'.; Normalized invalid align value 'попере' to 'start'.; Recovered 0 generated state assignment(s), including 0 damaged assignment(s) with complete literal values.; Materialized all 0 recovered state field(s), preserving row order, repeated rows, and generated values.; Combined 18 valid generated component call(s) with recovered state; inspected 17 damaged or state-bound call(s) for additional readable fragments.; Best-effort generated-output recovery; unresolved structure is not a complete or source-verified answer. Source text was not used. Generated repair candidate 1 failed mechanical source integrity: Missing citation markers: [[1], [5], [2], [3]]; Missing or changed numeric facts (including signs/units): [5:00, 11:55]; Added or duplicated numeric facts: [5:0:0, 11:555]; Missing source wording: [00, the, road, up, 55, nadaprabhu, silk, jaya]; Added or duplicated visible wording: [0, 555, nadabhu, jayaaya, continue]; Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+  "recoveredExpressSha256": "05770a493bfde3096f1a825968262e635ab0e5ab89036ba8f147374b6c702e02",
+  "recoveredJsonSha256": "881a3168392395c0cb057ab6b71dbe5f27af474632f9980a459dc6f6fab15245",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 16
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 16
+    },
+    {
+      "name": "vertical_2",
+      "screenshot": true,
+      "visibleTextNodes": 16
+    }
+  ],
+  "verticalSwipes": 2,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 3238
+}

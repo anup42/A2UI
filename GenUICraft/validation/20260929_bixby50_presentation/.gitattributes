@@ -1,0 +1,4 @@
+# Preserve model bytes used by the replay SHA-256 assertions.
+*.express -text -whitespace
+# The generated gallery embeds original model and source whitespace verbatim.
+before_after.html -whitespace

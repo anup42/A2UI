@@ -179,6 +179,9 @@ internal fun detectTableShape(
         rows.mapNotNull { row -> row.getOrNull(index)?.trim()?.takeIf { it.isNotBlank() } }
             .let { values -> values.size >= 2 && values.count(::looksLikeNumericTableValue) >= values.size / 2 }
     }
+    val rankedTextEntities = looksLikeRankHeader(firstHeader) && columnCount >= 3 &&
+        rows.mapNotNull { row -> row.getOrNull(1)?.trim()?.takeIf { it.isNotBlank() } }
+            .let { values -> values.isNotEmpty() && values.count { !looksLikeNumericTableValue(it) } > values.size / 2 }
     return when {
         isPlaylistTableHeaderSet(headers, domain) -> FlatTableShape.PLAYLIST
         domain == "formula" && isFormulaVariableHeaderSet(headers) -> FlatTableShape.KEY_VALUE
@@ -195,6 +198,7 @@ internal fun detectTableShape(
         domain == "comparison" && compactFirstColumn -> FlatTableShape.ENTITY_ROW
         columnCount <= 2 -> FlatTableShape.KEY_VALUE
         isComparisonEntityHeader(firstHeader) && columnCount >= 3 -> FlatTableShape.ENTITY_ROW
+        rankedTextEntities -> FlatTableShape.ENTITY_ROW
         numericLikeColumns >= 2 && columnCount <= 4 -> FlatTableShape.NUMERIC_METRICS
         else -> FlatTableShape.GENERIC_GRID
     }
@@ -397,7 +401,7 @@ internal fun resolveDirectTableColumns(
     }
 
     val firstListRow = rows.firstOrNull { row -> row is List<*> } as? List<*>
-    if (!firstListRow.isNullOrEmpty() && firstListRow.size >= 2) {
+    if (!firstListRow.isNullOrEmpty()) {
         return firstListRow.indices.map { index ->
             FlatDirectTableColumn(
                 key = index.toString(),

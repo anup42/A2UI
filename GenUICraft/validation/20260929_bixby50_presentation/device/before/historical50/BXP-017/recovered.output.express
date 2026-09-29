@@ -1,0 +1,6 @@
+<a2ui>
+root=Column([a,b,c],"md")
+a=Text("I'm sorry, but I can't reliably complete a verified book recommendation list right now.'","h3")
+b=Text("Current Limitation","h2")
+c=Text("I'm not able to confirm suitable nonfiction books about technology and society from reliable current sources with the evidence needed to answer confidently.'","h3")
+</a2ui>

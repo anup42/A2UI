@@ -151,6 +151,9 @@ import com.samsung.genuicraft.renderer.flat.runtime.*
 import com.samsung.genuicraft.renderer.flat.legacy.*
 import com.samsung.genuicraft.renderer.flat.compose.table.*
 
+internal fun hasExplicitTablePresentation(props: Map<String, Any?>): Boolean =
+    props["preferredPresentation"]?.toString()?.trim()?.equals("table", ignoreCase = true) == true
+
 // moved from FlatSpecRenderer.kt (extractDirectTableModel)
 internal fun extractDirectTableModel(
     props: Map<String, Any?>,
@@ -159,7 +162,7 @@ internal fun extractDirectTableModel(
 ): FlatDirectTableModel? {
     val rows = resolveDirectTableRows(props, state)
     val columns = resolveDirectTableColumns(props, rows)
-    if (columns.size < 2) return null
+    if (columns.isEmpty()) return null
 
     val resolvedRows = rows.map { row -> resolveDirectTableRow(row, columns, state) }
     val headerLabels = columns.map { column -> column.label }
@@ -182,6 +185,11 @@ internal fun extractDirectTableModel(
     val numericColumns = stringSetFromTableProp(props["numericColumns"])
     val entityMedia = extractTableEntityMedia(props)
     val renderMode = when {
+        explicitPreferredPresentation == "table" -> if (compactScreen || columns.size >= 3) {
+            FlatTableRenderMode.TABLE_HORIZONTAL_SCROLL
+        } else {
+            FlatTableRenderMode.TABLE
+        }
         looksLikeProcessStateTable(headerLabels, resolvedRows, domain) -> FlatTableRenderMode.PROCESS_CARDS
         domain == "weather" -> FlatTableRenderMode.WEATHER_CARDS
         domain == "flight" -> FlatTableRenderMode.FLIGHT_CARDS
@@ -190,6 +198,8 @@ internal fun extractDirectTableModel(
         domain == "news" -> FlatTableRenderMode.NEWS_CARDS
         domain == "playlist" -> FlatTableRenderMode.PLAYLIST_CARDS
         domain == "product" -> FlatTableRenderMode.PRODUCT_CARDS
+        explicitPreferredPresentation == "cards" && shape == FlatTableShape.ENTITY_ROW ->
+            FlatTableRenderMode.RESPONSIVE_CARD_ROWS
         compactScreen && shape in setOf(
             FlatTableShape.PLAYLIST,
             FlatTableShape.ENTITY_ROW,
@@ -230,6 +240,38 @@ internal fun RenderDirectTable(
     val table = extractDirectTableModel(props, state, compactPortrait) ?: return
     val headers = table.columns.map { column -> column.label }
     val tableModifier = applyStackModifier(modifier, props, "vertical")
+    if (table.columns.size == 1 && !hasExplicitTablePresentation(props)) {
+        RenderSingleColumnTable(
+            content = singleColumnTableContent(props["title"]?.toString(), headers.first(), table.rows),
+            modifier = tableModifier
+        )
+        return
+    }
+    if (hasExplicitTablePresentation(props)) {
+        val horizontalScrollEnabled = nativeTableShouldScroll(
+            compactScreen = compactPortrait,
+            screenWidthDp = screenWidthDp,
+            headers = headers,
+            rows = table.rows
+        )
+        Column(modifier = tableModifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            props["title"]?.toString()?.takeIf { it.isNotBlank() }?.let { title ->
+                Text(
+                    text = parseBoldMarkdown(title),
+                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                    modifier = Modifier.semantics { heading() }
+                )
+            }
+            RenderAdaptiveTableGrid(
+                headers = headers,
+                rows = table.rows,
+                horizontalScrollEnabled = horizontalScrollEnabled,
+                stickyFirstColumn = nativeTableStickyFirstColumn(headers, horizontalScrollEnabled),
+                numericColumns = numericColumnIndexes(table.columns, table.rows, table.numericColumns)
+            )
+        }
+        return
+    }
     val trainRows = NativeTrainSemantics.buildTrainRows(headers, table.rows, props["title"]?.toString())
     if (!trainRows.isNullOrEmpty()) {
         NativeTrainUiRenderer.RenderTrainRows(trainRows, props["title"]?.toString(), tableModifier)
@@ -396,7 +438,9 @@ internal fun RenderDirectTable(
         }
     }
 
-    if (useScrollableNativeTableRendering() && table.rows.isNotEmpty()) {
+    if (useScrollableNativeTableRendering() && table.rows.isNotEmpty() &&
+        table.renderMode in setOf(FlatTableRenderMode.TABLE, FlatTableRenderMode.TABLE_HORIZONTAL_SCROLL)
+    ) {
         val horizontalScrollEnabled = nativeTableShouldScroll(
             compactScreen = compactPortrait,
             screenWidthDp = screenWidthDp,
@@ -414,7 +458,8 @@ internal fun RenderDirectTable(
         return
     }
     val cardsRequested =
-        table.renderMode == FlatTableRenderMode.WEATHER_CARDS ||
+        table.preferredPresentation == "cards" ||
+            table.renderMode == FlatTableRenderMode.WEATHER_CARDS ||
             table.renderMode == FlatTableRenderMode.FLIGHT_CARDS ||
             table.renderMode == FlatTableRenderMode.BOOKING_CARDS ||
             table.renderMode == FlatTableRenderMode.RESTAURANT_CARDS ||
@@ -534,7 +579,8 @@ internal fun RenderDirectTable(
             spacing = spacing,
             primaryColumn = table.primaryColumn,
             highlightColumns = table.highlightColumns,
-            onOpenUrl = onOpenUrl
+            onOpenUrl = onOpenUrl,
+            tableTitle = props["title"]?.toString()
         )
         AdaptiveTablePresentation.PLAYLIST_ROWS -> RenderPlaylistTableRows(
             headers = headers,
@@ -548,7 +594,8 @@ internal fun RenderDirectTable(
             rows = table.rows,
             modifier = tableModifier,
             spacing = spacing,
-            numericColumns = numericColumnIndexes(table.columns, table.rows, table.numericColumns)
+            numericColumns = numericColumnIndexes(table.columns, table.rows, table.numericColumns),
+            title = props["title"]?.toString()
         )
         AdaptiveTablePresentation.TABLE,
         AdaptiveTablePresentation.HORIZONTAL_TABLE,
@@ -560,5 +607,46 @@ internal fun RenderDirectTable(
             stickyFirstColumn = presentation == AdaptiveTablePresentation.STICKY_HORIZONTAL_TABLE,
             numericColumns = numericColumnIndexes(table.columns, table.rows, table.numericColumns)
         )
+    }
+}
+
+internal data class SingleColumnTableContent(
+    val title: String?,
+    val label: String,
+    val values: List<String>
+)
+
+internal fun singleColumnTableContent(
+    rawTitle: String?,
+    header: String,
+    rows: List<List<String>>
+): SingleColumnTableContent = SingleColumnTableContent(
+    title = rawTitle?.trim()?.takeIf { it.isNotBlank() },
+    label = header.trim(),
+    values = rows.mapNotNull { row -> row.firstOrNull()?.trim()?.takeIf { it.isNotBlank() } }
+)
+
+@Composable
+private fun RenderSingleColumnTable(content: SingleColumnTableContent, modifier: Modifier = Modifier) {
+    if (content.values.isEmpty()) return
+    Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        content.title?.let { title ->
+            Text(
+                text = parseBoldMarkdown(title),
+                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                modifier = Modifier.semantics { heading() }
+            )
+        }
+        content.values.forEachIndexed { index, value ->
+            if (index > 0) HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                content.label.takeIf { it.isNotBlank() && it != "Column 1" }?.let { label ->
+                    Text(text = label, style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                Text(text = parseBoldMarkdown(value), style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface)
+            }
+        }
     }
 }

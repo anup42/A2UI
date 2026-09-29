@@ -1,0 +1,14 @@
+<a2ui>
+root=Column(
+<a,b>
+afillaps=Date,agapx=Rainprobability,aijaj=Text("AccuWeather’s Bengaluru forecast shows cloudy or sunny interval conditions through next three days with the highest rain chance on Wednesday and continued shower/thunderstorm potential on Thursday and Friday.","h1")
+aj=Card(children=[ak])
+ak=Column(ac,acm)
+ac=Row(acp)
+acp=Text("Carry an umbrella or light rain jacket, especially for afternoon and evening plans.",padding=16)
+acqan=Row(aqr)
+aqr=Text("Plan outdoor activities earlier in the day, when conditions are more likely to stay drier and slightly cooler.",padding=6)
+ar=Divider()
+asb=Column(as)
+asa=Text("Forecast Details","h2")
+asb=Table(ah,ah={ahRow,ah,ahRow,ajRow,akRow}preferredPresentation="cards")</a2ui</a2ui>

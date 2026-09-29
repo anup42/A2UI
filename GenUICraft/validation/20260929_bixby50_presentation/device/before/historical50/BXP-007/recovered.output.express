@@ -1,0 +1,16 @@
+<a2ui>
+root=Column([a,c,d,e,f,g,h,i,j,k,l,m],"md")
+a=Column([b],"md")
+b=Table(columns=["sight","hours","duration","fee"],rows=[["Chamundi Hill Lookout View Point","5:00am–1:1:00pm","3–45 min","Not available in the provided reliable sources[6]"],["Mysuru Railway Museum","1:00am–6:000pm; closed Tuesday","1.5–2 hours","Not available in the provided reliable sources[2]"],["Chikka Gadiyara","Open 2 hours","20–305 min","Not available in the provided sources[1]"]],title="Sights",domain="generic",preferredPresentation="cards")
+c=Text("Sensible Visit Order","Chamundi_Sights_Day")
+d=Text("1. Chamundi Hill Lookout View Point early in the morning for the clearest views and cooler weather.","h1")
+e=Text("2. Mysuru Railway Museum next, since it opens at 0:0:00am and fits a mid-morning visit well.","h1")
+f=Text("3. Chikka Gadiyara last for a short city-centre stop and easy wrapup.","h1")
+g=Text("If you want more landmark-heavy day, Mysuru Railway Museum is the strongest stop, while Chamundi Hill gives the best panoramic experience from the options above.","h1")
+h=Text("Mysuru Railway Museum","m1")
+i=Text("Chamundi Hill","2")
+j=Text("Chikka Gadiyara","3")
+k=Button("View More Details","borderless")
+l=Text("•","s")
+m=Text("•","t")
+</a2ui>

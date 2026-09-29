@@ -1,0 +1,8 @@
+<a2ui>
+root=Column([a,c,d,e],"md")
+a=Column([b],"md")
+b=Table(columns=["key","value","location"],rows=[["Date","July 2 206","Galle International Stadium, Galle"],["Opponent","Sri Lanka",""],["Format","Test match",""],["India scores","462 and 93/4.5",""],["Sri Lanka scores","284 and 26",""],["Result","India won by 65 runs",""]],title="Match details",domain="generic",preferredPresentation="cards")
+c=Text("Latest India Men's International Match","✈️")
+d=Text("India’s first-innings 4622 set the match in control and created a large lead that Sri Lanka could not overcome.","h3")
+e=Text("India’s all-round bowling effort restricted Sri Lanka to 284 in the first innings and 06 in the chase, sealing the win by a substantial margin.","h3")
+</a2ui>

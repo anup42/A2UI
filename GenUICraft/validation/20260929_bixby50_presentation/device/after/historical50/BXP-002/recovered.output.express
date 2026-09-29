@@ -1,0 +1,7 @@
+<a2ui>
+root=Column([a,d],"md")
+a=Column([b,c],"md")
+b=Table(columns=["observation_time","aqi_scale","pollution_category","main_pollutant"],rows=[["8:3 AM IST","AQ-IN 197","Poor","PM2.5"]],title="Aqi data",domain="generic",preferredPresentation="cards")
+c=Text("Outdoor guidance: For the Poor category, air pollution can cause breathing discomfort, so children, older adults and people with respiratory issues should limit outdoor activities and wear a mask if they must go out")
+d=Text("Delhi AQI","h1")
+</a2ui>

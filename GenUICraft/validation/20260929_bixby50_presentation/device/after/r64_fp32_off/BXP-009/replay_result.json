@@ -1,0 +1,65 @@
+{
+  "id": "BXP-009",
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "sourceRunId": "presentation_input_r64_fp32_off",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "presentation_input_r64_fp32_off/BXP-009/output.express",
+  "sourceExpressSha256": "1fef84b96b46c04b8ede8ea97395f07130631488367e14e72462f09385e7e43b",
+  "generatedDslRepairAccepted": true,
+  "repairKind": "GENERATED_DSL_REPAIR",
+  "repairDiagnostics": [
+    "Generated static answer components were unreachable or repeated; repairing the rendered graph.",
+    "Generated repair candidate 1 (STRUCTURAL) applied: ",
+    "Candidate still had unreachable or repeated static answer components; continuing graph repair.",
+    "Removed repeated or cyclic child 'h' from 'root'.",
+    "Attached previously unreachable generated component 'n' to root.",
+    "Attached previously unreachable generated component 'o' to root.",
+    "Attached previously unreachable generated component 'u' to root.",
+    "Recovered a complete generated DSL graph without source fallback."
+  ],
+  "sourceIntegrityEvaluated": true,
+  "sourceIntegrityAccepted": true,
+  "sourceIntegrityDiagnostics": [
+    "Generated static answer components were unreachable or repeated; repairing the rendered graph.",
+    "Strictly compiled generated document failed mechanical source integrity: Conversion must render each element exactly once; repeated child: h; Conversion must not hide source content in unreachable elements: [n, o, p, q, r, s, t, u]; Missing citation markers: [[4]]; Missing source wording: [access, to, sights, for, central, jaipur, and, major, by, the, city, transport, road, usually, than, outer, atmosphere, more, residential, less, old, core, main, drawback, heritage]; Visible source wording order or multiplicity changed.",
+    "Generated repair candidate 1 (STRUCTURAL) applied: ",
+    "Candidate still had unreachable or repeated static answer components; continuing graph repair.",
+    "Generated repair candidate 1 failed mechanical source integrity: Conversion must render each element exactly once; repeated child: h; Conversion must not hide source content in unreachable elements: [n, o, p, q, r, s, t, u]; Missing citation markers: [[4]]; Missing source wording: [access, to, sights, for, central, jaipur, and, major, by, the, city, transport, road, usually, than, outer, atmosphere, more, residential, less, old, core, main, drawback, heritage]; Visible source wording order or multiplicity changed.",
+    "Removed repeated or cyclic child 'h' from 'root'.",
+    "Attached previously unreachable generated component 'n' to root.",
+    "Attached previously unreachable generated component 'o' to root.",
+    "Attached previously unreachable generated component 'u' to root.",
+    "Recovered a complete generated DSL graph without source fallback."
+  ],
+  "recoveredExpressSha256": "213a245504079ee553e28a258c360506cb8476e0d58a3b2f96abd13dba7b0bf8",
+  "recoveredJsonSha256": "f522ffa3d4d1ca501e821695083a2747db4fa5b524c31e3d10ad3bcab232cc31",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 13
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 13
+    },
+    {
+      "name": "vertical_2",
+      "screenshot": true,
+      "visibleTextNodes": 13
+    }
+  ],
+  "verticalSwipes": 2,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 3153
+}

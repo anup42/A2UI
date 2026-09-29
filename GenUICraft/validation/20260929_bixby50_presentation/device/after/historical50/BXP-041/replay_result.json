@@ -1,0 +1,82 @@
+{
+  "id": "BXP-041",
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "sourceRunId": "presentation_input_historical50",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "presentation_input_historical50/BXP-041/output.express",
+  "sourceExpressSha256": "2c66b68414d4eaa4febb3691dac19afd881cf0d9c7865135ad1910032f4a9ea4",
+  "generatedDslRepairAccepted": true,
+  "repairKind": "GENERATED_DSL_REPAIR",
+  "repairDiagnostics": [
+    "Strict compile rejected output: Invalid GenUI Express: Unclosed A2UI Express expression.",
+    "Recovered 1 generated state assignment(s), including 0 damaged assignment(s) with complete literal values.",
+    "Materialized all 1 recovered state field(s), preserving row order, repeated rows, and generated values.",
+    "Combined 4 valid generated component call(s) with recovered state; inspected 10 damaged or state-bound call(s) for additional readable fragments.",
+    "Best-effort generated-output recovery; unresolved structure is not a complete or source-verified answer. Source text was not used."
+  ],
+  "sourceIntegrityEvaluated": true,
+  "sourceIntegrityAccepted": false,
+  "sourceIntegrityFailure": "Strict compile rejected output: Invalid GenUI Express: Unclosed A2UI Express expression. Generated repair candidate 1 (GENERATED_DSL) applied: Recovered 1 generated state assignment(s), including 0 damaged assignment(s) with complete literal values.; Materialized all 1 recovered state field(s), preserving row order, repeated rows, and generated values.; Combined 4 valid generated component call(s) with recovered state; inspected 10 damaged or state-bound call(s) for additional readable fragments.; Best-effort generated-output recovery; unresolved structure is not a complete or source-verified answer. Source text was not used. Generated repair candidate 1 failed mechanical source integrity: Missing citation markers: [[21], [22], [24], [11], [17], [20], [12], [32], [37], [4]]; Missing or changed numeric facts (including signs/units): [30, 15, 2026, 90, 25, 50]; Added or duplicated numeric facts: [5, 26, 6, 1926, 9, 0, 3, 19]; Missing source wording: [for, ordinary, route, permitted, stay, published, passport, requirement, checked, thai, embassy, use, 30, 15, september, 2026, the, in, official, advisory, lists, a, valid, on, arrival]; Added or duplicated visible wording: [rules, permittedstay, 5, 26, 6, 1926, 9, 0, 3, 19]; Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+  "recoveredExpressSha256": "41d1b33d08cded50abe8b4456e7515f663c47d0b8c1120a6304fe55dee0bb0b3",
+  "recoveredJsonSha256": "527e22b356ede48bb0e465e0a1d81b5c883e1034cd9e73168174a63cf48d9dc4",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [
+    {
+      "id": "b",
+      "columns": [
+        "country",
+        "visa",
+        "permitted_stay",
+        "fee",
+        "rules"
+      ],
+      "observedHeaders": [
+        "country",
+        "visa",
+        "permitted_stay",
+        "fee",
+        "rules"
+      ],
+      "observedRepresentativeCells": [
+        "Thailand",
+        "Visa exemption for Indian passport holders for tourism; Thai embassy note says longer stays can use e-visa if needed [212]",
+        "Up to 30 days from 5 September 26 under the revised exemption scheme",
+        "Visa exemption: no fee published; e-visa fee not confirmed in the official snippets I could verify"
+      ],
+      "missingColumns": [],
+      "horizontalScrollObserved": true
+    }
+  ],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 18
+    },
+    {
+      "name": "table_1_horizontal_1",
+      "screenshot": true,
+      "visibleTextNodes": 18
+    },
+    {
+      "name": "table_1_reset",
+      "screenshot": true,
+      "visibleTextNodes": 18
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 18
+    }
+  ],
+  "verticalSwipes": 1,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 4232
+}

@@ -39,9 +39,9 @@ internal object A2uiExpressGeneralRepair {
                 if (!hasUnresolvedDataBindings(candidate.express)) complete = candidate
             }
         }
-        // A pruned graph can leave data in unreachable state. Prefer the combined recovery when
-        // state was generated; retain the original layout for complete literal-only graphs.
-        complete?.takeIf { A2uiExpressCodec.decode(it.express).getAsJsonObject("state").size() == 0 }
+        // Prefer the repaired layout only when every generated state field remains in a reachable
+        // bound table. Otherwise the combined salvage must materialize unused generated state.
+        complete?.takeIf { hasFullyReachableStateBindings(it.express) }
             ?.let { values.putIfAbsent(it.express, it) }
         // These are complementary sources of generated content, not competing candidates. Returning
         // the first valid leaf used to discard every state row and the other damaged components.
@@ -63,6 +63,75 @@ internal object A2uiExpressGeneralRepair {
                     } == true
                 }
         }
+    }
+
+    private fun hasFullyReachableStateBindings(express: String): Boolean {
+        val graph = runCatching { A2uiExpressCodec.decode(express) }.getOrNull() ?: return false
+        val state = graph.getAsJsonObject("state") ?: return false
+        if (state.size() == 0) return true
+        val elements = graph.getAsJsonObject("elements") ?: return false
+        val root = graph.get("root")?.asString ?: return false
+        val boundPaths = linkedSetOf<String>()
+        fun addPath(path: String?) {
+            val pointer = path?.removePrefix("$")?.takeIf { it.startsWith('/') } ?: return
+            if (stateAtPath(state, pointer) != null) boundPaths += pointer
+        }
+        fun scanExpressions(value: JsonElement?) {
+            when {
+                value == null -> Unit
+                value.isJsonObject -> value.asJsonObject.entrySet().forEach { (key, child) ->
+                    if (key in setOf("\$state", "\$bindState") && child.isJsonPrimitive) {
+                        addPath(child.asString)
+                    } else scanExpressions(child)
+                }
+                value.isJsonArray -> value.asJsonArray.forEach(::scanExpressions)
+            }
+        }
+        referenceClosure(root, elements).forEach { id ->
+            val element = elements.getAsJsonObject(id) ?: return@forEach
+            val props = element.getAsJsonObject("props") ?: return@forEach
+            val type = element.get("type")?.asString
+            if (type in setOf("Table", "Chart") && props.get("rows")?.isJsonArray != true) {
+                listOf("statePath", "rowsPath", "dataPath").forEach { key ->
+                    props.get(key)?.takeIf { it.isJsonPrimitive }?.asString?.let(::addPath)
+                }
+            } else if (type !in setOf("Table", "Chart")) {
+                props.get("statePath")?.takeIf { it.isJsonPrimitive }?.asString?.let(::addPath)
+            }
+            element.getAsJsonObject("repeat")?.get("statePath")
+                ?.takeIf { it.isJsonPrimitive }?.asString?.let(::addPath)
+            scanExpressions(element.get("visible"))
+            scanExpressions(props)
+        }
+        fun everyLeafCovered(value: JsonElement, pointer: String): Boolean = when {
+            value.isJsonObject && value.asJsonObject.size() > 0 -> value.asJsonObject.entrySet().all { (key, child) ->
+                val escaped = key.replace("~", "~0").replace("/", "~1")
+                everyLeafCovered(child, "$pointer/$escaped")
+            }
+            else -> boundPaths.any { bound -> pointer == bound || pointer.startsWith("$bound/") }
+        }
+        return state.entrySet().all { (key, value) ->
+            everyLeafCovered(value, "/${key.replace("~", "~0").replace("/", "~1")}")
+        }
+    }
+
+    private fun topLevelStateKey(path: String): String? = path.removePrefix("$").removePrefix("/")
+        .takeIf { it.isNotBlank() && '/' !in it }
+        ?.replace("~1", "/")?.replace("~0", "~")
+
+    /** A strict parse can still leave generated, static answer components off the rendered root. */
+    fun hasRecoverableGraphDefects(express: String): Boolean {
+        val graph = runCatching { A2uiExpressCodec.decode(express) }.getOrNull() ?: return false
+        val elements = graph.getAsJsonObject("elements") ?: return false
+        val root = graph.get("root")?.asString ?: return false
+        if (elements.getAsJsonObject(root)?.get("type")?.asString != "Stack") return false
+        val reachable = referenceClosure(root, elements)
+        val signatures = staticReferenceClosure(root, elements).mapNotNull { id ->
+            elements.getAsJsonObject(id)?.let { staticContentSignature(it, graph.getAsJsonObject("state")) }
+        }.toSet()
+        return orphanRoots(elements, reachable).any { id ->
+            hasNovelStaticContent(id, elements, reachable, signatures, graph.getAsJsonObject("state"))
+        } || hasRepeatedRootChild(root, elements)
     }
 
     private fun normalizedCompleteDocument(input: String): Pair<String, List<String>>? {
@@ -103,6 +172,111 @@ internal object A2uiExpressGeneralRepair {
         return normalized to changes.distinct()
     }
 
+    private fun referenceClosure(start: String, elements: JsonObject): Set<String> {
+        val seen = linkedSetOf<String>()
+        val pending = java.util.ArrayDeque<String>().apply { add(start) }
+        while (pending.isNotEmpty()) {
+            val id = pending.removeFirst()
+            if (!seen.add(id)) continue
+            val element = elements.getAsJsonObject(id) ?: continue
+            RendererReferenceSemantics.references(element).forEach { reference ->
+                if (reference.targetId !in seen && elements.has(reference.targetId)) pending.add(reference.targetId)
+            }
+        }
+        return seen
+    }
+
+    private fun orphanRoots(elements: JsonObject, reachable: Set<String>): List<String> {
+        val orphanIds = elements.keySet().filter { it !in reachable }.toSet()
+        val referenced = orphanIds.flatMap { id ->
+            RendererReferenceSemantics.references(elements.getAsJsonObject(id)).map { it.targetId }
+        }.toSet()
+        return elements.keySet().filter { it in orphanIds && it !in referenced }
+    }
+
+    private fun hasNovelStaticContent(
+        start: String,
+        elements: JsonObject,
+        claimed: Set<String>,
+        visibleSignatures: Set<String>,
+        state: JsonObject,
+    ): Boolean {
+        val seen = mutableSetOf<String>()
+        val pending = java.util.ArrayDeque<String>().apply { add(start) }
+        while (pending.isNotEmpty()) {
+            val id = pending.removeFirst()
+            if (!seen.add(id) || id in claimed) continue
+            val element = elements.getAsJsonObject(id) ?: continue
+            // Do not promote descendants out of a conditional or repeated template.
+            if (element.has("visible") || element.has("repeat")) continue
+            val signature = staticContentSignature(element, state)
+            if (signature != null && signature !in visibleSignatures) return true
+            element.getAsJsonArray("children")?.forEach { child ->
+                val target = child.asString
+                if (target !in seen && elements.has(target)) pending.add(target)
+            }
+        }
+        return false
+    }
+
+    private fun hasRepeatedRootChild(root: String, elements: JsonObject): Boolean {
+        val children = elements.getAsJsonObject(root)?.getAsJsonArray("children")?.map { it.asString }
+            ?: return false
+        if (children.groupingBy { it }.eachCount().any { (id, count) ->
+                count > 1 && elements.getAsJsonObject(id)?.has("repeat") != true &&
+                    elements.getAsJsonObject(id)?.has("visible") != true
+            }) return true
+        return children.any { parent ->
+            val parentElement = elements.getAsJsonObject(parent) ?: return@any false
+            if (parentElement.has("repeat") || parentElement.has("visible")) return@any false
+            val descendants = staticReferenceClosure(parent, elements) - parent
+            children.any { child -> child in descendants &&
+                elements.getAsJsonObject(child)?.has("repeat") != true &&
+                elements.getAsJsonObject(child)?.has("visible") != true }
+        }
+    }
+
+    private fun staticReferenceClosure(start: String, elements: JsonObject): Set<String> {
+        val seen = linkedSetOf<String>()
+        val pending = java.util.ArrayDeque<String>().apply { add(start) }
+        while (pending.isNotEmpty()) {
+            val id = pending.removeFirst()
+            if (!seen.add(id)) continue
+            val element = elements.getAsJsonObject(id) ?: continue
+            if (element.has("repeat") || element.has("visible")) continue
+            element.getAsJsonArray("children")?.forEach { child ->
+                val target = child.asString
+                if (target !in seen && elements.has(target)) pending.add(target)
+            }
+        }
+        return seen
+    }
+
+    private fun staticContentSignature(element: JsonObject, state: JsonObject): String? {
+        val props = element.getAsJsonObject("props") ?: return null
+        val type = element.get("type")?.asString ?: return null
+        val content = when (type) {
+            "Text" -> props.get("text")?.takeIf { it.isJsonPrimitive }?.asString
+            "Card" -> listOf("title", "subtitle").mapNotNull { key ->
+                props.get(key)?.takeIf { it.isJsonPrimitive }?.asString
+            }.joinToString("\u001f")
+            "Table", "Chart" -> (props.get("rows")?.takeIf { it.isJsonArray }?.toString()
+                ?: listOf("statePath", "rowsPath", "dataPath").firstNotNullOfOrNull { key ->
+                    props.get(key)?.takeIf { it.isJsonPrimitive }?.asString
+                        ?.let { stateAtPath(state, it) }
+                        ?.takeIf { it.isJsonArray }?.toString()
+                })?.let { rows ->
+                    listOf(props.get("title"), props.get("columns"), rows).joinToString("\u001f")
+                }
+            "List", "Checklist" -> props.get("items")?.takeIf { it.isJsonArray }?.toString()
+            "Image", "Video", "AudioPlayer" -> listOf("url", "src", "source").firstNotNullOfOrNull { key ->
+                props.get(key)?.takeIf { it.isJsonPrimitive }?.asString
+            }
+            else -> null
+        }?.takeIf(String::isNotBlank) ?: return null
+        return "$type\u001e$content"
+    }
+
     private fun repairDecodedGraph(document: String, initialChanges: List<String>): Candidate? {
         val graph = runCatching { A2uiExpressCodec.decode(document) }.getOrNull() ?: return null
         val changes = initialChanges.toMutableList()
@@ -127,36 +301,80 @@ internal object A2uiExpressGeneralRepair {
 
         val root = graph.get("root")?.asString ?: return null
         val claimed = linkedSetOf(root)
-        fun claim(id: String, stack: MutableSet<String>) {
+        val staticClaimed = linkedSetOf(root)
+        val directRootChildren = elements.getAsJsonObject(root)?.getAsJsonArray("children")
+            ?.map { it.asString }?.toSet().orEmpty()
+        val visibleSignatures = linkedSetOf<String>()
+        val state = graph.getAsJsonObject("state")
+        fun claim(id: String, stack: MutableSet<String>, guardedPath: Boolean = false, attachingOrphan: Boolean = false) {
             val element = elements.getAsJsonObject(id) ?: return
+            val guarded = guardedPath || element.has("visible") || element.has("repeat")
+            if (!guarded) {
+                staticClaimed += id
+                staticContentSignature(element, state)?.let(visibleSignatures::add)
+            }
             val children = element.getAsJsonArray("children") ?: return
             val kept = JsonArray()
             children.forEach { child ->
                 val target = child.asString
-                if (target in stack || target in claimed) {
+                val targetElement = elements.getAsJsonObject(target)
+                val targetGuarded = guarded || targetElement?.has("visible") == true || targetElement?.has("repeat") == true
+                if (target in stack) {
+                    changes += "Removed repeated or cyclic child '$target' from '$id'."
+                } else if (targetGuarded) {
+                    kept.add(target)
+                    if (claimed.add(target)) {
+                        stack += target
+                        claim(target, stack, guardedPath = true, attachingOrphan = attachingOrphan)
+                        stack -= target
+                    }
+                } else if ((id == root && target in staticClaimed) ||
+                    (attachingOrphan && target in directRootChildren)) {
                     changes += "Removed repeated or cyclic child '$target' from '$id'."
                 } else {
                     kept.add(target)
                     claimed += target
-                    stack += target
-                    claim(target, stack)
-                    stack -= target
+                    if (staticClaimed.add(target)) {
+                        stack += target
+                        claim(target, stack, attachingOrphan = attachingOrphan)
+                        stack -= target
+                    }
                 }
             }
             element.add("children", kept)
         }
         claim(root, linkedSetOf(root))
+        val rendererReachable = referenceClosure(root, elements)
+        claimed += rendererReachable
         val rootElement = elements.getAsJsonObject(root) ?: return null
         if (rootElement.get("type")?.asString == "Stack") {
-            val rootChildren = rootElement.getAsJsonArray("children")
-            elements.keySet().toList().forEach { id ->
-                if (id != root && id !in claimed) {
-                    rootChildren.add(id)
-                    claimed += id
-                    changes += "Attached previously unreachable generated component '$id' to root."
-                    claim(id, linkedSetOf(root, id))
+            val originalRootChildren = rootElement.getAsJsonArray("children").map { it.asString }
+            val originalReachable = claimed.toSet()
+            val attachedAfter = linkedMapOf<String, MutableList<String>>()
+            val appended = mutableListOf<String>()
+            orphanRoots(elements, originalReachable).forEach { id ->
+                if (id in claimed || !hasNovelStaticContent(id, elements, claimed, visibleSignatures, state)) {
+                    return@forEach
                 }
+                val descendants = referenceClosure(id, elements)
+                val anchor = originalRootChildren.firstOrNull { it in descendants }
+                    ?: originalRootChildren.lastOrNull { child ->
+                        elements.keySet().indexOf(child) < elements.keySet().indexOf(id)
+                    }
+                if (anchor == null) appended += id else attachedAfter.getOrPut(anchor) { mutableListOf() } += id
+                claimed += id
+                claim(id, linkedSetOf(root, id), attachingOrphan = true)
+                val attachedReachable = referenceClosure(id, elements)
+                claimed += attachedReachable
+                changes += "Attached previously unreachable generated component '$id' to root."
             }
+            rootElement.add("children", JsonArray().apply {
+                originalRootChildren.forEach { child ->
+                    add(child)
+                    attachedAfter[child].orEmpty().forEach(::add)
+                }
+                appended.forEach(::add)
+            })
         }
         if (!hasVisibleContent(graph)) return null
         if (!A2uiCanonicalGraph.validate(graph).isValid) return null
@@ -172,7 +390,8 @@ internal object A2uiExpressGeneralRepair {
         val accepted = mutableListOf<JsonObject>()
         val canonicalSeen = linkedSetOf<String>()
         val changes = mutableListOf<String>()
-        graphFromGeneratedState(recovered.state)?.let(accepted::add)
+        val tableBindings = recoveredTableBindings(statements, recovered.state, changes)
+        graphFromGeneratedState(recovered.state, tableBindings)?.let(accepted::add)
         var recoveredCalls = 0
         var damagedCalls = 0
         statements.forEach { statement ->
@@ -260,13 +479,69 @@ internal object A2uiExpressGeneralRepair {
         return value
     }
 
-    private fun graphFromGeneratedState(state: JsonObject): JsonObject? {
+    private fun recoveredTableBindings(
+        statements: List<String>,
+        state: JsonObject,
+        changes: MutableList<String>,
+    ): Map<String, JsonObject> {
+        val bindings = linkedMapOf<String, JsonObject>()
+        statements.forEach { statement ->
+            val call = extractBalancedCall(statement.trim()) ?: return@forEach
+            if (!call.startsWith("Table(", ignoreCase = true)) return@forEach
+            val normalized = normalizeSyntax(call, changes)
+            val graph = runCatching { A2uiExpressCodec.decode("$OPEN\nroot=$normalized\n$CLOSE") }.getOrNull()
+                ?: return@forEach
+            val props = graph.getAsJsonObject("elements")?.getAsJsonObject("root")
+                ?.getAsJsonObject("props") ?: return@forEach
+            val path = listOf("statePath", "rowsPath", "dataPath").firstNotNullOfOrNull { key ->
+                props.get(key)?.takeIf { it.isJsonPrimitive }?.asString
+            } ?: return@forEach
+            val key = topLevelStateKey(path) ?: return@forEach
+            if (!state.has(key) || stateAtPath(state, path) != state.get(key)) return@forEach
+            if (materializedBoundTable(state.get(key), props) != null) {
+                bindings.putIfAbsent(key, props.deepCopy())
+            }
+        }
+        return bindings
+    }
+
+    private fun materializedBoundTable(value: JsonElement, modelProps: JsonObject): JsonObject? {
+        if (!value.isJsonArray || value.asJsonArray.size() == 0 || !value.asJsonArray.all { it.isJsonObject }) return null
+        val columns = modelProps.get("columns")?.takeIf { it.isJsonArray }?.asJsonArray ?: return null
+        val keys = columns.map { column ->
+            when {
+                column.isJsonObject -> column.asJsonObject.get("key")
+                    ?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isString }?.asString
+                column.isJsonPrimitive && column.asJsonPrimitive.isString -> column.asString
+                else -> null
+            }
+        }
+        if (keys.isEmpty() || keys.any { it.isNullOrBlank() } || keys.toSet().size != keys.size) return null
+        val exactKeys = keys.filterNotNull()
+        val stateKeys = value.asJsonArray.flatMap { it.asJsonObject.keySet() }.toSet()
+        if (stateKeys != exactKeys.toSet()) return null
+        val props = modelProps.deepCopy()
+        listOf("statePath", "rowsPath", "dataPath").forEach(props::remove)
+        props.add("rows", JsonArray().apply {
+            value.asJsonArray.forEach { row ->
+                add(JsonArray().apply { exactKeys.forEach { column -> add(displayValue(row.asJsonObject.get(column))) } })
+            }
+        })
+        return JsonObject().apply {
+            addProperty("type", "Table")
+            add("props", props)
+            add("children", JsonArray())
+        }
+    }
+
+    private fun graphFromGeneratedState(state: JsonObject, tableBindings: Map<String, JsonObject>): JsonObject? {
         val elements = JsonObject()
         val rootChildren = JsonArray()
         var index = 0
         state.entrySet().forEach { (key, value) ->
             val id = "s${index++}"
-            val element = stateElement(key, value) ?: return@forEach
+            val element = tableBindings[key]?.let { materializedBoundTable(value, it) }
+                ?: stateElement(key, value) ?: return@forEach
             elements.add(id, element)
             rootChildren.add(id)
         }

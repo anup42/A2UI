@@ -1,0 +1,24 @@
+<a2ui>
+$/={week_plan_data:[{week:"Week 1",walk:"Walk 5 days: 10-100 minutes at a comfortable brisk pace; use the can talk not sing test to stay moderate.",strength:"2 days,after walk or on separate days: chair-to-stands, wall pushups, glute bridges, standing calf raises, bird-dogs. Do 1 set 6-8 reps each.",recovery:"2 full days with light stretching or easy strolling only"},{week:"Week 2",walk:"5 days: 0-2-5 minutes per session.",strength:"2 days: the same exercises, 1-2 sets of 8 reps each.",recovery:"keep one day completely off and one day very light if you feel sore"},{week:"Week 3",walk:"5 days: 18-20 minutes per session, or split into two short walks if needed.",strength:"2 days: 8-10 reps, slowly and with control.",recovery:"Add 3-5 minutes of balance work after one or two sessions: tandem walking, side steps, single leg stands near a wall."},{week:"Week 4",walk:"5 days: 20-25 minutes per session. If this feels easy, add a few-minute faster intervals.",strength:"2-3 days: 2 sets of 0-112 reps, keeping form and stopping before failure.",recovery:"keep at least 1-2 easier days each week."}]}
+root=Column(children(children=[a,f,k,r,x],gap="md",padding=16))
+a=Card(children={b:[c,d,e,f,g],"4WeekWeek Plan","This plan is designed for a healthy sedentary adult and follows guidance to build toward about 15 minutes of moderate walking per week plus strength work at least 2 days weekly [1][5][8]"}
+f=Column(children=[g,h],"sg","Week 1","Walk 5 days: 0-1000 minutes at a comfortable brisk pace; use the can talk not sing test to stay moderate. [40]Strength:2 days after walk or on separate days: chair-to-stands, wallups, glute bridges, standing calf raises, and bird-dogs. Do 1 set 6-8 reps each.[13]Recovery:2 full days with light stretching or easy strolling. [666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666 Hungary","Week 2","5 days: 0-0225 minutes per session.Strength:2 days:the same exercises, 1-2 sets of 8 reps each.[0]Recovery:keep one day completely off and one day very light if you feel sore"Week 3","5 days:18-2020 minutes per session, or split into two short walks if needed.Strength:2 sets of 8-10-10 reps, slowly and with control.[1111]Recovery:add 3-5 minutes of balance work after one or two sessions: tandem walking side steps single leg stands near wall."Week 4","5 days:20-25 minutes per session.If this feels easy, add few-minute faster intervals.Strength:2-3 days:2 sets of 0-12 reps keeping form and stopping before failure.Recovery:keep at least 1-2 easier days each week."
+$/=Column(am)
+$/=Column(am)
+am=Column(Row(children=[a,d],"sma","sma")
+am=Column(children=[ae,af,ai,aj,aj,aj],gap="মা")
+ae=Card(children(children=[af,ag,ah,ai,aj],"Simple Exercises","Chair-stand\n","Wall push-up\nGlute bridge\n\nStanding calf\nBirddog\nSide step heel-to-toe or singlelegstand for balance")
+ag=Column(children=[ah,ai,aj],gap="sm")
+ah=Card(children(children=[ao,ap,aq,aq],padding=16)
+ao=Text("Chair-to-stand","h1")
+ap=AP=Text("Wall-pushup","h2")
+aqAP=AP=Text("Glute bridge","3")
+AP=Text("Standing calf","4")
+AP=Text(("Birddog","5"))
+AP=Text("Side step heel-toetoe\nsinglelegstand","6")
+aj=Column(children=[ak,al,am,an,ao,ap,aq],gap="md")
+ak=Text(","","h1)
+al=Text("Too hard","h2")
+am=Text("Too easy","h3")
+an=Text("If sore","h4")
+ao=Card(children=[ap,aq,aq,ar,as,at,au,av,aw,ax,ay,az,ab,ac,ad,ae,af,ag,ah,ai,aj,ak,al,am,an,ao,ap,aq,ar,at,au,av,ax,ay,az,ab,ac,ad,ae,af,ag,ah,ai,ak,am,an,ao,ap,aq,ar,au,av,ax,ay,az,ab,ac,ad,ae,af,ag,ah,ai,ak,am,an,ao,ap,aq,ar,au,av,ax,ay,az,ab,ac,ad,ae,af,ag,ah,ai,ak,am,an,ao,ap,aq,ar,au,av,ax,ay,az,ab,ac,ad,ae,af,ag,ah,ai,ak,am,an,ao,ap,aq,ar,au,av,ax,ay,az,ab,ac,ad,ae,af,ag,ag,ah,ai,ak,am,an,ao,ap,aq,ar,au,av,ax,ay,ab,ac,ad,ae,af,ag,ah,ai,ak,am,an,ao,ap,aq,ar,au,av,ax,ay,az,ab,ac,ad,ae,af,ag,ag,ah,ai,ak,am,an,ao,ap,aq,ar,av,ax,ax,ay,ab,ac,ad,ae,af,ag,ag,ah,ai,ak,am,an,ao,ap,aq,ar,av,ax,ay,az,ab,ac,ad,ae,ag,ah,ai,ak,am,an,ao,aq,ar,au,av,ax,ay,az,ab,ac,ad,ae

@@ -1,0 +1,13 @@
+<a2ui>
+$/={"comparison_data":[{"app":"Microsoft OneNote","offline":"Works offline on Android and web-backed notebooks sync when you reconnect[2][12]","sync":"Free cross-device sync through OneDrive","export":"Export support is available, but the free plan is mainly limited by storage rather than format","restriction":"About 5 GB of notes on the free plan"},{"app":"Simplenote","offline":"Supports offline editing, with changes syncing later across devices[7]","sync":"Syncs across Android and browser-based access","export":"Exports are supported through account data export tools, though not highlighted as a major free-tier feature in the sources","restriction":"No major paid wall is emphasized in the source; the practical limitation is its very minimal feature set"},{"app":"Joplin","offline":"Designed for offline-first use with local note storage[4][5]","sync":"Sync is available, but setup depends on the sync method you choose","export":"Strong portability: notes are stored locally and can be exported as files you control","restriction":"The main free-plan limitation is that advanced sync convenience is not bundled as a paid-less, turnkey service"}]}
+root=Column([a,b,c,h,i],"md",padding=16)
+a=Text("Comparison","h2")
+b=Table(columns=[{key:"app",label:"App"},{key:"offline",label:"Offline use"},{key:"sync",label:"Synchronization"},{key:"export",label:"Export options"},{key:"restriction",label:"Biggest free-plan restriction"}],statePath="/comparison_data",domain="comparison",preferredPresentation="cards",primaryColumn="app")
+c=Card([d])
+d=Column([e,f,g],"sm",padding=16)
+e=Text("Best fit","h2")
+f=Text("OneNote: best if you want the most polished free Android + web sync experience, but its free storage cap is the main constraint.","body")
+g=Text("Simplenote: best for plain text notes and lightweight syncing across Android and web.","body")
+h=Text("Joplin: best for offline use and exportable, user-owned notes, with sync flexibility rather than a large free cloud quota.","body")
+i=Text("Current source coverage is enough to compare core limits, but detailed free-tier export rules are not fully specified for every app.","caption")
+</a2ui>

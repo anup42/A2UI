@@ -1,0 +1,10 @@
+<a2ui>
+root=Column([a,f,g],"md")
+a=Column([b,c,d,e],"md")
+b=Table(columns=["type","limit","max","additional"],rows=[["Checked domestic","5 kg","15 kg","A single checked bag must not exceed 3 kg for safety"]],title="Baggage details",domain="generic",preferredPresentation="cards")
+c=Text("Limit: 5 kg")
+d=Text("Max: 5 kg")
+e=Text("Additional: 15 cm total linear dimensions (L+W+H)")
+f=Text("Baggage","ન")
+g=Text("Economy standard: 15 cm total size. Additional personal item up to 3 kg.")
+</a2ui>

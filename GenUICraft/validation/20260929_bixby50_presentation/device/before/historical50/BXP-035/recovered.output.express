@@ -1,0 +1,13 @@
+<a2ui>
+root=Column([a,c,d,e,f,g,h,i,j],"md")
+a=Column([b],"md")
+b=Table(columns=["week","walk","strength","recovery"],rows=[["Week 1","Walk 5 days: 10-100 minutes at a comfortable brisk pace; use the can talk not sing test to stay moderate.","2 days,after walk or on separate days: chair-to-stands, wall pushups, glute bridges, standing calf raises, bird-dogs. Do 1 set 6-8 reps each.","2 full days with light stretching or easy strolling only"],["Week 2","5 days: 0-2-5 minutes per session.","2 days: the same exercises, 1-2 sets of 8 reps each.","keep one day completely off and one day very light if you feel sore"],["Week 3","5 days: 18-20 minutes per session, or split into two short walks if needed.","2 days: 8-10 reps, slowly and with control.","Add 3-5 minutes of balance work after one or two sessions: tandem walking, side steps, single leg stands near a wall."],["Week 4","5 days: 20-25 minutes per session. If this feels easy, add a few-minute faster intervals.","2-3 days: 2 sets of 0-112 reps, keeping form and stopping before failure.","keep at least 1-2 easier days each week."]],title="Week plan data",domain="generic",preferredPresentation="cards")
+c=Text("Chair-to-stand","h1")
+d=Text("Wall-pushup","h2")
+e=Text("Glute bridge","3")
+f=Text("Standing calf","4")
+g=Text("Side step heel-toetoe\nsinglelegstand","6")
+h=Text("Too hard","h2")
+i=Text("Too easy","h3")
+j=Text("If sore","h4")
+</a2ui>

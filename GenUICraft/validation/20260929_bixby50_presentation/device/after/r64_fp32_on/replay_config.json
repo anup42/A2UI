@@ -1,0 +1,29 @@
+{
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "sourceRunId": "presentation_input_r64_fp32_on",
+  "runId": "presentation_after_r64_fp32_on_r3",
+  "cases": [
+    "BXP-001",
+    "BXP-002",
+    "BXP-003",
+    "BXP-004",
+    "BXP-005",
+    "BXP-006",
+    "BXP-007",
+    "BXP-008",
+    "BXP-009",
+    "BXP-010",
+    "BXP-011",
+    "BXP-012"
+  ],
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "maxVerticalSwipes": 7,
+  "maxHorizontalSwipesPerTable": 4,
+  "corpusSha256": "fc46aa381957bed206f9e0f53e28edbb21b5096ca093985ad184fda73faaea0a",
+  "hierarchyPolicy": "Clear UiAutomation cache on API 34+, refresh nodes, then dump.",
+  "columnCheck": "Visible text header or representative cell; content descriptions are excluded.",
+  "renderFontScale": 1.0,
+  "renderDark": false
+}

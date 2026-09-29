@@ -1,0 +1,16 @@
+{
+  "sdkVersion": "0.5.6",
+  "unitTests": 428,
+  "unitFailures": 0,
+  "unitErrors": 0,
+  "aarSha256": "c59eeae4debf4e8428a806ac7b7d7cb1b13f2d3559a12a655a56ef2f0be723b1",
+  "apkSha256": "0426477f7c874a9bf42c1ac32a2c6a24605d99cda5b29059fdac8e5cb16cdc3f",
+  "composeFlowAbiGuard": "passed",
+  "deviceSerial": "R3CY30QFWLP",
+  "deviceModel": "SM-F966B",
+  "newInference": false,
+  "bixbyLocalDependency": "0.5.6",
+  "bixbyBuildOrInstallPerformed": false,
+  "appBuildLog": "app-build.log",
+  "sdkBuildLog": "sdk-build-verified.log"
+}

@@ -1,0 +1,16 @@
+<a2ui>
+root=Column([a,b,c,d,e,f,g,h,i,j],"md",padding=16)
+a=Text("Latest completed India men’s international match","h2")
+b=Text("Date: July 2026, at Galle International Stadium, Galle[13]","caption")
+c=Text("Opponent: Sri Lanka","caption")
+d=Text("Format: Test match","caption")
+e=Text("India scores: 462 and 193/48.5","caption")
+f=Text("Sri Lanka scores: 284 and 206","caption")
+g=Text("Result: India won by 165 runs","caption")
+h=Divider()
+i=Text("Standout performances","h2")
+j=Card([k])
+k=Column([l,m],"sm",padding=16)
+l=Text("India’s first-innings 462 set the match in control and created a large lead that Sri Lanka could not overcome.","body")
+m=Text("India’s all-round bowling effort restricted Sri Lanka to 284 in the first innings and 206 in the chase, sealing the win by a substantial margin.","body")
+</a2ui>

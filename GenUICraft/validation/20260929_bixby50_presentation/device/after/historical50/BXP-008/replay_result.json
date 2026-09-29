@@ -1,0 +1,50 @@
+{
+  "id": "BXP-008",
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "sourceRunId": "presentation_input_historical50",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "presentation_input_historical50/BXP-008/output.express",
+  "sourceExpressSha256": "a7202c92952f815f6fecc4e5042a069ca24355955bfbe93ceb8d3b0d795b663a",
+  "generatedDslRepairAccepted": true,
+  "repairKind": "GENERATED_DSL_REPAIR",
+  "repairDiagnostics": [
+    "Strict compile rejected output: Invalid GenUI Express: Unknown property 'Gap' for A2UI Express component 'Column'.",
+    "Normalized a hybrid Table columns object whose first key exactly repeated its first label.",
+    "Canonicalized property 'Gap' to 'gap'.",
+    "Normalized invalid gap value '铺' to 'md'.",
+    "Normalized invalid gap value 'sma' to 'md'.",
+    "Recovered 0 generated state assignment(s), including 0 damaged assignment(s) with complete literal values.",
+    "Materialized all 0 recovered state field(s), preserving row order, repeated rows, and generated values.",
+    "Combined 5 valid generated component call(s) with recovered state; inspected 5 damaged or state-bound call(s) for additional readable fragments.",
+    "Best-effort generated-output recovery; unresolved structure is not a complete or source-verified answer. Source text was not used."
+  ],
+  "sourceIntegrityEvaluated": true,
+  "sourceIntegrityAccepted": false,
+  "sourceIntegrityFailure": "Strict compile rejected output: Invalid GenUI Express: Unknown property 'Gap' for A2UI Express component 'Column'. Generated repair candidate 1 (GENERATED_DSL) applied: Normalized a hybrid Table columns object whose first key exactly repeated its first label.; Canonicalized property 'Gap' to 'gap'.; Normalized invalid gap value '铺' to 'md'.; Normalized invalid gap value 'sma' to 'md'.; Recovered 0 generated state assignment(s), including 0 damaged assignment(s) with complete literal values.; Materialized all 0 recovered state field(s), preserving row order, repeated rows, and generated values.; Combined 5 valid generated component call(s) with recovered state; inspected 5 damaged or state-bound call(s) for additional readable fragments.; Best-effort generated-output recovery; unresolved structure is not a complete or source-verified answer. Source text was not used. Generated repair candidate 1 failed mechanical source integrity: Missing citation markers: [[2], [4], [5]]; Missing or changed numeric facts (including signs/units): [₹1, 200, 6:30, 11:30, 2:00, 8:00, 12:00, 2:30, 7:00, 12:30, 4:00, 9:30, 6:00, 3:00]; Missing source wording: [breakfast, restaurant, neighborhood, signature, dish, approx, cost, per, person, opening, hours, basavanagudi, gandhi, bazaar, south, indian, classics, widely, known, for, its, crisp, dosas, 1, 200]; Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+  "recoveredExpressSha256": "9e20c79d68920733cb9b5ee4f298d2d21a2934fad5d9a4e2e73e10baa897e97f",
+  "recoveredJsonSha256": "3583d61c375a3217174c6703b7d68c4086d62cdc33a5994481ff0c89b37301a5",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 5
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 5
+    }
+  ],
+  "verticalSwipes": 1,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 1927
+}

@@ -1,0 +1,16 @@
+{
+  "rawOutputsCompared": 77,
+  "rawBytesUnchanged": true,
+  "allAfterReceiptsMatchFinalApk": true,
+  "newlyReachableTextComponents": 44,
+  "previouslyReachableTextComponentsLost": 0,
+  "gallerySections": 77,
+  "galleryLocalLinksVerified": true,
+  "historicalChartCoverageWarningResolved": true,
+  "remainingCoverageWarnings": [
+    "r64_fp32_off/BXP-001: merged weather-card column labels",
+    "r64_fp32_on/BXP-001: merged weather-card column labels"
+  ],
+  "finalDiagnostics": "diagnostics/20260929_211212/summary.md",
+  "fatalExceptionNoSuchMethodErrorOrPackageAnrMatches": 0
+}

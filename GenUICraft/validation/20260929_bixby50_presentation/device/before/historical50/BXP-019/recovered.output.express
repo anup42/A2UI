@@ -1,0 +1,13 @@
+<a2ui>
+root=Column([a,d,e,f,g,h,i,j],"md")
+a=Column([b,c],"md")
+b=Table(columns=["game","age","coop","players","price","image"],rows=[["It Takes","3+","Online co-op; Friend’s Pass supports inviting a friend","2","₹2,99; SteamDB shows ₹699 on a past promotion [1][21][40]","[21]"],["Unravel Two","13+","Local co-op; also playable solo","2","₹1,199; SteamDB shows ₹299 on a past promotion [2][293][3]","[293]},{game:"]],title="Game data rows",domain="generic",preferredPresentation="cards")
+c=Table(columns=["fit","game","details","image"],rows=[["Best pure two-player co-op","It Takes","with full teamwork focus and free Friend’s Pass access for a second player[11]","[11]"],["Best relaxed local co-op","Unravel Two","which is family-friendly and works well on one screen[9]","[99]"],["Best larger group party game","Overcooked! 2","especially if you want chaotic family sessions for up to four players[477]","[4777]"]],title="Best fit rows",domain="generic",preferredPresentation="cards")
+d=Text("Family-friendly co-op picks","sage1")
+e=Text("Best fit","sage")
+f=Text("Best pure two-player co-coop","sm")
+g=Text("It Takes, with full teamwork focus and free Friend’s Pass access for a second player[111]","sm")
+h=Text("Best relaxed local co-coop","sage")
+i=Text("Best larger group party game","sage")
+j=Text("Overcooked! 2","sm")
+</a2ui>

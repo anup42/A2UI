@@ -1,0 +1,40 @@
+{
+  "id": "BXP-004",
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "sourceRunId": "presentation_input_r64_fp32_off",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "presentation_input_r64_fp32_off/BXP-004/output.express",
+  "sourceExpressSha256": "22dd1cca5d0c6adfb5ce4b21bc173df11994fda4fe60a536cfb5e8951889f277",
+  "generatedDslRepairAccepted": true,
+  "repairKind": "NONE",
+  "repairDiagnostics": [],
+  "sourceIntegrityEvaluated": true,
+  "sourceIntegrityAccepted": false,
+  "sourceIntegrityFailure": "Strictly compiled generated document failed mechanical source integrity: Conversion must not hide source content in unreachable elements: [n]; Missing citation markers: [[2], [11], [5], [6], [13], [3], [4], [7], [1], [9]]; Missing source wording: [and, or, the, checked, excess, on, route, fare, be, can, exact, pricing, vary, by, booking, channel, so, rules, ticket, page, should, before, travel]; Visible source wording order or multiplicity changed. Generated repair candidate 1 (STRUCTURAL) applied:  Generated repair candidate 1 failed mechanical source integrity: Conversion must not hide source content in unreachable elements: [n]; Missing citation markers: [[2], [11], [5], [6], [13], [3], [4], [7], [1], [9]]; Missing source wording: [and, or, the, checked, excess, on, route, fare, be, can, exact, pricing, vary, by, booking, channel, so, rules, ticket, page, should, before, travel]; Visible source wording order or multiplicity changed. Generated repair candidate 2 (GENERATED_DSL) applied: Attached previously unreachable generated component 'n' to root.; Recovered a complete generated DSL graph without source fallback. Generated repair candidate 2 failed mechanical source integrity: Missing citation markers: [[2], [11], [5], [6], [13], [3], [4], [7], [1], [9]] Generated repair candidate 3 (GENERATED_DSL) applied: Recovered 0 generated state assignment(s), including 0 damaged assignment(s) with complete literal values.; Materialized all 0 recovered state field(s), preserving row order, repeated rows, and generated values.; Combined 14 valid generated component call(s) with recovered state; inspected 1 damaged or state-bound call(s) for additional readable fragments.; Best-effort generated-output recovery; unresolved structure is not a complete or source-verified answer. Source text was not used. Generated repair candidate 3 failed mechanical source integrity: Missing citation markers: [[2], [11], [5], [6], [13], [3], [4], [7], [1], [9]] No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+  "recoveredExpressSha256": "e5e5bd7765b46b58c017d4d82fb2d15b993f85e1cd86420906ed9d83f2347adc",
+  "recoveredJsonSha256": "07843a363b1846474180adfa6b72f3a032216e682335c1158edd550fd27182dc",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 13
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 13
+    }
+  ],
+  "verticalSwipes": 1,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 2064
+}

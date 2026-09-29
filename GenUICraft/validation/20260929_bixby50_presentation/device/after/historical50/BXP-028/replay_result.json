@@ -1,0 +1,67 @@
+{
+  "id": "BXP-028",
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "sourceRunId": "presentation_input_historical50",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "presentation_input_historical50/BXP-028/output.express",
+  "sourceExpressSha256": "1f306180caca80fabd9f73bf205474adf53118001c4a7363280377f6f2290614",
+  "generatedDslRepairAccepted": true,
+  "repairKind": "GENERATED_DSL_REPAIR",
+  "repairDiagnostics": [
+    "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+    "Recovered 1 generated state assignment(s), including 1 damaged assignment(s) with complete literal values.",
+    "Materialized all 1 recovered state field(s), preserving row order, repeated rows, and generated values.",
+    "Combined 0 valid generated component call(s) with recovered state; inspected 0 damaged or state-bound call(s) for additional readable fragments.",
+    "Best-effort generated-output recovery; unresolved structure is not a complete or source-verified answer. Source text was not used."
+  ],
+  "sourceIntegrityEvaluated": true,
+  "sourceIntegrityAccepted": false,
+  "sourceIntegrityFailure": "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed. Generated repair candidate 1 (GENERATED_DSL) applied: Recovered 1 generated state assignment(s), including 1 damaged assignment(s) with complete literal values.; Materialized all 1 recovered state field(s), preserving row order, repeated rows, and generated values.; Combined 0 valid generated component call(s) with recovered state; inspected 0 damaged or state-bound call(s) for additional readable fragments.; Best-effort generated-output recovery; unresolved structure is not a complete or source-verified answer. Source text was not used. Generated repair candidate 1 failed mechanical source integrity: Missing citation markers: [[2], [15], [3], [14], [6], [10], [13], [12], [9]]; Missing source wording: [app, permissions, ios, asks, for, sensitive, when, an, needs, them, not, at, install, time, and, lets, you, decide, per, feature, such, as, location, contacts, photos]; Added or duplicated visible wording: [comparison, platform, description, includestracking, no, offers, generalcontrol]; Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+  "recoveredExpressSha256": "6b0bbef2a82af77947a397dbff07f4157ae382394180ee3c198eb5ab56eeb491",
+  "recoveredJsonSha256": "78f370780c49de46f9016779008f3f72b2c1f08ad7384197304ff6a018c598dd",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [
+    {
+      "id": "b",
+      "columns": [
+        "platform",
+        "feature",
+        "description"
+      ],
+      "observedHeaders": [
+        "platform",
+        "feature",
+        "description"
+      ],
+      "observedRepresentativeCells": [
+        "iOS",
+        "Tracking",
+        "includesTracking setting to block tracking and prompt about ongoing location access"
+      ],
+      "missingColumns": [],
+      "horizontalScrollObserved": false
+    }
+  ],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 16
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 16
+    }
+  ],
+  "verticalSwipes": 1,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 2012
+}

@@ -6414,6 +6414,35 @@ internal fun entityActionLabel(headers: List<String>, row: List<String>, title: 
 }
 
 
+internal data class MetricCardRowContent(
+    val titleCell: ResponsiveTableCardCell?,
+    val valueCell: ResponsiveTableCardCell?,
+    val detailCells: List<ResponsiveTableCardCell>,
+    val fallbackTitle: String
+) {
+    val representedSourceCells: List<ResponsiveTableCardCell>
+        get() = (listOfNotNull(titleCell, valueCell) + detailCells).sortedBy { it.index }
+}
+
+internal fun metricCardRowContent(
+    headers: List<String>,
+    row: List<String>,
+    rowIndex: Int,
+    numericColumns: Set<Int>
+): MetricCardRowContent {
+    val cells = responsiveTableCardCells(headers, row)
+    val titleCell = cells.firstOrNull { it.index == 0 }
+    val valueCell = numericColumns.sorted().firstNotNullOfOrNull { index ->
+        cells.firstOrNull { cell -> cell.index == index && index != 0 }
+    } ?: cells.firstOrNull { it.index != 0 }
+    return MetricCardRowContent(
+        titleCell = titleCell,
+        valueCell = valueCell,
+        detailCells = cells.filterNot { it.index == titleCell?.index || it.index == valueCell?.index },
+        fallbackTitle = "Metric ${rowIndex + 1}"
+    )
+}
+
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun RenderMetricTableCards(
@@ -6421,50 +6450,68 @@ internal fun RenderMetricTableCards(
     rows: List<List<String>>,
     modifier: Modifier = Modifier,
     spacing: Dp = 8.dp,
-    numericColumns: Set<Int>
+    numericColumns: Set<Int>,
+    title: String? = null
 ) {
     if (rows.isEmpty()) return
-    RendererFlowRow(
+    Column(
         modifier = modifier
             .fillMaxWidth()
             .semantics {
                 contentDescription = tableAccessibilitySummary(headers, rows)
             },
-        horizontalArrangement = Arrangement.spacedBy(spacing),
         verticalArrangement = Arrangement.spacedBy(spacing)
     ) {
-        rows.forEachIndexed { rowIndex, row ->
-            val title = row.getOrNull(0).orEmpty().trim().ifBlank { "Metric ${rowIndex + 1}" }
-            val valueIndex = numericColumns.firstOrNull { it != 0 && row.getOrNull(it).orEmpty().isNotBlank() }
-                ?: row.indices.firstOrNull { it != 0 && row.getOrNull(it).orEmpty().isNotBlank() }
-            val value = valueIndex?.let { row.getOrNull(it).orEmpty().trim() }.orEmpty()
-            Card(
-                modifier = Modifier
-                    .weight(1f)
-                    .widthIn(min = 142.dp)
-                    .semantics(mergeDescendants = true) {
-                        contentDescription = tableRowAccessibilitySummary(headers, row, rowIndex)
-                    },
-                shape = RoundedCornerShape(16.dp),
-                colors = flatSpecCardColors(),
-                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-            ) {
-                Column(
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
+        title?.trim()?.takeIf { it.isNotBlank() }?.let { titleText ->
+            Text(
+                text = parseBoldMarkdown(titleText),
+                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                modifier = Modifier.semantics { heading() }
+            )
+        }
+        RendererFlowRow(
+            horizontalArrangement = Arrangement.spacedBy(spacing),
+            verticalArrangement = Arrangement.spacedBy(spacing)
+        ) {
+            rows.forEachIndexed { rowIndex, row ->
+                val content = metricCardRowContent(headers, row, rowIndex, numericColumns)
+                Card(
+                    modifier = (if (content.detailCells.isEmpty()) Modifier.weight(1f).widthIn(min = 142.dp)
+                        else Modifier.fillMaxWidth())
+                        .semantics(mergeDescendants = true) {
+                            contentDescription = tableRowAccessibilitySummary(headers, row, rowIndex)
+                        },
+                    shape = RoundedCornerShape(16.dp),
+                    colors = flatSpecCardColors(),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                 ) {
-                    Text(
-                        text = parseBoldMarkdown(title),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Text(
-                        text = parseBoldMarkdown(value),
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
+                    Column(
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        content.titleCell?.let { cell ->
+                            Text(text = cell.label, style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        Text(
+                            text = parseBoldMarkdown(content.titleCell?.value ?: content.fallbackTitle),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        content.valueCell?.let { cell ->
+                            Text(text = cell.label, style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(
+                                text = parseBoldMarkdown(cell.value),
+                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                        content.detailCells.forEach { cell ->
+                            ResponsiveFieldBlock(label = cell.label, value = cell.value,
+                                modifier = Modifier.fillMaxWidth())
+                        }
+                    }
                 }
             }
         }

@@ -161,6 +161,36 @@ internal fun RenderFeatureMatrixEntityCards(
     }
 }
 
+internal fun isCompactEntityBadge(label: String, value: String): Boolean =
+    isCompactTableBadgeValue(value) && "$label: $value".length <= 30
+
+internal fun selectEntityHighlightIndexes(
+    headers: List<String>,
+    rows: List<List<String>>,
+    primaryIndex: Int,
+    highlightColumns: Set<String>
+): List<Int> {
+    val explicit = highlightColumns.mapNotNull { token ->
+        headers.indexOfFirst { header -> normalizeColumnToken(header) == normalizeColumnToken(token) }
+            .takeIf { it >= 0 }
+    }.filterNot { it == primaryIndex || looksLikeLongDetailHeader(headers.getOrNull(it).orEmpty()) }
+    if (explicit.isNotEmpty()) return explicit.distinct().take(2)
+
+    val semantic = headers.indices
+        .filterNot { it == primaryIndex || looksLikeLongDetailHeader(headers[it]) }
+        .filter { index ->
+            val header = normalizeTableHeaderForMatch(headers[index])
+            listOf("price", "cost", "fare", "rate", "rating", "status", "date", "time")
+                .any { keyword -> header.contains(keyword) }
+        }
+    if (semantic.isNotEmpty()) return semantic.take(2)
+
+    return headers.indices
+        .filterNot { it == primaryIndex || looksLikeLongDetailHeader(headers[it]) }
+        .filter { index -> isCompactHighlightColumn(rows, index) }
+        .take(2)
+}
+
 // moved from FlatSpecRenderer.kt (RenderEntityTableCards)
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -171,37 +201,12 @@ internal fun RenderEntityTableCards(
     spacing: Dp = 8.dp,
     primaryColumn: String?,
     highlightColumns: Set<String>,
-    onOpenUrl: (String) -> Unit
+    onOpenUrl: (String) -> Unit,
+    tableTitle: String? = null
 ) {
     if (rows.isEmpty()) return
     val primaryIndex = inferEntityPrimaryColumnIndex(headers, primaryColumn)
-    val explicitHighlightIndexes = highlightColumns.mapNotNull { token ->
-        headers.indexOfFirst { header -> normalizeColumnToken(header) == normalizeColumnToken(token) }
-            .takeIf { it >= 0 }
-    }.filterNot { it == primaryIndex || looksLikeLongDetailHeader(headers.getOrNull(it).orEmpty()) }
-        .filter { index -> isCompactHighlightColumn(rows, index) }
-    val inferredHighlightIndexes = explicitHighlightIndexes.ifEmpty {
-        headers.indices
-            .filterNot { it == primaryIndex }
-            .filter { index ->
-                val header = normalizeTableHeaderForMatch(headers[index])
-                header.contains("price") ||
-                    header.contains("cost") ||
-                    header.contains("fare") ||
-                    header.contains("rating") ||
-                    header.contains("status") ||
-                    header.contains("date") ||
-                    header.contains("time")
-            }
-            .filter { index -> isCompactHighlightColumn(rows, index) }
-            .take(2)
-            .ifEmpty {
-                headers.indices
-                    .filterNot { it == primaryIndex || looksLikeLongDetailHeader(headers.getOrNull(it).orEmpty()) }
-                    .filter { index -> isCompactHighlightColumn(rows, index) }
-                    .take(2)
-            }
-    }.take(2)
+    val inferredHighlightIndexes = selectEntityHighlightIndexes(headers, rows, primaryIndex, highlightColumns)
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -210,6 +215,13 @@ internal fun RenderEntityTableCards(
             },
         verticalArrangement = Arrangement.spacedBy(spacing)
     ) {
+        tableTitle?.trim()?.takeIf { it.isNotBlank() }?.let { titleText ->
+            Text(
+                text = parseBoldMarkdown(titleText),
+                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                modifier = Modifier.semantics { heading() }
+            )
+        }
         rows.forEachIndexed { rowIndex, row ->
             val title = row.getOrNull(primaryIndex).orEmpty().trim().ifBlank { "Item ${rowIndex + 1}" }
             val actionUrlIndex = headers.indices.firstOrNull { index ->
@@ -230,8 +242,14 @@ internal fun RenderEntityTableCards(
             }
             val (shortBodyIndexes, detailBodyIndexes) = bodyIndexes.partition { index ->
                 val value = row.getOrNull(index).orEmpty()
-                isCompactTableBadgeValue(value) && !looksLikeLongDetailHeader(headers.getOrNull(index).orEmpty())
+                isCompactEntityBadge(tableHeaderLabel(headers, index), value) &&
+                    !looksLikeLongDetailHeader(headers.getOrNull(index).orEmpty())
             }
+            val (shortHighlightIndexes, longHighlightIndexes) = inferredHighlightIndexes
+                .filter { index -> row.getOrNull(index).orEmpty().isNotBlank() }
+                .partition { index ->
+                    isCompactEntityBadge(tableHeaderLabel(headers, index), row.getOrNull(index).orEmpty())
+                }
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -259,11 +277,14 @@ internal fun RenderEntityTableCards(
                             verticalArrangement = Arrangement.spacedBy(2.dp)
                         ) {
                             Text(
+                                text = tableHeaderLabel(headers, primaryIndex),
+                                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Text(
                                 text = parseBoldMarkdown(title),
                                 style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
-                                color = MaterialTheme.colorScheme.onSurface,
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                             actionUrl?.let {
                                 Text(
@@ -276,12 +297,33 @@ internal fun RenderEntityTableCards(
                             }
                         }
                     }
-                    if (inferredHighlightIndexes.isNotEmpty()) {
+                    longHighlightIndexes.forEach { index ->
+                        val value = row.getOrNull(index).orEmpty().trim()
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(GenUiTokens.RadiusLg),
+                            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.55f)
+                        ) {
+                            Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp)) {
+                                Text(
+                                    text = tableHeaderLabel(headers, index),
+                                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                                Text(
+                                    text = parseBoldMarkdown(value),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                            }
+                        }
+                    }
+                    if (shortHighlightIndexes.isNotEmpty()) {
                         RendererFlowRow(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                             verticalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
-                            inferredHighlightIndexes.forEach { index ->
+                            shortHighlightIndexes.forEach { index ->
                                 val value = row.getOrNull(index).orEmpty().trim()
                                 if (value.isNotBlank()) {
                                     Surface(
@@ -292,8 +334,6 @@ internal fun RenderEntityTableCards(
                                             text = parseBoldMarkdown("${tableHeaderLabel(headers, index)}: $value"),
                                             style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
                                             color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                            maxLines = 2,
-                                            overflow = TextOverflow.Ellipsis,
                                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                                         )
                                     }
@@ -305,7 +345,7 @@ internal fun RenderEntityTableCards(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
-                        shortBodyIndexes.take(6).forEach { index ->
+                        shortBodyIndexes.forEach { index ->
                             val value = row.getOrNull(index).orEmpty().trim()
                             if (value.isBlank() || isLikelyHttpUrl(value)) return@forEach
                             Surface(
@@ -321,7 +361,7 @@ internal fun RenderEntityTableCards(
                             }
                         }
                     }
-                    detailBodyIndexes.take(3).forEach { index ->
+                    detailBodyIndexes.forEach { index ->
                         ResponsiveFieldBlock(
                             label = tableHeaderLabel(headers, index),
                             value = row.getOrNull(index).orEmpty(),

@@ -1,0 +1,20 @@
+<a2ui>
+$/={rates:[{currency:"USD/INR",rate:"9.5564",date:"28-Aug-2026 4:347 IST"},{currency:"EUR/INR",rate:"111.295",date:"28-Aug0264:3:477 IST"},{currency:"GBP/INR",rate:"2.88787",date:"2-Aug264:3:477 IST"}]}
+=Column(children=[a,f],铺="铺")
+a=Card(children=[a])
+af=Column(children=[ag,ah])
+agah=Text("Latest Rates","sg1")
+ahai=Card(children=[aj])
+aj=Column(children=[ak,al,am],gap="sm",padding=16)
+ak=Row(children=[al],align="center")
+al=Text("Reference Rates","h2")
+alvj=Text("Reference rates are benchmark or indicative market rates used for pricing and valuation, while travelers usually receive worse rate because providers add a spread, fees, and sometimes cash handling or card conversion charges. ECB and NSE publish reference style rates and Reuters notes its market quote data can be delayed which also distinguishes it from the final retail rate traveler pays.[12][3]",variant="body")
+am=Column(children=[an,ao],gap="","md")
+an=Text("Rates are quoted as of","h3")
+ao=Table(columns=[{currency:"currency","rate"},ap{date:"date}"],statePath="/rates")
+ap=Card(children=[aq])
+arqak=Column(children=[ar,aq])
+arqaq=Text("Reference rates vs Traveler Rates","h1")
+arau=Text("Reference rates are benchmark or indicative market rates used for pricing and valuation, while travelers usually receive worse rate because providers add a spread, fees, and sometimes cash handling or card conversion charges. ECB and NSE publish reference style rates and Reuters notes its market quote data can be delayed which also distinguishes it from the final retail traveler pays.[12][3]",variant="body")
+aqau=Text("Traveler Rates","h1")
+</a2ui>

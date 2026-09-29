@@ -357,6 +357,7 @@ internal fun isComparisonFeatureHeader(label: String): Boolean {
 internal fun isComparisonEntityHeader(label: String): Boolean {
     if (label.isBlank()) return false
     val token = normalizeTableHeaderForMatch(label)
+    if (token in setOf("app", "apps", "bank", "banks")) return true
     val keywords = listOf(
         "model",
         "product",
@@ -372,6 +373,7 @@ internal fun isComparisonEntityHeader(label: String): Boolean {
         "site",
         "destination",
         "hotel",
+        "restaurant",
         "route",
         "airline",
         "project",

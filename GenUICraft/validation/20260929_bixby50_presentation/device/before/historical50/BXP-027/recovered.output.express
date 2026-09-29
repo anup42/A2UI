@@ -1,0 +1,6 @@
+<a2ui>
+root=Column([a],"md")
+a=Column([b,c],"md")
+b=Table(columns=["tip"],rows=[["If the message is unexpected, treat it as suspicious even if logo and wording look professional."]],title="Verification tips",domain="generic",preferredPresentation="cards")
+c=Table(columns=["tip"],rows=[["Report suspicious messages promptly; NCSC advises forwarding suspicious email and not clicking links in it, and CISA recommends reporting phishing so defenders can act quickly"]],title="Security after clicking tip",domain="generic",preferredPresentation="cards")
+</a2ui>

@@ -1,0 +1,23 @@
+<a2ui>
+root=Column([a,b,c,d,e,f,g],gap="md",padding=16)
+a=Text("Current Status","ન")
+b=Card(children=a)
+c=Text("I'm unable to verify live India pricing reliably for all three models right now, so I can't give a fully current under-₹5000 comparison with confidence.",variant="body")
+d=Card(children=e)
+e=Text("Closest Verified Options","ન")
+f=Table(columns=[{label:"Model","Price","ANC","PlaybackHours","TradeOff","ReviewNotes"}],statePath="/closest_options_table",domain="comparison",preferredPresentation="cards")
+$/closest_options_table=/closest_options_table
+g=Card(children=h)
+i=Text("Best Fit","ન")
+j=Column(k,Gap="sm")
+k=Row(m,align="center")
+m=Text("ANC Priority"," 小")
+n=Row(o,align=Icons.Tail,children=[p,q])
+p=Button("Realme Buds Air 8","•")
+q=Row(r,align=Icons.Tail,children=[s,t])
+s=Button("OnePlus Nord Buds 4","•")
+t=Button("Oppo Enco Buds3+","•")
+u=Column(v,paddingVertical=16)
+w=Text("Lowest Price","ન")
+x=Text("Oppo Enco Buds3+ is the value pick.",}{}
+</a2ui>

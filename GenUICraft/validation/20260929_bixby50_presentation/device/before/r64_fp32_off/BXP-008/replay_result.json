@@ -1,0 +1,88 @@
+{
+  "id": "BXP-008",
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "sourceRunId": "presentation_input_r64_fp32_off",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "presentation_input_r64_fp32_off/BXP-008/output.express",
+  "sourceExpressSha256": "7912a110369ee05b2c18e1dcb94939a3698b3661d8d559b738ef8a0ba4e83715",
+  "generatedDslRepairAccepted": true,
+  "repairKind": "GENERATED_DSL_REPAIR",
+  "repairDiagnostics": [
+    "Strict compile rejected output: Invalid GenUI Express: Element 'root' references missing 'd'.",
+    "Recovered 1 generated state assignment(s), including 0 damaged assignment(s) with complete literal values.",
+    "Materialized all 1 recovered state field(s), preserving row order, repeated rows, and generated values.",
+    "Combined 2 valid generated component call(s) with recovered state; inspected 2 damaged or state-bound call(s) for additional readable fragments.",
+    "Best-effort generated-output recovery; unresolved structure is not a complete or source-verified answer. Source text was not used."
+  ],
+  "sourceIntegrityEvaluated": true,
+  "sourceIntegrityAccepted": false,
+  "sourceIntegrityFailure": "Strict compile rejected output: Invalid GenUI Express: Element 'root' references missing 'd'. Generated repair candidate 1 (GENERATED_DSL) applied: Recovered 1 generated state assignment(s), including 0 damaged assignment(s) with complete literal values.; Materialized all 1 recovered state field(s), preserving row order, repeated rows, and generated values.; Combined 2 valid generated component call(s) with recovered state; inspected 2 damaged or state-bound call(s) for additional readable fragments.; Best-effort generated-output recovery; unresolved structure is not a complete or source-verified answer. Source text was not used. Generated repair candidate 1 failed mechanical source integrity: Missing source wording: [dish, approx, per, person, opening]; Added or duplicated visible wording: [restaurants]; Visible source wording order or multiplicity changed. Generated repair candidate 2 (GENERATED_DSL) applied: Removed dangling child 'd' from 'root'.; Recovered a complete generated DSL graph without source fallback. Generated repair candidate 2 failed mechanical source integrity: Conversion must use literal content, without generated state.; Conversion must use literal source content.; Missing citation markers: [[2], [4], [5]]; Missing or changed numeric facts (including signs/units): [₹1, 200, 6:30, 11:30, 2:00, 8:00, 12:00, 2:30, 7:00, 12:30, 4:00, 9:30, 6:00, 3:00]; Missing source wording: [breakfast, central, vidyarthi, bhavan, basavanagudi, gandhi, bazaar, south, indian, classics, widely, known, for, its, crisp, dosas, 1, 200, 6, 30am, 11, 2, 00pm, 8, on]; Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+  "recoveredExpressSha256": "ced686a90f347a45a15a33573c5eb1fa0b6f88fbade0967441d41a1442e95ec0",
+  "recoveredJsonSha256": "5b67448d58abc64a8ed03fd774958ccb1b08331bfcd10b95fc7adfccf0ee689c",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [
+    {
+      "id": "b",
+      "columns": [
+        "restaurant",
+        "neighborhood",
+        "signature",
+        "cost",
+        "hours"
+      ],
+      "observedHeaders": [
+        "restaurant",
+        "neighborhood",
+        "signature",
+        "cost",
+        "hours"
+      ],
+      "observedRepresentativeCells": [
+        "Vidyarthi Bhavan",
+        "Basavanagudi (Gandhi Bazaar)",
+        "South Indian breakfast classics; widely known for its crisp dosas",
+        "₹1–200",
+        "6:30am–11:30am, 2:00pm–8:00pm on Mon–Thu; closed Fri; 6:30am–12:00pm, 2:30pm–8:00pm on Sat–Sun[2]"
+      ],
+      "missingColumns": [],
+      "horizontalScrollObserved": true
+    }
+  ],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 16
+    },
+    {
+      "name": "table_1_horizontal_1",
+      "screenshot": true,
+      "visibleTextNodes": 12
+    },
+    {
+      "name": "table_1_horizontal_2",
+      "screenshot": true,
+      "visibleTextNodes": 16
+    },
+    {
+      "name": "table_1_reset",
+      "screenshot": true,
+      "visibleTextNodes": 16
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 16
+    }
+  ],
+  "verticalSwipes": 1,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 6459
+}

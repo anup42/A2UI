@@ -1,0 +1,6 @@
+<a2ui>
+root=Column([a],"md")
+a=Column([b,c],"md")
+b=Table(columns=["Chemistry","Safety","Cost","Maturity"],rows=[["LFP","Strong; better thermal stability and lower-runaway risk than NMC","Lower; IEA says LFP packs were almost 3% cheaper per kWh than NMC in 2025, and more 40% cheaper on average in 205 data[21]","Mature; widely deployed in EVs and especially especially stationary storage"],["NMC","Good but weaker than LFP; high-nickel versions have greater thermal-risk sensitivity","Higher; IEA reports LFP is substantially cheaper per kWh than NMC","Very mature and mainstream in EVs, especially where range and weight matter most"]],title="Battery comparison",domain="comparison",preferredPresentation="cards")
+c=Table(columns=["category","description"],rows=[["EVs","NMC is best when maximum range lower pack weight and compact packaging are priorities, such as premium cars and long-range models.LFP is better for cost-sensitive EVs fleet vehicles, urban cars where safety durability and lower durability lower lifetime cost matter more than peak energy density."]],title="Best fit uses",domain="generic",preferredPresentation="cards")
+</a2ui>

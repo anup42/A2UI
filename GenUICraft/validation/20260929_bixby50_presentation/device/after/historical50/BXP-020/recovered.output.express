@@ -1,0 +1,17 @@
+<a2ui>
+root=Column([a,b,c,d,e,f,g,h,i,j,k,l,m,n],"md")
+a=Text("Next publicly scheduled ISRO launch","sg1")
+b=Text("Mission name:","label")
+c=Text("Cartos-3atB","chip")
+d=Text("Planned date:","label")
+e=Text("December 10, 2026","chip")
+f=Text("Launch vehicle:","label")
+g=Text("PSLV-XL","chip")
+h=Text("Payload purpose:","label")
+i=Text("Earth observation","chip")
+j=Text("Schedule uncertainty:","label")
+k=Text("The public schedule is presented as a launch listing rather than an official ISRO mission page, so the date should be treated as provisional until ISRO confirms it on its own launch list or another official update.","caption")
+l=Text("ISRO’s official launch missions page currently shows the latest completed launch as GSLV-F1/EOS-5 on September 4, 20206, and does not yet list a later upcoming mission in the visible entries, which is why the next launch date is being inferred from thirdparty schedule trackers.","caption")
+m=Text("GSL-F1/EOS-EOS-5","chip")
+n=Text("September 4, 20206","chip")
+</a2ui>

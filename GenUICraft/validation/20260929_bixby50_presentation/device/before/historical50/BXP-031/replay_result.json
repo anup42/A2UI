@@ -1,0 +1,78 @@
+{
+  "id": "BXP-031",
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "sourceRunId": "presentation_input_historical50",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "presentation_input_historical50/BXP-031/output.express",
+  "sourceExpressSha256": "550fafd211f3c54a9bc9ccdcc85ee110a627bfa5c6facfc243a30b41781c4886",
+  "generatedDslRepairAccepted": true,
+  "repairKind": "GENERATED_DSL_REPAIR",
+  "repairDiagnostics": [
+    "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+    "Normalized invalid gap value 'mz' to 'md'.",
+    "Recovered 1 generated state assignment(s), including 0 damaged assignment(s) with complete literal values.",
+    "Materialized all 1 recovered state field(s), preserving row order, repeated rows, and generated values.",
+    "Combined 0 valid generated component call(s) with recovered state; inspected 4 damaged or state-bound call(s) for additional readable fragments.",
+    "Best-effort generated-output recovery; unresolved structure is not a complete or source-verified answer. Source text was not used."
+  ],
+  "sourceIntegrityEvaluated": true,
+  "sourceIntegrityAccepted": false,
+  "sourceIntegrityFailure": "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed. Generated repair candidate 1 (GENERATED_DSL) applied: Normalized invalid gap value 'mz' to 'md'.; Recovered 1 generated state assignment(s), including 0 damaged assignment(s) with complete literal values.; Materialized all 1 recovered state field(s), preserving row order, repeated rows, and generated values.; Combined 0 valid generated component call(s) with recovered state; inspected 4 damaged or state-bound call(s) for additional readable fragments.; Best-effort generated-output recovery; unresolved structure is not a complete or source-verified answer. Source text was not used. Generated repair candidate 1 failed mechanical source integrity: Missing citation markers: [[1], [3], [4], [9], [13], [2], [5], [10], [14], [15]]; Missing source wording: [pre, purchase, document, checklist, for, an, apartment, in, karnataka, rera, registration, certificate, the, project, is, registered, which, verify, it, on, portal, name, or, number, sanctioned]; Added or duplicated visible wording: [checklists, description, verificationsources, era, authority, with, mp, planning, sub, registrar, s, office, system, bb, online, services]; Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+  "recoveredExpressSha256": "c23d3ad893b1074d78b74e8e6fe0e5b471c6b728790c8580f2b843cdd7bb646d",
+  "recoveredJsonSha256": "85e884ab90bf66177329bdc5ca7205ef5c877ad6b18f937a14079a38a66ea248",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [
+    {
+      "id": "b",
+      "columns": [
+        "title",
+        "description",
+        "verification_sources"
+      ],
+      "observedHeaders": [
+        "title",
+        "description",
+        "verification_sources"
+      ],
+      "observedRepresentativeCells": [
+        "ERA registration",
+        "Confirms project is registered under Karnataka RERA, required for qualifying apartment projects; verify on Karnataka RERA portal using project name or registration number.",
+        "Karnataka RERA portal"
+      ],
+      "missingColumns": [],
+      "horizontalScrollObserved": true
+    }
+  ],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 14
+    },
+    {
+      "name": "table_1_horizontal_1",
+      "screenshot": true,
+      "visibleTextNodes": 14
+    },
+    {
+      "name": "table_1_reset",
+      "screenshot": true,
+      "visibleTextNodes": 14
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 14
+    }
+  ],
+  "verticalSwipes": 1,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 4095
+}

@@ -1,0 +1,221 @@
+INSTRUMENTATION_STATUS: class=com.samsung.genuicraft.GenUiSdkBixby50Test
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+com.samsung.genuicraft.GenUiSdkBixby50Test:
+INSTRUMENTATION_STATUS: test=replaySavedBixbyCorpus
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: stream=BXP-001 generated_dsl_repair_no_fallback rendered (1/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-002 generated_dsl_repair_no_fallback rendered (2/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-003 generated_dsl_repair_no_fallback rendered (3/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-004 generated_dsl_repair_no_fallback rendered (4/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-005 generated_dsl_repair_no_fallback rendered (5/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-006 generated_dsl_repair_no_fallback rendered (6/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-007 generated_dsl_repair_no_fallback rendered (7/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-008 generated_dsl_repair_no_fallback rendered (8/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-009 generated_dsl_repair_no_fallback repair_rejected (9/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-010 generated_dsl_repair_no_fallback rendered (10/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-011 generated_dsl_repair_no_fallback rendered (11/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-012 generated_dsl_repair_no_fallback rendered (12/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-013 generated_dsl_repair_no_fallback replay_failure (13/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-014 generated_dsl_repair_no_fallback rendered (14/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-015 generated_dsl_repair_no_fallback rendered (15/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-016 generated_dsl_repair_no_fallback rendered (16/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-017 generated_dsl_repair_no_fallback rendered (17/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-018 generated_dsl_repair_no_fallback rendered (18/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-019 generated_dsl_repair_no_fallback rendered (19/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-020 generated_dsl_repair_no_fallback rendered (20/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-021 generated_dsl_repair_no_fallback rendered (21/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-022 generated_dsl_repair_no_fallback rendered (22/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-023 generated_dsl_repair_no_fallback rendered (23/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-024 generated_dsl_repair_no_fallback rendered (24/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-025 generated_dsl_repair_no_fallback rendered (25/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-026 generated_dsl_repair_no_fallback rendered (26/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-027 generated_dsl_repair_no_fallback replay_failure (27/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-028 generated_dsl_repair_no_fallback rendered (28/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-029 generated_dsl_repair_no_fallback rendered (29/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-030 generated_dsl_repair_no_fallback rendered (30/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-031 generated_dsl_repair_no_fallback rendered (31/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-032 generated_dsl_repair_no_fallback rendered (32/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-033 generated_dsl_repair_no_fallback rendered (33/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-034 generated_dsl_repair_no_fallback rendered (34/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-035 generated_dsl_repair_no_fallback rendered (35/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-036 generated_dsl_repair_no_fallback rendered (36/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-037 generated_dsl_repair_no_fallback rendered (37/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-038 generated_dsl_repair_no_fallback rendered (38/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-039 generated_dsl_repair_no_fallback repair_rejected (39/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-040 generated_dsl_repair_no_fallback rendered (40/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-041 generated_dsl_repair_no_fallback rendered (41/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-042 generated_dsl_repair_no_fallback rendered (42/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-043 generated_dsl_repair_no_fallback rendered (43/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-044 generated_dsl_repair_no_fallback rendered (44/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-045 generated_dsl_repair_no_fallback rendered (45/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-046 generated_dsl_repair_no_fallback rendered (46/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-047 generated_dsl_repair_no_fallback rendered (47/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-048 generated_dsl_repair_no_fallback rendered (48/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-049 generated_dsl_repair_no_fallback rendered (49/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-050 generated_dsl_repair_no_fallback rendered (50/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.samsung.genuicraft.GenUiSdkBixby50Test
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Accepted generated-DSL documents must render without renderer failures. expected:<0> but was:<2>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:120)
+	at com.samsung.genuicraft.GenUiSdkBixby50Test$replaySavedBixbyCorpus$1.invokeSuspend(GenUiSdkBixby50Test.kt:576)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:101)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:263)
+	at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:95)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:69)
+	at kotlinx.coroutines.BuildersKt.runBlocking(dex-id-bc8fdfedd4cd92cae8bfd7981a6ab85d179dfc5e:1)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking$default(Builders.kt:47)
+	at kotlinx.coroutines.BuildersKt.runBlocking$default(dex-id-bc8fdfedd4cd92cae8bfd7981a6ab85d179dfc5e:1)
+	at com.samsung.genuicraft.GenUiSdkBixby50Test.replaySavedBixbyCorpus(GenUiSdkBixby50Test.kt:177)
+
+INSTRUMENTATION_STATUS: stream=
+Error in replaySavedBixbyCorpus(com.samsung.genuicraft.GenUiSdkBixby50Test):
+java.lang.AssertionError: Accepted generated-DSL documents must render without renderer failures. expected:<0> but was:<2>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:120)
+	at com.samsung.genuicraft.GenUiSdkBixby50Test$replaySavedBixbyCorpus$1.invokeSuspend(GenUiSdkBixby50Test.kt:576)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:101)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:263)
+	at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:95)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:69)
+	at kotlinx.coroutines.BuildersKt.runBlocking(dex-id-bc8fdfedd4cd92cae8bfd7981a6ab85d179dfc5e:1)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking$default(Builders.kt:47)
+	at kotlinx.coroutines.BuildersKt.runBlocking$default(dex-id-bc8fdfedd4cd92cae8bfd7981a6ab85d179dfc5e:1)
+	at com.samsung.genuicraft.GenUiSdkBixby50Test.replaySavedBixbyCorpus(GenUiSdkBixby50Test.kt:177)
+
+INSTRUMENTATION_STATUS: test=replaySavedBixbyCorpus
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 197.503
+There was 1 failure:
+1) replaySavedBixbyCorpus(com.samsung.genuicraft.GenUiSdkBixby50Test)
+java.lang.AssertionError: Accepted generated-DSL documents must render without renderer failures. expected:<0> but was:<2>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:120)
+	at com.samsung.genuicraft.GenUiSdkBixby50Test$replaySavedBixbyCorpus$1.invokeSuspend(GenUiSdkBixby50Test.kt:576)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:101)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:263)
+	at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:95)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:69)
+	at kotlinx.coroutines.BuildersKt.runBlocking(dex-id-bc8fdfedd4cd92cae8bfd7981a6ab85d179dfc5e:1)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking$default(Builders.kt:47)
+	at kotlinx.coroutines.BuildersKt.runBlocking$default(dex-id-bc8fdfedd4cd92cae8bfd7981a6ab85d179dfc5e:1)
+	at com.samsung.genuicraft.GenUiSdkBixby50Test.replaySavedBixbyCorpus(GenUiSdkBixby50Test.kt:177)
+
+FAILURES!!!
+Tests run: 1,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1
