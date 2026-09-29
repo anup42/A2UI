@@ -1,0 +1,218 @@
+{
+  "archive": "Bixby-GenUICraft-Streaming-Controls-20260929.zip",
+  "sha256": "2b9439aa4bab481e11260c61a90c76a16fbb4bfe1988382395f1d032631879cc",
+  "entries": 40,
+  "all_entries_match_bixby_checkout": true,
+  "sdk_version": "0.5.5",
+  "sdk_changed_in_this_update": false,
+  "changed_files": [
+    "Renderer/src/main/assets/genuicraft/answer_slots.js",
+    "Renderer/src/main/java/com/samsung/android/bixby/agent/renderer/api/GenUiHostView.kt",
+    "Renderer/src/main/java/com/samsung/android/bixby/agent/renderer/internal/genuicraft/GenUiHostRegistry.kt",
+    "Renderer/src/main/java/com/samsung/android/bixby/agent/renderer/internal/genuicraft/GenUiIntegrationManager.kt",
+    "Renderer/src/main/res/values/genuicraft_inline.xml",
+    "docs/genuicraft_bixby_integration.md"
+  ],
+  "files": [
+    {
+      "path": "aars/genuicraft-maven/com/samsung/genuicraft/genuicraft/0.5.5/genuicraft-0.5.5-sources.jar",
+      "sha256": "fc09f22582d747b0af689a0b9e61bd023e4b1bedb9ea2cc6179e00ae586e12fa",
+      "changed_in_this_update": false
+    },
+    {
+      "path": "aars/genuicraft-maven/com/samsung/genuicraft/genuicraft/0.5.5/genuicraft-0.5.5-sources.jar.md5",
+      "sha256": "5842d89277f7aeb549ce91d4e5dd7338b489fe298952d962858d7a0221fbf773",
+      "changed_in_this_update": false
+    },
+    {
+      "path": "aars/genuicraft-maven/com/samsung/genuicraft/genuicraft/0.5.5/genuicraft-0.5.5-sources.jar.sha1",
+      "sha256": "74bd6122977a40a21a175a7e525330964928df82f0e8a5f1ef6fbff2093e28aa",
+      "changed_in_this_update": false
+    },
+    {
+      "path": "aars/genuicraft-maven/com/samsung/genuicraft/genuicraft/0.5.5/genuicraft-0.5.5-sources.jar.sha256",
+      "sha256": "d92648076ad1baace3b7e68c0a9c03b152ea3b97dbc30b35a90d004e91fa0887",
+      "changed_in_this_update": false
+    },
+    {
+      "path": "aars/genuicraft-maven/com/samsung/genuicraft/genuicraft/0.5.5/genuicraft-0.5.5-sources.jar.sha512",
+      "sha256": "8418af6b6287cbb2f66c67bc5bbffb3c460088b42bd7205010190b737584235e",
+      "changed_in_this_update": false
+    },
+    {
+      "path": "aars/genuicraft-maven/com/samsung/genuicraft/genuicraft/0.5.5/genuicraft-0.5.5.aar",
+      "sha256": "cbd86d49ec7f41ee1152e50e1ddaabfd30d2427f50072f235c4d4f40bcf0b918",
+      "changed_in_this_update": false
+    },
+    {
+      "path": "aars/genuicraft-maven/com/samsung/genuicraft/genuicraft/0.5.5/genuicraft-0.5.5.aar.md5",
+      "sha256": "e45d99d78b5ed2c99c89cd39d3cb609fceea7ddadba0493eda9e11b319db4bc5",
+      "changed_in_this_update": false
+    },
+    {
+      "path": "aars/genuicraft-maven/com/samsung/genuicraft/genuicraft/0.5.5/genuicraft-0.5.5.aar.sha1",
+      "sha256": "0d2f12717217804ccc7d604b9d9ad7141e8a73b45bc4cd972ad28d532a088bc4",
+      "changed_in_this_update": false
+    },
+    {
+      "path": "aars/genuicraft-maven/com/samsung/genuicraft/genuicraft/0.5.5/genuicraft-0.5.5.aar.sha256",
+      "sha256": "8511155ade5f5113b1cd6ffff5871af49b1a1817493edd97aa97b51f15bd3ed4",
+      "changed_in_this_update": false
+    },
+    {
+      "path": "aars/genuicraft-maven/com/samsung/genuicraft/genuicraft/0.5.5/genuicraft-0.5.5.aar.sha512",
+      "sha256": "fbf0e177acffb950604210f0695db0a164c0abf7942a9e8aab1ad05b4cf8b95a",
+      "changed_in_this_update": false
+    },
+    {
+      "path": "aars/genuicraft-maven/com/samsung/genuicraft/genuicraft/0.5.5/genuicraft-0.5.5.module",
+      "sha256": "5367efef6f8277c8af26befb4ba1e4534ebb3d17511c11f19e3369f1787dbcef",
+      "changed_in_this_update": false
+    },
+    {
+      "path": "aars/genuicraft-maven/com/samsung/genuicraft/genuicraft/0.5.5/genuicraft-0.5.5.module.md5",
+      "sha256": "8e33612035064adf142a2e94b4ee3da96b4db4d88a1ac97b633e1f141f25fe22",
+      "changed_in_this_update": false
+    },
+    {
+      "path": "aars/genuicraft-maven/com/samsung/genuicraft/genuicraft/0.5.5/genuicraft-0.5.5.module.sha1",
+      "sha256": "c7fbc9b1fb429c7b1cb9c707caa0800191ab33b5e959745168094be578542c24",
+      "changed_in_this_update": false
+    },
+    {
+      "path": "aars/genuicraft-maven/com/samsung/genuicraft/genuicraft/0.5.5/genuicraft-0.5.5.module.sha256",
+      "sha256": "01bf9b2f02fafcc18f84b4f889a15fa564f75fafe13678745e10040d062ba827",
+      "changed_in_this_update": false
+    },
+    {
+      "path": "aars/genuicraft-maven/com/samsung/genuicraft/genuicraft/0.5.5/genuicraft-0.5.5.module.sha512",
+      "sha256": "f4a02a8f61d4e14dca3f113f01829ba0e7f7d375cb0c353dab4e6b04833397a5",
+      "changed_in_this_update": false
+    },
+    {
+      "path": "aars/genuicraft-maven/com/samsung/genuicraft/genuicraft/0.5.5/genuicraft-0.5.5.pom",
+      "sha256": "e63f9bdf0e1b4576ae5528cf9b25636483a6c877e7040d48574e5b7943a194ac",
+      "changed_in_this_update": false
+    },
+    {
+      "path": "aars/genuicraft-maven/com/samsung/genuicraft/genuicraft/0.5.5/genuicraft-0.5.5.pom.md5",
+      "sha256": "edbc4c71a6ea202167ae8ba6d6569d66bd6077970d22d4ce601299713badf9ff",
+      "changed_in_this_update": false
+    },
+    {
+      "path": "aars/genuicraft-maven/com/samsung/genuicraft/genuicraft/0.5.5/genuicraft-0.5.5.pom.sha1",
+      "sha256": "5857fe8ea51acfaafaedb63449face92af8a9367634ba66092ba5341e4d278a0",
+      "changed_in_this_update": false
+    },
+    {
+      "path": "aars/genuicraft-maven/com/samsung/genuicraft/genuicraft/0.5.5/genuicraft-0.5.5.pom.sha256",
+      "sha256": "9569452e4ede5821c7a492f161270337b5e7693b5bebca3b7e4bc403a6b975dc",
+      "changed_in_this_update": false
+    },
+    {
+      "path": "aars/genuicraft-maven/com/samsung/genuicraft/genuicraft/0.5.5/genuicraft-0.5.5.pom.sha512",
+      "sha256": "04f280287672530756eae6f66bc5e909433d9bd4384214d7c7cb4197efff960f",
+      "changed_in_this_update": false
+    },
+    {
+      "path": "ConversationDomain/src/main/java/com/samsung/android/bixby/agent/conversation/internal/domain/ManageConversationUseCaseImpl.kt",
+      "sha256": "ee3df57ad2c47e963419fe4c4c17453d9127eb4b825367dc8a02eebecb634bdd",
+      "changed_in_this_update": false
+    },
+    {
+      "path": "ConversationDomain/src/test/java/com/samsung/android/bixby/agent/conversation/internal/domain/ManageConversationUseCaseImplTest.kt",
+      "sha256": "d19334da6894fab7a086be62b47720e26974d4da50f249e07f26c62792a36b91",
+      "changed_in_this_update": false
+    },
+    {
+      "path": "ConversationDomain/src/test/java/com/samsung/android/bixby/agent/conversation/internal/domain/ManageConversationUseCasePaginationTest.kt",
+      "sha256": "133072a6f86d5fcfbe9ce28b78cfbaaf6b386455a863a8c9981c6d14263291a1",
+      "changed_in_this_update": false
+    },
+    {
+      "path": "docs/genuicraft_bixby_integration.md",
+      "sha256": "cc76b7eded100aa98ff9c8f442397a198f23a1136d5bd3b0c96cfd9c148a1532",
+      "changed_in_this_update": true
+    },
+    {
+      "path": "MainUi/src/main/java/com/samsung/android/bixby/agent/mainui/widget/webview/ReusableWebView.kt",
+      "sha256": "803286c9e7e71d347f002498be50591033b6d1e26ebf9fc02decf5ecccab6292",
+      "changed_in_this_update": false
+    },
+    {
+      "path": "Renderer/build.gradle.kts",
+      "sha256": "ca1786790db8946d2af82895ea13c31a0a87ec33059eb7570f397daf76bb82d6",
+      "changed_in_this_update": false
+    },
+    {
+      "path": "Renderer/src/main/assets/genuicraft/answer_slots.js",
+      "sha256": "fe0469897089e24f7a04c2701bb3d8692164b93ae29b25a8d51bb7031dff3b1c",
+      "changed_in_this_update": true
+    },
+    {
+      "path": "Renderer/src/main/java/com/samsung/android/bixby/agent/renderer/api/GenUiAnswerHistory.kt",
+      "sha256": "4d6a4dee3e5fb819ee08f7849ddfc9eeff631726eeb8024c1a497d068896bb28",
+      "changed_in_this_update": false
+    },
+    {
+      "path": "Renderer/src/main/java/com/samsung/android/bixby/agent/renderer/api/GenUiHostView.kt",
+      "sha256": "377c4b14aac703698d6d1658bb0e193c1add7a6518ae58e649b6600b30f697bc",
+      "changed_in_this_update": true
+    },
+    {
+      "path": "Renderer/src/main/java/com/samsung/android/bixby/agent/renderer/internal/domain/state/RestoreHandler.kt",
+      "sha256": "a0c8d222b4972551ece8ef05fb7d1cea9688c66e02674909fa1f3d85f41ed842",
+      "changed_in_this_update": false
+    },
+    {
+      "path": "Renderer/src/main/java/com/samsung/android/bixby/agent/renderer/internal/genuicraft/GenUiAnswerStore.kt",
+      "sha256": "84c0231047c539bb630b1bfc9ccfcc5a193c18da0853a228654b2d066af40d93",
+      "changed_in_this_update": false
+    },
+    {
+      "path": "Renderer/src/main/java/com/samsung/android/bixby/agent/renderer/internal/genuicraft/GenUiHostRegistry.kt",
+      "sha256": "55432ea3ac4eb3e6bc4202148598d56b64052b9426ce1d15f3a9b3addc941e2a",
+      "changed_in_this_update": true
+    },
+    {
+      "path": "Renderer/src/main/java/com/samsung/android/bixby/agent/renderer/internal/genuicraft/GenUiInlineGeometry.kt",
+      "sha256": "b60a61fec644c2be41e5d2e3a83a3f664ec3f34aa7c96ff0071b89fb900b9a51",
+      "changed_in_this_update": false
+    },
+    {
+      "path": "Renderer/src/main/java/com/samsung/android/bixby/agent/renderer/internal/genuicraft/GenUiIntegrationManager.kt",
+      "sha256": "765161f1b18d084dc0798b92c227fa4ac324663c3164216cecdd869536581455",
+      "changed_in_this_update": true
+    },
+    {
+      "path": "Renderer/src/main/java/com/samsung/android/bixby/agent/renderer/internal/genuicraft/PerplexityStreamAccumulator.kt",
+      "sha256": "fdcd129cab82d7ab3afe8682e132a834560dcd3d3bf8bf8314c2f7d121e5b360",
+      "changed_in_this_update": false
+    },
+    {
+      "path": "Renderer/src/main/res/values/genuicraft_inline.xml",
+      "sha256": "6649f083a6bfce074882119ca554592abae3a44e9143692305a696d4f8072ad8",
+      "changed_in_this_update": true
+    },
+    {
+      "path": "Renderer/src/test/java/com/samsung/android/bixby/agent/renderer/api/GenUiHostMeasurePolicyTest.kt",
+      "sha256": "737b938a9f4f7401536b7fb5bd3d21053e712f0f3e3a0bb85cffbd4b715ed6d6",
+      "changed_in_this_update": false
+    },
+    {
+      "path": "Renderer/src/test/java/com/samsung/android/bixby/agent/renderer/internal/domain/state/RestoreHandlerTest.kt",
+      "sha256": "12edd70c219cdccd2611edafc0213bde8ffdbc7bd5901b66d180ab035232783a",
+      "changed_in_this_update": false
+    },
+    {
+      "path": "Renderer/src/test/java/com/samsung/android/bixby/agent/renderer/internal/genuicraft/GenUiHostAttachmentStateTest.kt",
+      "sha256": "75e3edaa9ad7449689c8aeea90cea41915692bcfbcc2751b3213bbd92c7a32dd",
+      "changed_in_this_update": false
+    },
+    {
+      "path": "Renderer/src/test/java/com/samsung/android/bixby/agent/renderer/internal/genuicraft/GenUiSourceParserTest.kt",
+      "sha256": "9784f0951b76f0e08b9756d741be9b217719af5c0022a6b769d6f1e45f9281f5",
+      "changed_in_this_update": false
+    }
+  ]
+}

@@ -59,6 +59,9 @@ existing scroll container and padding. Railway comparisons that supply travel
 time and fare without departure/station columns now use compact train rows.
 See the [embedded Bixby layout report](validation/20260929_expanded_bixby_layout/REPORT.md)
 for device measurements, compact train screenshots and merge-delivery details.
+The Bixby host also uses the existing SDK streaming observer for early selectors,
+button progress, live Express and measured native handoff; see the
+[streaming-controls validation](validation/20260929_bixby_streaming_controls/REPORT.md).
 
 Version 0.5.4 replaces experimental Compose `FlowRow` calls with an SDK-owned
 wrapping layout. This avoids the missing older `FlowRowOverflow` method signature

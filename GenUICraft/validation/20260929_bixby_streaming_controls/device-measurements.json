@@ -1,0 +1,313 @@
+{
+  "waiting-final": {
+    "native": [],
+    "web": {
+      "scrollY": 0,
+      "buttons": [
+        {
+          "text": "GenUICraft",
+          "pressed": "false",
+          "busy": "true",
+          "height": 32
+        },
+        {
+          "text": "Bixby",
+          "pressed": "true",
+          "busy": null,
+          "height": 32
+        }
+      ],
+      "originals": [
+        {
+          "display": "block",
+          "text": "Bixby response arriving\u2026Synthetic QA: Vande Bharat Express, Gatimaan Express and Shatabdi Express."
+        }
+      ],
+      "slots": [
+        {
+          "height": 0
+        }
+      ],
+      "progress": [
+        {
+          "text": "",
+          "display": "none",
+          "height": 0
+        }
+      ]
+    }
+  },
+  "streaming-final": {
+    "native": [],
+    "web": {
+      "scrollY": 0,
+      "buttons": [
+        {
+          "text": "GenUICraft",
+          "pressed": "true",
+          "busy": "true",
+          "height": 32
+        },
+        {
+          "text": "Bixby",
+          "pressed": "false",
+          "busy": null,
+          "height": 32
+        }
+      ],
+      "originals": [
+        {
+          "display": "none",
+          "text": "Bixby response arriving\u2026Synthetic QA: Vande Bharat Express, Gatimaan Express and Shatabdi Express."
+        }
+      ],
+      "slots": [
+        {
+          "height": 0
+        }
+      ],
+      "progress": [
+        {
+          "text": "<a2ui>\r\n$/={__genuicraft_sources:[{id:\"1\",url:\"https://enquiry.indianrail.gov.in/\",title:\"Indian Railways enquiry\",description:\"Synthetic QA source: fixture values only.\"}],train_schedule:[{train:\"Vande Bharat Express\",travel_time:\"1h 36m\",fare:\"Not listed\",train_number:\"20172\"},{train:\"Gatimaan Express\",travel_time:\"1h 40m\",fare:\"\u20b9605 (Chair Car) [1]\",train_number:\"12050\"},{train:\"Shatabdi Express\",travel_time:\"1h 55m\",fare:\"Illustrative fare\",train_number:\"12002\"}]}\r\nroot=Column([title,table,note],gap=\"sm\",padding=16)\r\ntitle=Text(\"Train Schedule\",\"h2\")",
+          "display": "block",
+          "height": 336
+        }
+      ]
+    }
+  },
+  "repairing": {
+    "native": [],
+    "web": {
+      "scrollY": 0,
+      "buttons": [
+        {
+          "text": "GenUICraft",
+          "pressed": "true",
+          "busy": "true",
+          "height": 32
+        },
+        {
+          "text": "Bixby",
+          "pressed": "false",
+          "busy": null,
+          "height": 32
+        }
+      ],
+      "originals": [
+        {
+          "display": "none",
+          "text": "Bixby response arriving\u2026Synthetic QA: Vande Bharat Express, Gatimaan Express and Shatabdi Express."
+        }
+      ],
+      "slots": [
+        {
+          "height": 0
+        }
+      ],
+      "progress": [
+        {
+          "text": "<a2ui>\r\n$/={__genuicraft_sources:[{id:\"1\",url:\"https://enquiry.indianrail.gov.in/\",title:\"Indian Railways enquiry\",description:\"Synthetic QA source: fixture values only.\"}],train_schedule:[{train:\"Vande Bharat Express\",travel_time:\"1h 36m\",fare:\"Not listed\",train_number:\"20172\"},{train:\"Gatimaan Express\",travel_time:\"1h 40m\",fare:\"\u20b9605 (Chair Car) [1]\",train_number:\"12050\"},{train:\"Shatabdi Express\",travel_time:\"1h 55m\",fare:\"Illustrative fare\",train_number:\"12002\"}]}\r\nroot=Column([title,table,note],gap=\"sm\",padding=16)\r\ntitle=Text(\"Train Schedule\",\"h2\")\r\ntable=Table(columns=[{key:\"train\",label:\"Train\"},{key:\"travel_time\",label:\"Travel Time\"},{key:\"fare\",label:\"Fare\"},{key:\"train_number\",label:\"Train Number\"}],statePath=\"/train_schedule\",domain=\"comparison\",preferredPresentation=\"cards\",primaryColumn=\"train\")\r\nnote=Text(\"End of synthetic railway fixture \u2022 not a new model generation or verified timetable.\",\"caption\")\r\n</a2ui>\r\n",
+          "display": "block",
+          "height": 600
+        }
+      ]
+    }
+  },
+  "rendered-final": {
+    "native": [
+      {
+        "width": 997,
+        "height": 912,
+        "visible": true,
+        "nestedScrollViews": 0
+      }
+    ],
+    "web": {
+      "scrollY": 0,
+      "buttons": [
+        {
+          "text": "GenUICraft",
+          "pressed": "true",
+          "busy": "false",
+          "height": 32
+        },
+        {
+          "text": "Bixby",
+          "pressed": "false",
+          "busy": null,
+          "height": 32
+        }
+      ],
+      "originals": [
+        {
+          "display": "none",
+          "text": "Bixby response arriving\u2026Synthetic QA: Vande Bharat Express, Gatimaan Express and Shatabdi Express."
+        }
+      ],
+      "slots": [
+        {
+          "height": 347.06549072265625
+        }
+      ],
+      "progress": [
+        {
+          "text": "<a2ui>\r\n$/={__genuicraft_sources:[{id:\"1\",url:\"https://enquiry.indianrail.gov.in/\",title:\"Indian Railways enquiry\",description:\"Synthetic QA source: fixture values only.\"}],train_schedule:[{train:\"Vande Bharat Express\",travel_time:\"1h 36m\",fare:\"Not listed\",train_number:\"20172\"},{train:\"Gatimaan Express\",travel_time:\"1h 40m\",fare:\"\u20b9605 (Chair Car) [1]\",train_number:\"12050\"},{train:\"Shatabdi Express\",travel_time:\"1h 55m\",fare:\"Illustrative fare\",train_number:\"12002\"}]}\r\nroot=Column([title,table,note],gap=\"sm\",padding=16)\r\ntitle=Text(\"Train Schedule\",\"h2\")\r\ntable=Table(columns=[{key:\"train\",label:\"Train\"},{key:\"travel_time\",label:\"Travel Time\"},{key:\"fare\",label:\"Fare\"},{key:\"train_number\",label:\"Train Number\"}],statePath=\"/train_schedule\",domain=\"comparison\",preferredPresentation=\"cards\",primaryColumn=\"train\")\r\nnote=Text(\"End of synthetic railway fixture \u2022 not a new model generation or verified timetable.\",\"caption\")\r\n</a2ui>\r\n",
+          "display": "block",
+          "height": 0
+        }
+      ]
+    }
+  },
+  "completed_bixby": {
+    "native": [],
+    "web": {
+      "scrollY": 0,
+      "buttons": [
+        {
+          "text": "GenUICraft",
+          "pressed": "false",
+          "busy": "false",
+          "height": 32
+        },
+        {
+          "text": "Bixby",
+          "pressed": "true",
+          "busy": null,
+          "height": 32
+        }
+      ],
+      "originals": [
+        {
+          "display": "block",
+          "text": "Bixby response arriving\u2026Synthetic QA: Vande Bharat Express, Gatimaan Express and Shatabdi Express."
+        }
+      ],
+      "slots": [
+        {
+          "height": 0
+        }
+      ],
+      "progress": [
+        {
+          "text": "<a2ui>\r\n$/={__genuicraft_sources:[{id:\"1\",url:\"https://enquiry.indianrail.gov.in/\",title:\"Indian Railways enquiry\",description:\"Synthetic QA source: fixture values only.\"}],train_schedule:[{train:\"Vande Bharat Express\",travel_time:\"1h 36m\",fare:\"Not listed\",train_number:\"20172\"},{train:\"Gatimaan Express\",travel_time:\"1h 40m\",fare:\"\u20b9605 (Chair Car) [1]\",train_number:\"12050\"},{train:\"Shatabdi Express\",travel_time:\"1h 55m\",fare:\"Illustrative fare\",train_number:\"12002\"}]}\r\nroot=Column([title,table,note],gap=\"sm\",padding=16)\r\ntitle=Text(\"Train Schedule\",\"h2\")\r\ntable=Table(columns=[{key:\"train\",label:\"Train\"},{key:\"travel_time\",label:\"Travel Time\"},{key:\"fare\",label:\"Fare\"},{key:\"train_number\",label:\"Train Number\"}],statePath=\"/train_schedule\",domain=\"comparison\",preferredPresentation=\"cards\",primaryColumn=\"train\")\r\nnote=Text(\"End of synthetic railway fixture \u2022 not a new model generation or verified timetable.\",\"caption\")\r\n</a2ui>\r\n",
+          "display": "block",
+          "height": 0
+        }
+      ]
+    }
+  },
+  "failed": {
+    "native": [],
+    "web": {
+      "scrollY": 0,
+      "buttons": [
+        {
+          "text": "GenUICraft",
+          "pressed": "false",
+          "busy": "false",
+          "height": 32
+        },
+        {
+          "text": "Bixby",
+          "pressed": "true",
+          "busy": null,
+          "height": 32
+        }
+      ],
+      "originals": [
+        {
+          "display": "block",
+          "text": "Bixby response arriving\u2026Synthetic QA: Vande Bharat Express, Gatimaan Express and Shatabdi Express."
+        }
+      ],
+      "slots": [
+        {
+          "height": 0
+        }
+      ],
+      "progress": [
+        {
+          "text": "",
+          "display": "none",
+          "height": 0
+        }
+      ]
+    }
+  },
+  "error_selected": {
+    "native": [],
+    "web": {
+      "scrollY": 0,
+      "buttons": [
+        {
+          "text": "GenUICraft",
+          "pressed": "true",
+          "busy": "false",
+          "height": 32
+        },
+        {
+          "text": "Bixby",
+          "pressed": "false",
+          "busy": null,
+          "height": 32
+        }
+      ],
+      "originals": [
+        {
+          "display": "block",
+          "text": "Bixby response arriving\u2026Synthetic QA: Vande Bharat Express, Gatimaan Express and Shatabdi Express."
+        }
+      ],
+      "slots": [
+        {
+          "height": 0
+        }
+      ],
+      "progress": [
+        {
+          "text": "",
+          "display": "none",
+          "height": 0
+        }
+      ]
+    }
+  },
+  "raw_parent_scroll": {
+    "native": [],
+    "web": {
+      "scrollY": 141.3333282470703,
+      "buttons": [
+        {
+          "text": "GenUICraft",
+          "pressed": "true",
+          "busy": "true",
+          "height": 32
+        },
+        {
+          "text": "Bixby",
+          "pressed": "false",
+          "busy": null,
+          "height": 32
+        }
+      ],
+      "originals": [
+        {
+          "display": "none",
+          "text": "Bixby response arriving\u2026Synthetic QA: Vande Bharat Express, Gatimaan Express and Shatabdi Express."
+        }
+      ],
+      "slots": [
+        {
+          "height": 0
+        }
+      ],
+      "progress": [
+        {
+          "text": "<a2ui>\r\n$/={__genuicraft_sources:[{id:\"1\",url:\"https://enquiry.indianrail.gov.in/\",title:\"Indian Railways enquiry\",description:\"Synthetic QA source: fixture values only.\"}],train_schedule:[{train:\"Vande Bharat Express\",travel_time:\"1h 36m\",fare:\"Not listed\",train_number:\"20172\"},{train:\"Gatimaan Express\",travel_time:\"1h 40m\",fare:\"\u20b9605 (Chair Car) [1]\",train_number:\"12050\"},{train:\"Shatabdi Express\",travel_time:\"1h 55m\",fare:\"Illustrative fare\",train_number:\"12002\"}]}\r\nroot=Column([title,table,note],gap=\"sm\",padding=16)\r\ntitle=Text(\"Train Schedule\",\"h2\")\r\ntable=Table(columns=[{key:\"train\",label:\"Train\"},{key:\"travel_time\",label:\"Travel Time\"},{key:\"fare\",label:\"Fare\"},{key:\"train_number\",label:\"Train Number\"}],statePath=\"/train_schedule\",domain=\"comparison\",preferredPresentation=\"cards\",primaryColumn=\"train\")\r\nnote=Text(\"End of synthetic railway fixture \u2022 not a new model generation or verified timetable.\",\"caption\")\r\n</a2ui>\r\n",
+          "display": "block",
+          "height": 600
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "total_passed": 34,
+  "total_failed": 0,
+  "jvm_suites": [
+    {
+      "name": "com.samsung.android.bixby.agent.renderer.internal.genuicraft.GenUiAnswerStoreHarnessTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "project": "qa_host"
+    },
+    {
+      "name": "com.samsung.android.bixby.agent.renderer.internal.genuicraft.InlineHostRegressionTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "project": "qa_host"
+    },
+    {
+      "name": "com.samsung.android.bixby.agent.renderer.internal.genuicraft.SourcesQaFixtureTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "project": "qa_host"
+    },
+    {
+      "name": "com.samsung.android.bixby.agent.renderer.internal.genuicraft.StreamingRegistryTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "project": "qa_host"
+    },
+    {
+      "name": "com.samsung.android.bixby.agent.renderer.internal.genuicraft.ManagerNullabilityTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "project": "manager_with_private_type_stubs"
+    }
+  ],
+  "javascript": {
+    "passed": 12,
+    "failed": 0,
+    "command": "node --test tmp/bixby_streaming_controls/tests/answer_slots.test.js"
+  },
+  "extracted_production_observer_callbacks": {
+    "passed": 3,
+    "failed": 0,
+    "command": "python tmp/bixby_streaming_controls/manager_tests/run_observer_tests.py"
+  },
+  "limitations": "Private Bixby DTOs use stand-ins in the manager harness. Observer tests execute the extracted production callback block. Full proprietary Bixby build not performed."
+}
