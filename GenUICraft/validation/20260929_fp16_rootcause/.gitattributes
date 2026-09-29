@@ -1,0 +1,6 @@
+# Preserve captured runtime/model output and exact-source patch guards byte for byte.
+*.cl -text -whitespace
+*.log -text -whitespace
+*.txt -text -whitespace
+# Unified diff context lines intentionally contain a leading space.
+*.patch -text -whitespace

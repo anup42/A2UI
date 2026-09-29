@@ -1,0 +1,519 @@
+INFO: [environment.cc:36] Creating LiteRT environment with options
+WARNING: [npu_registry.cc:34] NPU accelerator could not be loaded and registered: kLiteRtStatusErrorInvalidArgument.
+INFO: [accelerator_registry.cc:54] RegisterAccelerator: ptr=0xb400007a18e0d630, name=LiteRT GPU
+INFO: [gpu_registry.cc:87] Statically linked GPU accelerator registered.
+INFO: [accelerator_registry.cc:54] RegisterAccelerator: ptr=0xb400007a18e0f010, name=CpuAccelerator
+INFO: [cpu_registry.cc:75] XNNPACK CPU accelerator registered.
+INFO: [environment.cc:36] Creating LiteRT environment with options
+WARNING: [npu_registry.cc:34] NPU accelerator could not be loaded and registered: kLiteRtStatusErrorInvalidArgument.
+INFO: [accelerator_registry.cc:54] RegisterAccelerator: ptr=0xb400007a18e0f1f0, name=LiteRT GPU
+INFO: [gpu_registry.cc:87] Statically linked GPU accelerator registered.
+INFO: [accelerator_registry.cc:54] RegisterAccelerator: ptr=0xb400007a18e0ead0, name=CpuAccelerator
+INFO: [cpu_registry.cc:75] XNNPACK CPU accelerator registered.
+W0000 00:00:1790707772.172501   17488 litert_lm_loader.cc:291] Section not found: 	
+W0000 00:00:1790707772.172560   17488 litert_lm_loader.cc:291] Section not found: 	
+INFO: [magic_number_utils.cc:101] Loaded: num_subgraphs=976, num_signatures=4
+INFO: [magic_number_utils.cc:109]   signature=decode, subgraph_index=0, num_tensors=2711, num_inputs=35, num_outputs=32, num_ops=2072
+INFO: [magic_number_utils.cc:109]   signature=prefill_1024, subgraph_index=1, num_tensors=1462, num_inputs=35, num_outputs=30, num_ops=1111
+INFO: [magic_number_utils.cc:109]   signature=prefill_128, subgraph_index=2, num_tensors=1462, num_inputs=35, num_outputs=30, num_ops=1111
+INFO: [magic_number_utils.cc:109]   signature=verify, subgraph_index=3, num_tensors=2895, num_inputs=35, num_outputs=32, num_ops=2247
+INFO: [magic_number_utils.cc:113] Magic number configs: num_configs=1
+INFO: [magic_number_utils.cc:120]   config[0]: magic_number=32003, target_number=8192, signature_prefix=null
+INFO: [magic_number_utils.cc:536] 439 tensors of signature decode have been updated for magic number  32003 to target number 8192
+INFO: [magic_number_utils.cc:536] 271 tensors of signature prefill_1024 have been updated for magic number  32003 to target number 8192
+INFO: [magic_number_utils.cc:536] 270 tensors of signature prefill_128 have been updated for magic number  32003 to target number 8192
+INFO: [magic_number_utils.cc:536] 444 tensors of signature verify have been updated for magic number  32003 to target number 8192
+INFO: [compiled_model.cc:833] Flatbuffer model initialized directly from incoming litert model.
+INFO: Initialized TensorFlow Lite runtime.
+I0000 00:00:1790707772.214658   17488 delegate_opencl.cc:603] options->hint_waiting_for_completion: false
+I0000 00:00:1790707772.214787   17488 delegate_opencl.cc:605] options->kernel_batch_size: -1
+INFO: [environment.cc:47] Adding options to the existing LiteRT environment
+INFO: Loaded OpenCL library with dlopen.
+INFO: [gpu_environment.cc:220] Created OpenCL device from provided device id and platform id.
+INFO: [gpu_environment.cc:283] Reusing provided EGL environment.
+INFO: [gpu_environment.h:155] Created LiteRT GpuEnvironment.
+INFO: [environment.cc:47] Adding options to the existing LiteRT environment
+CL_TRACE source=1 bytes=3606 program=0xb4000078290fdf10 status=0
+CL_TRACE build program=0xb4000078290fdf10 options=
+CL_TRACE source=2 bytes=3031 program=0xb4000078290fd9d0 status=0
+CL_TRACE build program=0xb4000078290fd9d0 options=
+CL_TRACE source=3 bytes=2261 program=0xb4000078290fc590 status=0
+CL_TRACE build program=0xb4000078290fc590 options=
+CL_TRACE source=4 bytes=4273 program=0xb4000078290febd0 status=0
+CL_TRACE build program=0xb4000078290febd0 options=
+CL_TRACE source=5 bytes=5468 program=0xb400007829101f90 status=0
+CL_TRACE build program=0xb400007829101f90 options=
+I0000 00:00:1790707773.642131   17488 delegate_kernel.cc:330] Total 32 external tensors are used for delegate inputs and outputs
+I0000 00:00:1790707773.642798   17488 delegate_kernel.cc:906] Initializing OpenCL-based API from serialized data.
+CL_TRACE source=6 bytes=1024 program=0xb400007829100610 status=0
+CL_TRACE build program=0xb400007829100610 options=
+CL_PATCH applied key=caf855b93b8fb80a source=7
+CL_TRACE source=7 bytes=1266 program=0xb400007829102f50 status=0
+CL_TRACE build program=0xb400007829102f50 options=
+CL_PATCH applied key=343c69d546591c07 source=8
+CL_TRACE source=8 bytes=3360 program=0xb400007829102050 status=0
+CL_TRACE build program=0xb400007829102050 options=
+CL_PATCH applied key=56a4a42b5e01e5b6 source=9
+CL_TRACE source=9 bytes=2103 program=0xb400007829101510 status=0
+CL_TRACE build program=0xb400007829101510 options=
+CL_TRACE source=10 bytes=3204 program=0xb4000078291018d0 status=0
+CL_TRACE build program=0xb4000078291018d0 options=
+CL_TRACE source=11 bytes=12344 program=0xb4000078290fcf50 status=0
+CL_TRACE build program=0xb4000078290fcf50 options=
+CL_PATCH applied key=987a7eecd79a86bd source=12
+CL_TRACE source=12 bytes=3083 program=0xb400007829100d90 status=0
+CL_TRACE build program=0xb400007829100d90 options=
+CL_PATCH applied key=29b83cc88ad2b929 source=13
+CL_TRACE source=13 bytes=3361 program=0xb4000078291039d0 status=0
+CL_TRACE build program=0xb4000078291039d0 options=
+CL_PATCH applied key=637cd9b0303be7cf source=14
+CL_TRACE source=14 bytes=4239 program=0xb400007829104150 status=0
+CL_TRACE build program=0xb400007829104150 options=
+CL_TRACE source=15 bytes=2641 program=0xb4000078290ff110 status=0
+CL_TRACE build program=0xb4000078290ff110 options=
+CL_TRACE source=16 bytes=887 program=0xb400007829101a50 status=0
+CL_TRACE build program=0xb400007829101a50 options=
+CL_TRACE source=17 bytes=1124 program=0xb400007829101d50 status=0
+CL_TRACE build program=0xb400007829101d50 options=
+CL_TRACE source=18 bytes=1249 program=0xb400007829107510 status=0
+CL_TRACE build program=0xb400007829107510 options=
+CL_TRACE source=19 bytes=1282 program=0xb4000078290fe990 status=0
+CL_TRACE build program=0xb4000078290fe990 options=
+CL_TRACE source=20 bytes=1047 program=0xb400007829106910 status=0
+CL_TRACE build program=0xb400007829106910 options=
+CL_TRACE source=21 bytes=1119 program=0xb400007829104a50 status=0
+CL_TRACE build program=0xb400007829104a50 options=
+CL_TRACE source=22 bytes=1123 program=0xb400007829108410 status=0
+CL_TRACE build program=0xb400007829108410 options=
+CL_TRACE source=23 bytes=1387 program=0xb4000078291003d0 status=0
+CL_TRACE build program=0xb4000078291003d0 options=
+CL_TRACE source=24 bytes=1442 program=0xb4000078290fd190 status=0
+CL_TRACE build program=0xb4000078290fd190 options=
+CL_TRACE source=25 bytes=1123 program=0xb400007829105590 status=0
+CL_TRACE build program=0xb400007829105590 options=
+CL_TRACE source=26 bytes=1391 program=0xb400007829105110 status=0
+CL_TRACE build program=0xb400007829105110 options=
+CL_TRACE source=27 bytes=1644 program=0xb4000078291045d0 status=0
+CL_TRACE build program=0xb4000078291045d0 options=
+CL_TRACE source=28 bytes=2673 program=0xb400007829108350 status=0
+CL_TRACE build program=0xb400007829108350 options=
+CL_TRACE source=29 bytes=1325 program=0xb400007829101450 status=0
+CL_TRACE build program=0xb400007829101450 options=
+CL_TRACE source=30 bytes=1321 program=0xb400007829104090 status=0
+CL_TRACE build program=0xb400007829104090 options=
+CL_TRACE source=31 bytes=1516 program=0xb400007829102710 status=0
+CL_TRACE build program=0xb400007829102710 options=
+CL_TRACE source=32 bytes=7083 program=0xb4000078290fc950 status=0
+CL_TRACE build program=0xb4000078290fc950 options=
+CL_TRACE source=33 bytes=922 program=0xb4000078290ffb90 status=0
+CL_TRACE build program=0xb4000078290ffb90 options=
+CL_TRACE source=34 bytes=3064 program=0xb4000078291051d0 status=0
+CL_TRACE build program=0xb4000078291051d0 options=
+CL_TRACE source=35 bytes=1350 program=0xb4000078290ffdd0 status=0
+CL_TRACE build program=0xb4000078290ffdd0 options=
+CL_TRACE source=36 bytes=2664 program=0xb4000078290ffd10 status=0
+CL_TRACE build program=0xb4000078290ffd10 options=
+CL_TRACE source=37 bytes=11616 program=0xb4000078290feb10 status=0
+CL_TRACE build program=0xb4000078290feb10 options=
+CL_TRACE source=38 bytes=6963 program=0xb400007829106850 status=0
+CL_TRACE build program=0xb400007829106850 options=
+CL_TRACE source=39 bytes=3564 program=0xb400007829108950 status=0
+CL_TRACE build program=0xb400007829108950 options=
+CL_TRACE source=40 bytes=2318 program=0xb400007829100310 status=0
+CL_TRACE build program=0xb400007829100310 options=
+CL_PATCH applied key=5e53d8a31d3ef361 source=41
+CL_TRACE source=41 bytes=1664 program=0xb40000782910a8d0 status=0
+CL_TRACE build program=0xb40000782910a8d0 options=
+CL_PATCH applied key=569db777f2fe5240 source=42
+CL_TRACE source=42 bytes=3800 program=0xb400007829107090 status=0
+CL_TRACE build program=0xb400007829107090 options=
+CL_TRACE source=43 bytes=2912 program=0xb4000078290fc4d0 status=0
+CL_TRACE build program=0xb4000078290fc4d0 options=
+CL_PATCH applied key=0047c0407471e93b source=44
+CL_TRACE source=44 bytes=4270 program=0xb400007829101210 status=0
+CL_TRACE build program=0xb400007829101210 options=
+CL_PATCH applied key=53d3b8dd58692131 source=45
+CL_TRACE source=45 bytes=3795 program=0xb400007829106cd0 status=0
+CL_TRACE build program=0xb400007829106cd0 options=
+CL_PATCH applied key=22a41b07b6e73681 source=46
+CL_TRACE source=46 bytes=1544 program=0xb4000078290ff650 status=0
+CL_TRACE build program=0xb4000078290ff650 options=
+CL_PATCH applied key=feef1e3e6ac2bbea source=47
+CL_TRACE source=47 bytes=4976 program=0xb400007829106010 status=0
+CL_TRACE build program=0xb400007829106010 options=
+CL_PATCH applied key=cd57b3a763571007 source=48
+CL_TRACE source=48 bytes=3804 program=0xb400007829105050 status=0
+CL_TRACE build program=0xb400007829105050 options=
+CL_TRACE source=49 bytes=3065 program=0xb4000078291012d0 status=0
+CL_TRACE build program=0xb4000078291012d0 options=
+CL_PATCH applied key=8d8c19a9b7769912 source=50
+CL_TRACE source=50 bytes=3356 program=0xb400007829108650 status=0
+CL_TRACE build program=0xb400007829108650 options=
+CL_PATCH applied key=384a0a404d88da95 source=51
+CL_TRACE source=51 bytes=4239 program=0xb4000078291024d0 status=0
+CL_TRACE build program=0xb4000078291024d0 options=
+CL_TRACE source=52 bytes=2644 program=0xb400007829107e10 status=0
+CL_TRACE build program=0xb400007829107e10 options=
+CL_TRACE source=53 bytes=1443 program=0xb400007829107c90 status=0
+CL_TRACE build program=0xb400007829107c90 options=
+CL_TRACE source=54 bytes=1009 program=0xb400007829106fd0 status=0
+CL_TRACE build program=0xb400007829106fd0 options=
+CL_TRACE source=55 bytes=6963 program=0xb400007829101bd0 status=0
+CL_TRACE build program=0xb400007829101bd0 options=
+CL_PATCH applied key=6a367d94a1fae770 source=56
+CL_TRACE source=56 bytes=4227 program=0xb4000078290fed50 status=0
+CL_TRACE build program=0xb4000078290fed50 options=
+CL_PATCH applied key=d67371a940cdb410 source=57
+CL_TRACE source=57 bytes=3752 program=0xb400007829108a10 status=0
+CL_TRACE build program=0xb400007829108a10 options=
+CL_PATCH applied key=dd0e88b130352c9b source=58
+CL_TRACE source=58 bytes=3757 program=0xb400007829106c10 status=0
+CL_TRACE build program=0xb400007829106c10 options=
+CL_TRACE source=59 bytes=2644 program=0xb400007829100250 status=0
+CL_TRACE build program=0xb400007829100250 options=
+CL_TRACE source=60 bytes=3056 program=0xb400007829107690 status=0
+CL_TRACE build program=0xb400007829107690 options=
+CL_TRACE source=61 bytes=1208 program=0xb4000078290fcb90 status=0
+CL_TRACE build program=0xb4000078290fcb90 options=
+CL_TRACE source=62 bytes=1244 program=0xb4000078290fcdd0 status=0
+CL_TRACE build program=0xb4000078290fcdd0 options=
+CL_TRACE source=63 bytes=1478 program=0xb4000078290fe090 status=0
+CL_TRACE build program=0xb4000078290fe090 options=
+CL_TRACE source=64 bytes=1334 program=0xb4000078290fbf90 status=0
+CL_TRACE build program=0xb4000078290fbf90 options=
+CL_TRACE source=65 bytes=1365 program=0xb4000078290fd910 status=0
+CL_TRACE build program=0xb4000078290fd910 options=
+I0000 00:00:1790707774.738633   17488 delegate_kernel.cc:330] Total 31 external tensors are used for delegate inputs and outputs
+I0000 00:00:1790707774.738789   17488 delegate_kernel.cc:906] Initializing OpenCL-based API from serialized data.
+CL_TRACE source=66 bytes=1841 program=0xb4000078290f9e90 status=0
+CL_TRACE build program=0xb4000078290f9e90 options=
+CL_TRACE source=67 bytes=1398 program=0xb4000078290f9c50 status=0
+CL_TRACE build program=0xb4000078290f9c50 options=
+CL_TRACE source=68 bytes=1057 program=0xb4000078290fb150 status=0
+CL_TRACE build program=0xb4000078290fb150 options=
+CL_TRACE source=69 bytes=4785 program=0xb4000078290fbbd0 status=0
+CL_TRACE build program=0xb4000078290fbbd0 options=
+CL_TRACE source=70 bytes=3169 program=0xb4000078290fd790 status=0
+CL_TRACE build program=0xb4000078290fd790 options=
+CL_PATCH applied key=c8e436a17d6d378a source=71
+CL_TRACE source=71 bytes=22566 program=0xb400007829103fd0 status=0
+CL_TRACE build program=0xb400007829103fd0 options=-qcom-accelerate-16-bit=true -cl-std=CL2.0 
+CL_PATCH applied key=8acedd76916b6777 source=72
+CL_TRACE source=72 bytes=2094 program=0xb4000078290fb510 status=0
+CL_TRACE build program=0xb4000078290fb510 options=
+CL_TRACE source=73 bytes=3431 program=0xb400007829104e10 status=0
+CL_TRACE build program=0xb400007829104e10 options=
+CL_TRACE source=74 bytes=1058 program=0xb40000782910abd0 status=0
+CL_TRACE build program=0xb40000782910abd0 options=
+CL_TRACE source=75 bytes=5285 program=0xb40000782910e590 status=0
+CL_TRACE build program=0xb40000782910e590 options=
+CL_TRACE source=76 bytes=1269 program=0xb400007829103790 status=0
+CL_TRACE build program=0xb400007829103790 options=
+CL_PATCH applied key=b8ca06d22b1fa7bc source=77
+CL_TRACE source=77 bytes=3410 program=0xb4000078291072d0 status=0
+CL_TRACE build program=0xb4000078291072d0 options=
+CL_TRACE source=78 bytes=3159 program=0xb4000078290fe210 status=0
+CL_TRACE build program=0xb4000078290fe210 options=
+CL_PATCH applied key=a256220bb8eaebd4 source=79
+CL_TRACE source=79 bytes=12522 program=0xb4000078290faa90 status=0
+CL_TRACE build program=0xb4000078290faa90 options=-qcom-accelerate-16-bit=true -cl-std=CL2.0 
+CL_TRACE source=80 bytes=2988 program=0xb400007829101c90 status=0
+CL_TRACE build program=0xb400007829101c90 options=
+CL_TRACE source=81 bytes=2990 program=0xb4000078291078d0 status=0
+CL_TRACE build program=0xb4000078291078d0 options=
+CL_TRACE source=82 bytes=1723 program=0xb4000078290fce90 status=0
+CL_TRACE build program=0xb4000078290fce90 options=
+CL_TRACE source=83 bytes=1240 program=0xb400007829105dd0 status=0
+CL_TRACE build program=0xb400007829105dd0 options=
+CL_TRACE source=84 bytes=1749 program=0xb400007829106490 status=0
+CL_TRACE build program=0xb400007829106490 options=
+CL_TRACE source=85 bytes=1376 program=0xb4000078290fd0d0 status=0
+CL_TRACE build program=0xb4000078290fd0d0 options=
+CL_TRACE source=86 bytes=1321 program=0xb4000078291048d0 status=0
+CL_TRACE build program=0xb4000078291048d0 options=
+CL_TRACE source=87 bytes=1152 program=0xb4000078291069d0 status=0
+CL_TRACE build program=0xb4000078291069d0 options=
+CL_TRACE source=88 bytes=1154 program=0xb400007829105ad0 status=0
+CL_TRACE build program=0xb400007829105ad0 options=
+CL_TRACE source=89 bytes=1462 program=0xb400007829108110 status=0
+CL_TRACE build program=0xb400007829108110 options=
+CL_TRACE source=90 bytes=1473 program=0xb4000078290ffa10 status=0
+CL_TRACE build program=0xb4000078290ffa10 options=
+CL_TRACE source=91 bytes=1154 program=0xb4000078290fab50 status=0
+CL_TRACE build program=0xb4000078290fab50 options=
+CL_TRACE source=92 bytes=1464 program=0xb400007829101390 status=0
+CL_TRACE build program=0xb400007829101390 options=
+CL_TRACE source=93 bytes=1320 program=0xb400007829102590 status=0
+CL_TRACE build program=0xb400007829102590 options=
+CL_TRACE source=94 bytes=1021 program=0xb400007829107450 status=0
+CL_TRACE build program=0xb400007829107450 options=
+CL_TRACE source=95 bytes=1325 program=0xb4000078291066d0 status=0
+CL_TRACE build program=0xb4000078291066d0 options=
+CL_TRACE source=96 bytes=1321 program=0xb400007829103490 status=0
+CL_TRACE build program=0xb400007829103490 options=
+CL_TRACE source=97 bytes=1426 program=0xb400007829108050 status=0
+CL_TRACE build program=0xb400007829108050 options=
+CL_TRACE source=98 bytes=3276 program=0xb4000078290ff4d0 status=0
+CL_TRACE build program=0xb4000078290ff4d0 options=
+CL_TRACE source=99 bytes=8045 program=0xb400007829102290 status=0
+CL_TRACE build program=0xb400007829102290 options= -qcom-accelerate-16-bit=true -cl-std=CL2.0 
+CL_TRACE build program=0xb4000078290ff290 options=
+CL_TRACE source=100 bytes=2263 program=0xb400007829102290 status=0
+CL_TRACE build program=0xb400007829102290 options=
+CL_TRACE source=101 bytes=1137 program=0xb400007829106f10 status=0
+CL_TRACE build program=0xb400007829106f10 options=
+CL_TRACE source=102 bytes=3144 program=0xb400007829100910 status=0
+CL_TRACE build program=0xb400007829100910 options=
+CL_TRACE source=103 bytes=7999 program=0xb40000782910ae10 status=0
+CL_TRACE build program=0xb40000782910ae10 options= -qcom-accelerate-16-bit=true -cl-std=CL2.0 
+CL_TRACE build program=0xb400007829102350 options=
+CL_TRACE source=104 bytes=1315 program=0xb40000782910ae10 status=0
+CL_TRACE build program=0xb40000782910ae10 options=
+CL_TRACE source=105 bytes=3592 program=0xb400007829143690 status=0
+CL_TRACE build program=0xb400007829143690 options=
+CL_TRACE source=106 bytes=2329 program=0xb40000782910f310 status=0
+CL_TRACE build program=0xb40000782910f310 options=
+CL_PATCH applied key=8ed8807ea8a5f61d source=107
+CL_TRACE source=107 bytes=1684 program=0xb400007829115fd0 status=0
+CL_TRACE build program=0xb400007829115fd0 options=
+CL_TRACE source=108 bytes=4785 program=0xb400007829102950 status=0
+CL_TRACE build program=0xb400007829102950 options=
+CL_PATCH applied key=d9b9131a7c898544 source=109
+CL_TRACE source=109 bytes=25910 program=0xb400007829105410 status=0
+CL_TRACE build program=0xb400007829105410 options=-qcom-accelerate-16-bit=true -cl-std=CL2.0 
+CL_TRACE source=110 bytes=3239 program=0xb400007829103310 status=0
+CL_TRACE build program=0xb400007829103310 options=
+CL_PATCH applied key=087f7cfead393a94 source=111
+CL_TRACE source=111 bytes=29710 program=0xb400007829108dd0 status=0
+CL_TRACE build program=0xb400007829108dd0 options=-qcom-accelerate-16-bit=true -cl-std=CL2.0 
+CL_TRACE source=112 bytes=4786 program=0xb400007829104750 status=0
+CL_TRACE build program=0xb400007829104750 options=
+CL_PATCH applied key=1a8be22ee9f02c48 source=113
+CL_TRACE source=113 bytes=18706 program=0xb4000078291000d0 status=0
+CL_TRACE build program=0xb4000078291000d0 options=-qcom-accelerate-16-bit=true -cl-std=CL2.0 
+CL_TRACE source=114 bytes=4784 program=0xb400007829106e50 status=0
+CL_TRACE build program=0xb400007829106e50 options=
+CL_TRACE source=115 bytes=3392 program=0xb4000078290ffad0 status=0
+CL_TRACE build program=0xb4000078290ffad0 options=
+CL_TRACE source=116 bytes=1474 program=0xb400007829102ad0 status=0
+CL_TRACE build program=0xb400007829102ad0 options=
+CL_TRACE source=117 bytes=1322 program=0xb400007829101b10 status=0
+CL_TRACE build program=0xb400007829101b10 options=
+CL_TRACE source=118 bytes=1316 program=0xb400007829103b50 status=0
+CL_TRACE build program=0xb400007829103b50 options=
+CL_TRACE source=119 bytes=4786 program=0xb4000078290fd010 status=0
+CL_TRACE build program=0xb4000078290fd010 options=
+CL_TRACE source=120 bytes=1284 program=0xb4000078290fa250 status=0
+CL_TRACE build program=0xb4000078290fa250 options=
+CL_TRACE source=121 bytes=1235 program=0xb4000078290fc350 status=0
+CL_TRACE build program=0xb4000078290fc350 options=
+CL_TRACE source=122 bytes=1354 program=0xb4000078290fe390 status=0
+CL_TRACE build program=0xb4000078290fe390 options=
+I0000 00:00:1790707775.862630   17488 delegate_kernel.cc:330] Total 31 external tensors are used for delegate inputs and outputs
+I0000 00:00:1790707775.862829   17488 delegate_kernel.cc:906] Initializing OpenCL-based API from serialized data.
+CL_TRACE source=123 bytes=5437 program=0xb4000078290fd610 status=0
+CL_TRACE build program=0xb4000078290fd610 options=
+CL_TRACE source=124 bytes=5287 program=0xb400007829108290 status=0
+CL_TRACE build program=0xb400007829108290 options=
+CL_PATCH applied key=95983d30bc312cb6 source=125
+CL_TRACE source=125 bytes=3224 program=0xb4000078290fd250 status=0
+CL_TRACE build program=0xb4000078290fd250 options=
+CL_PATCH applied key=be44050770231d6a source=126
+CL_TRACE source=126 bytes=4926 program=0xb4000078290ff7d0 status=0
+CL_TRACE build program=0xb4000078290ff7d0 options=-qcom-accelerate-16-bit=true -cl-std=CL2.0 
+CL_TRACE source=127 bytes=2969 program=0xb400007829106b50 status=0
+CL_TRACE build program=0xb400007829106b50 options=
+CL_TRACE source=128 bytes=2785 program=0xb4000078290fe150 status=0
+CL_TRACE build program=0xb4000078290fe150 options=
+CL_TRACE source=129 bytes=1330 program=0xb400007829100010 status=0
+CL_TRACE build program=0xb400007829100010 options=
+CL_TRACE source=130 bytes=1121 program=0xb4000078290fad90 status=0
+CL_TRACE build program=0xb4000078290fad90 options=
+CL_TRACE source=131 bytes=1389 program=0xb400007829121e50 status=0
+CL_TRACE build program=0xb400007829121e50 options=
+CL_TRACE source=132 bytes=1276 program=0xb4000078290fd550 status=0
+CL_TRACE build program=0xb4000078290fd550 options=
+CL_TRACE source=133 bytes=5257 program=0xb40000782913ffd0 status=0
+CL_TRACE build program=0xb40000782913ffd0 options=
+CL_TRACE source=134 bytes=5263 program=0xb4000078290fde50 status=0
+CL_TRACE build program=0xb4000078290fde50 options= -qcom-accelerate-16-bit=true -cl-std=CL2.0 
+CL_TRACE build program=0xb400007829101750 options=
+CL_TRACE source=135 bytes=1323 program=0xb4000078290fde50 status=0
+CL_TRACE build program=0xb4000078290fde50 options=
+CL_TRACE source=136 bytes=5437 program=0xb400007829117410 status=0
+CL_TRACE build program=0xb400007829117410 options=
+CL_PATCH applied key=1f5aafdda63ca41a source=137
+CL_TRACE source=137 bytes=14206 program=0xb4000078290fb990 status=0
+CL_TRACE build program=0xb4000078290fb990 options=-qcom-accelerate-16-bit=true -cl-std=CL2.0 
+CL_TRACE source=138 bytes=3053 program=0xb400007829100a90 status=0
+CL_TRACE build program=0xb400007829100a90 options=
+CL_PATCH applied key=131d22cd8e20df66 source=139
+CL_TRACE source=139 bytes=16106 program=0xb400007829101990 status=0
+CL_TRACE build program=0xb400007829101990 options=-qcom-accelerate-16-bit=true -cl-std=CL2.0 
+CL_TRACE source=140 bytes=5437 program=0xb400007829114a10 status=0
+CL_TRACE build program=0xb400007829114a10 options=
+CL_PATCH applied key=e69105eb61777029 source=141
+CL_TRACE source=141 bytes=6547 program=0xb4000078290fc650 status=0
+CL_TRACE build program=0xb4000078290fc650 options=-qcom-accelerate-16-bit=true -cl-std=CL2.0 
+CL_TRACE source=142 bytes=5436 program=0xb4000078290fc110 status=0
+CL_TRACE build program=0xb4000078290fc110 options=
+CL_TRACE source=143 bytes=3206 program=0xb400007829103850 status=0
+CL_TRACE build program=0xb400007829103850 options=
+CL_TRACE source=144 bytes=1278 program=0xb400007829101090 status=0
+CL_TRACE build program=0xb400007829101090 options=
+CL_TRACE source=145 bytes=1324 program=0xb400007829114b90 status=0
+CL_TRACE build program=0xb400007829114b90 options=
+CL_TRACE source=146 bytes=5437 program=0xb400007829110510 status=0
+CL_TRACE build program=0xb400007829110510 options=
+I0000 00:00:1790707776.560225   17488 delegate_kernel.cc:330] Total 32 external tensors are used for delegate inputs and outputs
+I0000 00:00:1790707776.560381   17488 delegate_kernel.cc:906] Initializing OpenCL-based API from serialized data.
+CL_TRACE source=147 bytes=1407 program=0xb4000078291201d0 status=0
+CL_TRACE build program=0xb4000078291201d0 options=
+CL_PATCH applied key=647b98076a3d724d source=148
+CL_TRACE source=148 bytes=6318 program=0xb400007829121910 status=0
+CL_TRACE build program=0xb400007829121910 options=
+CL_PATCH applied key=be9cf471c7e11d2a source=149
+CL_TRACE source=149 bytes=6328 program=0xb400007829110f90 status=0
+CL_TRACE build program=0xb400007829110f90 options=
+CL_PATCH applied key=e0be9be2ebb6587e source=150
+CL_TRACE source=150 bytes=6328 program=0xb40000782910e7d0 status=0
+CL_TRACE build program=0xb40000782910e7d0 options=
+CL_TRACE source=151 bytes=2783 program=0xb40000782911e790 status=0
+CL_TRACE build program=0xb40000782911e790 options=
+CL_TRACE source=152 bytes=1272 program=0xb400007829116810 status=0
+CL_TRACE build program=0xb400007829116810 options=
+CL_TRACE source=153 bytes=5309 program=0xb400007829117110 status=0
+CL_TRACE build program=0xb400007829117110 options= -qcom-accelerate-16-bit=true -cl-std=CL2.0 
+CL_TRACE build program=0xb40000782910c3d0 options=
+CL_TRACE source=154 bytes=3141 program=0xb400007829117110 status=0
+CL_TRACE build program=0xb400007829117110 options= -qcom-accelerate-16-bit=true -cl-std=CL2.0 
+CL_TRACE build program=0xb40000782911cb10 options=
+CL_TRACE source=155 bytes=1321 program=0xb400007829117110 status=0
+CL_TRACE build program=0xb400007829117110 options=
+CL_PATCH applied key=05fa49ea76a9f6f0 source=156
+CL_TRACE source=156 bytes=8012 program=0xb40000782910bc50 status=0
+CL_TRACE build program=0xb40000782910bc50 options=
+CL_PATCH applied key=561fc158e9c04b54 source=157
+CL_TRACE source=157 bytes=9898 program=0xb40000782910ab10 status=0
+CL_TRACE build program=0xb40000782910ab10 options=
+CL_PATCH applied key=be81d70f3e40154c source=158
+CL_TRACE source=158 bytes=7998 program=0xb40000782912ed50 status=0
+CL_TRACE build program=0xb40000782912ed50 options=
+CL_PATCH applied key=f42a374095c09463 source=159
+CL_TRACE source=159 bytes=12476 program=0xb400007829126dd0 status=0
+CL_TRACE build program=0xb400007829126dd0 options=
+CL_PATCH applied key=7a08e53ee99fd5b7 source=160
+CL_TRACE source=160 bytes=8016 program=0xb4000078291468d0 status=0
+CL_TRACE build program=0xb4000078291468d0 options=
+CL_PATCH applied key=91788fab656e6e3e source=161
+CL_TRACE source=161 bytes=6314 program=0xb400007829117ad0 status=0
+CL_TRACE build program=0xb400007829117ad0 options=
+CL_TRACE source=162 bytes=1274 program=0xb40000782911e550 status=0
+CL_TRACE build program=0xb40000782911e550 options=
+CL_TRACE source=163 bytes=1322 program=0xb400007829126b90 status=0
+CL_TRACE build program=0xb400007829126b90 options=
+CL_PATCH applied key=c5b29856b139b53b source=164
+CL_TRACE source=164 bytes=9855 program=0xb400007829141dd0 status=0
+CL_TRACE build program=0xb400007829141dd0 options=
+CL_PATCH applied key=0542b47cf4393d7f source=165
+CL_TRACE source=165 bytes=7955 program=0xb40000782911b310 status=0
+CL_TRACE build program=0xb40000782911b310 options=
+CL_PATCH applied key=8ea86c2136c01fa5 source=166
+CL_TRACE source=166 bytes=7969 program=0xb400007829139d90 status=0
+CL_TRACE build program=0xb400007829139d90 options=
+CL_TRACE source=167 bytes=6446 program=0xb400007829122750 status=0
+CL_TRACE build program=0xb400007829122750 options=
+INFO: [environment.cc:36] Creating LiteRT environment with options
+WARNING: [npu_registry.cc:34] NPU accelerator could not be loaded and registered: kLiteRtStatusErrorInvalidArgument.
+INFO: [accelerator_registry.cc:54] RegisterAccelerator: ptr=0xb400007a19538a90, name=LiteRT GPU
+INFO: [gpu_registry.cc:87] Statically linked GPU accelerator registered.
+INFO: [accelerator_registry.cc:54] RegisterAccelerator: ptr=0xb400007a19538790, name=CpuAccelerator
+INFO: [cpu_registry.cc:75] XNNPACK CPU accelerator registered.
+INFO: [magic_number_utils.cc:101] Loaded: num_subgraphs=1, num_signatures=1
+INFO: [magic_number_utils.cc:109]   signature=embedder, subgraph_index=0, num_tensors=16, num_inputs=1, num_outputs=1, num_ops=8
+INFO: [magic_number_utils.cc:113] Magic number configs: num_configs=1
+INFO: [magic_number_utils.cc:120]   config[0]: magic_number=32003, target_number=8192, signature_prefix=null
+INFO: [compiled_model.cc:833] Flatbuffer model initialized directly from incoming litert model.
+WARNING: [compiled_model.cc:986] You should provide the `DispatchLibraryDir` option to use NPU.
+INFO: Created TensorFlow Lite XNNPACK delegate for CPU.
+INFO: [magic_number_utils.cc:101] Loaded: num_subgraphs=1, num_signatures=1
+INFO: [magic_number_utils.cc:109]   signature=eoa, subgraph_index=0, num_tensors=1, num_inputs=0, num_outputs=1, num_ops=0
+INFO: [magic_number_utils.cc:113] Magic number configs: num_configs=1
+INFO: [magic_number_utils.cc:120]   config[0]: magic_number=32003, target_number=8192, signature_prefix=null
+INFO: [compiled_model.cc:833] Flatbuffer model initialized directly from incoming litert model.
+WARNING: [compiled_model.cc:986] You should provide the `DispatchLibraryDir` option to use NPU.
+INFO: [compiled_model.cc:1790] Tracked constant output tensor eoa_embedding with locked address
+INFO: [magic_number_utils.cc:101] Loaded: num_subgraphs=1, num_signatures=1
+INFO: [magic_number_utils.cc:109]   signature=eoi, subgraph_index=0, num_tensors=1, num_inputs=0, num_outputs=1, num_ops=0
+INFO: [magic_number_utils.cc:113] Magic number configs: num_configs=1
+INFO: [magic_number_utils.cc:120]   config[0]: magic_number=32003, target_number=8192, signature_prefix=null
+INFO: [compiled_model.cc:833] Flatbuffer model initialized directly from incoming litert model.
+WARNING: [compiled_model.cc:986] You should provide the `DispatchLibraryDir` option to use NPU.
+INFO: [compiled_model.cc:1790] Tracked constant output tensor eoi_embedding with locked address
+INFO: [magic_number_utils.cc:101] Loaded: num_subgraphs=1, num_signatures=1
+INFO: [magic_number_utils.cc:109]   signature=per_layer_embedder, subgraph_index=0, num_tensors=83, num_inputs=1, num_outputs=1, num_ops=42
+INFO: [magic_number_utils.cc:113] Magic number configs: num_configs=1
+INFO: [magic_number_utils.cc:120]   config[0]: magic_number=32003, target_number=8192, signature_prefix=null
+INFO: [compiled_model.cc:833] Flatbuffer model initialized directly from incoming litert model.
+WARNING: [compiled_model.cc:986] You should provide the `DispatchLibraryDir` option to use NPU.
+W0000 00:00:1790707779.242680   17497 tasks.cc:490] Failed to get prefill profile summary: INVALID_ARGUMENT: ERROR: [third_party/odml/litert_lm/runtime/executor/llm_litert_compiled_model_executor.cc:1763]
+└ ERROR: [./third_party/odml/litert/litert/cc/litert_profiler.h:91]
+=== Source Location Trace: === 
+./third_party/odml/litert/litert/cc/litert_macros.h:547
+CL_TRACE source=168 bytes=1019 program=0xb400007829114950 status=0
+CL_TRACE build program=0xb400007829114950 options=
+CL_TRACE source=169 bytes=1154 program=0xb40000782912d0d0 status=0
+CL_TRACE build program=0xb40000782912d0d0 options=
+CL_TRACE source=170 bytes=1260 program=0xb400007829111710 status=0
+CL_TRACE build program=0xb400007829111710 options=
+CL_TRACE source=171 bytes=7798 program=0xb400007829114410 status=0
+CL_TRACE build program=0xb400007829114410 options=
+CL_TRACE source=172 bytes=15305 program=0xb400007829134b10 status=0
+CL_TRACE build program=0xb400007829134b10 options=
+CL_TRACE source=173 bytes=1736 program=0xb40000782911b550 status=0
+CL_TRACE build program=0xb40000782911b550 options=
+CL_TRACE source=174 bytes=1720 program=0xb400007829134390 status=0
+CL_TRACE build program=0xb400007829134390 options=
+CL_TRACE source=175 bytes=2543 program=0xb400007829140d50 status=0
+CL_TRACE build program=0xb400007829140d50 options=
+CL_TRACE source=176 bytes=1123 program=0xb40000782911eb50 status=0
+CL_TRACE build program=0xb40000782911eb50 options=
+CL_TRACE source=177 bytes=3170 program=0xb40000782913bdd0 status=0
+CL_TRACE build program=0xb40000782913bdd0 options=
+CL_TRACE source=178 bytes=1031 program=0xb400007829147b90 status=0
+CL_TRACE build program=0xb400007829147b90 options=
+CL_TRACE source=179 bytes=1744 program=0xb400007829115b50 status=0
+CL_TRACE build program=0xb400007829115b50 options=
+CL_TRACE source=180 bytes=1485 program=0xb40000782912a9d0 status=0
+CL_TRACE build program=0xb40000782912a9d0 options=
+CL_TRACE source=181 bytes=1805 program=0xb400007829124a90 status=0
+CL_TRACE build program=0xb400007829124a90 options=
+CL_TRACE source=182 bytes=935 program=0xb40000782913ab10 status=0
+CL_TRACE build program=0xb40000782913ab10 options=
+CL_TRACE source=183 bytes=1783 program=0xb40000782910c490 status=0
+CL_TRACE build program=0xb40000782910c490 options=
+CL_TRACE source=184 bytes=761 program=0xb400007829132f50 status=0
+CL_TRACE build program=0xb400007829132f50 options=
+CL_TRACE source=185 bytes=799 program=0xb40000782910f910 status=0
+CL_TRACE build program=0xb40000782910f910 options=
+INFO: Loaded OpenCL library with dlopen.
+INFO: [environment.cc:36] Creating LiteRT environment with options
+WARNING: [npu_registry.cc:34] NPU accelerator could not be loaded and registered: kLiteRtStatusErrorInvalidArgument.
+INFO: [gpu_registry.cc:101] Attempting to load GPU accelerator(libLiteRtGpuAccelerator.so).
+INFO: [gpu_registry.cc:101] Attempting to load GPU accelerator(libLiteRtClGlAccelerator.so).
+INFO: [gpu_registry.cc:101] Attempting to load GPU accelerator(libLiteRtOpenClAccelerator.so).
+INFO: [gpu_registry.cc:101] Attempting to load GPU accelerator(libLiteRtWebGpuAccelerator.so).
+INFO: [gpu_registry.cc:101] Attempting to load GPU accelerator(libLiteRtVulkanAccelerator.so).
+WARNING: [gpu_registry.cc:131] GPU accelerator could not be loaded and registered.
+INFO: [accelerator_registry.cc:54] RegisterAccelerator: ptr=0xb400007a1953cb70, name=CpuAccelerator
+INFO: [cpu_registry.cc:75] XNNPACK CPU accelerator registered.
+W0000 00:00:1790707787.202241   17497 tasks.cc:672] Failed to get decode profile summary: INVALID_ARGUMENT: ERROR: [third_party/odml/litert_lm/runtime/executor/llm_litert_compiled_model_executor.cc:1763]
+└ ERROR: [./third_party/odml/litert/litert/cc/litert_profiler.h:91]
+=== Source Location Trace: === 
+./third_party/odml/litert/litert/cc/litert_macros.h:547
+INFO: [accelerator_registry.cc:43] DestroyAccelerator: ptr=0xb400007a1953cb70, name=CpuAccelerator
+INFO: [accelerator_registry.cc:43] DestroyAccelerator: ptr=0xb400007a18e0ead0, name=CpuAccelerator
+INFO: [accelerator_registry.cc:43] DestroyAccelerator: ptr=0xb400007a18e0f1f0, name=LiteRT GPU
+INFO: [accelerator_registry.cc:43] DestroyAccelerator: ptr=0xb400007a19538790, name=CpuAccelerator
+INFO: [accelerator_registry.cc:43] DestroyAccelerator: ptr=0xb400007a19538a90, name=LiteRT GPU
+saved /data/local/tmp/r64_gpu_controls/rootcause/rope_fakequant_v2_raw_001/BXP-001.raw.txt and .metrics.json

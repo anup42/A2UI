@@ -1,0 +1,23 @@
+{
+  "scope": "Arithmetic example using an actual decode QUANTIZE scale and a constructed half-representable input; not an observed device activation",
+  "rounding": "OpenCL round: nearest integer, ties away from zero",
+  "decode_quantize_operator": 2,
+  "output_tensor": 311,
+  "model_scale_float32": 0.03887796401977539,
+  "captured_half_coefficients": {
+    "min": -4.9765625,
+    "max": 4.9375,
+    "inverse_scale": 25.71875
+  },
+  "constructed_half_input": -4.1796875,
+  "half_arithmetic": {
+    "clamped_minus_min": 0.796875,
+    "product": 20.5,
+    "quantized_bin": 21
+  },
+  "float_arithmetic_with_same_half_coefficients": {
+    "product": 20.49462890625,
+    "quantized_bin": 20
+  },
+  "limitation": "This isolates intermediate rounding; it does not test restoring the original float32 coefficients or prove this exact activation occurred during generation."
+}

@@ -1,0 +1,15 @@
+{
+  "serial": "R3GL203AKSF",
+  "case": "BXP-003",
+  "model": "/data/local/tmp/r64_gpu_controls/rootcause/r64_rope_lookup_test.litertlm",
+  "model_sha256": "6a6d60e0003349047fb2000148e4c0d21232f869ff7dcde1a737ce943704e428",
+  "native_library_sha256": "e9cbdddb0f1c693c549e1cde40bf90ad8aaa124d15944d0dd18faaf016dd6938",
+  "probe_sha256": "9caf142356acfbc15257910241b5086debb3ca0f469242f7f7b702363070a9dd",
+  "prompt_sha256": "a4190a1d46ba2e0963e587d4a6a1021bdbdafc1d72d156a506b0f74ca5f2e047",
+  "score_target_sha256": null,
+  "force_f32": false,
+  "command": "cd /data/local/tmp/r64_gpu_controls && LD_LIBRARY_PATH=/data/local/tmp/r64_gpu_controls /data/local/tmp/r64_gpu_controls/probe_score --model /data/local/tmp/r64_gpu_controls/rootcause/r64_rope_lookup_test.litertlm --prompt /data/local/tmp/r64_gpu_controls/prompts/BXP-003.txt --output-prefix /data/local/tmp/r64_gpu_controls/rootcause/rope_fp16_raw_003/BXP-003 --backend gpu --max-context 8192 --max-output 2048",
+  "mtp_enabled": false,
+  "exit_code": 0,
+  "host_wall_seconds": 153.5
+}

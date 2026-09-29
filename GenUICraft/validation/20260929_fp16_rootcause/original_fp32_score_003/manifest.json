@@ -1,0 +1,15 @@
+{
+  "serial": "R3GL203AKSF",
+  "case": "BXP-003",
+  "model": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_models/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm",
+  "model_sha256": "de60d19c8e1ef06ed1032212d0d4ae5d9b0ec105db72db34a988453004e63e62",
+  "native_library_sha256": "e9cbdddb0f1c693c549e1cde40bf90ad8aaa124d15944d0dd18faaf016dd6938",
+  "probe_sha256": "9caf142356acfbc15257910241b5086debb3ca0f469242f7f7b702363070a9dd",
+  "prompt_sha256": "a4190a1d46ba2e0963e587d4a6a1021bdbdafc1d72d156a506b0f74ca5f2e047",
+  "score_target_sha256": "1161435a54a7f852892f803e11b73d25b61e1a1c3794c8adf070431844df4e94",
+  "force_f32": true,
+  "command": "cd /data/local/tmp/r64_gpu_controls && LD_LIBRARY_PATH=/data/local/tmp/r64_gpu_controls /data/local/tmp/r64_gpu_controls/probe_score --model /sdcard/Android/data/com.samsung.genuicraft/files/sdk_models/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm --prompt /data/local/tmp/r64_gpu_controls/prompts/BXP-003.txt --output-prefix /data/local/tmp/r64_gpu_controls/rootcause/original_fp32_score_003/BXP-003 --backend gpu --max-context 8192 --max-output 2048 --force-f32 --score-target /data/local/tmp/r64_gpu_controls/rootcause/original_fp32_score_003/target.txt",
+  "mtp_enabled": false,
+  "exit_code": 0,
+  "host_wall_seconds": 55.04700000002049
+}

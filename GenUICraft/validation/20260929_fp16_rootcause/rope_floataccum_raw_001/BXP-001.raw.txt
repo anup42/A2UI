@@ -1,0 +1,10 @@
+<a2ui>
+$/={forecast_data:[{date:"Wed, Sep 9",high:"31",low:"20",rain:"57%"},{date:"Thu, Sep 10",high:"30",low:"21",rain:"55%"},{date:"Fri, Sep 11",high:"30",low:"21",rain:"55%"}]}
+root=ColumnTabs([a],b)
+tabs=[{slug:"weather",title:"Weather Forecast"},{slug:"rain",title:"Rain Forecast"}],forecast_data:[{date:"Wed, Sep 9",high:"31",low:"20",rain:"57%"},{date:"Thu, Sep 10",high:"30",low:"21",rain:"55%"},{date:"Fri, Sep 11",high:"30",low:"21",rain:"55%"}]}
+root=Column([a,b,c,d],"lg",padding=16)
+a=Text("AccuWeather’s Bengaluru forecast shows cloudy or sunny-interval conditions through the next three days, with the highest rain chance on Wednesday and continued shower/thunderstorm potential on Thursday and Friday.",variant="body")
+b=Text("Carry an umbrella or light rain jacket, especially for afternoon and evening plans.",variant="body")
+c=Text("Plan outdoor activities earlier in the day, when conditions are more likely to stay drier and slightly cooler.",variant="body")
+d=Tabs(tabs=[{slug:"weather",title:"Weather Forecast"},{slug:"rain",title:"Rain Forecast"}],forecast_data=[{date:"Wed, Sep 9",high:"31",low:"20",rain:"57%"},{date:"Thu, Sep 10",high:"30",low:"21",rain:"55%"},{date:"Fri, Sep 11",high:"30",low:"21",rain:"55%"}]}
+</a2ui>

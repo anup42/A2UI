@@ -1,0 +1,23 @@
+{
+  "serial": "R3GL203AKSF",
+  "case": "BXP-003",
+  "model": "/data/local/tmp/r64_gpu_controls/rootcause/r64_rope_lookup_test.litertlm",
+  "model_sha256": "6a6d60e0003349047fb2000148e4c0d21232f869ff7dcde1a737ce943704e428",
+  "native_library_sha256": "e9cbdddb0f1c693c549e1cde40bf90ad8aaa124d15944d0dd18faaf016dd6938",
+  "probe_sha256": "9caf142356acfbc15257910241b5086debb3ca0f469242f7f7b702363070a9dd",
+  "prompt_sha256": "a4190a1d46ba2e0963e587d4a6a1021bdbdafc1d72d156a506b0f74ca5f2e047",
+  "score_target_sha256": null,
+  "force_f32": false,
+  "sampler_backend_requested": "default",
+  "command": "cd /data/local/tmp/r64_gpu_controls && LD_LIBRARY_PATH=/data/local/tmp/r64_gpu_controls LD_PRELOAD=/data/local/tmp/r64_gpu_controls/libopencl_trace.so CL_TRACE_DIR=/data/local/tmp/r64_gpu_controls/rootcause/rope_fakequant_v2_raw_003 CL_PATCH_DIR=/data/local/tmp/r64_gpu_controls/rootcause/patch_rope_fakequant_v2 /data/local/tmp/r64_gpu_controls/probe_score --model /data/local/tmp/r64_gpu_controls/rootcause/r64_rope_lookup_test.litertlm --prompt /data/local/tmp/r64_gpu_controls/prompts/BXP-003.txt --output-prefix /data/local/tmp/r64_gpu_controls/rootcause/rope_fakequant_v2_raw_003/BXP-003 --backend gpu --max-context 8192 --max-output 768",
+  "mtp_enabled": false,
+  "opencl_capture": false,
+  "mixed_accum_requested": false,
+  "diagnostic_hook_sha256": "2b972e3d93e49a9153c6aae65264cd9dbf0f4cc449d4e11703dd792f695c48cc",
+  "diagnostic_patch_manifest_sha256": "f0ec58c0b07057d6d6d9f7d7dbd63af575b586dcd6b411ee71d3007a73402213",
+  "diagnostic_shader_patch_directory": "/data/local/tmp/r64_gpu_controls/rootcause/patch_rope_fakequant_v2",
+  "exit_code": 0,
+  "host_wall_seconds": 68.45299999997951,
+  "diagnostic_shader_patches_applied": 43,
+  "mixed_accum_setter_applied": false
+}

@@ -27,6 +27,7 @@ using Clock = std::chrono::steady_clock;
 struct Options {
   std::string model;
   std::string prompt;
+  std::string score_target;
   std::string output_prefix;
   std::string backend;
   std::string sampler_backend = "default";
@@ -41,16 +42,25 @@ struct Metrics {
   std::string stage = "arguments";
   std::string error;
   size_t prompt_bytes = 0;
+  size_t score_target_bytes = 0;
   size_t output_bytes = 0;
   int candidates = 0;
   std::optional<size_t> input_tokenizer_count;
+  std::optional<size_t> target_tokenizer_count;
   std::optional<size_t> output_retokenized_count;
   std::optional<int> response_token_length;
   std::optional<float> response_score;
   std::optional<int> selected_token_score_count;
+  std::optional<float> target_score;
+  std::string target_score_status = "not_requested";
+  std::optional<int> target_scored_token_length;
+  std::optional<int> target_token_score_count;
+  std::optional<int> target_nonfinite_token_score_count;
+  std::string target_token_scores_status = "not_requested";
   std::optional<double> engine_create_ms;
   std::optional<double> prefill_wall_ms;
   std::optional<double> decode_wall_ms;
+  std::optional<double> score_wall_ms;
   std::optional<double> generation_wall_ms;
   std::optional<double> time_to_first_token_s;
   std::optional<double> init_benchmark_s;
@@ -132,6 +142,8 @@ void write_metrics(const Options& options, const Metrics& metrics) {
       << "  \"error\": " << json_string(metrics.error) << ",\n"
       << "  \"model_path\": " << json_string(options.model) << ",\n"
       << "  \"prompt_path\": " << json_string(options.prompt) << ",\n"
+      << "  \"mode\": " << json_string(options.score_target.empty() ? "decode" : "text_scoring") << ",\n"
+      << "  \"score_target_path\": " << json_string(options.score_target) << ",\n"
       << "  \"cache_dir\": " << json_string(options.output_prefix + ".cache") << ",\n"
       << "  \"backend_requested\": " << json_string(options.backend) << ",\n"
       << "  \"sampler_backend_requested\": " << json_string(options.sampler_backend) << ",\n"
@@ -142,10 +154,13 @@ void write_metrics(const Options& options, const Metrics& metrics) {
       << "  \"speculative_decoding\": false,\n"
       << "  \"apply_prompt_template\": false,\n"
       << "  \"prompt_bytes\": " << metrics.prompt_bytes << ",\n"
+      << "  \"score_target_bytes\": " << metrics.score_target_bytes << ",\n"
       << "  \"output_bytes\": " << metrics.output_bytes << ",\n"
       << "  \"candidate_count\": " << metrics.candidates << ",\n"
       << "  \"input_tokenizer_count\": ";
   json_optional(out, metrics.input_tokenizer_count);
+  out << ",\n  \"target_tokenizer_count\": ";
+  json_optional(out, metrics.target_tokenizer_count);
   out << ",\n  \"output_retokenized_count\": ";
   json_optional(out, metrics.output_retokenized_count);
   out << ",\n  \"response_token_length\": ";
@@ -154,12 +169,24 @@ void write_metrics(const Options& options, const Metrics& metrics) {
   json_optional(out, metrics.response_score);
   out << ",\n  \"selected_token_score_count\": ";
   json_optional(out, metrics.selected_token_score_count);
+  out << ",\n  \"target_score\": ";
+  json_optional(out, metrics.target_score);
+  out << ",\n  \"target_score_status\": " << json_string(metrics.target_score_status);
+  out << ",\n  \"target_scored_token_length\": ";
+  json_optional(out, metrics.target_scored_token_length);
+  out << ",\n  \"target_token_score_count\": ";
+  json_optional(out, metrics.target_token_score_count);
+  out << ",\n  \"target_nonfinite_token_score_count\": ";
+  json_optional(out, metrics.target_nonfinite_token_score_count);
+  out << ",\n  \"target_token_scores_status\": " << json_string(metrics.target_token_scores_status);
   out << ",\n  \"engine_create_ms\": ";
   json_optional(out, metrics.engine_create_ms);
   out << ",\n  \"prefill_wall_ms\": ";
   json_optional(out, metrics.prefill_wall_ms);
   out << ",\n  \"decode_wall_ms\": ";
   json_optional(out, metrics.decode_wall_ms);
+  out << ",\n  \"score_wall_ms\": ";
+  json_optional(out, metrics.score_wall_ms);
   out << ",\n  \"generation_wall_ms\": ";
   json_optional(out, metrics.generation_wall_ms);
   out << ",\n  \"time_to_first_token_s\": ";
@@ -203,6 +230,7 @@ Options parse_options(int argc, char** argv) {
     const std::string value = argv[++i];
     if (flag == "--model") options.model = value;
     else if (flag == "--prompt") options.prompt = value;
+    else if (flag == "--score-target") options.score_target = value;
     else if (flag == "--output-prefix") options.output_prefix = value;
     else if (flag == "--backend") options.backend = value;
     else if (flag == "--sampler-backend") options.sampler_backend = value;
@@ -216,6 +244,7 @@ Options parse_options(int argc, char** argv) {
     throw std::runtime_error(
         "usage: probe --model MODEL --prompt PROMPT --output-prefix PREFIX "
         "--backend cpu|gpu [--force-f32] [--sampler-backend default|cpu] "
+        "[--score-target TARGET.txt] "
         "[--max-context 8192] [--max-output 2048]");
   }
   if (options.max_output > options.max_context)
@@ -260,6 +289,16 @@ void run(const Options& options, Metrics& metrics) {
   if (prompt.find('\0') != std::string::npos)
     throw std::runtime_error("prompt contains NUL byte; the C API expects UTF-8 text");
   metrics.prompt_bytes = prompt.size();
+  std::string score_target;
+  if (!options.score_target.empty()) {
+    metrics.stage = "read_score_target";
+    score_target = read_binary(options.score_target);
+    if (score_target.empty()) throw std::runtime_error("score target file is empty");
+    if (score_target.find('\0') != std::string::npos)
+      throw std::runtime_error("score target contains NUL byte; the C API expects UTF-8 text");
+    metrics.score_target_bytes = score_target.size();
+    write_binary(options.output_prefix + ".scored_target.txt", score_target);
+  }
 
   metrics.stage = "create_engine";
   Handle<LiteRtLmEngineSettings, litert_lm_engine_settings_delete> settings(
@@ -293,6 +332,18 @@ void run(const Options& options, Metrics& metrics) {
     metrics.input_tokenizer_count = count;
     if (ids || count == 0) write_ids(options.output_prefix + ".input_token_ids.txt", ids, count);
   }
+  if (!options.score_target.empty()) {
+    metrics.stage = "tokenize_score_target";
+    Handle<LiteRtLmTokenizeResult, litert_lm_tokenize_result_delete> target_tokens(
+        litert_lm_engine_tokenize(engine.get(), score_target.c_str()), litert_lm_tokenize_result_delete);
+    if (target_tokens) {
+      const size_t count = litert_lm_tokenize_result_get_num_tokens(target_tokens.get());
+      const int* ids = litert_lm_tokenize_result_get_tokens(target_tokens.get());
+      metrics.target_tokenizer_count = count;
+      if (ids || count == 0)
+        write_ids(options.output_prefix + ".target_token_ids.txt", ids, count);
+    }
+  }
 
   metrics.stage = "create_session";
   Handle<LiteRtLmSamplerParams, litert_lm_sampler_params_delete> sampler(
@@ -325,6 +376,50 @@ void run(const Options& options, Metrics& metrics) {
   metrics.prefill_wall_ms = elapsed_ms(generate_start, prefill_end);
   if (prefill_status != 0)
     throw std::runtime_error("prefill failed with C API status " + std::to_string(prefill_status));
+
+  if (!options.score_target.empty()) {
+    metrics.stage = "text_scoring";
+    metrics.target_score_status = "unavailable";
+    metrics.target_token_scores_status = "unavailable";
+    const char* targets[] = {score_target.c_str()};
+    Handle<LiteRtLmResponses, litert_lm_responses_delete> scored(
+        litert_lm_session_run_text_scoring(session.get(), targets, 1, true),
+        litert_lm_responses_delete);
+    metrics.score_wall_ms = elapsed_ms(prefill_end, Clock::now());
+    if (!scored)
+      throw std::runtime_error("text scoring returned null; this backend/model may not support scoring (inspect LiteRT-LM stderr/logcat)");
+    metrics.candidates = litert_lm_responses_get_num_candidates(scored.get());
+    if (metrics.candidates != 1)
+      throw std::runtime_error("text scoring returned " + std::to_string(metrics.candidates) + " candidates; expected one");
+    if (!litert_lm_responses_has_score_at(scored.get(), 0))
+      throw std::runtime_error("text scoring returned no aggregate score for target zero");
+    metrics.target_score = litert_lm_responses_get_score_at(scored.get(), 0);
+    metrics.target_score_status = std::isfinite(*metrics.target_score) ? "available" : "nonfinite";
+    if (litert_lm_responses_has_token_length_at(scored.get(), 0))
+      metrics.target_scored_token_length = litert_lm_responses_get_token_length_at(scored.get(), 0);
+    if (litert_lm_responses_has_token_scores_at(scored.get(), 0)) {
+      const int count = litert_lm_responses_get_num_token_scores_at(scored.get(), 0);
+      const float* scores = litert_lm_responses_get_token_scores_at(scored.get(), 0);
+      if (count < 0 || (count > 0 && !scores))
+        throw std::runtime_error("text scoring returned inconsistent token-score count/pointer");
+      metrics.target_token_score_count = count;
+      metrics.target_token_scores_status = count > 0 ? "available" : "empty";
+      int nonfinite = 0;
+      std::ostringstream out;
+      out << std::setprecision(9);
+      for (int i = 0; i < count; ++i) {
+        if (!std::isfinite(scores[i])) ++nonfinite;
+        out << scores[i] << '\n';
+      }
+      metrics.target_nonfinite_token_score_count = nonfinite;
+      write_binary(options.output_prefix + ".target_token_scores.txt", out.str());
+    }
+    metrics.stage = "collect_metrics";
+    collect_benchmark(session.get(), metrics);
+    metrics.stage = "complete";
+    metrics.status = "ok";
+    return;
+  }
 
   metrics.stage = "decode";
   Handle<LiteRtLmResponses, litert_lm_responses_delete> responses(
@@ -394,6 +489,9 @@ int main(int argc, char** argv) {
     return 3;
   }
   if (metrics.status != "ok") return 1;
-  std::cout << "saved " << options.output_prefix << ".raw.txt and .metrics.json\n";
+  if (options.score_target.empty())
+    std::cout << "saved " << options.output_prefix << ".raw.txt and .metrics.json\n";
+  else
+    std::cout << "saved " << options.output_prefix << ".scored_target.txt and .metrics.json\n";
   return 0;
 }

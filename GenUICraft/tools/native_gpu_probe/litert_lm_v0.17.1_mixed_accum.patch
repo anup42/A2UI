@@ -1,0 +1,39 @@
+diff --git a/runtime/executor/llm_executor_settings.h b/runtime/executor/llm_executor_settings.h
+--- a/runtime/executor/llm_executor_settings.h
++++ b/runtime/executor/llm_executor_settings.h
+@@ -103,8 +103,11 @@ struct GpuConfig {
+   // means limited sampling is supported for any sessions created with
+   // this engine.
+   uint32_t max_top_k = 64;
+   // Whether to use external tensor mode.
+   bool external_tensor_mode = false;
++  // Opt in to FP16 storage/arithmetic with FP32 accumulation where supported.
++  // Requires FLOAT16 activations and a LiteRT GPU backend that supports it.
++  bool fp16_with_fp32_accum = false;
+ };
+ std::ostream& operator<<(std::ostream& os, const GpuConfig& config);
+ 
+diff --git a/runtime/executor/llm_executor_settings_utils.cc b/runtime/executor/llm_executor_settings_utils.cc
+--- a/runtime/executor/llm_executor_settings_utils.cc
++++ b/runtime/executor/llm_executor_settings_utils.cc
+@@ -148,6 +148,20 @@ absl::StatusOr<litert::Options> CreateCompilationOptions(
+       // Use NoExternalTensorsMode to get better performance.
+       ABSL_ASSIGN_OR_RETURN(const GpuConfig gpu_config,
+                             executor_settings.GetBackendConfig<GpuConfig>());
++      // SetCommonGpuOptions above also sets precision. Select this opt-in mode
++      // afterward so it cannot be overwritten by the common FP16/FP32 choice.
++      if (gpu_config.fp16_with_fp32_accum) {
++        const ActivationDataType resolved_activation_type =
++            executor_settings.GetActivationDataType().value_or(
++                activation_data_type);
++        if (resolved_activation_type != ActivationDataType::FLOAT16 ||
++            executor_settings.IsMixedPrecisionEnabled()) {
++          return absl::InvalidArgumentError(
++              "FP16 with FP32 accumulation requires FLOAT16 activations");
++        }
++        LITERT_RETURN_IF_ERROR(gpu_compilation_options.SetPrecision(
++            GpuOptions::Precision::kFp16WithFp32Accum));
++      }
+       bool external_tensor_mode = gpu_config.external_tensor_mode;
+       gpu_compilation_options.EnableExternalTensorsMode(external_tensor_mode);
+       bool single_kv_cache_buffer =

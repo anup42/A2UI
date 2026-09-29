@@ -1,0 +1,1240 @@
+{
+  "version": 1,
+  "purpose": "OpenCL source-hook diagnostic, not a model or runtime fix",
+  "hash_rule": "FNV-1a 64 of exact original UTF-8 source bytes",
+  "captured_kernel_dir": "C:\\Users\\anupk\\Documents\\git\\A2UI\\.tmp\\fp16_rootcause\\kernels_rope_fp16",
+  "combined_gemv_patch_dir": null,
+  "precision_limit": "shared_half4 coefficients remain half-rounded; only fake-quant arithmetic is float",
+  "patches": [
+    {
+      "source_file": "program_00007.cl",
+      "fnv1a64": "caf855b93b8fb80a",
+      "before_file": "caf855b93b8fb80a.before.cl",
+      "after_file": "caf855b93b8fb80a.after.cl",
+      "sha256_before": "255cadcbdd3b9a83ead2edd76a3665e002f0ce51782db1188b28b2ae27576cf8",
+      "sha256_after": "f48586c4b8bba45b04a05ccaa2a687776185011990bbf2d0176063a71dc2477e",
+      "edits": {
+        "float_fakequant_blocks": 1,
+        "removed_premature_gemv_half_casts": 0
+      }
+    },
+    {
+      "source_file": "program_00008.cl",
+      "fnv1a64": "343c69d546591c07",
+      "before_file": "343c69d546591c07.before.cl",
+      "after_file": "343c69d546591c07.after.cl",
+      "sha256_before": "4d69330ae310738cd1c257eba0515105f84675eca643073a1b640eb255711a85",
+      "sha256_after": "b29e3fcce3162504609b52b8ec0904fb74ba51876c2ac4796420a0744bfcfd5c",
+      "edits": {
+        "float_fakequant_blocks": 1,
+        "removed_premature_gemv_half_casts": 0
+      }
+    },
+    {
+      "source_file": "program_00009.cl",
+      "fnv1a64": "56a4a42b5e01e5b6",
+      "before_file": "56a4a42b5e01e5b6.before.cl",
+      "after_file": "56a4a42b5e01e5b6.after.cl",
+      "sha256_before": "1e3a522b339ec173858e827962315f13424bc96ca389109a9f037e9a2047de71",
+      "sha256_after": "1619178dd4f63d01e342cef6c5fc4476b862522bf460a6b6bba75b1004900b88",
+      "edits": {
+        "float_fakequant_blocks": 2,
+        "removed_premature_gemv_half_casts": 0
+      }
+    },
+    {
+      "source_file": "program_00012.cl",
+      "fnv1a64": "987a7eecd79a86bd",
+      "before_file": "987a7eecd79a86bd.before.cl",
+      "after_file": "987a7eecd79a86bd.after.cl",
+      "sha256_before": "2ad18ff8f5912888daa56746b1328014f706b4539a101ce8686e70ed6afa1bed",
+      "sha256_after": "a3b95c6134dc2e011e46e3e3b6db36d06d05d666d923a9a56b15577d2a09aaf8",
+      "edits": {
+        "float_fakequant_blocks": 1,
+        "removed_premature_gemv_half_casts": 0
+      }
+    },
+    {
+      "source_file": "program_00013.cl",
+      "fnv1a64": "29b83cc88ad2b929",
+      "before_file": "29b83cc88ad2b929.before.cl",
+      "after_file": "29b83cc88ad2b929.after.cl",
+      "sha256_before": "5872090020454cea5a017dcfdc4c6f28526507e4393cd111028d10763a1cf34f",
+      "sha256_after": "a51fc492dd0187ad67db02610152e0fb31fae6a190ad6d3aae366eb1a2a19060",
+      "edits": {
+        "float_fakequant_blocks": 1,
+        "removed_premature_gemv_half_casts": 0
+      }
+    },
+    {
+      "source_file": "program_00014.cl",
+      "fnv1a64": "637cd9b0303be7cf",
+      "before_file": "637cd9b0303be7cf.before.cl",
+      "after_file": "637cd9b0303be7cf.after.cl",
+      "sha256_before": "62bb959a65a84cbfcbf7e61a089ca76c1d5291ee20295fada606a3b39675280e",
+      "sha256_after": "5b13f0f43712727413d91f3f70609aedb44745a2ad2fa187adeb534a5508d96c",
+      "edits": {
+        "float_fakequant_blocks": 3,
+        "removed_premature_gemv_half_casts": 0
+      }
+    },
+    {
+      "source_file": "program_00041.cl",
+      "fnv1a64": "5e53d8a31d3ef361",
+      "before_file": "5e53d8a31d3ef361.before.cl",
+      "after_file": "5e53d8a31d3ef361.after.cl",
+      "sha256_before": "647b969736769d209b6415d1462d7f2d1b03669b4c9e6264c788928a9282190f",
+      "sha256_after": "16ea52cb8491dbb1b515bdeb3205a6527bb273b3889441e68fc23d034a878b08",
+      "edits": {
+        "float_fakequant_blocks": 1,
+        "removed_premature_gemv_half_casts": 0
+      }
+    },
+    {
+      "source_file": "program_00042.cl",
+      "fnv1a64": "569db777f2fe5240",
+      "before_file": "569db777f2fe5240.before.cl",
+      "after_file": "569db777f2fe5240.after.cl",
+      "sha256_before": "8352833cfcca7944a09443731d67118b068c011bb46ad5a5257ce625bf554d9a",
+      "sha256_after": "f6cc015a4772e98bd47493bef928af4cd6f7139fd7bd64cd3b83155e5609d55d",
+      "edits": {
+        "float_fakequant_blocks": 2,
+        "removed_premature_gemv_half_casts": 0
+      }
+    },
+    {
+      "source_file": "program_00044.cl",
+      "fnv1a64": "0047c0407471e93b",
+      "before_file": "0047c0407471e93b.before.cl",
+      "after_file": "0047c0407471e93b.after.cl",
+      "sha256_before": "ac4311834423150950d7f06996330b85bdbfe05c872479bc391d3f900e161b66",
+      "sha256_after": "6f08c10fc29af7faac987ba9a83dc0514858faa6b59983d9854f882189022763",
+      "edits": {
+        "float_fakequant_blocks": 2,
+        "removed_premature_gemv_half_casts": 0
+      }
+    },
+    {
+      "source_file": "program_00045.cl",
+      "fnv1a64": "53d3b8dd58692131",
+      "before_file": "53d3b8dd58692131.before.cl",
+      "after_file": "53d3b8dd58692131.after.cl",
+      "sha256_before": "010270f74884845215ec0f0b3013029320c0f2d0a4efbc93ddf208c315bd3da9",
+      "sha256_after": "d4783102be337e57344261b8ca5ac1ab90d25d6e6f99131fb6ffbbbaf0e0fa0a",
+      "edits": {
+        "float_fakequant_blocks": 2,
+        "removed_premature_gemv_half_casts": 0
+      }
+    },
+    {
+      "source_file": "program_00046.cl",
+      "fnv1a64": "22a41b07b6e73681",
+      "before_file": "22a41b07b6e73681.before.cl",
+      "after_file": "22a41b07b6e73681.after.cl",
+      "sha256_before": "323d1ad1f69b9bc54d4057ca64c5c0c50a6aae30cb00510db33c7b50b9753244",
+      "sha256_after": "b9e6569b90f6b9ff376a3b943e83fd68aa14197a4771d83cbe16191e7ff7fc54",
+      "edits": {
+        "float_fakequant_blocks": 1,
+        "removed_premature_gemv_half_casts": 0
+      }
+    },
+    {
+      "source_file": "program_00047.cl",
+      "fnv1a64": "feef1e3e6ac2bbea",
+      "before_file": "feef1e3e6ac2bbea.before.cl",
+      "after_file": "feef1e3e6ac2bbea.after.cl",
+      "sha256_before": "e3e18e4d14d776d67beeb6878f3f5657fe50c858b4f0790a3df94802b9f92dd0",
+      "sha256_after": "680b044a1285656ef932129058a7ffdeb38a480dbe41130a6dc067bdddb305e5",
+      "edits": {
+        "float_fakequant_blocks": 3,
+        "removed_premature_gemv_half_casts": 0
+      }
+    },
+    {
+      "source_file": "program_00048.cl",
+      "fnv1a64": "cd57b3a763571007",
+      "before_file": "cd57b3a763571007.before.cl",
+      "after_file": "cd57b3a763571007.after.cl",
+      "sha256_before": "5e78c31f6c7064754e2ad011432e57e908184507e0beef554b51e16c45d53f5d",
+      "sha256_after": "474a9f582857465484606a3116e90a8a3b786124d667f2fcbce5e3ebc722e5ac",
+      "edits": {
+        "float_fakequant_blocks": 2,
+        "removed_premature_gemv_half_casts": 0
+      }
+    },
+    {
+      "source_file": "program_00050.cl",
+      "fnv1a64": "8d8c19a9b7769912",
+      "before_file": "8d8c19a9b7769912.before.cl",
+      "after_file": "8d8c19a9b7769912.after.cl",
+      "sha256_before": "7915a88a29abd8b17dff5ebe4ed86b229a67c978d96493c2600cbe9a6a2dad6e",
+      "sha256_after": "34a78c27d7f6681e20394687c25886739aa858d8544f8e501df4d97e5d724836",
+      "edits": {
+        "float_fakequant_blocks": 1,
+        "removed_premature_gemv_half_casts": 0
+      }
+    },
+    {
+      "source_file": "program_00051.cl",
+      "fnv1a64": "384a0a404d88da95",
+      "before_file": "384a0a404d88da95.before.cl",
+      "after_file": "384a0a404d88da95.after.cl",
+      "sha256_before": "44572dc36bb8419cd9c1e5bad9ee24f9a44c7a8d3b3f3dc190ab6a126ef6dd76",
+      "sha256_after": "58c84be67c2c587b300fcb767711791c928939de405ec53e8f5ac71015865c19",
+      "edits": {
+        "float_fakequant_blocks": 3,
+        "removed_premature_gemv_half_casts": 0
+      }
+    },
+    {
+      "source_file": "program_00056.cl",
+      "fnv1a64": "6a367d94a1fae770",
+      "before_file": "6a367d94a1fae770.before.cl",
+      "after_file": "6a367d94a1fae770.after.cl",
+      "sha256_before": "cbfd4e90c9400beae605b149b966b04fc05003afb946b4d276b048b30b72c2c2",
+      "sha256_after": "ecb212f50a0e662e7f4593869d91402bfcec9617456ba747c189cc81c9d277c7",
+      "edits": {
+        "float_fakequant_blocks": 2,
+        "removed_premature_gemv_half_casts": 0
+      }
+    },
+    {
+      "source_file": "program_00057.cl",
+      "fnv1a64": "d67371a940cdb410",
+      "before_file": "d67371a940cdb410.before.cl",
+      "after_file": "d67371a940cdb410.after.cl",
+      "sha256_before": "a7b1f3da78b0254cebeaa9a0dfdebaf6d540b1147c2eacbf25912d1096f5eec7",
+      "sha256_after": "bc8d19944fbfd9eb9fa1f02fadd403f38ee328a33c73df30710b0f346bf0446c",
+      "edits": {
+        "float_fakequant_blocks": 2,
+        "removed_premature_gemv_half_casts": 0
+      }
+    },
+    {
+      "source_file": "program_00058.cl",
+      "fnv1a64": "dd0e88b130352c9b",
+      "before_file": "dd0e88b130352c9b.before.cl",
+      "after_file": "dd0e88b130352c9b.after.cl",
+      "sha256_before": "9987a177d01469384b09d039e2ad7c7e451af79c9a7915df7416a774824379c5",
+      "sha256_after": "fda7b690b1d0be7e1addea152c6b988e0d5e4a16077a8d82921b0a005c28ffff",
+      "edits": {
+        "float_fakequant_blocks": 2,
+        "removed_premature_gemv_half_casts": 0
+      }
+    },
+    {
+      "source_file": "program_00071.cl",
+      "fnv1a64": "c8e436a17d6d378a",
+      "before_file": "c8e436a17d6d378a.before.cl",
+      "after_file": "c8e436a17d6d378a.after.cl",
+      "sha256_before": "67768469b93145041f80f7230fda8c9bc20d12139355c92a1cedaa75f85cac6c",
+      "sha256_after": "d1fdc0b56961bb3aa4a5fcbc492c99e04882275008096080dc0998a01f90c93e",
+      "edits": {
+        "float_fakequant_blocks": 8,
+        "removed_premature_gemv_half_casts": 0
+      }
+    },
+    {
+      "source_file": "program_00072.cl",
+      "fnv1a64": "8acedd76916b6777",
+      "before_file": "8acedd76916b6777.before.cl",
+      "after_file": "8acedd76916b6777.after.cl",
+      "sha256_before": "f09800080ac5606d535366a0dda74602b7d5f801c2f6f00c24ef53d7e8ef0978",
+      "sha256_after": "dba7f22d7d4c3fb3bba70f4a62b12d09b33b37b326ac022a662fa31c044a3c24",
+      "edits": {
+        "float_fakequant_blocks": 2,
+        "removed_premature_gemv_half_casts": 0
+      }
+    },
+    {
+      "source_file": "program_00077.cl",
+      "fnv1a64": "b8ca06d22b1fa7bc",
+      "before_file": "b8ca06d22b1fa7bc.before.cl",
+      "after_file": "b8ca06d22b1fa7bc.after.cl",
+      "sha256_before": "33aa98e1d93188358be005a45aac842388cae66d39984b8e66faf9d287c6a817",
+      "sha256_after": "1b302aa80f16d919913ce45e2915b61a23ba1c38e67bd8cc150a0d0d02a4f1f1",
+      "edits": {
+        "float_fakequant_blocks": 1,
+        "removed_premature_gemv_half_casts": 0
+      }
+    },
+    {
+      "source_file": "program_00079.cl",
+      "fnv1a64": "a256220bb8eaebd4",
+      "before_file": "a256220bb8eaebd4.before.cl",
+      "after_file": "a256220bb8eaebd4.after.cl",
+      "sha256_before": "7a0e577701c465a0c70180e82d7a5fd15e15532b659954e5ff955f26b8bb66ba",
+      "sha256_after": "b7686462053ecd69581098ed1d4e93a4e56b083e56fa932a3c1907a7cae0dd65",
+      "edits": {
+        "float_fakequant_blocks": 4,
+        "removed_premature_gemv_half_casts": 0
+      }
+    },
+    {
+      "source_file": "program_00107.cl",
+      "fnv1a64": "8ed8807ea8a5f61d",
+      "before_file": "8ed8807ea8a5f61d.before.cl",
+      "after_file": "8ed8807ea8a5f61d.after.cl",
+      "sha256_before": "75cacfe83b30c9d2494e4be4d1ec8de60b863720fe8dd3ca396a507fc59383b1",
+      "sha256_after": "e456b39eb35c5a1fc7eeeffc8b9e34790ff25c919fb2d60f4aecc764774f409f",
+      "edits": {
+        "float_fakequant_blocks": 1,
+        "removed_premature_gemv_half_casts": 0
+      }
+    },
+    {
+      "source_file": "program_00109.cl",
+      "fnv1a64": "d9b9131a7c898544",
+      "before_file": "d9b9131a7c898544.before.cl",
+      "after_file": "d9b9131a7c898544.after.cl",
+      "sha256_before": "7b03a606e2a133edcdefac43cce4473214720001a40ecd8c9860e8c22c8666d3",
+      "sha256_after": "6934c40972dce44a75fb3fd223bc7364cb44cc02d4116170625e0c929db84e97",
+      "edits": {
+        "float_fakequant_blocks": 16,
+        "removed_premature_gemv_half_casts": 0
+      }
+    },
+    {
+      "source_file": "program_00111.cl",
+      "fnv1a64": "087f7cfead393a94",
+      "before_file": "087f7cfead393a94.before.cl",
+      "after_file": "087f7cfead393a94.after.cl",
+      "sha256_before": "249919ddb23a6d4d849e60e5555e72d783c0e361a2d4fd551c2674530be06415",
+      "sha256_after": "d3d41755d6c12a1478c6b8e888f3306de227a31829d3a45bbfe6a9e1d6a5462d",
+      "edits": {
+        "float_fakequant_blocks": 16,
+        "removed_premature_gemv_half_casts": 0
+      }
+    },
+    {
+      "source_file": "program_00113.cl",
+      "fnv1a64": "1a8be22ee9f02c48",
+      "before_file": "1a8be22ee9f02c48.before.cl",
+      "after_file": "1a8be22ee9f02c48.after.cl",
+      "sha256_before": "ed69363da6c1ac18cb69d312718e5538b3c837724a2627482429ec6cb62e8459",
+      "sha256_after": "4692f4eb945e171301d577a1222c5937253ba049117183dd78d1e68a0a6b64a8",
+      "edits": {
+        "float_fakequant_blocks": 12,
+        "removed_premature_gemv_half_casts": 0
+      }
+    },
+    {
+      "source_file": "program_00125.cl",
+      "fnv1a64": "95983d30bc312cb6",
+      "before_file": "95983d30bc312cb6.before.cl",
+      "after_file": "95983d30bc312cb6.after.cl",
+      "sha256_before": "a66809fe00d6e16423001ed403764790bdd013a1c143a910a4e8debe0ca754b2",
+      "sha256_after": "6b8fdc94a8ef7281085d3dbf8a69e2d2a1ebeb47d064c7858930a3a24a35e1ae",
+      "edits": {
+        "float_fakequant_blocks": 1,
+        "removed_premature_gemv_half_casts": 0
+      }
+    },
+    {
+      "source_file": "program_00126.cl",
+      "fnv1a64": "be44050770231d6a",
+      "before_file": "be44050770231d6a.before.cl",
+      "after_file": "be44050770231d6a.after.cl",
+      "sha256_before": "8fc16d76c5ce2081ad612ff499d617be1552d322564aa2f94c5970c11905147f",
+      "sha256_after": "8cce4a8070dc111be1b6537990b6fcb3aa436e64aab9f1b42362b0d3a8186cdc",
+      "edits": {
+        "float_fakequant_blocks": 1,
+        "removed_premature_gemv_half_casts": 0
+      }
+    },
+    {
+      "source_file": "program_00137.cl",
+      "fnv1a64": "1f5aafdda63ca41a",
+      "before_file": "1f5aafdda63ca41a.before.cl",
+      "after_file": "1f5aafdda63ca41a.after.cl",
+      "sha256_before": "17882997e6985397950192d8db26e81237e5c59d1cf6a9856ae07151cfb0ec7b",
+      "sha256_after": "790ed4d37b6ebf0a4770c741cda03d9c9e22061c43e564b5e8adea42060579ea",
+      "edits": {
+        "float_fakequant_blocks": 8,
+        "removed_premature_gemv_half_casts": 0
+      }
+    },
+    {
+      "source_file": "program_00139.cl",
+      "fnv1a64": "131d22cd8e20df66",
+      "before_file": "131d22cd8e20df66.before.cl",
+      "after_file": "131d22cd8e20df66.after.cl",
+      "sha256_before": "b3af491ee2afd803e9acf900c83640cb3dbd865c193ce358a208757a716bf9c8",
+      "sha256_after": "45e8273b5b2496d8140ccd57468fe956e4c1985afa10d02cfcb03a01f8373304",
+      "edits": {
+        "float_fakequant_blocks": 8,
+        "removed_premature_gemv_half_casts": 0
+      }
+    },
+    {
+      "source_file": "program_00141.cl",
+      "fnv1a64": "e69105eb61777029",
+      "before_file": "e69105eb61777029.before.cl",
+      "after_file": "e69105eb61777029.after.cl",
+      "sha256_before": "7b52f5ff334e37599f8cf7c181bff06c22b5a43e99e4cf0165667a7bcf2e2935",
+      "sha256_after": "d928978c6171900171afc4bcc1e71e94156d28f940f19e923b535fa6c5158f30",
+      "edits": {
+        "float_fakequant_blocks": 3,
+        "removed_premature_gemv_half_casts": 0
+      }
+    },
+    {
+      "source_file": "program_00148.cl",
+      "fnv1a64": "647b98076a3d724d",
+      "before_file": "647b98076a3d724d.before.cl",
+      "after_file": "647b98076a3d724d.after.cl",
+      "sha256_before": "bb45c34d413f30d0888a6bbbdc04df4dc1d413efc21b9818851691562cb59189",
+      "sha256_after": "ff30d0e928acc8203521d84e8ce51327e8d1f8226c41699b8e4470136cad08bc",
+      "edits": {
+        "float_fakequant_blocks": 4,
+        "removed_premature_gemv_half_casts": 0
+      }
+    },
+    {
+      "source_file": "program_00149.cl",
+      "fnv1a64": "be9cf471c7e11d2a",
+      "before_file": "be9cf471c7e11d2a.before.cl",
+      "after_file": "be9cf471c7e11d2a.after.cl",
+      "sha256_before": "0044f6e8df7cc078a61381594b64c97d40bb10172d51e1ad1613a36703612b16",
+      "sha256_after": "682d8ccf9b5e2cf3936835ff5652a4c72ddebd5a7c5c6943ab5fc3bc50898d08",
+      "edits": {
+        "float_fakequant_blocks": 4,
+        "removed_premature_gemv_half_casts": 0
+      }
+    },
+    {
+      "source_file": "program_00150.cl",
+      "fnv1a64": "e0be9be2ebb6587e",
+      "before_file": "e0be9be2ebb6587e.before.cl",
+      "after_file": "e0be9be2ebb6587e.after.cl",
+      "sha256_before": "31560d92c8d96e421968c67847d7c821baea694dd808934bae7f210eedc87dd5",
+      "sha256_after": "47c926f76960b50bf3466fc26d13ece7afffdbc7b6f4a1f19fd95977d079c9e3",
+      "edits": {
+        "float_fakequant_blocks": 4,
+        "removed_premature_gemv_half_casts": 0
+      }
+    },
+    {
+      "source_file": "program_00156.cl",
+      "fnv1a64": "05fa49ea76a9f6f0",
+      "before_file": "05fa49ea76a9f6f0.before.cl",
+      "after_file": "05fa49ea76a9f6f0.after.cl",
+      "sha256_before": "d2690d1741530b46a5606063c9c2678eb2746bde7413d7986b469469da245403",
+      "sha256_after": "8d98b3c4938d0050f03419cf8207af547a023cc40e75ba0152da8a805163ac88",
+      "edits": {
+        "float_fakequant_blocks": 8,
+        "removed_premature_gemv_half_casts": 0
+      }
+    },
+    {
+      "source_file": "program_00157.cl",
+      "fnv1a64": "561fc158e9c04b54",
+      "before_file": "561fc158e9c04b54.before.cl",
+      "after_file": "561fc158e9c04b54.after.cl",
+      "sha256_before": "e954f5097360f735b3f4554e47c241169c91fa3a96207ce877bcc76224ee89ca",
+      "sha256_after": "3e6a55a6801ff8d23302f3ef04526aaa7f78db9905ce9182f1930cc5e557757c",
+      "edits": {
+        "float_fakequant_blocks": 8,
+        "removed_premature_gemv_half_casts": 0
+      }
+    },
+    {
+      "source_file": "program_00158.cl",
+      "fnv1a64": "be81d70f3e40154c",
+      "before_file": "be81d70f3e40154c.before.cl",
+      "after_file": "be81d70f3e40154c.after.cl",
+      "sha256_before": "5cef99db556f3e7dee6d5035a1211c1c13aaf9a4570c4593930709676ff51fbb",
+      "sha256_after": "8cf802d1bede0495d6427110f9929b13766c0e48eb1b79d061478db5386977cc",
+      "edits": {
+        "float_fakequant_blocks": 8,
+        "removed_premature_gemv_half_casts": 0
+      }
+    },
+    {
+      "source_file": "program_00159.cl",
+      "fnv1a64": "f42a374095c09463",
+      "before_file": "f42a374095c09463.before.cl",
+      "after_file": "f42a374095c09463.after.cl",
+      "sha256_before": "dbf78567e184704167d5f11ca0c1241dda3863e986dca451a327b3a897693581",
+      "sha256_after": "355b9321be8975c088352f80cde4f2d72014cf2f3049be21006f8bf367eab568",
+      "edits": {
+        "float_fakequant_blocks": 12,
+        "removed_premature_gemv_half_casts": 0
+      }
+    },
+    {
+      "source_file": "program_00160.cl",
+      "fnv1a64": "7a08e53ee99fd5b7",
+      "before_file": "7a08e53ee99fd5b7.before.cl",
+      "after_file": "7a08e53ee99fd5b7.after.cl",
+      "sha256_before": "67fc28e175b2a689cbb6bec6a8ad848b8416ba704a0170719738cd7d0edd90fb",
+      "sha256_after": "521baea1bdc9d28a0d50a25cda1d622edec4c27ba6f1d682009d5182d23f4b01",
+      "edits": {
+        "float_fakequant_blocks": 8,
+        "removed_premature_gemv_half_casts": 0
+      }
+    },
+    {
+      "source_file": "program_00161.cl",
+      "fnv1a64": "91788fab656e6e3e",
+      "before_file": "91788fab656e6e3e.before.cl",
+      "after_file": "91788fab656e6e3e.after.cl",
+      "sha256_before": "d9958417013cf06133cd0f780cbc946c21a9be7d6822c39e22593de08fae9eb5",
+      "sha256_after": "4f86b8f340e3e82e8e1ea8c7b52614f8eaa5dd4531d7abc4d1eddcbab38bb596",
+      "edits": {
+        "float_fakequant_blocks": 4,
+        "removed_premature_gemv_half_casts": 0
+      }
+    },
+    {
+      "source_file": "program_00164.cl",
+      "fnv1a64": "c5b29856b139b53b",
+      "before_file": "c5b29856b139b53b.before.cl",
+      "after_file": "c5b29856b139b53b.after.cl",
+      "sha256_before": "f26eea4356f8c67583fba53687e8673eeca642845019764058fd44d0fa2645a6",
+      "sha256_after": "aaac270655ca46f02846af9dc67b57a9291e78eeccfcf68c336a431a3d2e5008",
+      "edits": {
+        "float_fakequant_blocks": 8,
+        "removed_premature_gemv_half_casts": 0
+      }
+    },
+    {
+      "source_file": "program_00165.cl",
+      "fnv1a64": "0542b47cf4393d7f",
+      "before_file": "0542b47cf4393d7f.before.cl",
+      "after_file": "0542b47cf4393d7f.after.cl",
+      "sha256_before": "1aaa4bf4e7e3f4b11c072318dded8bc6e1806df6b1bb370c9c43bd9f7949f749",
+      "sha256_after": "ef6a4f57df22ef3cd07caee80e0dbfb547f36bf37870582c0047c62ab31979cd",
+      "edits": {
+        "float_fakequant_blocks": 8,
+        "removed_premature_gemv_half_casts": 0
+      }
+    },
+    {
+      "source_file": "program_00166.cl",
+      "fnv1a64": "8ea86c2136c01fa5",
+      "before_file": "8ea86c2136c01fa5.before.cl",
+      "after_file": "8ea86c2136c01fa5.after.cl",
+      "sha256_before": "a8318a3f09d0a9ac2f8ff26f7e70971f7eb051afa3442519d555e3d81321dc12",
+      "sha256_after": "2d8f75b629dcb23e53c46fd345f8d58cc16efba227197eb8b5078da1afc210ca",
+      "edits": {
+        "float_fakequant_blocks": 8,
+        "removed_premature_gemv_half_casts": 0
+      }
+    }
+  ],
+  "exclusions": [
+    {
+      "source_file": "program_00001.cl",
+      "fnv1a64": "8de6511124598832",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00002.cl",
+      "fnv1a64": "e0d06cb77a83dafa",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00003.cl",
+      "fnv1a64": "457a45d7c7a8669e",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00004.cl",
+      "fnv1a64": "7bd9daf1c0626238",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00005.cl",
+      "fnv1a64": "48cc23a9db889404",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00006.cl",
+      "fnv1a64": "3cf272929864192c",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00010.cl",
+      "fnv1a64": "d40e038d6e0ad836",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00011.cl",
+      "fnv1a64": "57448f3f7374029b",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00015.cl",
+      "fnv1a64": "5b2662f5f54a5e19",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00016.cl",
+      "fnv1a64": "3cc1ed60a6ae6921",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00017.cl",
+      "fnv1a64": "073934d3cd22c0f3",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00018.cl",
+      "fnv1a64": "b31ed4f83de15788",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00019.cl",
+      "fnv1a64": "179b545cb36701d8",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00020.cl",
+      "fnv1a64": "05e671f3375d108f",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00021.cl",
+      "fnv1a64": "f1f6cb7ca29ac567",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00022.cl",
+      "fnv1a64": "0471fd97b47c25d5",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00023.cl",
+      "fnv1a64": "4c9af2aa9f104a68",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00024.cl",
+      "fnv1a64": "bb8e402a3391561d",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00025.cl",
+      "fnv1a64": "f13ecd49f6c3fef6",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00026.cl",
+      "fnv1a64": "548c494a952f87f9",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00027.cl",
+      "fnv1a64": "5e12498637867798",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00028.cl",
+      "fnv1a64": "4c727d87cd0f51f5",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00029.cl",
+      "fnv1a64": "f1d4de818c0cc1a6",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00030.cl",
+      "fnv1a64": "e0344cd5fcdb7826",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00031.cl",
+      "fnv1a64": "06d2bf8230ad18ed",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00032.cl",
+      "fnv1a64": "a238ccf9f902e797",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00033.cl",
+      "fnv1a64": "dd5346703aa301ec",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00034.cl",
+      "fnv1a64": "ae8c763ea00c1878",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00035.cl",
+      "fnv1a64": "eeeeaa408f22661b",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00036.cl",
+      "fnv1a64": "a8635ba84ebd6c37",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00037.cl",
+      "fnv1a64": "9d3619f66012cacb",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00038.cl",
+      "fnv1a64": "5aead02ec3383a4b",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00039.cl",
+      "fnv1a64": "e7591b4f955db397",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00040.cl",
+      "fnv1a64": "fb3e6ec959c342bb",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00043.cl",
+      "fnv1a64": "e29263334d79fb2d",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00049.cl",
+      "fnv1a64": "115983559dd37cd1",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00052.cl",
+      "fnv1a64": "00826d714e34a492",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00053.cl",
+      "fnv1a64": "f6ba50eeec7684af",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00054.cl",
+      "fnv1a64": "3c99969fb55cb014",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00055.cl",
+      "fnv1a64": "f76e15edbd641927",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00059.cl",
+      "fnv1a64": "cb8d2f0d8bd2c995",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00060.cl",
+      "fnv1a64": "0c8697636c1883bc",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00061.cl",
+      "fnv1a64": "344a479faa6b724d",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00062.cl",
+      "fnv1a64": "4ea6f9a57030cf06",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00063.cl",
+      "fnv1a64": "a8601313cf798bbb",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00064.cl",
+      "fnv1a64": "c413ceea7c36d0d2",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00065.cl",
+      "fnv1a64": "c6f33ecf0690bf87",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00066.cl",
+      "fnv1a64": "5e2d757c3e7a2dcb",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00067.cl",
+      "fnv1a64": "3efa4cdcf33fbe46",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00068.cl",
+      "fnv1a64": "1197e77436da719c",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00069.cl",
+      "fnv1a64": "acd081fac8937ca4",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00070.cl",
+      "fnv1a64": "6cdf82deb4cd0cfd",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00073.cl",
+      "fnv1a64": "5ea810e7c5b83634",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00074.cl",
+      "fnv1a64": "b899ff340c3d3dd3",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00075.cl",
+      "fnv1a64": "be1441a390efe447",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00076.cl",
+      "fnv1a64": "ff13964af3da0eac",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00078.cl",
+      "fnv1a64": "2f4a890945256919",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00080.cl",
+      "fnv1a64": "d51e3fd8e22b6bc8",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00081.cl",
+      "fnv1a64": "a79094edd9b4c4d4",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00082.cl",
+      "fnv1a64": "1ca399c7a1234b3c",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00083.cl",
+      "fnv1a64": "8f3fb8f9116f84c9",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00084.cl",
+      "fnv1a64": "fa08d8fce3a34113",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00085.cl",
+      "fnv1a64": "c6936131cac9f462",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00086.cl",
+      "fnv1a64": "ff1749e6c0b613b9",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00087.cl",
+      "fnv1a64": "bcdc0c263f35f0cf",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00088.cl",
+      "fnv1a64": "1a1d946a5f39b829",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00089.cl",
+      "fnv1a64": "aab8a291ce73a8cf",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00090.cl",
+      "fnv1a64": "edc946a4d9ac5991",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00091.cl",
+      "fnv1a64": "711f140cbc2351e0",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00092.cl",
+      "fnv1a64": "3096fbad56e90f54",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00093.cl",
+      "fnv1a64": "cfafeae64a73f63f",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00094.cl",
+      "fnv1a64": "6077170ac3acee48",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00095.cl",
+      "fnv1a64": "9500de70d0d944be",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00096.cl",
+      "fnv1a64": "76afbfe2370d36be",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00097.cl",
+      "fnv1a64": "2776e66c7922eb5d",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00098.cl",
+      "fnv1a64": "976076740729ef9f",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00099.cl",
+      "fnv1a64": "377de3a272a9e0c6",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00100.cl",
+      "fnv1a64": "70e12ac2dbe1748d",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00101.cl",
+      "fnv1a64": "6aa74d95b31fd407",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00102.cl",
+      "fnv1a64": "ed01f5989c04bb1d",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00103.cl",
+      "fnv1a64": "9091a99ed8dea6b9",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00104.cl",
+      "fnv1a64": "652f9b2af7c6e3c6",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00105.cl",
+      "fnv1a64": "fac2e2150009aac0",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00106.cl",
+      "fnv1a64": "3b4034a5b0999da9",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00108.cl",
+      "fnv1a64": "3489b4993c57444e",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00110.cl",
+      "fnv1a64": "ee6fe6fba9f2197c",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00112.cl",
+      "fnv1a64": "6c6b5e4d16036cb2",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00114.cl",
+      "fnv1a64": "9bd95cde6997e246",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00115.cl",
+      "fnv1a64": "6b782d4533b1af8a",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00116.cl",
+      "fnv1a64": "131e4ca76d5cb051",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00117.cl",
+      "fnv1a64": "9a344d4fb244f943",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00118.cl",
+      "fnv1a64": "69eab8ca2f6d96a1",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00119.cl",
+      "fnv1a64": "eb41ca94f21e94af",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00120.cl",
+      "fnv1a64": "53c78096802760ef",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00121.cl",
+      "fnv1a64": "95ae0bb959956a74",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00122.cl",
+      "fnv1a64": "a7b8bcaf8cc420b6",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00123.cl",
+      "fnv1a64": "58222a5feef3a50f",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00124.cl",
+      "fnv1a64": "25d8041771463542",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00127.cl",
+      "fnv1a64": "6d7e960c7f6118c2",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00128.cl",
+      "fnv1a64": "2287faf836e9270c",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00129.cl",
+      "fnv1a64": "2628428730d9f8f6",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00130.cl",
+      "fnv1a64": "5fe09273d3a3c309",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00131.cl",
+      "fnv1a64": "b9bc87965239c902",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00132.cl",
+      "fnv1a64": "de4aa62cfd4dd570",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00133.cl",
+      "fnv1a64": "dc7eccd30b2c8906",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00134.cl",
+      "fnv1a64": "f4217eec4b358678",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00135.cl",
+      "fnv1a64": "93ac6255f6c75c4d",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00136.cl",
+      "fnv1a64": "6286f3c4f9cbf1ab",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00138.cl",
+      "fnv1a64": "d4f3353df02ccf22",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00140.cl",
+      "fnv1a64": "5abb5a90b1eeb0b2",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00142.cl",
+      "fnv1a64": "c7f4044a0c6f41a0",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00143.cl",
+      "fnv1a64": "d706df2702ecb340",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00144.cl",
+      "fnv1a64": "aaac67fcb8b56034",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00145.cl",
+      "fnv1a64": "d517e058b21baaa2",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00146.cl",
+      "fnv1a64": "67d648528873cbb9",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00147.cl",
+      "fnv1a64": "3688c6baab2be955",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00151.cl",
+      "fnv1a64": "e1c92e9fd810e942",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00152.cl",
+      "fnv1a64": "127fce0dd0516d0e",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00153.cl",
+      "fnv1a64": "26b8df4a1a580f5f",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00154.cl",
+      "fnv1a64": "1325584b3e304a9e",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00155.cl",
+      "fnv1a64": "30266d1d3c0d1ec6",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00162.cl",
+      "fnv1a64": "d6fe2ea5f00f10c2",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00163.cl",
+      "fnv1a64": "96389a5a3ea2913f",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00167.cl",
+      "fnv1a64": "0977c8defe858830",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00168.cl",
+      "fnv1a64": "0c96081c7159f01c",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00169.cl",
+      "fnv1a64": "1a1d946a5f39b829",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00170.cl",
+      "fnv1a64": "3c39a931e3f96f49",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00171.cl",
+      "fnv1a64": "111bb8ebb1a15a50",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00172.cl",
+      "fnv1a64": "2894d07fa9889ea6",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00173.cl",
+      "fnv1a64": "05d6634095fa889b",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00174.cl",
+      "fnv1a64": "5a03f731c5b29b45",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00175.cl",
+      "fnv1a64": "e9848f5107475d03",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00176.cl",
+      "fnv1a64": "f13ecd49f6c3fef6",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00177.cl",
+      "fnv1a64": "901bf9a77a4a951a",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00178.cl",
+      "fnv1a64": "d795afa85f9d7baa",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00179.cl",
+      "fnv1a64": "dd4216fb4edb36f1",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00180.cl",
+      "fnv1a64": "529924b542cb07b4",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00181.cl",
+      "fnv1a64": "21753b31c9a7a076",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00182.cl",
+      "fnv1a64": "c9203d40838690b9",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00183.cl",
+      "fnv1a64": "6595cb23d8456335",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00184.cl",
+      "fnv1a64": "37b3c5d8ede83ad0",
+      "reason": "no_recognized_fakequant"
+    },
+    {
+      "source_file": "program_00185.cl",
+      "fnv1a64": "6eda78dadc977dad",
+      "reason": "no_recognized_fakequant"
+    }
+  ],
+  "patched_count": 43,
+  "excluded_count": 142
+}

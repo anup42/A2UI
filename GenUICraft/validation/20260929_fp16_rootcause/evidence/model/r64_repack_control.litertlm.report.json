@@ -1,0 +1,22 @@
+{
+  "marker": "diagnostic_repack_only_external_buffers_maxpos_8192",
+  "mode": "repack_only",
+  "input_sha256": "de60d19c8e1ef06ed1032212d0d4ae5d9b0ec105db72db34a988453004e63e62",
+  "output_sha256": "0ccf0bbe12ae6c1721e818ae8541dfe8b66d1ed41cc1e3bda7cbfe93232fbce0",
+  "max_position_exclusive": 8192,
+  "original_target_sha256": "83cd494da7cf143aefb1c9275ed2895e9b1869afc09fa65bf9366e9bb742bda7",
+  "original_non_header_prefix_sha256": "a41e90d8a71db89fbea1227083a95027c8e0f92630f0c441d6296f667b1eba43",
+  "preserved_suffix_sha256": "d19a2b51bc8143e54a59edf98fefc2dbe653b275f1b39ba36d91f24bc0ed9f7d",
+  "table_sha256": {
+    "cos_128": "2636a8da9c6b7d4ddb9951f4309cba048ee94083fd09b3ec29a18fa4c69f4ebd",
+    "cos_256": "308391b0b7332993f22137d5755b8e97f82682a4f6c93be12e02003b8f09297d",
+    "sin_128": "be7be33fea134936b069df976e3deb9d9c0c4a20b3b77c49f1188c5fc2682bf1",
+    "sin_256": "78bc781685e9e124a02c9b4554e1ced34b084c1bf65a3720a4dad11009f7ac52"
+  },
+  "front_size": 40424632,
+  "packed_front_size": 40421088,
+  "new_target_size": 883865640,
+  "new_file_size": 2653732864,
+  "replacement_count": 0,
+  "replacements": []
+}
