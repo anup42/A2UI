@@ -1,0 +1,44 @@
+{
+  "host_tests": [
+    {
+      "suite": "com.samsung.android.bixby.agent.common.genuicraft.GenUiFeatureStoreHarnessTest",
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "rejectedFp16ImportKeepsExistingPreparedFileSidecarAndSelection",
+        "preferencesUseSafeDefaultsAndPersistExplicitChoices",
+        "oldPreferencesStillSelectFp32AndPreserveMtpAndVerificationKeys",
+        "originalAndPreparedModelPathsKeepFilesSeparate",
+        "bundledManifestMatchesTheExactPinnedPreparedPackage",
+        "verificationDistinguishesMissingAndWrongSizeFilesWithoutHashingLargeData",
+        "rejectedWrongSizeImportPreservesPriorModelAndRemovesTemporaryFile",
+        "cachedFp16RejectsMissingAndCorruptSidecarWithoutHashingLargeModel",
+        "pinnedVariantsIdentifyOnlyExactSizeAndHashPairs",
+        "precisionChangesNotifyOnceAndDoNotResetMtp",
+        "missingAndWrongSizeSelectedModelClearEnabledFlag",
+        "closingListenerRegistrationStopsFutureNotifications"
+      ]
+    },
+    {
+      "suite": "com.samsung.android.bixby.agent.renderer.internal.genuicraft.ManagerPrecisionChangeTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "changingMtpRetainsSelectedPrecisionAndInvalidatesTheSession",
+        "switchingPrecisionInvalidatesTheCurrentGenerationAndSessionRevision"
+      ]
+    }
+  ],
+  "total_tests": 14,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "common_source_sha256": "29aee06d6fd06e04afe4ebd5cec920c99da30099574de3aeefbccbbb803e0c18",
+  "common_settings_renderer_compile": "pass against SDK 0.5.8 using proprietary platform stubs",
+  "native_fp16_device_run_this_delivery": false,
+  "successful_full_size_import_tested": false
+}
