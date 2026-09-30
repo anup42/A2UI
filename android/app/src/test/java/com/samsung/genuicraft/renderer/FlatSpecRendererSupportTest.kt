@@ -463,7 +463,8 @@ class FlatSpecRendererSupportTest {
         )
 
         assertNotNull(model)
-        assertEquals(FlatTableRenderMode.PROCESS_CARDS, model!!.renderMode)
+        // Explicit table preference already wins in production, as in the SDK mirror.
+        assertEquals(FlatTableRenderMode.TABLE_HORIZONTAL_SCROLL, model!!.renderMode)
     }
 
     @Test

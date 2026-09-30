@@ -388,6 +388,9 @@ class _EvidenceInterpreterV54(_EvidenceInterpreterV53):
                     "component_id": element_id,
                     "kind": "chart",
                     "chart_type": chart.chart_type,
+                    "series": list(chart.series),
+                    "x_values": list(chart.x_values),
+                    "x_type": chart.x_type,
                     "columns": [
                         {"key": item.key, "label": item.label}
                         for item in chart.columns
@@ -404,27 +407,29 @@ class _EvidenceInterpreterV54(_EvidenceInterpreterV53):
                 if chart.x_index is not None:
                     column = chart.columns[chart.x_index]
                     x_fields = list(dict.fromkeys([column.key, column.label]))
-                if chart.y_index is not None:
-                    column = chart.columns[chart.y_index]
-                    y_fields = list(dict.fromkeys([column.key, column.label]))
-                self._add_role(
-                    "chart",
-                    {
-                        "component_id": element_id,
-                        "title": chart.title,
-                        "chart_type": chart.chart_type,
-                        "x_fields": x_fields,
-                        "y_fields": y_fields,
-                        "x_labels": list(chart.x_labels),
-                        "y_values": list(chart.y_display_values),
-                        "column_identities": [
-                            column.key for column in chart.columns
-                        ],
-                        "data_identity": chart.dataset_identity,
-                    },
-                )
-                if chart.title:
-                    self.visible_blocks.append(chart.title)
+                y_fields = list(dict.fromkeys(value for series in chart.series for value in (series["key"], series["label"])))
+                if chart.complete:
+                    self._add_role(
+                        "chart",
+                        {
+                            "component_id": element_id,
+                            "title": chart.title,
+                            "chart_type": chart.chart_type,
+                            "series": list(chart.series),
+                            "x_values": list(chart.x_values),
+                            "x_type": chart.x_type,
+                            "x_fields": x_fields,
+                            "y_fields": y_fields,
+                            "x_labels": list(chart.x_labels),
+                            "y_values": [value for series in chart.series for value in series["displays"]],
+                            "column_identities": [
+                                column.key for column in chart.columns
+                            ],
+                            "data_identity": chart.dataset_identity,
+                        },
+                    )
+                    if chart.title:
+                        self.visible_blocks.append(chart.title)
 
             if structured is not None:
                 self.visible_blocks.extend(

@@ -22,7 +22,7 @@ def row(completion, source='A: 12'):
     }
 
 
-@pytest.mark.parametrize('subtype', ['line', 'pie', 'stackedbar', 'scatter', 'groupedbar', 'area', 'combo', 'radar'])
+@pytest.mark.parametrize('subtype', ['sankey', 'surface3d', 'unknown'])
 def test_unsupported_charts_quarantined_without_rewriting(subtype):
     candidate = row(f'<a2ui>\nroot=Chart(chartType="{subtype}",rows=[{{label:"A",value:12}}])\n</a2ui>')
     original = deepcopy(candidate)
@@ -32,7 +32,7 @@ def test_unsupported_charts_quarantined_without_rewriting(subtype):
     assert candidate == original
 
 
-@pytest.mark.parametrize('subtype', ['bar', 'column'])
+@pytest.mark.parametrize('subtype', ['bar', 'column', 'line', 'area', 'pie', 'donut', 'groupedbar', 'stackedbar', 'stackedarea', 'funnel', 'treemap'])
 def test_renderer_supported_charts_remain_eligible(subtype):
     candidate = row(f'<a2ui>\nroot=Chart(chartType="{subtype}",rows=[{{label:"A",value:12}}])\n</a2ui>')
     prepared, _, _ = prepare_row(candidate, 'root-first')
@@ -47,7 +47,7 @@ def test_chart_subtype_bindings_resolve_to_renderer_supported_value(subtype):
 
 
 def test_bound_unsupported_chart_is_held():
-    candidate = row('<a2ui>\n$/={kind:"radar"}\nroot=Chart(chartType="${/kind}",columns=["Label","Value"],rows=[["A",12]])\n</a2ui>')
+    candidate = row('<a2ui>\n$/={kind:"sankey"}\nroot=Chart(chartType="${/kind}",columns=["Label","Value"],rows=[["A",12]])\n</a2ui>')
     with pytest.raises(PreparationError) as failure:
         prepare_row(candidate, 'root-first')
     assert failure.value.reason == 'unsupported_renderer_chart'
@@ -65,7 +65,7 @@ def test_exact_reviewed_target_held_but_regenerated_target_not_blanket_blocked()
 
 def test_normal_preparation_records_release_holds_and_policy_hash(tmp_path):
     good = row('<a2ui>\nroot=Text("A: 12")\n</a2ui>')
-    bad = row('<a2ui>\nroot=Chart(chartType="line",rows=[{label:"A",value:12}])\n</a2ui>')
+    bad = row('<a2ui>\nroot=Chart(chartType="sankey",rows=[{label:"A",value:12}])\n</a2ui>')
     source = tmp_path / 'source.jsonl'
     source.write_text(json.dumps(good) + '\n' + json.dumps(bad) + '\n')
     destination = tmp_path / 'prepared'

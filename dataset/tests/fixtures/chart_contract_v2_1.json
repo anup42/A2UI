@@ -1,0 +1,1620 @@
+[
+  {
+    "name": "bar",
+    "props": {
+      "chartType": "bar",
+      "rows": [
+        [
+          "A",
+          3
+        ],
+        [
+          "B",
+          7
+        ],
+        [
+          "C",
+          5
+        ]
+      ],
+      "columns": [
+        "category",
+        "value"
+      ]
+    },
+    "state": {},
+    "expected": {
+      "complete": true,
+      "series_values": [
+        [
+          3,
+          7,
+          5
+        ]
+      ],
+      "x_values": [
+        0,
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "name": "column",
+    "props": {
+      "chartType": "column",
+      "rows": [
+        [
+          "A",
+          3
+        ],
+        [
+          "B",
+          7
+        ],
+        [
+          "C",
+          5
+        ]
+      ],
+      "columns": [
+        "category",
+        "value"
+      ]
+    },
+    "state": {},
+    "expected": {
+      "complete": true,
+      "series_values": [
+        [
+          3,
+          7,
+          5
+        ]
+      ],
+      "x_values": [
+        0,
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "name": "line",
+    "props": {
+      "chartType": "line",
+      "rows": [
+        [
+          "A",
+          3,
+          8
+        ],
+        [
+          "B",
+          7,
+          4
+        ],
+        [
+          "C",
+          5,
+          6
+        ]
+      ],
+      "columns": [
+        "category",
+        "first",
+        "second"
+      ]
+    },
+    "state": {},
+    "expected": {
+      "complete": true,
+      "series_values": [
+        [
+          3,
+          7,
+          5
+        ],
+        [
+          8,
+          4,
+          6
+        ]
+      ],
+      "x_values": [
+        0,
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "name": "area",
+    "props": {
+      "chartType": "area",
+      "rows": [
+        [
+          "A",
+          3,
+          8
+        ],
+        [
+          "B",
+          7,
+          4
+        ],
+        [
+          "C",
+          5,
+          6
+        ]
+      ],
+      "columns": [
+        "category",
+        "first",
+        "second"
+      ]
+    },
+    "state": {},
+    "expected": {
+      "complete": true,
+      "series_values": [
+        [
+          3,
+          7,
+          5
+        ],
+        [
+          8,
+          4,
+          6
+        ]
+      ],
+      "x_values": [
+        0,
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "name": "groupedbar",
+    "props": {
+      "chartType": "groupedbar",
+      "rows": [
+        [
+          "A",
+          3,
+          8
+        ],
+        [
+          "B",
+          7,
+          4
+        ],
+        [
+          "C",
+          5,
+          6
+        ]
+      ],
+      "columns": [
+        "category",
+        "first",
+        "second"
+      ]
+    },
+    "state": {},
+    "expected": {
+      "complete": true,
+      "series_values": [
+        [
+          3,
+          7,
+          5
+        ],
+        [
+          8,
+          4,
+          6
+        ]
+      ],
+      "x_values": [
+        0,
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "name": "stackedbar",
+    "props": {
+      "chartType": "stackedbar",
+      "rows": [
+        [
+          "A",
+          3,
+          8
+        ],
+        [
+          "B",
+          7,
+          4
+        ],
+        [
+          "C",
+          5,
+          6
+        ]
+      ],
+      "columns": [
+        "category",
+        "first",
+        "second"
+      ]
+    },
+    "state": {},
+    "expected": {
+      "complete": true,
+      "series_values": [
+        [
+          3,
+          7,
+          5
+        ],
+        [
+          8,
+          4,
+          6
+        ]
+      ],
+      "x_values": [
+        0,
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "name": "stackedarea",
+    "props": {
+      "chartType": "stackedarea",
+      "rows": [
+        [
+          "A",
+          3,
+          8
+        ],
+        [
+          "B",
+          7,
+          4
+        ],
+        [
+          "C",
+          5,
+          6
+        ]
+      ],
+      "columns": [
+        "category",
+        "first",
+        "second"
+      ]
+    },
+    "state": {},
+    "expected": {
+      "complete": true,
+      "series_values": [
+        [
+          3,
+          7,
+          5
+        ],
+        [
+          8,
+          4,
+          6
+        ]
+      ],
+      "x_values": [
+        0,
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "name": "pie",
+    "props": {
+      "chartType": "pie",
+      "rows": [
+        [
+          "A",
+          3
+        ],
+        [
+          "B",
+          7
+        ],
+        [
+          "C",
+          5
+        ]
+      ],
+      "columns": [
+        "category",
+        "value"
+      ]
+    },
+    "state": {},
+    "expected": {
+      "complete": true,
+      "series_values": [
+        [
+          3,
+          7,
+          5
+        ]
+      ],
+      "x_values": [
+        0,
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "name": "donut",
+    "props": {
+      "chartType": "donut",
+      "rows": [
+        [
+          "A",
+          3
+        ],
+        [
+          "B",
+          7
+        ],
+        [
+          "C",
+          5
+        ]
+      ],
+      "columns": [
+        "category",
+        "value"
+      ]
+    },
+    "state": {},
+    "expected": {
+      "complete": true,
+      "series_values": [
+        [
+          3,
+          7,
+          5
+        ]
+      ],
+      "x_values": [
+        0,
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "name": "funnel",
+    "props": {
+      "chartType": "funnel",
+      "rows": [
+        [
+          "A",
+          3
+        ],
+        [
+          "B",
+          7
+        ],
+        [
+          "C",
+          5
+        ]
+      ],
+      "columns": [
+        "category",
+        "value"
+      ]
+    },
+    "state": {},
+    "expected": {
+      "complete": true,
+      "series_values": [
+        [
+          3,
+          7,
+          5
+        ]
+      ],
+      "x_values": [
+        0,
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "name": "treemap",
+    "props": {
+      "chartType": "treemap",
+      "rows": [
+        [
+          "A",
+          3
+        ],
+        [
+          "B",
+          7
+        ],
+        [
+          "C",
+          5
+        ]
+      ],
+      "columns": [
+        "category",
+        "value"
+      ]
+    },
+    "state": {},
+    "expected": {
+      "complete": true,
+      "series_values": [
+        [
+          3,
+          7,
+          5
+        ]
+      ],
+      "x_values": [
+        0,
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "name": "radar",
+    "props": {
+      "chartType": "radar",
+      "rows": [
+        [
+          "A",
+          3,
+          8
+        ],
+        [
+          "B",
+          7,
+          4
+        ],
+        [
+          "C",
+          5,
+          6
+        ]
+      ],
+      "columns": [
+        "category",
+        "first",
+        "second"
+      ]
+    },
+    "state": {},
+    "expected": {
+      "complete": true,
+      "series_values": [
+        [
+          3,
+          7,
+          5
+        ],
+        [
+          8,
+          4,
+          6
+        ]
+      ],
+      "x_values": [
+        0,
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "name": "numeric_scatter",
+    "props": {
+      "chartType": "scatter",
+      "rows": [
+        [
+          7.2,
+          4.1
+        ],
+        [
+          6.8,
+          12.5
+        ],
+        [
+          9.6,
+          0
+        ]
+      ],
+      "columns": [
+        "ph",
+        "turbidity"
+      ],
+      "xKey": "ph",
+      "yKey": "turbidity"
+    },
+    "state": {},
+    "expected": {
+      "complete": true,
+      "series_values": [
+        [
+          4.1,
+          12.5,
+          0
+        ]
+      ],
+      "x_values": [
+        7.2,
+        6.8,
+        9.6
+      ]
+    }
+  },
+  {
+    "name": "bubble",
+    "props": {
+      "chartType": "bubble",
+      "rows": [
+        [
+          1,
+          2,
+          1
+        ],
+        [
+          2,
+          6,
+          4
+        ],
+        [
+          5,
+          4,
+          9
+        ]
+      ],
+      "columns": [
+        "x",
+        "y",
+        "size"
+      ],
+      "sizeKey": "size"
+    },
+    "state": {},
+    "expected": {
+      "complete": true,
+      "series_values": [
+        [
+          2,
+          6,
+          4
+        ]
+      ],
+      "x_values": [
+        1,
+        2,
+        5
+      ],
+      "sizes": [
+        1,
+        4,
+        9
+      ]
+    }
+  },
+  {
+    "name": "dual_axis_combo",
+    "props": {
+      "chartType": "dualaxisline",
+      "rows": [
+        [
+          "A",
+          8,
+          78
+        ],
+        [
+          "B",
+          10,
+          90
+        ],
+        [
+          "C",
+          6,
+          85
+        ]
+      ],
+      "columns": [
+        "week",
+        "hours",
+        "quiz"
+      ],
+      "series": [
+        {
+          "yKey": "hours",
+          "type": "column",
+          "axis": "left",
+          "unit": "h"
+        },
+        {
+          "yKey": "quiz",
+          "type": "line",
+          "axis": "right",
+          "unit": "%"
+        }
+      ]
+    },
+    "state": {},
+    "expected": {
+      "complete": true,
+      "series_values": [
+        [
+          8,
+          10,
+          6
+        ],
+        [
+          78,
+          90,
+          85
+        ]
+      ],
+      "axes": [
+        "left",
+        "right"
+      ]
+    }
+  },
+  {
+    "name": "box",
+    "props": {
+      "chartType": "box",
+      "rows": [
+        [
+          "A",
+          1,
+          2,
+          3,
+          5,
+          8
+        ],
+        [
+          "B",
+          0,
+          1,
+          4,
+          6,
+          9
+        ]
+      ],
+      "columns": [
+        "group",
+        "lo",
+        "q1",
+        "med",
+        "q3",
+        "hi"
+      ],
+      "boxKeys": {
+        "min": "lo",
+        "q1": "q1",
+        "median": "med",
+        "q3": "q3",
+        "max": "hi"
+      }
+    },
+    "state": {},
+    "expected": {
+      "complete": true,
+      "series_values": [
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          5,
+          6
+        ],
+        [
+          8,
+          9
+        ]
+      ]
+    }
+  },
+  {
+    "name": "line_null_gaps",
+    "props": {
+      "chartType": "line",
+      "rows": [
+        [
+          "A",
+          2
+        ],
+        [
+          "B",
+          null
+        ],
+        [
+          "C",
+          0
+        ],
+        [
+          "D",
+          -3
+        ]
+      ],
+      "columns": [
+        "category",
+        "value"
+      ]
+    },
+    "state": {},
+    "expected": {
+      "complete": true,
+      "series_values": [
+        [
+          2,
+          null,
+          0,
+          -3
+        ]
+      ]
+    }
+  },
+  {
+    "name": "signed_stacks",
+    "props": {
+      "chartType": "stackedbar",
+      "rows": [
+        [
+          "A",
+          3,
+          -7
+        ],
+        [
+          "B",
+          -2,
+          5
+        ]
+      ],
+      "columns": [
+        "category",
+        "one",
+        "two"
+      ]
+    },
+    "state": {},
+    "expected": {
+      "complete": true,
+      "series_values": [
+        [
+          3,
+          -2
+        ],
+        [
+          -7,
+          5
+        ]
+      ],
+      "range": [
+        -7,
+        5
+      ]
+    }
+  },
+  {
+    "name": "iso_time_spacing",
+    "props": {
+      "chartType": "line",
+      "rows": [
+        [
+          "2026-01-01",
+          1
+        ],
+        [
+          "2026-01-03",
+          3
+        ]
+      ],
+      "columns": [
+        "category",
+        "value"
+      ],
+      "xType": "time"
+    },
+    "state": {},
+    "expected": {
+      "complete": true,
+      "x_values": [
+        1767225600000,
+        1767398400000
+      ]
+    }
+  },
+  {
+    "name": "currency_and_exponents",
+    "props": {
+      "chartType": "column",
+      "rows": [
+        [
+          "A",
+          "$1,250.50"
+        ],
+        [
+          "B",
+          "-2.5e2"
+        ],
+        [
+          "C",
+          "0 USD"
+        ]
+      ],
+      "columns": [
+        "category",
+        "value"
+      ]
+    },
+    "state": {},
+    "expected": {
+      "complete": true,
+      "series_values": [
+        [
+          1250.5,
+          -250,
+          0
+        ]
+      ]
+    }
+  },
+  {
+    "name": "explicit_subset",
+    "props": {
+      "chartType": "line",
+      "rows": [
+        [
+          "A",
+          1,
+          100
+        ],
+        [
+          "B",
+          2,
+          200
+        ]
+      ],
+      "columns": [
+        "category",
+        "one",
+        "two"
+      ],
+      "series": [
+        {
+          "yKey": "two",
+          "label": "Intended measure"
+        }
+      ]
+    },
+    "state": {},
+    "expected": {
+      "complete": true,
+      "series_values": [
+        [
+          100,
+          200
+        ]
+      ]
+    }
+  },
+  {
+    "name": "bad_binding",
+    "props": {
+      "chartType": "line",
+      "rows": [
+        [
+          "A",
+          3
+        ]
+      ],
+      "columns": [
+        "category",
+        "value"
+      ],
+      "yKey": "absent"
+    },
+    "state": {},
+    "expected": {
+      "complete": false,
+      "diagnostic": "chart_binding_missing"
+    }
+  },
+  {
+    "name": "bad_numeric_scatter",
+    "props": {
+      "chartType": "scatter",
+      "rows": [
+        [
+          "A",
+          3
+        ]
+      ],
+      "columns": [
+        "category",
+        "value"
+      ]
+    },
+    "state": {},
+    "expected": {
+      "complete": false,
+      "diagnostic": "chart_x_invalid"
+    }
+  },
+  {
+    "name": "missing_combo_series",
+    "props": {
+      "chartType": "combo",
+      "rows": [
+        [
+          "A",
+          3
+        ]
+      ],
+      "columns": [
+        "category",
+        "value"
+      ]
+    },
+    "state": {},
+    "expected": {
+      "complete": false,
+      "diagnostic": "chart_combo_series_required"
+    }
+  },
+  {
+    "name": "missing_dual_axis",
+    "props": {
+      "chartType": "dualaxis",
+      "rows": [
+        [
+          "A",
+          3
+        ]
+      ],
+      "columns": [
+        "category",
+        "value"
+      ],
+      "series": [
+        {
+          "yKey": "value",
+          "type": "line"
+        }
+      ]
+    },
+    "state": {},
+    "expected": {
+      "complete": false,
+      "diagnostic": "chart_dual_axes_required"
+    }
+  },
+  {
+    "name": "missing_bubble_size",
+    "props": {
+      "chartType": "bubble",
+      "rows": [
+        [
+          1,
+          3
+        ]
+      ],
+      "columns": [
+        "category",
+        "value"
+      ]
+    },
+    "state": {},
+    "expected": {
+      "complete": false,
+      "diagnostic": "chart_size_key_required"
+    }
+  },
+  {
+    "name": "missing_box_statistics",
+    "props": {
+      "chartType": "box",
+      "rows": [
+        [
+          "A",
+          3
+        ]
+      ],
+      "columns": [
+        "category",
+        "value"
+      ]
+    },
+    "state": {},
+    "expected": {
+      "complete": false,
+      "diagnostic": "chart_box_keys_required"
+    }
+  },
+  {
+    "name": "negative_pie",
+    "props": {
+      "chartType": "pie",
+      "rows": [
+        [
+          "A",
+          -3
+        ],
+        [
+          "B",
+          5
+        ]
+      ],
+      "columns": [
+        "category",
+        "value"
+      ]
+    },
+    "state": {},
+    "expected": {
+      "complete": false,
+      "diagnostic": "chart_negative_weight"
+    }
+  },
+  {
+    "name": "zero_donut",
+    "props": {
+      "chartType": "donut",
+      "rows": [
+        [
+          "A",
+          0
+        ],
+        [
+          "B",
+          0
+        ]
+      ],
+      "columns": [
+        "category",
+        "value"
+      ]
+    },
+    "state": {},
+    "expected": {
+      "complete": false,
+      "diagnostic": "chart_positive_total_required"
+    }
+  },
+  {
+    "name": "range_is_not_scalar",
+    "props": {
+      "chartType": "line",
+      "rows": [
+        [
+          "A",
+          "10-20"
+        ]
+      ],
+      "columns": [
+        "category",
+        "value"
+      ],
+      "yKey": "value"
+    },
+    "state": {},
+    "expected": {
+      "complete": false,
+      "diagnostic": "chart_value_invalid"
+    }
+  },
+  {
+    "name": "malformed_grouping",
+    "props": {
+      "chartType": "bar",
+      "rows": [
+        [
+          "A",
+          "1,2"
+        ]
+      ],
+      "columns": [
+        "category",
+        "value"
+      ]
+    },
+    "state": {},
+    "expected": {
+      "complete": false,
+      "diagnostic": "chart_value_invalid"
+    }
+  },
+  {
+    "name": "overflow",
+    "props": {
+      "chartType": "bar",
+      "rows": [
+        [
+          "A",
+          "1e309"
+        ]
+      ],
+      "columns": [
+        "category",
+        "value"
+      ]
+    },
+    "state": {},
+    "expected": {
+      "complete": false,
+      "diagnostic": "chart_value_invalid"
+    }
+  },
+  {
+    "name": "stack_missing_value",
+    "props": {
+      "chartType": "stackedarea",
+      "rows": [
+        [
+          "A",
+          3,
+          null
+        ],
+        [
+          "B",
+          2,
+          4
+        ]
+      ],
+      "columns": [
+        "category",
+        "one",
+        "two"
+      ]
+    },
+    "state": {},
+    "expected": {
+      "complete": false,
+      "diagnostic": "chart_complete_values_required"
+    }
+  },
+  {
+    "name": "radar_too_few_axes",
+    "props": {
+      "chartType": "radar",
+      "rows": [
+        [
+          "A",
+          3
+        ],
+        [
+          "B",
+          4
+        ]
+      ],
+      "columns": [
+        "category",
+        "value"
+      ]
+    },
+    "state": {},
+    "expected": {
+      "complete": false,
+      "diagnostic": "chart_radar_categories_insufficient"
+    }
+  },
+  {
+    "name": "invalid_orientation",
+    "props": {
+      "chartType": "pie",
+      "rows": [
+        [
+          "A",
+          3
+        ]
+      ],
+      "columns": [
+        "category",
+        "value"
+      ],
+      "orientation": "horizontal"
+    },
+    "state": {},
+    "expected": {
+      "complete": false,
+      "diagnostic": "chart_orientation_invalid"
+    }
+  },
+  {
+    "name": "invalid_series_mark",
+    "props": {
+      "chartType": "combo",
+      "rows": [
+        [
+          "A",
+          3
+        ]
+      ],
+      "columns": [
+        "category",
+        "value"
+      ],
+      "series": [
+        {
+          "yKey": "value",
+          "type": "heatmap"
+        }
+      ]
+    },
+    "state": {},
+    "expected": {
+      "complete": false,
+      "diagnostic": "chart_series_mark_invalid"
+    }
+  },
+  {
+    "name": "unsupported_type",
+    "props": {
+      "chartType": "sankey",
+      "rows": [
+        [
+          "A",
+          3
+        ]
+      ],
+      "columns": [
+        "category",
+        "value"
+      ]
+    },
+    "state": {},
+    "expected": {
+      "complete": false,
+      "diagnostic": "unsupported_chart_subtype"
+    }
+  },
+  {
+    "name": "bad_box_order",
+    "props": {
+      "chartType": "box",
+      "rows": [
+        [
+          "A",
+          1,
+          5,
+          2,
+          6,
+          8
+        ]
+      ],
+      "columns": [
+        "category",
+        "min",
+        "q1",
+        "median",
+        "q3",
+        "max"
+      ],
+      "boxKeys": {
+        "min": "min",
+        "q1": "q1",
+        "median": "median",
+        "q3": "q3",
+        "max": "max"
+      }
+    },
+    "state": {},
+    "expected": {
+      "complete": false,
+      "diagnostic": "chart_box_order_invalid"
+    }
+  },
+  {
+    "name": "statePath",
+    "props": {
+      "chartType": "grouped_bar",
+      "columns": [
+        "x",
+        "a",
+        "b"
+      ],
+      "statePath": "/values"
+    },
+    "state": {
+      "values": [
+        [
+          "A",
+          45,
+          120
+        ],
+        [
+          "B",
+          50,
+          140
+        ]
+      ]
+    },
+    "expected": {
+      "complete": true,
+      "series_values": [
+        [
+          45,
+          50
+        ],
+        [
+          120,
+          140
+        ]
+      ]
+    }
+  },
+  {
+    "name": "rowsPath",
+    "props": {
+      "chartType": "grouped_bar",
+      "columns": [
+        "x",
+        "a",
+        "b"
+      ],
+      "rowsPath": "/values"
+    },
+    "state": {
+      "values": [
+        [
+          "A",
+          45,
+          120
+        ],
+        [
+          "B",
+          50,
+          140
+        ]
+      ]
+    },
+    "expected": {
+      "complete": true,
+      "series_values": [
+        [
+          45,
+          50
+        ],
+        [
+          120,
+          140
+        ]
+      ]
+    }
+  },
+  {
+    "name": "dataPath",
+    "props": {
+      "chartType": "grouped_bar",
+      "columns": [
+        "x",
+        "a",
+        "b"
+      ],
+      "dataPath": "/values"
+    },
+    "state": {
+      "values": [
+        [
+          "A",
+          45,
+          120
+        ],
+        [
+          "B",
+          50,
+          140
+        ]
+      ]
+    },
+    "expected": {
+      "complete": true,
+      "series_values": [
+        [
+          45,
+          50
+        ],
+        [
+          120,
+          140
+        ]
+      ]
+    }
+  },
+  {
+    "name": "uneven_numeric_columns",
+    "props": {
+      "chartType": "column",
+      "xType": "number",
+      "columns": [
+        "x",
+        "y"
+      ],
+      "rows": [
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          9,
+          3
+        ]
+      ]
+    },
+    "state": {},
+    "expected": {
+      "complete": true,
+      "x_values": [
+        1,
+        2,
+        9
+      ]
+    }
+  },
+  {
+    "name": "unknown_series_binding",
+    "props": {
+      "chartType": "line",
+      "rows": [
+        [
+          "A",
+          2
+        ]
+      ],
+      "series": [
+        {
+          "yKey": "1",
+          "zKey": "missing"
+        }
+      ]
+    },
+    "state": {},
+    "expected": {
+      "complete": false,
+      "diagnostic": "chart_series_invalid"
+    }
+  },
+  {
+    "name": "right_axis_without_left",
+    "props": {
+      "chartType": "line",
+      "columns": [
+        "x",
+        "y"
+      ],
+      "rows": [
+        [
+          "A",
+          2
+        ]
+      ],
+      "series": [
+        {
+          "yKey": "y",
+          "axis": "right"
+        }
+      ]
+    },
+    "state": {},
+    "expected": {
+      "complete": false,
+      "diagnostic": "chart_dual_axes_required"
+    }
+  },
+  {
+    "name": "fractional_iso_time",
+    "props": {
+      "chartType": "line",
+      "xType": "time",
+      "rows": [
+        [
+          "2026-01-01T00:00:00.123456Z",
+          2
+        ],
+        [
+          "2026-01-01T05:30:01.123456+05:30",
+          3
+        ]
+      ]
+    },
+    "state": {},
+    "expected": {
+      "complete": true,
+      "x_values": [
+        1767225600123,
+        1767225601123
+      ]
+    }
+  },
+  {
+    "name": "nonascii_digits",
+    "props": {
+      "chartType": "line",
+      "columns": [
+        "x",
+        "y"
+      ],
+      "rows": [
+        [
+          "A",
+          "１２"
+        ]
+      ],
+      "yKey": "y"
+    },
+    "state": {},
+    "expected": {
+      "complete": false,
+      "diagnostic": "chart_value_invalid"
+    }
+  },
+  {
+    "name": "null_series_unit",
+    "props": {
+      "chartType": "line",
+      "columns": [
+        "x",
+        "y"
+      ],
+      "rows": [
+        [
+          "A",
+          2
+        ]
+      ],
+      "series": [
+        {
+          "yKey": "y",
+          "unit": null
+        }
+      ]
+    },
+    "state": {},
+    "expected": {
+      "complete": false,
+      "diagnostic": "chart_series_invalid"
+    }
+  }
+]

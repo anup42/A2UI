@@ -1,5 +1,7 @@
 # Dataset v11/v11s import and generation review — 1 October 2026
 
+Follow-up: [Chart support v2.1 and revalidation](../reports/chart_support_v2_1_20261001/README.md) adds native support and clears the reviewed holds for 1,059 existing rows. The findings below describe the original import audit; supplied release bytes are unchanged.
+
 The supplied release is useful additional supervision, but it is not a fully verified gold dataset. Most new rows were accepted by a revised representation-fidelity policy without editing their target. The current review additionally found 59 incorrect legacy text joins and 1,183 rows with Chart subtypes the Android renderer does not support. The release bytes are preserved; a separate preparation guard holds these targets until Stage 3 regeneration or an independently verified renderer change.
 
 ## What was imported

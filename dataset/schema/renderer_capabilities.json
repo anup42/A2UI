@@ -1,5 +1,5 @@
 {
-  "version": "2.0.0",
+  "version": "2.1.0",
   "renderer": "android_flatspec",
   "types": [
     {
@@ -36,7 +36,7 @@
       "canonical": "Chart",
       "runtime_key": "chart",
       "aliases": ["chart", "barchart", "bar_chart"],
-      "consumed_props": ["chartType", "title", "subtitle", "yLabel", "columns", "rows", "statePath", "rowsPath", "dataPath", "xKey", "yKey"]
+      "consumed_props": ["chartType", "title", "subtitle", "yLabel", "columns", "rows", "statePath", "rowsPath", "dataPath", "xKey", "yKey", "series", "xType", "xLabel", "rightYLabel", "orientation", "sizeKey", "boxKeys", "data"]
     },
     {
       "canonical": "CodeBlock",
@@ -195,7 +195,53 @@
     {"name": "emitEvent", "runtime_key": "emitevent", "required": ["name"], "optional": ["context", "wantResponse", "responsePath"]}
   ],
   "chart_subtypes": {
-    "canonical": ["bar", "column"],
-    "aliases": {"bar_chart": "bar"}
+    "canonical": [
+      "bar",
+      "column",
+      "line",
+      "area",
+      "groupedbar",
+      "stackedbar",
+      "stackedarea",
+      "scatter",
+      "pie",
+      "donut",
+      "combo",
+      "radar",
+      "bubble",
+      "funnel",
+      "treemap",
+      "box"
+    ],
+    "aliases": {
+      "bar_chart": "bar",
+      "horizontalbar": "bar",
+      "barhorizontal": "bar",
+      "column_bar": "column",
+      "grouped_bar": "groupedbar",
+      "grouped bar": "groupedbar",
+      "groupedcolumn": "groupedbar",
+      "stackedcolumn": "stackedbar",
+      "stacked_bar": "stackedbar",
+      "areastacked": "stackedarea",
+      "stacked area trend": "stackedarea",
+      "stacked_area": "stackedarea",
+      "multi-line": "line",
+      "multiline": "line",
+      "dualaxisline": "combo",
+      "dualaxis": "combo",
+      "mixed": "combo",
+      "combined": "combo",
+      "columnline": "combo",
+      "groupedbarline": "combo",
+      "dual-axis line": "combo",
+      "combo column + line": "combo",
+      "dualaxisbar": "combo",
+      "dual-axis time series": "combo",
+      "barline": "combo",
+      "grouped bar with optional secondary line": "combo",
+      "doughnut": "donut",
+      "boxplot": "box"
+    }
   }
 }

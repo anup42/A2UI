@@ -1,0 +1,94 @@
+{
+  "python_tests_passed": 360,
+  "native_tests": {
+    "app": {
+      "tests": 72,
+      "suites": [
+        {
+          "name": "com.samsung.genuicraft.pipeline.FlatSpecIngestorTest",
+          "tests": "6",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "com.samsung.genuicraft.renderer.FlatChartDrawingTest",
+          "tests": "1",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "com.samsung.genuicraft.renderer.FlatRichChartTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "com.samsung.genuicraft.renderer.FlatSpecRendererSupportTest",
+          "tests": "61",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        }
+      ]
+    },
+    "sdk": {
+      "tests": 74,
+      "suites": [
+        {
+          "name": "com.samsung.genuicraft.sdk.internal.pipeline.FlatSpecIngestorTest",
+          "tests": "6",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "com.samsung.genuicraft.sdk.internal.renderer.FlatChartDrawingTest",
+          "tests": "1",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "com.samsung.genuicraft.sdk.internal.renderer.FlatRichChartTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "com.samsung.genuicraft.sdk.internal.renderer.FlatSpecRendererSupportTest",
+          "tests": "61",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "com.samsung.genuicraft.sdk.internal.renderer.RendererExtractionTest",
+          "tests": "2",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        }
+      ]
+    }
+  },
+  "shared_chart_fixtures": 47,
+  "canonical_chart_families": 16,
+  "generated_contract_and_prompt_checks": "passed",
+  "split_hashes_match_supplied_manifest": true,
+  "device_install_or_inference": false,
+  "release_bytes_rewritten": false,
+  "source_sha256": {
+    "android/app/src/main/java/com/samsung/genuicraft/renderer/FlatChartModel.kt": "13638e84123dc0b675c4a6bd2b601b021103c5433328fbe2c790fc1ba9cecfa9",
+    "android/app/src/main/java/com/samsung/genuicraft/renderer/FlatRichChartRender.kt": "1206665b4d189087634b3ed445d9db7e2abaeb34efc2363d704f4b5582a5d0dc",
+    "dataset/schema/renderer_capabilities.json": "37c8b4c57970a7691b355efb7ed9d32508b5c2568d87b71e3516df7bae4e22b5",
+    "dataset/src/pipeline/rich_chart_semantics.py": "c99ab594857856680acf98f292b7b05c760cda54e3f1efc13bd4fb8979b8ad34",
+    "dataset/tests/fixtures/chart_contract_v2_1.json": "e0e39469bfdf0ebf54db1616c2ff09ec4c764c2f496708be6cd2fe9b58b083ff",
+    "training/scripts/revalidate_v11_charts.py": "01c1db44b88591ec6147283a3afd0676e5a03ba4818f97bf47feb3013c9b0780"
+  },
+  "revalidation_sha256": "e3e8a623a42e1b736b501cdcf517a27d868ebc77334e07086faad93e72b75017",
+  "native_preview_sha256": "6b56b87f238b3ec024ce4645d69086d13a6acbdc441eeeddbed125786f843c2a"
+}

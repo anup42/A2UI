@@ -19,8 +19,8 @@ from .genui_quality import _core
 from .genui_quality.evidence_v5_2 import resolve_renderer_path_v5_2
 
 
-RENDERER_EFFECTIVE_SEMANTICS_VERSION = "5.4.2"
-COMPONENT_CONTRACT_POLICY_VERSION = "5.4.2"
+RENDERER_EFFECTIVE_SEMANTICS_VERSION = "5.4.3"
+COMPONENT_CONTRACT_POLICY_VERSION = "5.4.3"
 MEDIA_MAX_DEPTH = 5
 
 _ROW_LIST_KEYS = ("cells", "values", "row", "data")
@@ -65,13 +65,19 @@ class EffectiveChart:
     x_index: int | None
     y_index: int | None
     x_labels: tuple[str, ...]
-    y_values: tuple[float, ...]
+    y_values: tuple[float | None, ...]
     y_display_values: tuple[str, ...]
     title: str
     chart_type: str
     dataset_identity: str
     complete: bool
     diagnostics: tuple[str, ...]
+    series: tuple[dict[str, Any], ...] = ()
+    x_values: tuple[float, ...] = ()
+    x_type: str = "category"
+    sizes: tuple[float | None, ...] = ()
+    selected_indices: tuple[int, ...] = ()
+    selected_rows: tuple[tuple[str, ...], ...] = ()
 
 
 @dataclass(frozen=True)
@@ -394,116 +400,20 @@ def _parse_chart_number(value: str) -> float | None:
     return result if math.isfinite(result) else None
 
 
-def effective_chart(
-    props: Mapping[str, Any],
-    state: Mapping[str, Any],
-) -> EffectiveChart:
-    raw_rows = props.get("rows")
-    source_kind = "rows"
-    if not isinstance(raw_rows, list):
-        raw_rows = props.get("data")
-        source_kind = "data"
-    if not isinstance(raw_rows, list):
-        raw_rows, source_kind = _resolve_rows(props, state)
-    rows = list(raw_rows) if isinstance(raw_rows, list) else []
-    columns, column_source = _resolve_columns(props, rows)
-    diagnostics: list[str] = []
-    chart_type = props.get("chartType") or props.get("type")
-    chart_supported = canonical_chart_subtype(chart_type) is not None
-    if not chart_supported:
-        diagnostics.append("unsupported_chart_subtype")
-    if len(columns) < 2:
-        diagnostics.append("chart_columns_insufficient")
-        return EffectiveChart(
-            tuple(columns),
-            None,
-            None,
-            (),
-            (),
-            (),
-            str(props.get("title") or props.get("label") or "").strip(),
-            str(props.get("chartType") or props.get("type") or "").strip(),
-            "",
-            False,
-            tuple(diagnostics),
-        )
-    x_index = _chart_column_index(columns, props.get("xKey"), 0)
-    y_index = _chart_column_index(columns, props.get("yKey"), 1)
-    if x_index == y_index:
-        diagnostics.append("chart_axes_collide")
-        return EffectiveChart(
-            tuple(columns),
-            x_index,
-            y_index,
-            (),
-            (),
-            (),
-            str(props.get("title") or props.get("label") or "").strip(),
-            str(props.get("chartType") or props.get("type") or "").strip(),
-            "",
-            False,
-            tuple(diagnostics),
-        )
-    labels: list[str] = []
-    numbers: list[float] = []
-    displays: list[str] = []
-    for raw in rows:
-        resolved = _resolve_row(raw, columns)
-        label = resolved[x_index].strip()
-        display = resolved[y_index].strip()
-        number = _parse_chart_number(display)
-        if label and display and number is not None:
-            labels.append(label)
-            numbers.append(number)
-            displays.append(display)
-    if not labels:
-        diagnostics.append("chart_points_empty")
-    payload = {
-        "columns": [asdict(column) for column in columns],
-        "x_index": x_index,
-        "y_index": y_index,
-        "labels": labels,
-        "display_values": displays,
-    }
-    return EffectiveChart(
-        columns=tuple(columns),
-        x_index=x_index,
-        y_index=y_index,
-        x_labels=tuple(labels),
-        y_values=tuple(numbers),
-        y_display_values=tuple(displays),
-        title=str(props.get("title") or props.get("label") or "").strip(),
-        chart_type=str(
-            props.get("chartType") or props.get("type") or ""
-        ).strip(),
-        dataset_identity=_sha256(payload),
-        complete=bool(labels) and chart_supported,
-        diagnostics=tuple(diagnostics),
-    )
+def effective_chart(props: Mapping[str, Any], state: Mapping[str, Any]) -> EffectiveChart:
+    from .rich_chart_semantics import resolve_chart
+    return EffectiveChart(**resolve_chart(props, state))
 
 
-def output_table_from_chart(
-    element_id: str,
-    chart: EffectiveChart,
-) -> _core.OutputTable | None:
-    if chart.x_index is None or chart.y_index is None:
+def output_table_from_chart(element_id: str, chart: EffectiveChart) -> _core.OutputTable | None:
+    # An error placeholder does not display data. Do not award content credit.
+    if not chart.complete:
         return None
-    x_column = chart.columns[chart.x_index]
-    y_column = chart.columns[chart.y_index]
+    columns = [chart.columns[i] for i in chart.selected_indices]
     return _core.OutputTable(
-        element_id=element_id,
-        element_type="Chart",
-        headers=[x_column.label, y_column.label],
-        keys=[x_column.key, y_column.key],
-        rows=[
-            {
-                x_column.key: label,
-                y_column.key: display,
-            }
-            for label, display in zip(
-                chart.x_labels, chart.y_display_values
-            )
-        ],
+        element_id=element_id, element_type="Chart",
+        headers=[c.label for c in columns], keys=[c.key for c in columns],
+        rows=[{c.key: value for c, value in zip(columns, row)} for row in chart.selected_rows],
     )
 
 
@@ -658,12 +568,13 @@ def _effective_props(
         return {
             "title": model.title,
             "chartType": model.chart_type,
-            "columns": [
-                asdict(model.columns[index])
-                for index in (model.x_index, model.y_index)
-                if index is not None
-            ],
+            "columns": [asdict(column) for column in model.columns],
             "rows": rows,
+            "xType": model.x_type,
+            "series": [{"yKey": series["key"], "label": series["label"],
+                        "type": series["mark"], "axis": series["axis"], "unit": series["unit"]}
+                       for series in model.series],
+            **{key: props[key] for key in ("boxKeys", "sizeKey", "orientation", "xLabel", "yLabel", "rightYLabel", "subtitle") if key in props},
             "xKey": (
                 model.columns[model.x_index].key
                 if model.x_index is not None

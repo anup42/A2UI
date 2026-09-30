@@ -2,7 +2,7 @@ package com.samsung.genuicraft.sdk.internal.renderer.flat.capability
 
 /** Generated from dataset/schema/renderer_capabilities.json. Do not edit. */
 internal object GeneratedRendererCapabilities {
-    const val VERSION: String = "2.0.0"
+    const val VERSION: String = "2.1.0"
     val canonicalTypes: Set<String> = setOf("Stack", "List", "Card", "Table", "Formula", "Chart", "CodeBlock", "ConsoleLog", "Text", "EmailPreview", "Image", "Icon", "Button", "Divider", "Tabs", "Modal", "TextField", "CheckBox", "ChoicePicker", "Slider", "DateTimeInput", "Video", "AudioPlayer", "Alert", "Checklist")
     val runtimeTypes: Set<String> = setOf("stack", "list", "card", "table", "formula", "chart", "codeblock", "consolelog", "text", "emailpreview", "image", "icon", "button", "divider", "tabs", "modal", "textfield", "checkbox", "choicepicker", "slider", "datetimeinput", "video", "audioplayer", "alert", "checklist")
     val typeAliases: Map<String, String> = mapOf("stack" to "stack", "list" to "list", "card" to "card", "table" to "table", "formula" to "formula", "chart" to "chart", "barchart" to "chart", "bar_chart" to "chart", "codeblock" to "codeblock", "code" to "codeblock", "code_block" to "codeblock", "pre" to "codeblock", "preformatted" to "codeblock", "consolelog" to "consolelog", "console" to "consolelog", "console_log" to "consolelog", "terminal" to "consolelog", "logoutput" to "consolelog", "log_output" to "consolelog", "text" to "text", "emailpreview" to "emailpreview", "email_preview" to "emailpreview", "image" to "image", "icon" to "icon", "button" to "button", "divider" to "divider", "tabs" to "tabs", "modal" to "modal", "textfield" to "textfield", "checkbox" to "checkbox", "choicepicker" to "choicepicker", "slider" to "slider", "datetimeinput" to "datetimeinput", "video" to "video", "audioplayer" to "audioplayer", "alert" to "alert", "notice" to "alert", "messagecard" to "alert", "message_card" to "alert", "checklist" to "checklist", "check_list" to "checklist")
@@ -13,7 +13,7 @@ internal object GeneratedRendererCapabilities {
         "card" to setOf("title", "subtitle", "tone", "padding", "paddingHorizontal", "paddingVertical", "margin", "marginHorizontal", "marginVertical"),
         "table" to setOf("title", "domain", "preferredPresentation", "presentation", "columns", "rows", "statePath", "rowsPath", "dataPath", "primaryColumn", "highlightColumns", "numericColumns", "entityMedia"),
         "formula" to setOf("latex", "text", "title", "subtitle", "result", "display"),
-        "chart" to setOf("chartType", "title", "subtitle", "yLabel", "columns", "rows", "statePath", "rowsPath", "dataPath", "xKey", "yKey"),
+        "chart" to setOf("chartType", "title", "subtitle", "yLabel", "columns", "rows", "statePath", "rowsPath", "dataPath", "xKey", "yKey", "series", "xType", "xLabel", "rightYLabel", "orientation", "sizeKey", "boxKeys", "data"),
         "codeblock" to setOf("code", "language", "title"),
         "consolelog" to setOf("code", "language", "title"),
         "text" to setOf("text", "variant", "heading", "accessibilityLabel", "contentDescription", "decorative"),
@@ -56,6 +56,6 @@ internal object GeneratedRendererCapabilities {
         "emitevent" to listOf()
     )
     val safeUrlActions: Set<String> = setOf("openurl")
-    val chartSubtypes: Set<String> = setOf("bar", "column")
-    val chartSubtypeAliases: Map<String, String> = mapOf("bar_chart" to "bar")
+    val chartSubtypes: Set<String> = setOf("bar", "column", "line", "area", "groupedbar", "stackedbar", "stackedarea", "scatter", "pie", "donut", "combo", "radar", "bubble", "funnel", "treemap", "box")
+    val chartSubtypeAliases: Map<String, String> = mapOf("bar_chart" to "bar", "horizontalbar" to "bar", "barhorizontal" to "bar", "column_bar" to "column", "grouped_bar" to "groupedbar", "grouped bar" to "groupedbar", "groupedcolumn" to "groupedbar", "stackedcolumn" to "stackedbar", "stacked_bar" to "stackedbar", "areastacked" to "stackedarea", "stacked area trend" to "stackedarea", "stacked_area" to "stackedarea", "multi-line" to "line", "multiline" to "line", "dualaxisline" to "combo", "dualaxis" to "combo", "mixed" to "combo", "combined" to "combo", "columnline" to "combo", "groupedbarline" to "combo", "dual-axis line" to "combo", "combo column + line" to "combo", "dualaxisbar" to "combo", "dual-axis time series" to "combo", "barline" to "combo", "grouped bar with optional secondary line" to "combo", "doughnut" to "donut", "boxplot" to "box")
 }

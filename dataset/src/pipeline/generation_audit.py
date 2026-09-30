@@ -85,7 +85,7 @@ def graph_acceptance_errors(graph: Mapping[str, Any]) -> list[str]:
                 marker in raw_subtype for marker in ("${", "{{", "$item", "$index", "$/")
             )
             if not isinstance(raw_subtype, Mapping) and not dynamic_subtype and canonical_chart_subtype(raw_subtype) is None:
-                errors.append(f"unsupported_chart_subtype: Chart {element_id!r} requests {raw_subtype!r}; supported bar,column")
+                errors.append(f"unsupported_chart_subtype: Chart {element_id!r} requests {raw_subtype!r}; use a supported chart subtype from the renderer contract")
         if kind == "emailpreview":
             body = props.get("body")
             if not body or (isinstance(body, str) and not body.strip()) or (isinstance(body, list) and not any(str(value).strip() for value in body)):

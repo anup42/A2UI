@@ -658,7 +658,15 @@
         "rowsPath",
         "dataPath",
         "xKey",
-        "yKey"
+        "yKey",
+        "series",
+        "xType",
+        "xLabel",
+        "rightYLabel",
+        "orientation",
+        "sizeKey",
+        "boxKeys",
+        "data"
       ],
       "container": false,
       "allowAdditionalProps": false,
@@ -774,6 +782,30 @@
           },
           "yLabel": {
             "$ref": "#/$defs/dynamicString"
+          },
+          "series": {
+            "$ref": "#/$defs/dynamicArray"
+          },
+          "xType": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "xLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "rightYLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "orientation": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "sizeKey": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "boxKeys": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "data": {
+            "$ref": "#/$defs/dynamicArray"
           }
         }
       },
@@ -781,25 +813,33 @@
         "accessibility",
         "accessibilityLabel",
         "ariaLabel",
+        "boxKeys",
         "chartType",
         "child",
         "columns",
         "contentDescription",
+        "data",
         "dataPath",
         "decorative",
         "flex",
         "height",
         "itemTemplate",
+        "orientation",
+        "rightYLabel",
         "role",
         "rows",
         "rowsPath",
         "semanticRole",
+        "series",
+        "sizeKey",
         "statePath",
         "subtitle",
         "template",
         "title",
         "width",
         "xKey",
+        "xLabel",
+        "xType",
         "yKey",
         "yLabel"
       ]
@@ -4410,7 +4450,7 @@
       ]
     }
   },
-  "catalogIdentityHash": "df587a54930a333e9aca5bec3ed1b524c87412e900df2e5ea9c211c8b7feb6fe",
+  "catalogIdentityHash": "191f07efda0685a7c079be7fe6b79d565dce07151a42ce8db6c6482845f786ee",
   "catalogVersion": "genuicraft-a2ui-catalog-v1",
   "profileVersion": "genuicraft-a2ui-express-profile-v1",
   "$defs": {

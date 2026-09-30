@@ -19,7 +19,7 @@ class FlatSpecIngestorTest {
 
     @Test
     fun generatedRegistryAndSharedManifestStayInParity() {
-        assertEquals("2.0.0", GeneratedRendererCapabilities.VERSION)
+        assertEquals("2.1.0", GeneratedRendererCapabilities.VERSION)
         assertEquals(
             GeneratedRendererCapabilities.typeAliases
                 .filter { (alias, canonical) -> alias != canonical }
@@ -29,7 +29,7 @@ class FlatSpecIngestorTest {
         )
         assertEquals(12, GeneratedRendererCapabilities.tableDomains.size)
         assertTrue("product" in GeneratedRendererCapabilities.tableDomains)
-        assertEquals(setOf("bar", "column"), GeneratedRendererCapabilities.chartSubtypes)
+        assertEquals(setOf("bar", "column", "line", "area", "groupedbar", "stackedbar", "stackedarea", "scatter", "pie", "donut", "combo", "radar", "bubble", "funnel", "treemap", "box"), GeneratedRendererCapabilities.chartSubtypes)
         assertEquals("2.0.0", FLAT_ROUTING_GOLDEN_VERSION)
     }
 

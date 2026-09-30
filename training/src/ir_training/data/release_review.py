@@ -39,4 +39,6 @@ def reviewed_hold(row: Mapping[str, Any], graph: Mapping[str, Any], semantic_sha
         for component in evidence.effective_components:
             if component.get('kind') == 'chart' and 'unsupported_chart_subtype' in component.get('diagnostics', ()):
                 return ('unsupported_renderer_chart', f'{component["component_id"]}: Chart({component.get("chart_type")}) is not supported by the current Android renderer; regenerate without inventing chart semantics')
+            if component.get('kind') == 'chart' and not component.get('complete'):
+                return ('invalid_renderer_chart', f'{component["component_id"]}: Chart({component.get("chart_type")}) cannot render faithfully: {component.get("diagnostics")}; regenerate missing bindings through Stage 3')
     return None

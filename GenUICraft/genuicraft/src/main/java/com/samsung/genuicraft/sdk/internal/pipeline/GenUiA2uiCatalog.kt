@@ -40,7 +40,7 @@ internal object GenUiA2uiCatalog {
         "Card" to setOf("title", "subtitle", "tone", "padding", "paddingHorizontal", "paddingVertical", "margin", "marginHorizontal", "marginVertical"),
         "Table" to setOf("title", "domain", "preferredPresentation", "presentation", "columns", "rows", "statePath", "rowsPath", "dataPath", "primaryColumn", "highlightColumns", "numericColumns", "entityMedia"),
         "Formula" to setOf("latex", "text", "title", "subtitle", "result", "display"),
-        "Chart" to setOf("chartType", "title", "subtitle", "yLabel", "columns", "rows", "statePath", "rowsPath", "dataPath", "xKey", "yKey"),
+        "Chart" to setOf("chartType", "title", "subtitle", "yLabel", "columns", "rows", "statePath", "rowsPath", "dataPath", "xKey", "yKey", "series", "xType", "xLabel", "rightYLabel", "orientation", "sizeKey", "boxKeys", "data"),
         "CodeBlock" to setOf("code", "language", "title"),
         "ConsoleLog" to setOf("code", "language", "title"),
         "Text" to setOf("text", "variant", "heading", "accessibilityLabel", "contentDescription", "decorative"),

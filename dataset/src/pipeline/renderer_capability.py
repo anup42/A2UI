@@ -26,8 +26,8 @@ def _load_shared_manifest() -> dict[str, Any]:
         raise RuntimeError(
             f"Unable to load shared renderer capability manifest at {_MANIFEST_PATH}"
         ) from error
-    if not isinstance(manifest, dict) or manifest.get("version") != "2.0.0":
-        raise RuntimeError("renderer_capabilities.json must use capability version 2.0.0")
+    if not isinstance(manifest, dict) or manifest.get("version") != "2.1.0":
+        raise RuntimeError("renderer_capabilities.json must use capability version 2.1.0")
     return manifest
 
 

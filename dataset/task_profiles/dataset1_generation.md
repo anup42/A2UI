@@ -38,3 +38,7 @@ Notes:
   Newly written records include `generation_fidelity_audit`; prior rows are not
   changed or automatically retried. Unsupported chart subtypes fail the renderer
   gate; literal prose diagnostics require review and never rewrite a target.
+- Renderer capability v2.1 adds the chart families and series/axis bindings in
+  `dataset/docs/chart_contract_v2_1.md`. Use a fresh generation output directory
+  when the saved prompt/contract fingerprint differs; legacy resume checks remain
+  strict. Existing v11/v11s release bytes and trained-model prompts stay frozen.

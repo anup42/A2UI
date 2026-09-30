@@ -182,7 +182,15 @@ COMPONENTS: dict[str, dict[str, Any]] = json.loads(r'''{
       "rowsPath",
       "dataPath",
       "xKey",
-      "yKey"
+      "yKey",
+      "series",
+      "xType",
+      "xLabel",
+      "rightYLabel",
+      "orientation",
+      "sizeKey",
+      "boxKeys",
+      "data"
     ],
     "container": false,
     "allowAdditionalProps": true,

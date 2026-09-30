@@ -152,149 +152,21 @@ internal fun RenderChart(
     state: Map<String, Any?>,
     modifier: Modifier = Modifier
 ) {
-    val chartType = props["chartType"]?.toString()?.trim()?.lowercase().orEmpty().ifBlank { "bar" }
-    val canonicalChartType = GeneratedRendererCapabilities.chartSubtypeAliases[chartType] ?: chartType
+    val model = extractRichChartModel(props, state)
     val diagnosticSink = LocalFlatDiagnosticSink.current
-    if (canonicalChartType !in GeneratedRendererCapabilities.chartSubtypes) {
+    if (!model.complete) {
+        val unsupported = "unsupported_chart_subtype" in model.diagnostics
         val diagnostic = FlatDiagnostic(
-            code = FlatDiagnostic.Code.UNSUPPORTED_CHART_TYPE,
+            code = if (unsupported) FlatDiagnostic.Code.UNSUPPORTED_CHART_TYPE else FlatDiagnostic.Code.EMPTY_REQUIRED_DATA,
             severity = FlatDiagnostic.Severity.WARNING,
-            message = "Unsupported chart type '$chartType'. Supported: ${GeneratedRendererCapabilities.chartSubtypes.sorted()}.",
-            details = mapOf("chartType" to chartType)
+            message = "Chart ${model.kind}: ${model.diagnostics.joinToString()}",
+            details = mapOf("chartType" to model.kind, "diagnostics" to model.diagnostics.joinToString())
         )
-        LaunchedEffect(diagnostic.code, chartType) { diagnosticSink(diagnostic) }
-        RenderUnsupportedElement("Unsupported chart: $chartType", modifier)
+        LaunchedEffect(model.diagnostics) { diagnosticSink(diagnostic) }
+        RenderUnsupportedElement("Chart needs review: ${model.diagnostics.joinToString()}", modifier)
         return
     }
-    val points = extractChartPoints(props, state)
-    if (points.isEmpty()) {
-        val diagnostic = FlatDiagnostic(
-            code = FlatDiagnostic.Code.EMPTY_REQUIRED_DATA,
-            severity = FlatDiagnostic.Severity.WARNING,
-            message = "Chart requires at least one valid data point."
-        )
-        LaunchedEffect(diagnostic.code) { diagnosticSink(diagnostic) }
-        RenderUnsupportedElement("Chart has no data", modifier)
-        return
-    }
-
-    val title = props["title"]?.toString()?.trim().orEmpty()
-    val subtitle = props["subtitle"]?.toString()?.trim().orEmpty()
-    val yLabel = props["yLabel"]?.toString()?.trim().orEmpty()
-    val maxValue = points.maxOf { it.value }.takeIf { it > 0.0 } ?: 1.0
-    val currencyPrefix = inferChartCurrency(points)
-    val total = points.sumOf { it.value }
-    val peak = points.maxByOrNull { it.value }
-
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .semantics(mergeDescendants = true) {
-                contentDescription = buildString {
-                    if (title.isNotBlank()) append(title).append(". ")
-                    append("Bar chart with ${points.size} values. ")
-                    points.forEach { point ->
-                        append(point.label).append(": ").append(point.displayValue).append(". ")
-                    }
-                }
-            },
-        shape = RoundedCornerShape(22.dp),
-        colors = CardDefaults.cardColors(containerColor = genUiCardContainerColor(GenUiCardTone.Neutral)),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 14.dp, vertical = 14.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            if (title.isNotBlank() || subtitle.isNotBlank()) {
-                Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                    if (title.isNotBlank()) {
-                        Text(
-                            text = parseBoldMarkdown(title),
-                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                    if (subtitle.isNotBlank()) {
-                        Text(
-                            text = parseBoldMarkdown(subtitle),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-            }
-
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                points.forEachIndexed { index, point ->
-                    val fraction = (point.value / maxValue).toFloat().coerceIn(0.04f, 1f)
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = parseBoldMarkdown(point.label),
-                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
-                            color = MaterialTheme.colorScheme.onSurface,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.width(76.dp)
-                        )
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(30.dp)
-                                .clip(RoundedCornerShape(GenUiTokens.RadiusPill))
-                                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.52f))
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxHeight()
-                                    .fillMaxWidth(fraction)
-                                    .clip(RoundedCornerShape(GenUiTokens.RadiusPill))
-                                    .background(
-                                        Brush.horizontalGradient(
-                                            colors = listOf(
-                                                MaterialTheme.colorScheme.primary.copy(alpha = 0.86f),
-                                                MaterialTheme.colorScheme.tertiary.copy(alpha = 0.78f)
-                                            )
-                                        )
-                                    )
-                            )
-                        }
-                        Text(
-                            text = parseBoldMarkdown(point.displayValue),
-                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                            color = MaterialTheme.colorScheme.onSurface,
-                            textAlign = TextAlign.End,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.width(82.dp)
-                        )
-                    }
-                    if (index < points.lastIndex) {
-                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.36f))
-                    }
-                }
-            }
-
-            RendererFlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(7.dp)
-            ) {
-                peak?.let { point ->
-                    ChartSummaryChip("Peak: ${point.label} ${point.displayValue}")
-                }
-                ChartSummaryChip("Total: ${formatChartNumber(total, currencyPrefix)}")
-                if (yLabel.isNotBlank()) {
-                    ChartSummaryChip(yLabel)
-                }
-            }
-        }
-    }
+    RenderRichChart(props, model, modifier)
 }
 
 // moved from FlatSpecRenderer.kt (RenderPercentageMatrixChart)

@@ -1,6 +1,6 @@
 # A2UI Express v1 generated model contract
 
-<!-- Generated from pinned grammar/catalog/profile/quality policy: grammar=37044656eb10e4c4a4a54c822432f327c5340761b5bfe914b58fa0db3581cf42 catalog=b5571b35b1af2629361d66e896d59c7dbc5b27aaea17492c274933f6125b518e profile=c0259faae3a08bdb245faf9bb2abe0798b665ddb95c1b174f7e7c5d09ae52b83 quality=299b206f0280f3a622bcab96a8f6d32d113432e473174b8790fc5a266693de0e -->
+<!-- Generated from pinned grammar/catalog/profile/quality policy: grammar=37044656eb10e4c4a4a54c822432f327c5340761b5bfe914b58fa0db3581cf42 catalog=869ee7708ab4c66f82b502bccd3f3c6b25af5f4d6fe7de4efc672be67d1d0d6e profile=44dbae4c2ad97d8a1071405d25e752dad2efd1c04f44e2ace3266b2821bbdf47 quality=7efbf2b9d7817c6b861c1754a91c2aa87ffe79a89f7c3734df150d9c2aeccb24 -->
 
 You convert the supplied response into one rich, lossless GenUICraft A2UI
 Express v1 program. A2UI Express is an assignment DSL, not JSON, HTML, JSX,
@@ -57,7 +57,7 @@ Enums must use exactly a listed spelling. Optional omitted arguments retain defa
 - Card(children, title, subtitle, tone)
   Types: children: component references; title: string; subtitle: string; tone: string; padding: number; paddingHorizontal: number; paddingVertical: number; margin: number; marginHorizontal: number; marginVertical: number
 - Chart(chartType, columns, statePath, rows, title, subtitle)
-  Types: chartType: JSON value; columns: array; statePath: string; rows: array; title: string; subtitle: string; yLabel: string; rowsPath: JSON value; dataPath: JSON value; xKey: string; yKey: string
+  Types: chartType: JSON value; columns: array; statePath: string; rows: array; title: string; subtitle: string; yLabel: string; rowsPath: JSON value; dataPath: JSON value; xKey: string; yKey: string; series: array; xType: string; xLabel: string; rightYLabel: string; orientation: string; sizeKey: string; boxKeys: object; data: array
 - CheckBox(label, value, statePath)
   Types: label: string; value: JSON value; statePath: string; accessibilityLabel: string; contentDescription: string
 - Checklist(items, title, disclaimer, source)
@@ -118,6 +118,24 @@ Enums must use exactly a listed spelling. Optional omitted arguments retain defa
   repeat, visibility rule, watch, and verified media reference.
 - Keep meaningful component richness and hierarchy; token savings must come
   from Express syntax and default elision, never from dropping UI semantics.
+- Chart types: bar, column, line, area, groupedbar, stackedbar, stackedarea,
+  scatter, pie, donut, combo, radar, bubble, funnel, treemap (flat weights), box.
+  Bind xKey and all intended measures. `series` is an array of objects with
+  yKey, label, optional unit, axis (left/right), and type (required for combo:
+  column/bar/line/area/scatter). Explicit series override yKey. Without series,
+  grouped/stacked/line/area/radar use numeric non-X columns; single-value chart
+  types use yKey or the second column. Combo requires explicit series; dual axes
+  require both left and right assignments. Use xType category (source order),
+  number (numeric spacing), or time (ISO date/time spacing); no implicit sorting.
+  Scatter/bubble require numeric X. Bubble requires sizeKey. Box requires
+  boxKeys with min/q1/median/q3/max column keys for supplied statistics.
+  Bar defaults horizontal; column/groupedbar/stackedbar default vertical and
+  accept orientation horizontal/vertical. Pie/donut/funnel/treemap require one
+  nonnegative series and positive total. Radar requires at least three
+  comparable nonnegative categories. Stacks require complete values; other
+  Cartesian nulls remain gaps. Preserve exact units and qualifiers; never invent
+  data or coerce an unsupported request into a different chart. Limit one chart
+  to 512 rows and 16 series; split larger supplied data into labeled charts.
 - Use specialist components such as Table, Chart, CodeBlock, ConsoleLog,
   Formula, EmailPreview, Tabs, Modal, and forms when the response requires
   them.

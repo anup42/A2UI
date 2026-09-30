@@ -135,6 +135,11 @@ def catalog_document() -> dict[str, Any]:
                 if property_name in {"id", "component", "children"}:
                     continue
                 properties[property_name] = _property_schema(str(property_name), str(name))
+    # Bind the identity to the final typed catalog, including new chart props.
+    payload = {key: value for key, value in catalog.items() if key != "catalogIdentityHash"}
+    catalog["catalogIdentityHash"] = hashlib.sha256(
+        json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
     return catalog
 
 
@@ -274,12 +279,12 @@ _STRING_PROPERTIES = {
     "message", "mode", "name", "placeholder", "poster", "posterUrl", "preferredPresentation",
     "presentation", "primaryColumn", "role", "semanticRole", "size", "source", "src", "statePath",
     "subtitle", "subject", "template", "text", "thumbnail", "thumbnailUrl", "timestamp", "title",
-    "to", "tone", "url", "variant", "wrap", "xKey", "yKey", "yLabel",
+    "to", "tone", "url", "variant", "wrap", "xKey", "yKey", "yLabel", "xLabel", "rightYLabel", "xType", "orientation", "sizeKey",
 }
 _NUMBER_PROPERTIES = {"aspectRatio", "flex", "height", "iconSize", "max", "min", "padding", "paddingHorizontal", "paddingVertical", "margin", "marginHorizontal", "marginVertical", "size", "step", "width"}
 _BOOLEAN_PROPERTIES = {"decorative", "display"}
-_ARRAY_PROPERTIES = {"attachments", "columns", "entityMedia", "highlightColumns", "items", "numericColumns", "options", "rows", "tabs"}
-_OBJECT_PROPERTIES = {"accessibility", "checks", "data", "style"}
+_ARRAY_PROPERTIES = {"series", "attachments", "columns", "entityMedia", "highlightColumns", "items", "numericColumns", "options", "rows", "tabs"}
+_OBJECT_PROPERTIES = {"boxKeys", "accessibility", "checks", "data", "style"}
 _ENUM_PROPERTIES = {
     "direction": ("vertical", "horizontal"),
     "fit": ("contain", "cover", "fill", "none", "scale-down"),
@@ -292,7 +297,8 @@ _ENUM_PROPERTIES = {
 
 def _property_schema(name: str, component: str | None = None) -> dict[str, Any]:
     """Return a typed dynamic property schema for a catalog field."""
-    del component  # reserved for component-specific enum profiles
+    if component == "Chart" and name == "data":
+        return {"$ref": "#/$defs/dynamicArray"}
     if name in _ENUM_PROPERTIES:
         return {
             "oneOf": [

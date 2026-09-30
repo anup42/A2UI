@@ -113,7 +113,7 @@ def test_native_supported_chart_aliases_and_default(value):
     assert effective_chart({"chartType": value, "columns": ["Month", "Value"], "rows": [["Jan", 7]]}, {}).complete
 
 
-@pytest.mark.parametrize("value", ["line", "radar", "pie", "scatter", "stackedbar", "area"])
+@pytest.mark.parametrize("value", ["sankey", "surface3d", "unknown"])
 def test_unsupported_chart_data_is_not_a_renderable_training_target(value):
     completion = f'<a2ui>\nroot=Chart(columns=["Month","Value"],rows=[["Jan",7]],chartType="{value}")\n</a2ui>'
     result = generation_reward_a2ui_express_v1(completion, "| Month | Value |\n|---|---|\n| Jan | 7 |")
@@ -133,7 +133,7 @@ def test_supported_dynamic_chart_binding_is_not_misclassified():
     assert "renderer_component_contract" not in result.evidence["training_acceptance"]["blocking_reasons"]
 
 
-@pytest.mark.parametrize("subtypes", [("line", "bar"), ("bar", "line"), ("bar", "column")])
+@pytest.mark.parametrize("subtypes", [("sankey", "bar"), ("bar", "sankey"), ("bar", "column")])
 def test_repeated_chart_contract_checks_every_instance_in_either_order(subtypes):
     first, last = subtypes
     completion = ('<a2ui>\n' + f'$/items=[{{kind:"{first}"}},{{kind:"{last}"}}]\n' +
@@ -143,7 +143,7 @@ def test_repeated_chart_contract_checks_every_instance_in_either_order(subtypes)
     assert result.normalization["production_valid"]
     contract = result.evidence["type_contract"]
     blockers = result.evidence["training_acceptance"]["blocking_reasons"]
-    if "line" in subtypes:
+    if "sankey" in subtypes:
         assert contract["per_element"]["chart"] == 0.0
         assert "unsupported_chart_subtype" in contract["diagnostics"]["chart"]
         assert "renderer_component_contract" in blockers
@@ -152,12 +152,12 @@ def test_repeated_chart_contract_checks_every_instance_in_either_order(subtypes)
         assert "renderer_component_contract" not in blockers
 
 
-@pytest.mark.parametrize("subtype,expected_status", [("bar", "accepted"), ("line", "quality_rejected")])
+@pytest.mark.parametrize("subtype,expected_status", [("bar", "accepted"), ("sankey", "quality_rejected")])
 def test_stage3_dynamic_chart_subtype_uses_resolved_final_gate(tmp_path, monkeypatch, subtype, expected_status):
     completion = f'<a2ui>\n$/kind="{subtype}"\nroot=Chart(columns=["Month","Value"],rows=[["Jan",7]],chartType="${{/kind}}")\n</a2ui>'
     _, rows = run_fake(tmp_path, monkeypatch, [completion], source="| Month | Value |\n|---|---|\n| Jan | 7 |", metric="v5_4")
     assert rows[0]["record_status"] == expected_status
-    if subtype == "line":
+    if subtype == "sankey":
         assert "renderer_component_contract" in rows[0]["training_acceptance"]["blocking_reasons"]
 
 
@@ -182,7 +182,7 @@ def test_actual_generic_stage3_prompt_and_record_include_guidance_and_audit(tmp_
 
 
 def test_unsupported_chart_participates_in_existing_teacher_repair(tmp_path, monkeypatch):
-    bad = '<a2ui>\nroot=Chart(columns=["Month","Value"],rows=[["Jan",7]],chartType="line")\n</a2ui>'
+    bad = '<a2ui>\nroot=Chart(columns=["Month","Value"],rows=[["Jan",7]],chartType="sankey")\n</a2ui>'
     good = '<a2ui>\nroot=Table(columns=["Month","Value"],rows=[["Jan",7]])\n</a2ui>'
     adapter, rows = run_fake(tmp_path, monkeypatch, [bad, good], repairs=1, source="| Month | Value |\n|---|---|\n| Jan | 7 |")
     assert len(adapter.calls) == 2

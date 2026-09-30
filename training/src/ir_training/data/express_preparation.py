@@ -25,7 +25,7 @@ from ir_training.common.parallel import ordered_bounded_map
 from ir_training.common.progress import Progress, fingerprint_file
 
 
-PREPARATION_VERSION = "2.1.0"
+PREPARATION_VERSION = "2.2.0"
 TARGET_FORMAT = "a2ui_express_v1"
 TASK_PREFIX = "Create A2UI Express v1 GenUI IR for this response:\n\n"
 

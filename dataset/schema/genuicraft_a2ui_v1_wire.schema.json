@@ -802,6 +802,30 @@
           },
           "yLabel": {
             "$ref": "#/$defs/dynamicString"
+          },
+          "series": {
+            "$ref": "#/$defs/dynamicArray"
+          },
+          "xType": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "xLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "rightYLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "orientation": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "sizeKey": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "boxKeys": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "data": {
+            "$ref": "#/$defs/dynamicArray"
           }
         }
       },

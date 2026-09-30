@@ -303,6 +303,21 @@ def test_invalid_sidecar_rejected_before_calls(run, tmp_path):
     assert teacher.calls == []
 
 
+@pytest.fixture
+def historical_contract(monkeypatch):
+    """Exercise the frozen legacy migration without mixing in the new chart prompt."""
+    current = engine._configuration
+
+    def historical(*args, **kwargs):
+        config, *remaining = current(*args, **kwargs)
+        config['stage3_prompt_sha256'] = 'f354f2e6e65cd18fa72984f5e3eff7c60b99ccec660c2710c970a7d8eab60b13'
+        config['contract_sha256'] = '0c5c211e0ddf05e0e6f22b803dee6050a2141d4723e341a75ff3b4dd69384e83'
+        return (config, *remaining)
+
+    monkeypatch.setattr(engine, '_configuration', historical)
+    return current
+
+
 def legacy_fixture(run, tmp_path):
     donors, output, _, generate = run
     generate()
@@ -321,7 +336,7 @@ def legacy_fixture(run, tmp_path):
 
 
 @pytest.mark.parametrize("status", ["failed", "completed"])
-def test_known_legacy_upgrade_readonly_preflight_and_reuses_valid_completed(run, tmp_path, status):
+def test_known_legacy_upgrade_readonly_preflight_and_reuses_valid_completed(run, tmp_path, status, historical_contract):
     donors, legacy = legacy_fixture(run, tmp_path)
     manifest = json.loads((legacy / "manifest.json").read_text())
     manifest["status"] = status
@@ -340,8 +355,17 @@ def test_known_legacy_upgrade_readonly_preflight_and_reuses_valid_completed(run,
     assert api.validate_generation_resume(donors, legacy, max_new_samples=3)["legacy_upgrade"] is False
 
 
+def test_current_chart_contract_cannot_silently_resume_frozen_legacy_run(run, tmp_path, historical_contract, monkeypatch):
+    donors, legacy = legacy_fixture(run, tmp_path)
+    before = {p.name: p.read_bytes() for p in legacy.iterdir()}
+    monkeypatch.setattr(engine, '_configuration', historical_contract)
+    with pytest.raises(ValueError, match='contract mismatch: stage3_prompt_sha256'):
+        api.validate_generation_resume(donors, legacy, max_new_samples=3)
+    assert {p.name: p.read_bytes() for p in legacy.iterdir()} == before
+
+
 @pytest.mark.parametrize("change", ["missing_manifest", "code", "prompt", "seed", "accepted_hash"])
-def test_legacy_upgrade_refuses_unproven_identity(run, tmp_path, change):
+def test_legacy_upgrade_refuses_unproven_identity(run, tmp_path, change, historical_contract):
     donors, legacy = legacy_fixture(run, tmp_path)
     path = legacy / "manifest.json"
     manifest = json.loads(path.read_text())
@@ -361,7 +385,7 @@ def test_legacy_upgrade_refuses_unproven_identity(run, tmp_path, change):
         api.validate_generation_resume(donors, legacy, max_new_samples=3)
 
 
-def test_legacy_unbound_sources_regenerated_without_target_rewrite(run, tmp_path):
+def test_legacy_unbound_sources_regenerated_without_target_rewrite(run, tmp_path, historical_contract):
     donors, legacy = legacy_fixture(run, tmp_path)
     accepted = api.read_jsonl(legacy / "accepted_genui.jsonl")
     responses = api.read_jsonl(legacy / "responses.jsonl")

@@ -120,6 +120,8 @@ _SCORE_FILES = (
     "../renderer_capability.py",
     "../renderer_semantics.py",
     "../renderer_effective_semantics_v5_4.py",
+    "../rich_chart_semantics.py",
+    "../../../tests/fixtures/chart_contract_v2_1.json",
 )
 _REWARD_FILES = (
     "grpo_reward_v5_4.py",

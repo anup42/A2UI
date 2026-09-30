@@ -12,8 +12,8 @@ from .flat_spec_semantics import iter_renderer_references
 
 _CAPABILITY_PATH = Path(__file__).resolve().parents[2] / "schema" / "renderer_capabilities.json"
 _CAPABILITIES = json.loads(_CAPABILITY_PATH.read_text(encoding="utf-8"))
-if _CAPABILITIES.get("version") != "2.0.0":
-    raise RuntimeError("Python flat-spec contract requires renderer capability version 2.0.0")
+if _CAPABILITIES.get("version") != "2.1.0":
+    raise RuntimeError("Python flat-spec contract requires renderer capability version 2.1.0")
 
 _TYPE_CANONICAL_MAP = {
     "".join(ch for ch in str(alias) if ch.isalnum()).lower(): str(entry["canonical"])

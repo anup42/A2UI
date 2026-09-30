@@ -32,11 +32,23 @@ home. Do not print the inventory.
   chart and form requirements; preserve each instance, its complete content and
   binding/visibility semantics. An inferred request is not permission to invent
   chart measurements, email recipients or form defaults.
-- The Android chart renderer supports only bar and column charts. Do not emit
-  line, radar, pie or other unsupported chartType values. If the source explicitly
-  requires an unsupported chart, retain its exact data and request visibly in
-  Text/Table; do not silently relabel it as a supported chart. That unmet chart
-  role requires review before training admission.
+- Chart supports bar, column, line, area, groupedbar, stackedbar, stackedarea,
+  scatter, pie, donut, combo, radar, bubble, funnel, treemap and box. Use the
+  requested type and bind all requested series. Supply series=[{yKey:"sales",
+  label:"Sales",type:"column",axis:"left",unit:"USD"},{yKey:"rate",
+  label:"Rate",type:"line",axis:"right",unit:"%"}] for a combo/dual-axis chart;
+  never infer an axis assignment from an ambiguous request. Use xType="number"
+  for numeric spacing, xType="time" for ISO timestamps, or "category" for ordered
+  categories. Preserve source row order; line segments follow that order.
+  Scatter/bubble require numeric X values. Bubble requires sizeKey; box requires
+  boxKeys={min:"low",q1:"lowerQuartile",median:"median",q3:"upperQuartile",max:"high"}
+  bound to supplied statistics. Do not invent sizes, quartiles or measurements.
+  Pie/donut/funnel/flat treemap use one nonnegative value per category. Radar
+  needs at least three categories on a comparable nonnegative scale. Missing
+  line/area/scatter values remain gaps; stacked charts require complete values.
+  Preserve units, source qualifiers and exact values in adjacent Text/Table
+  when they are not chart measurements. If source information is insufficient,
+  retain it visibly and request review instead of fabricating chart semantics.
 
 Before returning, check the complete source again, especially content between
 sections and final clauses. Output only the complete program under the pinned

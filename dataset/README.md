@@ -121,7 +121,9 @@ to load code changes; existing generated rows are preserved.
 The guidance addresses measured v11 repairs: omitted prose between sections,
 short qualifications and clauses, unsafe adjacent text joins, quote escaping,
 entity/field associations and unsupported charts. The shared native chart
-inventory allows only bar/column (plus its aliases/default). Literal unsupported
+inventory v2.1 supports 16 chart families, explicit series, dual axes, numeric/time
+X spacing, null gaps, signed stacks and a visible key containing every supplied
+data column. See [the chart contract](docs/chart_contract_v2_1.md). Literal unsupported
 Chart subtypes enter the existing bounded teacher repair/regeneration path.
 Unresolved/dynamic chart output is checked by the final v5.4 effective renderer
 contract; unsupported output cannot be training eligible. Source-requested
