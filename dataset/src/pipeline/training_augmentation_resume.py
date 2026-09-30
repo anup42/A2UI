@@ -192,6 +192,7 @@ def _configuration(donors_path, *, teacher_model, max_new_samples, seed, referen
               "code_hashes": {path.relative_to(root).as_posix(): _digest(path) for path in sorted(code_paths)},
               "stage3_prompt_sha256": _digest(root / "prompts/genui_gen_mobile_a2ui_express_v1.md"),
               "muse_stage3_prompt_sha256": _digest(root / "prompts/muse_stage3_quality_v2.md"),
+              "training_fidelity_guidance_sha256": _digest(root / "prompts/stage3_training_fidelity_v1.md"),
               "contract_sha256": _digest(root / "schema/canonical_ui_graph_v1.schema.json"),
               "teacher_environment": effective_environment, "optional_environment_sha256": _hash(optional_environment),
               "teacher_endpoints": os.environ.get("LOCAL_VLLM_ENDPOINTS") or spec.endpoint,

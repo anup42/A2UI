@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://a2ui.local/schema/genui_codex_judgment_v2.schema.json",
+  "title": "Single-Codex GenUI judgment pass v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "packet_id",
+    "pass_type",
+    "protocol_fingerprint",
+    "dimensions",
+    "confidence_0_1",
+    "evidence_observations",
+    "visible_defects",
+    "cannot_assess",
+    "rationale",
+    "judge_task_id",
+    "judge_model_identifier",
+    "judged_at"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "genui_single_codex_groundtruth.v2"
+    },
+    "protocol_version": {
+      "const": "genui_single_codex_visual_rubric.v2.0.0"
+    },
+    "packet_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "pass_type": {
+      "enum": [
+        "screenshot_only",
+        "source_conditioned"
+      ]
+    },
+    "protocol_fingerprint": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "dimensions": {
+      "type": "object",
+      "minProperties": 2,
+      "maxProperties": 8,
+      "additionalProperties": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 100,
+        "multipleOf": 5
+      }
+    },
+    "confidence_0_1": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "evidence_observations": {
+      "$ref": "#/$defs/stringList"
+    },
+    "visible_defects": {
+      "$ref": "#/$defs/stringList"
+    },
+    "cannot_assess": {
+      "$ref": "#/$defs/stringList"
+    },
+    "rationale": {
+      "type": "string",
+      "minLength": 1
+    },
+    "judge_task_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "judge_model_identifier": {
+      "type": "string",
+      "minLength": 1
+    },
+    "judged_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "$defs": {
+    "stringList": {
+      "type": "array",
+      "maxItems": 32,
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

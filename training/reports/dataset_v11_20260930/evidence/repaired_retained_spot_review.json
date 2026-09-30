@@ -1,0 +1,447 @@
+{
+  "scope": "Targeted review of the first nine mechanically repaired retained records inspected from stopped attempt01; this is not a random dataset quality estimate.",
+  "policy_sha256": "43ccda5e34c2a4648ac61404c319556a54fad6ce9297d9c168dad3f68a01060d",
+  "source": "Immutable projected Stage3 records; replayed after URL normalization.",
+  "findings": {
+    "redundant_edits_suppressed": 6,
+    "source_grounded_repairs_preserved": 3,
+    "unexpected_residual_gates": 0
+  },
+  "records": [
+    {
+      "id": "dataset_muse_glimmer_100k_r1:u_002305_01:67",
+      "original_archive_record": {
+        "member": "dataset_muse_glimmer_100k_r1/genui.jsonl",
+        "line": 67,
+        "sha256": "14494b2cbdfa8adbb1c88846447ee6cd166e8a822f3d4f5f1cb10d64e1458fc9"
+      },
+      "original_source_sha256": "d307368d63705d6af699aff3985594a0dbb779180cbbb3509891710139faed31",
+      "review_finding": "Exact source allocation caption; surrounding numeric allocation unchanged.",
+      "prior_repair_verdict": "valid",
+      "current_changes": {
+        "adjacent_unique_source_prose_restoration": 1
+      },
+      "current_issues": [],
+      "current_idempotent": true,
+      "current_proofs": [
+        {
+          "kind": "adjacent_unique_source_prose_restoration",
+          "stage": "adjacent_unique_source_prose_restoration",
+          "iteration": 1,
+          "location": "/graph/elements/root/children",
+          "before_exists": true,
+          "after_exists": true,
+          "before": [
+            "title",
+            "icon",
+            "overview",
+            "fixedHeading",
+            "fixedList",
+            "fixedTotal",
+            "targetsHeading",
+            "allocationList",
+            "discretionary",
+            "reductionIntro",
+            "reductionTable",
+            "cutsHeading",
+            "cutsList",
+            "actionsHeading",
+            "btn1",
+            "btn2"
+          ],
+          "after": [
+            "title",
+            "icon",
+            "overview",
+            "fixedHeading",
+            "fixedList",
+            "fixedTotal",
+            "targetsHeading",
+            "v11_repair_text_92feac63e0deb4e5",
+            "allocationList",
+            "discretionary",
+            "reductionIntro",
+            "reductionTable",
+            "cutsHeading",
+            "cutsList",
+            "actionsHeading",
+            "btn1",
+            "btn2"
+          ],
+          "repair_kinds": [
+            "adjacent_unique_source_prose_restoration"
+          ],
+          "original_source_sha256": "d307368d63705d6af699aff3985594a0dbb779180cbbb3509891710139faed31",
+          "source_sha256": "418cf1b30709d31b1c2d60ca5df6978e1b6b97707ed3fb51d9a0a495e2669c55",
+          "result_source_sha256": "418cf1b30709d31b1c2d60ca5df6978e1b6b97707ed3fb51d9a0a495e2669c55",
+          "policy_proofs": [
+            {
+              "kind": "adjacent_unique_source_prose_restoration",
+              "parent": "root",
+              "left": "targetsHeading",
+              "right": "allocationList",
+              "left_source_span": [
+                362,
+                406
+              ],
+              "right_source_span": [
+                434,
+                496
+              ],
+              "source_gap_span": [
+                406,
+                434
+              ],
+              "source_literal": "Allocation from $4,800 net",
+              "left_anchor_literal": "## 50/30/20 Targets and Needs Reduction Plan",
+              "right_anchor_literal": "- Needs 50% = $2,400\n- Wants 30% = $1,440\n- Savings 20% = $960",
+              "left_anchor_sha256": "f57b9b223785135367488d47eeb1fba3264776371ec7e3a7eb501002cbf5bca7",
+              "right_anchor_sha256": "54995763476031faf36b8d206c78752415435c957c524ea8f2662651237d2364",
+              "inserted_element": "v11_repair_text_92feac63e0deb4e5"
+            }
+          ]
+        },
+        {
+          "kind": "adjacent_unique_source_prose_restoration",
+          "stage": "adjacent_unique_source_prose_restoration",
+          "iteration": 1,
+          "location": "/graph/elements/v11_repair_text_92feac63e0deb4e5",
+          "before_exists": false,
+          "after_exists": true,
+          "before": null,
+          "after": {
+            "type": "Text",
+            "props": {
+              "text": "Allocation from $4,800 net"
+            },
+            "children": []
+          },
+          "repair_kinds": [
+            "adjacent_unique_source_prose_restoration"
+          ],
+          "original_source_sha256": "d307368d63705d6af699aff3985594a0dbb779180cbbb3509891710139faed31",
+          "source_sha256": "418cf1b30709d31b1c2d60ca5df6978e1b6b97707ed3fb51d9a0a495e2669c55",
+          "result_source_sha256": "418cf1b30709d31b1c2d60ca5df6978e1b6b97707ed3fb51d9a0a495e2669c55",
+          "policy_proofs": [
+            {
+              "kind": "adjacent_unique_source_prose_restoration",
+              "parent": "root",
+              "left": "targetsHeading",
+              "right": "allocationList",
+              "left_source_span": [
+                362,
+                406
+              ],
+              "right_source_span": [
+                434,
+                496
+              ],
+              "source_gap_span": [
+                406,
+                434
+              ],
+              "source_literal": "Allocation from $4,800 net",
+              "left_anchor_literal": "## 50/30/20 Targets and Needs Reduction Plan",
+              "right_anchor_literal": "- Needs 50% = $2,400\n- Wants 30% = $1,440\n- Savings 20% = $960",
+              "left_anchor_sha256": "f57b9b223785135367488d47eeb1fba3264776371ec7e3a7eb501002cbf5bca7",
+              "right_anchor_sha256": "54995763476031faf36b8d206c78752415435c957c524ea8f2662651237d2364",
+              "inserted_element": "v11_repair_text_92feac63e0deb4e5"
+            }
+          ]
+        }
+      ],
+      "fix_verified": true
+    },
+    {
+      "id": "dataset_muse_glimmer_100k_r1:u_001321_01:671",
+      "original_archive_record": {
+        "member": "dataset_muse_glimmer_100k_r1/genui.jsonl",
+        "line": 671,
+        "sha256": "021284a8fa736224c27338ad12ffe7d2e7f233b0af19ee4693803aa74b3f238a"
+      },
+      "original_source_sha256": "79074bb84b84915469f7ff4e7cfcc6db01bd19afc9829c6b8d7099bdec525639",
+      "review_finding": "Chart declaration duplicates the existing Chart title.",
+      "prior_repair_verdict": "redundant",
+      "current_changes": {},
+      "current_issues": [],
+      "current_idempotent": true,
+      "current_proofs": [],
+      "fix_verified": true
+    },
+    {
+      "id": "dataset_muse_glimmer_100k_r1:u_001836_01:690",
+      "original_archive_record": {
+        "member": "dataset_muse_glimmer_100k_r1/genui.jsonl",
+        "line": 690,
+        "sha256": "0c0f93b0eac14a220551138744eb35de8e6b021ac2c209bd9db7fe82bbca310d"
+      },
+      "original_source_sha256": "91a5f02ced9d1507820a290f62669f12178dff66499ec31a2f5ae4b7c55aab57",
+      "review_finding": "Chart declaration prefix should not be added to the existing literal title.",
+      "prior_repair_verdict": "redundant",
+      "current_changes": {},
+      "current_issues": [],
+      "current_idempotent": true,
+      "current_proofs": [],
+      "fix_verified": true
+    },
+    {
+      "id": "dataset_muse_glimmer_100k_r1:u_002594_01:712",
+      "original_archive_record": {
+        "member": "dataset_muse_glimmer_100k_r1/genui.jsonl",
+        "line": 712,
+        "sha256": "ec9000bf97958040518131afc56fa06025fa80f9bf09daf162ba34f7e862f79a"
+      },
+      "original_source_sha256": "115d4d96f1e9ed0068404ca11ff1fdcb666b607e1e0057d88585c9fe0b0c1b6e",
+      "review_finding": "Chart declaration duplicates the existing Chart title.",
+      "prior_repair_verdict": "redundant",
+      "current_changes": {},
+      "current_issues": [],
+      "current_idempotent": true,
+      "current_proofs": [],
+      "fix_verified": true
+    },
+    {
+      "id": "dataset_muse_glimmer_100k_r1:u_002600_01:718",
+      "original_archive_record": {
+        "member": "dataset_muse_glimmer_100k_r1/genui.jsonl",
+        "line": 718,
+        "sha256": "d801f55508430e12ebc459b131afbed4814a648281528b197baff9aef2720ce3"
+      },
+      "original_source_sha256": "878f90083cf70b5a3662c2598aad0df7ae08e98bb2086ee952680b77ef01cebd",
+      "review_finding": "Chart declaration duplicates the existing Chart title.",
+      "prior_repair_verdict": "redundant",
+      "current_changes": {},
+      "current_issues": [],
+      "current_idempotent": true,
+      "current_proofs": [],
+      "fix_verified": true
+    },
+    {
+      "id": "dataset_muse_glimmer_100k_r1:u_002616_01:974",
+      "original_archive_record": {
+        "member": "dataset_muse_glimmer_100k_r1/genui.jsonl",
+        "line": 974,
+        "sha256": "f4c220adb34fa530fe3c46196e0ec3cf01bce369a2275a28b4ba537a6371d6c0"
+      },
+      "original_source_sha256": "156050c6edc3ef0397a64b41b3d244326fe7764f43bd8d39053d6cec23421b14",
+      "review_finding": "Exact source close-line label restored in its original position.",
+      "prior_repair_verdict": "valid",
+      "current_changes": {
+        "adjacent_unique_source_prose_restoration": 1
+      },
+      "current_issues": [],
+      "current_idempotent": true,
+      "current_proofs": [
+        {
+          "kind": "adjacent_unique_source_prose_restoration",
+          "stage": "adjacent_unique_source_prose_restoration",
+          "iteration": 1,
+          "location": "/graph/elements/root/children",
+          "before_exists": true,
+          "after_exists": true,
+          "before": [
+            "title",
+            "icon",
+            "headingOverview",
+            "whenInfo",
+            "whoInfo",
+            "focusInfo",
+            "contextHeading",
+            "contextList",
+            "agendaHeading",
+            "agendaTable",
+            "facilitatorNotesHeading",
+            "facilitatorNotesList",
+            "groundRulesHeading",
+            "groundRulesSubHeading",
+            "groundRulesList",
+            "parkingLotHeading",
+            "parkingLotTable",
+            "parkingPromptsHeading",
+            "parkingPromptsList",
+            "closeLine"
+          ],
+          "after": [
+            "title",
+            "icon",
+            "headingOverview",
+            "whenInfo",
+            "whoInfo",
+            "focusInfo",
+            "contextHeading",
+            "contextList",
+            "agendaHeading",
+            "agendaTable",
+            "facilitatorNotesHeading",
+            "facilitatorNotesList",
+            "groundRulesHeading",
+            "groundRulesSubHeading",
+            "groundRulesList",
+            "parkingLotHeading",
+            "parkingLotTable",
+            "parkingPromptsHeading",
+            "parkingPromptsList",
+            "v11_repair_text_a3bb2be1a2c467c9",
+            "closeLine"
+          ],
+          "repair_kinds": [
+            "adjacent_unique_source_prose_restoration"
+          ],
+          "original_source_sha256": "156050c6edc3ef0397a64b41b3d244326fe7764f43bd8d39053d6cec23421b14",
+          "source_sha256": "bef0ced2659b1674c5269b0faf563fc78296ae02cce1fe9cda21ed4dc2d2002b",
+          "result_source_sha256": "bef0ced2659b1674c5269b0faf563fc78296ae02cce1fe9cda21ed4dc2d2002b",
+          "policy_proofs": [
+            {
+              "kind": "adjacent_unique_source_prose_restoration",
+              "parent": "root",
+              "left": "parkingPromptsList",
+              "right": "closeLine",
+              "left_source_span": [
+                2003,
+                2191
+              ],
+              "right_source_span": [
+                2204,
+                2337
+              ],
+              "source_gap_span": [
+                2191,
+                2204
+              ],
+              "source_literal": "Close line",
+              "left_anchor_literal": "- “That’s important, let’s park it so we stay on time.”\n- “What is the minimum info needed to decide? Owner + due date.”\n- Close session by reading parking lot aloud and confirming owners.",
+              "right_anchor_literal": "“Thank you for the honesty today. We have shared understanding, 6 commitments, and a clear parking lot. Next check-in on 2026-09-02.”",
+              "left_anchor_sha256": "5913feb853157ff557d7f7aac0585452b999fa65da12aee1c82eb6fa08c3d238",
+              "right_anchor_sha256": "64994ab1b2599771c4f573034db27df4f94081f51e4a356ae62f46f4cb3d99c6",
+              "inserted_element": "v11_repair_text_a3bb2be1a2c467c9"
+            }
+          ]
+        },
+        {
+          "kind": "adjacent_unique_source_prose_restoration",
+          "stage": "adjacent_unique_source_prose_restoration",
+          "iteration": 1,
+          "location": "/graph/elements/v11_repair_text_a3bb2be1a2c467c9",
+          "before_exists": false,
+          "after_exists": true,
+          "before": null,
+          "after": {
+            "type": "Text",
+            "props": {
+              "text": "Close line"
+            },
+            "children": []
+          },
+          "repair_kinds": [
+            "adjacent_unique_source_prose_restoration"
+          ],
+          "original_source_sha256": "156050c6edc3ef0397a64b41b3d244326fe7764f43bd8d39053d6cec23421b14",
+          "source_sha256": "bef0ced2659b1674c5269b0faf563fc78296ae02cce1fe9cda21ed4dc2d2002b",
+          "result_source_sha256": "bef0ced2659b1674c5269b0faf563fc78296ae02cce1fe9cda21ed4dc2d2002b",
+          "policy_proofs": [
+            {
+              "kind": "adjacent_unique_source_prose_restoration",
+              "parent": "root",
+              "left": "parkingPromptsList",
+              "right": "closeLine",
+              "left_source_span": [
+                2003,
+                2191
+              ],
+              "right_source_span": [
+                2204,
+                2337
+              ],
+              "source_gap_span": [
+                2191,
+                2204
+              ],
+              "source_literal": "Close line",
+              "left_anchor_literal": "- “That’s important, let’s park it so we stay on time.”\n- “What is the minimum info needed to decide? Owner + due date.”\n- Close session by reading parking lot aloud and confirming owners.",
+              "right_anchor_literal": "“Thank you for the honesty today. We have shared understanding, 6 commitments, and a clear parking lot. Next check-in on 2026-09-02.”",
+              "left_anchor_sha256": "5913feb853157ff557d7f7aac0585452b999fa65da12aee1c82eb6fa08c3d238",
+              "right_anchor_sha256": "64994ab1b2599771c4f573034db27df4f94081f51e4a356ae62f46f4cb3d99c6",
+              "inserted_element": "v11_repair_text_a3bb2be1a2c467c9"
+            }
+          ]
+        }
+      ],
+      "fix_verified": true
+    },
+    {
+      "id": "dataset_muse_glimmer_100k_r1:u_000684_01:2690",
+      "original_archive_record": {
+        "member": "dataset_muse_glimmer_100k_r1/genui.jsonl",
+        "line": 2690,
+        "sha256": "60f4c73eaa444203fad2ef67677a10e513cd0979a41c9b594a39acdbe4bce087"
+      },
+      "original_source_sha256": "905f26ae94b6eaae4b7893b3d0a70d01c3afc1ebe0b77464de14a275542218f4",
+      "review_finding": "Action descriptions already have their exact adjacent Button labels.",
+      "prior_repair_verdict": "redundant",
+      "current_changes": {},
+      "current_issues": [],
+      "current_idempotent": true,
+      "current_proofs": [],
+      "fix_verified": true
+    },
+    {
+      "id": "dataset_muse_glimmer_100k_r1:u_003498_01:2904",
+      "original_archive_record": {
+        "member": "dataset_muse_glimmer_100k_r1/genui.jsonl",
+        "line": 2904,
+        "sha256": "7bcc5d74049c8d0ca5ce57abf2bfa5e0363c325aea6a1fba4f108441662b7b5b"
+      },
+      "original_source_sha256": "ec6e66889fdc7b909c7baee7a6c1a90b3d7174850cbde4d5bf92e4ea1327e83b",
+      "review_finding": "Original v10 policy restores the exact source clause about four screening applicants.",
+      "prior_repair_verdict": "valid",
+      "current_changes": {
+        "unique_source_clause_restoration": 1
+      },
+      "current_issues": [],
+      "current_idempotent": true,
+      "current_proofs": [
+        {
+          "kind": "unique_source_clause_restoration",
+          "stage": "v10_semantic_repair",
+          "iteration": 1,
+          "location": "/graph/elements/roleInfo/props/text",
+          "before_exists": true,
+          "after_exists": true,
+          "before": "Role: Senior UX Designer at BrightPath Health, hiring manager Toronto, America/Toronto. Application close date: 2026-09-15.",
+          "after": "Role: Senior UX Designer at BrightPath Health, hiring manager Toronto, America/Toronto. Application close date: 2026-09-15. Four applicants are in the screening pipeline with the latest activity dates supplied.",
+          "repair_kinds": [
+            "unique_source_clause_restoration"
+          ],
+          "original_source_sha256": "ec6e66889fdc7b909c7baee7a6c1a90b3d7174850cbde4d5bf92e4ea1327e83b",
+          "source_sha256": "ec6e66889fdc7b909c7baee7a6c1a90b3d7174850cbde4d5bf92e4ea1327e83b",
+          "result_source_sha256": "ec6e66889fdc7b909c7baee7a6c1a90b3d7174850cbde4d5bf92e4ea1327e83b",
+          "policy_proofs": [
+            {
+              "kind": "unique_source_clause_restoration",
+              "location": "roleInfo.text[0]",
+              "before": "Role: Senior UX Designer at BrightPath Health, hiring manager Toronto, America/Toronto. Application close date: 2026-09-15.",
+              "after": "Role: Senior UX Designer at BrightPath Health, hiring manager Toronto, America/Toronto. Application close date: 2026-09-15. Four applicants are in the screening pipeline with the latest activity dates supplied."
+            }
+          ]
+        }
+      ],
+      "fix_verified": true
+    },
+    {
+      "id": "dataset_muse_glimmer_100k_r1:u_002784_01:3646",
+      "original_archive_record": {
+        "member": "dataset_muse_glimmer_100k_r1/genui.jsonl",
+        "line": 3646,
+        "sha256": "a6bd69ef63227fbbc65e59c40ef00b4bd42681ed4213a6f970ae43feab9f24af"
+      },
+      "original_source_sha256": "8330b0dcdd12fdbc26c61993acc6545a3cd8a4646c18e36861964e6912abaa7b",
+      "review_finding": "List items already have exact adjacent Pros and Cons headings.",
+      "prior_repair_verdict": "redundant",
+      "current_changes": {},
+      "current_issues": [],
+      "current_idempotent": true,
+      "current_proofs": [],
+      "fix_verified": true
+    }
+  ]
+}

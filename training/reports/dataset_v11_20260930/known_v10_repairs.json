@@ -1,0 +1,1123 @@
+[
+  {
+    "id": "archive-train-047052-619972e8e004ea5d",
+    "split": "train",
+    "line": 2295,
+    "case": 2,
+    "original_row_sha256": "cece1135fa97acdc56feaf7de9768672a05680d4a80c5fb8891d4489e2967b7e",
+    "output_row_sha256": "066a64ba906430b3e418e1eb5763a538eda935d12ef8a5f367b8601418d5c2ae",
+    "proofs": [
+      {
+        "policy": "v11-known-v10-holds-source-proven-20260930",
+        "case": 2,
+        "kind": "exact_speed_percentage_correction",
+        "source_grounded": true,
+        "source_corrected": true,
+        "evidence": {
+          "kind": "exact_speed_percentage_correction",
+          "formula": "(current_seconds / target_seconds - 1) * 100",
+          "inputs": {
+            "current_seconds": 1500,
+            "target_seconds": 1350
+          },
+          "exact_fraction": "100/9",
+          "rounded_one_decimal": "11.1%"
+        },
+        "original_source_sha256": "4f5fb1a6be08d71415600497810540e2dfc782accba372745af1abfada06da0a",
+        "original_target_sha256": "157ed2de002302b7defc7afe8334430718f8b3a3c1e335c8cc0aacc5d0621a9f",
+        "original_semantic_sha256": "861c7322b44898a767ebea8b8a98b4b1cb7685856aa77acbb70297620f6545fd",
+        "effective_source_sha256": "b17b71bb9264a61dc0b74cead037170b091959128ce18dfb26aae580c722ca2d",
+        "effective_target_sha256": "a91a66dc3b97cd475e4e076cdbd89f79915401d3c58b340674d13b2787da8a62",
+        "effective_semantic_sha256": "0a5ad4b21993a39f9de4ebf4a0bb8b46eca7f693e259859c6a98ced581f87779",
+        "changes": [
+          {
+            "location": "/graph/elements/e/props/text",
+            "before_exists": true,
+            "after_exists": true,
+            "before": "To reduce a 5k time from 25:00 to 22:30, a runner must increase their average speed by approximately 10.4%. This requires a consistent shift in pacing across all five kilometers.",
+            "after": "To reduce a 5k time from 25:00 to 22:30, a runner must increase their average speed by approximately 11.1%. This requires a consistent shift in pacing across all five kilometers."
+          },
+          {
+            "location": "/source",
+            "before_exists": true,
+            "after_exists": true,
+            "before": "## 5k Pace Goal Analysis\nMedia: Icon=[ICON_URL_1]\nTo reduce a 5k time from 25:00 to 22:30, a runner must increase their average speed by approximately 10.4%. This requires a consistent shift in pacing across all five kilometers.\n\n## Pace Comparison Breakdown\nMedia: Icon=[ICON_URL_2]\n\nMetric | Current (25:00) | Target (22:30) | Difference\n--- | --- | --- | ---\nPace per km | 5:00 /km | 4:30 /km | -30 sec/km\nTotal Time | 25m 00s | 22m 30s | -2m 30s\nAvg Speed | 12.0 km/h | 13.3 km/h | +1.3 km/h\n\n## Required Pace Calculations\nMedia: Icon=[ICON_URL_3]\n\nFormula: Pace = \\frac{Total Time}{Distance}\n\n- **Current Pace**: 25 minutes \u00f7 5 km = **5:00 per kilometer**\n- **Target Pace**: 22.5 minutes \u00f7 5 km = **4:30 per kilometer**\n- **Pace Improvement**: 5:00 - 4:30 = **30 seconds faster per kilometer**\n\n## Training Focus Areas\nMedia: Icon=[ICON_URL_4]\n\n- **Interval Training**: Perform 800m or 1km repeats at a 4:20-4:25 pace to build anaerobic capacity.\n- **Tempo Runs**: Sustained 3-4km runs at a \"comfortably hard\" pace (approx 4:45-4:50) to improve lactate threshold.\n- **Easy Miles**: Maintain low-intensity recovery runs to build aerobic base and prevent injury.\n\n## Quick Actions\nAction: [Button: 5k Pace Calculator] <[ACTION_URL_1]>\nAction: [Button: Interval Workout Guide] <[ACTION_URL_2]>",
+            "after": "## 5k Pace Goal Analysis\nMedia: Icon=[ICON_URL_1]\nTo reduce a 5k time from 25:00 to 22:30, a runner must increase their average speed by approximately 11.1%. This requires a consistent shift in pacing across all five kilometers.\n\n## Pace Comparison Breakdown\nMedia: Icon=[ICON_URL_2]\n\nMetric | Current (25:00) | Target (22:30) | Difference\n--- | --- | --- | ---\nPace per km | 5:00 /km | 4:30 /km | -30 sec/km\nTotal Time | 25m 00s | 22m 30s | -2m 30s\nAvg Speed | 12.0 km/h | 13.3 km/h | +1.3 km/h\n\n## Required Pace Calculations\nMedia: Icon=[ICON_URL_3]\n\nFormula: Pace = \\frac{Total Time}{Distance}\n\n- **Current Pace**: 25 minutes \u00f7 5 km = **5:00 per kilometer**\n- **Target Pace**: 22.5 minutes \u00f7 5 km = **4:30 per kilometer**\n- **Pace Improvement**: 5:00 - 4:30 = **30 seconds faster per kilometer**\n\n## Training Focus Areas\nMedia: Icon=[ICON_URL_4]\n\n- **Interval Training**: Perform 800m or 1km repeats at a 4:20-4:25 pace to build anaerobic capacity.\n- **Tempo Runs**: Sustained 3-4km runs at a \"comfortably hard\" pace (approx 4:45-4:50) to improve lactate threshold.\n- **Easy Miles**: Maintain low-intensity recovery runs to build aerobic base and prevent injury.\n\n## Quick Actions\nAction: [Button: 5k Pace Calculator] <[ACTION_URL_1]>\nAction: [Button: Interval Workout Guide] <[ACTION_URL_2]>"
+          }
+        ],
+        "source_factual_status": "needs_review",
+        "validation": "strict_wire_roundtrip_and_source_reference_closure",
+        "stage3_run": false,
+        "scope": "Deterministic reviewed-data repair; no independent factual certification."
+      }
+    ]
+  },
+  {
+    "id": "archive-train-029166-93fb5e6cec231445",
+    "split": "train",
+    "line": 30894,
+    "case": 28,
+    "original_row_sha256": "de4a508a8deae96b3c874d86e28e78489a4bef89e799788ba40bd5919b2a9df5",
+    "output_row_sha256": "ec649b7f8c713ff327909a864e573ff2b54713bca55072388e9f4a60129b6bb3",
+    "proofs": [
+      {
+        "policy": "v11-known-v10-holds-source-proven-20260930",
+        "case": 28,
+        "kind": "source_matrix_orientation_restoration",
+        "source_grounded": true,
+        "source_corrected": false,
+        "evidence": {
+          "kind": "source_matrix_orientation_restoration",
+          "element": "j",
+          "headers": [
+            "Step Counter",
+            "Fitness Watch",
+            "Medical ECG Wearable"
+          ],
+          "rows": [
+            [
+              "Low to Moderate",
+              "High",
+              "Clinical Grade"
+            ],
+            [
+              "Weeks to Months",
+              "3 to 14 Days",
+              "Days to Weeks"
+            ],
+            [
+              "Basic Activity Tracking",
+              "Athletic Training",
+              "Cardiac Monitoring"
+            ]
+          ],
+          "state_path": "/capability_rows"
+        },
+        "original_source_sha256": "7b0afad90b2b1ccd4451766f30ad5f6c2b18ccc81e3696447b798e947ae5ad8e",
+        "original_target_sha256": "399b5153380ffc9ad296d178a24b4dd944cc216339be89a6c570ca5fd2d631ef",
+        "original_semantic_sha256": "cd920e1639d419af0e130796eae3244b9949d18117b239e03079cf550795d48c",
+        "effective_source_sha256": "7b0afad90b2b1ccd4451766f30ad5f6c2b18ccc81e3696447b798e947ae5ad8e",
+        "effective_target_sha256": "2726d546886af68411d5800d182eee6ff353fc912d9149269ca39dfb337fed81",
+        "effective_semantic_sha256": "78f426b2c5b7c9750d0a882159f9bd5d42e411cd48d04b03a7ba2e5e4bac8843",
+        "changes": [
+          {
+            "location": "/graph/elements/j/props/columns/0/key",
+            "before_exists": true,
+            "after_exists": true,
+            "before": "device",
+            "after": "column_1"
+          },
+          {
+            "location": "/graph/elements/j/props/columns/1/key",
+            "before_exists": true,
+            "after_exists": true,
+            "before": "accuracy",
+            "after": "column_2"
+          },
+          {
+            "location": "/graph/elements/j/props/columns/2/key",
+            "before_exists": true,
+            "after_exists": true,
+            "before": "battery",
+            "after": "column_3"
+          },
+          {
+            "location": "/graph/elements/j/props/preferredPresentation",
+            "before_exists": true,
+            "after_exists": true,
+            "before": "cards",
+            "after": "table"
+          },
+          {
+            "location": "/graph/elements/j/props/primaryColumn",
+            "before_exists": true,
+            "after_exists": false,
+            "before": "device",
+            "after": null
+          },
+          {
+            "location": "/graph/state/capability_rows/0/accuracy",
+            "before_exists": true,
+            "after_exists": false,
+            "before": "Low to Moderate",
+            "after": null
+          },
+          {
+            "location": "/graph/state/capability_rows/0/battery",
+            "before_exists": true,
+            "after_exists": false,
+            "before": "Weeks to Months",
+            "after": null
+          },
+          {
+            "location": "/graph/state/capability_rows/0/column_1",
+            "before_exists": false,
+            "after_exists": true,
+            "before": null,
+            "after": "Low to Moderate"
+          },
+          {
+            "location": "/graph/state/capability_rows/0/column_2",
+            "before_exists": false,
+            "after_exists": true,
+            "before": null,
+            "after": "High"
+          },
+          {
+            "location": "/graph/state/capability_rows/0/column_3",
+            "before_exists": false,
+            "after_exists": true,
+            "before": null,
+            "after": "Clinical Grade"
+          },
+          {
+            "location": "/graph/state/capability_rows/0/device",
+            "before_exists": true,
+            "after_exists": false,
+            "before": "Step Counter",
+            "after": null
+          },
+          {
+            "location": "/graph/state/capability_rows/0/focus",
+            "before_exists": true,
+            "after_exists": false,
+            "before": "Basic Activity Tracking",
+            "after": null
+          },
+          {
+            "location": "/graph/state/capability_rows/1/accuracy",
+            "before_exists": true,
+            "after_exists": false,
+            "before": "High",
+            "after": null
+          },
+          {
+            "location": "/graph/state/capability_rows/1/battery",
+            "before_exists": true,
+            "after_exists": false,
+            "before": "3 to 14 Days",
+            "after": null
+          },
+          {
+            "location": "/graph/state/capability_rows/1/column_1",
+            "before_exists": false,
+            "after_exists": true,
+            "before": null,
+            "after": "Weeks to Months"
+          },
+          {
+            "location": "/graph/state/capability_rows/1/column_2",
+            "before_exists": false,
+            "after_exists": true,
+            "before": null,
+            "after": "3 to 14 Days"
+          },
+          {
+            "location": "/graph/state/capability_rows/1/column_3",
+            "before_exists": false,
+            "after_exists": true,
+            "before": null,
+            "after": "Days to Weeks"
+          },
+          {
+            "location": "/graph/state/capability_rows/1/device",
+            "before_exists": true,
+            "after_exists": false,
+            "before": "Fitness Watch",
+            "after": null
+          },
+          {
+            "location": "/graph/state/capability_rows/1/focus",
+            "before_exists": true,
+            "after_exists": false,
+            "before": "Athletic Training",
+            "after": null
+          },
+          {
+            "location": "/graph/state/capability_rows/2/accuracy",
+            "before_exists": true,
+            "after_exists": false,
+            "before": "Clinical Grade",
+            "after": null
+          },
+          {
+            "location": "/graph/state/capability_rows/2/battery",
+            "before_exists": true,
+            "after_exists": false,
+            "before": "Days to Weeks",
+            "after": null
+          },
+          {
+            "location": "/graph/state/capability_rows/2/column_1",
+            "before_exists": false,
+            "after_exists": true,
+            "before": null,
+            "after": "Basic Activity Tracking"
+          },
+          {
+            "location": "/graph/state/capability_rows/2/column_2",
+            "before_exists": false,
+            "after_exists": true,
+            "before": null,
+            "after": "Athletic Training"
+          },
+          {
+            "location": "/graph/state/capability_rows/2/column_3",
+            "before_exists": false,
+            "after_exists": true,
+            "before": null,
+            "after": "Cardiac Monitoring"
+          },
+          {
+            "location": "/graph/state/capability_rows/2/device",
+            "before_exists": true,
+            "after_exists": false,
+            "before": "Medical ECG Wearable",
+            "after": null
+          },
+          {
+            "location": "/graph/state/capability_rows/2/focus",
+            "before_exists": true,
+            "after_exists": false,
+            "before": "Cardiac Monitoring",
+            "after": null
+          }
+        ],
+        "source_factual_status": "needs_review",
+        "validation": "strict_wire_roundtrip_and_source_reference_closure",
+        "stage3_run": false,
+        "scope": "Deterministic reviewed-data repair; no independent factual certification."
+      }
+    ]
+  },
+  {
+    "id": "archive-train-135286-e0ce756d9979e5d7",
+    "split": "train",
+    "line": 39477,
+    "case": 33,
+    "original_row_sha256": "207ffef2b05f3c93176f49de99ed59c490cd5ae14ab8bc5556d1d5ab6a116f35",
+    "output_row_sha256": "0d12b9c6c28c4b7757e6a694a8b67638d5bd1e2808e4a543794b88bd7fd603f0",
+    "proofs": [
+      {
+        "policy": "v11-known-v10-holds-source-proven-20260930",
+        "case": 33,
+        "kind": "source_nested_bullet_restoration",
+        "source_grounded": true,
+        "source_corrected": false,
+        "evidence": {
+          "kind": "source_nested_bullet_restoration",
+          "element": "z",
+          "source_section": "### 3. Place Predefined Signing Tags",
+          "exact_source_bullets": [
+            "Click Next to enter the document editor.",
+            "Select the Client Signer role from the dropdown menu.",
+            "Drag and drop the following tags onto the PDF:",
+            "Signature: In the main signature block.",
+            "Date Signed: Adjacent to the signature.",
+            "Initials: At the bottom of each page.",
+            "Switch to the Company Representative role and repeat the placement for the firm's signatory."
+          ]
+        },
+        "original_source_sha256": "0f479e9bec9660d9f66fb9894f5b9989674b135f3010de083228431fe8340941",
+        "original_target_sha256": "05b460ebd95528d070361b60ebe8d08d4b3923259a5ee3be851702c58c4cae6b",
+        "original_semantic_sha256": "d6930068f7ec8476057810fd31a485cf07a9cf133ff118746abed9cffca41281",
+        "effective_source_sha256": "0f479e9bec9660d9f66fb9894f5b9989674b135f3010de083228431fe8340941",
+        "effective_target_sha256": "1ec086d764343b9df33f835471d98a8630d320f01b158676568a7471b15cdf17",
+        "effective_semantic_sha256": "1afde0588688189cb8ca92a622c02583be1aa2c3bbcb50711e3734009f4372e1",
+        "changes": [
+          {
+            "location": "/graph/elements/z/props/text",
+            "before_exists": true,
+            "after_exists": true,
+            "before": "Click Next to enter the document editor. Select the Client Signer role from the dropdown menu. Drag and drop Signature, Date Signed, and Initials onto the PDF. Switch to the Company Representative role and repeat the placement for the firm's signatory.",
+            "after": "Click Next to enter the document editor.\nSelect the Client Signer role from the dropdown menu.\nDrag and drop the following tags onto the PDF:\nSignature: In the main signature block.\nDate Signed: Adjacent to the signature.\nInitials: At the bottom of each page.\nSwitch to the Company Representative role and repeat the placement for the firm's signatory."
+          }
+        ],
+        "source_factual_status": "needs_review",
+        "validation": "strict_wire_roundtrip_and_source_reference_closure",
+        "stage3_run": false,
+        "scope": "Deterministic reviewed-data repair; no independent factual certification."
+      }
+    ]
+  },
+  {
+    "id": "archive-train-045383-6db30ec4724fe2dc",
+    "split": "train",
+    "line": 48799,
+    "case": 46,
+    "original_row_sha256": "4b20e5313cd247a9570f6f327bf54c898e8a240d44e2d24f9c1512095a5be5b3",
+    "output_row_sha256": "c525a49afee973ad9fd9eb542e9fa0c749e479ecf0c16a5cc07e402127fa05ab",
+    "proofs": [
+      {
+        "policy": "v11-known-v10-holds-source-proven-20260930",
+        "case": 46,
+        "kind": "complete_source_option_restoration",
+        "source_grounded": true,
+        "source_corrected": false,
+        "evidence": {
+          "kind": "complete_source_option_restoration",
+          "options": [
+            {
+              "element": "n",
+              "exact_source_option": "Option 1: Honda CR-V (2017-2019) | Best for maximum interior utility | Top-tier cargo and MPG"
+            },
+            {
+              "element": "t",
+              "exact_source_option": "Option 2: Toyota RAV4 (2017-2018) | Most dependable long-term choice | Industry-leading reliability"
+            },
+            {
+              "element": "z",
+              "exact_source_option": "Option 3: Mazda CX-5 (2017-2020) | Premium feel and safety | Best-in-class handling"
+            }
+          ]
+        },
+        "original_source_sha256": "c80b85db2bafe4b2ed1e2f5c640b3efe1763626165671ce49966fd8dacd641ac",
+        "original_target_sha256": "7c674b09688028fac598f3530fe25ccf87b7c9d423a7f2f0fe87bda818a4a5ca",
+        "original_semantic_sha256": "6d5eee5582486e82140b79993f17257177f8f0f957b442b12cb4c37d96868301",
+        "effective_source_sha256": "c80b85db2bafe4b2ed1e2f5c640b3efe1763626165671ce49966fd8dacd641ac",
+        "effective_target_sha256": "e616803e18930156b0dea3d92da6a5d9a076e9d8284540e187cb2687f2302119",
+        "effective_semantic_sha256": "c196d1f4c671b0da464a983ca70c85245b61ca5f1833346e9f09035ea594be1a",
+        "changes": [
+          {
+            "location": "/graph/elements/n/props/text",
+            "before_exists": true,
+            "after_exists": true,
+            "before": "Option 1: Honda CR-V (2017-2019) | Best for maximum interior utility",
+            "after": "Option 1: Honda CR-V (2017-2019) | Best for maximum interior utility | Top-tier cargo and MPG"
+          },
+          {
+            "location": "/graph/elements/t/props/text",
+            "before_exists": true,
+            "after_exists": true,
+            "before": "Option 2: Toyota RAV4 (2017-2018) | Most dependable long-term choice",
+            "after": "Option 2: Toyota RAV4 (2017-2018) | Most dependable long-term choice | Industry-leading reliability"
+          },
+          {
+            "location": "/graph/elements/z/props/text",
+            "before_exists": true,
+            "after_exists": true,
+            "before": "Option 3: Mazda CX-5 (2017-2020) | Premium feel and safety",
+            "after": "Option 3: Mazda CX-5 (2017-2020) | Premium feel and safety | Best-in-class handling"
+          }
+        ],
+        "source_factual_status": "needs_review",
+        "validation": "strict_wire_roundtrip_and_source_reference_closure",
+        "stage3_run": false,
+        "scope": "Deterministic reviewed-data repair; no independent factual certification."
+      }
+    ]
+  },
+  {
+    "id": "archive-train-029368-a23c02ca98937300",
+    "split": "train",
+    "line": 57251,
+    "case": 51,
+    "original_row_sha256": "1b2abaceeedb9a1c9cea5c3d1fb20e25f8b971ee7f67f3189e63d37ec29c8865",
+    "output_row_sha256": "be2bbc7b17890cfc4d586101f16056842ac2b05730a40050ff512212a382daac",
+    "proofs": [
+      {
+        "policy": "v11-known-v10-holds-source-proven-20260930",
+        "case": 51,
+        "kind": "dimensionally_proven_metric_name_correction",
+        "source_grounded": true,
+        "source_corrected": true,
+        "evidence": {
+          "kind": "dimensionally_proven_metric_name_correction",
+          "units": "USD / lead count = USD per lead",
+          "calculations": [
+            {
+              "employee": "Employee A",
+              "sales_usd": 100000,
+              "leads": 50,
+              "revenue_per_lead": 2000
+            },
+            {
+              "employee": "Employee B",
+              "sales_usd": 120000,
+              "leads": 80,
+              "revenue_per_lead": 1500
+            },
+            {
+              "employee": "Employee C",
+              "sales_usd": 90000,
+              "leads": 40,
+              "revenue_per_lead": 2250
+            }
+          ],
+          "exact_replacements": [
+            [
+              "lead conversion rates",
+              "revenue per lead"
+            ],
+            [
+              "Conversion Rate",
+              "Revenue per Lead"
+            ],
+            [
+              "conversion rate",
+              "revenue per lead"
+            ]
+          ],
+          "note": "Includes state keys and all Table column/numeric references coherently."
+        },
+        "original_source_sha256": "a3ed71a976893c04c55ac862d179f45651d62e790c378a079ba528f608c64592",
+        "original_target_sha256": "861ba96cf82cda59cc7910d2fe1e90fcdaf577794c8da537b563532b4887d0e4",
+        "original_semantic_sha256": "7ce99cc9f2aebc3923736e9a21ee0eb9724cfdc65096e83acc233826f4a0a5b7",
+        "effective_source_sha256": "fa7953398b470c32e458891f88381d28ae03f31edd586b69596468996550991e",
+        "effective_target_sha256": "d165ec29298bad545bca66c802d2c94c2c313e680934a9fb9e7e263fd5a76fd5",
+        "effective_semantic_sha256": "210d59ee2db74dacc0c1f1b7bd83b036bf847794bb6afc952c2e0b7a9876bba7",
+        "changes": [
+          {
+            "location": "/graph/elements/f/props/text",
+            "before_exists": true,
+            "after_exists": true,
+            "before": "This report analyzes the efficiency of three employees based on their total sales volume and lead conversion rates to identify the top performer.",
+            "after": "This report analyzes the efficiency of three employees based on their total sales volume and revenue per lead to identify the top performer."
+          },
+          {
+            "location": "/graph/elements/i/props/text",
+            "before_exists": true,
+            "after_exists": true,
+            "before": "Conversion Rate = Sales / Leads",
+            "after": "Revenue per Lead = Sales / Leads"
+          },
+          {
+            "location": "/graph/elements/k/props/columns/3/key",
+            "before_exists": true,
+            "after_exists": true,
+            "before": "Conversion Rate",
+            "after": "Revenue per Lead"
+          },
+          {
+            "location": "/graph/elements/k/props/columns/3/label",
+            "before_exists": true,
+            "after_exists": true,
+            "before": "Conversion Rate",
+            "after": "Revenue per Lead"
+          },
+          {
+            "location": "/graph/elements/k/props/numericColumns/2",
+            "before_exists": true,
+            "after_exists": true,
+            "before": "Conversion Rate",
+            "after": "Revenue per Lead"
+          },
+          {
+            "location": "/graph/elements/q/props/text",
+            "before_exists": true,
+            "after_exists": true,
+            "before": "Most Efficient: Employee C achieves the highest conversion rate at $2,250 per lead.",
+            "after": "Most Efficient: Employee C achieves the highest revenue per lead at $2,250 per lead."
+          },
+          {
+            "location": "/graph/elements/s/props/text",
+            "before_exists": true,
+            "after_exists": true,
+            "before": "Mid-Range: Employee A maintains a balanced performance with a $2,000 conversion rate.",
+            "after": "Mid-Range: Employee A maintains a balanced performance with a $2,000 revenue per lead."
+          },
+          {
+            "location": "/graph/state/performance_data/0/Conversion Rate",
+            "before_exists": true,
+            "after_exists": false,
+            "before": "$2,000",
+            "after": null
+          },
+          {
+            "location": "/graph/state/performance_data/0/Revenue per Lead",
+            "before_exists": false,
+            "after_exists": true,
+            "before": null,
+            "after": "$2,000"
+          },
+          {
+            "location": "/graph/state/performance_data/1/Conversion Rate",
+            "before_exists": true,
+            "after_exists": false,
+            "before": "$1,500",
+            "after": null
+          },
+          {
+            "location": "/graph/state/performance_data/1/Revenue per Lead",
+            "before_exists": false,
+            "after_exists": true,
+            "before": null,
+            "after": "$1,500"
+          },
+          {
+            "location": "/graph/state/performance_data/2/Conversion Rate",
+            "before_exists": true,
+            "after_exists": false,
+            "before": "$2,250",
+            "after": null
+          },
+          {
+            "location": "/graph/state/performance_data/2/Revenue per Lead",
+            "before_exists": false,
+            "after_exists": true,
+            "before": null,
+            "after": "$2,250"
+          },
+          {
+            "location": "/source",
+            "before_exists": true,
+            "after_exists": true,
+            "before": "## Sales Performance Overview\nMedia: Icon=[ICON_URL_1]\nThis report analyzes the efficiency of three employees based on their total sales volume and lead conversion rates to identify the top performer.\n\n## Employee Efficiency Comparison\nFormula: Conversion Rate = Sales / Leads\n\nVariable | Description | Value\n---|---|---\nSales | Total revenue generated | USD\nLeads | Total potential clients contacted | Count\nRate | Revenue generated per lead | USD/Lead\n\nEmployee | Sales | Leads | Conversion Rate\n---|---|---|---\nEmployee A | $100,000 | 50 | $2,000\nEmployee B | $120,000 | 80 | $1,500\nEmployee C | $90,000 | 40 | $2,250\n\n## Performance Insights\nMedia: Icon=[ICON_URL_2]\n- **Most Efficient**: **Employee C** achieves the highest conversion rate at **$2,250 per lead**.\n- **Highest Volume**: **Employee B** generated the most total revenue ($120k) but has the lowest efficiency.\n- **Mid-Range**: **Employee A** maintains a balanced performance with a $2,000 conversion rate.\n\n## Quick Actions\nAction: [Button: Export Report] <[ACTION_URL_1]>\nAction: [Button: View Full Dashboard] <[ACTION_URL_2]>",
+            "after": "## Sales Performance Overview\nMedia: Icon=[ICON_URL_1]\nThis report analyzes the efficiency of three employees based on their total sales volume and revenue per lead to identify the top performer.\n\n## Employee Efficiency Comparison\nFormula: Revenue per Lead = Sales / Leads\n\nVariable | Description | Value\n---|---|---\nSales | Total revenue generated | USD\nLeads | Total potential clients contacted | Count\nRate | Revenue generated per lead | USD/Lead\n\nEmployee | Sales | Leads | Revenue per Lead\n---|---|---|---\nEmployee A | $100,000 | 50 | $2,000\nEmployee B | $120,000 | 80 | $1,500\nEmployee C | $90,000 | 40 | $2,250\n\n## Performance Insights\nMedia: Icon=[ICON_URL_2]\n- **Most Efficient**: **Employee C** achieves the highest revenue per lead at **$2,250 per lead**.\n- **Highest Volume**: **Employee B** generated the most total revenue ($120k) but has the lowest efficiency.\n- **Mid-Range**: **Employee A** maintains a balanced performance with a $2,000 revenue per lead.\n\n## Quick Actions\nAction: [Button: Export Report] <[ACTION_URL_1]>\nAction: [Button: View Full Dashboard] <[ACTION_URL_2]>"
+          }
+        ],
+        "source_factual_status": "needs_review",
+        "validation": "strict_wire_roundtrip_and_source_reference_closure",
+        "stage3_run": false,
+        "scope": "Deterministic reviewed-data repair; no independent factual certification."
+      }
+    ]
+  },
+  {
+    "id": "archive-train-018468-af93a9d71ca51e52",
+    "split": "train",
+    "line": 74282,
+    "case": 73,
+    "original_row_sha256": "0a79a9b050cb74a7ad7cdd5ce655fc7d03c92e2cc964795d77d329a724645ede",
+    "output_row_sha256": "cc5072dbbbdf57dc5562d2db7676425cbf6295355e029bc2311c639908b3ea91",
+    "proofs": [
+      {
+        "policy": "v11-known-v10-holds-source-proven-20260930",
+        "case": 73,
+        "kind": "source_proven_total_cash_winner_correction",
+        "source_grounded": true,
+        "source_corrected": true,
+        "evidence": {
+          "kind": "source_proven_total_cash_winner_correction",
+          "totals": {
+            "Offer A": 89250,
+            "Offer B": 92000,
+            "Offer C": 89600
+          },
+          "winner": "Offer B",
+          "formula": "base + base * bonus_percent / 100"
+        },
+        "original_source_sha256": "e767023efa939c25adc3bb698a5f1f123eb159a2fbe8bc484558f0506df243d6",
+        "original_target_sha256": "743fa1ad1fd902a9be592cdd7605d4051cb757604c2511bceecdb9aa3de67d7c",
+        "original_semantic_sha256": "1e9152df7dc447e885c5e3bcf67f3a53789a3d1dfef040324eb64bcf1f9616a5",
+        "effective_source_sha256": "53282b06e2b6b236aa2e2bdd9231ace5f012090a39e9953c90d5b9ce086830d3",
+        "effective_target_sha256": "beab25b659604ac6f766e97deb1e9f03398931b85df5927ca248914730391e57",
+        "effective_semantic_sha256": "bd2910fe13975c6888e7ec7304f891358c8074e984fe21ba9209e04993d821d9",
+        "changes": [
+          {
+            "location": "/graph/elements/i/props/text",
+            "before_exists": true,
+            "after_exists": true,
+            "before": "Based on the provided figures, Offer B provides the highest guaranteed cash, but Offer C has the highest potential total cash when the bonus is included.",
+            "after": "Based on the provided figures, Offer B provides the highest guaranteed cash, and Offer B has the highest potential total cash when the bonus is included."
+          },
+          {
+            "location": "/source",
+            "before_exists": true,
+            "after_exists": true,
+            "before": "## Job Offer Compensation Overview\nMedia: Icon=[ICON_URL_1]\nComparison of three job offers based on base salary, annual bonus, and paid time off (PTO).\n\n## Total Annual Cash Comparison\nBased on the provided figures, Offer B provides the highest guaranteed cash, but Offer C has the highest potential total cash when the bonus is included.\n\nTotal Cash Calculation: Base Salary + (Base Salary * Bonus %)\n\nOffer A | $85,000 | 5% | $4,250 | $89,250\nOffer B | $92,000 | 0% | $0 | $92,000\nOffer C | $80,000 | 12% | $9,600 | $89,600\n\n## Top Offer Recommendations\nMedia: Icon=[ICON_URL_2]\n\nOption 1: Offer B | Highest Total Cash | **$92,000 Total**\n- Best for immediate liquidity and guaranteed income.\n- Trade-off: Lowest PTO (15 days) and no performance upside.\n\nOption 2: Offer C | Best Work-Life Balance | **$89,600 Total**\n- Highest PTO (25 days) and highest bonus potential.\n- Trade-off: Lowest base salary.\n\nOption 3: Offer A | Balanced Mid-Point | **$89,250 Total**\n- Moderate salary and PTO.\n- Trade-off: Lowest total cash compensation of the three.\n\n## Final Compensation Verdict\n**Offer B** provides the highest total cash compensation per year at **$92,000**.",
+            "after": "## Job Offer Compensation Overview\nMedia: Icon=[ICON_URL_1]\nComparison of three job offers based on base salary, annual bonus, and paid time off (PTO).\n\n## Total Annual Cash Comparison\nBased on the provided figures, Offer B provides the highest guaranteed cash, and Offer B has the highest potential total cash when the bonus is included.\n\nTotal Cash Calculation: Base Salary + (Base Salary * Bonus %)\n\nOffer A | $85,000 | 5% | $4,250 | $89,250\nOffer B | $92,000 | 0% | $0 | $92,000\nOffer C | $80,000 | 12% | $9,600 | $89,600\n\n## Top Offer Recommendations\nMedia: Icon=[ICON_URL_2]\n\nOption 1: Offer B | Highest Total Cash | **$92,000 Total**\n- Best for immediate liquidity and guaranteed income.\n- Trade-off: Lowest PTO (15 days) and no performance upside.\n\nOption 2: Offer C | Best Work-Life Balance | **$89,600 Total**\n- Highest PTO (25 days) and highest bonus potential.\n- Trade-off: Lowest base salary.\n\nOption 3: Offer A | Balanced Mid-Point | **$89,250 Total**\n- Moderate salary and PTO.\n- Trade-off: Lowest total cash compensation of the three.\n\n## Final Compensation Verdict\n**Offer B** provides the highest total cash compensation per year at **$92,000**."
+          }
+        ],
+        "source_factual_status": "needs_review",
+        "validation": "strict_wire_roundtrip_and_source_reference_closure",
+        "stage3_run": false,
+        "scope": "Deterministic reviewed-data repair; no independent factual certification."
+      }
+    ]
+  },
+  {
+    "id": "archive-train-006013-483c4a5ddba86725",
+    "split": "train",
+    "line": 78969,
+    "case": 82,
+    "original_row_sha256": "f2558287782293f69d457076bd1fa7d3eeabdfdf65bb6edee9e6143027153f3b",
+    "output_row_sha256": "19c24c1730d90a966234c88c6fc3dcc4e196693c93b876571588e523e9e13c89",
+    "proofs": [
+      {
+        "policy": "v11-known-v10-holds-source-proven-20260930",
+        "case": 82,
+        "kind": "source_table_entity_column_restoration",
+        "source_grounded": true,
+        "source_corrected": false,
+        "evidence": {
+          "kind": "source_table_entity_column_restoration",
+          "element": "k",
+          "headers": [
+            "Liability",
+            "Taxation",
+            "Setup Complexity"
+          ],
+          "rows": [
+            [
+              "Sole Proprietorship: Unlimited personal liability; owner is legally responsible for all debts",
+              "Pass-through: Profits taxed as personal income via Schedule C",
+              "Low: Minimal paperwork; usually just a local business license"
+            ],
+            [
+              "LLC: Limited liability; personal assets generally protected from business debts",
+              "Flexible: Default pass-through, but can elect S-Corp or C-Corp status",
+              "Medium: Requires Articles of Organization and an Operating Agreement"
+            ]
+          ],
+          "state_path": "/comparison_data"
+        },
+        "original_source_sha256": "ffcda2b9e9b573ac487e4532c8237cbab509a1d4538cbb0c83fc1f4db6d8747a",
+        "original_target_sha256": "fff8733c26f56eec7105b4220a6e141cb0793764f810165bd1d5a11ace77c7da",
+        "original_semantic_sha256": "551b6c16c97876ffd4e8cc460d218bf7bf9d5f60d85ba94217ad7cbf9b1717c8",
+        "effective_source_sha256": "ffcda2b9e9b573ac487e4532c8237cbab509a1d4538cbb0c83fc1f4db6d8747a",
+        "effective_target_sha256": "7e2ec8f5c3732e935d11269368c870e0ef98470f222ca97a90f1faacd6163aa2",
+        "effective_semantic_sha256": "8201a113cd63a6f71652cde67bcb33dd045187bb2a55d8c3e416d8a8a0fd0719",
+        "changes": [
+          {
+            "location": "/graph/elements/k/props/columns",
+            "before_exists": true,
+            "after_exists": true,
+            "before": [
+              {
+                "key": "entity",
+                "label": "Liability"
+              },
+              {
+                "key": "liability",
+                "label": "Liability"
+              },
+              {
+                "key": "taxation",
+                "label": "Taxation"
+              },
+              {
+                "key": "complexity",
+                "label": "Setup Complexity"
+              }
+            ],
+            "after": [
+              {
+                "key": "column_1",
+                "label": "Liability"
+              },
+              {
+                "key": "column_2",
+                "label": "Taxation"
+              },
+              {
+                "key": "column_3",
+                "label": "Setup Complexity"
+              }
+            ]
+          },
+          {
+            "location": "/graph/elements/k/props/preferredPresentation",
+            "before_exists": true,
+            "after_exists": true,
+            "before": "cards",
+            "after": "table"
+          },
+          {
+            "location": "/graph/elements/k/props/primaryColumn",
+            "before_exists": true,
+            "after_exists": false,
+            "before": "entity",
+            "after": null
+          },
+          {
+            "location": "/graph/state/comparison_data/0/column_1",
+            "before_exists": false,
+            "after_exists": true,
+            "before": null,
+            "after": "Sole Proprietorship: Unlimited personal liability; owner is legally responsible for all debts"
+          },
+          {
+            "location": "/graph/state/comparison_data/0/column_2",
+            "before_exists": false,
+            "after_exists": true,
+            "before": null,
+            "after": "Pass-through: Profits taxed as personal income via Schedule C"
+          },
+          {
+            "location": "/graph/state/comparison_data/0/column_3",
+            "before_exists": false,
+            "after_exists": true,
+            "before": null,
+            "after": "Low: Minimal paperwork; usually just a local business license"
+          },
+          {
+            "location": "/graph/state/comparison_data/0/complexity",
+            "before_exists": true,
+            "after_exists": false,
+            "before": "Low: Minimal paperwork; usually just a local business license",
+            "after": null
+          },
+          {
+            "location": "/graph/state/comparison_data/0/entity",
+            "before_exists": true,
+            "after_exists": false,
+            "before": "Sole Proprietorship",
+            "after": null
+          },
+          {
+            "location": "/graph/state/comparison_data/0/liability",
+            "before_exists": true,
+            "after_exists": false,
+            "before": "Unlimited personal liability; owner is legally responsible for all debts",
+            "after": null
+          },
+          {
+            "location": "/graph/state/comparison_data/0/taxation",
+            "before_exists": true,
+            "after_exists": false,
+            "before": "Pass-through: Profits taxed as personal income via Schedule C",
+            "after": null
+          },
+          {
+            "location": "/graph/state/comparison_data/1/column_1",
+            "before_exists": false,
+            "after_exists": true,
+            "before": null,
+            "after": "LLC: Limited liability; personal assets generally protected from business debts"
+          },
+          {
+            "location": "/graph/state/comparison_data/1/column_2",
+            "before_exists": false,
+            "after_exists": true,
+            "before": null,
+            "after": "Flexible: Default pass-through, but can elect S-Corp or C-Corp status"
+          },
+          {
+            "location": "/graph/state/comparison_data/1/column_3",
+            "before_exists": false,
+            "after_exists": true,
+            "before": null,
+            "after": "Medium: Requires Articles of Organization and an Operating Agreement"
+          },
+          {
+            "location": "/graph/state/comparison_data/1/complexity",
+            "before_exists": true,
+            "after_exists": false,
+            "before": "Medium: Requires Articles of Organization and an Operating Agreement",
+            "after": null
+          },
+          {
+            "location": "/graph/state/comparison_data/1/entity",
+            "before_exists": true,
+            "after_exists": false,
+            "before": "LLC",
+            "after": null
+          },
+          {
+            "location": "/graph/state/comparison_data/1/liability",
+            "before_exists": true,
+            "after_exists": false,
+            "before": "Limited liability; personal assets generally protected from business debts",
+            "after": null
+          },
+          {
+            "location": "/graph/state/comparison_data/1/taxation",
+            "before_exists": true,
+            "after_exists": false,
+            "before": "Flexible: Default pass-through, but can elect S-Corp or C-Corp status",
+            "after": null
+          }
+        ],
+        "source_factual_status": "needs_review",
+        "validation": "strict_wire_roundtrip_and_source_reference_closure",
+        "stage3_run": false,
+        "scope": "Deterministic reviewed-data repair; no independent factual certification."
+      }
+    ]
+  },
+  {
+    "id": "archive-train-134350-9636322a4c50dac5",
+    "split": "train",
+    "line": 81518,
+    "case": 85,
+    "original_row_sha256": "75c61fa5a8c09dfacceee95d8160c41fd297510baff0d1f88eb09ca97aeb76d0",
+    "output_row_sha256": "4185229af8a64fa9643e277f85e3241b85d481fffde9bd52c9c922cf4344adb7",
+    "proofs": [
+      {
+        "policy": "v11-known-v10-holds-source-proven-20260930",
+        "case": 85,
+        "kind": "source_attribution_restoration",
+        "source_grounded": true,
+        "source_corrected": false,
+        "evidence": {
+          "kind": "source_attribution_restoration",
+          "citations": [
+            [
+              "TradeMe Property",
+              "[ACTION_URL_6]"
+            ],
+            [
+              "Realestate.co.nz",
+              "[ACTION_URL_4]"
+            ],
+            [
+              "QV New Zealand",
+              "[ACTION_URL_5]"
+            ]
+          ],
+          "note": "Existing source URL tokens retain their exact destinations."
+        },
+        "original_source_sha256": "06f09e307c328686e5c8271df9314a36531a0fb29213ec94af4d60734fbce32e",
+        "original_target_sha256": "f4026aadc1c78087912abfe2d8c250d88cc00468c196e16cdeec4e6d7873bba6",
+        "original_semantic_sha256": "3ef45f26f4df08a0dd4bc1393643a85f74407af1ff3fdca394c704e552b42eec",
+        "effective_source_sha256": "06f09e307c328686e5c8271df9314a36531a0fb29213ec94af4d60734fbce32e",
+        "effective_target_sha256": "d8f8976c44fe32c7238898837baf81f2498c38f14427a9d944650f31ddeb2d01",
+        "effective_semantic_sha256": "d6021725341f64f02b5a05ccc68326f6555558da4f4d98558b7c80806eb45126",
+        "changes": [
+          {
+            "location": "/graph/elements/restored_source_link_1",
+            "before_exists": false,
+            "after_exists": true,
+            "before": null,
+            "after": {
+              "type": "Button",
+              "props": {
+                "label": "TradeMe Property",
+                "variant": "borderless"
+              },
+              "children": [],
+              "on": {
+                "press": {
+                  "action": "openUrl",
+                  "params": {
+                    "url": "[ACTION_URL_6]"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "location": "/graph/elements/restored_source_link_2",
+            "before_exists": false,
+            "after_exists": true,
+            "before": null,
+            "after": {
+              "type": "Button",
+              "props": {
+                "label": "Realestate.co.nz",
+                "variant": "borderless"
+              },
+              "children": [],
+              "on": {
+                "press": {
+                  "action": "openUrl",
+                  "params": {
+                    "url": "[ACTION_URL_4]"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "location": "/graph/elements/restored_source_link_3",
+            "before_exists": false,
+            "after_exists": true,
+            "before": null,
+            "after": {
+              "type": "Button",
+              "props": {
+                "label": "QV New Zealand",
+                "variant": "borderless"
+              },
+              "children": [],
+              "on": {
+                "press": {
+                  "action": "openUrl",
+                  "params": {
+                    "url": "[ACTION_URL_5]"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "location": "/graph/elements/restored_sources_1",
+            "before_exists": false,
+            "after_exists": true,
+            "before": null,
+            "after": {
+              "type": "Stack",
+              "props": {
+                "direction": "vertical",
+                "gap": "sm"
+              },
+              "children": [
+                "restored_sources_heading_1",
+                "restored_source_link_1",
+                "restored_source_link_2",
+                "restored_source_link_3"
+              ]
+            }
+          },
+          {
+            "location": "/graph/elements/restored_sources_heading_1",
+            "before_exists": false,
+            "after_exists": true,
+            "before": null,
+            "after": {
+              "type": "Text",
+              "props": {
+                "text": "Sources",
+                "variant": "h3"
+              },
+              "children": []
+            }
+          },
+          {
+            "location": "/graph/elements/root/children",
+            "before_exists": true,
+            "after_exists": true,
+            "before": [
+              "a",
+              "f",
+              "k",
+              "at",
+              "az"
+            ],
+            "after": [
+              "a",
+              "f",
+              "k",
+              "at",
+              "az",
+              "restored_sources_1"
+            ]
+          }
+        ],
+        "source_factual_status": "needs_review",
+        "validation": "strict_wire_roundtrip_and_source_reference_closure",
+        "stage3_run": false,
+        "scope": "Deterministic reviewed-data repair; no independent factual certification."
+      }
+    ]
+  },
+  {
+    "id": "archive-train-049929-410cf9b7f25a6cbb",
+    "split": "train",
+    "line": 87790,
+    "case": 88,
+    "original_row_sha256": "b94b8067f0af441eba50c39a0fb5a9603eb2b8803f262c0f8c19b9eac3a3d7f7",
+    "output_row_sha256": "bf2348cc9787aaf2121f694aea13a0e3aa8a0d36b1d810d5177e0a394365066a",
+    "proofs": [
+      {
+        "policy": "v11-known-v10-holds-source-proven-20260930",
+        "case": 88,
+        "kind": "unsupported_latent_row_action_removal",
+        "source_grounded": true,
+        "source_corrected": false,
+        "evidence": {
+          "kind": "unsupported_latent_row_action_removal",
+          "element": "j",
+          "row": 2,
+          "source_actions": {
+            "Book Hotel A": "[ACTION_URL_1]",
+            "Book Hotel B": "[ACTION_URL_1]",
+            "Explore Paris Hotels": "[ACTION_URL_2]",
+            "Eiffel Tower Tickets": "[ACTION_URL_3]"
+          },
+          "removed": {
+            "bookingUrl": "[ACTION_URL_1]",
+            "actionLabel": "Book Hotel C"
+          }
+        },
+        "original_source_sha256": "0c57704b2d5dab7608299876f1e9e513d539d7e9610f70e7c5397830d0fcb644",
+        "original_target_sha256": "44e5b7090d1f75e1acdbe7a9fd69e0cb927b811ee3e8820388b627f9f57b1266",
+        "original_semantic_sha256": "585d96b64d26cbc498cfea337f1b12175e888d3c1a1a9ae937ea246e5692fecb",
+        "effective_source_sha256": "0c57704b2d5dab7608299876f1e9e513d539d7e9610f70e7c5397830d0fcb644",
+        "effective_target_sha256": "4b12a0947080ba8dc93ed065f5d72bbc491c8c903fe49cd67d70c76352548347",
+        "effective_semantic_sha256": "923bc37b4473ef0d272aab1917076b492b362a0cf5d5e69a27dc0fa2f1b82400",
+        "changes": [
+          {
+            "location": "/graph/state/hotel_comparison/2/actionLabel",
+            "before_exists": true,
+            "after_exists": false,
+            "before": "Book Hotel C",
+            "after": null
+          },
+          {
+            "location": "/graph/state/hotel_comparison/2/bookingUrl",
+            "before_exists": true,
+            "after_exists": false,
+            "before": "[ACTION_URL_1]",
+            "after": null
+          }
+        ],
+        "source_factual_status": "needs_review",
+        "validation": "strict_wire_roundtrip_and_source_reference_closure",
+        "stage3_run": false,
+        "scope": "Deterministic reviewed-data repair; no independent factual certification."
+      }
+    ]
+  },
+  {
+    "id": "archive-train-070367-6372194920d5ddc8",
+    "split": "val",
+    "line": 1753,
+    "case": 100,
+    "original_row_sha256": "58d73ef0385b64ea64c1405eb62b62161a048bdd7f3a15ae8f9818494e9fbca9",
+    "output_row_sha256": "97e1928349a8a826868243ca8831828cad1063281ce3f6eef075986928724a9d",
+    "proofs": [
+      {
+        "policy": "v11-known-v10-holds-source-proven-20260930",
+        "case": 100,
+        "kind": "exact_timestamp_interval_comparison_correction",
+        "source_grounded": true,
+        "source_corrected": true,
+        "evidence": {
+          "kind": "exact_timestamp_interval_comparison_correction",
+          "events": [
+            [
+              "Processed",
+              "2024-05-10 08:00"
+            ],
+            [
+              "Departed Sorting Facility",
+              "2024-05-11 14:30"
+            ],
+            [
+              "Arrived at Local Hub",
+              "2024-05-12 09:15"
+            ]
+          ],
+          "interval_seconds": [
+            109800.0,
+            67500.0
+          ],
+          "interval_hours": [
+            30.5,
+            18.75
+          ],
+          "total_hours": 49.25,
+          "convention": "Same local timestamp convention as the source; no timezone invented."
+        },
+        "original_source_sha256": "b84cb4a8d86e59e6fb39809fa415b5f2105967d7f4423da7b57b223e5613fa51",
+        "original_target_sha256": "d828b0dcc477d36b3d24626965c60485c997932ea29c5040736821c637d5027b",
+        "original_semantic_sha256": "e112adf352859a76cde9bb6697cb687bf9a5f607dda6d560383ee5c1bc5c75f7",
+        "effective_source_sha256": "823fe7eb9f76d83e2e3c3b2c42e6c4d07540de83f4c51ff1b5fda8d0b273503c",
+        "effective_target_sha256": "c1bfe781df03509dd31c477ae8e1101e2450eb819abcdb0500af0511ac5457be",
+        "effective_semantic_sha256": "cb98302e4749128cda77da103c71af6229027777a010154201d6773e810f06f0",
+        "changes": [
+          {
+            "location": "/graph/elements/q/props/text",
+            "before_exists": true,
+            "after_exists": true,
+            "before": "The longest leg was between the sorting facility and the local hub (approx. 18.75 hours).",
+            "after": "The longest interval was from Processed to Departed Sorting Facility (30.5 hours)."
+          },
+          {
+            "location": "/source",
+            "before_exists": true,
+            "after_exists": true,
+            "before": "## Order #88219 Delivery Status\nMedia: Icon=[ICON_URL_1]\nYour package has reached the final transit phase and is currently at the **Local Hub**, awaiting dispatch for the final delivery leg to your address.\n\n## Shipping Timeline and Duration\nMedia: Icon=[ICON_URL_2]\n\nFormula: $\\text{Total Hours} = (\\text{Arrival Time} - \\text{Processing Time})$\n\nVariable | Description | Value\n--- | --- | ---\nStart Time | Order Processed | 2024-05-10 08:00\nEnd Time | Arrived at Local Hub | 2024-05-12 09:15\nTotal Elapsed | Total transit time | 49.25 Hours\n\nTransit Milestone | Event | Timestamp\n--- | --- | ---\nStep 1 | Processed | 2024-05-10 08:00\nStep 2 | Departed Sorting Facility | 2024-05-11 14:30\nStep 3 | Arrived at Local Hub | 2024-05-12 09:15\n\n- The shipment took approximately **49 hours and 15 minutes** to move from processing to the local hub.\n- The longest leg was between the sorting facility and the local hub (approx. 18.75 hours).\n\n## Quick Actions\nAction: [Button: Track Package] <[ACTION_URL_1]>\nAction: [Button: Support] <[ACTION_URL_2]>",
+            "after": "## Order #88219 Delivery Status\nMedia: Icon=[ICON_URL_1]\nYour package has reached the final transit phase and is currently at the **Local Hub**, awaiting dispatch for the final delivery leg to your address.\n\n## Shipping Timeline and Duration\nMedia: Icon=[ICON_URL_2]\n\nFormula: $\\text{Total Hours} = (\\text{Arrival Time} - \\text{Processing Time})$\n\nVariable | Description | Value\n--- | --- | ---\nStart Time | Order Processed | 2024-05-10 08:00\nEnd Time | Arrived at Local Hub | 2024-05-12 09:15\nTotal Elapsed | Total transit time | 49.25 Hours\n\nTransit Milestone | Event | Timestamp\n--- | --- | ---\nStep 1 | Processed | 2024-05-10 08:00\nStep 2 | Departed Sorting Facility | 2024-05-11 14:30\nStep 3 | Arrived at Local Hub | 2024-05-12 09:15\n\n- The shipment took approximately **49 hours and 15 minutes** to move from processing to the local hub.\n- The longest interval was from Processed to Departed Sorting Facility (30.5 hours).\n\n## Quick Actions\nAction: [Button: Track Package] <[ACTION_URL_1]>\nAction: [Button: Support] <[ACTION_URL_2]>"
+          }
+        ],
+        "source_factual_status": "needs_review",
+        "validation": "strict_wire_roundtrip_and_source_reference_closure",
+        "stage3_run": false,
+        "scope": "Deterministic reviewed-data repair; no independent factual certification."
+      }
+    ]
+  }
+]

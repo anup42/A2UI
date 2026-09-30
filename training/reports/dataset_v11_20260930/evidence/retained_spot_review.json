@@ -1,0 +1,617 @@
+{
+  "reviewer": "review_flags subagent",
+  "purpose": "Targeted manual spot review of semantic faithfulness for retained rows recovered from original generic generator review flags; no population accuracy estimate.",
+  "build_scope": "First partial build attempt, before the duplicate-declaration repair-rule fix and full build restart. Reassessment policy was frozen throughout this review.",
+  "snapshot_sha256": "dd35a4f9ccd1305a97be09f400be85739503b638a7796c4b79af8a48dba371c3",
+  "complete_candidate_records_scanned": 521,
+  "selection_count": 20,
+  "selection_method": "Targeted manual spot-check candidates, not a random sample or population accuracy estimate. Up to 20 component/length strata, prioritizing new nonnumeric Text tokens.",
+  "sampling_limitations": [
+    "All 20 rows come from the early dataset_muse_glimmer_100k_r1 candidate spool; this does not cover all runs or the final output.",
+    "Selection prioritizes component and source-length variety and potential novel Text tokens; it is not random.",
+    "This is a source-to-target textual/binding review with diagnostic assistance, not Android visual rendering or an independent factual audit.",
+    "Line matching assists review but does not itself prove semantic equivalence; source facts, stale recommendations and source internal contradictions can remain."
+  ],
+  "summary": {
+    "source_chars_min": 1416,
+    "source_chars_max": 5577,
+    "literal_lines_checked": 525,
+    "table_rows_checked": 207,
+    "new_target_semantic_mismatches_observed": 0,
+    "known_initial_attempt_presentation_findings": 1
+  },
+  "review_method": [
+    "Inspected source context and target structure, special component properties and table bindings.",
+    "Compared each nonblank Text, EmailPreview subject/from/to/body, string List item and Card title/subtitle line with normalized source wording.",
+    "Resolved Table statePath rows and column keys; checked that row cells belong to the same source row, then manually resolved multiline newsletter blocks and blank template placeholders.",
+    "Inspected the two Chart source/target pairs and shared chart/table bound state; did not assert graphical correctness."
+  ],
+  "records": [
+    {
+      "id": "dataset_muse_glimmer_100k_r1:u_002600_01:718",
+      "archive_record": {
+        "member": "dataset_muse_glimmer_100k_r1/genui.jsonl",
+        "line": 718,
+        "sha256": "d801f55508430e12ebc459b131afbed4814a648281528b197baff9aef2720ce3"
+      },
+      "bucket": "Chart:medium",
+      "source_chars": 2245,
+      "component_presence": {
+        "Stack": 1,
+        "Text": 1,
+        "Icon": 1,
+        "Chart": 1,
+        "Table": 1,
+        "List": 1,
+        "Button": 1
+      },
+      "original_review_reasons": [
+        "content_unit_fidelity",
+        "exact_numbers_dates_units_fbeta"
+      ],
+      "verdict": "source_faithful_in_reviewed_content_with_known_presentation_issue",
+      "manual_notes": "Well identifiers, measurements, compliance labels and recommended actions preserve source wording and bindings. The source itself describes the map as schematic; that caveat is retained. The initial attempt adds a redundant Chart declaration as Text; parent and repair agent already identified this presentation defect and are correcting it before restart.",
+      "added_unsupported_nonnumeric_assertion_observed": false,
+      "literal_lines_checked": 23,
+      "literal_lines_source_supported": 23,
+      "table_rows_checked": 5,
+      "table_same_source_line_automatic_matches": 5,
+      "findings": [
+        {
+          "kind": "known_initial_attempt_duplicate_chart_caption",
+          "severity": "presentation",
+          "detail": "Text(\"Chart: pH vs Turbidity NTU\") duplicates the existing Chart title. Parent stopped the initial build for this repair-rule defect; final restarted artifacts require their own verification."
+        }
+      ]
+    },
+    {
+      "id": "dataset_muse_glimmer_100k_r1:u_003106_01:765",
+      "archive_record": {
+        "member": "dataset_muse_glimmer_100k_r1/genui.jsonl",
+        "line": 765,
+        "sha256": "d75b824d55c400c9834befa6b0971be9b749cf153195ab2b27aa5c03d91b7b94"
+      },
+      "bucket": "Chart:short",
+      "source_chars": 1416,
+      "component_presence": {
+        "Stack": 1,
+        "Text": 1,
+        "Icon": 1,
+        "Chart": 1,
+        "Table": 1,
+        "List": 1
+      },
+      "original_review_reasons": [
+        "content_unit_fidelity",
+        "exact_numbers_dates_units_fbeta"
+      ],
+      "verdict": "source_faithful_in_reviewed_content",
+      "manual_notes": "All 14 HR/sleep rows and recovery flags preserve source values and associations. Chart reads the same /metrics data as the Table; summary and annotation wording is copied from source. Actual dual-axis chart presentation and correctness of source statistical claims were not established by this textual review.",
+      "added_unsupported_nonnumeric_assertion_observed": false,
+      "literal_lines_checked": 15,
+      "literal_lines_source_supported": 15,
+      "table_rows_checked": 14,
+      "table_same_source_line_automatic_matches": 14,
+      "findings": []
+    },
+    {
+      "id": "dataset_muse_glimmer_100k_r1:u_000799_01:406",
+      "archive_record": {
+        "member": "dataset_muse_glimmer_100k_r1/genui.jsonl",
+        "line": 406,
+        "sha256": "10fac3f6d0ce0e3ecadd86d8fa7aafbfcd5ee99a45ead033a44a2250e512e195"
+      },
+      "bucket": "EmailPreview:long",
+      "source_chars": 3131,
+      "component_presence": {
+        "Stack": 1,
+        "Text": 1,
+        "Table": 1,
+        "EmailPreview": 1,
+        "Button": 1
+      },
+      "original_review_reasons": [
+        "content_unit_fidelity",
+        "exact_numbers_dates_units_fbeta"
+      ],
+      "verdict": "source_faithful_in_reviewed_content",
+      "manual_notes": "Toronto room comparison preserves four options, prices, capacity and amenity columns; the no-live-availability caveat, tentative pricing and email request are retained.",
+      "added_unsupported_nonnumeric_assertion_observed": false,
+      "literal_lines_checked": 31,
+      "literal_lines_source_supported": 31,
+      "table_rows_checked": 4,
+      "table_same_source_line_automatic_matches": 4,
+      "findings": []
+    },
+    {
+      "id": "dataset_muse_glimmer_100k_r1:u_003351_01:492",
+      "archive_record": {
+        "member": "dataset_muse_glimmer_100k_r1/genui.jsonl",
+        "line": 492,
+        "sha256": "c8c1d85398aa7d7132bd7a6b8716f700a1230f213fac70f8882724ec1629a224"
+      },
+      "bucket": "EmailPreview:medium",
+      "source_chars": 2068,
+      "component_presence": {
+        "Stack": 1,
+        "Text": 1,
+        "Table": 1,
+        "Icon": 1,
+        "EmailPreview": 1
+      },
+      "original_review_reasons": [
+        "content_unit_fidelity",
+        "exact_numbers_dates_units_fbeta"
+      ],
+      "verdict": "source_faithful_in_reviewed_content",
+      "manual_notes": "Vienna teacher comparison retains budget, language and district distinctions, including teachers that fail constraints; EmailPreview text is source-supported.",
+      "added_unsupported_nonnumeric_assertion_observed": false,
+      "literal_lines_checked": 27,
+      "literal_lines_source_supported": 27,
+      "table_rows_checked": 3,
+      "table_same_source_line_automatic_matches": 3,
+      "findings": []
+    },
+    {
+      "id": "dataset_muse_glimmer_100k_r1:u_002561_01:252",
+      "archive_record": {
+        "member": "dataset_muse_glimmer_100k_r1/genui.jsonl",
+        "line": 252,
+        "sha256": "0669b65db227271703913a1babb8002b800c4efd08c06693882a80fc597a1d4f"
+      },
+      "bucket": "Text:long",
+      "source_chars": 3804,
+      "component_presence": {
+        "Stack": 1,
+        "Text": 1,
+        "Icon": 1,
+        "List": 1,
+        "Button": 1
+      },
+      "original_review_reasons": [
+        "content_unit_fidelity",
+        "exact_numbers_dates_units_fbeta"
+      ],
+      "verdict": "source_faithful_in_reviewed_content",
+      "manual_notes": "Edinburgh vinyl-session context, timing, recommendations and list wording match source after Markdown display normalization.",
+      "added_unsupported_nonnumeric_assertion_observed": false,
+      "literal_lines_checked": 43,
+      "literal_lines_source_supported": 43,
+      "table_rows_checked": 0,
+      "table_same_source_line_automatic_matches": 0,
+      "findings": []
+    },
+    {
+      "id": "dataset_muse_glimmer_100k_r1:u_000797_01:404",
+      "archive_record": {
+        "member": "dataset_muse_glimmer_100k_r1/genui.jsonl",
+        "line": 404,
+        "sha256": "d3305e0d09f48ebb418d600f3b3fb3fe258221f24f064d6f5758553cfeb286ee"
+      },
+      "bucket": "Text:medium",
+      "source_chars": 2990,
+      "component_presence": {
+        "Stack": 1,
+        "Text": 1,
+        "Card": 1,
+        "Icon": 1,
+        "Button": 1,
+        "List": 1
+      },
+      "original_review_reasons": [
+        "content_unit_fidelity",
+        "exact_numbers_dates_units_fbeta"
+      ],
+      "verdict": "source_faithful_in_reviewed_content",
+      "manual_notes": "Ubud massage constraints, fragrance allergy, budget and lack of live slot confirmation are retained in Text, List and Card labels.",
+      "added_unsupported_nonnumeric_assertion_observed": false,
+      "literal_lines_checked": 31,
+      "literal_lines_source_supported": 31,
+      "table_rows_checked": 0,
+      "table_same_source_line_automatic_matches": 0,
+      "findings": []
+    },
+    {
+      "id": "dataset_muse_glimmer_100k_r1:u_002612_01:1019",
+      "archive_record": {
+        "member": "dataset_muse_glimmer_100k_r1/genui.jsonl",
+        "line": 1019,
+        "sha256": "7e7f79597fb3a87d47858e752195b8d093da4375cf2ee2f8b0e9e8e413a43395"
+      },
+      "bucket": "Text:short",
+      "source_chars": 1480,
+      "component_presence": {
+        "Stack": 1,
+        "Text": 1,
+        "List": 1
+      },
+      "original_review_reasons": [
+        "content_unit_fidelity",
+        "exact_numbers_dates_units_fbeta"
+      ],
+      "verdict": "source_faithful_in_reviewed_content",
+      "manual_notes": "Seoul weekly-review template and instructions preserve source wording; display formatting does not add substantive claims.",
+      "added_unsupported_nonnumeric_assertion_observed": false,
+      "literal_lines_checked": 37,
+      "literal_lines_source_supported": 37,
+      "table_rows_checked": 0,
+      "table_same_source_line_automatic_matches": 0,
+      "findings": []
+    },
+    {
+      "id": "dataset_muse_glimmer_100k_r1:u_003373_01:874",
+      "archive_record": {
+        "member": "dataset_muse_glimmer_100k_r1/genui.jsonl",
+        "line": 874,
+        "sha256": "dc19480fbd9ec5357845197b82b9caa82f165bd5fab4e29195494925d4ea1621"
+      },
+      "bucket": "Table:long",
+      "source_chars": 5577,
+      "component_presence": {
+        "Stack": 1,
+        "Text": 1,
+        "List": 1,
+        "Table": 1,
+        "Button": 1
+      },
+      "original_review_reasons": [
+        "content_unit_fidelity",
+        "exact_numbers_dates_units_fbeta"
+      ],
+      "verdict": "source_faithful_in_reviewed_content",
+      "manual_notes": "Twelve newsletter issue blocks are reorganized into /issues rows with the exact corresponding subject, outline, key points, CTA and promotion channel. Four pillar rows are copied intact. The 12 same-line diagnostic misses are expected because the source stores each issue over six lines; all fields were checked against their corresponding source issue block.",
+      "added_unsupported_nonnumeric_assertion_observed": false,
+      "literal_lines_checked": 11,
+      "literal_lines_source_supported": 11,
+      "table_rows_checked": 16,
+      "table_same_source_line_automatic_matches": 4,
+      "findings": []
+    },
+    {
+      "id": "dataset_muse_glimmer_100k_r1:u_003846_01:244",
+      "archive_record": {
+        "member": "dataset_muse_glimmer_100k_r1/genui.jsonl",
+        "line": 244,
+        "sha256": "384cf3c9583278a742bfa339be9f1a5e4472ea52b899426ffdc756b5ced9ac14"
+      },
+      "bucket": "Table:medium",
+      "source_chars": 2944,
+      "component_presence": {
+        "Stack": 1,
+        "Text": 1,
+        "Icon": 1,
+        "Table": 1,
+        "Button": 1
+      },
+      "original_review_reasons": [
+        "content_unit_fidelity",
+        "exact_numbers_dates_units_fbeta"
+      ],
+      "verdict": "source_faithful_in_reviewed_content",
+      "manual_notes": "Fictional Lumen Drift retrospective context remains explicitly fictional. Rating rubric criteria and scoring descriptions preserve source rows and columns.",
+      "added_unsupported_nonnumeric_assertion_observed": false,
+      "literal_lines_checked": 23,
+      "literal_lines_source_supported": 23,
+      "table_rows_checked": 5,
+      "table_same_source_line_automatic_matches": 5,
+      "findings": []
+    },
+    {
+      "id": "dataset_muse_glimmer_100k_r1:u_001057_01:570",
+      "archive_record": {
+        "member": "dataset_muse_glimmer_100k_r1/genui.jsonl",
+        "line": 570,
+        "sha256": "b8a2cf3bec218f6ebcf52d66f340ff8b3c1aaf170df04101e1411437edd45baf"
+      },
+      "bucket": "Table:short",
+      "source_chars": 1499,
+      "component_presence": {
+        "Stack": 1,
+        "Text": 1,
+        "Icon": 1,
+        "Table": 1,
+        "Button": 1
+      },
+      "original_review_reasons": [
+        "content_unit_fidelity",
+        "exact_numbers_dates_units_fbeta"
+      ],
+      "verdict": "source_faithful_in_reviewed_content",
+      "manual_notes": "Four-day Chamonix forecast values and risk descriptions retain source associations. This is source-to-target faithfulness only; weather and safety claims were not independently verified.",
+      "added_unsupported_nonnumeric_assertion_observed": false,
+      "literal_lines_checked": 9,
+      "literal_lines_source_supported": 9,
+      "table_rows_checked": 4,
+      "table_same_source_line_automatic_matches": 4,
+      "findings": []
+    },
+    {
+      "id": "dataset_muse_glimmer_100k_r1:u_002607_01:849",
+      "archive_record": {
+        "member": "dataset_muse_glimmer_100k_r1/genui.jsonl",
+        "line": 849,
+        "sha256": "99b7c9266f9e1bca3f59cad0bf7078e64fba4ab3e0bc234745ad56b14ecfb9d4"
+      },
+      "bucket": "Table:long",
+      "source_chars": 4364,
+      "component_presence": {
+        "Stack": 1,
+        "Text": 1,
+        "Table": 1,
+        "List": 1,
+        "Button": 1
+      },
+      "original_review_reasons": [
+        "content_unit_fidelity"
+      ],
+      "verdict": "source_faithful_in_reviewed_content",
+      "manual_notes": "Nairobi 26-week study roadmap preserves each week, date interval, focus, sessions and goal; planning constraints and offline study text remain source-supported.",
+      "added_unsupported_nonnumeric_assertion_observed": false,
+      "literal_lines_checked": 21,
+      "literal_lines_source_supported": 21,
+      "table_rows_checked": 26,
+      "table_same_source_line_automatic_matches": 26,
+      "findings": []
+    },
+    {
+      "id": "dataset_muse_glimmer_100k_r1:u_000516_01:16",
+      "archive_record": {
+        "member": "dataset_muse_glimmer_100k_r1/genui.jsonl",
+        "line": 16,
+        "sha256": "bb778397c9177a6a016647d5c79bd18be86fd45ae7200c6bb1317d9febb8458f"
+      },
+      "bucket": "Table:long",
+      "source_chars": 3908,
+      "component_presence": {
+        "Stack": 1,
+        "Text": 1,
+        "List": 1,
+        "Table": 1,
+        "Icon": 1,
+        "Button": 1
+      },
+      "original_review_reasons": [
+        "content_unit_fidelity"
+      ],
+      "verdict": "source_faithful_in_reviewed_content",
+      "manual_notes": "UofT program comparison preserves program columns, curriculum, experience, class-size, tuition and admissions wording; budget distinctions and source qualifications remain. University facts and source consistency were not independently verified.",
+      "added_unsupported_nonnumeric_assertion_observed": false,
+      "literal_lines_checked": 24,
+      "literal_lines_source_supported": 24,
+      "table_rows_checked": 7,
+      "table_same_source_line_automatic_matches": 7,
+      "findings": []
+    },
+    {
+      "id": "dataset_muse_glimmer_100k_r1:u_002872_01:982",
+      "archive_record": {
+        "member": "dataset_muse_glimmer_100k_r1/genui.jsonl",
+        "line": 982,
+        "sha256": "29f3f2f364451af7c33a2559c95efd84cbe9f1b0eb9993c95c18a85b1fd991e4"
+      },
+      "bucket": "Table:long",
+      "source_chars": 3781,
+      "component_presence": {
+        "Stack": 1,
+        "Text": 1,
+        "Icon": 1,
+        "Table": 1,
+        "Button": 1
+      },
+      "original_review_reasons": [
+        "content_unit_fidelity",
+        "exact_numbers_dates_units_fbeta"
+      ],
+      "verdict": "source_faithful_in_reviewed_content",
+      "manual_notes": "Bogota grant template preserves fill-in prompts, milestone, budget and risk rows. Three same-line diagnostic misses are empty [ ] amount placeholders whose token normalization is empty; they are present unchanged in both source and target.",
+      "added_unsupported_nonnumeric_assertion_observed": false,
+      "literal_lines_checked": 28,
+      "literal_lines_source_supported": 28,
+      "table_rows_checked": 11,
+      "table_same_source_line_automatic_matches": 8,
+      "findings": []
+    },
+    {
+      "id": "dataset_muse_glimmer_100k_r1:u_003638_01:1004",
+      "archive_record": {
+        "member": "dataset_muse_glimmer_100k_r1/genui.jsonl",
+        "line": 1004,
+        "sha256": "df6fb4c522cd404be24060f5ae05a4f1a3f5b0bcf5cacab0ec1e6bbdfd1b82a2"
+      },
+      "bucket": "Table:long",
+      "source_chars": 3487,
+      "component_presence": {
+        "Stack": 1,
+        "Text": 1,
+        "Icon": 1,
+        "Table": 1,
+        "List": 1
+      },
+      "original_review_reasons": [
+        "content_unit_fidelity",
+        "exact_numbers_dates_units_fbeta"
+      ],
+      "verdict": "source_faithful_in_reviewed_content",
+      "manual_notes": "Dublin client intake workflow preserves ownership, deadlines and document checklist associations. Text and List instructions are source-exact after display normalization.",
+      "added_unsupported_nonnumeric_assertion_observed": false,
+      "literal_lines_checked": 43,
+      "literal_lines_source_supported": 43,
+      "table_rows_checked": 5,
+      "table_same_source_line_automatic_matches": 5,
+      "findings": []
+    },
+    {
+      "id": "dataset_muse_glimmer_100k_r1:u_002601_01:846",
+      "archive_record": {
+        "member": "dataset_muse_glimmer_100k_r1/genui.jsonl",
+        "line": 846,
+        "sha256": "5172ec71104715ec4fcfed2bd8e4f7d8c479f2e08cba140c40ee90b662eeb4fd"
+      },
+      "bucket": "Table:long",
+      "source_chars": 3473,
+      "component_presence": {
+        "Stack": 1,
+        "Text": 1,
+        "Icon": 1,
+        "Button": 1,
+        "Table": 1,
+        "List": 1
+      },
+      "original_review_reasons": [
+        "content_unit_fidelity"
+      ],
+      "verdict": "source_faithful_in_reviewed_content",
+      "manual_notes": "Oaxaca retreat planning assumptions and five-day cost breakdown preserve the same cost columns, daily values and total; list content is source-supported.",
+      "added_unsupported_nonnumeric_assertion_observed": false,
+      "literal_lines_checked": 38,
+      "literal_lines_source_supported": 38,
+      "table_rows_checked": 6,
+      "table_same_source_line_automatic_matches": 6,
+      "findings": []
+    },
+    {
+      "id": "dataset_muse_glimmer_100k_r1:u_000313_01:895",
+      "archive_record": {
+        "member": "dataset_muse_glimmer_100k_r1/genui.jsonl",
+        "line": 895,
+        "sha256": "afae8702bdf45406991ff38b40e056c089a3802d74e28b81291012c883ffc43d"
+      },
+      "bucket": "Table:long",
+      "source_chars": 3367,
+      "component_presence": {
+        "Stack": 1,
+        "Text": 1,
+        "Icon": 1,
+        "Table": 1,
+        "List": 1,
+        "Button": 1
+      },
+      "original_review_reasons": [
+        "content_unit_fidelity",
+        "exact_numbers_dates_units_fbeta"
+      ],
+      "verdict": "source_faithful_in_reviewed_content",
+      "manual_notes": "Lisbon product offsite workshop roadmap preserves phase, owner, preparation, timing and deliverable associations along with team context and lists.",
+      "added_unsupported_nonnumeric_assertion_observed": false,
+      "literal_lines_checked": 47,
+      "literal_lines_source_supported": 47,
+      "table_rows_checked": 4,
+      "table_same_source_line_automatic_matches": 4,
+      "findings": []
+    },
+    {
+      "id": "dataset_muse_glimmer_100k_r1:u_002614_01:972",
+      "archive_record": {
+        "member": "dataset_muse_glimmer_100k_r1/genui.jsonl",
+        "line": 972,
+        "sha256": "4905bef1f841940f370119d74b58a42cc1e31b0b92bb14d8b858177827177cc0"
+      },
+      "bucket": "Table:long",
+      "source_chars": 3355,
+      "component_presence": {
+        "Stack": 1,
+        "Text": 1,
+        "Table": 1
+      },
+      "original_review_reasons": [
+        "content_unit_fidelity",
+        "exact_numbers_dates_units_fbeta"
+      ],
+      "verdict": "source_faithful_in_reviewed_content",
+      "manual_notes": "Brisbane GP schedule uses /schedule and correct day/timeBlock/purpose keys; all 48 bound rows match source table rows. Source scheduling feasibility was not independently checked.",
+      "added_unsupported_nonnumeric_assertion_observed": false,
+      "literal_lines_checked": 5,
+      "literal_lines_source_supported": 5,
+      "table_rows_checked": 48,
+      "table_same_source_line_automatic_matches": 48,
+      "findings": []
+    },
+    {
+      "id": "dataset_muse_glimmer_100k_r1:u_001844_01:818",
+      "archive_record": {
+        "member": "dataset_muse_glimmer_100k_r1/genui.jsonl",
+        "line": 818,
+        "sha256": "1832bc29c5a4e5639af63d103a065ce90d492dd1cae1d4da599d3c61df7daca4"
+      },
+      "bucket": "Table:long",
+      "source_chars": 3310,
+      "component_presence": {
+        "Stack": 1,
+        "Text": 1,
+        "List": 1,
+        "Table": 1,
+        "Button": 1
+      },
+      "original_review_reasons": [
+        "content_unit_fidelity",
+        "exact_numbers_dates_units_fbeta"
+      ],
+      "verdict": "source_faithful_in_reviewed_content",
+      "manual_notes": "Melbourne kitchen remodel keeps all seven phases, dates, tasks, budgets and deliverables with household constraints retained.",
+      "added_unsupported_nonnumeric_assertion_observed": false,
+      "literal_lines_checked": 22,
+      "literal_lines_source_supported": 22,
+      "table_rows_checked": 7,
+      "table_same_source_line_automatic_matches": 7,
+      "findings": []
+    },
+    {
+      "id": "dataset_muse_glimmer_100k_r1:u_001336_01:830",
+      "archive_record": {
+        "member": "dataset_muse_glimmer_100k_r1/genui.jsonl",
+        "line": 830,
+        "sha256": "3e35083367ab329fa72041b7b23fbdb7d05f5f59600abb240b1b52bfa80b698f"
+      },
+      "bucket": "Table:long",
+      "source_chars": 3220,
+      "component_presence": {
+        "Stack": 1,
+        "Text": 1,
+        "List": 1,
+        "Table": 1,
+        "Button": 1
+      },
+      "original_review_reasons": [
+        "content_unit_fidelity",
+        "exact_numbers_dates_units_fbeta"
+      ],
+      "verdict": "source_faithful_in_reviewed_content",
+      "manual_notes": "Vancouver-to-Lisbon relocation roadmap preserves phases, dependencies, deliverables and source assumptions. Immigration/legal accuracy of the source was not evaluated.",
+      "added_unsupported_nonnumeric_assertion_observed": false,
+      "literal_lines_checked": 33,
+      "literal_lines_source_supported": 33,
+      "table_rows_checked": 6,
+      "table_same_source_line_automatic_matches": 6,
+      "findings": []
+    },
+    {
+      "id": "dataset_muse_glimmer_100k_r1:u_001079_01:805",
+      "archive_record": {
+        "member": "dataset_muse_glimmer_100k_r1/genui.jsonl",
+        "line": 805,
+        "sha256": "4d98cac9dc0ffaac47dcbd239bab707f02491e27ef5ecac14d1d5cb66fdee627"
+      },
+      "bucket": "Table:long",
+      "source_chars": 3205,
+      "component_presence": {
+        "Stack": 1,
+        "Text": 1,
+        "Icon": 1,
+        "Table": 1,
+        "Button": 1
+      },
+      "original_review_reasons": [
+        "content_unit_fidelity",
+        "exact_numbers_dates_units_fbeta"
+      ],
+      "verdict": "source_faithful_in_reviewed_content",
+      "manual_notes": "Melbourne conference retains the three daily schedules and budget table, preserving times, sessions, locations, notes and cost associations.",
+      "added_unsupported_nonnumeric_assertion_observed": false,
+      "literal_lines_checked": 14,
+      "literal_lines_source_supported": 14,
+      "table_rows_checked": 36,
+      "table_same_source_line_automatic_matches": 36,
+      "findings": []
+    }
+  ]
+}

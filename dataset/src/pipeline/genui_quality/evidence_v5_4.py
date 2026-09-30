@@ -387,6 +387,7 @@ class _EvidenceInterpreterV54(_EvidenceInterpreterV53):
                 component_detail = {
                     "component_id": element_id,
                     "kind": "chart",
+                    "chart_type": chart.chart_type,
                     "columns": [
                         {"key": item.key, "label": item.label}
                         for item in chart.columns

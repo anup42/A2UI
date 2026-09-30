@@ -223,6 +223,7 @@ def test_preparation_identity_excludes_training_code_and_follows_codec_dependenc
     assert "dataset/src/pipeline/renderer_semantics.py" in implementation
     assert "training/src/ir_training/pipeline/golden_training.py:_group_split" in implementation
     assert "training/scripts/prepare_review_training.py:verify_prepared" in implementation
+    assert "training/data/quality/v11_review_holds_20261001.json" in implementation
     for path in ("training/src/ir_training/train/sft.py", "training/src/ir_training/train/lora_targets.py",
                  "training/src/ir_training/train/lora_config.py", "training/src/ir_training/common/progress.py",
                  "training/scripts/prepare_review_training.py:build_config", "training/src/ir_training/pipeline/golden_training.py"):
@@ -234,6 +235,10 @@ def test_actual_preprocessing_changes_invalidate_but_recipe_and_trainer_edits_do
     root = tmp_path / "checkout"
     for relative in ("training/src/ir_training", "dataset/src/pipeline", "dataset/schema"):
         shutil.copytree(source / relative, root / relative, ignore=shutil.ignore_patterns("__pycache__"))
+    for relative in cache._ADMISSION_POLICY_FILES:
+        destination = root / relative
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source / relative, destination)
     (root / "training/scripts").mkdir(parents=True)
     shutil.copy2(source / "training/scripts/prepare_review_training.py", root / "training/scripts/prepare_review_training.py")
     before = cache._implementation(root)
@@ -249,6 +254,35 @@ def test_actual_preprocessing_changes_invalidate_but_recipe_and_trainer_edits_do
     filtering = root / "training/src/ir_training/data/audit_filter.py"
     filtering.write_text(filtering.read_text(encoding="utf-8") + "\nFILTER_POLICY_VERSION = 999\n", encoding="utf-8")
     assert cache._implementation(root) != after_grouping
+
+
+def test_catalog_only_admission_change_invalidates_prepared_cache(tmp_path, monkeypatch, capsys):
+    # Isolate data dependencies while retaining the real identity and lookup
+    # paths. No repository catalog or existing cache entry is modified.
+    checkout = tmp_path / "checkout"
+    policy_relative = "training/data/quality/v11_review_holds_20261001.json"
+    catalog = checkout / policy_relative
+    catalog.parent.mkdir(parents=True)
+    catalog.write_text(json.dumps({"join_rows": []}) + "\n", encoding="utf-8")
+    monkeypatch.setattr(cache, "_FUNCTIONS", {})
+    monkeypatch.setattr(cache, "_MODULE_ROOTS", ())
+    before = cache._implementation(checkout)
+    assert before[policy_relative] == cache._sha(catalog)
+    old_binding = {"version": 2, "implementation": before}
+    output = artifacts(tmp_path / "first-run")
+    shared_cache = tmp_path / "shared-cache"
+    cache.publish(shared_cache, output, old_binding)
+    assert cache.restore(shared_cache, tmp_path / "unchanged-run", old_binding)
+
+    catalog.write_text(json.dumps({"join_rows": [{"source_id": "reviewed", "semantic_sha256": "a" * 64}]}) + "\n", encoding="utf-8")
+    after = cache._implementation(checkout)
+    assert set(before) == set(after) == {policy_relative}
+    assert before != after
+    new_binding = {"version": 2, "implementation": after}
+    destination = tmp_path / "after-catalog-change"
+    assert not cache.restore(shared_cache, destination, new_binding)
+    assert not destination.exists()
+    assert "identity changed: implementation" in capsys.readouterr().out
 
 
 def test_identity_tracks_data_goldens_prompt_tokenizer_packages_and_preparation_settings(tmp_path, monkeypatch):

@@ -1,0 +1,612 @@
+{
+  "status": "complete",
+  "policy": "space-v11-reviewed-base-repairs-20260930",
+  "base_dir": "D:\\git\\GenUI-LM\\training\\data\\train\\v10",
+  "bundle_sha256": "48e4ad6481d1c6655f48e975b91585855622c5773e6aa3ad28b79dc2bf189967",
+  "input_split_sha256": {
+    "train.jsonl": "707244a5ffe2af459605e8629055c18829c65123294191112016cd69892addf5",
+    "val.jsonl": "b5024919ea0c3557cad452193f90f7133919bb0c10e4ece05fe1a54278cb0fa7"
+  },
+  "input_rows": {
+    "train": 91115,
+    "val": 1862
+  },
+  "retained_rows": {
+    "train": 91093,
+    "val": 1860
+  },
+  "quarantined_rows": {
+    "train": 22,
+    "val": 2
+  },
+  "reasons_overlap": {
+    "known_v10_manual_review_family": 24
+  },
+  "known_manual_hold_families": 21,
+  "statistics": {
+    "train": {
+      "rows": 91115,
+      "unique_source_texts": 88671,
+      "unique_normalized_sources": 88671,
+      "source_families": 88669,
+      "unique_exact_pairs": 91115,
+      "unique_normalized_source_semantic_pairs": 91115,
+      "distributions": {
+        "components": {
+          "AudioPlayer": 1,
+          "Button": 342132,
+          "Card": 393509,
+          "CheckBox": 361,
+          "ChoicePicker": 43,
+          "CodeBlock": 536,
+          "ConsoleLog": 617,
+          "Divider": 1218,
+          "EmailPreview": 239,
+          "Formula": 16595,
+          "Icon": 267746,
+          "Image": 2346,
+          "Slider": 58,
+          "Stack": 981530,
+          "Table": 118134,
+          "Tabs": 1483,
+          "Text": 1109222,
+          "TextField": 52
+        },
+        "component_presence": {
+          "AudioPlayer": 1,
+          "Button": 87260,
+          "Card": 91046,
+          "CheckBox": 86,
+          "ChoicePicker": 28,
+          "CodeBlock": 336,
+          "ConsoleLog": 211,
+          "Divider": 1154,
+          "EmailPreview": 147,
+          "Formula": 15759,
+          "Icon": 90679,
+          "Image": 1708,
+          "Slider": 42,
+          "Stack": 91115,
+          "Table": 89790,
+          "Tabs": 1433,
+          "Text": 91115,
+          "TextField": 23
+        },
+        "table_domains": {
+          "activity": 2,
+          "analysis": 5,
+          "booking": 981,
+          "comparison": 34617,
+          "correlation": 1,
+          "data": 6,
+          "distribution": 2,
+          "efficiency": 1,
+          "emissions": 1,
+          "energy": 1,
+          "fare": 1,
+          "fare_trend": 1,
+          "finance": 1,
+          "flight": 1560,
+          "formula": 21468,
+          "funnel": 1,
+          "gauge": 1,
+          "generic": 22018,
+          "metric": 1,
+          "metrics": 1,
+          "news": 2,
+          "playlist": 1273,
+          "price": 1,
+          "restaurants": 683,
+          "sales": 1,
+          "schedule": 19517,
+          "spending": 1,
+          "status": 13825,
+          "summary": 6,
+          "trend": 1,
+          "trends": 2,
+          "utilization": 1,
+          "value": 1,
+          "visualization": 2,
+          "volatility": 1,
+          "weather": 2147
+        },
+        "reference_kinds": {
+          "child": 3141338,
+          "tab_content": 3463
+        },
+        "origin": {
+          "v10": 91115
+        },
+        "intent": {
+          "unknown_archive": 91115
+        },
+        "difficulty": {
+          "unknown": 91115
+        },
+        "target_format": {
+          "a2ui_express_v1": 91115
+        },
+        "source_review_status": {
+          "unknown_archive": 91115
+        },
+        "teacher": {
+          "unknown_archive": 91115
+        },
+        "modality": {
+          "unknown_archive": 91115
+        },
+        "flags": {
+          "historically_repaired": 80221,
+          "with_source_placeholders": 91052,
+          "with_url_map": 47180
+        }
+      },
+      "lengths": {
+        "source_chars": {
+          "count": 91115,
+          "total": 161998869,
+          "min": 165,
+          "mean": 1777.96,
+          "p50": 1797,
+          "p90": 2505,
+          "p95": 2695,
+          "p99": 3204,
+          "max": 7181
+        },
+        "source_words": {
+          "count": 91115,
+          "total": 25125591,
+          "min": 22,
+          "mean": 275.76,
+          "p50": 278,
+          "p90": 379,
+          "p95": 406,
+          "p99": 486,
+          "max": 1100
+        },
+        "target_chars": {
+          "count": 91115,
+          "total": 264198740,
+          "min": 375,
+          "mean": 2899.62,
+          "p50": 2943,
+          "p90": 3852,
+          "p95": 4102,
+          "p99": 4708,
+          "max": 8723
+        },
+        "target_lines": {
+          "count": 91115,
+          "total": 3507814,
+          "min": 9,
+          "mean": 38.5,
+          "p50": 38,
+          "p90": 52,
+          "p95": 56,
+          "p99": 63,
+          "max": 114
+        },
+        "component_count": {
+          "count": 91115,
+          "total": 3235822,
+          "min": 6,
+          "mean": 35.51,
+          "p50": 35,
+          "p90": 49,
+          "p95": 53,
+          "p99": 60,
+          "max": 111
+        }
+      }
+    },
+    "val": {
+      "rows": 1862,
+      "unique_source_texts": 1814,
+      "unique_normalized_sources": 1814,
+      "source_families": 1814,
+      "unique_exact_pairs": 1862,
+      "unique_normalized_source_semantic_pairs": 1862,
+      "distributions": {
+        "components": {
+          "Button": 6945,
+          "Card": 7958,
+          "CheckBox": 24,
+          "CodeBlock": 8,
+          "ConsoleLog": 15,
+          "Divider": 23,
+          "EmailPreview": 3,
+          "Formula": 334,
+          "Icon": 5479,
+          "Image": 50,
+          "Stack": 20057,
+          "Table": 2423,
+          "Tabs": 32,
+          "Text": 22792,
+          "TextField": 3
+        },
+        "component_presence": {
+          "Button": 1760,
+          "Card": 1862,
+          "CheckBox": 3,
+          "CodeBlock": 6,
+          "ConsoleLog": 7,
+          "Divider": 21,
+          "EmailPreview": 3,
+          "Formula": 316,
+          "Icon": 1848,
+          "Image": 36,
+          "Stack": 1862,
+          "Table": 1834,
+          "Tabs": 32,
+          "Text": 1862,
+          "TextField": 1
+        },
+        "table_domains": {
+          "booking": 40,
+          "comparison": 682,
+          "flight": 25,
+          "formula": 437,
+          "generic": 436,
+          "playlist": 27,
+          "profile": 3,
+          "restaurants": 11,
+          "schedule": 418,
+          "status": 302,
+          "weather": 42
+        },
+        "reference_kinds": {
+          "child": 64210,
+          "tab_content": 75
+        },
+        "origin": {
+          "v10": 1862
+        },
+        "intent": {
+          "unknown_archive": 1862
+        },
+        "difficulty": {
+          "unknown": 1862
+        },
+        "target_format": {
+          "a2ui_express_v1": 1862
+        },
+        "source_review_status": {
+          "unknown_archive": 1862
+        },
+        "teacher": {
+          "unknown_archive": 1862
+        },
+        "modality": {
+          "unknown_archive": 1862
+        },
+        "flags": {
+          "historically_repaired": 1646,
+          "with_source_placeholders": 1859,
+          "with_url_map": 928
+        }
+      },
+      "lengths": {
+        "source_chars": {
+          "count": 1862,
+          "total": 3352450,
+          "min": 381,
+          "mean": 1800.46,
+          "p50": 1835,
+          "p90": 2527,
+          "p95": 2713,
+          "p99": 3309,
+          "max": 5341
+        },
+        "source_words": {
+          "count": 1862,
+          "total": 519376,
+          "min": 53,
+          "mean": 278.93,
+          "p50": 281,
+          "p90": 379,
+          "p95": 407,
+          "p99": 506,
+          "max": 875
+        },
+        "target_chars": {
+          "count": 1862,
+          "total": 5446217,
+          "min": 733,
+          "mean": 2924.93,
+          "p50": 2975,
+          "p90": 3887,
+          "p95": 4135,
+          "p99": 4851,
+          "max": 6911
+        },
+        "target_lines": {
+          "count": 1862,
+          "total": 71704,
+          "min": 10,
+          "mean": 38.51,
+          "p50": 38,
+          "p90": 52,
+          "p95": 56,
+          "p99": 63,
+          "max": 77
+        },
+        "component_count": {
+          "count": 1862,
+          "total": 66146,
+          "min": 7,
+          "mean": 35.52,
+          "p50": 35,
+          "p90": 49,
+          "p95": 53,
+          "p99": 60,
+          "max": 74
+        }
+      }
+    },
+    "combined": {
+      "rows": 92977,
+      "unique_source_texts": 90485,
+      "unique_normalized_sources": 90485,
+      "source_families": 90483,
+      "unique_exact_pairs": 92977,
+      "unique_normalized_source_semantic_pairs": 92977,
+      "distributions": {
+        "components": {
+          "AudioPlayer": 1,
+          "Button": 349077,
+          "Card": 401467,
+          "CheckBox": 385,
+          "ChoicePicker": 43,
+          "CodeBlock": 544,
+          "ConsoleLog": 632,
+          "Divider": 1241,
+          "EmailPreview": 242,
+          "Formula": 16929,
+          "Icon": 273225,
+          "Image": 2396,
+          "Slider": 58,
+          "Stack": 1001587,
+          "Table": 120557,
+          "Tabs": 1515,
+          "Text": 1132014,
+          "TextField": 55
+        },
+        "component_presence": {
+          "AudioPlayer": 1,
+          "Button": 89020,
+          "Card": 92908,
+          "CheckBox": 89,
+          "ChoicePicker": 28,
+          "CodeBlock": 342,
+          "ConsoleLog": 218,
+          "Divider": 1175,
+          "EmailPreview": 150,
+          "Formula": 16075,
+          "Icon": 92527,
+          "Image": 1744,
+          "Slider": 42,
+          "Stack": 92977,
+          "Table": 91624,
+          "Tabs": 1465,
+          "Text": 92977,
+          "TextField": 24
+        },
+        "table_domains": {
+          "activity": 2,
+          "analysis": 5,
+          "booking": 1021,
+          "comparison": 35299,
+          "correlation": 1,
+          "data": 6,
+          "distribution": 2,
+          "efficiency": 1,
+          "emissions": 1,
+          "energy": 1,
+          "fare": 1,
+          "fare_trend": 1,
+          "finance": 1,
+          "flight": 1585,
+          "formula": 21905,
+          "funnel": 1,
+          "gauge": 1,
+          "generic": 22454,
+          "metric": 1,
+          "metrics": 1,
+          "news": 2,
+          "playlist": 1300,
+          "price": 1,
+          "profile": 3,
+          "restaurants": 694,
+          "sales": 1,
+          "schedule": 19935,
+          "spending": 1,
+          "status": 14127,
+          "summary": 6,
+          "trend": 1,
+          "trends": 2,
+          "utilization": 1,
+          "value": 1,
+          "visualization": 2,
+          "volatility": 1,
+          "weather": 2189
+        },
+        "reference_kinds": {
+          "child": 3205548,
+          "tab_content": 3538
+        },
+        "origin": {
+          "v10": 92977
+        },
+        "intent": {
+          "unknown_archive": 92977
+        },
+        "difficulty": {
+          "unknown": 92977
+        },
+        "target_format": {
+          "a2ui_express_v1": 92977
+        },
+        "source_review_status": {
+          "unknown_archive": 92977
+        },
+        "teacher": {
+          "unknown_archive": 92977
+        },
+        "modality": {
+          "unknown_archive": 92977
+        },
+        "flags": {
+          "historically_repaired": 81867,
+          "with_source_placeholders": 92911,
+          "with_url_map": 48108
+        }
+      },
+      "lengths": {
+        "source_chars": {
+          "count": 92977,
+          "total": 165351319,
+          "min": 165,
+          "mean": 1778.41,
+          "p50": 1798,
+          "p90": 2505,
+          "p95": 2695,
+          "p99": 3207,
+          "max": 7181
+        },
+        "source_words": {
+          "count": 92977,
+          "total": 25644967,
+          "min": 22,
+          "mean": 275.82,
+          "p50": 278,
+          "p90": 379,
+          "p95": 406,
+          "p99": 487,
+          "max": 1100
+        },
+        "target_chars": {
+          "count": 92977,
+          "total": 269644957,
+          "min": 375,
+          "mean": 2900.13,
+          "p50": 2944,
+          "p90": 3853,
+          "p95": 4103,
+          "p99": 4712,
+          "max": 8723
+        },
+        "target_lines": {
+          "count": 92977,
+          "total": 3579518,
+          "min": 9,
+          "mean": 38.5,
+          "p50": 38,
+          "p90": 52,
+          "p95": 56,
+          "p99": 63,
+          "max": 114
+        },
+        "component_count": {
+          "count": 92977,
+          "total": 3301968,
+          "min": 6,
+          "mean": 35.51,
+          "p50": 35,
+          "p90": 49,
+          "p95": 53,
+          "p99": 60,
+          "max": 111
+        }
+      }
+    }
+  },
+  "implementation_sha256": {
+    "dataset/schema/canonical_ui_graph_v1.schema.json": "0c5c211e0ddf05e0e6f22b803dee6050a2141d4723e341a75ff3b4dd69384e83",
+    "dataset/schema/catalog.json": "87b8d71bb27b61008a4a2ab2f14d6ff80bab42df6e575ae4ea6b0dd89c8b88d1",
+    "dataset/schema/catalog_enhanced1.json": "431efeb922e0f59b2376f3f815e21cbad4e321fb4ae3aec177d2bf030adbd253",
+    "dataset/schema/common_types.json": "082a08c9c88ce003a1ab28fca139e7342317ed435121c303bb74111deae12411",
+    "dataset/schema/expected_ui_contract.schema.json": "10d6bc94ef9c24ba45b192e03da93c78e4fb1828833fc35bd4ca2e868fb8bd51",
+    "dataset/schema/genui.schema.json": "8eb2256dd209192486c4c3b342409488ffae9dd369377a9f79a76303dde25e85",
+    "dataset/schema/genui_anchored_criterion_judgment_v3.schema.json": "8b7ab60e713f0cd584d1ef3b65a7376f871d5df45dde09aeee7e7bab55d8d0af",
+    "dataset/schema/genui_anchored_criterion_packet_v3.schema.json": "66dc6c2e906fa98f24b1c75278890fe4e25377d060b41726fdcd5052945b867c",
+    "dataset/schema/genui_codex_judgment_v2.schema.json": "662323742c5997db1b5cbd43c3163a7862a5679c297137aacf1574e839f75bbb",
+    "dataset/schema/genui_codex_packet_v2.schema.json": "0a7d5591494fca685a2a8652eba9e321291a41e6c2607f7713a4b274552b8c89",
+    "dataset/schema/genui_flatspec.schema.json": "2c323ce3185375cc1ef2f718e583269e4283558187ccd29a34ae3f4c6fd631bb",
+    "dataset/schema/genuicraft_a2ui_catalog_v1.json": "b5571b35b1af2629361d66e896d59c7dbc5b27aaea17492c274933f6125b518e",
+    "dataset/schema/genuicraft_a2ui_express_profile_v1.json": "c0259faae3a08bdb245faf9bb2abe0798b665ddb95c1b174f7e7c5d09ae52b83",
+    "dataset/schema/genuicraft_a2ui_v1_wire.schema.json": "90137067429316d2ecba4997c43198bccf7241a9bbeeb34ef8c4ae52f6e14881",
+    "dataset/schema/genuicraft_ir_formats.manifest.json": "7fa17f7571f8cc5d28c49f90672b8bf693cf42a81f4967434800d27d7863ebbd",
+    "dataset/schema/intent_renderer_recipes.json": "06e0fdf84b7b07b09366c9c957b7929df0ca8dc9acd4b4176f011436a553e13f",
+    "dataset/schema/renderer_capabilities.json": "34b0d65de9ed62c532286419488feaf175928039ff507973981135a905cea65d",
+    "dataset/schema/server_to_client.json": "fa0a76665fd2ebc4916289f909255b9533c5d8a1bceba25de12b0f571b19a113",
+    "dataset/schema/server_to_client_list.json": "8eb2256dd209192486c4c3b342409488ffae9dd369377a9f79a76303dde25e85",
+    "dataset/src/pipeline/ir_formats/__init__.py": "31302293279fd2fd20e2bfac0c38f190dc0579e439be6feaed1425c612b15780",
+    "dataset/src/pipeline/ir_formats/a2ui_wire.py": "b129aa4c96ea80bda2e89eccca742e35827a35b42d705959c9912849837b6e4e",
+    "dataset/src/pipeline/ir_formats/active.py": "7ea03b3e58bddc98661589495554af05d809a679da03d1645b2581751cb12382",
+    "dataset/src/pipeline/ir_formats/canonical.py": "3df63cd2b336cb2c9e479fc6f21ce0c03742e77fee9570f302c1d1bdccb50953",
+    "dataset/src/pipeline/ir_formats/catalog.py": "21c732a2de1485fd7ed98eada93b19b7b749a7d02891d882defd3ecd3de739da",
+    "dataset/src/pipeline/ir_formats/codec.py": "3a507b8b4b3c74279a881d2b0a11befc5b3f87a677bf08e871adae2886b311b9",
+    "dataset/src/pipeline/ir_formats/common.py": "9041d3eab36d89537313a64d96c7727ab31c882c87c740dda46d9370d26644d9",
+    "dataset/src/pipeline/ir_formats/express.py": "be29c0c2a45616e1e32d23ecb177a152cb432fddf04244ab0835afb680442d66",
+    "dataset/src/pipeline/ir_formats/repair.py": "e33a1ba87c386c83d33ae360aa3acf106b1cdd542b10e07d8f750efac1c0606b",
+    "training/data/quality/v9_manual100_findings.json": "3d9399a6fc6b439f1493884904bf08740206f3f6035bf87c6c8b5deb5efe37d8",
+    "training/scripts/audits/full_data_ir_20260913.py": "f3b127aea954ad4a875e77099728bfecbf3f22c8ca4a0cb6d4454d8cf1fda811",
+    "training/src/ir_training/data/__init__.py": "f01a374e9c81e3db89b3a42940c4d6a5447684986a1296e42bf13f196eed6295",
+    "training/src/ir_training/data/archive_boundary_review.py": "d097bdf1fd8b6b393bee46f923f33138e7e9407cbcbee01cec806ae6b52f0881",
+    "training/src/ir_training/data/archive_final_review.py": "db31814316c0e5cb18209c45700d88e2cf951defce7432a6cb082ebfdd2fb858",
+    "training/src/ir_training/data/archive_letter_review.py": "cfbee048e5909d7b75d28c441cebc0efeadc60a300dd9f0444fccf029c26ae80",
+    "training/src/ir_training/data/archive_recovery.py": "866533095443ff2953e23ca6085c0319218b2fc24c7dc8387ab492548c854470",
+    "training/src/ir_training/data/archive_refinement.py": "559a843d629de34566d2e05196f0aaee7e8ba12ff33047e443d3a216e2fa2f82",
+    "training/src/ir_training/data/archive_semantic_review.py": "35dce246c96dbe702c8c497da0d6df75c2ed4e5754434c62652757e9b31d8e2f",
+    "training/src/ir_training/data/audit_filter.py": "d6b0b70d053691cfa14e57eebf9f7112728e9bdd626ab1fce089998592a82241",
+    "training/src/ir_training/data/augmentation.py": "c523973b35da29ddaa2925e10016f87fdb04bb703f24662be56cf5cdb277374f",
+    "training/src/ir_training/data/bixby50.py": "bb1043e8b443ac864f5fce54f4a6bc0f0455703a987d947179e5505d363cc1d0",
+    "training/src/ir_training/data/build_pairs.py": "5373eebe28e7a9d08b2e6ebac938f3d4935114b8746d36b7279e2f707bec4ddd",
+    "training/src/ir_training/data/chat_templates.py": "29e3704ce51f3b9f09f6e96e1c6d449412f17ef360c89a447c731ea8238d32a6",
+    "training/src/ir_training/data/express_preparation.py": "29c1b05aa51c84df0b6e84269f2090a99e741d36e298a1782b427ba39463cefe",
+    "training/src/ir_training/data/filters.py": "6df426f10e38a01d3ecbf505af5f7bd41f4c71749d904448d206027bd6dfeac3",
+    "training/src/ir_training/data/frozen_evaluation.py": "efd990bf4c5e62221bfe2485a17c4fc9daac3d1fab11d723345fcc2e156bd000",
+    "training/src/ir_training/data/golden35_subset.py": "889f162bb0b53ea2c464078f73ad01dad86fe9044f835ea9887fac97adea0034",
+    "training/src/ir_training/data/golden_replacement.py": "bb284d8cb1378e9ad6e8f3e432e31e642b575a95e0a48f7f36233f1931942c75",
+    "training/src/ir_training/data/ir_targets.py": "0c7c91def24324e297cbce9f4962aa69bfd70fac3b7aa3be5bed106bd13f564d",
+    "training/src/ir_training/data/legacy_targets.py": "855e88271ec6dd8d45862692db2639a6296503f64030163f1cf06640c8b399c1",
+    "training/src/ir_training/data/prepared_input.py": "8e48e1699046d19bccd9130edf6ba1dac4ba6584bfff3a9184fe9d3fd8f8d8ff",
+    "training/src/ir_training/data/reference_binding.py": "39ef43bf913ecb6ffe9f9472cd06ad6a265ede16dd3f5af73e4403fe2102a5f8",
+    "training/src/ir_training/data/repairs.py": "0bae0dbd14f3b6b3f3bdded234fe33320cdc3727523f7cb75ccc9fee569d117f",
+    "training/src/ir_training/data/semantic_augmentation.py": "3b87d3d687a3cf94446c112a1254d3610bd0bc2e26283d62397f39fee8133f5f",
+    "training/src/ir_training/data/semantic_reference_normalization.py": "65b0caa962528017593eb2525fe536c5c7f29e27101f49d87e40c96dcfead93c",
+    "training/src/ir_training/data/shared_prompt.py": "495078eb9d87f6dbbe9c84bd27b1d906d856ccc64e6281947b46bbcd61691d42",
+    "training/src/ir_training/data/splits.py": "4191012b71b5c100df456edae6bc06e509de65b54a3c09b66c273d22e7303ae2",
+    "training/src/ir_training/data/url_preprocess.py": "607f28bb135b2dbe24b483ae4219888015548877379ccf4485d1c40628602cea"
+  },
+  "elapsed_seconds": 736.25,
+  "base_repairs": {
+    "original_held_rows": 34,
+    "recovered_rows": 10,
+    "recovered_by_split": {
+      "train": 9,
+      "val": 1
+    },
+    "recovered_cases": {
+      "2": 1,
+      "28": 1,
+      "33": 1,
+      "46": 1,
+      "51": 1,
+      "73": 1,
+      "82": 1,
+      "85": 1,
+      "88": 1,
+      "100": 1
+    },
+    "remaining_held_rows": 24,
+    "remaining_held_families": 21,
+    "source_factual_scope": "Only audited target fidelity and exact internally proven arithmetic; other source facts remain unverified."
+  },
+  "base_repair_script_sha256": "91f26201136ab2fea9a42db8439040d75d1941887040ac88ab64026a9bf705d2",
+  "base_repair_implementation_sha256": "0cdf6d8ae1f84a58e3cd6053f3aa3e293996e0dea67e9c8066d2a9a25f0bf845",
+  "retained_split_sha256": {
+    "train.jsonl": "16eb3788d831a767c6cb04d4af3c7e74895bb0682f9b105514cf76ee5375610b",
+    "val.jsonl": "7682ff1441896fe1caa4cc3a265bd237f9b1c4d85bb603f62b0558e3e552f025"
+  }
+}

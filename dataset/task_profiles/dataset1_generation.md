@@ -32,3 +32,9 @@ Notes:
 - Do not commit API keys.
 - Do not restart stale Azure workers for this task.
 - If the user says "start dataset1 generation", run the restart command above.
+- Stage 3 keeps the canonical `genui_gen_mobile_a2ui_express_v1.md` contract and
+  automatically appends `stage3_training_fidelity_v1.md` inside `run_stage3` for
+  every provider. Existing workers need a restart to load changed Python code.
+  Newly written records include `generation_fidelity_audit`; prior rows are not
+  changed or automatically retried. Unsupported chart subtypes fail the renderer
+  gate; literal prose diagnostics require review and never rewrite a target.

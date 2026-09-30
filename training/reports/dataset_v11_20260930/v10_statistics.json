@@ -1,0 +1,497 @@
+{
+  "train": {
+    "rows": 91115,
+    "unique_source_texts": 88671,
+    "unique_normalized_sources": 88671,
+    "source_families": 88669,
+    "unique_exact_pairs": 91115,
+    "unique_normalized_source_semantic_pairs": 91115,
+    "distributions": {
+      "components": {
+        "AudioPlayer": 1,
+        "Button": 342132,
+        "Card": 393509,
+        "CheckBox": 361,
+        "ChoicePicker": 43,
+        "CodeBlock": 536,
+        "ConsoleLog": 617,
+        "Divider": 1218,
+        "EmailPreview": 239,
+        "Formula": 16595,
+        "Icon": 267746,
+        "Image": 2346,
+        "Slider": 58,
+        "Stack": 981530,
+        "Table": 118134,
+        "Tabs": 1483,
+        "Text": 1109222,
+        "TextField": 52
+      },
+      "component_presence": {
+        "AudioPlayer": 1,
+        "Button": 87260,
+        "Card": 91046,
+        "CheckBox": 86,
+        "ChoicePicker": 28,
+        "CodeBlock": 336,
+        "ConsoleLog": 211,
+        "Divider": 1154,
+        "EmailPreview": 147,
+        "Formula": 15759,
+        "Icon": 90679,
+        "Image": 1708,
+        "Slider": 42,
+        "Stack": 91115,
+        "Table": 89790,
+        "Tabs": 1433,
+        "Text": 91115,
+        "TextField": 23
+      },
+      "table_domains": {
+        "activity": 2,
+        "analysis": 5,
+        "booking": 981,
+        "comparison": 34617,
+        "correlation": 1,
+        "data": 6,
+        "distribution": 2,
+        "efficiency": 1,
+        "emissions": 1,
+        "energy": 1,
+        "fare": 1,
+        "fare_trend": 1,
+        "finance": 1,
+        "flight": 1560,
+        "formula": 21468,
+        "funnel": 1,
+        "gauge": 1,
+        "generic": 22018,
+        "metric": 1,
+        "metrics": 1,
+        "news": 2,
+        "playlist": 1273,
+        "price": 1,
+        "restaurants": 683,
+        "sales": 1,
+        "schedule": 19517,
+        "spending": 1,
+        "status": 13825,
+        "summary": 6,
+        "trend": 1,
+        "trends": 2,
+        "utilization": 1,
+        "value": 1,
+        "visualization": 2,
+        "volatility": 1,
+        "weather": 2147
+      },
+      "reference_kinds": {
+        "child": 3141338,
+        "tab_content": 3463
+      },
+      "origin": {
+        "v10": 91115
+      },
+      "intent": {
+        "unknown_archive": 91115
+      },
+      "difficulty": {
+        "unknown": 91115
+      },
+      "target_format": {
+        "a2ui_express_v1": 91115
+      },
+      "source_review_status": {
+        "unknown_archive": 91115
+      },
+      "teacher": {
+        "unknown_archive": 91115
+      },
+      "modality": {
+        "unknown_archive": 91115
+      },
+      "flags": {
+        "historically_repaired": 80221,
+        "with_source_placeholders": 91052,
+        "with_url_map": 47180
+      }
+    },
+    "lengths": {
+      "source_chars": {
+        "count": 91115,
+        "total": 161998869,
+        "min": 165,
+        "mean": 1777.96,
+        "p50": 1797,
+        "p90": 2505,
+        "p95": 2695,
+        "p99": 3204,
+        "max": 7181
+      },
+      "source_words": {
+        "count": 91115,
+        "total": 25125591,
+        "min": 22,
+        "mean": 275.76,
+        "p50": 278,
+        "p90": 379,
+        "p95": 406,
+        "p99": 486,
+        "max": 1100
+      },
+      "target_chars": {
+        "count": 91115,
+        "total": 264198740,
+        "min": 375,
+        "mean": 2899.62,
+        "p50": 2943,
+        "p90": 3852,
+        "p95": 4102,
+        "p99": 4708,
+        "max": 8723
+      },
+      "target_lines": {
+        "count": 91115,
+        "total": 3507814,
+        "min": 9,
+        "mean": 38.5,
+        "p50": 38,
+        "p90": 52,
+        "p95": 56,
+        "p99": 63,
+        "max": 114
+      },
+      "component_count": {
+        "count": 91115,
+        "total": 3235822,
+        "min": 6,
+        "mean": 35.51,
+        "p50": 35,
+        "p90": 49,
+        "p95": 53,
+        "p99": 60,
+        "max": 111
+      }
+    }
+  },
+  "val": {
+    "rows": 1862,
+    "unique_source_texts": 1814,
+    "unique_normalized_sources": 1814,
+    "source_families": 1814,
+    "unique_exact_pairs": 1862,
+    "unique_normalized_source_semantic_pairs": 1862,
+    "distributions": {
+      "components": {
+        "Button": 6945,
+        "Card": 7958,
+        "CheckBox": 24,
+        "CodeBlock": 8,
+        "ConsoleLog": 15,
+        "Divider": 23,
+        "EmailPreview": 3,
+        "Formula": 334,
+        "Icon": 5479,
+        "Image": 50,
+        "Stack": 20057,
+        "Table": 2423,
+        "Tabs": 32,
+        "Text": 22792,
+        "TextField": 3
+      },
+      "component_presence": {
+        "Button": 1760,
+        "Card": 1862,
+        "CheckBox": 3,
+        "CodeBlock": 6,
+        "ConsoleLog": 7,
+        "Divider": 21,
+        "EmailPreview": 3,
+        "Formula": 316,
+        "Icon": 1848,
+        "Image": 36,
+        "Stack": 1862,
+        "Table": 1834,
+        "Tabs": 32,
+        "Text": 1862,
+        "TextField": 1
+      },
+      "table_domains": {
+        "booking": 40,
+        "comparison": 682,
+        "flight": 25,
+        "formula": 437,
+        "generic": 436,
+        "playlist": 27,
+        "profile": 3,
+        "restaurants": 11,
+        "schedule": 418,
+        "status": 302,
+        "weather": 42
+      },
+      "reference_kinds": {
+        "child": 64210,
+        "tab_content": 75
+      },
+      "origin": {
+        "v10": 1862
+      },
+      "intent": {
+        "unknown_archive": 1862
+      },
+      "difficulty": {
+        "unknown": 1862
+      },
+      "target_format": {
+        "a2ui_express_v1": 1862
+      },
+      "source_review_status": {
+        "unknown_archive": 1862
+      },
+      "teacher": {
+        "unknown_archive": 1862
+      },
+      "modality": {
+        "unknown_archive": 1862
+      },
+      "flags": {
+        "historically_repaired": 1646,
+        "with_source_placeholders": 1859,
+        "with_url_map": 928
+      }
+    },
+    "lengths": {
+      "source_chars": {
+        "count": 1862,
+        "total": 3352450,
+        "min": 381,
+        "mean": 1800.46,
+        "p50": 1835,
+        "p90": 2527,
+        "p95": 2713,
+        "p99": 3309,
+        "max": 5341
+      },
+      "source_words": {
+        "count": 1862,
+        "total": 519376,
+        "min": 53,
+        "mean": 278.93,
+        "p50": 281,
+        "p90": 379,
+        "p95": 407,
+        "p99": 506,
+        "max": 875
+      },
+      "target_chars": {
+        "count": 1862,
+        "total": 5446217,
+        "min": 733,
+        "mean": 2924.93,
+        "p50": 2975,
+        "p90": 3887,
+        "p95": 4135,
+        "p99": 4851,
+        "max": 6911
+      },
+      "target_lines": {
+        "count": 1862,
+        "total": 71704,
+        "min": 10,
+        "mean": 38.51,
+        "p50": 38,
+        "p90": 52,
+        "p95": 56,
+        "p99": 63,
+        "max": 77
+      },
+      "component_count": {
+        "count": 1862,
+        "total": 66146,
+        "min": 7,
+        "mean": 35.52,
+        "p50": 35,
+        "p90": 49,
+        "p95": 53,
+        "p99": 60,
+        "max": 74
+      }
+    }
+  },
+  "combined": {
+    "rows": 92977,
+    "unique_source_texts": 90485,
+    "unique_normalized_sources": 90485,
+    "source_families": 90483,
+    "unique_exact_pairs": 92977,
+    "unique_normalized_source_semantic_pairs": 92977,
+    "distributions": {
+      "components": {
+        "AudioPlayer": 1,
+        "Button": 349077,
+        "Card": 401467,
+        "CheckBox": 385,
+        "ChoicePicker": 43,
+        "CodeBlock": 544,
+        "ConsoleLog": 632,
+        "Divider": 1241,
+        "EmailPreview": 242,
+        "Formula": 16929,
+        "Icon": 273225,
+        "Image": 2396,
+        "Slider": 58,
+        "Stack": 1001587,
+        "Table": 120557,
+        "Tabs": 1515,
+        "Text": 1132014,
+        "TextField": 55
+      },
+      "component_presence": {
+        "AudioPlayer": 1,
+        "Button": 89020,
+        "Card": 92908,
+        "CheckBox": 89,
+        "ChoicePicker": 28,
+        "CodeBlock": 342,
+        "ConsoleLog": 218,
+        "Divider": 1175,
+        "EmailPreview": 150,
+        "Formula": 16075,
+        "Icon": 92527,
+        "Image": 1744,
+        "Slider": 42,
+        "Stack": 92977,
+        "Table": 91624,
+        "Tabs": 1465,
+        "Text": 92977,
+        "TextField": 24
+      },
+      "table_domains": {
+        "activity": 2,
+        "analysis": 5,
+        "booking": 1021,
+        "comparison": 35299,
+        "correlation": 1,
+        "data": 6,
+        "distribution": 2,
+        "efficiency": 1,
+        "emissions": 1,
+        "energy": 1,
+        "fare": 1,
+        "fare_trend": 1,
+        "finance": 1,
+        "flight": 1585,
+        "formula": 21905,
+        "funnel": 1,
+        "gauge": 1,
+        "generic": 22454,
+        "metric": 1,
+        "metrics": 1,
+        "news": 2,
+        "playlist": 1300,
+        "price": 1,
+        "profile": 3,
+        "restaurants": 694,
+        "sales": 1,
+        "schedule": 19935,
+        "spending": 1,
+        "status": 14127,
+        "summary": 6,
+        "trend": 1,
+        "trends": 2,
+        "utilization": 1,
+        "value": 1,
+        "visualization": 2,
+        "volatility": 1,
+        "weather": 2189
+      },
+      "reference_kinds": {
+        "child": 3205548,
+        "tab_content": 3538
+      },
+      "origin": {
+        "v10": 92977
+      },
+      "intent": {
+        "unknown_archive": 92977
+      },
+      "difficulty": {
+        "unknown": 92977
+      },
+      "target_format": {
+        "a2ui_express_v1": 92977
+      },
+      "source_review_status": {
+        "unknown_archive": 92977
+      },
+      "teacher": {
+        "unknown_archive": 92977
+      },
+      "modality": {
+        "unknown_archive": 92977
+      },
+      "flags": {
+        "historically_repaired": 81867,
+        "with_source_placeholders": 92911,
+        "with_url_map": 48108
+      }
+    },
+    "lengths": {
+      "source_chars": {
+        "count": 92977,
+        "total": 165351319,
+        "min": 165,
+        "mean": 1778.41,
+        "p50": 1798,
+        "p90": 2505,
+        "p95": 2695,
+        "p99": 3207,
+        "max": 7181
+      },
+      "source_words": {
+        "count": 92977,
+        "total": 25644967,
+        "min": 22,
+        "mean": 275.82,
+        "p50": 278,
+        "p90": 379,
+        "p95": 406,
+        "p99": 487,
+        "max": 1100
+      },
+      "target_chars": {
+        "count": 92977,
+        "total": 269644957,
+        "min": 375,
+        "mean": 2900.13,
+        "p50": 2944,
+        "p90": 3853,
+        "p95": 4103,
+        "p99": 4712,
+        "max": 8723
+      },
+      "target_lines": {
+        "count": 92977,
+        "total": 3579518,
+        "min": 9,
+        "mean": 38.5,
+        "p50": 38,
+        "p90": 52,
+        "p95": 56,
+        "p99": 63,
+        "max": 114
+      },
+      "component_count": {
+        "count": 92977,
+        "total": 3301968,
+        "min": 6,
+        "mean": 35.51,
+        "p50": 35,
+        "p90": 49,
+        "p95": 53,
+        "p99": 60,
+        "max": 111
+      }
+    }
+  }
+}

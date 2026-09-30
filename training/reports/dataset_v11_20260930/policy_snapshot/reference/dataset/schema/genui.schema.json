@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://genui.local/specification/v0_9/server_to_client_list.json",
+  "title": "GenUICraft Server-to-Client Message List",
+  "description": "A list of GenUICraft Server-to-Client messages.",
+  "type": "array",
+  "items": {
+    "$ref": "server_to_client.json"
+  }
+}
+
+

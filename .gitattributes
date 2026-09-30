@@ -35,3 +35,25 @@ training/reports/v10_manual100_20260916/* -text whitespace=cr-at-eol
 training/reports/offline_recovery_20260916_v10/*.json text eol=lf
 # Keep the Android benchmark corpus byte-identical to its validated snapshot.
 android/app/src/main/assets/genuicraft_bixby50.jsonl -text whitespace=cr-at-eol
+
+# v11/v11s preserve the supplied release bytes and original split hashes.
+training/data/train/v11/*.gz -text -diff
+training/data/train/v11s/*.gz -text -diff
+training/data/train/v11/manifest.json -text whitespace=cr-at-eol
+training/data/train/v11s/manifest.json -text whitespace=cr-at-eol
+training/data/train/v11/prompt_scaffold.json -text whitespace=cr-at-eol
+training/data/train/v11s/prompt_scaffold.json -text whitespace=cr-at-eol
+training/data/train/v11/bundle.json text eol=lf
+training/data/train/v11s/bundle.json text eol=lf
+training/data/train/v11/*.py text eol=lf
+training/data/train/v11s/*.py text eol=lf
+training/data/train/v11/*.md text eol=lf
+training/data/train/v11s/*.md text eol=lf
+# Historical package audit files and policy snapshots are hash-bound evidence.
+training/reports/dataset_v11_20260930/** -text whitespace=cr-at-eol,-blank-at-eof
+training/reports/dataset_v11_20260930/**/*.gz -text -diff
+# Imported audit implementations retain the SHA-bound supplier bytes.
+training/scripts/*space_v11*.py -text whitespace=cr-at-eol
+training/scripts/repair_v11_base.py -text whitespace=cr-at-eol
+training/scripts/project_space_archive.py -text whitespace=cr-at-eol
+training/tests/test_space_v11*.py -text whitespace=cr-at-eol

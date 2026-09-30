@@ -1,0 +1,31 @@
+{
+  "status": "verified",
+  "checks": {
+    "original_v10_hashes_unchanged": true,
+    "all_output_hashes_and_counts": true,
+    "all_row_graph_message_reference_and_identity_checks": 204303,
+    "all_new_changes_match_source_proven_repair_replay": true,
+    "screened_base_bytes_preserved_in_merge": true,
+    "v11s_splits_equal_v11_new_suffixes": true,
+    "unresolved_v10_hold_families_admitted": 0,
+    "duplicate_exact_pairs": 0,
+    "cross_split_families": 0,
+    "cross_split_exact_sources": 0,
+    "cross_split_normalized_sources": 0,
+    "cross_split_available_queries": 0,
+    "cross_split_available_scenarios": 0,
+    "new_vs_v10_normalized_sources": 0,
+    "benchmark_exact_normalized_or_detected_lexical_overlaps": 0,
+    "detected_train_val_lexical_near_overlaps": 0,
+    "strict_production_validator_and_content_sample_rows": 512,
+    "sample_residual_issues": 0,
+    "lexical_search_scope": "same bounded rare-trigram retrieval and thresholds as v10; not exhaustive semantic equivalence",
+    "tokenizer_model_training_device_checks": "not_run",
+    "new_repaired_rows_independently_replayed": 1551,
+    "generator_review_rows_independently_recovered": 97975,
+    "original_stage3_semantic_provenance_rows_replayed": 111350,
+    "known_v10_repairs_independently_replayed": 10
+  },
+  "elapsed_seconds": 1988.42,
+  "verification_script_sha256": "f00f82f6ef57c6407bd541844c620bd88fc2b7556a4c5cdb83bfd894b6c33e02"
+}

@@ -1,0 +1,6 @@
+Verified dataset comparison
+
+Dataset | Train | Validation | Total
+v10 | 91,115 | 1,862 | 92,977
+v11 | 200,214 | 4,089 | 204,303
+v11s | 109,121 | 2,229 | 111,350

@@ -46,6 +46,11 @@ _MODULE_ROOTS = (
 # Progress and provenance do not determine accepted examples, token lengths or
 # split membership. Keeping them out permits console-log improvements.
 _NON_SEMANTIC_MODULES = {"ir_training.common.progress", "ir_training.common.git"}
+# Data-driven admission rules live outside Python imports and the schema tree.
+# A catalog-only correction must invalidate cached accepted examples too.
+_ADMISSION_POLICY_FILES = (
+    "training/data/quality/v11_review_holds_20261001.json",
+)
 
 
 def _sha(path: Path) -> str:
@@ -118,6 +123,8 @@ imports inside functions. Schema/catalog files are bound separately below.
         pending.update(_imports(tree, name, package=path.name == "__init__.py"))
     for path in sorted((root / "dataset/schema").rglob("*.json")):
         result[path.relative_to(root).as_posix()] = _sha(path)
+    for relative in _ADMISSION_POLICY_FILES:
+        result[relative] = _sha(root / relative)
     return dict(sorted(result.items()))
 
 

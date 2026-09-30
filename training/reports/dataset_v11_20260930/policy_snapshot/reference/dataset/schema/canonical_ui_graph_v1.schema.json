@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://genui.samsung.com/a2ui/canonical-ui-graph/v1",
+  "title": "GenUICraft canonical typed UI graph v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["root", "state", "elements"],
+  "properties": {
+    "root": { "const": "root" },
+    "state": { "type": "object" },
+    "elements": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["type", "props", "children"],
+        "properties": {
+          "type": { "type": "string", "minLength": 1 },
+          "props": { "type": "object" },
+          "children": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+          "repeat": { "type": "object" },
+          "visible": {},
+          "on": { "type": "object" },
+          "watch": { "type": "object" }
+        }
+      }
+    }
+  }
+}

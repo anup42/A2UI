@@ -1,0 +1,76 @@
+{
+  "scope": "dataset_v11_20260930",
+  "files": [
+    {
+      "path": "training/scripts/project_space_archive.py",
+      "action": "add",
+      "sha256": "385fe621ccca2ef1c83d311fefa664f14db74d46a3c1e3a1e88b9bf81149aec7"
+    },
+    {
+      "path": "training/scripts/prepare_space_v11.py",
+      "action": "add",
+      "sha256": "93ae7b7b712ea725031d43a1fe77e499b5c6feee4a152793df6327ccf3794830"
+    },
+    {
+      "path": "training/scripts/verify_space_v11.py",
+      "action": "add",
+      "sha256": "9393fa7dbb4a611ca13911c2bbc9b9fcfecc53e8a8d51b43f907564fee2631ed"
+    },
+    {
+      "path": "training/scripts/prepare_space_v11_repaired.py",
+      "action": "add",
+      "sha256": "5f62e7cd6508ead3897f10db6cef92c0faec6da69af199b64ddfdd6ae9884f55"
+    },
+    {
+      "path": "training/scripts/verify_space_v11_repaired.py",
+      "action": "add",
+      "sha256": "f00f82f6ef57c6407bd541844c620bd88fc2b7556a4c5cdb83bfd894b6c33e02"
+    },
+    {
+      "path": "training/scripts/repair_v11_base.py",
+      "action": "add",
+      "sha256": "91f26201136ab2fea9a42db8439040d75d1941887040ac88ab64026a9bf705d2"
+    },
+    {
+      "path": "training/scripts/space_v11_repairs.py",
+      "action": "add",
+      "sha256": "43ccda5e34c2a4648ac61404c319556a54fad6ce9297d9c168dad3f68a01060d"
+    },
+    {
+      "path": "training/scripts/space_v11_reassessment.py",
+      "action": "add",
+      "sha256": "a6f2b34c0254e8f9b1233325223e45c471069662ea1b3d14858f3a4439177b4e"
+    },
+    {
+      "path": "training/scripts/space_v11_known_hold_repairs.py",
+      "action": "add",
+      "sha256": "0cdf6d8ae1f84a58e3cd6053f3aa3e293996e0dea67e9c8066d2a9a25f0bf845"
+    },
+    {
+      "path": "training/tests/test_space_v11_import.py",
+      "action": "add",
+      "sha256": "796df397083c6c784a14bdd32123dca8e3d245b4cd4d17a5de3f65add476769b"
+    },
+    {
+      "path": "training/tests/test_space_v11_repairs.py",
+      "action": "add",
+      "sha256": "01bd8c6ba26ce936d7da96382f783385a23c56351aaa71760a9be84e537b51fa"
+    },
+    {
+      "path": "training/tests/test_space_v11_reassessment.py",
+      "action": "add",
+      "sha256": "1dca2380cdb956e8823d3dfe65f27362d13d57b7c0d019bb0fdb6fa3ba5c864b"
+    },
+    {
+      "path": "training/tests/test_space_v11_known_hold_repairs.py",
+      "action": "add",
+      "sha256": "3d98025916de2b28918b378c506c04d2ed7e56b37f53c2407f69ec5814d43ac9"
+    },
+    {
+      "path": "training/tests/test_space_v11_verification.py",
+      "action": "add",
+      "sha256": "3c0127d8f936a0ad01c60fe6c7ff2d975c1de7ea762318221f790b6a94497e4e"
+    }
+  ],
+  "regression_tests_passed": 75
+}

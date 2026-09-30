@@ -1,0 +1,77 @@
+Dataset v11 / v11s — repaired release, 30 September 2026
+
+The complete source inventory is 155,000 queries, 148,915 responses and 131,400
+Stage 3 records (one malformed record). 17,516 response IDs lack a Stage 3 record.
+Missing Stage 3 targets were not invented or counted as repaired training pairs.
+
+NEW DATA
+Retained: 111,350; unchanged by the repair chain: 109,799;
+mechanically repaired: 1,551; quarantined: 20,050.
+Of retained new rows, 97,975 were originally
+generator-ineligible and passed the recorded reassessment. Original generator
+flags remain in every row. This overlaps the repair count; it is not an
+additional set of rows. Original generator rejection counts are diagnostic,
+not measured defect rates. The deliberately stratified 354-row pilot is not a
+random accuracy study. Full output counts come from the complete corpus.
+
+REPAIR POLICY
+Reuse of v10 reference rebinding/pruning, encoding and split-word recovery,
+source-grounded text/table/state-path repairs, plus narrow uniquely anchored
+source-literal prose restoration. Known reference identities cannot be swapped.
+Each retained edit has exact before/after differences, source hashes and repair
+proofs. Repeated repair must be stable. Every retained new row was independently
+replayed from its original Stage 3 projection during verification.
+An initial verifier comparison treated in-memory tuple evidence as different
+from the same JSON arrays on disk. All ten repaired v10 rows already replayed
+byte-for-byte. The comparison was fixed to use the persisted JSON representation;
+tests still reject changed values and array order. No dataset bytes changed.
+
+Generic review flags can clear when renderer-visible evidence preserves source
+units and numeric anchors. Specific action/media/table/role/dynamic findings
+require fresh v5.4 checks and remain held when unresolved. Native normal Card
+titles count as visible; arbitrary invisible state and ignored Table titles do
+not. This is a heuristic representation-fidelity policy: it does not prove all
+added non-numeric target phrases, factual correctness, or final device rendering.
+
+V10
+Original v10 remains byte-identical at 92,977 rows. Its later manual findings
+identified 34 rows in 31 families. 10 rows were repaired and recovered;
+24 rows in 21 families remain excluded from v11.
+Four recovered cases correct internal arithmetic or unit labels only:
+case 2: speed improvement 100/9 percent (11.1 percent rounded);
+case 51: revenue per lead, not conversion rate;
+case 73: option B wins using the stated table totals;
+case 100: longest duration 30.5 hours, with total 49.25 hours.
+Other recovered cases restore source-bound table/field/attribution content or
+remove unsupported latent action metadata. Exact proofs are in
+known_v10_repairs.json. Medical/legal/product/source-verification ambiguities and
+unsupported pie-chart semantics were not guessed. Unmodified v10 rows retain
+their original bytes and all retained v10 rows retain their original split.
+
+EVALUATION
+v11s/val contains 2,229 new-only held-out rows and is byte-identical to the
+new suffix of v11/val. v11s/train is already contained in v11/train; do not use
+it as an unseen evaluation set after training on v11. New duplicate source/target
+pairs and detected v10/Golden overlaps are excluded. Same/near sources, repeated
+queries and scenario families stay in one split. The near-source search uses
+the bounded lexical retrieval and thresholds inherited from v10, not exhaustive
+semantic equivalence. Golden32, Golden35 and Bixby50 remain reserved.
+
+TRAINING
+These are model-independent A2UI Express v1 train.jsonl/val.jsonl pairs with
+response_text, completion and messages. No samples were truncated. Tokenizer
+preparation must run for the chosen model and context length. Generation token
+telemetry is not a measurement of training tokens. Model training, performance
+evaluation, device rendering and independent source fact checking were not run.
+
+PREVIOUS CANDIDATE
+The earlier strict generator-eligibility build retained 13,372 new rows. It is
+preserved in v11_conservative/v11s_conservative with its separate audit. Those
+files are historical comparison artifacts. v11 and v11s are this repaired release.
+
+See REPORT.html and statistics.json for complete train/val/combined counts,
+length percentiles, components, origins, intents, difficulty, modality, reference
+kinds, source review status and available teacher telemetry. Reason counts and
+component presence counts can overlap. verification.json records scope/results.
+The historically_repaired flag means any recorded repair, including this release;
+repaired_in_v11 identifies the repairs newly applied for v11 specifically.

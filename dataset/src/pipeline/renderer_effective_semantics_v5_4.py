@@ -14,13 +14,13 @@ import math
 import re
 from typing import Any, Mapping, Sequence
 
-from .renderer_capability import supported_renderer_type_names
+from .renderer_capability import canonical_chart_subtype, supported_renderer_type_names
 from .genui_quality import _core
 from .genui_quality.evidence_v5_2 import resolve_renderer_path_v5_2
 
 
-RENDERER_EFFECTIVE_SEMANTICS_VERSION = "5.4.1"
-COMPONENT_CONTRACT_POLICY_VERSION = "5.4.1"
+RENDERER_EFFECTIVE_SEMANTICS_VERSION = "5.4.2"
+COMPONENT_CONTRACT_POLICY_VERSION = "5.4.2"
 MEDIA_MAX_DEPTH = 5
 
 _ROW_LIST_KEYS = ("cells", "values", "row", "data")
@@ -408,6 +408,10 @@ def effective_chart(
     rows = list(raw_rows) if isinstance(raw_rows, list) else []
     columns, column_source = _resolve_columns(props, rows)
     diagnostics: list[str] = []
+    chart_type = props.get("chartType") or props.get("type")
+    chart_supported = canonical_chart_subtype(chart_type) is not None
+    if not chart_supported:
+        diagnostics.append("unsupported_chart_subtype")
     if len(columns) < 2:
         diagnostics.append("chart_columns_insufficient")
         return EffectiveChart(
@@ -473,7 +477,7 @@ def effective_chart(
             props.get("chartType") or props.get("type") or ""
         ).strip(),
         dataset_identity=_sha256(payload),
-        complete=bool(labels),
+        complete=bool(labels) and chart_supported,
         diagnostics=tuple(diagnostics),
     )
 
@@ -557,7 +561,11 @@ def renderer_effective_type_contract(
     audit: _core.GraphAudit,
     config: Any,
 ) -> tuple[float, dict[str, Any]]:
-    del output, evidence_result, config
+    del output, config
+    resolved_charts: dict[str, list[Mapping[str, Any]]] = {}
+    for item in getattr(evidence_result, "effective_components", ()):
+        if item.get("kind") == "chart":
+            resolved_charts.setdefault(item["component_id"], []).append(item)
     elements = spec.get("elements")
     elements = elements if isinstance(elements, Mapping) else {}
     state = spec.get("state")
@@ -594,8 +602,14 @@ def renderer_effective_type_contract(
             issues.extend(model.diagnostics)
         elif element_type == "Chart":
             model = effective_chart(props, state)
-            score = 1.0 if model.complete else 0.0
-            issues.extend(model.diagnostics)
+            resolved = resolved_charts.get(element_id)
+            # Repeat templates reuse their component_id. Every visible instance
+            # must render; a later supported instance cannot conceal an earlier
+            # unsupported chart, and repeat order must not affect eligibility.
+            complete = all(item.get("complete") for item in resolved) if resolved else model.complete
+            score = 1.0 if complete else 0.0
+            issues.extend(sorted({issue for item in resolved for issue in item.get("diagnostics", ())})
+                          if resolved else model.diagnostics)
         elif element_type in {"Image", "Icon", "Video", "AudioPlayer"}:
             model = effective_media(element_type, props)
             score = 1.0 if model.complete else 0.0

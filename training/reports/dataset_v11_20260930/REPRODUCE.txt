@@ -1,0 +1,121 @@
+v11 / v11s build and use
+
+Workspace: D:\git\GenUI-LM
+Reference v10 policy repository: D:\git\anup-code\A2UI
+Python: D:\git\GenUI-LM\working_dir\dataset_v11_20260930\venv\Scripts\python.exe
+Python version: 3.11
+Audit dependencies are pinned in requirements-audit.txt.
+
+INPUTS
+
+Full Space archive:
+C:\Users\k.anup\Downloads\dataset_muse_glimmer_100k_all.tar.gz
+Bytes: 7605528559
+SHA256: 7af98adc1fc49bb81e82853d72e0dd04d428f014d5c614be78febd77f3d09513
+
+Replacement fixed-prefix snapshot for the live r8_2/genui.jsonl:
+C:\Users\k.anup\Downloads\dataset_muse_glimmer_100k_r8_2_snapshot_20260930.tar.gz
+Bytes: 919086423
+SHA256: 263a254da81de8b4eaf80fbcce4bd617004dec1a48a41ae4a38a59a911a08fd2
+
+Original v10 bundle:
+D:\git\anup-code\A2UI\training\data\train\v10
+Its restore.py verified gzip parts and restored byte-identical splits to:
+D:\git\GenUI-LM\training\data\train\v10
+Restored train SHA256:
+707244a5ffe2af459605e8629055c18829c65123294191112016cd69892addf5
+Restored validation SHA256:
+b5024919ea0c3557cad452193f90f7133919bb0c10e4ece05fe1a54278cb0fa7
+
+BUILD SEQUENCE
+
+The following are the script arguments used. Prefix each with the audit Python
+executable above. For a fresh rebuild, use new work/project/audit/output folders:
+the scripts intentionally refuse to overwrite existing outputs.
+
+1. Restore v10 using the original bundle's restore.py:
+   D:\git\anup-code\A2UI\training\data\train\v10\restore.py
+   --output-dir D:\git\GenUI-LM\training\data\train\v10
+
+2. Review every v10 row and hold the 31 later manually flagged source families:
+   training/scripts/prepare_space_v11.py base
+   --policy-repo D:\git\anup-code\A2UI
+   --base-dir D:\git\GenUI-LM\training\data\train\v10
+   --work-dir D:\git\GenUI-LM\working_dir\dataset_v11_20260930\base_review
+   --workers 8
+
+3. Project the verified full archive, then the fixed r8_2 snapshot:
+   training/scripts/project_space_archive.py
+   --archive C:\Users\k.anup\Downloads\dataset_muse_glimmer_100k_all.tar.gz
+   --output-dir D:\git\GenUI-LM\working_dir\dataset_v11_20260930\projected
+
+   training/scripts/project_space_archive.py
+   --archive C:\Users\k.anup\Downloads\dataset_muse_glimmer_100k_r8_2_snapshot_20260930.tar.gz
+   --output-dir D:\git\GenUI-LM\working_dir\dataset_v11_20260930\projected_snapshot
+
+   Apply working_dir/dataset_v11_20260930/apply_live_snapshot.py once.
+   It requires both projections beside the helper and preserves the superseded
+   projection. The main archive_manifest.json records both archives and hashes.
+   Download-specific provenance is in download_provenance.json.
+
+4. Apply hash-bound repairs to the held v10 families:
+   training/scripts/repair_v11_base.py
+   --policy-repo D:\git\anup-code\A2UI
+   --prior-work-dir D:\git\GenUI-LM\working_dir\dataset_v11_20260930\base_review
+   --work-dir D:\git\GenUI-LM\working_dir\dataset_v11_20260930\base_repaired
+
+5. Prepare, repair, reassess and merge:
+   training/scripts/prepare_space_v11_repaired.py new
+   --policy-repo D:\git\anup-code\A2UI
+   --work-dir D:\git\GenUI-LM\working_dir\dataset_v11_20260930\base_repaired
+   --project-dir D:\git\GenUI-LM\working_dir\dataset_v11_20260930\projected
+   --output-root D:\git\GenUI-LM\training\data\train
+   --audit-dir D:\git\GenUI-LM\training\reports\dataset_v11_20260930
+   --workers 16 --seed 20260930
+
+6. Independently verify all outputs and original Stage 3 lineage:
+   training/scripts/verify_space_v11_repaired.py
+   --policy-repo D:\git\anup-code\A2UI
+   --work-dir D:\git\GenUI-LM\working_dir\dataset_v11_20260930\base_repaired
+   --project-dir D:\git\GenUI-LM\working_dir\dataset_v11_20260930\projected
+   --output-root D:\git\GenUI-LM\training\data\train
+   --audit-dir D:\git\GenUI-LM\training\reports\dataset_v11_20260930
+   --workers 16
+
+7. Regression checks (see evidence/repaired_regression_tests.log):
+   -m unittest discover -s training/tests -p test_space_v11*.py -v
+
+The base review and output manifests fingerprint the original v10 modules and
+schemas. A changed policy repository is rejected. Windows multiprocessing needed
+an unsandboxed local process because restricted named pipes returned WinError 5.
+
+OUTPUTS AND MODEL PREPARATION
+
+Each dataset folder contains train.jsonl and val.jsonl. v11 and v11s also contain
+manifest.json and prompt_scaffold.json. Targets are strict A2UI Express v1.
+Source/target text and chat messages are supplied; no model tokenizer is assumed.
+
+The A2UI reference repository's training/scripts/run_golden_training.py accepts
+these source-bound files via --input-dir. A model-specific preparation example
+(not executed) is:
+
+python D:\git\anup-code\A2UI\training\scripts\run_golden_training.py
+  --profile e2b --model-dir <local-model-and-tokenizer-directory>
+  --input-dir D:\git\GenUI-LM\training\data\train\v11
+  --output-dir <fresh-training-run-directory> --prepare-only
+
+Use v11s instead of v11 for the separate new-data-only training experiment.
+In the GenUI-LM YAML training path, set run.dataset_dir to the appropriate
+absolute dataset directory in a separate experiment config.
+Do not pass these model-independent files as a sealed --prepared-input-dir;
+the normal model-tokenizer preparation must still run. Its exclusions, if any,
+must be reported separately from this model-independent corpus inventory.
+
+For unseen performance after training on v11, evaluate v11s/val (2,229 rows).
+v11s/train is included in v11/train. Both splits preserve their membership across
+the two datasets. Do not combine train+val into an unseen evaluation benchmark.
+
+See REVIEW_NOTES.txt for source-proven repairs, reassessment and reviewer limits,
+source factual-review status, and the resulting new-only component distribution.
+
+Exact reference policies, schemas, YAML configs, importer scripts and tests are preserved in policy_snapshot. The original reference checkout is read-only. Final output hashes are in each dataset manifest.

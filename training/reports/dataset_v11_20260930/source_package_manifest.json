@@ -1,0 +1,1331 @@
+{
+  "package": "dataset_v10_v11_v11s_data_and_changes_20260930.zip",
+  "release_date": "2026-09-30",
+  "archive_format": "ZIP64/DEFLATE",
+  "dataset_rows": {
+    "v10": {
+      "train": 91115,
+      "val": 1862,
+      "combined": 92977
+    },
+    "v11": {
+      "train": 200214,
+      "val": 4089,
+      "combined": 204303
+    },
+    "v11s": {
+      "train": 109121,
+      "val": 2229,
+      "combined": 111350
+    }
+  },
+  "dataset_verification_sha256": "e5a1f35ec74500cb5e72fa62dea626b1739357d0f2bb690f03b74d6ee6730264",
+  "audit_hash_manifest_sha256": "29f1893bd50fe0839baf965ffec2eb2205f11a423a1e03da27d2ec096d65d613",
+  "changes": [
+    {
+      "path": "training/scripts/project_space_archive.py",
+      "action": "add",
+      "sha256": "385fe621ccca2ef1c83d311fefa664f14db74d46a3c1e3a1e88b9bf81149aec7"
+    },
+    {
+      "path": "training/scripts/prepare_space_v11.py",
+      "action": "add",
+      "sha256": "93ae7b7b712ea725031d43a1fe77e499b5c6feee4a152793df6327ccf3794830"
+    },
+    {
+      "path": "training/scripts/verify_space_v11.py",
+      "action": "add",
+      "sha256": "9393fa7dbb4a611ca13911c2bbc9b9fcfecc53e8a8d51b43f907564fee2631ed"
+    },
+    {
+      "path": "training/scripts/prepare_space_v11_repaired.py",
+      "action": "add",
+      "sha256": "5f62e7cd6508ead3897f10db6cef92c0faec6da69af199b64ddfdd6ae9884f55"
+    },
+    {
+      "path": "training/scripts/verify_space_v11_repaired.py",
+      "action": "add",
+      "sha256": "f00f82f6ef57c6407bd541844c620bd88fc2b7556a4c5cdb83bfd894b6c33e02"
+    },
+    {
+      "path": "training/scripts/repair_v11_base.py",
+      "action": "add",
+      "sha256": "91f26201136ab2fea9a42db8439040d75d1941887040ac88ab64026a9bf705d2"
+    },
+    {
+      "path": "training/scripts/space_v11_repairs.py",
+      "action": "add",
+      "sha256": "43ccda5e34c2a4648ac61404c319556a54fad6ce9297d9c168dad3f68a01060d"
+    },
+    {
+      "path": "training/scripts/space_v11_reassessment.py",
+      "action": "add",
+      "sha256": "a6f2b34c0254e8f9b1233325223e45c471069662ea1b3d14858f3a4439177b4e"
+    },
+    {
+      "path": "training/scripts/space_v11_known_hold_repairs.py",
+      "action": "add",
+      "sha256": "0cdf6d8ae1f84a58e3cd6053f3aa3e293996e0dea67e9c8066d2a9a25f0bf845"
+    },
+    {
+      "path": "training/tests/test_space_v11_import.py",
+      "action": "add",
+      "sha256": "796df397083c6c784a14bdd32123dca8e3d245b4cd4d17a5de3f65add476769b"
+    },
+    {
+      "path": "training/tests/test_space_v11_repairs.py",
+      "action": "add",
+      "sha256": "01bd8c6ba26ce936d7da96382f783385a23c56351aaa71760a9be84e537b51fa"
+    },
+    {
+      "path": "training/tests/test_space_v11_reassessment.py",
+      "action": "add",
+      "sha256": "1dca2380cdb956e8823d3dfe65f27362d13d57b7c0d019bb0fdb6fa3ba5c864b"
+    },
+    {
+      "path": "training/tests/test_space_v11_known_hold_repairs.py",
+      "action": "add",
+      "sha256": "3d98025916de2b28918b378c506c04d2ed7e56b37f53c2407f69ec5814d43ac9"
+    },
+    {
+      "path": "training/tests/test_space_v11_verification.py",
+      "action": "add",
+      "sha256": "3c0127d8f936a0ad01c60fe6c7ff2d975c1de7ea762318221f790b6a94497e4e"
+    }
+  ],
+  "files": {
+    "package_tools/build_zip_release.py": {
+      "bytes": 16209,
+      "sha256": "36f2d18ed38be3096a0b6d9f908a4e96d9f643a5b0bcf8227b1d8e907d6c64e8"
+    },
+    "training/data/train/v10/train.jsonl": {
+      "bytes": 2262691062,
+      "sha256": "707244a5ffe2af459605e8629055c18829c65123294191112016cd69892addf5"
+    },
+    "training/data/train/v10/val.jsonl": {
+      "bytes": 46457227,
+      "sha256": "b5024919ea0c3557cad452193f90f7133919bb0c10e4ece05fe1a54278cb0fa7"
+    },
+    "training/data/train/v11/README.txt": {
+      "bytes": 596,
+      "sha256": "dab3ed47891c025ba7e799dfc04ee9855b75f8625944a4bf5acf936a4bad604f"
+    },
+    "training/data/train/v11/manifest.json": {
+      "bytes": 65063,
+      "sha256": "8605ac2d1f7d520cfba5b52ee1f13c86bdd5012f271445d66be2b23e9d1becf7"
+    },
+    "training/data/train/v11/prompt_scaffold.json": {
+      "bytes": 5606,
+      "sha256": "d8effb18ede76ac5cf9728cb42c6ea256e726e1a245d4f9e92d79d876887239e"
+    },
+    "training/data/train/v11/train.jsonl": {
+      "bytes": 5084716858,
+      "sha256": "f749af762704539927c9a27ceb5f6d735a8ad1e84368544f0fce4538d2ca2cd4"
+    },
+    "training/data/train/v11/val.jsonl": {
+      "bytes": 104176431,
+      "sha256": "4d52b38c27a09e3454d6b4ffb4bf476671dfe6f221248f7fa145e5662e8eab50"
+    },
+    "training/data/train/v11s/README.txt": {
+      "bytes": 597,
+      "sha256": "46f5e5475808949e118fec196f9f3a4b0b62a373c9321bb01a0dce0f4b388df0"
+    },
+    "training/data/train/v11s/manifest.json": {
+      "bytes": 65063,
+      "sha256": "2128378e1d13034d080bc59dfe91acbc6195fdee65be9b56f986baa87e0610cc"
+    },
+    "training/data/train/v11s/prompt_scaffold.json": {
+      "bytes": 5606,
+      "sha256": "d8effb18ede76ac5cf9728cb42c6ea256e726e1a245d4f9e92d79d876887239e"
+    },
+    "training/data/train/v11s/train.jsonl": {
+      "bytes": 2822530348,
+      "sha256": "43c23587fb5b1685c79c49e322773c4cd2cbac34bd5e9bbe390f6c304ad8b57d"
+    },
+    "training/data/train/v11s/val.jsonl": {
+      "bytes": 57771378,
+      "sha256": "4aae99ac41469e2879090f6774cc21b7bd9b8b57d0cb02ad2d81ca7ed623c0dd"
+    },
+    "training/reports/dataset_v11_20260930/REPORT.html": {
+      "bytes": 40392,
+      "sha256": "9e7cead26e903d546785c2d20976f386ef68ad7475bf59e1b0e9c4ab63420087"
+    },
+    "training/reports/dataset_v11_20260930/REPRODUCE.txt": {
+      "bytes": 5990,
+      "sha256": "6318d7536827973db04fe0896f309b04725b45fa214ba555096388b251a9dc28"
+    },
+    "training/reports/dataset_v11_20260930/REVIEW_NOTES.txt": {
+      "bytes": 4763,
+      "sha256": "d08167819d683bf9ce18098e6c43b866ffbe3d90ba209be4c00e5c8a1dcad22c"
+    },
+    "training/reports/dataset_v11_20260930/SUMMARY.txt": {
+      "bytes": 167,
+      "sha256": "6c4cb68a708fcdaa072d3b25362a5413f5d8bab4d946bed1bfb28918de383ef3"
+    },
+    "training/reports/dataset_v11_20260930/archive_manifest.json": {
+      "bytes": 55067,
+      "sha256": "1ea7623b52aff2fd071220697b2277a1dba571a40f6a5a613b952c396651d4ab"
+    },
+    "training/reports/dataset_v11_20260930/audit_files_sha256.json": {
+      "bytes": 42450,
+      "sha256": "29f1893bd50fe0839baf965ffec2eb2205f11a423a1e03da27d2ec096d65d613"
+    },
+    "training/reports/dataset_v11_20260930/base_report.json": {
+      "bytes": 21249,
+      "sha256": "7dc0b7d9a76f56231cf48bcaea082557bec0411fad827474e67a628d2f50bae7"
+    },
+    "training/reports/dataset_v11_20260930/cleaning_summary.json": {
+      "bytes": 64453,
+      "sha256": "54a8665232656b6547cf6034443421de0713b3f7678777b796b9ab95c8255193"
+    },
+    "training/reports/dataset_v11_20260930/evidence/download_provenance.json": {
+      "bytes": 1384,
+      "sha256": "9e1e2aea9264a84da407af0072b5e426a68fe1655bfdd9fa85fcdbe80bdaff22"
+    },
+    "training/reports/dataset_v11_20260930/evidence/reassessment_policy_evidence.json": {
+      "bytes": 2721,
+      "sha256": "7d95dd06f4f2ed752020952946ebc4111b703135ed7384a2316b395f9cd2573b"
+    },
+    "training/reports/dataset_v11_20260930/evidence/repaired_pilot_selection.json": {
+      "bytes": 1545,
+      "sha256": "b34997f054e08c8b81d83df0a0f655bc0cfbc66d4a75b4c127ab93b28ac921df"
+    },
+    "training/reports/dataset_v11_20260930/evidence/repaired_pilot_summary.json": {
+      "bytes": 1967,
+      "sha256": "55892d2efe78f753366c1a7c317ff9aed646e07b3e08e66f6a5e26ea086a003b"
+    },
+    "training/reports/dataset_v11_20260930/evidence/repaired_regression_tests.log": {
+      "bytes": 11948,
+      "sha256": "b1836b34b093ff173ce3d45e476e9dfbefc5fe5394a34947cac7c475e2355d59"
+    },
+    "training/reports/dataset_v11_20260930/evidence/repaired_retained_spot_review.json": {
+      "bytes": 18855,
+      "sha256": "3e96ae2d1c63746edffad14aa724508eb635cb882ea609e4b322597a575478ee"
+    },
+    "training/reports/dataset_v11_20260930/evidence/retained_spot_review.json": {
+      "bytes": 25354,
+      "sha256": "c2c2f6daff90cf43b13934c48962ccb5e6940c491464c88dae9ac5d2b4a6c382"
+    },
+    "training/reports/dataset_v11_20260930/evidence/v10_hold_repair_assessment.json": {
+      "bytes": 60274,
+      "sha256": "f95a34e4b1f349ff6dba82fe65ec2449ba65d6ee089b8fc5e1b43ff3a304ebe6"
+    },
+    "training/reports/dataset_v11_20260930/known_v10_holds.json": {
+      "bytes": 11671,
+      "sha256": "b6c9d0628e83d182199eb4aaea038522950db5109245ee865afe154a67a9cb24"
+    },
+    "training/reports/dataset_v11_20260930/known_v10_holds_original.json": {
+      "bytes": 16880,
+      "sha256": "ce17d1677e2576884b7fab1a98b44518aea949fd713238a7607db24726db9e92"
+    },
+    "training/reports/dataset_v11_20260930/known_v10_repairs.json": {
+      "bytes": 54096,
+      "sha256": "44902745dbd67dfac39ab284f73f20eb11179b28317f7dc776fbaa519eb4b05c"
+    },
+    "training/reports/dataset_v11_20260930/new_decisions.jsonl": {
+      "bytes": 189950362,
+      "sha256": "af8b02a9505838b418fbb43c1c83ce996cc04323efe5387ed5cc11dbad77a3da"
+    },
+    "training/reports/dataset_v11_20260930/new_family_assignments.jsonl": {
+      "bytes": 21040692,
+      "sha256": "1339247e0fbfebf855c3c653900ed618e2cb52fcfe0b090c565b583217bc51db"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/importer/apply_live_snapshot.py": {
+      "bytes": 2286,
+      "sha256": "e243359e89f49aa5cc9efc25b3c0418ea498d4af691e192156cc73e44a775d08"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/importer/package_repaired_release.py": {
+      "bytes": 11423,
+      "sha256": "d58079d2adf442c3019a1eb86a9640545c2943080a609fa889f57dcf5f49227a"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/importer/pilot_repaired_import.py": {
+      "bytes": 3121,
+      "sha256": "e889aa135b353d61a8f04a5aa4e70de1112045e42b152d22e59ecb6bbc930d60"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/importer/prepare_space_v11.py": {
+      "bytes": 37217,
+      "sha256": "93ae7b7b712ea725031d43a1fe77e499b5c6feee4a152793df6327ccf3794830"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/importer/prepare_space_v11_repaired.py": {
+      "bytes": 39936,
+      "sha256": "5f62e7cd6508ead3897f10db6cef92c0faec6da69af199b64ddfdd6ae9884f55"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/importer/project_space_archive.py": {
+      "bytes": 6867,
+      "sha256": "385fe621ccca2ef1c83d311fefa664f14db74d46a3c1e3a1e88b9bf81149aec7"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/importer/repair_v11_base.py": {
+      "bytes": 6042,
+      "sha256": "91f26201136ab2fea9a42db8439040d75d1941887040ac88ab64026a9bf705d2"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/importer/snapshot_live_genui.py": {
+      "bytes": 1435,
+      "sha256": "fa3d6a1c7ccb3187aab413b1572f4d8e822f9c33d4f55fd1fd6e87cc6bc2f03f"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/importer/space_v11_known_hold_repairs.py": {
+      "bytes": 23007,
+      "sha256": "0cdf6d8ae1f84a58e3cd6053f3aa3e293996e0dea67e9c8066d2a9a25f0bf845"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/importer/space_v11_reassessment.py": {
+      "bytes": 12028,
+      "sha256": "a6f2b34c0254e8f9b1233325223e45c471069662ea1b3d14858f3a4439177b4e"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/importer/space_v11_repairs.py": {
+      "bytes": 25400,
+      "sha256": "43ccda5e34c2a4648ac61404c319556a54fad6ce9297d9c168dad3f68a01060d"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/importer/verify_space_v11.py": {
+      "bytes": 22912,
+      "sha256": "9393fa7dbb4a611ca13911c2bbc9b9fcfecc53e8a8d51b43f907564fee2631ed"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/importer/verify_space_v11_repaired.py": {
+      "bytes": 30151,
+      "sha256": "f00f82f6ef57c6407bd541844c620bd88fc2b7556a4c5cdb83bfd894b6c33e02"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/FlatChartRender.kt": {
+      "bytes": 19106,
+      "sha256": "19812649927acecc4385c50823d9a858ac62cfe1680ce744d8598874da1a2199"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/FlatEmailPreviewRender.kt": {
+      "bytes": 16482,
+      "sha256": "6f7bb29ebb9759d4c89bec1b74417ae3a755231275a54a55f7f241109acde9fd"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/FlatItineraryHeroCards.kt": {
+      "bytes": 20557,
+      "sha256": "1ed8d9a8f4bd5102a9d6d41bb36efad2f053b9e6e1b97924292cfe9e5a798db3"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/FlatMarketRow.kt": {
+      "bytes": 11949,
+      "sha256": "92ca43910507c6d1008c075bb7ed2a4adf6dd8da41d378f75a384a7a8acc4d8d"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/FlatRendererApi.kt": {
+      "bytes": 6034,
+      "sha256": "f0a3993cbe24319f8997dd4f79afb83aa6ca63ac2dbffa06f9bf2ecdce4bba83"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/FlatRestaurantBookingCards.kt": {
+      "bytes": 31928,
+      "sha256": "d8ee60c39ff4b0ba72ab6b848ec0b0281783dde53645f654d086d9d3d6da518e"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/FlatSourceLinks.kt": {
+      "bytes": 11383,
+      "sha256": "8612f3ea879528e232cbcec1b77c5e7ee5e87b38d23915beef060e85f5c790a2"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/FlatSpecRenderer.kt": {
+      "bytes": 290356,
+      "sha256": "282f899bca0c086d0269f5f31be6839dea2de4544be5388c0a14eeca946202dd"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/FlatStatusHeroCards.kt": {
+      "bytes": 16298,
+      "sha256": "fe57953c3bfbe62fbb353b8190c43226b70486d18a6d900c8bd0d6f3b83858e4"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/FlatTableLayout.kt": {
+      "bytes": 27335,
+      "sha256": "884eccf492c5960369b506f10a4e4569f10b9242480184a41ace2e09b203d797"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/GenUiHtmlRenderer.kt": {
+      "bytes": 113302,
+      "sha256": "40889adf959a81048c40922fde65215ab4cff4046d44dc75140ce3eea9f21411"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/GenUiNativeRenderer.kt": {
+      "bytes": 146103,
+      "sha256": "d1bf7c19db65186fe7cd54c49fd9a07ba75a3d33f4c84dc712d528796e63354d"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/RenderMode.kt": {
+      "bytes": 84,
+      "sha256": "2dc47743e57b4c026bd8176f155281b7623eda1b86e2a60324e010b212facc59"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/RenderSessionStore.kt": {
+      "bytes": 768,
+      "sha256": "0bbae188c651e49908071dc8ab67325d7a0d6ede5fc100aac37da3536a8255be"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/RendererFlowRow.kt": {
+      "bytes": 7527,
+      "sha256": "0797d36777dce3fd298d135c7fe2b212ad4a44c70b1f542d7c8a41176b319b1c"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/flat/compose/FlatContentComposables.kt": {
+      "bytes": 15659,
+      "sha256": "a2604f896c6554adf38440a64144500781df91d09dadafb7e2afa8db3ed433c9"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/flat/compose/FlatDirectTableRender.kt": {
+      "bytes": 27396,
+      "sha256": "b9bf07d463bb375bb6a7bc2356ae0925541f127748209477303acbced6aaeaef"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/flat/compose/FlatFormComposables.kt": {
+      "bytes": 26063,
+      "sha256": "336d796575e17b00cb46e9694208fd9f1cabad3837155995393b7f4a8d78de08"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/flat/compose/FlatIconCatalog.kt": {
+      "bytes": 10875,
+      "sha256": "8388ee0605c6b48b1bce90992c0319b94cbd52310b3b53c8ccc631dbdd56f76b"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/flat/compose/FlatImageLoader.kt": {
+      "bytes": 1534,
+      "sha256": "b2443e7c637dd87e0b4662fe8f1010c530bb65558eac41e3b03da32d156eeb66"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/flat/compose/FlatIntentTemplateComposables.kt": {
+      "bytes": 10765,
+      "sha256": "0bad1c1215c1c1ae179559610db44a5a63dfdb676e3ca698f1bdafab5decb48c"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/flat/compose/FlatInteractiveComposables.kt": {
+      "bytes": 13771,
+      "sha256": "f008f8bbc2baae53d7c910bb3da7fffffe46c096f58cf08692df0d89bbdcf393"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/flat/compose/FlatMediaComposables.kt": {
+      "bytes": 23255,
+      "sha256": "bfbed56335ff2f2044aa24b83c55b0b33f83cbf19df14236d1e3227ffc79acc6"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/flat/compose/FlatPrimitiveComposables.kt": {
+      "bytes": 33913,
+      "sha256": "0d729cbd4d1358870bc81bd44a9b13b5d74556f4bd498ac61f9421d38b425805"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/flat/compose/FlatRenderRegistry.kt": {
+      "bytes": 6053,
+      "sha256": "7c8c25b5d3736f4b95bc8af48ad2d873c7a411b85aae2f3397173db6907ebe04"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/flat/compose/table/FlatTableModelExtraction.kt": {
+      "bytes": 26883,
+      "sha256": "1be26031a78984f1f0fe2098cc46973a106cbc861bd99fd7b50b8075cd6ae785"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/flat/domain/FlatComparisonDomain.kt": {
+      "bytes": 18871,
+      "sha256": "7107747f84ced61a371241b144bb9737d21a817258983acf9171dd06f1e12f37"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/flat/domain/FlatFlightCardsDomain.kt": {
+      "bytes": 24322,
+      "sha256": "e1d11cfdeb4d1087e6a80f4c40e0e6d37ee98561a31c8e221f26cccede4a9ba5"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/flat/domain/FlatFlightViews.kt": {
+      "bytes": 14285,
+      "sha256": "6d319887158557c466687e7615bf5763b8750251495062907a595412fd49980a"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/flat/domain/FlatFormulaTableDomain.kt": {
+      "bytes": 19779,
+      "sha256": "196211251077d637ccff6be84b0f3dae8d99b910e47ad71c8d69d6f84ac4cd6d"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/flat/domain/FlatItineraryDomain.kt": {
+      "bytes": 30375,
+      "sha256": "cc42feb4895b1d5b2ec5a71656b538afad9626a2a2a2c099bed22c87dd6bd7dd"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/flat/domain/FlatMarketDomain.kt": {
+      "bytes": 10124,
+      "sha256": "b0e854a1fb7091417194fd627fff23ed91c8c997fa16b0246926e7c5b662c22c"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/flat/domain/FlatPlaylistDomain.kt": {
+      "bytes": 11456,
+      "sha256": "34105d6a92b4816f22c242bbf64afbe5fddd98bd02ddd520edf24d433e2d6ac3"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/flat/domain/FlatPlaylistViews.kt": {
+      "bytes": 12535,
+      "sha256": "7a8f5e22b908d6cec790f12f02f1c0ffd119d16932bc522505ba726c297146e7"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/flat/domain/FlatProductDomain.kt": {
+      "bytes": 8374,
+      "sha256": "b7b25d1705a8b87ecef5d7a06c12a1468de92a99558ddb60558b2b6380628c09"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/flat/domain/FlatStatusDomain.kt": {
+      "bytes": 16062,
+      "sha256": "1e5e2530813d1de7f9211e571788ca7dfb9abfe60f16fd152a808eaf17c3f96a"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/flat/domain/FlatWeatherClimateDomain.kt": {
+      "bytes": 15996,
+      "sha256": "35de6dc5ffd92d47809524d48eea6d99b0ff2e8bf502828f1911469b3d015304"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/flat/expr/FlatExprResolverCore.kt": {
+      "bytes": 18482,
+      "sha256": "cbff59fd2d95a6ec249ce67fc23c75bf7e016918fcca6c7be48df0ecbe4452af"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/flat/legacy/FlatHeaderHeuristics.kt": {
+      "bytes": 16841,
+      "sha256": "498fcbc0a338d0e25b4d9d7bbea046a2398fc8ed2490f33b60f4b66fc74d16aa"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/flat/model/FlatModel.kt": {
+      "bytes": 8282,
+      "sha256": "b9c26eb4d69db0cc40c0205177c2c48e0e83eb831ac3c05b114182e3bb692c3a"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/flat/parse/FlatListItems.kt": {
+      "bytes": 1411,
+      "sha256": "c8099a02f85180ae8eba2d345a371f270a5d450c35bd18f24f56147c01223413"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/flat/parse/FlatSpecParserCore.kt": {
+      "bytes": 18130,
+      "sha256": "de0b6d8fe4f9f370761ca500efd068d5f29a43067787116b47b9ada7079acd81"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/flat/runtime/FlatActionRuntimeCore.kt": {
+      "bytes": 23982,
+      "sha256": "bc21ed695fae12680cc47cc3932b40d2d2697a4c7fa7739da07cdd2ba24fe484"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/flat/runtime/FlatFormValidation.kt": {
+      "bytes": 7298,
+      "sha256": "0ae7d1228cebaea9ab7e6c5c66a08c75a293e86ceec208a3ecc79a859db0d3ba"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/native/NativeActionParsing.kt": {
+      "bytes": 8009,
+      "sha256": "8c02fa865e6dae2c1f80a24ba6a770a7e1ac880d0a9d073f6ec91044f756965a"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/native/NativeFormComponents.kt": {
+      "bytes": 18958,
+      "sha256": "d72e774c72a1218de1043c0576be1bcf3083b400c4fc0f76c3e09dd5b9723f30"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/native/NativeJsonExtensions.kt": {
+      "bytes": 1529,
+      "sha256": "543af46df1c62e67f009195cf477bd60a1d9b731046e1b9d013d5c7046fa308c"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/native/NativePayloadParser.kt": {
+      "bytes": 21447,
+      "sha256": "4b27d3213a5cf20068f2e47805135db7fd47e87daaac4f9cbcaaa56063749235"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/native/NativeRendererModels.kt": {
+      "bytes": 3300,
+      "sha256": "63bfa0c031587b00e4f2bb8f220d3debc6bd45f91c8ecc2decc1875795c53292"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/native/NativeTextFormatter.kt": {
+      "bytes": 20284,
+      "sha256": "679d182fa6a238fc13020376a2ee620b6a2c05c3a6cfb5eb6a85a90cf5c764da"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/native/intents/NativeIntentModels.kt": {
+      "bytes": 102,
+      "sha256": "9aaef91326adc5df7b8a405aaaf50315fec5f95307a8807e1e43f18b2f397db5"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/native/intents/NativeIntentModule.kt": {
+      "bytes": 378,
+      "sha256": "87c8d92af6357c0e7e84e533bab57b9aedf759ad87a61c09c6ad6ea52de54c3a"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/native/intents/NativeIntentRegistry.kt": {
+      "bytes": 1042,
+      "sha256": "8f90d8271edc40276ac0a950aa2233331e3812508815c0a74bbf0616e1459a11"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/native/intents/flight/NativeFlightIntentModule.kt": {
+      "bytes": 1074,
+      "sha256": "e8da9c48ccd280f1ba04a4cff68339b8a25bce3f048c5606e0b21c75f90c9db9"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/native/intents/flight/NativeFlightSemantics.kt": {
+      "bytes": 22300,
+      "sha256": "e7346ec1a1c437e9f525653152fdd03eea1e6f1cd5a6a527e4ec0b91add71f6a"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/native/intents/flight/NativeFlightUiRenderer.kt": {
+      "bytes": 24499,
+      "sha256": "ef612e90372cf3df3adda69b839895c7ccd932b00c959282fe84276ce7f2b2bd"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/native/intents/train/NativeTrainSemantics.kt": {
+      "bytes": 11439,
+      "sha256": "c6007cd694817c33f9de2a5723939b007f453f548919d2a4a817db2fcd59522e"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/native/intents/train/NativeTrainUiRenderer.kt": {
+      "bytes": 6735,
+      "sha256": "a4e351a43afef3baa2eb65ed633d3c63ef08f45fca0b55e78ee71ec4c38c57ae"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/native/intents/weather/NativeWeatherIntentModule.kt": {
+      "bytes": 1816,
+      "sha256": "3fcabb60573b85aa31a7e50f4dae8e19aeeb6db0b03cd132b729f9fdb7ca92cb"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/native/intents/weather/NativeWeatherSemantics.kt": {
+      "bytes": 40885,
+      "sha256": "7eb1f33df1334138922b39648d2d66d3fd943764cbe890ede1588fb40fcb5db6"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/native/intents/weather/NativeWeatherUiRenderer.kt": {
+      "bytes": 69587,
+      "sha256": "906c286dc9f34df2517c7722670de4650679602df50b61a072a56906b7e313ec"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/native/media/NativeMediaVisualUtils.kt": {
+      "bytes": 6333,
+      "sha256": "0640eccfb448570fa8a60810db81d526b5f3a74c1488c96ade925926ff72faf7"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/native/parser/NativeBlockHeuristics.kt": {
+      "bytes": 3283,
+      "sha256": "8ce5d2bd4c4892e418a88defc2dac264be6cc278a3b9aaaffc1ba7fe8229798c"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/native/parser/NativeBookingParsing.kt": {
+      "bytes": 5382,
+      "sha256": "3f59cb1e59411fda5294f780fda93f264d56b630fdbe1d796b8e32759030220d"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/native/parser/NativeMediaParsing.kt": {
+      "bytes": 8689,
+      "sha256": "08684a48cb98e4f6828419c2601960ca8c56dcbd337d6d2c61f8c265a2df4720"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/native/parser/NativeSourceParsing.kt": {
+      "bytes": 11830,
+      "sha256": "a7476742285417ac0b329cd6c6650302d1a6c83c6f48602ace6fe51b3c6ab042"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/native/parser/NativeStructureParsing.kt": {
+      "bytes": 6555,
+      "sha256": "a7eda0b7792e159e27460c040d7d4013ad0d78188d4600af011884802dacf302"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/native/parser/NativeTextBlockParser.kt": {
+      "bytes": 10052,
+      "sha256": "4853e7328d680ac43f9f7edb26a3b6ee7a9edfcdc2851321c5d3e58917c90739"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/native/parser/NativeTextBlockSemantics.kt": {
+      "bytes": 3148,
+      "sha256": "dd9b88997535c8639cd36fb1501b14d550036aa5e1b62a09099d9bc5b6a2e0dc"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/native/table/NativeComponentTableExtractor.kt": {
+      "bytes": 10566,
+      "sha256": "0701b05bec2aaca18513147821e1c0d353e3c1c335211cf05a4c80afb3a5444a"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/native/table/NativeTableSemantics.kt": {
+      "bytes": 2410,
+      "sha256": "79619331291459d477f22f0aac0b3baec3f2a9c2d8384d49f381c80177db4892"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/native/table/NativeTableUi.kt": {
+      "bytes": 1339,
+      "sha256": "f6556b75b82a293f093fd505c17e07340fa413a0a89be6a490055675c707374c"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/android/app/src/main/java/com/samsung/genuicraft/renderer/native/text/NativeVariantStyleResolver.kt": {
+      "bytes": 1275,
+      "sha256": "47300d7138fe8fa6ed4168946c6f171d9ca3fdbbef70e206418ad9d4e26f45a7"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/configs/genui_metric_v4.yaml": {
+      "bytes": 2265,
+      "sha256": "29467f207431d787db777df1b84a15d832d36c07906bdf91d2d308a6583631b7"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/configs/genui_metric_v5.yaml": {
+      "bytes": 2671,
+      "sha256": "e2e6d7565dad8ce58d23458020f8aae8788285c6cc71909505d5e6d72f769e3a"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/configs/genui_metric_v5_1.yaml": {
+      "bytes": 2888,
+      "sha256": "7dba1770ae906cc919f4441eca0df19fce1c67cb40107b9277daf8b4493a0a91"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/configs/genui_metric_v5_2.yaml": {
+      "bytes": 3004,
+      "sha256": "0b8ef2fc8fb73e856a0c8f4c253f1ecab40e0ba88104dad3aa4f2a25844b9e3a"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/configs/genui_metric_v5_3.yaml": {
+      "bytes": 3518,
+      "sha256": "b957b78bd82a1f1d46714502f23ceadefadb286dc3adb92889c21bc2d4f4e8cc"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/configs/genui_metric_v5_4.yaml": {
+      "bytes": 3639,
+      "sha256": "0d8628f7e21773c22473eee57186cb0cfd5e5aa0975eb20b7f16c6975d501918"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/schema/canonical_ui_graph_v1.schema.json": {
+      "bytes": 967,
+      "sha256": "0c5c211e0ddf05e0e6f22b803dee6050a2141d4723e341a75ff3b4dd69384e83"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/schema/catalog.json": {
+      "bytes": 39776,
+      "sha256": "87b8d71bb27b61008a4a2ab2f14d6ff80bab42df6e575ae4ea6b0dd89c8b88d1"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/schema/catalog_enhanced1.json": {
+      "bytes": 42352,
+      "sha256": "431efeb922e0f59b2376f3f815e21cbad4e321fb4ae3aec177d2bf030adbd253"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/schema/common_types.json": {
+      "bytes": 10968,
+      "sha256": "082a08c9c88ce003a1ab28fca139e7342317ed435121c303bb74111deae12411"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/schema/expected_ui_contract.schema.json": {
+      "bytes": 9070,
+      "sha256": "10d6bc94ef9c24ba45b192e03da93c78e4fb1828833fc35bd4ca2e868fb8bd51"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/schema/genui.schema.json": {
+      "bytes": 352,
+      "sha256": "8eb2256dd209192486c4c3b342409488ffae9dd369377a9f79a76303dde25e85"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/schema/genui_anchored_criterion_judgment_v3.schema.json": {
+      "bytes": 4729,
+      "sha256": "8b7ab60e713f0cd584d1ef3b65a7376f871d5df45dde09aeee7e7bab55d8d0af"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/schema/genui_anchored_criterion_packet_v3.schema.json": {
+      "bytes": 2462,
+      "sha256": "66dc6c2e906fa98f24b1c75278890fe4e25377d060b41726fdcd5052945b867c"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/schema/genui_codex_judgment_v2.schema.json": {
+      "bytes": 1972,
+      "sha256": "662323742c5997db1b5cbd43c3163a7862a5679c297137aacf1574e839f75bbb"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/schema/genui_codex_packet_v2.schema.json": {
+      "bytes": 2121,
+      "sha256": "0a7d5591494fca685a2a8652eba9e321291a41e6c2607f7713a4b274552b8c89"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/schema/genui_flatspec.schema.json": {
+      "bytes": 6280,
+      "sha256": "2c323ce3185375cc1ef2f718e583269e4283558187ccd29a34ae3f4c6fd631bb"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/schema/genuicraft_a2ui_catalog_v1.json": {
+      "bytes": 106759,
+      "sha256": "b5571b35b1af2629361d66e896d59c7dbc5b27aaea17492c274933f6125b518e"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/schema/genuicraft_a2ui_express_profile_v1.json": {
+      "bytes": 7619,
+      "sha256": "c0259faae3a08bdb245faf9bb2abe0798b665ddb95c1b174f7e7c5d09ae52b83"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/schema/genuicraft_a2ui_v1_wire.schema.json": {
+      "bytes": 82009,
+      "sha256": "90137067429316d2ecba4997c43198bccf7241a9bbeeb34ef8c4ae52f6e14881"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/schema/genuicraft_ir_formats.manifest.json": {
+      "bytes": 4294,
+      "sha256": "7fa17f7571f8cc5d28c49f90672b8bf693cf42a81f4967434800d27d7863ebbd"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/schema/intent_renderer_recipes.json": {
+      "bytes": 6312,
+      "sha256": "06e0fdf84b7b07b09366c9c957b7929df0ca8dc9acd4b4176f011436a553e13f"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/schema/renderer_capabilities.json": {
+      "bytes": 7752,
+      "sha256": "34b0d65de9ed62c532286419488feaf175928039ff507973981135a905cea65d"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/schema/server_to_client.json": {
+      "bytes": 5801,
+      "sha256": "fa0a76665fd2ebc4916289f909255b9533c5d8a1bceba25de12b0f571b19a113"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/schema/server_to_client_list.json": {
+      "bytes": 352,
+      "sha256": "8eb2256dd209192486c4c3b342409488ffae9dd369377a9f79a76303dde25e85"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/__init__.py": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/augmentation_references.py": {
+      "bytes": 9642,
+      "sha256": "b8dd1e1e7d23050517a4d9c47f4a05d6ec68adc3fd2502f6435eb325472f82c6"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/cache.py": {
+      "bytes": 3361,
+      "sha256": "53f0b1c66a140d82c7ed45ebb8455936aefcce944b2f0f27d66818a50c63066c"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/common.py": {
+      "bytes": 1135,
+      "sha256": "0a8261fefc104de0773979c6f4943729df1d39c628480b8682522064e1a678a4"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/flat_spec_contract.py": {
+      "bytes": 46189,
+      "sha256": "f8d8d809cb881ca969ca42ac88d70a25f1ae095e185f7d031000067461761cdf"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/flat_spec_semantics.py": {
+      "bytes": 5858,
+      "sha256": "f6f4be4dfcfd26c86efaed2d3c19b7a72c407fd62663efc0c408e9bf4db213b2"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/generation_audit.py": {
+      "bytes": 7472,
+      "sha256": "604b7b762a759d0a9f81383db25993fe0d450560da3af3cfcc0578fe21e9fc56"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_judge/__init__.py": {
+      "bytes": 3275,
+      "sha256": "4e4641a0807f3150444d14a289f8d4d2eb75aa841b5c3448cfecb52d984e9ae6"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_judge/analysis.py": {
+      "bytes": 43695,
+      "sha256": "fd4f2071904d7365f4d14050dc9b25868764163c648b49e464dc6f234773de5a"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_judge/blind_workspace.py": {
+      "bytes": 24907,
+      "sha256": "c6c2dd5558999a1acaa9201a4d9810e9abe9c779e535571fdcff7c5876fba9ac"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_judge/criterion_analysis_v3.py": {
+      "bytes": 25900,
+      "sha256": "0d984cb27e598a671d75d5ba97192431dc1198f8e8dbe8d08a2e9a7a63164211"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_judge/criterion_judgments_v3.py": {
+      "bytes": 11085,
+      "sha256": "0461d5e44118fda06f03e92288be9270cee4658d219ce7f7972ea43e66dcd26d"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_judge/criterion_packets_v3.py": {
+      "bytes": 14417,
+      "sha256": "a39a98ff625fe79058e664d8628f1b7dd8084dfe02ab18fa90f1b095183960af"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_judge/criterion_protocol_v3.py": {
+      "bytes": 42943,
+      "sha256": "81387c9873a7c7be5a51c423dfedef39c0a796c5b21efde5d88a0f9c3b8bafaf"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_judge/judgments.py": {
+      "bytes": 19671,
+      "sha256": "bd40c7c04c3ea90c463d50dad83a329a525d0676e102bb2864044a6b7ef9b3c6"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_judge/metric_audit.py": {
+      "bytes": 14362,
+      "sha256": "2292131d51260393b5ff05088fb870883b2bcaadecafe5e1c5125e8402370311"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_judge/packets.py": {
+      "bytes": 16748,
+      "sha256": "bcc362e8d282bbf57c12c4b359ccb515a076c531aeb51a03f393ae79a1918603"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_judge/protocol.py": {
+      "bytes": 12783,
+      "sha256": "5596dcf02dc91f32e03f405cf91daf362d0af261c3440f0d3464ccfdfabfacc1"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_judge/provenance.py": {
+      "bytes": 7594,
+      "sha256": "0899702565c0688a858dcd3c36f0e8c654f00cfc81e2abc02d2cd5fc0f0b33b4"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_judge/reliability_rescore.py": {
+      "bytes": 47142,
+      "sha256": "b9b041a3074a1c7eb00c704e79bdeb1f6077251aac65d393b0ba065a411ad2dd"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_judge/reliability_rescore_v2_2.py": {
+      "bytes": 5011,
+      "sha256": "ca014d3fa7c52faf6c776db4bd5a183b37eaa99194682cdf6289f271f874f8bf"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_judge/selection.py": {
+      "bytes": 33716,
+      "sha256": "95d56bb5ac2151000d36cfa78719dccb3e636f7a209db7d392f2cde099908478"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/__init__.py": {
+      "bytes": 8631,
+      "sha256": "1b49978159329dc24e22814db8012aa197fb430c488b542846db76c869e27f3a"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/_core.py": {
+      "bytes": 107223,
+      "sha256": "7cbce2814cbea8dea33f67b860108283f901bdbbdae08e89effdbd12e654d499"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/_v5.py": {
+      "bytes": 22824,
+      "sha256": "fcfed3b927abc84b8aa76d17cd9a1a847b840d103825a017b7d1871ea08e810d"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/_v5_1.py": {
+      "bytes": 25766,
+      "sha256": "c2c0a47e88bb5780296769fba97afca2ee595aa00a3378444893434a73dd84db"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/_v5_2.py": {
+      "bytes": 35628,
+      "sha256": "3599506ae32220931bf7ff09763b6a163b456755be5614b69ab615454f47f8e2"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/_v5_3.py": {
+      "bytes": 53671,
+      "sha256": "85162dafee218c6984ee8d42ab94ba65f9cd797ad9b720b4ec80b84534ef52ba"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/_v5_4.py": {
+      "bytes": 24407,
+      "sha256": "2429549004244f4242c7ae3c873de2b4343c0c53e028673d77f6727a5453e17b"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/acceptance_v5_4.py": {
+      "bytes": 3878,
+      "sha256": "aa612fc011b53c96d0c0e98fb7c540c0892181e0246410dc4805b3371e545ff9"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/aggregate.py": {
+      "bytes": 64435,
+      "sha256": "5f3e524525d790ef153a57f301700a5db1eb0a69c206b46491a2659c69535e7d"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/aggregate_v5_4.py": {
+      "bytes": 11486,
+      "sha256": "1f1771f984afc992c45e94bb9df72adaabb5c5ebb8d472f31da05d41a5eb6821"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/applicability_v5_3.py": {
+      "bytes": 12914,
+      "sha256": "22225cdca0e7d48d7ecc4fd6fcd872398d16f02b09b07b2fd62c420b4d7b5d09"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/atomic_metrics.py": {
+      "bytes": 687,
+      "sha256": "581039774611c634fc19bf9cb002a9f697ad39f0d550fef34fd9941d6a2ad553"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/candidate_normalization.py": {
+      "bytes": 13347,
+      "sha256": "4fdc658656457993014f818428965d8a284774cd5479711ca28d7c34c77de0de"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/candidate_normalization_v5_4.py": {
+      "bytes": 12318,
+      "sha256": "8fb22bf4a37c23229d425be6ca78ba12c459e1bb520bb09dea685bc04f75e87c"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/config.py": {
+      "bytes": 2435,
+      "sha256": "e27f8b95308fdff375ce30371b6adf5eb8c75b6455a98b9468d5a2afb25ad943"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/config_v5_3.py": {
+      "bytes": 6631,
+      "sha256": "d846d5aa9995c06af0b7b2f01c7c417f8d3f9e55531a8edbcd2400cae9040279"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/config_v5_4.py": {
+      "bytes": 4939,
+      "sha256": "76272a11710ea25002abe2e416b74e9e233bd175e0c10c7cf1f3920516571996"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/evidence.py": {
+      "bytes": 3995,
+      "sha256": "5fcfb6289404205963e3b73e2ece46029742d149b2faec849c776492fd2148e7"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/evidence_v5.py": {
+      "bytes": 18570,
+      "sha256": "31c6d186013f9f28867c7e27cf3b7e1269deb98e8fecdf640feecbebc5940fe2"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/evidence_v5_1.py": {
+      "bytes": 29318,
+      "sha256": "4c553679f085f13d72295c7ca4b3d5ba8e2473b3b3506535777e6fb219c1fee6"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/evidence_v5_2.py": {
+      "bytes": 31788,
+      "sha256": "0755f032b948b622b3784cd56e916cc406fbd983a6f7a0179f0da6402923d69b"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/evidence_v5_3.py": {
+      "bytes": 35627,
+      "sha256": "b45b72f2efbe125b13bdbe3facf916a2f108b70be65069b9befa66d1d0022d5f"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/evidence_v5_4.py": {
+      "bytes": 26365,
+      "sha256": "fa85de915dce8b842ded49486e347d9b91734b10a9142307d0bc8f592c7fe577"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/graph.py": {
+      "bytes": 2679,
+      "sha256": "9d72f84c49b1f395651784606afc5aa2ad12ebee386d007cbe350ab42e39224e"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/grpo_reward.py": {
+      "bytes": 28409,
+      "sha256": "3de9989ea9c501eecc4a861c12edc9135713dee266133381cf8d9898df5ddc62"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/grpo_reward_v5_4.py": {
+      "bytes": 9881,
+      "sha256": "97d7da5370f5ae8b94e06219c8fd20c06c68b6e928413eada58adb485c32d213"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/identity.py": {
+      "bytes": 3359,
+      "sha256": "0c6f6611f5cbe41bd856a4ee3b1a614027a798b90cc07f5ca37bad795bdee4d1"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/identity_v5_1.py": {
+      "bytes": 4885,
+      "sha256": "41d6fd47c0d351c5e9b8e0f1c247489c19761e962ad21ae92bf622a058cbaeb1"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/identity_v5_2.py": {
+      "bytes": 7535,
+      "sha256": "07dab9048f3195dd811a0c03cadf25e1c360986f2f6dddd4982b4b3ffabf7ce5"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/identity_v5_3.py": {
+      "bytes": 8242,
+      "sha256": "a32e2a56ab55284e84a84e8ade3eb0f8353dbf154cfad6ac70668b05540273f6"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/identity_v5_4.py": {
+      "bytes": 10445,
+      "sha256": "d17d64d4787e30b10d54df2ca1f0bc59facfce0894041ba21d02662ecbc10655"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/list_evidence_v5_4.py": {
+      "bytes": 4014,
+      "sha256": "ad42e2903645033f66054e7fc5d9a46d1495b22b5c7b706a11e6a038e4cadfd3"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/matching_v5_1.py": {
+      "bytes": 9115,
+      "sha256": "9a7c2795c163f167abf47a42093ba925ebc1f3be87b20dc1cf21b42d78ede840"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/matching_v5_2.py": {
+      "bytes": 27195,
+      "sha256": "052e145f16d4d164e93ccac0f0497d1cca61bd960a6e6594824fd485c5ef57b2"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/matching_v5_3.py": {
+      "bytes": 8305,
+      "sha256": "3a4535b4e8f7cd9735c663f9cb68ee744620b9d7d42dc01ba09c5159abd2bd72"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/metrics_v5.py": {
+      "bytes": 19295,
+      "sha256": "3f3aa3258b385ca8b4102de25e7e9b7e0ad346114be79aa14d4e7e64317e0ac8"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/metrics_v5_1.py": {
+      "bytes": 31101,
+      "sha256": "973463f52aadd6f8a88a654853a4d87eed43fd3483f9dc5fae626d724b5e2d94"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/metrics_v5_2.py": {
+      "bytes": 47119,
+      "sha256": "7cc301f5856ea37e435be35390ff1304f9c03b8297b0bd8ad8ff7498b9e2ae8e"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/metrics_v5_3.py": {
+      "bytes": 32658,
+      "sha256": "11ebc4c87fdcd547b9102f10f8830e033761b8d2c177da6a5d9e3a7dfa5d7838"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/metrics_v5_4.py": {
+      "bytes": 13648,
+      "sha256": "3fa4d3076c38878e786084ab1e84fa6567c87186afb2577567d3934e62a56dd9"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/ownership_v5_4.py": {
+      "bytes": 16869,
+      "sha256": "8b464d6f574997fd6f833a9091becef47298714464d5840f953a25b4ac832729"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/references_v5_4.py": {
+      "bytes": 1845,
+      "sha256": "d1659d104e99d1498bb90bc825d5ab341242e803769bd1af75f5c3123d9a7004"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/source_contract.py": {
+      "bytes": 45507,
+      "sha256": "3f9cc12ce4ebc09cf6b2f5aed2d6de4c27176628c084f5811ccd30e14395b6eb"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/source_contract_v5_3.py": {
+      "bytes": 23420,
+      "sha256": "cd9f2ccb429aba30597b10f264801db2c15b9ceadf1402177c3ae2cc61021da2"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/source_contract_v5_4.py": {
+      "bytes": 20301,
+      "sha256": "e3299219ae62522337166dcea048e3f6f09c944dc55dc97c63c6bc306449de7b"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/structure_v5_1.py": {
+      "bytes": 8271,
+      "sha256": "ccedfe5c5cc30325018c4cfee3b02ba6e2d4a2bd1aff5cec8cc2b84515c285d3"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/validation_v5_1.py": {
+      "bytes": 2053,
+      "sha256": "7399f620e6cd82683e3f8fa12b26b8bcfe20cdd83ebc1ad7e3ba822b60645d14"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/validation_v5_2.py": {
+      "bytes": 1983,
+      "sha256": "3435e359885cd7fe5e93e37805dd7ec31909b7e7ae5246c7acb7e0b8d53a8ec3"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/validation_v5_3.py": {
+      "bytes": 2364,
+      "sha256": "09cf8049f009035bd337ec15b14c3f306c5a77b57d4e5a1f54169f6d78ea6240"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/genui_quality/validation_v5_4.py": {
+      "bytes": 3219,
+      "sha256": "bc2828a3c197151b2e1b57434bd9a45011c1239f9ea80ea5031002e7f7f3c078"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/image_resolver.py": {
+      "bytes": 22924,
+      "sha256": "64522cdd919c550857b2080105e313188feb86c086e2621157ff8522791fd0fc"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/ir_formats/__init__.py": {
+      "bytes": 928,
+      "sha256": "31302293279fd2fd20e2bfac0c38f190dc0579e439be6feaed1425c612b15780"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/ir_formats/a2ui_wire.py": {
+      "bytes": 19306,
+      "sha256": "b129aa4c96ea80bda2e89eccca742e35827a35b42d705959c9912849837b6e4e"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/ir_formats/active.py": {
+      "bytes": 4470,
+      "sha256": "7ea03b3e58bddc98661589495554af05d809a679da03d1645b2581751cb12382"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/ir_formats/canonical.py": {
+      "bytes": 18254,
+      "sha256": "3df63cd2b336cb2c9e479fc6f21ce0c03742e77fee9570f302c1d1bdccb50953"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/ir_formats/catalog.py": {
+      "bytes": 16686,
+      "sha256": "21c732a2de1485fd7ed98eada93b19b7b749a7d02891d882defd3ecd3de739da"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/ir_formats/codec.py": {
+      "bytes": 4443,
+      "sha256": "3a507b8b4b3c74279a881d2b0a11befc5b3f87a677bf08e871adae2886b311b9"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/ir_formats/common.py": {
+      "bytes": 2918,
+      "sha256": "9041d3eab36d89537313a64d96c7727ab31c882c87c740dda46d9370d26644d9"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/ir_formats/express.py": {
+      "bytes": 32649,
+      "sha256": "be29c0c2a45616e1e32d23ecb177a152cb432fddf04244ab0835afb680442d66"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/ir_formats/repair.py": {
+      "bytes": 9214,
+      "sha256": "e33a1ba87c386c83d33ae360aa3acf106b1cdd542b10e07d8f750efac1c0606b"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/list_items.py": {
+      "bytes": 1124,
+      "sha256": "0f8eccfa00d48f74e7438a6ba1315ecd2c9e728753f5763d514fd2a859ce63d3"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/metrics.py": {
+      "bytes": 64798,
+      "sha256": "9e76bb6c424b48d3556fb2e6d45d20af0a0837eef271a5d8cfd9e2b7aba2c51a"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/muse_prompt.py": {
+      "bytes": 1500,
+      "sha256": "e60544be32fe755fd067728f386c4ceb73a7c102bfc743729e41a44827c7d85a"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/muse_source_prompt.py": {
+      "bytes": 1205,
+      "sha256": "659eafa39919a154a5a3e9729c7e3a2add8a435200a2118e94d5e335b8ef4cf3"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/reference_boundaries.py": {
+      "bytes": 3685,
+      "sha256": "4bb44e4280e1b12fa3e01ccc0c28ef9320c8f29715e70165e1500ca28aab6488"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/renderer_capability.py": {
+      "bytes": 11394,
+      "sha256": "14e3c5a020c9583b9f3baf28793d0363adb1d108ff07b8a2b4b139bd28ccc7d0"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/renderer_effective_semantics_v5_4.py": {
+      "bytes": 24532,
+      "sha256": "ed0e692661ad57e4f0494efab12178f7a806a0df03e9b6002da50925a2ff619c"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/renderer_semantics.py": {
+      "bytes": 5369,
+      "sha256": "6a914e28d360a95ebc60027bfa9c7d1e7d9fb9a0bb337f8c457c0c54c3b481c7"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/responses_to_web.py": {
+      "bytes": 7637,
+      "sha256": "dad3f9ae4a741a83799bed42d0a5a5a4d08bcc87ea1543132bdc3623d2184991"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/responses_to_web_llm.py": {
+      "bytes": 12666,
+      "sha256": "a8a9f678ec39cc209d06120b6f8040f4ec3a714cca7cc3eeedafa65e1dd62541"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/source_quality.py": {
+      "bytes": 24364,
+      "sha256": "41e746d71ea31fe106581038b08e486d6a40e2b77a260df3bad027c5bf344a51"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/stage1_queries.py": {
+      "bytes": 44429,
+      "sha256": "f9b69b243c2ad3261183a474a80a72c0f9e2dc0981c05ce82bba8aa64a22fec6"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/stage2_responses.py": {
+      "bytes": 75736,
+      "sha256": "d9645eb9434063d6edb270af5c7d0f07031551f09b8237c91576e893d7997ef5"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/stage3_genui.py": {
+      "bytes": 118718,
+      "sha256": "ab3d394b2aeac35ecdf8a32c808b6a8252e3f3214c047e83e1b92bdd4bdd2df3"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/stage4_render.py": {
+      "bytes": 63894,
+      "sha256": "2a15eb0effc7ec0329ad3f0f37a5e2629bbc2145a25d641623c31738aaae148a"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/stage5_direct_html.py": {
+      "bytes": 35720,
+      "sha256": "4bcc1fbb854f20e5da12b8a002faa7633f4a806ce3a75461fb7e9f8ea20fea46"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/stage6_mllm_as_judge.py": {
+      "bytes": 19635,
+      "sha256": "cca2cf1aba4b3bd5f99e61e6a9e272031daf8c7068a471b1af702185e2ba0ed3"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/storage.py": {
+      "bytes": 3275,
+      "sha256": "759101da8865ea905df4e98cc76b59bcb8d2a04848526cee7dd93756f7093c5e"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/toon_convert.py": {
+      "bytes": 2226,
+      "sha256": "f20c47522d0d6c860319379f7980346916f92fcb84ef9e954ff60c2293e118b3"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/training_augmentation.py": {
+      "bytes": 12540,
+      "sha256": "1cc8f29d1f219b0d47a9f4760b3fb5512832b095f1423e26ef8c779f855ebb31"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/dataset/src/pipeline/training_augmentation_resume.py": {
+      "bytes": 47443,
+      "sha256": "5774ceec622ef6315beb0d11f36ec017ac2a1635abd6bf6a26641e29fe4909cb"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/training/data/eval/bixby50_v1/bixby50.jsonl": {
+      "bytes": 159335,
+      "sha256": "27bdc9ad4c7d3735d3c5f7c26fa37be2472e7aafd7c99afa31910a22b5bfdb4d"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/training/data/eval/golden32_archive_repeat_v1/golden32.jsonl": {
+      "bytes": 1000781,
+      "sha256": "8c7357103e6ea52d99d66430dd4b93242e1c4a4f0bf02f2fcfdf2a2e9c48de4c"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/training/data/eval/golden35_v1/golden35.jsonl": {
+      "bytes": 1432560,
+      "sha256": "8fec7fde8c31634f66e4c77dd0ca7a0e3b37d36e453398f167fd30b9604c2d20"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/training/data/quality/v9_manual100_findings.json": {
+      "bytes": 36458,
+      "sha256": "3d9399a6fc6b439f1493884904bf08740206f3f6035bf87c6c8b5deb5efe37d8"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/training/scripts/audits/full_data_ir_20260913.py": {
+      "bytes": 19947,
+      "sha256": "f3b127aea954ad4a875e77099728bfecbf3f22c8ca4a0cb6d4454d8cf1fda811"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/training/src/ir_training/data/__init__.py": {
+      "bytes": 5,
+      "sha256": "f01a374e9c81e3db89b3a42940c4d6a5447684986a1296e42bf13f196eed6295"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/training/src/ir_training/data/archive_boundary_review.py": {
+      "bytes": 3161,
+      "sha256": "d097bdf1fd8b6b393bee46f923f33138e7e9407cbcbee01cec806ae6b52f0881"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/training/src/ir_training/data/archive_final_review.py": {
+      "bytes": 5856,
+      "sha256": "db31814316c0e5cb18209c45700d88e2cf951defce7432a6cb082ebfdd2fb858"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/training/src/ir_training/data/archive_letter_review.py": {
+      "bytes": 1714,
+      "sha256": "cfbee048e5909d7b75d28c441cebc0efeadc60a300dd9f0444fccf029c26ae80"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/training/src/ir_training/data/archive_recovery.py": {
+      "bytes": 37542,
+      "sha256": "866533095443ff2953e23ca6085c0319218b2fc24c7dc8387ab492548c854470"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/training/src/ir_training/data/archive_refinement.py": {
+      "bytes": 13254,
+      "sha256": "559a843d629de34566d2e05196f0aaee7e8ba12ff33047e443d3a216e2fa2f82"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/training/src/ir_training/data/archive_semantic_review.py": {
+      "bytes": 19377,
+      "sha256": "35dce246c96dbe702c8c497da0d6df75c2ed4e5754434c62652757e9b31d8e2f"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/training/src/ir_training/data/audit_filter.py": {
+      "bytes": 10285,
+      "sha256": "d6b0b70d053691cfa14e57eebf9f7112728e9bdd626ab1fce089998592a82241"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/training/src/ir_training/data/augmentation.py": {
+      "bytes": 20152,
+      "sha256": "c523973b35da29ddaa2925e10016f87fdb04bb703f24662be56cf5cdb277374f"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/training/src/ir_training/data/bixby50.py": {
+      "bytes": 12546,
+      "sha256": "bb1043e8b443ac864f5fce54f4a6bc0f0455703a987d947179e5505d363cc1d0"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/training/src/ir_training/data/build_pairs.py": {
+      "bytes": 35916,
+      "sha256": "5373eebe28e7a9d08b2e6ebac938f3d4935114b8746d36b7279e2f707bec4ddd"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/training/src/ir_training/data/chat_templates.py": {
+      "bytes": 3573,
+      "sha256": "29e3704ce51f3b9f09f6e96e1c6d449412f17ef360c89a447c731ea8238d32a6"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/training/src/ir_training/data/express_preparation.py": {
+      "bytes": 33148,
+      "sha256": "29c1b05aa51c84df0b6e84269f2090a99e741d36e298a1782b427ba39463cefe"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/training/src/ir_training/data/filters.py": {
+      "bytes": 5547,
+      "sha256": "6df426f10e38a01d3ecbf505af5f7bd41f4c71749d904448d206027bd6dfeac3"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/training/src/ir_training/data/frozen_evaluation.py": {
+      "bytes": 1794,
+      "sha256": "efd990bf4c5e62221bfe2485a17c4fc9daac3d1fab11d723345fcc2e156bd000"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/training/src/ir_training/data/golden35_subset.py": {
+      "bytes": 9100,
+      "sha256": "889f162bb0b53ea2c464078f73ad01dad86fe9044f835ea9887fac97adea0034"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/training/src/ir_training/data/golden_replacement.py": {
+      "bytes": 10968,
+      "sha256": "bb284d8cb1378e9ad6e8f3e432e31e642b575a95e0a48f7f36233f1931942c75"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/training/src/ir_training/data/ir_targets.py": {
+      "bytes": 4491,
+      "sha256": "0c7c91def24324e297cbce9f4962aa69bfd70fac3b7aa3be5bed106bd13f564d"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/training/src/ir_training/data/legacy_targets.py": {
+      "bytes": 2109,
+      "sha256": "855e88271ec6dd8d45862692db2639a6296503f64030163f1cf06640c8b399c1"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/training/src/ir_training/data/prepared_input.py": {
+      "bytes": 26335,
+      "sha256": "8e48e1699046d19bccd9130edf6ba1dac4ba6584bfff3a9184fe9d3fd8f8d8ff"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/training/src/ir_training/data/reference_binding.py": {
+      "bytes": 9118,
+      "sha256": "39ef43bf913ecb6ffe9f9472cd06ad6a265ede16dd3f5af73e4403fe2102a5f8"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/training/src/ir_training/data/repairs.py": {
+      "bytes": 536,
+      "sha256": "0bae0dbd14f3b6b3f3bdded234fe33320cdc3727523f7cb75ccc9fee569d117f"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/training/src/ir_training/data/semantic_augmentation.py": {
+      "bytes": 32305,
+      "sha256": "3b87d3d687a3cf94446c112a1254d3610bd0bc2e26283d62397f39fee8133f5f"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/training/src/ir_training/data/semantic_reference_normalization.py": {
+      "bytes": 4568,
+      "sha256": "65b0caa962528017593eb2525fe536c5c7f29e27101f49d87e40c96dcfead93c"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/training/src/ir_training/data/shared_prompt.py": {
+      "bytes": 9421,
+      "sha256": "495078eb9d87f6dbbe9c84bd27b1d906d856ccc64e6281947b46bbcd61691d42"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/training/src/ir_training/data/splits.py": {
+      "bytes": 2487,
+      "sha256": "4191012b71b5c100df456edae6bc06e509de65b54a3c09b66c273d22e7303ae2"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/reference/training/src/ir_training/data/url_preprocess.py": {
+      "bytes": 14888,
+      "sha256": "607f28bb135b2dbe24b483ae4219888015548877379ccf4485d1c40628602cea"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/tests/test_space_v11_import.py": {
+      "bytes": 7819,
+      "sha256": "796df397083c6c784a14bdd32123dca8e3d245b4cd4d17a5de3f65add476769b"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/tests/test_space_v11_known_hold_repairs.py": {
+      "bytes": 8540,
+      "sha256": "3d98025916de2b28918b378c506c04d2ed7e56b37f53c2407f69ec5814d43ac9"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/tests/test_space_v11_reassessment.py": {
+      "bytes": 7602,
+      "sha256": "1dca2380cdb956e8823d3dfe65f27362d13d57b7c0d019bb0fdb6fa3ba5c864b"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/tests/test_space_v11_repairs.py": {
+      "bytes": 17826,
+      "sha256": "01bd8c6ba26ce936d7da96382f783385a23c56351aaa71760a9be84e537b51fa"
+    },
+    "training/reports/dataset_v11_20260930/policy_snapshot/tests/test_space_v11_verification.py": {
+      "bytes": 1133,
+      "sha256": "3c0127d8f936a0ad01c60fe6c7ff2d975c1de7ea762318221f790b6a94497e4e"
+    },
+    "training/reports/dataset_v11_20260930/requirements-audit.txt": {
+      "bytes": 178,
+      "sha256": "c29dafabe7f80253e57cc48abae062c1b8cd321742c836c50ea893e8f8186f3e"
+    },
+    "training/reports/dataset_v11_20260930/statistics.json": {
+      "bytes": 84280,
+      "sha256": "f66c1b218f66b1fddd4028ea178e207a2be3f54881ff75898159ee7987b812b1"
+    },
+    "training/reports/dataset_v11_20260930/v10_decisions.jsonl": {
+      "bytes": 19729910,
+      "sha256": "a29b798bf2acf4fd197194ab9ac991a50be66cae58eedfb6c5df83071ec2ce0b"
+    },
+    "training/reports/dataset_v11_20260930/v10_statistics.json": {
+      "bytes": 11446,
+      "sha256": "61c8e4302426cb54b3e37d6fd7782bd0a392f6dbe74a898c1e5ff69a7032f73b"
+    },
+    "training/reports/dataset_v11_20260930/v11s_statistics.json": {
+      "bytes": 32179,
+      "sha256": "5bde898ace53360712fd9ca73997c216ba5dc9be6e5d83ba7b9cee455d568e77"
+    },
+    "training/reports/dataset_v11_20260930/verification.json": {
+      "bytes": 1459,
+      "sha256": "e5a1f35ec74500cb5e72fa62dea626b1739357d0f2bb690f03b74d6ee6730264"
+    },
+    "training/scripts/prepare_space_v11.py": {
+      "bytes": 37217,
+      "sha256": "93ae7b7b712ea725031d43a1fe77e499b5c6feee4a152793df6327ccf3794830"
+    },
+    "training/scripts/prepare_space_v11_repaired.py": {
+      "bytes": 39936,
+      "sha256": "5f62e7cd6508ead3897f10db6cef92c0faec6da69af199b64ddfdd6ae9884f55"
+    },
+    "training/scripts/project_space_archive.py": {
+      "bytes": 6867,
+      "sha256": "385fe621ccca2ef1c83d311fefa664f14db74d46a3c1e3a1e88b9bf81149aec7"
+    },
+    "training/scripts/repair_v11_base.py": {
+      "bytes": 6042,
+      "sha256": "91f26201136ab2fea9a42db8439040d75d1941887040ac88ab64026a9bf705d2"
+    },
+    "training/scripts/space_v11_known_hold_repairs.py": {
+      "bytes": 23007,
+      "sha256": "0cdf6d8ae1f84a58e3cd6053f3aa3e293996e0dea67e9c8066d2a9a25f0bf845"
+    },
+    "training/scripts/space_v11_reassessment.py": {
+      "bytes": 12028,
+      "sha256": "a6f2b34c0254e8f9b1233325223e45c471069662ea1b3d14858f3a4439177b4e"
+    },
+    "training/scripts/space_v11_repairs.py": {
+      "bytes": 25400,
+      "sha256": "43ccda5e34c2a4648ac61404c319556a54fad6ce9297d9c168dad3f68a01060d"
+    },
+    "training/scripts/verify_space_v11.py": {
+      "bytes": 22912,
+      "sha256": "9393fa7dbb4a611ca13911c2bbc9b9fcfecc53e8a8d51b43f907564fee2631ed"
+    },
+    "training/scripts/verify_space_v11_repaired.py": {
+      "bytes": 30151,
+      "sha256": "f00f82f6ef57c6407bd541844c620bd88fc2b7556a4c5cdb83bfd894b6c33e02"
+    },
+    "training/tests/test_space_v11_import.py": {
+      "bytes": 7819,
+      "sha256": "796df397083c6c784a14bdd32123dca8e3d245b4cd4d17a5de3f65add476769b"
+    },
+    "training/tests/test_space_v11_known_hold_repairs.py": {
+      "bytes": 8540,
+      "sha256": "3d98025916de2b28918b378c506c04d2ed7e56b37f53c2407f69ec5814d43ac9"
+    },
+    "training/tests/test_space_v11_reassessment.py": {
+      "bytes": 7602,
+      "sha256": "1dca2380cdb956e8823d3dfe65f27362d13d57b7c0d019bb0fdb6fa3ba5c864b"
+    },
+    "training/tests/test_space_v11_repairs.py": {
+      "bytes": 17826,
+      "sha256": "01bd8c6ba26ce936d7da96382f783385a23c56351aaa71760a9be84e537b51fa"
+    },
+    "training/tests/test_space_v11_verification.py": {
+      "bytes": 1133,
+      "sha256": "3c0127d8f936a0ad01c60fe6c7ff2d975c1de7ea762318221f790b6a94497e4e"
+    },
+    "PACKAGE_README.txt": {
+      "bytes": 3087,
+      "sha256": "319a9c1d0e8eeb0ede5cd42e90adaaff7abadab6d407d2064ec5792a6bd7fab1"
+    },
+    "CHANGES.json": {
+      "bytes": 2593,
+      "sha256": "a8a94f8399677b73581e867833f702c20c5c5eb38b5bbb47aae8be47d48772a9"
+    },
+    "CHANGES.patch": {
+      "bytes": 253175,
+      "sha256": "7aee7c96caa6de1afab1c4472a467d408f7b7af1456c58d738220a52e87a9fa2"
+    }
+  },
+  "manifest_self_hash": "excluded to avoid self-reference; verified by the adjacent archive checksum"
+}

@@ -1,0 +1,24 @@
+{
+  "full_archive_transfer_exit_code": 1,
+  "full_archive_bytes": 7605528559,
+  "tar_warnings": [
+    "dataset_muse_glimmer_100k_r8_2/artifacts/generation_attempts: file changed as we read it",
+    "dataset_muse_glimmer_100k_r8_2/artifacts/genui_contract_cache_v5_2: file changed as we read it",
+    "dataset_muse_glimmer_100k_r8_2/genui.jsonl: file changed as we read it",
+    "dataset_muse_glimmer_100k_r8_2/run.log: file changed as we read it",
+    "dataset_muse_glimmer_100k_r8_2: file changed as we read it"
+  ],
+  "snapshot_member": "dataset_muse_glimmer_100k_r8_2/genui.jsonl",
+  "snapshot_prefix_bytes": 6995205427,
+  "snapshot_file_bytes_at_open": 6995205427,
+  "snapshot_file_bytes_at_end": 6995205427,
+  "snapshot_mtime_ns": 1790777770877238864,
+  "snapshot_inode": 6335297538640707587,
+  "snapshot_inode_unchanged": true,
+  "snapshot_append_during_read": 0,
+  "snapshot_download_exit_code": 0,
+  "policy": "Verify both gzip/tar archives. Use the fixed complete-record snapshot for the one changed Stage 3 file; preserve full original archive.",
+  "final_archive_path": "C:/Users/k.anup/Downloads/dataset_muse_glimmer_100k_all.tar.gz",
+  "previous_archive_present_at_promotion": false,
+  "previous_archive_note": "The earlier 1,020,301,312-byte download was no longer present when the verified new download was promoted; no backup move occurred."
+}

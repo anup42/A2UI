@@ -1,0 +1,105 @@
+metric:
+  name: GenUI Representation Quality
+  version: "5.0.0"
+  construct: >-
+    The degree to which renderer-compatible canonical FlatSpec semantics
+    faithfully, appropriately, robustly, accessibly, and economically
+    represent the supplied source response.
+  source_text_quality_is_out_of_scope: true
+  calibration_status: uncalibrated_engineering_score
+
+dimension_weights:
+  integrity: 0.25
+  fidelity: 0.40
+  semantic_mapping: 0.15
+  hierarchy: 0.10
+  economy: 0.07
+  accessibility: 0.03
+
+atomic_weights:
+  integrity:
+    production_validity: 0.18
+    strict_schema_validity: 0.10
+    raw_format_utility: 0.07
+    schema_contract: 0.08
+    declared_root_reachability: 0.13
+    reference_integrity: 0.13
+    cycle_free: 0.10
+    reachable_fraction: 0.10
+    type_semantic_contract: 0.11
+  fidelity:
+    content_unit_fidelity: 0.18
+    content_order_preservation: 0.10
+    visible_content_multiset_fbeta: 0.07
+    exact_numbers_dates_units_fbeta: 0.11
+    markdown_table_fidelity: 0.18
+    heading_fidelity_and_order: 0.08
+    action_and_source_link_fidelity: 0.16
+    media_fidelity: 0.07
+    output_block_precision: 0.05
+  semantic_mapping:
+    required_component_roles: 0.55
+    distinct_role_instances: 0.20
+    component_appropriateness: 0.25
+  hierarchy:
+    root_layout: 0.20
+    root_distance_depth: 0.20
+    container_fanout: 0.20
+    heading_grouping: 0.20
+    text_chunking: 0.20
+  economy:
+    semantic_non_duplication: 0.40
+    renderer_aware_wrapper_economy: 0.35
+    json_to_source_size: 0.25
+  accessibility:
+    applicable_accessibility_contracts: 1.00
+
+fidelity:
+  content_beta: 2.0
+  value_beta: 2.0
+  table_beta: 2.0
+
+economy:
+  good_json_to_source_ratio: 3.0
+  bad_json_to_source_ratio: 7.0
+
+guardrails:
+  max_atomic_global_weight: 0.10
+  anti_domination_infeasible_policy: fail_closed
+
+evidence_limits:
+  max_repeat_items: 32
+  max_expanded_evidence_nodes: 512
+  max_expression_depth: 12
+  max_string_expansion_length: 4096
+  max_assignment_size: 64
+
+caps:
+  parse_failure: 0.00
+  missing_root: 0.10
+  production_invalid: 0.25
+  strict_format: 0.95
+  reference_or_cycle: 0.25
+  reachability_below_90: 0.40
+  partial_reachability: 0.70
+  render_failure: 0.30
+  missing_table: 0.65
+  partial_table: 0.90
+  missing_chart: 0.78
+  partial_chart: 0.94
+  missing_special_role: 0.78
+  partial_special_role: 0.92
+  missing_action: 0.75
+  partial_action: 0.96
+  missing_media: 0.78
+  partial_media: 0.94
+  anti_domination_infeasible: 0.00
+
+grpo:
+  reward_transform: "r = 2Q - 1"
+  reward_min: -1.0
+  reward_max: 1.0
+  recommended_num_generations: 8
+  recommended_loss_type: dapo
+  recommended_scale_rewards: batch
+  mask_truncated_completions: true

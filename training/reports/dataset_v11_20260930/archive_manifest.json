@@ -1,0 +1,1196 @@
+{
+  "status": "verified",
+  "archive": "C:/Users/k.anup/Downloads/dataset_muse_glimmer_100k_all.tar.gz",
+  "archive_bytes": 7605528559,
+  "archive_sha256": "7af98adc1fc49bb81e82853d72e0dd04d428f014d5c614be78febd77f3d09513",
+  "gzip_crc_verified": true,
+  "archive_members": 536068,
+  "archive_uncompressed_member_bytes": 47757009956,
+  "selected": {
+    "dataset_muse_glimmer_100k_r1/queries.jsonl": {
+      "raw_bytes": 35654183,
+      "raw_sha256": "0b9dd987493095b78a9e57b94c4a05649caa15969d5c82889542b8de10cd4823",
+      "rows": 25000,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r1/queries.jsonl",
+      "projected_bytes": 35654183,
+      "projected_sha256": "0b9dd987493095b78a9e57b94c4a05649caa15969d5c82889542b8de10cd4823"
+    },
+    "dataset_muse_glimmer_100k_r1/run_manifest.json": {
+      "raw_bytes": 28172,
+      "raw_sha256": "7feba7150785f8593e8ef8fa07dfc8bc9277b8785f285961d7636aaf31c9a720",
+      "rows": null,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r1/run_manifest.json",
+      "projected_bytes": 28172,
+      "projected_sha256": "7feba7150785f8593e8ef8fa07dfc8bc9277b8785f285961d7636aaf31c9a720"
+    },
+    "dataset_muse_glimmer_100k_r1/responses.jsonl": {
+      "raw_bytes": 137576973,
+      "raw_sha256": "c1cc1bf0f8f590010349b3b9df0f4030b832da0a2309205e46a837a1161b3c42",
+      "rows": 25000,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r1/responses.jsonl",
+      "projected_bytes": 137576973,
+      "projected_sha256": "c1cc1bf0f8f590010349b3b9df0f4030b832da0a2309205e46a837a1161b3c42"
+    },
+    "dataset_muse_glimmer_100k_r1/aggregates.json": {
+      "raw_bytes": 24258,
+      "raw_sha256": "a4c460ec81216e41d7898f07e8d830908cfd3421ad281a2725ff1f73940b1d0a",
+      "rows": null,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r1/aggregates.json",
+      "projected_bytes": 24258,
+      "projected_sha256": "a4c460ec81216e41d7898f07e8d830908cfd3421ad281a2725ff1f73940b1d0a"
+    },
+    "dataset_muse_glimmer_100k_r1/generation_timing.jsonl": {
+      "raw_bytes": 20685,
+      "raw_sha256": "1d828cf05b08eb4331813098369118e59481bb2f87bf7e37de98c561b7572cd8",
+      "rows": 29,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r1/generation_timing.jsonl",
+      "projected_bytes": 20685,
+      "projected_sha256": "1d828cf05b08eb4331813098369118e59481bb2f87bf7e37de98c561b7572cd8"
+    },
+    "dataset_muse_glimmer_100k_r1/genui.jsonl": {
+      "raw_bytes": 7150019551,
+      "raw_sha256": "4426797814740e7994cd021c7d0b90f134f6979e9ee3258e532ba21a5b110947",
+      "rows": 25000,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r1/genui.training.jsonl",
+      "projected_bytes": 478339338,
+      "projected_sha256": "9df27e1a0c904a34d71ff1a56f9d73a7a47d7b7a989d93443342bbf79f87bc0c"
+    },
+    "dataset_muse_glimmer_100k_r2/aggregates.json": {
+      "raw_bytes": 23795,
+      "raw_sha256": "2a4bfd250ebc239cabf23d66995016dd900bf1069d19abe0fa011b856c8f81c6",
+      "rows": null,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r2/aggregates.json",
+      "projected_bytes": 23795,
+      "projected_sha256": "2a4bfd250ebc239cabf23d66995016dd900bf1069d19abe0fa011b856c8f81c6"
+    },
+    "dataset_muse_glimmer_100k_r2/genui.jsonl": {
+      "raw_bytes": 4403348001,
+      "raw_sha256": "113ecfa5aa885de596aa0f782abbf3d34aad67e5a70177d24a7cb67630adba14",
+      "rows": 14999,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r2/genui.training.jsonl",
+      "projected_bytes": 294920483,
+      "projected_sha256": "1b7eb473350f8be3cb72ec76b6842c7e2276d569af0df5d6f6ddc86c8d626b54"
+    },
+    "dataset_muse_glimmer_100k_r2/responses.jsonl": {
+      "raw_bytes": 83341530,
+      "raw_sha256": "a8105f87e0314f1bd024e12d710108ca982c47c7c8e0fffeaaa081371574cb9b",
+      "rows": 15000,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r2/responses.jsonl",
+      "projected_bytes": 83341530,
+      "projected_sha256": "a8105f87e0314f1bd024e12d710108ca982c47c7c8e0fffeaaa081371574cb9b"
+    },
+    "dataset_muse_glimmer_100k_r2/run_manifest.json": {
+      "raw_bytes": 28166,
+      "raw_sha256": "1239c348d171e438e958b28f2be41bd25135014cb0cd5cb60d9c92dc3e312a39",
+      "rows": null,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r2/run_manifest.json",
+      "projected_bytes": 28166,
+      "projected_sha256": "1239c348d171e438e958b28f2be41bd25135014cb0cd5cb60d9c92dc3e312a39"
+    },
+    "dataset_muse_glimmer_100k_r2/queries.jsonl": {
+      "raw_bytes": 21415882,
+      "raw_sha256": "59a03392f348a84e026ef9d1f0ca45d863a7d3bcaaad55b1936775c8c9d9dc8f",
+      "rows": 15000,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r2/queries.jsonl",
+      "projected_bytes": 21415882,
+      "projected_sha256": "59a03392f348a84e026ef9d1f0ca45d863a7d3bcaaad55b1936775c8c9d9dc8f"
+    },
+    "dataset_muse_glimmer_100k_r2/generation_timing.jsonl": {
+      "raw_bytes": 10678,
+      "raw_sha256": "1bbe6bcc67881466a19223762655fde0820874455b07c8b7b4ffced3deab1e1e",
+      "rows": 15,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r2/generation_timing.jsonl",
+      "projected_bytes": 10678,
+      "projected_sha256": "1bbe6bcc67881466a19223762655fde0820874455b07c8b7b4ffced3deab1e1e"
+    },
+    "dataset_muse_glimmer_100k_r3/queries.jsonl": {
+      "raw_bytes": 28583165,
+      "raw_sha256": "e1aa108770be6b289576fd4f23b464958c77aa1e9f7d95928803c55b32cef004",
+      "rows": 20000,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r3/queries.jsonl",
+      "projected_bytes": 28583165,
+      "projected_sha256": "e1aa108770be6b289576fd4f23b464958c77aa1e9f7d95928803c55b32cef004"
+    },
+    "dataset_muse_glimmer_100k_r3/responses.jsonl": {
+      "raw_bytes": 112133148,
+      "raw_sha256": "92e4eec1088dab49c65e3a7b9217a0decba20cb9248f43a7105d4d9272ab5691",
+      "rows": 20000,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r3/responses.jsonl",
+      "projected_bytes": 112133148,
+      "projected_sha256": "92e4eec1088dab49c65e3a7b9217a0decba20cb9248f43a7105d4d9272ab5691"
+    },
+    "dataset_muse_glimmer_100k_r3/aggregates.json": {
+      "raw_bytes": 23642,
+      "raw_sha256": "8919afcd37b8716fbd3c1db284934a00da8e61bd5b31d8263eadb22b4009e41d",
+      "rows": null,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r3/aggregates.json",
+      "projected_bytes": 23642,
+      "projected_sha256": "8919afcd37b8716fbd3c1db284934a00da8e61bd5b31d8263eadb22b4009e41d"
+    },
+    "dataset_muse_glimmer_100k_r3/generation_timing.jsonl": {
+      "raw_bytes": 10743,
+      "raw_sha256": "67b7c241a1279b6f84409827112d16cfb7c9f6dde40b01a7212d66db2842d226",
+      "rows": 15,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r3/generation_timing.jsonl",
+      "projected_bytes": 10743,
+      "projected_sha256": "67b7c241a1279b6f84409827112d16cfb7c9f6dde40b01a7212d66db2842d226"
+    },
+    "dataset_muse_glimmer_100k_r3/run_manifest.json": {
+      "raw_bytes": 28172,
+      "raw_sha256": "d772f9260fc718600a819bd193c2de69aecd75c17048d7b24a2f6c4b5d0f270d",
+      "rows": null,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r3/run_manifest.json",
+      "projected_bytes": 28172,
+      "projected_sha256": "d772f9260fc718600a819bd193c2de69aecd75c17048d7b24a2f6c4b5d0f270d"
+    },
+    "dataset_muse_glimmer_100k_r3/genui.jsonl": {
+      "raw_bytes": 5258621254,
+      "raw_sha256": "d1d744584282db8b706b8b1b06c04b1bd161c1883f2efdc5aafebce24e625a8d",
+      "rows": 17750,
+      "invalid_json_rows": 1,
+      "projected_path": "dataset_muse_glimmer_100k_r3/genui.training.jsonl",
+      "projected_bytes": 352515929,
+      "projected_sha256": "207abad64380325137d78577724851a5f1e9a8ac7933228be2faabacc9e905db"
+    },
+    "dataset_muse_glimmer_100k_r4/genui.jsonl": {
+      "raw_bytes": 3034712913,
+      "raw_sha256": "d3182c0c76a4c709b64c63ec4877f2e36ea1494f79ff31001c00191d7df0e38d",
+      "rows": 10250,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r4/genui.training.jsonl",
+      "projected_bytes": 202546594,
+      "projected_sha256": "2ca3723ce73546cf45042c784dfc63673b56a2dcbb7234de5db3352abaaf6eb0"
+    },
+    "dataset_muse_glimmer_100k_r4/generation_timing.jsonl": {
+      "raw_bytes": 9296,
+      "raw_sha256": "89b4bc33269140fbdea4c17f7bc95033bc4c880f68e1cf56e3c140fa38295f8b",
+      "rows": 13,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r4/generation_timing.jsonl",
+      "projected_bytes": 9296,
+      "projected_sha256": "89b4bc33269140fbdea4c17f7bc95033bc4c880f68e1cf56e3c140fa38295f8b"
+    },
+    "dataset_muse_glimmer_100k_r4/run_manifest.json": {
+      "raw_bytes": 28172,
+      "raw_sha256": "c5fe699a37ca4d74a72475abd30ddd02b738f392abdbf905441dbcad92655072",
+      "rows": null,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r4/run_manifest.json",
+      "projected_bytes": 28172,
+      "projected_sha256": "c5fe699a37ca4d74a72475abd30ddd02b738f392abdbf905441dbcad92655072"
+    },
+    "dataset_muse_glimmer_100k_r4/responses.jsonl": {
+      "raw_bytes": 83818233,
+      "raw_sha256": "98ddd8fc8d1310e74aea09d90290e624e7c7238ffdd7f1eb8643c7ffeaa67b13",
+      "rows": 15000,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r4/responses.jsonl",
+      "projected_bytes": 83818233,
+      "projected_sha256": "98ddd8fc8d1310e74aea09d90290e624e7c7238ffdd7f1eb8643c7ffeaa67b13"
+    },
+    "dataset_muse_glimmer_100k_r4/queries.jsonl": {
+      "raw_bytes": 21519305,
+      "raw_sha256": "69be685d5f01aedfb884533b0f7daaf0dbc058f336576a23cdd546032660c785",
+      "rows": 15000,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r4/queries.jsonl",
+      "projected_bytes": 21519305,
+      "projected_sha256": "69be685d5f01aedfb884533b0f7daaf0dbc058f336576a23cdd546032660c785"
+    },
+    "dataset_muse_glimmer_100k_r4/aggregates.json": {
+      "raw_bytes": 22751,
+      "raw_sha256": "d82b5c9935cae71f1517c9322f3efc0af27837d0ebdddedb3d060b529e033453",
+      "rows": null,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r4/aggregates.json",
+      "projected_bytes": 22751,
+      "projected_sha256": "d82b5c9935cae71f1517c9322f3efc0af27837d0ebdddedb3d060b529e033453"
+    },
+    "dataset_muse_glimmer_100k_r4_2/queries.jsonl": {
+      "raw_bytes": 7190868,
+      "raw_sha256": "16a9b4aa8e47a531de06f19e9b7971ff8c2f3628c43320e3220372a8ca38fbbd",
+      "rows": 5000,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r4_2/queries.jsonl",
+      "projected_bytes": 7190868,
+      "projected_sha256": "16a9b4aa8e47a531de06f19e9b7971ff8c2f3628c43320e3220372a8ca38fbbd"
+    },
+    "dataset_muse_glimmer_100k_r4_2/run_manifest.json": {
+      "raw_bytes": 28240,
+      "raw_sha256": "d4537059f40a01ea8b0df66e13e77b75ca36ada65d746cf044de756c9b3b810d",
+      "rows": null,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r4_2/run_manifest.json",
+      "projected_bytes": 28240,
+      "projected_sha256": "d4537059f40a01ea8b0df66e13e77b75ca36ada65d746cf044de756c9b3b810d"
+    },
+    "dataset_muse_glimmer_100k_r4_2/responses.jsonl": {
+      "raw_bytes": 19391668,
+      "raw_sha256": "dc9615bdb2c7e3752dfc949a01636eb9bc396e978da62228b5637b97b6beb5d9",
+      "rows": 3520,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r4_2/responses.jsonl",
+      "projected_bytes": 19391668,
+      "projected_sha256": "dc9615bdb2c7e3752dfc949a01636eb9bc396e978da62228b5637b97b6beb5d9"
+    },
+    "dataset_muse_glimmer_100k_r4_2/generation_timing.jsonl": {
+      "raw_bytes": 714,
+      "raw_sha256": "b77933604a4fdaa659532126c6626886cfd6daa0b31fad84bc876ea5682aac81",
+      "rows": 1,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r4_2/generation_timing.jsonl",
+      "projected_bytes": 714,
+      "projected_sha256": "b77933604a4fdaa659532126c6626886cfd6daa0b31fad84bc876ea5682aac81"
+    },
+    "dataset_muse_glimmer_100k_r5/generation_timing.jsonl": {
+      "raw_bytes": 10739,
+      "raw_sha256": "12eb67c2110b572cc27d5d1e26cdac1ec1576c114161dab554090100725fc159",
+      "rows": 15,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r5/generation_timing.jsonl",
+      "projected_bytes": 10739,
+      "projected_sha256": "12eb67c2110b572cc27d5d1e26cdac1ec1576c114161dab554090100725fc159"
+    },
+    "dataset_muse_glimmer_100k_r5/queries.jsonl": {
+      "raw_bytes": 28792586,
+      "raw_sha256": "91a353ca692e31f002fecab521165b7ede6f5bd2355e3173571dfe4742bb3483",
+      "rows": 20000,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r5/queries.jsonl",
+      "projected_bytes": 28792586,
+      "projected_sha256": "91a353ca692e31f002fecab521165b7ede6f5bd2355e3173571dfe4742bb3483"
+    },
+    "dataset_muse_glimmer_100k_r5/genui.jsonl": {
+      "raw_bytes": 5004920693,
+      "raw_sha256": "ca6680d4f60816973c945ecc980f5e602bed17f3acc9e7ecb2c4a1f147464141",
+      "rows": 17151,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r5/genui.training.jsonl",
+      "projected_bytes": 333922511,
+      "projected_sha256": "e8cf7d3fa96f249846d18880ab1081c05a7b2af0448ab794c22cc320c282ec62"
+    },
+    "dataset_muse_glimmer_100k_r5/run_manifest.json": {
+      "raw_bytes": 28172,
+      "raw_sha256": "fb90dc9692a8393360826220f65d78656a72b5b996df0e48d9011a276f8359df",
+      "rows": null,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r5/run_manifest.json",
+      "projected_bytes": 28172,
+      "projected_sha256": "fb90dc9692a8393360826220f65d78656a72b5b996df0e48d9011a276f8359df"
+    },
+    "dataset_muse_glimmer_100k_r5/responses.jsonl": {
+      "raw_bytes": 111247347,
+      "raw_sha256": "a68404efde2d1810af6b23e74b9b9354b5431f25411d996278b8a189d65484cd",
+      "rows": 20000,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r5/responses.jsonl",
+      "projected_bytes": 111247347,
+      "projected_sha256": "a68404efde2d1810af6b23e74b9b9354b5431f25411d996278b8a189d65484cd"
+    },
+    "dataset_muse_glimmer_100k_r5/aggregates.json": {
+      "raw_bytes": 23964,
+      "raw_sha256": "78044339bc2be8b69ff51ba0e84595e14f783b490a2a782ee92c56e02b6b8f23",
+      "rows": null,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r5/aggregates.json",
+      "projected_bytes": 23964,
+      "projected_sha256": "78044339bc2be8b69ff51ba0e84595e14f783b490a2a782ee92c56e02b6b8f23"
+    },
+    "dataset_muse_glimmer_100k_r6/responses.jsonl": {
+      "raw_bytes": 83139664,
+      "raw_sha256": "ea55be5bceaef2cfe6359963b90a4ebcf00358b5f057a64d1466df812336dc42",
+      "rows": 15000,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r6/responses.jsonl",
+      "projected_bytes": 83139664,
+      "projected_sha256": "ea55be5bceaef2cfe6359963b90a4ebcf00358b5f057a64d1466df812336dc42"
+    },
+    "dataset_muse_glimmer_100k_r6/genui.jsonl": {
+      "raw_bytes": 3704842996,
+      "raw_sha256": "7f0461fa6ab6c0be46c0fdb75d46c5965acfe1e69bbbc7622d6b11704378f45e",
+      "rows": 12750,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r6/genui.training.jsonl",
+      "projected_bytes": 247783614,
+      "projected_sha256": "799e69fd61d08783c4b2d77f5530d1e94003a33d93780c14ea55081b21ed0e34"
+    },
+    "dataset_muse_glimmer_100k_r6/queries.jsonl": {
+      "raw_bytes": 21377539,
+      "raw_sha256": "4bf0f9e604f7b2c6b269ced3d1ad32e35be7924a1e5af456a6b3edb372922465",
+      "rows": 15000,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r6/queries.jsonl",
+      "projected_bytes": 21377539,
+      "projected_sha256": "4bf0f9e604f7b2c6b269ced3d1ad32e35be7924a1e5af456a6b3edb372922465"
+    },
+    "dataset_muse_glimmer_100k_r6/aggregates.json": {
+      "raw_bytes": 23399,
+      "raw_sha256": "1cfb6bb79d456f6964576d706361041c62c567d012b15c6807ecfebd715244d7",
+      "rows": null,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r6/aggregates.json",
+      "projected_bytes": 23399,
+      "projected_sha256": "1cfb6bb79d456f6964576d706361041c62c567d012b15c6807ecfebd715244d7"
+    },
+    "dataset_muse_glimmer_100k_r6/generation_timing.jsonl": {
+      "raw_bytes": 7868,
+      "raw_sha256": "147712d1ae4f94070b81d6c40a65067b68fae41b01d2eced19dec3e9dedbddb2",
+      "rows": 11,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r6/generation_timing.jsonl",
+      "projected_bytes": 7868,
+      "projected_sha256": "147712d1ae4f94070b81d6c40a65067b68fae41b01d2eced19dec3e9dedbddb2"
+    },
+    "dataset_muse_glimmer_100k_r6/run_manifest.json": {
+      "raw_bytes": 28172,
+      "raw_sha256": "c46c0454fc6f92f2ebad4fb7e01815912d904cff60c04815a738f1bf97304e3f",
+      "rows": null,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r6/run_manifest.json",
+      "projected_bytes": 28172,
+      "projected_sha256": "c46c0454fc6f92f2ebad4fb7e01815912d904cff60c04815a738f1bf97304e3f"
+    },
+    "dataset_muse_glimmer_100k_r7/run_manifest.json": {
+      "raw_bytes": 28172,
+      "raw_sha256": "315029f8ceaba347525a237e9ffbe9e07352ff1fb1ea0e0241838763ee0c37ee",
+      "rows": null,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r7/run_manifest.json",
+      "projected_bytes": 28172,
+      "projected_sha256": "315029f8ceaba347525a237e9ffbe9e07352ff1fb1ea0e0241838763ee0c37ee"
+    },
+    "dataset_muse_glimmer_100k_r7/responses.jsonl": {
+      "raw_bytes": 55837641,
+      "raw_sha256": "f297ec04b9fa37fc9369ae36287271e0a59b7e81c4924b30371fbc3735e46267",
+      "rows": 10000,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r7/responses.jsonl",
+      "projected_bytes": 55837641,
+      "projected_sha256": "f297ec04b9fa37fc9369ae36287271e0a59b7e81c4924b30371fbc3735e46267"
+    },
+    "dataset_muse_glimmer_100k_r7/aggregates.json": {
+      "raw_bytes": 23762,
+      "raw_sha256": "f7248aeaf52e182786ceb9be2a4b3c410d58561c209f56707257dc9870e23af9",
+      "rows": null,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r7/aggregates.json",
+      "projected_bytes": 23762,
+      "projected_sha256": "f7248aeaf52e182786ceb9be2a4b3c410d58561c209f56707257dc9870e23af9"
+    },
+    "dataset_muse_glimmer_100k_r7/genui.jsonl": {
+      "raw_bytes": 2794762356,
+      "raw_sha256": "471ba9352bb26635f5ae80403cfbb9f7ca1e32c80ee3ec5be527fcf4a3a927af",
+      "rows": 9500,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r7/genui.training.jsonl",
+      "projected_bytes": 188018673,
+      "projected_sha256": "e3da796a379ac587fa578e461d26625551c9216a55b4a694f7b5a8bde14bdf9a"
+    },
+    "dataset_muse_glimmer_100k_r7/generation_timing.jsonl": {
+      "raw_bytes": 5000,
+      "raw_sha256": "a23b7c11e145fe3398687727c421359174cc941ab7d434af3da658cef14f88d4",
+      "rows": 7,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r7/generation_timing.jsonl",
+      "projected_bytes": 5000,
+      "projected_sha256": "a23b7c11e145fe3398687727c421359174cc941ab7d434af3da658cef14f88d4"
+    },
+    "dataset_muse_glimmer_100k_r7/queries.jsonl": {
+      "raw_bytes": 14249816,
+      "raw_sha256": "2561caa24cf8632257c631f175a0b1b915dfca87233137079277882293de2d0a",
+      "rows": 10000,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r7/queries.jsonl",
+      "projected_bytes": 14249816,
+      "projected_sha256": "2561caa24cf8632257c631f175a0b1b915dfca87233137079277882293de2d0a"
+    },
+    "dataset_muse_glimmer_100k_r8_2/aggregates.json": {
+      "raw_bytes": 24094,
+      "raw_sha256": "8ec69c954690db2ccc397de13d44ba01ed6277579c9e14ffc0c8ab41d3c3c30f",
+      "rows": null,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r8_2/aggregates.json",
+      "projected_bytes": 24094,
+      "projected_sha256": "8ec69c954690db2ccc397de13d44ba01ed6277579c9e14ffc0c8ab41d3c3c30f"
+    },
+    "dataset_muse_glimmer_100k_r8_2/generation_timing.jsonl": {
+      "raw_bytes": 12911,
+      "raw_sha256": "318e1e400e30ca1c9d216744f506c9d29c2ffeec8bc597ca918d611d7cba933e",
+      "rows": 18,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r8_2/generation_timing.jsonl",
+      "projected_bytes": 12911,
+      "projected_sha256": "318e1e400e30ca1c9d216744f506c9d29c2ffeec8bc597ca918d611d7cba933e"
+    },
+    "dataset_muse_glimmer_100k_r8_2/responses.jsonl": {
+      "raw_bytes": 138183340,
+      "raw_sha256": "8d45102f8508adb24ff734d5e6f15cf14987ef46beb79eb8987e7c3ca5b5165a",
+      "rows": 25000,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r8_2/responses.jsonl",
+      "projected_bytes": 138183340,
+      "projected_sha256": "8d45102f8508adb24ff734d5e6f15cf14987ef46beb79eb8987e7c3ca5b5165a"
+    },
+    "dataset_muse_glimmer_100k_r8_2/genui.jsonl": {
+      "raw_bytes": 6995205427,
+      "raw_sha256": "7916ce954592988183b8875a0315b1a5108339a8bacb8f49d8c47ebb17210c4f",
+      "rows": 24000,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r8_2/genui.training.jsonl",
+      "projected_bytes": 467241497,
+      "projected_sha256": "adc982dd8f993768ae145887d292280c9a8ae9a71e3c716f517a3e0501c79035",
+      "source_archive_sha256": "263a254da81de8b4eaf80fbcce4bd617004dec1a48a41ae4a38a59a911a08fd2"
+    },
+    "dataset_muse_glimmer_100k_r8_2/run_manifest.json": {
+      "raw_bytes": 28187,
+      "raw_sha256": "b71f38fce8b071f1ee74c44e4d2ed4156a7901f961bb552bb2073e16856aa412",
+      "rows": null,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r8_2/run_manifest.json",
+      "projected_bytes": 28187,
+      "projected_sha256": "b71f38fce8b071f1ee74c44e4d2ed4156a7901f961bb552bb2073e16856aa412"
+    },
+    "dataset_muse_glimmer_100k_r8_2/queries.jsonl": {
+      "raw_bytes": 35845164,
+      "raw_sha256": "12844716d1a36c0ffc55307396b13f542f1659e083f0831b36fa17a59548ab9e",
+      "rows": 25000,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r8_2/queries.jsonl",
+      "projected_bytes": 35845164,
+      "projected_sha256": "12844716d1a36c0ffc55307396b13f542f1659e083f0831b36fa17a59548ab9e"
+    },
+    "dataset_muse_glimmer_100k_r9_4/run_manifest.json": {
+      "raw_bytes": 28240,
+      "raw_sha256": "7a2c96c95d3161d387203e0fe614386fc862ec81335c37ce9140e9c2e94ca6d2",
+      "rows": null,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r9_4/run_manifest.json",
+      "projected_bytes": 28240,
+      "projected_sha256": "7a2c96c95d3161d387203e0fe614386fc862ec81335c37ce9140e9c2e94ca6d2"
+    },
+    "dataset_muse_glimmer_100k_r9_4/queries.jsonl": {
+      "raw_bytes": 7133213,
+      "raw_sha256": "27430f183ec65bba2851563ef4da26162920e95243eff1bf88a42b5de7a83de9",
+      "rows": 5000,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r9_4/queries.jsonl",
+      "projected_bytes": 7133213,
+      "projected_sha256": "27430f183ec65bba2851563ef4da26162920e95243eff1bf88a42b5de7a83de9"
+    },
+    "dataset_muse_glimmer_100k_r9_4/responses.jsonl": {
+      "raw_bytes": 2028843,
+      "raw_sha256": "48e0221797f7795180d68d8440ad7552a0d01816a11c1c8f6e86c88eed4d8b26",
+      "rows": 395,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r9_4/responses.jsonl",
+      "projected_bytes": 2028843,
+      "projected_sha256": "48e0221797f7795180d68d8440ad7552a0d01816a11c1c8f6e86c88eed4d8b26"
+    },
+    "dataset_muse_glimmer_100k_r9_4/generation_timing.jsonl": {
+      "raw_bytes": 713,
+      "raw_sha256": "2488591319d931aa4ae0cccc58ec10095d779d473db850fdc5032f96966c10a0",
+      "rows": 1,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r9_4/generation_timing.jsonl",
+      "projected_bytes": 713,
+      "projected_sha256": "2488591319d931aa4ae0cccc58ec10095d779d473db850fdc5032f96966c10a0"
+    }
+  },
+  "runs": {
+    "dataset_muse_glimmer_100k_r1": {
+      "queries.jsonl": {
+        "raw_bytes": 35654183,
+        "raw_sha256": "0b9dd987493095b78a9e57b94c4a05649caa15969d5c82889542b8de10cd4823",
+        "rows": 25000,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r1/queries.jsonl",
+        "projected_bytes": 35654183,
+        "projected_sha256": "0b9dd987493095b78a9e57b94c4a05649caa15969d5c82889542b8de10cd4823",
+        "counts": {}
+      },
+      "run_manifest.json": {
+        "raw_bytes": 28172,
+        "raw_sha256": "7feba7150785f8593e8ef8fa07dfc8bc9277b8785f285961d7636aaf31c9a720",
+        "rows": null,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r1/run_manifest.json",
+        "projected_bytes": 28172,
+        "projected_sha256": "7feba7150785f8593e8ef8fa07dfc8bc9277b8785f285961d7636aaf31c9a720",
+        "counts": {}
+      },
+      "responses.jsonl": {
+        "raw_bytes": 137576973,
+        "raw_sha256": "c1cc1bf0f8f590010349b3b9df0f4030b832da0a2309205e46a837a1161b3c42",
+        "rows": 25000,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r1/responses.jsonl",
+        "projected_bytes": 137576973,
+        "projected_sha256": "c1cc1bf0f8f590010349b3b9df0f4030b832da0a2309205e46a837a1161b3c42",
+        "counts": {}
+      },
+      "aggregates.json": {
+        "raw_bytes": 24258,
+        "raw_sha256": "a4c460ec81216e41d7898f07e8d830908cfd3421ad281a2725ff1f73940b1d0a",
+        "rows": null,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r1/aggregates.json",
+        "projected_bytes": 24258,
+        "projected_sha256": "a4c460ec81216e41d7898f07e8d830908cfd3421ad281a2725ff1f73940b1d0a",
+        "counts": {}
+      },
+      "generation_timing.jsonl": {
+        "raw_bytes": 20685,
+        "raw_sha256": "1d828cf05b08eb4331813098369118e59481bb2f87bf7e37de98c561b7572cd8",
+        "rows": 29,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r1/generation_timing.jsonl",
+        "projected_bytes": 20685,
+        "projected_sha256": "1d828cf05b08eb4331813098369118e59481bb2f87bf7e37de98c561b7572cd8",
+        "counts": {}
+      },
+      "genui.jsonl": {
+        "raw_bytes": 7150019551,
+        "raw_sha256": "4426797814740e7994cd021c7d0b90f134f6979e9ee3258e532ba21a5b110947",
+        "rows": 25000,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r1/genui.training.jsonl",
+        "projected_bytes": 478339338,
+        "projected_sha256": "9df27e1a0c904a34d71ff1a56f9d73a7a47d7b7a989d93443342bbf79f87bc0c",
+        "counts": {
+          "record_status:quality_rejected": 82,
+          "eligible:False": 22841,
+          "record_status:accepted": 24916,
+          "eligible:True": 2157,
+          "record_status:format_rejected": 2,
+          "eligible:missing": 2
+        }
+      }
+    },
+    "dataset_muse_glimmer_100k_r2": {
+      "aggregates.json": {
+        "raw_bytes": 23795,
+        "raw_sha256": "2a4bfd250ebc239cabf23d66995016dd900bf1069d19abe0fa011b856c8f81c6",
+        "rows": null,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r2/aggregates.json",
+        "projected_bytes": 23795,
+        "projected_sha256": "2a4bfd250ebc239cabf23d66995016dd900bf1069d19abe0fa011b856c8f81c6",
+        "counts": {}
+      },
+      "genui.jsonl": {
+        "raw_bytes": 4403348001,
+        "raw_sha256": "113ecfa5aa885de596aa0f782abbf3d34aad67e5a70177d24a7cb67630adba14",
+        "rows": 14999,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r2/genui.training.jsonl",
+        "projected_bytes": 294920483,
+        "projected_sha256": "1b7eb473350f8be3cb72ec76b6842c7e2276d569af0df5d6f6ddc86c8d626b54",
+        "counts": {
+          "record_status:accepted": 14977,
+          "eligible:False": 13416,
+          "eligible:True": 1582,
+          "record_status:quality_rejected": 21,
+          "record_status:format_rejected": 1,
+          "eligible:missing": 1
+        }
+      },
+      "responses.jsonl": {
+        "raw_bytes": 83341530,
+        "raw_sha256": "a8105f87e0314f1bd024e12d710108ca982c47c7c8e0fffeaaa081371574cb9b",
+        "rows": 15000,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r2/responses.jsonl",
+        "projected_bytes": 83341530,
+        "projected_sha256": "a8105f87e0314f1bd024e12d710108ca982c47c7c8e0fffeaaa081371574cb9b",
+        "counts": {}
+      },
+      "run_manifest.json": {
+        "raw_bytes": 28166,
+        "raw_sha256": "1239c348d171e438e958b28f2be41bd25135014cb0cd5cb60d9c92dc3e312a39",
+        "rows": null,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r2/run_manifest.json",
+        "projected_bytes": 28166,
+        "projected_sha256": "1239c348d171e438e958b28f2be41bd25135014cb0cd5cb60d9c92dc3e312a39",
+        "counts": {}
+      },
+      "queries.jsonl": {
+        "raw_bytes": 21415882,
+        "raw_sha256": "59a03392f348a84e026ef9d1f0ca45d863a7d3bcaaad55b1936775c8c9d9dc8f",
+        "rows": 15000,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r2/queries.jsonl",
+        "projected_bytes": 21415882,
+        "projected_sha256": "59a03392f348a84e026ef9d1f0ca45d863a7d3bcaaad55b1936775c8c9d9dc8f",
+        "counts": {}
+      },
+      "generation_timing.jsonl": {
+        "raw_bytes": 10678,
+        "raw_sha256": "1bbe6bcc67881466a19223762655fde0820874455b07c8b7b4ffced3deab1e1e",
+        "rows": 15,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r2/generation_timing.jsonl",
+        "projected_bytes": 10678,
+        "projected_sha256": "1bbe6bcc67881466a19223762655fde0820874455b07c8b7b4ffced3deab1e1e",
+        "counts": {}
+      }
+    },
+    "dataset_muse_glimmer_100k_r3": {
+      "queries.jsonl": {
+        "raw_bytes": 28583165,
+        "raw_sha256": "e1aa108770be6b289576fd4f23b464958c77aa1e9f7d95928803c55b32cef004",
+        "rows": 20000,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r3/queries.jsonl",
+        "projected_bytes": 28583165,
+        "projected_sha256": "e1aa108770be6b289576fd4f23b464958c77aa1e9f7d95928803c55b32cef004",
+        "counts": {}
+      },
+      "responses.jsonl": {
+        "raw_bytes": 112133148,
+        "raw_sha256": "92e4eec1088dab49c65e3a7b9217a0decba20cb9248f43a7105d4d9272ab5691",
+        "rows": 20000,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r3/responses.jsonl",
+        "projected_bytes": 112133148,
+        "projected_sha256": "92e4eec1088dab49c65e3a7b9217a0decba20cb9248f43a7105d4d9272ab5691",
+        "counts": {}
+      },
+      "aggregates.json": {
+        "raw_bytes": 23642,
+        "raw_sha256": "8919afcd37b8716fbd3c1db284934a00da8e61bd5b31d8263eadb22b4009e41d",
+        "rows": null,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r3/aggregates.json",
+        "projected_bytes": 23642,
+        "projected_sha256": "8919afcd37b8716fbd3c1db284934a00da8e61bd5b31d8263eadb22b4009e41d",
+        "counts": {}
+      },
+      "generation_timing.jsonl": {
+        "raw_bytes": 10743,
+        "raw_sha256": "67b7c241a1279b6f84409827112d16cfb7c9f6dde40b01a7212d66db2842d226",
+        "rows": 15,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r3/generation_timing.jsonl",
+        "projected_bytes": 10743,
+        "projected_sha256": "67b7c241a1279b6f84409827112d16cfb7c9f6dde40b01a7212d66db2842d226",
+        "counts": {}
+      },
+      "run_manifest.json": {
+        "raw_bytes": 28172,
+        "raw_sha256": "d772f9260fc718600a819bd193c2de69aecd75c17048d7b24a2f6c4b5d0f270d",
+        "rows": null,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r3/run_manifest.json",
+        "projected_bytes": 28172,
+        "projected_sha256": "d772f9260fc718600a819bd193c2de69aecd75c17048d7b24a2f6c4b5d0f270d",
+        "counts": {}
+      },
+      "genui.jsonl": {
+        "raw_bytes": 5258621254,
+        "raw_sha256": "d1d744584282db8b706b8b1b06c04b1bd161c1883f2efdc5aafebce24e625a8d",
+        "rows": 17750,
+        "invalid_json_rows": 1,
+        "projected_path": "dataset_muse_glimmer_100k_r3/genui.training.jsonl",
+        "projected_bytes": 352515929,
+        "projected_sha256": "207abad64380325137d78577724851a5f1e9a8ac7933228be2faabacc9e905db",
+        "counts": {
+          "record_status:accepted": 17721,
+          "eligible:False": 15897,
+          "eligible:True": 1851,
+          "record_status:quality_rejected": 27,
+          "record_status:format_rejected": 1,
+          "eligible:missing": 1
+        }
+      }
+    },
+    "dataset_muse_glimmer_100k_r4": {
+      "genui.jsonl": {
+        "raw_bytes": 3034712913,
+        "raw_sha256": "d3182c0c76a4c709b64c63ec4877f2e36ea1494f79ff31001c00191d7df0e38d",
+        "rows": 10250,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r4/genui.training.jsonl",
+        "projected_bytes": 202546594,
+        "projected_sha256": "2ca3723ce73546cf45042c784dfc63673b56a2dcbb7234de5db3352abaaf6eb0",
+        "counts": {
+          "record_status:accepted": 10243,
+          "eligible:False": 9196,
+          "eligible:True": 1054,
+          "record_status:quality_rejected": 7
+        }
+      },
+      "generation_timing.jsonl": {
+        "raw_bytes": 9296,
+        "raw_sha256": "89b4bc33269140fbdea4c17f7bc95033bc4c880f68e1cf56e3c140fa38295f8b",
+        "rows": 13,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r4/generation_timing.jsonl",
+        "projected_bytes": 9296,
+        "projected_sha256": "89b4bc33269140fbdea4c17f7bc95033bc4c880f68e1cf56e3c140fa38295f8b",
+        "counts": {}
+      },
+      "run_manifest.json": {
+        "raw_bytes": 28172,
+        "raw_sha256": "c5fe699a37ca4d74a72475abd30ddd02b738f392abdbf905441dbcad92655072",
+        "rows": null,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r4/run_manifest.json",
+        "projected_bytes": 28172,
+        "projected_sha256": "c5fe699a37ca4d74a72475abd30ddd02b738f392abdbf905441dbcad92655072",
+        "counts": {}
+      },
+      "responses.jsonl": {
+        "raw_bytes": 83818233,
+        "raw_sha256": "98ddd8fc8d1310e74aea09d90290e624e7c7238ffdd7f1eb8643c7ffeaa67b13",
+        "rows": 15000,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r4/responses.jsonl",
+        "projected_bytes": 83818233,
+        "projected_sha256": "98ddd8fc8d1310e74aea09d90290e624e7c7238ffdd7f1eb8643c7ffeaa67b13",
+        "counts": {}
+      },
+      "queries.jsonl": {
+        "raw_bytes": 21519305,
+        "raw_sha256": "69be685d5f01aedfb884533b0f7daaf0dbc058f336576a23cdd546032660c785",
+        "rows": 15000,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r4/queries.jsonl",
+        "projected_bytes": 21519305,
+        "projected_sha256": "69be685d5f01aedfb884533b0f7daaf0dbc058f336576a23cdd546032660c785",
+        "counts": {}
+      },
+      "aggregates.json": {
+        "raw_bytes": 22751,
+        "raw_sha256": "d82b5c9935cae71f1517c9322f3efc0af27837d0ebdddedb3d060b529e033453",
+        "rows": null,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r4/aggregates.json",
+        "projected_bytes": 22751,
+        "projected_sha256": "d82b5c9935cae71f1517c9322f3efc0af27837d0ebdddedb3d060b529e033453",
+        "counts": {}
+      }
+    },
+    "dataset_muse_glimmer_100k_r4_2": {
+      "queries.jsonl": {
+        "raw_bytes": 7190868,
+        "raw_sha256": "16a9b4aa8e47a531de06f19e9b7971ff8c2f3628c43320e3220372a8ca38fbbd",
+        "rows": 5000,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r4_2/queries.jsonl",
+        "projected_bytes": 7190868,
+        "projected_sha256": "16a9b4aa8e47a531de06f19e9b7971ff8c2f3628c43320e3220372a8ca38fbbd",
+        "counts": {}
+      },
+      "run_manifest.json": {
+        "raw_bytes": 28240,
+        "raw_sha256": "d4537059f40a01ea8b0df66e13e77b75ca36ada65d746cf044de756c9b3b810d",
+        "rows": null,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r4_2/run_manifest.json",
+        "projected_bytes": 28240,
+        "projected_sha256": "d4537059f40a01ea8b0df66e13e77b75ca36ada65d746cf044de756c9b3b810d",
+        "counts": {}
+      },
+      "responses.jsonl": {
+        "raw_bytes": 19391668,
+        "raw_sha256": "dc9615bdb2c7e3752dfc949a01636eb9bc396e978da62228b5637b97b6beb5d9",
+        "rows": 3520,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r4_2/responses.jsonl",
+        "projected_bytes": 19391668,
+        "projected_sha256": "dc9615bdb2c7e3752dfc949a01636eb9bc396e978da62228b5637b97b6beb5d9",
+        "counts": {}
+      },
+      "generation_timing.jsonl": {
+        "raw_bytes": 714,
+        "raw_sha256": "b77933604a4fdaa659532126c6626886cfd6daa0b31fad84bc876ea5682aac81",
+        "rows": 1,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r4_2/generation_timing.jsonl",
+        "projected_bytes": 714,
+        "projected_sha256": "b77933604a4fdaa659532126c6626886cfd6daa0b31fad84bc876ea5682aac81",
+        "counts": {}
+      }
+    },
+    "dataset_muse_glimmer_100k_r5": {
+      "generation_timing.jsonl": {
+        "raw_bytes": 10739,
+        "raw_sha256": "12eb67c2110b572cc27d5d1e26cdac1ec1576c114161dab554090100725fc159",
+        "rows": 15,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r5/generation_timing.jsonl",
+        "projected_bytes": 10739,
+        "projected_sha256": "12eb67c2110b572cc27d5d1e26cdac1ec1576c114161dab554090100725fc159",
+        "counts": {}
+      },
+      "queries.jsonl": {
+        "raw_bytes": 28792586,
+        "raw_sha256": "91a353ca692e31f002fecab521165b7ede6f5bd2355e3173571dfe4742bb3483",
+        "rows": 20000,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r5/queries.jsonl",
+        "projected_bytes": 28792586,
+        "projected_sha256": "91a353ca692e31f002fecab521165b7ede6f5bd2355e3173571dfe4742bb3483",
+        "counts": {}
+      },
+      "genui.jsonl": {
+        "raw_bytes": 5004920693,
+        "raw_sha256": "ca6680d4f60816973c945ecc980f5e602bed17f3acc9e7ecb2c4a1f147464141",
+        "rows": 17151,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r5/genui.training.jsonl",
+        "projected_bytes": 333922511,
+        "projected_sha256": "e8cf7d3fa96f249846d18880ab1081c05a7b2af0448ab794c22cc320c282ec62",
+        "counts": {
+          "record_status:accepted": 17130,
+          "eligible:False": 15322,
+          "eligible:True": 1828,
+          "record_status:quality_rejected": 20,
+          "record_status:format_rejected": 1,
+          "eligible:missing": 1
+        }
+      },
+      "run_manifest.json": {
+        "raw_bytes": 28172,
+        "raw_sha256": "fb90dc9692a8393360826220f65d78656a72b5b996df0e48d9011a276f8359df",
+        "rows": null,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r5/run_manifest.json",
+        "projected_bytes": 28172,
+        "projected_sha256": "fb90dc9692a8393360826220f65d78656a72b5b996df0e48d9011a276f8359df",
+        "counts": {}
+      },
+      "responses.jsonl": {
+        "raw_bytes": 111247347,
+        "raw_sha256": "a68404efde2d1810af6b23e74b9b9354b5431f25411d996278b8a189d65484cd",
+        "rows": 20000,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r5/responses.jsonl",
+        "projected_bytes": 111247347,
+        "projected_sha256": "a68404efde2d1810af6b23e74b9b9354b5431f25411d996278b8a189d65484cd",
+        "counts": {}
+      },
+      "aggregates.json": {
+        "raw_bytes": 23964,
+        "raw_sha256": "78044339bc2be8b69ff51ba0e84595e14f783b490a2a782ee92c56e02b6b8f23",
+        "rows": null,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r5/aggregates.json",
+        "projected_bytes": 23964,
+        "projected_sha256": "78044339bc2be8b69ff51ba0e84595e14f783b490a2a782ee92c56e02b6b8f23",
+        "counts": {}
+      }
+    },
+    "dataset_muse_glimmer_100k_r6": {
+      "responses.jsonl": {
+        "raw_bytes": 83139664,
+        "raw_sha256": "ea55be5bceaef2cfe6359963b90a4ebcf00358b5f057a64d1466df812336dc42",
+        "rows": 15000,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r6/responses.jsonl",
+        "projected_bytes": 83139664,
+        "projected_sha256": "ea55be5bceaef2cfe6359963b90a4ebcf00358b5f057a64d1466df812336dc42",
+        "counts": {}
+      },
+      "genui.jsonl": {
+        "raw_bytes": 3704842996,
+        "raw_sha256": "7f0461fa6ab6c0be46c0fdb75d46c5965acfe1e69bbbc7622d6b11704378f45e",
+        "rows": 12750,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r6/genui.training.jsonl",
+        "projected_bytes": 247783614,
+        "projected_sha256": "799e69fd61d08783c4b2d77f5530d1e94003a33d93780c14ea55081b21ed0e34",
+        "counts": {
+          "record_status:accepted": 12734,
+          "eligible:False": 11415,
+          "eligible:True": 1335,
+          "record_status:quality_rejected": 16
+        }
+      },
+      "queries.jsonl": {
+        "raw_bytes": 21377539,
+        "raw_sha256": "4bf0f9e604f7b2c6b269ced3d1ad32e35be7924a1e5af456a6b3edb372922465",
+        "rows": 15000,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r6/queries.jsonl",
+        "projected_bytes": 21377539,
+        "projected_sha256": "4bf0f9e604f7b2c6b269ced3d1ad32e35be7924a1e5af456a6b3edb372922465",
+        "counts": {}
+      },
+      "aggregates.json": {
+        "raw_bytes": 23399,
+        "raw_sha256": "1cfb6bb79d456f6964576d706361041c62c567d012b15c6807ecfebd715244d7",
+        "rows": null,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r6/aggregates.json",
+        "projected_bytes": 23399,
+        "projected_sha256": "1cfb6bb79d456f6964576d706361041c62c567d012b15c6807ecfebd715244d7",
+        "counts": {}
+      },
+      "generation_timing.jsonl": {
+        "raw_bytes": 7868,
+        "raw_sha256": "147712d1ae4f94070b81d6c40a65067b68fae41b01d2eced19dec3e9dedbddb2",
+        "rows": 11,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r6/generation_timing.jsonl",
+        "projected_bytes": 7868,
+        "projected_sha256": "147712d1ae4f94070b81d6c40a65067b68fae41b01d2eced19dec3e9dedbddb2",
+        "counts": {}
+      },
+      "run_manifest.json": {
+        "raw_bytes": 28172,
+        "raw_sha256": "c46c0454fc6f92f2ebad4fb7e01815912d904cff60c04815a738f1bf97304e3f",
+        "rows": null,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r6/run_manifest.json",
+        "projected_bytes": 28172,
+        "projected_sha256": "c46c0454fc6f92f2ebad4fb7e01815912d904cff60c04815a738f1bf97304e3f",
+        "counts": {}
+      }
+    },
+    "dataset_muse_glimmer_100k_r7": {
+      "run_manifest.json": {
+        "raw_bytes": 28172,
+        "raw_sha256": "315029f8ceaba347525a237e9ffbe9e07352ff1fb1ea0e0241838763ee0c37ee",
+        "rows": null,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r7/run_manifest.json",
+        "projected_bytes": 28172,
+        "projected_sha256": "315029f8ceaba347525a237e9ffbe9e07352ff1fb1ea0e0241838763ee0c37ee",
+        "counts": {}
+      },
+      "responses.jsonl": {
+        "raw_bytes": 55837641,
+        "raw_sha256": "f297ec04b9fa37fc9369ae36287271e0a59b7e81c4924b30371fbc3735e46267",
+        "rows": 10000,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r7/responses.jsonl",
+        "projected_bytes": 55837641,
+        "projected_sha256": "f297ec04b9fa37fc9369ae36287271e0a59b7e81c4924b30371fbc3735e46267",
+        "counts": {}
+      },
+      "aggregates.json": {
+        "raw_bytes": 23762,
+        "raw_sha256": "f7248aeaf52e182786ceb9be2a4b3c410d58561c209f56707257dc9870e23af9",
+        "rows": null,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r7/aggregates.json",
+        "projected_bytes": 23762,
+        "projected_sha256": "f7248aeaf52e182786ceb9be2a4b3c410d58561c209f56707257dc9870e23af9",
+        "counts": {}
+      },
+      "genui.jsonl": {
+        "raw_bytes": 2794762356,
+        "raw_sha256": "471ba9352bb26635f5ae80403cfbb9f7ca1e32c80ee3ec5be527fcf4a3a927af",
+        "rows": 9500,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r7/genui.training.jsonl",
+        "projected_bytes": 188018673,
+        "projected_sha256": "e3da796a379ac587fa578e461d26625551c9216a55b4a694f7b5a8bde14bdf9a",
+        "counts": {
+          "record_status:accepted": 9491,
+          "eligible:True": 1104,
+          "eligible:False": 8396,
+          "record_status:quality_rejected": 9
+        }
+      },
+      "generation_timing.jsonl": {
+        "raw_bytes": 5000,
+        "raw_sha256": "a23b7c11e145fe3398687727c421359174cc941ab7d434af3da658cef14f88d4",
+        "rows": 7,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r7/generation_timing.jsonl",
+        "projected_bytes": 5000,
+        "projected_sha256": "a23b7c11e145fe3398687727c421359174cc941ab7d434af3da658cef14f88d4",
+        "counts": {}
+      },
+      "queries.jsonl": {
+        "raw_bytes": 14249816,
+        "raw_sha256": "2561caa24cf8632257c631f175a0b1b915dfca87233137079277882293de2d0a",
+        "rows": 10000,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r7/queries.jsonl",
+        "projected_bytes": 14249816,
+        "projected_sha256": "2561caa24cf8632257c631f175a0b1b915dfca87233137079277882293de2d0a",
+        "counts": {}
+      }
+    },
+    "dataset_muse_glimmer_100k_r8_2": {
+      "aggregates.json": {
+        "raw_bytes": 24094,
+        "raw_sha256": "8ec69c954690db2ccc397de13d44ba01ed6277579c9e14ffc0c8ab41d3c3c30f",
+        "rows": null,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r8_2/aggregates.json",
+        "projected_bytes": 24094,
+        "projected_sha256": "8ec69c954690db2ccc397de13d44ba01ed6277579c9e14ffc0c8ab41d3c3c30f",
+        "counts": {}
+      },
+      "generation_timing.jsonl": {
+        "raw_bytes": 12911,
+        "raw_sha256": "318e1e400e30ca1c9d216744f506c9d29c2ffeec8bc597ca918d611d7cba933e",
+        "rows": 18,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r8_2/generation_timing.jsonl",
+        "projected_bytes": 12911,
+        "projected_sha256": "318e1e400e30ca1c9d216744f506c9d29c2ffeec8bc597ca918d611d7cba933e",
+        "counts": {}
+      },
+      "responses.jsonl": {
+        "raw_bytes": 138183340,
+        "raw_sha256": "8d45102f8508adb24ff734d5e6f15cf14987ef46beb79eb8987e7c3ca5b5165a",
+        "rows": 25000,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r8_2/responses.jsonl",
+        "projected_bytes": 138183340,
+        "projected_sha256": "8d45102f8508adb24ff734d5e6f15cf14987ef46beb79eb8987e7c3ca5b5165a",
+        "counts": {}
+      },
+      "genui.jsonl": {
+        "raw_bytes": 6995205427,
+        "raw_sha256": "7916ce954592988183b8875a0315b1a5108339a8bacb8f49d8c47ebb17210c4f",
+        "rows": 24000,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r8_2/genui.training.jsonl",
+        "projected_bytes": 467241497,
+        "projected_sha256": "adc982dd8f993768ae145887d292280c9a8ae9a71e3c716f517a3e0501c79035",
+        "counts": {
+          "record_status:accepted": 23975,
+          "eligible:False": 21532,
+          "eligible:True": 2467,
+          "record_status:quality_rejected": 24,
+          "record_status:format_rejected": 1,
+          "eligible:missing": 1
+        }
+      },
+      "run_manifest.json": {
+        "raw_bytes": 28187,
+        "raw_sha256": "b71f38fce8b071f1ee74c44e4d2ed4156a7901f961bb552bb2073e16856aa412",
+        "rows": null,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r8_2/run_manifest.json",
+        "projected_bytes": 28187,
+        "projected_sha256": "b71f38fce8b071f1ee74c44e4d2ed4156a7901f961bb552bb2073e16856aa412",
+        "counts": {}
+      },
+      "queries.jsonl": {
+        "raw_bytes": 35845164,
+        "raw_sha256": "12844716d1a36c0ffc55307396b13f542f1659e083f0831b36fa17a59548ab9e",
+        "rows": 25000,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r8_2/queries.jsonl",
+        "projected_bytes": 35845164,
+        "projected_sha256": "12844716d1a36c0ffc55307396b13f542f1659e083f0831b36fa17a59548ab9e",
+        "counts": {}
+      }
+    },
+    "dataset_muse_glimmer_100k_r9_4": {
+      "run_manifest.json": {
+        "raw_bytes": 28240,
+        "raw_sha256": "7a2c96c95d3161d387203e0fe614386fc862ec81335c37ce9140e9c2e94ca6d2",
+        "rows": null,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r9_4/run_manifest.json",
+        "projected_bytes": 28240,
+        "projected_sha256": "7a2c96c95d3161d387203e0fe614386fc862ec81335c37ce9140e9c2e94ca6d2",
+        "counts": {}
+      },
+      "queries.jsonl": {
+        "raw_bytes": 7133213,
+        "raw_sha256": "27430f183ec65bba2851563ef4da26162920e95243eff1bf88a42b5de7a83de9",
+        "rows": 5000,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r9_4/queries.jsonl",
+        "projected_bytes": 7133213,
+        "projected_sha256": "27430f183ec65bba2851563ef4da26162920e95243eff1bf88a42b5de7a83de9",
+        "counts": {}
+      },
+      "responses.jsonl": {
+        "raw_bytes": 2028843,
+        "raw_sha256": "48e0221797f7795180d68d8440ad7552a0d01816a11c1c8f6e86c88eed4d8b26",
+        "rows": 395,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r9_4/responses.jsonl",
+        "projected_bytes": 2028843,
+        "projected_sha256": "48e0221797f7795180d68d8440ad7552a0d01816a11c1c8f6e86c88eed4d8b26",
+        "counts": {}
+      },
+      "generation_timing.jsonl": {
+        "raw_bytes": 713,
+        "raw_sha256": "2488591319d931aa4ae0cccc58ec10095d779d473db850fdc5032f96966c10a0",
+        "rows": 1,
+        "invalid_json_rows": 0,
+        "projected_path": "dataset_muse_glimmer_100k_r9_4/generation_timing.jsonl",
+        "projected_bytes": 713,
+        "projected_sha256": "2488591319d931aa4ae0cccc58ec10095d779d473db850fdc5032f96966c10a0",
+        "counts": {}
+      }
+    }
+  },
+  "elapsed_seconds": 727.81,
+  "policy": "Only current root Stage 1/2/3 files; historical backups never become additional samples; target and source values unmodified.",
+  "superseded_selected": {
+    "dataset_muse_glimmer_100k_r8_2/genui.jsonl": {
+      "raw_bytes": 6943501099,
+      "raw_sha256": "248b7d97a0d9d166d0be12e186d69dc7a66b99dda2f7e155a562f590adf41758",
+      "rows": 23841,
+      "invalid_json_rows": 0,
+      "projected_path": "dataset_muse_glimmer_100k_r8_2/genui.training.before_live_snapshot.jsonl",
+      "projected_bytes": 463638387,
+      "projected_sha256": "e60648eb27c711b983fc01421c4f58d868698a78df8629943a28c8921df1c7dc"
+    }
+  },
+  "source_overlays": [
+    {
+      "status": "verified",
+      "archive": "C:\\Users\\k.anup\\Downloads\\dataset_muse_glimmer_100k_r8_2_snapshot_20260930.tar.gz",
+      "archive_bytes": 919086423,
+      "archive_sha256": "263a254da81de8b4eaf80fbcce4bd617004dec1a48a41ae4a38a59a911a08fd2",
+      "gzip_crc_verified": true,
+      "archive_members": 1,
+      "archive_uncompressed_member_bytes": 6995205427,
+      "elapsed_seconds": 105.31,
+      "policy": "Only current root Stage 1/2/3 files; historical backups never become additional samples; target and source values unmodified."
+    }
+  ],
+  "snapshot_policy": "The live r8_2 root genui.jsonl is replaced by a fixed prefix ending at its last complete JSONL record. Both original archives and the superseded projection are preserved.",
+  "download_provenance": {
+    "full_archive_transfer_exit_code": 1,
+    "full_archive_bytes": 7605528559,
+    "tar_warnings": [
+      "dataset_muse_glimmer_100k_r8_2/artifacts/generation_attempts: file changed as we read it",
+      "dataset_muse_glimmer_100k_r8_2/artifacts/genui_contract_cache_v5_2: file changed as we read it",
+      "dataset_muse_glimmer_100k_r8_2/genui.jsonl: file changed as we read it",
+      "dataset_muse_glimmer_100k_r8_2/run.log: file changed as we read it",
+      "dataset_muse_glimmer_100k_r8_2: file changed as we read it"
+    ],
+    "snapshot_member": "dataset_muse_glimmer_100k_r8_2/genui.jsonl",
+    "snapshot_prefix_bytes": 6995205427,
+    "snapshot_file_bytes_at_open": 6995205427,
+    "snapshot_file_bytes_at_end": 6995205427,
+    "snapshot_mtime_ns": 1790777770877238864,
+    "snapshot_inode": 6335297538640707587,
+    "snapshot_inode_unchanged": true,
+    "snapshot_append_during_read": 0,
+    "snapshot_download_exit_code": 0,
+    "policy": "Verify both gzip/tar archives. Use the fixed complete-record snapshot for the one changed Stage 3 file; preserve full original archive."
+  }
+}

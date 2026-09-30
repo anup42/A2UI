@@ -1,0 +1,54 @@
+{
+  "policy": "space-v11-post-v10-repair-reassessment-20260930-v1",
+  "test_count": 24,
+  "tests_passed": true,
+  "stratified_records": 32,
+  "selection": "Eight deterministic SHA-ordered records per stratum from the joined 354-record pilot. This 32-case artifact predates the final Card label supplement; use the final full pilot for release admission counts.",
+  "strata": {
+    "already_eligible": 8,
+    "content_and_numbers": 8,
+    "content_only": 8,
+    "domain_or_blocking": 8
+  },
+  "reassessed_eligible_by_stratum": {
+    "already_eligible": 8,
+    "content_and_numbers": 6,
+    "content_only": 7
+  },
+  "residual_reasons": {
+    "content_unit_fidelity": 3,
+    "exact_numbers_dates_units_fbeta": 2,
+    "generic_source_unit_not_exactly_represented": 3,
+    "unsupported_visible_numeric_anchor": 1,
+    "semantic_role_difference:chart": 1,
+    "semantic_role_difference:email": 1,
+    "action_and_source_link_fidelity": 3,
+    "unsupported_external_action": 1,
+    "missing_or_mismatched_action": 2,
+    "table_content_difference": 1,
+    "inferred_role_count_gap:code": 1,
+    "missing_or_mismatched_table": 1
+  },
+  "inputscope": "After normalization and deterministic v10 repair; the builder additionally checks Stage 1/Stage 2 binding, source quality, benchmarks, deduplication and splits.",
+  "scope": "Deterministic source-to-renderer lexical evidence and numeric anchor fidelity; not factual certification or model performance.",
+  "preserved_gates": [
+    "Schema and production validation",
+    "dynamic evidence complete",
+    "Action/media/table/role flags must clear a fresh v5.4 score",
+    "v10 semantic gates applied independently by the builder"
+  ],
+  "renderer_findings": [
+    "Generic Table.title is not uniformly shown and does not count as visible.",
+    "Literal Text evidence silently clips at 4096 characters by default; a finite input-derived limit removes false omissions.",
+    "Table cells can be proved with exact header:value bindings per row.",
+    "Email subject/from/to values use renderer-resolved role evidence.",
+    "Generic source units retain local token order, negations, comparator signs, currency and numeric precision.",
+    "Normal static Card title/subtitle are native-visible; the supplement conservatively excludes dynamic graphs, source-link subtrees and email-shaped cards."
+  ],
+  "remaining_limits": [
+    "Faithful paraphrases and reordered field labels may stay quarantined.",
+    "This does not independently prove all prose factual claims or all unsupported non-numeric additions.",
+    "Pixel rendering and tokenizer/model sequence checks are separate."
+  ],
+  "detailed_evidence": "reassessment_stratified32.json"
+}

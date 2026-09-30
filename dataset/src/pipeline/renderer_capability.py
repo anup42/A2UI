@@ -41,6 +41,16 @@ def supported_renderer_type_names() -> tuple[str, ...]:
     return tuple(sorted(str(entry["canonical"]) for entry in _MANIFEST["types"]))
 
 
+def canonical_chart_subtype(raw: Any) -> str | None:
+    """Mirror RenderChart's blank default, case folding and shared aliases."""
+    if raw is not None and not isinstance(raw, str):
+        return None
+    token = (raw or "").strip().lower() or "bar"
+    descriptor = _MANIFEST["chart_subtypes"]
+    token = descriptor.get("aliases", {}).get(token, token)
+    return token if token in descriptor["canonical"] else None
+
+
 class _Type:
     __slots__ = ("canonical", "runtime_key", "aliases", "props", "audited")
 

@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-01",
+  "scope": "Current checkout offline validation; no live teacher, tokenizer, student training or device run",
+  "tests": {
+    "dataset_generation_metric_renderer_resume": 176,
+    "training_bundle_review_preparation_cache_shared_prompt": 118,
+    "imported_v11_archive_repair_reassessment_verification": 75,
+    "total_final_distinct_tests_passed": 369
+  },
+  "checks": {
+    "all_source_package_entries_sha256_verified": 308,
+    "all_original_audit_files_verified": 278,
+    "all_four_training_split_bundle_verify_only": true,
+    "staged_bundle_parts_sidecars_original_audit_artifacts_byte_verified": 404,
+    "training_gzip_bytes": 840136699,
+    "all_v11_source_message_identity_bindings": 204303,
+    "all_v11s_effective_source_target_sha256_bindings": 111350,
+    "v11s_equal_v11_new_suffixes": true,
+    "all_59_text_holds_rejected_in_direct_and_shared_prompt_preparation": true,
+    "full_read_only_boundary_and_chart_audit_reproduced": true,
+    "policy_catalog_only_change_invalidates_preparation_cache": true,
+    "repeated_chart_admission_order_invariant": true,
+    "compile_checks_passed": true,
+    "staged_whitespace_check_passed": true,
+    "credential_scan": "No credential-bearing additions detected; a regex match in a product URL was a false positive"
+  },
+  "source_test_groups": {
+    "dataset": [
+      "test_training_fidelity_audit.py", "test_generation_quality_regressions.py",
+      "test_muse_stage3_prompt_quality.py", "test_genui_metric_v5_4_renderer.py",
+      "test_genui_metric_v5_4_roles.py", "test_genui_metric_v5_4_pipeline.py",
+      "test_genui_metric_v5_4_run_audit_regressions.py",
+      "test_training_augmentation_resume.py", "test_renderer_capability.py"
+    ],
+    "training": [
+      "test_training_split_bundle.py", "test_v11_release_review.py",
+      "test_express_preparation.py", "test_audit_filter.py",
+      "test_preparation_cache_v2.py", "test_shared_prompt_preparation.py",
+      "test_frozen_shared_prompt.py"
+    ],
+    "imported": "python -m unittest discover -s training/tests -p test_space_v11*.py -q; A2UI_V10_POLICY_REPO points at this checkout"
+  },
+  "quality_limits": [
+    "Original release counts remain unchanged; 1238 distinct reviewed rows are held during preparation",
+    "Expected reviewed counts precede tokenizer/context and other preparation exclusions",
+    "Historical full Stage3 lineage repair replay remains supplier evidence; raw source archives not included",
+    "No measured teacher-generation or trained-model quality improvement is claimed"
+  ]
+}

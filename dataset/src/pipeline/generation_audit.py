@@ -9,6 +9,7 @@ from typing import Any, Mapping
 from uuid import uuid4
 
 from pipeline.renderer_semantics import iter_renderer_references
+from pipeline.renderer_capability import canonical_chart_subtype
 from llm.base import completion_metadata
 
 
@@ -75,6 +76,16 @@ def graph_acceptance_errors(graph: Mapping[str, Any]) -> list[str]:
         element = elements[element_id]
         kind = str(element.get("type", "")).lower()
         props = element.get("props", {})
+        if kind == "chart":
+            raw_subtype = props.get("chartType")
+            # Bindings are evaluated by the final v5.4 effective contract gate.
+            # A literal unsupported subtype is a proven renderer failure and
+            # participates in the existing bounded teacher repair/regeneration.
+            dynamic_subtype = isinstance(raw_subtype, str) and any(
+                marker in raw_subtype for marker in ("${", "{{", "$item", "$index", "$/")
+            )
+            if not isinstance(raw_subtype, Mapping) and not dynamic_subtype and canonical_chart_subtype(raw_subtype) is None:
+                errors.append(f"unsupported_chart_subtype: Chart {element_id!r} requests {raw_subtype!r}; supported bar,column")
         if kind == "emailpreview":
             body = props.get("body")
             if not body or (isinstance(body, str) and not body.strip()) or (isinstance(body, list) and not any(str(value).strip() for value in body)):

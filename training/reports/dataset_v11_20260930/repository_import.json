@@ -1,0 +1,85 @@
+{
+  "release_date": "2026-09-30",
+  "import_date": "2026-10-01",
+  "package_manifest_sha256": "17d7a69aad243a65985dbc4b87d76e5b550bffa8db70f418c6740963b7422ede",
+  "all_package_entries_verified": 308,
+  "all_package_entry_bytes_verified": 10617480483,
+  "imported_code": [
+    "training/scripts/project_space_archive.py",
+    "training/scripts/prepare_space_v11.py",
+    "training/scripts/verify_space_v11.py",
+    "training/scripts/prepare_space_v11_repaired.py",
+    "training/scripts/verify_space_v11_repaired.py",
+    "training/scripts/repair_v11_base.py",
+    "training/scripts/space_v11_repairs.py",
+    "training/scripts/space_v11_reassessment.py",
+    "training/scripts/space_v11_known_hold_repairs.py",
+    "training/tests/test_space_v11_import.py",
+    "training/tests/test_space_v11_repairs.py",
+    "training/tests/test_space_v11_reassessment.py",
+    "training/tests/test_space_v11_known_hold_repairs.py",
+    "training/tests/test_space_v11_verification.py"
+  ],
+  "compressed_audit_ledgers": {
+    "new_decisions.jsonl": {
+      "compressed_path": "new_decisions.jsonl.gz",
+      "bytes": 189950362,
+      "sha256": "af8b02a9505838b418fbb43c1c83ce996cc04323efe5387ed5cc11dbad77a3da",
+      "compressed_bytes": 28419274,
+      "compressed_sha256": "40ec36adafe7d04976096959b7d6e55e5fafaedb6cf5e942eb99bba1ce0acabd"
+    },
+    "new_family_assignments.jsonl": {
+      "compressed_path": "new_family_assignments.jsonl.gz",
+      "bytes": 21040692,
+      "sha256": "1339247e0fbfebf855c3c653900ed618e2cb52fcfe0b090c565b583217bc51db",
+      "compressed_bytes": 4794492,
+      "compressed_sha256": "1c12f910c41897f0aba9aecad2681c69f693f0d93ced4acdb694d7e6572c7521"
+    },
+    "policy_snapshot/reference/training/data/eval/bixby50_v1/bixby50.jsonl": {
+      "compressed_path": "policy_snapshot/reference/training/data/eval/bixby50_v1/bixby50.jsonl.gz",
+      "bytes": 159335,
+      "sha256": "27bdc9ad4c7d3735d3c5f7c26fa37be2472e7aafd7c99afa31910a22b5bfdb4d",
+      "compressed_bytes": 44888,
+      "compressed_sha256": "3cd62394dc28067a6bf13c51ef8d2ccf05e7cf6d4760437b7355949c60bb8d78"
+    },
+    "policy_snapshot/reference/training/data/eval/golden32_archive_repeat_v1/golden32.jsonl": {
+      "compressed_path": "policy_snapshot/reference/training/data/eval/golden32_archive_repeat_v1/golden32.jsonl.gz",
+      "bytes": 1000781,
+      "sha256": "8c7357103e6ea52d99d66430dd4b93242e1c4a4f0bf02f2fcfdf2a2e9c48de4c",
+      "compressed_bytes": 100873,
+      "compressed_sha256": "1f56345d2ef172d9a2d6a889dc9a0d78da2341a621af1e9b0b9326e2b2d0feb5"
+    },
+    "policy_snapshot/reference/training/data/eval/golden35_v1/golden35.jsonl": {
+      "compressed_path": "policy_snapshot/reference/training/data/eval/golden35_v1/golden35.jsonl.gz",
+      "bytes": 1432560,
+      "sha256": "8fec7fde8c31634f66e4c77dd0ca7a0e3b37d36e453398f167fd30b9604c2d20",
+      "compressed_bytes": 158869,
+      "compressed_sha256": "5ffb223d7be218ae138d6bca4151e89c57cecca0887f6ad16c3e211dea6e0b05"
+    },
+    "v10_decisions.jsonl": {
+      "compressed_path": "v10_decisions.jsonl.gz",
+      "bytes": 19729910,
+      "sha256": "a29b798bf2acf4fd197194ab9ac991a50be66cae58eedfb6c5df83071ec2ce0b",
+      "compressed_bytes": 5522594,
+      "compressed_sha256": "2484094cff25fb68fe13a4ef14cfd67b6ef5a5748cca486e52a654f9f32fb35d"
+    }
+  },
+  "datasets": {
+    "v10": {
+      "train": 91115,
+      "val": 1862,
+      "combined": 92977
+    },
+    "v11": {
+      "train": 200214,
+      "val": 4089,
+      "combined": 204303
+    },
+    "v11s": {
+      "train": 109121,
+      "val": 2229,
+      "combined": 111350
+    }
+  },
+  "scope": "Package byte integrity and audit compression roundtrip verified locally; original full Stage3 lineage replay is historical package evidence."
+}

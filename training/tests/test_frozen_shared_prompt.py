@@ -49,7 +49,7 @@ def test_new_preparation_rejects_real_production_drift_with_diagnostic(tmp_path,
     from ir_training.pipeline.golden_training import prepare_data
     # Reject a stale new plan before even looking up source/model paths or cache.
     with pytest.raises(ValueError, match="versus current production"):
-        prepare_data({"shared_prompt": saved})
+        prepare_data({"shared_prompt": saved, "options": {}})
     assert prompt.validate_shared_prompt_contract(current) == current
 
 

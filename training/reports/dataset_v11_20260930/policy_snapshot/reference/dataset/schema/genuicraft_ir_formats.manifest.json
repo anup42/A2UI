@@ -1,0 +1,100 @@
+{
+  "manifestVersion": "2.0.0",
+  "upstreamRepository": "a2ui-project/a2ui",
+  "upstreamCommit": "2276f8cc702eaeac25ffb05be85797b2a1205c74",
+  "protocolVersion": "v0.9",
+  "expressVersion": "genuicraft-express-v1",
+  "catalogVersion": "genuicraft-a2ui-catalog-v1",
+  "profileVersion": "genuicraft-a2ui-express-profile-v1",
+  "canonicalGraphSchemaVersion": "canonical-ui-graph-v1",
+  "catalogId": "https://genui.samsung.com/a2ui/catalogs/genuicraft-mobile/v1",
+  "catalogIdentityHash": "df587a54930a333e9aca5bec3ed1b524c87412e900df2e5ea9c211c8b7feb6fe",
+  "tokenizer": {
+    "status": "blocked",
+    "name": "deployed_gemma_tokenizer_unavailable",
+    "benchmarkFallback": "regex_lexical_estimate_v1"
+  },
+  "files": {
+    "dataset/schema/genuicraft_a2ui_catalog_v1.json": {
+      "sha256": "b5571b35b1af2629361d66e896d59c7dbc5b27aaea17492c274933f6125b518e",
+      "bytes": 106759
+    },
+    "dataset/schema/genuicraft_a2ui_express_profile_v1.json": {
+      "sha256": "c0259faae3a08bdb245faf9bb2abe0798b665ddb95c1b174f7e7c5d09ae52b83",
+      "bytes": 7619
+    },
+    "dataset/schema/canonical_ui_graph_v1.schema.json": {
+      "sha256": "0c5c211e0ddf05e0e6f22b803dee6050a2141d4723e341a75ff3b4dd69384e83",
+      "bytes": 967
+    },
+    "dataset/schema/genuicraft_a2ui_v1_wire.schema.json": {
+      "sha256": "90137067429316d2ecba4997c43198bccf7241a9bbeeb34ef8c4ae52f6e14881",
+      "bytes": 82009
+    },
+    "dataset/prompts/genui_gen_mobile_a2ui_express_v1.md": {
+      "sha256": "7533bca3e6be8bc95ae54505274ee95dd78975130b375501f69916589f43d816",
+      "bytes": 4735
+    },
+    "dataset/prompts/genui_gen.md": {
+      "sha256": "7533bca3e6be8bc95ae54505274ee95dd78975130b375501f69916589f43d816",
+      "bytes": 4735
+    },
+    "dataset/scripts/generate_a2ui_express_prompt.py": {
+      "sha256": "f3cc910a4cd393fa5c7294ab203869ee4225136a0d400e3ac5491b3b5e704202",
+      "bytes": 5463
+    },
+    "dataset/prompts/a2ui_express_quality_policy_v1.md": {
+      "sha256": "299b206f0280f3a622bcab96a8f6d32d113432e473174b8790fc5a266693de0e",
+      "bytes": 983
+    },
+    "android/app/src/main/assets/pipeline_prompts/genui_gen.md": {
+      "sha256": "7533bca3e6be8bc95ae54505274ee95dd78975130b375501f69916589f43d816",
+      "bytes": 4735
+    },
+    "android/app/src/main/assets/pipeline_prompts/genui_gen_a2ui_express_v1.md": {
+      "sha256": "7533bca3e6be8bc95ae54505274ee95dd78975130b375501f69916589f43d816",
+      "bytes": 4735
+    },
+    "android/app/src/main/assets/pipeline_prompts/genui_gen_gemma_litert.md": {
+      "sha256": "9dd8788b4bb728b503ff47f7359e06fd86e17f86e76b8fd6cd87193a901543d1",
+      "bytes": 6067
+    },
+    "dataset/src/pipeline/ir_formats/express.py": {
+      "sha256": "be29c0c2a45616e1e32d23ecb177a152cb432fddf04244ab0835afb680442d66",
+      "bytes": 32649
+    },
+    "dataset/src/pipeline/ir_formats/active.py": {
+      "sha256": "7ea03b3e58bddc98661589495554af05d809a679da03d1645b2581751cb12382",
+      "bytes": 4470
+    },
+    "dataset/src/pipeline/ir_formats/a2ui_wire.py": {
+      "sha256": "b129aa4c96ea80bda2e89eccca742e35827a35b42d705959c9912849837b6e4e",
+      "bytes": 19306
+    },
+    "android/app/src/main/java/com/samsung/genuicraft/pipeline/A2uiExpressCodec.kt": {
+      "sha256": "4974a9ff12544cf9f6f33c85a2917abbea4cf513ebef9dc2fbd10efa3b21f1ee",
+      "bytes": 37574
+    },
+    "android/app/src/main/java/com/samsung/genuicraft/pipeline/A2uiWireCodec.kt": {
+      "sha256": "e01a43b6050246c93db381b57af83437ded91d2dfb1d131a32ec92641c2ef4f0",
+      "bytes": 18984
+    },
+    "dataset/scripts/migrate_legacy_dataset_to_a2ui_express.py": {
+      "sha256": "affab6b361128daea91472ee192ad93ab7abbe4394c0e9d0b92cf2b5e8919b9a",
+      "bytes": 14045
+    },
+    "dataset/tests/fixtures/flat_spec_reference_inventory_v1.json": {
+      "sha256": "d944a4d092b4d7cd7a729027f3706b261b187ba68ecf1250951924a723be921d",
+      "bytes": 2686
+    },
+    "dataset/tests/fixtures/a2ui_express_conformance_v1.json": {
+      "sha256": "3e0b3bbdbadc5c829e7befac0b807eb59c08f23ec92b3f1f206db42d2fe3261b",
+      "bytes": 4478
+    },
+    "specification/inference_formats/express/Express.g4": {
+      "sha256": "37044656eb10e4c4a4a54c822432f327c5340761b5bfe914b58fa0db3581cf42",
+      "bytes": 1451,
+      "upstreamGitBlobSha": "4f2492ae4600598d8b10e68fcd9f4292529dd653"
+    }
+  }
+}

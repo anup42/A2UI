@@ -1,0 +1,188 @@
+{
+  "archive-source-family-sha256:3cc944ccabaad3c6f065cd76bb17ec148067513423a163930ebec9516a0ae870": {
+    "case": 2,
+    "verdict": "REPAIR",
+    "reason": "Source and target say 10.4% speed increase; 25/22.5 - 1 = 11.11%. The paces and rounded speeds are otherwise consistent. Correct the source percentage and regenerate the paired target.",
+    "source_sha256": "4f5fb1a6be08d71415600497810540e2dfc782accba372745af1abfada06da0a"
+  },
+  "archive-source-family-sha256:4634f54c314994849032048272f0a8b39bb4561770c4b2c901ee2214d911d787": {
+    "case": 3,
+    "verdict": "REPAIR",
+    "reason": "Option 2/3/1 references have no option-ID column and conflict with displayed row order. Name the airlines explicitly or preserve original IDs. Timings/durations also need source timezone/date clarification; do not invent them.",
+    "source_sha256": "ba9c6f3309309f95697ff87681a6e11aa8bb4943024c47dbe7e9669744ef926a"
+  },
+  "archive-source-family-sha256:a1ef2b97da7402c13704286b8309faef143c9aa0d229e91844eae4c979b67edd": {
+    "case": 10,
+    "verdict": "REJECT",
+    "reason": "Source assigns an AI processing unit to the original Sony Alpha 1; Sony documents its addition in Alpha 1 II. The $4,000 body-plus-lens recommendation also lists no lens/kit totals and already asks to stretch the budget. Rebuild the recommendation from verified model generations and dated complete kit prices; not claiming every possible used/discount kit is over budget.",
+    "source_sha256": "8a9769ab21733390a043687ec14710537e6373f77b225fa0cce907b7da35aa17"
+  },
+  "archive-source-family-sha256:35e380cc91592f8422328ad26513f8d06552e057c47608ae69f4588c908b1ecb": {
+    "case": 13,
+    "verdict": "REJECT",
+    "reason": "Source mixes real space titles with unsupported space versions/themes (Terra Mystica, Root, Scythe) and an unverified Void Century entry. A faithful target still teaches unreliable recommendations; verify and regenerate the source list.",
+    "source_sha256": "35e380cc91592f8422328ad26513f8d06552e057c47608ae69f4588c908b1ecb"
+  },
+  "archive-source-family-sha256:671a4f2c7114a0516928ed36e26cf7dc3f9b4a39ce9e6e7c01ed79f8ee93df57": {
+    "case": 15,
+    "verdict": "REPAIR",
+    "reason": "Source roadmap introduces jogging in Week 7, while safety/frequency text authorizes impact/jogging during Weeks 6 and 7. Target copies the inconsistency. Resolve with qualified source review before regenerating; do not choose a medical schedule automatically.",
+    "source_sha256": "cf2aff374f7190dbae3602b64851b0ee55a3a0073f6835397fe7c851b837628b"
+  },
+  "archive-source-family-sha256:dd5d2f5a333316d13435ec7d78112fa08741f2260456339932b1dbcc3f48e794": {
+    "case": 27,
+    "verdict": "REPAIR",
+    "reason": "Source says listed options fit a $3,000 two-person flight budget, then allocates only $2,400 to flights plus $600 transit. JAL/ANA totals ($2,700/$2,800) exceed that allocation. Clarify total-trip versus flight-only budget and which options actually fit; target copies the ambiguity.",
+    "source_sha256": "de1d8422db88656afd09961e915b67c0fd663633e951d8b47050e338bad19338"
+  },
+  "archive-source-family-sha256:7b0afad90b2b1ccd4451766f30ad5f6c2b18ccc81e3696447b798e947ae5ad8e": {
+    "case": 28,
+    "verdict": "REPAIR",
+    "reason": "Table j transposes entities into rows but retains device names as column labels: device is labelled Step Counter, accuracy Fitness Watch, battery Medical ECG Wearable. The focus field is unprojected. Regenerate a correctly oriented, source-faithful matrix; strict validity does not catch this.",
+    "source_sha256": "7b0afad90b2b1ccd4451766f30ad5f6c2b18ccc81e3696447b798e947ae5ad8e"
+  },
+  "archive-source-family-sha256:354ce45cf7c8b045828eca778213368945b7a7fb8530df3f954caf436b5b8c46": {
+    "case": 33,
+    "verdict": "REPAIR",
+    "reason": "Target z keeps tag names but omits their positions: Signature in the main signature block, Date Signed adjacent, Initials at the bottom of each page. Restore these three short source instructions through regeneration.",
+    "source_sha256": "0f479e9bec9660d9f66fb9894f5b9989674b135f3010de083228431fe8340941"
+  },
+  "archive-source-family-sha256:857a219587463723c7338d77db2c4de6c33ec07dc842812a4ae982a9dab94e10": {
+    "case": 34,
+    "verdict": "REPAIR",
+    "reason": "Source's stated annuity formula/rate/139 deposits do not reproduce $570.06 monthly. Recalculate under the explicit timing/rate convention, then update principal, interest and explanatory percentages together; target copies the source numbers.",
+    "source_sha256": "ade28d1af33a5f1484051cd156af6d91b2ab1cccb6105bf0ebdab4f86ac34e31"
+  },
+  "archive-source-family-sha256:391c42498ebf565851a75dff201412bd75f7d7a74c2ddff2a3da4af7ab1b5c0e": {
+    "case": 35,
+    "verdict": "REPAIR",
+    "reason": "All three rows have the same 12-hour departure/arrival clock gap on the same route/date but claim 10h/6h/8h durations. The fastest-flight selection is therefore not trustworthy without correcting source date/time/duration data.",
+    "source_sha256": "4a604f49372f5d615714e9938b6146510425840a9d33c0b788a4992c4f4adfab"
+  },
+  "archive-source-family-sha256:4d625f46258f360ae613f31010de3755ad177472529fc62fd84a9f52546c3547": {
+    "case": 36,
+    "verdict": "REPAIR",
+    "reason": "Target shortens the interval header and loses 'Repeat 4-6 times' plus the Saturday association. Source also places Dec 1, 2024 race day in a Saturday column although that date is Sunday and Sunday is listed as full rest. Restore qualifiers and resolve race-day exception.",
+    "source_sha256": "4d625f46258f360ae613f31010de3755ad177472529fc62fd84a9f52546c3547"
+  },
+  "archive-source-family-sha256:116e898719621e90e8fd58f18f44f8046fbedc144a5d402e71fd89a9fff1452f": {
+    "case": 38,
+    "verdict": "REJECT",
+    "reason": "Source asserts all three named pharmacies are verified, open 24 hours and stock emergency insulin, but the archive contains no verification timestamp, live stock evidence or recoverable URL map. Target is faithful. Those consequential claims could not be confirmed in this audit; quarantine pending actual pharmacy/source verification, not a declaration that each store is nonexistent.",
+    "source_sha256": "116e898719621e90e8fd58f18f44f8046fbedc144a5d402e71fd89a9fff1452f"
+  },
+  "archive-source-family-sha256:c80b85db2bafe4b2ed1e2f5c640b3efe1763626165671ce49966fd8dacd641ac": {
+    "case": 46,
+    "verdict": "REPAIR",
+    "reason": "Target drops the short third option descriptors, notably Mazda's 'Best-in-class handling', which is absent elsewhere. Restore the full option fields rather than only the first two pipe-separated fields. Vehicle-year specifications also remain unverified.",
+    "source_sha256": "c80b85db2bafe4b2ed1e2f5c640b3efe1763626165671ce49966fd8dacd641ac"
+  },
+  "archive-source-family-sha256:1523f9dc3b6498e1e1eb2a6d5c16254ad936ed3e274b919af14a92e45eb60330": {
+    "case": 48,
+    "verdict": "REPAIR",
+    "reason": "Canon RF 100-400mm is described as weather-sealed/Full Body-Lens; Canon's own specification says dust/weather-resistant construction: None. Correct that source claim and regenerate the target. Fuji partial-body sealing and all live kit prices also need verification; not asserted as independently disproved.",
+    "source_sha256": "9b56416f8d96196d6b1517d549aa13ea6bf1e93234d5fb694e8846d1f33f5aaf"
+  },
+  "archive-source-family-sha256:a3ed71a976893c04c55ac862d179f45651d62e790c378a079ba528f608c64592": {
+    "case": 51,
+    "verdict": "REPAIR",
+    "reason": "Arithmetic is correct but source calls revenue/leads a 'conversion rate'. The displayed units are USD/lead, not a fraction of leads converting. Rename metric/formula/insights to revenue per lead or supply actual conversion counts before regeneration.",
+    "source_sha256": "a3ed71a976893c04c55ac862d179f45651d62e790c378a079ba528f608c64592"
+  },
+  "archive-source-family-sha256:52d06d19a1c861567666f8563ec4d4e7a69973b16fc987e0f63adc5c661f2b75": {
+    "case": 60,
+    "verdict": "REJECT",
+    "reason": "Source mixes an engine-unspecified oil recommendation with a 24-month roadmap spanning 30,000 miles despite a stated 10,000-12,000 miles/year, plus blanket parts-replacement advice. Needs model/engine-specific maintenance-source verification and regeneration, not a target-only edit.",
+    "source_sha256": "fb5c600d51dd0ac8ccb1dfdaa487338277eb0e8b55b7f4a5c46f1920b2106f14"
+  },
+  "archive-source-family-sha256:4a967f386eb415b4e5b633cbcbf57ce8fe7c46c5563cea21a995d5d699075925": {
+    "case": 65,
+    "verdict": "REPAIR",
+    "reason": "Source calls energy a giant loop/cycle and describes oxygen-using cellular respiration as universal to all living things. Clarify that matter cycles but energy flows/dissipates, and distinguish aerobic respiration from anaerobic processes before regenerating the faithful target.",
+    "source_sha256": "17287a13fa34e914043838cf51d0c8e4d17b76b53b5c37be858606c148dcbb53"
+  },
+  "archive-source-family-sha256:251f0a07b97c570d1b963172337d6279555393fe1f4cfbd639d3f458bdb731b2": {
+    "case": 69,
+    "verdict": "REPAIR",
+    "reason": "Conversion preserves the complete code block, but the source includes obsolete python.formatting.provider configuration and implies defaultInterpreterPath changes always switch an already selected interpreter. Update to supported settings and explicit interpreter selection guidance; verify against current Microsoft documentation.",
+    "source_sha256": "eb4200a4580cf9c39f66778e65651261ee49fc88ce9101a77b0a9bec371d06f8"
+  },
+  "archive-source-family-sha256:a642815125fda7c3cd45a018b5f63ab9a6b7b3a1f246926fcc9d68936d53e344": {
+    "case": 71,
+    "verdict": "REPAIR",
+    "reason": "Source tells the reader to touch hot-outlet fittings without a burn precaution and says to begin saving if the tank shell leaks, without making immediate safe isolation/professional inspection clear. Target is faithful, but a qualified/manufacturer-grounded safety rewrite is needed; do not invent hardware-specific shutoff instructions.",
+    "source_sha256": "a642815125fda7c3cd45a018b5f63ab9a6b7b3a1f246926fcc9d68936d53e344"
+  },
+  "archive-source-family-sha256:c0d57e3c585cdd5545003ad576676f6af3ce16df29b7af31bac517f8301359d6": {
+    "case": 73,
+    "verdict": "REPAIR",
+    "reason": "The opening claims Offer C has the highest potential total cash, yet the correct table/final verdict give B 92,000 and C 89,600. Correct the contradictory opening in the source, then regenerate the target; the arithmetic rows themselves are correct.",
+    "source_sha256": "e767023efa939c25adc3bb698a5f1f123eb159a2fbe8bc484558f0506df243d6"
+  },
+  "archive-source-family-sha256:3e106e6a19c0b58d429d08b1fe30d448f5e0ed3b85d45998e6d91b3adf385c30": {
+    "case": 77,
+    "verdict": "REPAIR",
+    "reason": "Source defines columns Date/Ticker/Closing Price/Daily % Change but then gives =(B2-C2)/C2, which would subtract a price from the ticker text under that layout. GOOGLEFINANCE price is also labeled a closing price without a historical-date/close request. Correct the source's column/formula mapping and quote type, then regenerate.",
+    "source_sha256": "3e106e6a19c0b58d429d08b1fe30d448f5e0ed3b85d45998e6d91b3adf385c30"
+  },
+  "archive-source-family-sha256:076e7f398b966a3b0ffedcc7ff94f131d5c14addeda6519242b1154db4c773e9": {
+    "case": 79,
+    "verdict": "REPAIR",
+    "reason": "Target is faithful, but the source presents fixed twice-daily medication times and monitoring as a tailored NHS-style routine without the medicine, prescription or clinician context in the archive. Require that context or a qualified rewrite explicitly deferring medication timing to the prescription; do not automatically choose a dosing schedule.",
+    "source_sha256": "c3b52e5d43ff2dbeb02d61a46558084c7a202f33df4d65bf70b2c4b1f47458db"
+  },
+  "archive-source-family-sha256:714d026af905c635dd494c68bafdf81af95f9b78f00a32aacb7d86adc4d7de55": {
+    "case": 82,
+    "verdict": "REPAIR",
+    "reason": "Target creates a separate entity column but labels it Liability, alongside the actual Liability column. Correct the generated column semantics (Business structure/Entity vs Liability); legal generalizations also need jurisdiction-specific review before being treated as advice.",
+    "source_sha256": "ffcda2b9e9b573ac487e4532c8237cbab509a1d4538cbb0c83fc1f4db6d8747a"
+  },
+  "archive-source-family-sha256:3a7b8d482d37421b23b9719896ddd7403d6528f85eeb963940d261631e0026c6": {
+    "case": 84,
+    "verdict": "REPAIR",
+    "reason": "Source explicitly specifies a pie chart titled Monthly Expense Distribution; target has tables and text only, no Chart. The data is preserved but the requested visual role is absent. Current semantic gate only detects a narrower line-chart pattern. Minor rounding in food share is secondary.",
+    "source_sha256": "0cbb35218933c44b07d0df9cc910feb9920e54cec8c36f75ffac19351768d8a1"
+  },
+  "archive-source-family-sha256:46ff462365f6c02af8028313d5845fcd6b7cb5a7298b95e1c692c0d84dc991b9": {
+    "case": 85,
+    "verdict": "REPAIR",
+    "reason": "All dates, four investments and estimates are preserved, but the Sources section and provider names TradeMe Property, Realestate.co.nz and QV New Zealand disappear. Reusing the URLs in generically labeled action buttons preserves navigation tokens, not source attribution.",
+    "source_sha256": "06f09e307c328686e5c8271df9314a36531a0fb29213ec94af4d60734fbce32e"
+  },
+  "archive-source-family-sha256:0c57704b2d5dab7608299876f1e9e513d539d7e9610f70e7c5397830d0fcb644": {
+    "case": 88,
+    "verdict": "REPAIR",
+    "reason": "All prices, totals and recommendation logic match, but target adds bookingUrl/actionLabel for Hotel C although the source supplies booking actions only for A and B. Static table extraction projects only declared columns here: this is unsupported latent action metadata, not a demonstrated visible Book Hotel C button. Remove unsupported metadata through the pipeline/regeneration; do not invent a destination.",
+    "source_sha256": "0c57704b2d5dab7608299876f1e9e513d539d7e9610f70e7c5397830d0fcb644"
+  },
+  "archive-source-family-sha256:0d6384b2dc3840c601ecca7a2f36a197fc3374f28b52a9965608e4bc1f3a4b78": {
+    "case": 89,
+    "verdict": "REPAIR",
+    "reason": "Target is faithful, but source conflates the inner mitochondrial membrane with the proton-gradient location for photosynthesis. Distinguish mitochondrial inner membrane (respiration) from thylakoid membrane (photosynthesis) and regenerate; exam-date assumptions cannot be checked without year/query.",
+    "source_sha256": "54475ebdcbf2a8cbed44eeb9f9d2678747dc104e7c2effc9b16beabcf139dd9d"
+  },
+  "archive-source-family-sha256:184f36b85fd45dc4ad67e0ac24e4df27bb29106d71b3e65b5c73430b95bef8a5": {
+    "case": 90,
+    "verdict": "REPAIR",
+    "reason": "Target preserves all five bullets, but source says market share increased 12% as measured by new-logo acquisition alone. Customer acquisition and market share are different metrics; obtain the market denominator or rewrite as supported customer growth, without inventing resume achievements.",
+    "source_sha256": "184f36b85fd45dc4ad67e0ac24e4df27bb29106d71b3e65b5c73430b95bef8a5"
+  },
+  "archive-source-family-sha256:3265947bf6a6c0e8fcb5ec090a0bad92cf8eb38bdaf79397b7a2aa8a44e250ec": {
+    "case": 96,
+    "verdict": "REJECT",
+    "reason": "Source provides unsupported exact -15/-12/-10 C ratings, an underspecified Helly Hansen model and the unverified name Patagonia Tres Peaks. Patagonia's located manufacturer page identifies Tres 3-in-1, but that is not proof they are the same item. Rebuild using identified products and documented performance conditions; do not infer nonexistence from a failed lookup.",
+    "source_sha256": "06b542866ad141064e46f07e88ba740924a5645611ba73fb0b393ad39470048e"
+  },
+  "archive-source-family-sha256:3b35a6996cd887f4e50ec54f8882cb1b817030a95a13e80918138abda7a93401": {
+    "case": 97,
+    "verdict": "REPAIR",
+    "reason": "Target faithfully reproduces the source's must-present list, but Visit Japan Web is not mandatory. Separate optional digital processing from required entry documents and avoid guaranteeing admission; verify jurisdiction/date-specific guidance before regenerating.",
+    "source_sha256": "fa530b8b633615b84a419b479ac0473a47a223c8efffd52eb9d7e97e7e9e40c7"
+  },
+  "archive-source-family-sha256:9179d1860725430bbbe0313606fc2bf143846c9b8b1610d3a95251de3b31f648": {
+    "case": 100,
+    "verdict": "REPAIR",
+    "reason": "Total 49.25 hours is correct, but source/target call the 18.75-hour second interval the longest. First interval (May 10 08:00 to May 11 14:30) is 30.5 hours. Correct the comparison claim, preserving all timestamps.",
+    "source_sha256": "b84cb4a8d86e59e6fb39809fa415b5f2105967d7f4423da7b57b223e5613fa51"
+  }
+}

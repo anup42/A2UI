@@ -71,6 +71,10 @@ from pipeline.metrics import (
 )
 from pipeline.storage import JsonlWriter, iter_jsonl
 from pipeline.source_quality import assess_source_quality
+from pipeline.training_fidelity import (
+    audit_training_fidelity, bounded_fidelity_config,
+    compose_training_fidelity_prompt, guidance_identity,
+)
 from pipeline.toon_convert import encode_toon, roundtrip_ok
 from llm.base import BaseLLMAdapter, LLMRateLimitError
 from llm.http_transport import urlopen
@@ -919,7 +923,9 @@ def run_stage3(
         raise FileNotFoundError(f"Missing Stage 3 prompt for {active_ir_format}: {prompt_path}")
     if not schema_path.exists():
         raise FileNotFoundError(f"Missing Stage 3 schema for {active_ir_format}: {schema_path}")
-    prompt_template = compose_stage3_prompt(load_prompt(prompt_path), adapter.spec)
+    prompt_template = compose_training_fidelity_prompt(
+        compose_stage3_prompt(load_prompt(prompt_path), adapter.spec)
+    )
     prompt_version = _extract_prompt_version(prompt_template, prompt_path)
     system_prompt, user_prompt_template = _prepare_prompt_context(prompt_template, adapter, logger)
     schema = json.loads(schema_path.read_text(encoding="utf-8"))
@@ -2205,6 +2211,7 @@ def run_stage3(
 
         if metric_mode in {"v5_4", "dual"}:
             assert contract_resolution_v5_4 is not None
+            sample_v5_4_config = bounded_fidelity_config(response_text, genui_json, v5_4_config)
             record["genui_raw_completion"] = generation_completion
             record["expected_ui_contract_v5_4"] = (
                 contract_resolution_v5_4.contract
@@ -2220,7 +2227,7 @@ def run_stage3(
                 expected_ui_contract=contract_resolution_v5_4.contract,
                 expected_ui_contract_source=contract_resolution_v5_4.source,
                 render_ok=None,
-                config=v5_4_config,
+                config=sample_v5_4_config,
                 reference_map=task.get("asset_placeholder_map"),
             )
             artifact_v5_4 = render_artifact_quality_v5_4(
@@ -2231,7 +2238,7 @@ def run_stage3(
                 expected_ui_contract=contract_resolution_v5_4.contract,
                 expected_ui_contract_source=contract_resolution_v5_4.source,
                 render_ok=None,
-                config=v5_4_config,
+                config=sample_v5_4_config,
                 reference_map=task.get("asset_placeholder_map"),
             )
             acceptance = artifact_v5_4.evidence.get("training_acceptance")
@@ -2311,6 +2318,8 @@ def run_stage3(
             record["metrics"]["legacy_structural_richness_score"] = sample_legacy_score
             # Compatibility field for one migration window.
             record["metrics"]["overall_score"] = sample_legacy_score
+        record["generation_fidelity_audit"] = audit_training_fidelity(response_text, genui_json)
+        record["gen"]["training_fidelity_guidance"] = guidance_identity()
         writer.append(record)
         existing_ids.add(ui_id)
         if sample_legacy_score is None and metric_mode == "legacy":

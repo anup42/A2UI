@@ -106,6 +106,52 @@ python src/main.py --stage 3 --model perplexity_gpt5 --run_id perplexity_gpt5
 
 Outputs are written to `data/runs/<run_id>/`.
 
+### Training fidelity after the v11 audit
+
+All calls to `pipeline.stage3_genui.run_stage3` append
+`prompts/stage3_training_fidelity_v1.md` to the selected Express contract. This
+includes the main CLI, Gemini response watcher and batch runner, chunk runner,
+Muse runner, and augmentation/resume worker. The pinned grammar/catalog and
+Muse JSON source boundary remain intact. The full composed prompt is recorded
+in each attempt; `gen.training_fidelity_guidance` stores its policy and file hash.
+Resume configuration also binds the guidance hash, so an in-progress augmentation
+cannot silently resume under a changed teacher policy. Restart running workers
+to load code changes; existing generated rows are preserved.
+
+The guidance addresses measured v11 repairs: omitted prose between sections,
+short qualifications and clauses, unsafe adjacent text joins, quote escaping,
+entity/field associations and unsupported charts. The shared native chart
+inventory allows only bar/column (plus its aliases/default). Literal unsupported
+Chart subtypes enter the existing bounded teacher repair/regeneration path.
+Unresolved/dynamic chart output is checked by the final v5.4 effective renderer
+contract; unsupported output cannot be training eligible. Source-requested
+unsupported chart semantics must remain visible and require review, without
+inventing measurements or silently changing the requested chart type.
+
+Each structurally accepted result also stores `generation_fidelity_audit`, with
+full source/graph hashes, counts and source-span examples of missing literal
+prose/headings, unexpected numeric anchors, suspicious word joins, unsupported
+chart subtypes and incomplete renderer evidence. Literal List items, ordinary
+Card labels and Table row/column bindings count; unused state, hidden content
+and native-ignored Table titles do not. Evidence string bounds derive from the
+concrete source/graph for both Stage 3 v5.4 scoring and this audit, preserving
+long source literals while retaining total evidence-byte/work limits. Exhausted
+limits are explicitly incomplete. The source and target are never clipped or
+rewritten by this diagnostic.
+
+Treat this field as review evidence alongside `training_acceptance`; it does
+not waive any v5.4 action/media/role/table gate or prove semantic correctness,
+source factuality or device rendering. Exact matching can flag valid paraphrases;
+passing does not prove every entity association or added nonnumeric claim.
+Reported missing-unit counts cover all units; only evidence examples are bounded.
+No paid generation or model-quality improvement is established by CPU fixtures.
+
+Run the focused offline checks from the repository root:
+
+```powershell
+python -m pytest dataset/tests/test_training_fidelity_audit.py dataset/tests/test_generation_quality_regressions.py dataset/tests/test_muse_stage3_prompt_quality.py dataset/tests/test_genui_metric_v5_4_renderer.py dataset/tests/test_training_augmentation_resume.py -q
+```
+
 ## Dataset dashboard
 
 Use the generated dataset dashboard to inspect all local runs and optionally mirror runs from other machines.

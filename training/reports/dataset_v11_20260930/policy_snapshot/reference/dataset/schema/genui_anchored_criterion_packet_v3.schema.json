@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://a2ui.local/schema/genui_anchored_criterion_packet_v3.schema.json",
+  "title": "Blinded GenUI Anchored Criterion Judge packet v3",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "protocol_version",
+    "packet_id",
+    "pass_type",
+    "protocol_fingerprint",
+    "screenshots",
+    "rubric",
+    "candidate_render_failure"
+  ],
+  "properties": {
+    "schema_version": {"const": "genui_anchored_criterion_packet.v3"},
+    "protocol_version": {"const": "genui_anchored_criterion_rubric.v3.0.0"},
+    "packet_id": {"type": "string", "minLength": 1},
+    "pass_type": {"enum": ["screenshot_only", "source_conditioned"]},
+    "protocol_fingerprint": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "screenshots": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "asset",
+          "sha256",
+          "viewport_profile",
+          "capture_kind",
+          "state_id"
+        ],
+        "properties": {
+          "asset": {"type": "string", "minLength": 1},
+          "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+          "viewport_profile": {"type": ["string", "null"]},
+          "viewport_width_dp": {"type": ["number", "null"]},
+          "viewport_height_dp": {"type": ["number", "null"]},
+          "capture_kind": {"type": ["string", "null"]},
+          "state_id": {"type": ["string", "null"]},
+          "state_description": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "overview_asset": {"type": "string"},
+    "overview_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "candidate_render_failure": {"type": "boolean"},
+    "source_text": {"type": "string"},
+    "expected_ui_contract": {"type": "object"},
+    "expected_ui_contract_hash": {"type": "string"},
+    "rubric": {"type": "object"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"pass_type": {"const": "source_conditioned"}}},
+      "then": {
+        "required": ["source_text", "expected_ui_contract", "expected_ui_contract_hash"]
+      },
+      "else": {
+        "not": {
+          "anyOf": [
+            {"required": ["source_text"]},
+            {"required": ["expected_ui_contract"]},
+            {"required": ["expected_ui_contract_hash"]}
+          ]
+        }
+      }
+    }
+  ]
+}

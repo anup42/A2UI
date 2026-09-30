@@ -25,7 +25,7 @@ from ir_training.common.parallel import ordered_bounded_map
 from ir_training.common.progress import Progress, fingerprint_file
 
 
-PREPARATION_VERSION = "2.0.0"
+PREPARATION_VERSION = "2.1.0"
 TARGET_FORMAT = "a2ui_express_v1"
 TASK_PREFIX = "Create A2UI Express v1 GenUI IR for this response:\n\n"
 
@@ -215,6 +215,10 @@ def prepare_row(row: Mapping[str, Any], ordering: str) -> tuple[dict[str, Any], 
     if row.get("target_format", TARGET_FORMAT) != TARGET_FORMAT:
         raise PreparationError("target_format_mismatch", "Only native Express targets are accepted")
     target = serialize_checked(completion, ordering)
+    from ir_training.data.release_review import reviewed_hold
+    hold = reviewed_hold(row, target.graph, target.semantic_sha256)
+    if hold is not None:
+        raise PreparationError(*hold)
     result = deepcopy(dict(row))
     for message in result["messages"]:
         if message["role"] == "assistant":
@@ -506,6 +510,7 @@ def prepare_splits(
                                         target_validation="not_applicable_source_only")
         from pipeline.ir_formats.common import codec_identity
         tracked_sources = [Path(__file__), repo_root() / "dataset/src/pipeline/ir_formats/express.py", repo_root() / "dataset/src/pipeline/ir_formats/canonical.py", repo_root() / "dataset/src/pipeline/renderer_semantics.py", repo_root() / "dataset/schema/genuicraft_a2ui_v1_wire.schema.json", repo_root() / "dataset/schema/genuicraft_a2ui_catalog_v1.json"]
+        tracked_sources += [repo_root() / "training/src/ir_training/data/release_review.py", repo_root() / "training/data/quality/v11_review_holds_20261001.json", repo_root() / "dataset/schema/renderer_capabilities.json"]
         manifest = {
             "preparation_version": PREPARATION_VERSION, "ordering": ordering,
             "validation": {"strict_express": True, "wire_schema": True, "root_reachability": 1.0, "semantic_roundtrip": True, "id_repair": False,

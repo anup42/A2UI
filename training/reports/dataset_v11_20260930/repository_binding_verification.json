@@ -1,0 +1,34 @@
+{
+  "all_message_and_identity_bindings_verified": true,
+  "all_new_content_hashes_verified": true,
+  "v11s_splits_equal_v11_new_suffixes": true,
+  "cross_split_source_families": 0,
+  "duplicate_row_ids": 0,
+  "split_counts": {
+    "train": {
+      "v11_rows": 200214,
+      "v11s_rows": 109121,
+      "message_identity_checks": 200214,
+      "source_target_hash_checks": 109121
+    },
+    "val": {
+      "v11_rows": 4089,
+      "v11s_rows": 2229,
+      "message_identity_checks": 4089,
+      "source_target_hash_checks": 2229
+    }
+  },
+  "review_holds": {
+    "train": {
+      "review_holds": 1212,
+      "v11_expected_remaining_before_other_preparation_checks": 199002,
+      "v11s_expected_remaining_before_other_preparation_checks": 107909
+    },
+    "val": {
+      "review_holds": 26,
+      "v11_expected_remaining_before_other_preparation_checks": 4063,
+      "v11s_expected_remaining_before_other_preparation_checks": 2203
+    }
+  },
+  "scope": "Independent full-file transport, message, identity, split and hash checks. Full strict target/repair lineage replay remains supplier evidence; tokenizer/training/device checks not run."
+}
