@@ -56,6 +56,7 @@ def main(argv=None) -> int:
     parser.add_argument("--progress-seconds", type=float, default=10)
     parser.add_argument("--stage-timeout-seconds", type=float, default=172800)
     parser.add_argument("--generation-timeout-seconds", type=float, default=7200)
+    parser.add_argument("--android-repair-runtime", type=Path, help="Android repair manifest for raw and post-repair scoring in callbacks and final holdouts")
     parser.add_argument("--augmentation", nargs="?", const="semantic", choices=("none", "rare_components", "semantic"), default="none", help="Bare flag imports precomputed semantic data; training never starts Muse. rare_components repeats exact examples locally")
     parser.add_argument("--augmentation-dir", type=Path, help="Sealed combined bundle from standalone augmentation; requires --augmentation and matching raw input")
     parser.add_argument("--augmentation-teacher-model", default="muse_glimmer_30b_sglang_reasoning_dflash")

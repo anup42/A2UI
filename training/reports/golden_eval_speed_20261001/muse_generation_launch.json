@@ -1,0 +1,88 @@
+{
+  "observed_at": "2026-09-30T21:40:55.920253+00:00",
+  "space_ip": "10.13.196.24",
+  "run_id": "dataset_muse_glimmer_100k_r9_2",
+  "status": "generation_running",
+  "output_dir": "/group-volume/k.anup/code/A2UI/dataset/data/runs/dataset_muse_glimmer_100k_r9_2",
+  "job_dir": "/group-volume/k.anup/working_dir/muse_glimmer_100k_r9_2_4gpu_20260930_213127",
+  "log": "/group-volume/k.anup/working_dir/muse_glimmer_100k_r9_2_4gpu_20260930_213127/cycle.log",
+  "launcher_pid": 183600,
+  "server_supervisor_pid": 183808,
+  "cycle_pid": 186392,
+  "probe_passed": true,
+  "requested_total": 100000,
+  "cycle_size": 5000,
+  "response_output_tokens": 16384,
+  "client_concurrency": 64,
+  "record_counts": {
+    "queries": 768,
+    "responses": 0,
+    "genui": 0
+  },
+  "servers": [
+    {
+      "port": 30000,
+      "model_path": "/group-volume/k.anup/models/meta-models/Muse-Glimmer-30B",
+      "served_model_name": "muse-glimmer",
+      "speculative_algorithm": "DFLASH",
+      "speculative_draft_model_path": "/group-volume/k.anup/models/meta-models/Muse-Glimmer-30B-assistant",
+      "reasoning_parser": "muse",
+      "tool_call_parser": "muse",
+      "tp_size": 1,
+      "max_running_requests": 16,
+      "context_length": 32768
+    },
+    {
+      "port": 30001,
+      "model_path": "/group-volume/k.anup/models/meta-models/Muse-Glimmer-30B",
+      "served_model_name": "muse-glimmer",
+      "speculative_algorithm": "DFLASH",
+      "speculative_draft_model_path": "/group-volume/k.anup/models/meta-models/Muse-Glimmer-30B-assistant",
+      "reasoning_parser": "muse",
+      "tool_call_parser": "muse",
+      "tp_size": 1,
+      "max_running_requests": 16,
+      "context_length": 32768
+    },
+    {
+      "port": 30002,
+      "model_path": "/group-volume/k.anup/models/meta-models/Muse-Glimmer-30B",
+      "served_model_name": "muse-glimmer",
+      "speculative_algorithm": "DFLASH",
+      "speculative_draft_model_path": "/group-volume/k.anup/models/meta-models/Muse-Glimmer-30B-assistant",
+      "reasoning_parser": "muse",
+      "tool_call_parser": "muse",
+      "tp_size": 1,
+      "max_running_requests": 16,
+      "context_length": 32768
+    },
+    {
+      "port": 30003,
+      "model_path": "/group-volume/k.anup/models/meta-models/Muse-Glimmer-30B",
+      "served_model_name": "muse-glimmer",
+      "speculative_algorithm": "DFLASH",
+      "speculative_draft_model_path": "/group-volume/k.anup/models/meta-models/Muse-Glimmer-30B-assistant",
+      "reasoning_parser": "muse",
+      "tool_call_parser": "muse",
+      "tp_size": 1,
+      "max_running_requests": 16,
+      "context_length": 32768
+    }
+  ],
+  "gpu_status": "0, NVIDIA H100 80GB HBM3, 73510, 100\n1, NVIDIA H100 80GB HBM3, 73510, 100\n2, NVIDIA H100 80GB HBM3, 73510, 100\n3, NVIDIA H100 80GB HBM3, 73510, 100\n",
+  "processes": "    PID    PPID     SID STAT ELAPSED COMMAND\n 183600       1  183600 Ss       568 /usr/bin/python3 -u /group-volume/k.anup/working_dir/muse_glimmer_100k_r9_2_4gpu_20260930_213127/launch.py\n 183808  183600  183808 Ss       427 /group-volume/k.anup/muse_sglang_env/bin/python -u dataset/scripts/run_muse_glimmer_stage3.py servers --gpus 4 --gpu-ids 0,1,2,3 --tp 1 --requests-per-server 16 --max-running-requests 16 --model-path /group-volume/k.anup/models/meta-models/Muse-Glimmer-30B --draft-model-path /group-volume/k.anup/models/meta-models/Muse-Glimmer-30B-assistant --log-dir /group-volume/k.anup/working_dir/muse_glimmer_100k_r9_2_4gpu_20260930_213127/servers\n 186392  183600  186392 Ss       157 /group-volume/k.anup/muse_sglang_env/bin/python -u dataset/scripts/run_muse_glimmer_stage3.py cycle --gpus 4 --gpu-ids 0,1,2,3 --tp 1 --requests-per-server 16 --max-running-requests 16 --run-id dataset_muse_glimmer_100k_r9_2 --cycle-size 5000 --total 100000 --response-output-tokens 16384\n",
+  "stage1_completed_requests_measured": 111,
+  "stage1_http_latency_seconds_mean": 26.10212972972973,
+  "stage1_http_latency_seconds_median": 24.8246,
+  "stage1_errors": [],
+  "query_generation_provenance": {
+    "llm_provider": "local",
+    "model": "meta-models/Muse-Glimmer-30B",
+    "prompt_version": "query_gen_gemma_v3_diverse_openings.md",
+    "temperature": 1.0,
+    "seed": 42,
+    "prompt_path": "/group-volume/k.anup/code/A2UI/dataset/prompts/query_gen_gemma_v3_diverse_openings.md",
+    "prompt_template_sha256": "de97c43cf827e5b74371b265f3ed8b7cc9c72a7b5e674cce1c626a384fd3b66f"
+  },
+  "lifecycle": "Detached from SSH; not persistent across Space/pod restart."
+}

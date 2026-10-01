@@ -14,9 +14,20 @@ sys.path.insert(0, str(ROOT.parent / "dataset" / "src"))
 
 from ir_training.common.jsonl import read_jsonl, write_jsonl
 from ir_training.eval import litert_gpu as runner
+from ir_training.generation_policy import stop_express_completion
+
+_read_graphics_processes = runner._nvidia_graphics_processes
+
+
+@pytest.fixture(autouse=True)
+def isolate_native_process_queries(monkeypatch):
+    monkeypatch.setattr(runner, "_nvidia_graphics_processes", lambda: [])
 
 
 class FakeGPU:
+    def __init__(self, *, gpu_decode_steps_per_sync=8):
+        self.gpu_decode_steps_per_sync = gpu_decode_steps_per_sync
+
     def get_name(self):
         return "gpu"
 
@@ -40,6 +51,10 @@ class FakeSession:
 
     def cancel_process(self):
         self.cancelled = True
+
+    def get_benchmark_info(self):
+        return SimpleNamespace(last_prefill_token_count=3, last_prefill_tokens_per_second=1500.0,
+                               last_decode_token_count=8, last_decode_tokens_per_second=80.0)
 
 
 class FakeEngine:
@@ -84,6 +99,7 @@ def runtime(monkeypatch):
                                                           "webgpu_adapter_tested": False})
     return SimpleNamespace(Engine=FakeEngine, Session=FakeSession,
                            Backend=SimpleNamespace(GPU=FakeGPU),
+                           ActivationDataType=SimpleNamespace(FLOAT32="float32", FLOAT16="float16"),
                            _ffi=SimpleNamespace(_get_lib=lambda: SimpleNamespace(litert_lm_engine_settings_create=lambda: None)),
                            SamplerConfig=lambda **kwargs: kwargs)
 
@@ -203,6 +219,30 @@ def test_raw_prompt_token_parity_gpu_selection_limits_and_incremental_output(tmp
     assert rows[0]["tokenizer_parity_passed"]
     assert rows[0]["gpu_evidence"]["devices"][0]["gpu_uuid"] == "GPU-test"
     assert rows[0]["exact_output_token_ids_available"] is False
+    assert engine.kwargs["enable_benchmark"] is True
+    assert engine.kwargs["activation_data_type"] == "float32"
+    assert engine.backend.gpu_decode_steps_per_sync == 8
+    assert rows[0]["native_last_decode_token_count"] == 8
+    assert rows[0]["native_last_decode_tokens_per_second"] == 80.0
+    assert rows[0]["time_to_first_token_seconds"] >= 0
+    assert rows[0]["generation_seconds"] >= rows[0]["inference_seconds"] >= 0
+    assert rows[0]["prefill_seconds"] >= 0 and rows[0]["decode_seconds"] >= 0
+    assert rows[0]["engine_load_seconds"] >= 0
+
+
+def test_stop_candidate_split_across_chunks_and_quoted_tag(tmp_path, runtime, monkeypatch):
+    monkeypatch.setattr(FakeEngine, "chunks", ['<a2ui><Text text="</a2', 'ui>"/>', '</a', '2ui> extra'])
+    _, rows, engine = run_worker(tmp_path, runtime)
+    assert rows[0]["raw_completion"] == '<a2ui><Text text="</a2ui>"/></a2ui> extra'
+    assert engine.sessions[0].cancelled
+    assert rows[0]["stop_reason"] == "closing_sentinel"
+
+
+def test_one_loaded_engine_is_reused_between_cases(tmp_path, runtime):
+    model = tmp_path / "model.litertlm"
+    _, rows, _ = run_worker(tmp_path, runtime, [request(model), request(model, id="golden_2")])
+    assert len(FakeEngine.instances) == 1
+    assert [row["engine_reused"] for row in rows] == [False, True]
 
 
 def test_native_tokenizer_mismatch_fails_before_generation(tmp_path, runtime, monkeypatch):
@@ -289,6 +329,31 @@ def test_missing_allocated_memory_rejected(monkeypatch, memory):
         runner.gpu_process_evidence()
 
 
+def test_exact_graphics_context_handles_unavailable_container_memory(monkeypatch):
+    monkeypatch.setattr(runner.os, "getpid", lambda: 456)
+    monkeypatch.setattr(runner, "_nvidia_query", lambda *args, **kwargs: [["456", "GPU-own", "0"]])
+    monkeypatch.setattr(runner, "_nvidia_graphics_processes", lambda: [
+        {"pid": "123", "gpu_uuid": "GPU-other", "allocated_mib": 8000, "process_type": "G"},
+        {"pid": "456", "gpu_uuid": "GPU-own", "allocated_mib": 0, "process_type": "C+G"},
+    ])
+    result = runner.gpu_process_evidence()
+    assert result["devices"][0]["gpu_uuid"] == "GPU-own"
+    assert result["devices"][0]["graphics_process_registered"] is True
+    assert result["allocation_observed"] is False
+    assert result["all_operations_gpu_verified"] is False
+
+
+def test_graphics_xml_does_not_accept_compute_only_zero_memory(monkeypatch):
+    xml = '''<nvidia_smi_log><gpu><uuid>GPU-own</uuid><processes>
+      <process_info><pid>123</pid><type>C</type><used_memory>0 MiB</used_memory></process_info>
+      <process_info><pid>456</pid><type>C+G</type><used_memory>0 MiB</used_memory></process_info>
+    </processes></gpu></nvidia_smi_log>'''
+    monkeypatch.setattr(runner.subprocess, "run", lambda *args, **kwargs:
+                        SimpleNamespace(returncode=0, stdout=xml))
+    rows = _read_graphics_processes()
+    assert [row["pid"] for row in rows] == ["456"]
+
+
 def test_kernel_self_namespace_host_pid_can_match_nvidia(monkeypatch):
     monkeypatch.setattr(runner.os, "getpid", lambda: 7)
     monkeypatch.setattr(runner, "_read_self_status", lambda: "Name:\tpython\nNSpid:\t4712\t205\t7\n")
@@ -340,6 +405,29 @@ def test_observed_native_device_must_be_allocated(monkeypatch):
     with pytest.raises(RuntimeError, match="unallocated GPU"):
         runner.validate_gpu_allocation(evidence())
     runner.validate_gpu_allocation({"devices": [{"gpu_uuid": "GPU-allocated"}]})
+
+
+def test_compute_context_does_not_hide_unallocated_graphics_context(monkeypatch):
+    monkeypatch.setenv("A2UI_LITERT_ALLOWED_GPU_UUIDS", '["GPU-allocated"]')
+    monkeypatch.setattr(runner, "self_pid_identity", lambda: {"local_pid": 7, "candidate_pids": [7]})
+    monkeypatch.setattr(runner, "_nvidia_query", lambda *args, **kwargs: [["7", "GPU-allocated", "100"]])
+    monkeypatch.setattr(runner, "_nvidia_graphics_processes", lambda: [
+        {"pid": "7", "gpu_uuid": "GPU-other", "allocated_mib": 0, "process_type": "G"}])
+    with pytest.raises(RuntimeError, match="unallocated GPU"):
+        runner.gpu_process_evidence()
+
+
+def test_compute_and_graphics_reports_merge_one_device(monkeypatch):
+    monkeypatch.delenv("A2UI_LITERT_ALLOWED_GPU_UUIDS", raising=False)
+    monkeypatch.setattr(runner, "self_pid_identity", lambda: {"local_pid": 7, "candidate_pids": [7]})
+    monkeypatch.setattr(runner, "_nvidia_query", lambda *args, **kwargs: [["7", "GPU-test", "100"]])
+    monkeypatch.setattr(runner, "_nvidia_graphics_processes", lambda: [
+        {"pid": "7", "gpu_uuid": "GPU-test", "allocated_mib": 0, "process_type": "C+G"}])
+    result = runner.gpu_process_evidence()
+    assert len(result["devices"]) == 1
+    assert result["devices"][0]["graphics_process_registered"] is True
+    assert result["devices"][0]["allocated_mib"] == 100
+    assert result["devices"][0]["allocation_size_verified"] is True
 
 
 @pytest.mark.parametrize("value", ["", "0,1", "[]", '["GPU-a", "GPU-a"]', '["0"]'])
@@ -457,14 +545,40 @@ def test_native_cache_binds_model_bytes_and_runtime_not_package_basename(tmp_pat
 
     monkeypatch.setattr(runner, "run_bounded_worker", finish)
     base = tmp_path / "compiled_cache"
-    for index, content in enumerate((b"float32 package", b"int4 package", b"float32 package")):
+    variants = [(b"float32 package", "float32"), (b"int4 package", "float32"),
+                (b"float32 package", "float32"), (b"float32 package", "float16")]
+    for index, (content, activation_dtype) in enumerate(variants):
         model = tmp_path / f"variant_{index}" / "model.litertlm"
         model.parent.mkdir()
         model.write_bytes(content)
         result = runner.run_litert_gpu_generation(model_path=model, split_path=split,
                                                   output_dir=tmp_path / f"evaluation_{index}",
-                                                  model_config={}, required_rows=1, cache_dir=base)
-        assert Path(result["runtime_cache_dir"]) == base / runner.RUNTIME_VERSION / result["model_sha256"]
+                                                  model_config={}, required_rows=1, cache_dir=base,
+                                                  activation_dtype=activation_dtype)
+        assert Path(result["runtime_cache_dir"]) == base / runner.RUNTIME_VERSION / result["model_sha256"] / activation_dtype
         assert Path(result["runtime_cache_dir"]).is_dir()
     assert cache_paths[0] != cache_paths[1]
     assert cache_paths[0] == cache_paths[2]
+    assert cache_paths[0] != cache_paths[3]
+
+
+def test_cancelled_decode_is_drained_before_session_close(tmp_path, runtime, monkeypatch):
+    completed = []
+
+    def asynchronous_decode(self):
+        yield SimpleNamespace(texts=['<a2ui><Text text="ok" /></a2ui>'])
+        # A native callback queued before cancellation can still arrive.
+        yield SimpleNamespace(texts=[' queued after cancellation'])
+        completed.append(self)
+
+    def close_after_final_callback(self, *_):
+        assert self in completed, "Session freed while native decode callbacks are still active"
+        self.engine.closed_sessions += 1
+
+    monkeypatch.setattr(FakeSession, "run_decode_async", asynchronous_decode)
+    monkeypatch.setattr(FakeSession, "__exit__", close_after_final_callback)
+    _, rows, engine = run_worker(tmp_path, runtime)
+    assert engine.sessions[0].cancelled
+    assert engine.closed_sessions == 1
+    assert rows[0]["raw_completion"].endswith("queued after cancellation")
+    assert stop_express_completion(rows[0]["raw_completion"]).endswith("</a2ui>")

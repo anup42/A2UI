@@ -75,6 +75,20 @@ def _metric(result: Mapping[str, Any], key: str, *, percent: bool = False) -> st
     return _number(aggregate.get(key) if isinstance(aggregate, Mapping) else None, percent=percent)
 
 
+def _repaired_metric(result: Mapping[str, Any], key: str, *, percent: bool = False) -> str:
+    """Keep unconfigured and historic repair evidence separate from zero scores."""
+    aggregate = _mapping(result.get("aggregate"))
+    if aggregate.get("android_repair_available") is False:
+        return "not run"
+    prefixed = "android_repaired_" + key
+    repaired = _mapping(aggregate.get("android_repaired_diagnostics"))
+    if prefixed in aggregate:
+        return _number(aggregate[prefixed], percent=percent)
+    if key in repaired:
+        return _number(repaired[key], percent=percent)
+    return "unknown" if aggregate.get("android_repair_available") is True else "not measured"
+
+
 def _rows(result: Mapping[str, Any], expected: int) -> str:
     count = result.get("row_count")
     return f"{count}/{expected}" if isinstance(count, int) and not isinstance(count, bool) and count >= 0 else f"unknown/{expected}"
@@ -119,6 +133,8 @@ def render_experiment_results(state: Mapping[str, Any]) -> str:
             _metric(best, STRICT_METRIC, percent=True) + " / " + _metric(final, STRICT_METRIC, percent=True),
             _rows(best, 32) + " / " + _rows(final, 32),
             _number(result.get("elapsed_seconds"), compact=True),
+            _repaired_metric(best, UNIQUE_REWARD_METRIC) + " / " + _repaired_metric(final, UNIQUE_REWARD_METRIC),
+            _repaired_metric(best, STRICT_METRIC, percent=True) + " / " + _repaired_metric(final, STRICT_METRIC, percent=True),
         ])
     lines = ["# Hyperparameter tuning results", "", f"Run status: {_cell(state.get('status', 'unknown'))}", "",
              ("Golden32: 32 occurrences / 31 unique sources. B/F = best/final checkpoint. "
@@ -128,7 +144,8 @@ def render_experiment_results(state: Mapping[str, Any]) -> str:
              + " ".join(f"{COHORT_LABELS.get(name, name)} never selects a trial." for name, _ in holdouts), ""]
     if rows:
         lines.append(_table(("Trial", "Status", "LR/WD/warmup", "Augmentation", "Reward v5.4 B/F (31)",
-                             "Strict-valid B/F % (32)", "Rows B/F", "Elapsed s"), rows))
+                             "Strict-valid B/F % (32)", "Rows B/F", "Elapsed s",
+                             "After repair reward B/F (31)", "After repair strict B/F % (32)"), rows))
     else:
         lines.append("No trial results were reported.")
     lines.extend(["", f"Locked winner: {_cell(selected) if selected else 'not selected'}."])
@@ -136,9 +153,11 @@ def render_experiment_results(state: Mapping[str, Any]) -> str:
                           if isinstance(state.get(f"selected_{name}"), Mapping)]
     if evaluated_holdouts:
         lines.extend(["", "Selected checkpoint holdout (not used for selection):", "",
-                      _table(("Cohort", "Status", "Rows", "Reward v5.4 (0-100)", "Strict-valid %"),
+                      _table(("Cohort", "Status", "Rows", "Reward v5.4 (0-100)", "Strict-valid %",
+                              "After repair reward", "After repair strict %"),
                              [[COHORT_LABELS.get(name, name), _result_status(holdout, count), _rows(holdout, count),
-                               _metric(holdout, REWARD_METRIC), _metric(holdout, STRICT_METRIC, percent=True)]
+                               _metric(holdout, REWARD_METRIC), _metric(holdout, STRICT_METRIC, percent=True),
+                               _repaired_metric(holdout, REWARD_METRIC), _repaired_metric(holdout, STRICT_METRIC, percent=True)]
                               for name, count, holdout in evaluated_holdouts])])
     for name, _ in holdouts:
         if isinstance(state.get(f"selected_{name}"), Mapping):
@@ -152,6 +171,8 @@ def render_experiment_results(state: Mapping[str, Any]) -> str:
         lines.extend(["", "Bixby50 uses source-response scoring; no reference IR."])
     if state.get("error"):
         lines.extend(["", f"Failure: {_cell(state['error'])}"])
+    lines.extend(["", "After repair uses the Android trained profile; raw checkpoint/trial selection is unchanged. "
+                  "Not run means repair was not configured; not measured means no repair evidence exists."])
     lines.extend(["", "Unknown means missing/nonfinite evidence, not zero. Full metrics and artifacts remain in experiments_manifest.json and comparison.json (when complete)."])
     return "\n".join(lines) + "\n"
 
@@ -172,7 +193,7 @@ def render_deployment_results(state: Mapping[str, Any], *, tuning_state: Mapping
                 # successful evaluation. Never surface stale runtime scores
                 # under a plan that explicitly disables native inference.
                 rows.append([label, COHORT_LABELS.get(cohort, cohort), "skipped by request",
-                             "n/a", "n/a", "n/a", "n/a"])
+                             "n/a", "n/a", "n/a", "n/a", "n/a", "n/a"])
                 continue
             result = _mapping(results.get(key))
             if result:
@@ -188,14 +209,19 @@ def render_deployment_results(state: Mapping[str, Any], *, tuning_state: Mapping
             rows.append([label, COHORT_LABELS.get(cohort, cohort), status,
                          _rows(result, count), _metric(result, REWARD_METRIC),
                          _metric(result, STRICT_METRIC, percent=True),
-                         _metric(result, UNIQUE_REWARD_METRIC) if cohort == "golden32" else "n/a"])
+                         _metric(result, UNIQUE_REWARD_METRIC) if cohort == "golden32" else "n/a",
+                         _repaired_metric(result, REWARD_METRIC), _repaired_metric(result, STRICT_METRIC, percent=True)])
     lines = ["# Deployment results", "", f"Run status: {_cell(state.get('status', 'unknown'))}", "",
              "Golden32 has 32 occurrences / 31 unique sources. Golden35 has 35 unique sources and is not used for tuning/checkpoint selection.", "",
              ("Reward v5.4 (0-100) and strict-valid % use all evaluated occurrences. "
              "Golden32 unique reward gives each of its 31 sources equal weight (selection metric)."), "",
-             _table(("Model", "Cohort", "Status", "Rows", "Reward v5.4", "Strict-valid %", "G32 unique reward"), rows), "",
+             _table(("Model", "Cohort", "Status", "Rows", "Reward v5.4", "Strict-valid %", "G32 unique reward",
+                     "After repair reward", "After repair strict %"), rows), "",
              ("Evaluated means inference/scoring completed, not a quality-threshold pass. Unknown means missing/nonfinite evidence, not zero. "
              "Not reported means no verified result is available; consult the manifest/logs for attempted stages.")]
+    lines.extend(["", "After repair uses the Android trained profile over the same full cohort, including rejected outputs. "
+                  "Raw checkpoint selection is unchanged. Not run means repair was not configured; "
+                  "not measured means no repair evidence exists."])
     if skip_litert_evaluation:
         lines[4:4] = ["Mode: checkpoint testing plus export-only LiteRT variants (--skip-litert-evaluation). "
                       "Native runtime not validated: Vulkan preflight and LiteRT-LM inference/scoring were skipped by request. "

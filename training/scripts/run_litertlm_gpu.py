@@ -22,6 +22,8 @@ def main() -> None:
     parser.add_argument("--requests", help="Hash-bound a2ui_external_generation_v1 JSONL")
     parser.add_argument("--outputs")
     parser.add_argument("--cache-dir")
+    parser.add_argument("--gpu-decode-steps-per-sync", type=int, default=8)
+    parser.add_argument("--activation-dtype", choices=("float32", "float16"), default="float32")
     parser.add_argument("--report", help="Write a machine-readable prerequisite/worker report JSON")
     args = parser.parse_args()
     if args.preflight == args.worker:
@@ -33,7 +35,9 @@ def main() -> None:
             result = runtime_preflight()
         else:
             result = run_gpu_worker(model_path=args.model, requests_path=args.requests,
-                                    outputs_path=args.outputs, cache_dir=args.cache_dir)
+                                    outputs_path=args.outputs, cache_dir=args.cache_dir,
+                                    gpu_decode_steps_per_sync=args.gpu_decode_steps_per_sync,
+                                    activation_dtype=args.activation_dtype)
     except Exception as exc:
         if args.report:
             report = Path(args.report).expanduser().resolve()

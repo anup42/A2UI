@@ -1225,3 +1225,28 @@ def test_new_pipeline_cannot_silently_revert_to_legacy_activation_path(options, 
     config["qat"].pop(field)
     codes = {item.code for item in validate_qat_config(config)}
     assert "official_mobile_v2_activation_contract_required" in codes
+
+
+def test_android_repair_runtime_reaches_callbacks_and_every_holdout(options, monkeypatch):
+    runtime = options.model_dir.parent / "repair" / "android_repair_runtime.json"
+    monkeypatch.setenv("A2UI_ANDROID_REPAIR_RUNTIME", "unrelated-runtime.json")
+    plan = workflow.build_plan(replace(options, android_repair_runtime=runtime))
+    assert plan["options"]["android_repair_runtime"] == str(runtime.resolve())
+    assert workflow._environment(plan)["A2UI_ANDROID_REPAIR_RUNTIME"] == str(runtime.resolve())
+    for cohort in workflow.GOLDENS:
+        command = workflow.evaluation_command(plan, cohort)
+        assert command[command.index("--android-repair-runtime") + 1] == str(runtime.resolve())
+
+
+def test_android_repair_runtime_cli_reaches_the_pipeline(options, monkeypatch):
+    spec = importlib.util.spec_from_file_location("repair_official_cli", ROOT / "scripts/run_official_mobile_pipeline.py")
+    script = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(script)
+    captured = []
+    monkeypatch.setattr(script, "run_pipeline", lambda value, **kwargs: captured.append(value) or {})
+    runtime = options.model_dir.parent / "repair" / "android_repair_runtime.json"
+    args = []
+    for name in ("model_dir", "input_dir", "source_safetensors", "official_litertlm", "output_dir"):
+        args.extend(["--" + name.replace("_", "-"), str(getattr(options, name))])
+    assert script.main([*args, "--android-repair-runtime", str(runtime)]) == 0
+    assert captured[0].android_repair_runtime == runtime

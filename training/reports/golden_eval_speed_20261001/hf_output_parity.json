@@ -1,0 +1,390 @@
+{
+  "case_count": 32,
+  "all_exact_match": true,
+  "cases": [
+    {
+      "id": "/home/k_anup/working_dir/genui-lm-qat-mtp-20260802/data/source_full_20260806/dashboard_mirror/gpu_box_1/dataset_gemma4_cyclic_v5/genui.jsonl:u_017270_01:a2ui_express_v1",
+      "checks": {
+        "case_id": true,
+        "raw_completion": true,
+        "scoring_context": true,
+        "token_count": true,
+        "prompt_sha256": true,
+        "input_token_ids_sha256": true,
+        "generated_token_ids_sha256": true
+      }
+    },
+    {
+      "id": "/home/k_anup/working_dir/genui-lm-qat-mtp-20260802/data/source_delta_20260806/dashboard_mirror/space_anup/dataset_gemma4_50k_cyclic_v10/genui.jsonl:u_004556_01:a2ui_express_v1",
+      "checks": {
+        "case_id": true,
+        "raw_completion": true,
+        "scoring_context": true,
+        "token_count": true,
+        "prompt_sha256": true,
+        "input_token_ids_sha256": true,
+        "generated_token_ids_sha256": true
+      }
+    },
+    {
+      "id": "/home/k_anup/working_dir/genui-lm-qat-mtp-20260802/data/source_full_20260806/dashboard_mirror/gpu_box_1/dataset_gemma4_cyclic_v3/genui.jsonl:u_012475_01:a2ui_express_v1",
+      "checks": {
+        "case_id": true,
+        "raw_completion": true,
+        "scoring_context": true,
+        "token_count": true,
+        "prompt_sha256": true,
+        "input_token_ids_sha256": true,
+        "generated_token_ids_sha256": true
+      }
+    },
+    {
+      "id": "/home/k_anup/working_dir/genui-lm-qat-mtp-20260802/data/source_delta_20260806/dashboard_mirror/space_anup/dataset_gemma4_50k_cyclic_exp3/genui.jsonl:u_005045_01:a2ui_express_v1",
+      "checks": {
+        "case_id": true,
+        "raw_completion": true,
+        "scoring_context": true,
+        "token_count": true,
+        "prompt_sha256": true,
+        "input_token_ids_sha256": true,
+        "generated_token_ids_sha256": true
+      }
+    },
+    {
+      "id": "/home/k_anup/working_dir/genui-lm-qat-mtp-20260802/data/source_delta_20260806/dashboard_mirror/space_anup/dataset_gemma4_50k_cyclic_exp6/genui.jsonl:u_000926_01:a2ui_express_v1",
+      "checks": {
+        "case_id": true,
+        "raw_completion": true,
+        "scoring_context": true,
+        "token_count": true,
+        "prompt_sha256": true,
+        "input_token_ids_sha256": true,
+        "generated_token_ids_sha256": true
+      }
+    },
+    {
+      "id": "/home/k_anup/working_dir/genui-lm-qat-mtp-20260802/data/source_full_20260806/dashboard_mirror/gpu_box_1/dataset_gemma4_cyclic_v3/genui.jsonl:u_016869_01:a2ui_express_v1",
+      "checks": {
+        "case_id": true,
+        "raw_completion": true,
+        "scoring_context": true,
+        "token_count": true,
+        "prompt_sha256": true,
+        "input_token_ids_sha256": true,
+        "generated_token_ids_sha256": true
+      }
+    },
+    {
+      "id": "/home/k_anup/working_dir/genui-lm-qat-mtp-20260802/data/source_delta_20260806/dashboard_mirror/space_anup/dataset_gemma4_50k_cyclic_exp2/genui.jsonl:u_002672_01:a2ui_express_v1",
+      "checks": {
+        "case_id": true,
+        "raw_completion": true,
+        "scoring_context": true,
+        "token_count": true,
+        "prompt_sha256": true,
+        "input_token_ids_sha256": true,
+        "generated_token_ids_sha256": true
+      }
+    },
+    {
+      "id": "/home/k_anup/working_dir/genui-lm-qat-mtp-20260802/data/source_full_20260806/dashboard_mirror/gpu_box_1/dataset_gemma4_cyclic_v5/genui.jsonl:u_021504_01:a2ui_express_v1",
+      "checks": {
+        "case_id": true,
+        "raw_completion": true,
+        "scoring_context": true,
+        "token_count": true,
+        "prompt_sha256": true,
+        "input_token_ids_sha256": true,
+        "generated_token_ids_sha256": true
+      }
+    },
+    {
+      "id": "/home/k_anup/working_dir/genui-lm-qat-mtp-20260802/data/source_delta_20260806/dashboard_mirror/space_anup/dataset_gemma4_50k_cyclic_exp2/genui.jsonl:u_008057_01:a2ui_express_v1",
+      "checks": {
+        "case_id": true,
+        "raw_completion": true,
+        "scoring_context": true,
+        "token_count": true,
+        "prompt_sha256": true,
+        "input_token_ids_sha256": true,
+        "generated_token_ids_sha256": true
+      }
+    },
+    {
+      "id": "/home/k_anup/working_dir/genui-lm-qat-mtp-20260802/data/source_full_20260806/dashboard_mirror/gpu_box_6/dataset_gemma4_50k/genui.jsonl:u_002599_01:a2ui_express_v1",
+      "checks": {
+        "case_id": true,
+        "raw_completion": true,
+        "scoring_context": true,
+        "token_count": true,
+        "prompt_sha256": true,
+        "input_token_ids_sha256": true,
+        "generated_token_ids_sha256": true
+      }
+    },
+    {
+      "id": "/home/k_anup/working_dir/genui-lm-qat-mtp-20260802/data/source_full_20260806/dashboard_mirror/gpu_box_5/dataset_gemma4_50k_cyclic_v2/genui.jsonl:u_004604_01:a2ui_express_v1",
+      "checks": {
+        "case_id": true,
+        "raw_completion": true,
+        "scoring_context": true,
+        "token_count": true,
+        "prompt_sha256": true,
+        "input_token_ids_sha256": true,
+        "generated_token_ids_sha256": true
+      }
+    },
+    {
+      "id": "/home/k_anup/working_dir/genui-lm-qat-mtp-20260802/data/source_delta_20260806/dashboard_mirror/space_anup/dataset_gemma4_50k_cyclic_exp_9/genui.jsonl:u_012642_01:a2ui_express_v1",
+      "checks": {
+        "case_id": true,
+        "raw_completion": true,
+        "scoring_context": true,
+        "token_count": true,
+        "prompt_sha256": true,
+        "input_token_ids_sha256": true,
+        "generated_token_ids_sha256": true
+      }
+    },
+    {
+      "id": "/home/k_anup/working_dir/genui-lm-qat-mtp-20260802/data/source_delta_20260806/dashboard_mirror/space_anup/dataset_gemma4_50k_cyclic_exp6/genui.jsonl:u_013374_01:a2ui_express_v1",
+      "checks": {
+        "case_id": true,
+        "raw_completion": true,
+        "scoring_context": true,
+        "token_count": true,
+        "prompt_sha256": true,
+        "input_token_ids_sha256": true,
+        "generated_token_ids_sha256": true
+      }
+    },
+    {
+      "id": "/home/k_anup/working_dir/genui-lm-qat-mtp-20260802/data/source_delta_20260806/dashboard_mirror/space_anup/dataset_gemma4_50k_cyclic_exp2/genui.jsonl:u_012038_01:a2ui_express_v1",
+      "checks": {
+        "case_id": true,
+        "raw_completion": true,
+        "scoring_context": true,
+        "token_count": true,
+        "prompt_sha256": true,
+        "input_token_ids_sha256": true,
+        "generated_token_ids_sha256": true
+      }
+    },
+    {
+      "id": "/home/k_anup/working_dir/genui-lm-qat-mtp-20260802/data/source_full_20260806/dashboard_mirror/gpu_box_1/dataset_gemma4_cyclic_v5/genui.jsonl:u_001259_01:a2ui_express_v1",
+      "checks": {
+        "case_id": true,
+        "raw_completion": true,
+        "scoring_context": true,
+        "token_count": true,
+        "prompt_sha256": true,
+        "input_token_ids_sha256": true,
+        "generated_token_ids_sha256": true
+      }
+    },
+    {
+      "id": "/home/k_anup/working_dir/genui-lm-qat-mtp-20260802/data/source_delta_20260806/dashboard_mirror/space_anup/dataset_gemma4_50k_cyclic_exp6/genui.jsonl:u_012831_01:a2ui_express_v1",
+      "checks": {
+        "case_id": true,
+        "raw_completion": true,
+        "scoring_context": true,
+        "token_count": true,
+        "prompt_sha256": true,
+        "input_token_ids_sha256": true,
+        "generated_token_ids_sha256": true
+      }
+    },
+    {
+      "id": "/home/k_anup/working_dir/genui-lm-qat-mtp-20260802/data/source_delta_20260806/dashboard_mirror/space_anup/dataset_gemma4_50k_cyclic_exp_8/genui.jsonl:u_015245_01:a2ui_express_v1",
+      "checks": {
+        "case_id": true,
+        "raw_completion": true,
+        "scoring_context": true,
+        "token_count": true,
+        "prompt_sha256": true,
+        "input_token_ids_sha256": true,
+        "generated_token_ids_sha256": true
+      }
+    },
+    {
+      "id": "/home/k_anup/working_dir/genui-lm-qat-mtp-20260802/data/source_delta_20260806/dashboard_mirror/space_anup/dataset_gemma4_50k_cyclic_v10/genui.jsonl:u_004034_01:a2ui_express_v1",
+      "checks": {
+        "case_id": true,
+        "raw_completion": true,
+        "scoring_context": true,
+        "token_count": true,
+        "prompt_sha256": true,
+        "input_token_ids_sha256": true,
+        "generated_token_ids_sha256": true
+      }
+    },
+    {
+      "id": "/home/k_anup/working_dir/genui-lm-qat-mtp-20260802/data/source_full_20260806/dashboard_mirror/gpu_box_6/dataset_gemma4_50k/genui.jsonl:u_017936_01:a2ui_express_v1",
+      "checks": {
+        "case_id": true,
+        "raw_completion": true,
+        "scoring_context": true,
+        "token_count": true,
+        "prompt_sha256": true,
+        "input_token_ids_sha256": true,
+        "generated_token_ids_sha256": true
+      }
+    },
+    {
+      "id": "/home/k_anup/working_dir/genui-lm-qat-mtp-20260802/data/source_delta_20260806/dashboard_mirror/space_anup/dataset_gemma4_50k_cyclic_exp_5/genui.jsonl:u_002905_01:a2ui_express_v1",
+      "checks": {
+        "case_id": true,
+        "raw_completion": true,
+        "scoring_context": true,
+        "token_count": true,
+        "prompt_sha256": true,
+        "input_token_ids_sha256": true,
+        "generated_token_ids_sha256": true
+      }
+    },
+    {
+      "id": "/home/k_anup/working_dir/genui-lm-qat-mtp-20260802/data/source_delta_20260806/dashboard_mirror/space_anup/dataset_gemma4_50k_cyclic_v10/genui.jsonl:u_006223_01:a2ui_express_v1",
+      "checks": {
+        "case_id": true,
+        "raw_completion": true,
+        "scoring_context": true,
+        "token_count": true,
+        "prompt_sha256": true,
+        "input_token_ids_sha256": true,
+        "generated_token_ids_sha256": true
+      }
+    },
+    {
+      "id": "/home/k_anup/working_dir/genui-lm-qat-mtp-20260802/data/source_full_20260806/dashboard_mirror/gpu_box_1/dataset_gemma4_cyclic_v5_2/genui.jsonl:u_006538_01:a2ui_express_v1",
+      "checks": {
+        "case_id": true,
+        "raw_completion": true,
+        "scoring_context": true,
+        "token_count": true,
+        "prompt_sha256": true,
+        "input_token_ids_sha256": true,
+        "generated_token_ids_sha256": true
+      }
+    },
+    {
+      "id": "/home/k_anup/working_dir/genui-lm-qat-mtp-20260802/data/source_delta_20260806/dashboard_mirror/space_anup/dataset_gemma4_50k_cyclic_exp11_2/genui.jsonl:u_003258_01:a2ui_express_v1",
+      "checks": {
+        "case_id": true,
+        "raw_completion": true,
+        "scoring_context": true,
+        "token_count": true,
+        "prompt_sha256": true,
+        "input_token_ids_sha256": true,
+        "generated_token_ids_sha256": true
+      }
+    },
+    {
+      "id": "/home/k_anup/working_dir/genui-lm-qat-mtp-20260802/data/source_delta_20260806/dashboard_mirror/space_anup/dataset_gemma4_50k_cyclic_exp2/genui.jsonl:u_013592_01:a2ui_express_v1",
+      "checks": {
+        "case_id": true,
+        "raw_completion": true,
+        "scoring_context": true,
+        "token_count": true,
+        "prompt_sha256": true,
+        "input_token_ids_sha256": true,
+        "generated_token_ids_sha256": true
+      }
+    },
+    {
+      "id": "/home/k_anup/working_dir/genui-lm-qat-mtp-20260802/data/source_delta_20260806/dashboard_mirror/space_anup/dataset_gemma4_50k_cyclic_v10/genui.jsonl:u_006181_01:a2ui_express_v1",
+      "checks": {
+        "case_id": true,
+        "raw_completion": true,
+        "scoring_context": true,
+        "token_count": true,
+        "prompt_sha256": true,
+        "input_token_ids_sha256": true,
+        "generated_token_ids_sha256": true
+      }
+    },
+    {
+      "id": "golden32_archive_repeat_v1:repeat:q_017270:slot26",
+      "checks": {
+        "case_id": true,
+        "raw_completion": true,
+        "scoring_context": true,
+        "token_count": true,
+        "prompt_sha256": true,
+        "input_token_ids_sha256": true,
+        "generated_token_ids_sha256": true
+      }
+    },
+    {
+      "id": "/home/k_anup/working_dir/genui-lm-qat-mtp-20260802/data/source_delta_20260806/dashboard_mirror/space_anup/dataset_gemma4_50k_cyclic_exp_9/genui.jsonl:u_013603_01:a2ui_express_v1",
+      "checks": {
+        "case_id": true,
+        "raw_completion": true,
+        "scoring_context": true,
+        "token_count": true,
+        "prompt_sha256": true,
+        "input_token_ids_sha256": true,
+        "generated_token_ids_sha256": true
+      }
+    },
+    {
+      "id": "/home/k_anup/working_dir/genui-lm-qat-mtp-20260802/data/source_full_20260806/dashboard_mirror/gpu_box_1/dataset_gemma4_cyclic_v3/genui.jsonl:u_019461_01:a2ui_express_v1",
+      "checks": {
+        "case_id": true,
+        "raw_completion": true,
+        "scoring_context": true,
+        "token_count": true,
+        "prompt_sha256": true,
+        "input_token_ids_sha256": true,
+        "generated_token_ids_sha256": true
+      }
+    },
+    {
+      "id": "/home/k_anup/working_dir/genui-lm-qat-mtp-20260802/data/source_delta_20260806/dashboard_mirror/space_anup/dataset_gemma4_50k_cyclic_exp6/genui.jsonl:u_001061_01:a2ui_express_v1",
+      "checks": {
+        "case_id": true,
+        "raw_completion": true,
+        "scoring_context": true,
+        "token_count": true,
+        "prompt_sha256": true,
+        "input_token_ids_sha256": true,
+        "generated_token_ids_sha256": true
+      }
+    },
+    {
+      "id": "/home/k_anup/working_dir/genui-lm-qat-mtp-20260802/data/source_full_20260806/dashboard_mirror/gpu_box_5/dataset_gemma4_50k_cyclic_v2/genui.jsonl:u_001497_01:a2ui_express_v1",
+      "checks": {
+        "case_id": true,
+        "raw_completion": true,
+        "scoring_context": true,
+        "token_count": true,
+        "prompt_sha256": true,
+        "input_token_ids_sha256": true,
+        "generated_token_ids_sha256": true
+      }
+    },
+    {
+      "id": "/home/k_anup/working_dir/genui-lm-qat-mtp-20260802/data/source_full_20260806/dashboard_mirror/gpu_box_6/dataset_gemma4_50k/genui.jsonl:u_013398_01:a2ui_express_v1",
+      "checks": {
+        "case_id": true,
+        "raw_completion": true,
+        "scoring_context": true,
+        "token_count": true,
+        "prompt_sha256": true,
+        "input_token_ids_sha256": true,
+        "generated_token_ids_sha256": true
+      }
+    },
+    {
+      "id": "/home/k_anup/working_dir/genui-lm-qat-mtp-20260802/data/source_delta_20260806/dashboard_mirror/space_anup/dataset_gemma4_50k_cyclic_exp_9/genui.jsonl:u_009053_01:a2ui_express_v1",
+      "checks": {
+        "case_id": true,
+        "raw_completion": true,
+        "scoring_context": true,
+        "token_count": true,
+        "prompt_sha256": true,
+        "input_token_ids_sha256": true,
+        "generated_token_ids_sha256": true
+      }
+    }
+  ]
+}

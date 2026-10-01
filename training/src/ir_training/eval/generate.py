@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import json
 import math
@@ -21,6 +21,7 @@ from ir_training.generation_policy import (
 )
 from ir_training.models.registry import create_adapter
 from ir_training.qat.full_model_contract import full_parameter_autocast
+from ir_training.qat.fake_quant import qat_inference_cache_scope
 
 
 def generate_predictions(
@@ -41,8 +42,10 @@ def generate_predictions(
 
     model_cfg = config.get("model") if isinstance(config.get("model"), dict) else {}
     adapter = create_adapter(model_cfg)
+    tokenizer_started = time.perf_counter()
     with Progress(f"Golden worker {os.environ.get('A2UI_EVAL_WORKER', '0')}: load tokenizer", unit="stage"):
         tokenizer = adapter.load_tokenizer()
+    tokenizer_load_seconds = time.perf_counter() - tokenizer_started
     if config.get("prepared_evaluation_contract") is not None:
         from ir_training.eval.prepared_contract import (
             verify_loaded_evaluation_tokenizer,
@@ -56,19 +59,24 @@ def generate_predictions(
             config, adapter, tokenizer, split_path, output_path, max_rows,
             max_input_tokens=max_input_tokens, max_new_tokens=max_new_tokens,
             adapter_checkpoint=adapter_checkpoint, apply_qat=apply_qat,
+            setup_timings={"tokenizer_load_seconds": tokenizer_load_seconds},
         )
 
 
 def _generate_predictions_loaded_tokenizer(
     config, adapter, tokenizer, split_path, output_path, max_rows, *,
-    max_input_tokens, max_new_tokens, adapter_checkpoint, apply_qat,
+    max_input_tokens, max_new_tokens, adapter_checkpoint, apply_qat, setup_timings=None,
 ) -> int:
     import torch
 
     model_cfg = config.get("model") if isinstance(config.get("model"), dict) else {}
     worker = os.environ.get("A2UI_EVAL_WORKER", "0")
+    setup_timings = dict(setup_timings or {})
+    setup_started = time.perf_counter()
     with Progress(f"Golden worker {worker}: load model", unit="stage"):
         model = adapter.load_model()
+    setup_timings["base_model_load_seconds"] = time.perf_counter() - setup_started
+    setup_started = time.perf_counter()
     if adapter_checkpoint is not None:
         try:
             from peft import PeftModel  # type: ignore
@@ -83,12 +91,17 @@ def _generate_predictions_loaded_tokenizer(
             )
         with Progress(f"Golden worker {worker}: load adapter", unit="stage"):
             model = PeftModel.from_pretrained(model, str(checkpoint), is_trainable=False)
+    setup_timings["adapter_load_seconds"] = time.perf_counter() - setup_started if adapter_checkpoint is not None else 0.0
+    setup_started = time.perf_counter()
     inference_device = place_model_for_generation(model, model_cfg)
+    setup_timings["device_placement_seconds"] = time.perf_counter() - setup_started
+    setup_started = time.perf_counter()
     qat_controller = None
     if apply_qat:
         from ir_training.qat.fake_quant import prepare_qat_model
 
         qat_controller = prepare_qat_model(model, config)
+    setup_timings["qat_preparation_seconds"] = time.perf_counter() - setup_started if apply_qat else 0.0
     model.eval()
     eos_ids = preserve_generation_eos(model, tokenizer)
 
@@ -102,10 +115,11 @@ def _generate_predictions_loaded_tokenizer(
     partial = output_path.with_name(output_path.name + ".partial")
     completed = 0
     try:
-        with generation_cache_scope(model), partial.open("w", encoding="utf-8", newline="\n") as stream, Progress(
+        with qat_inference_cache_scope(model), generation_cache_scope(model), partial.open("w", encoding="utf-8", newline="\n") as stream, Progress(
             f"Golden worker {worker}: generation on {inference_device}", total=len(rows), unit="cases",
         ) as progress:
             for idx, row in enumerate(rows):
+                input_started = time.perf_counter()
                 _extract_user_text(row)
                 prompt_text = adapter.format_example(
                     row, tokenizer=tokenizer, include_assistant=False
@@ -131,7 +145,10 @@ def _generate_predictions_loaded_tokenizer(
                     generation_kwargs["pad_token_id"] = pad_token_id
                 log(f"Golden worker {worker}: case {idx + 1}/{len(rows)} id={row.get('id')} starting; "
                     f"input_tokens={input_length}; max_new_tokens={generation_kwargs['max_new_tokens']}")
-                started = time.perf_counter()
+                input_preparation_seconds = time.perf_counter() - input_started
+                latency_streamer = TokenLatencyStreamer()
+                generation_kwargs["streamer"] = latency_streamer
+                started = latency_streamer.started
                 with torch.inference_mode(), full_parameter_autocast(model):
                     output = model.generate(**inputs, **generation_kwargs)
                 generated = tokenizer.decode(output[0][input_length:], skip_special_tokens=True)
@@ -139,9 +156,15 @@ def _generate_predictions_loaded_tokenizer(
                     eos_token_ids=eos_ids, max_new_tokens=generation_kwargs["max_new_tokens"],
                     prompt_text=prompt_text, input_ids=inputs["input_ids"][0])
                 elapsed = time.perf_counter() - started
+                runtime.update(latency_streamer.metrics())
+                runtime["input_preparation_seconds"] = input_preparation_seconds
+                if idx == 0:
+                    runtime["worker_setup"] = setup_timings
                 runtime.update(generation_seconds=elapsed,
                     output_tokens_per_second=runtime["output_tokens"] / elapsed if elapsed else 0.0,
                     inference_device=inference_device, use_cache=True, evaluation_worker=worker)
+                if qat_controller is not None:
+                    runtime["qat_inference_weight_cache"] = dict(qat_controller.inference_cache_stats)
                 stream.write(json.dumps(build_prediction_record(row, generated, runtime=runtime),
                     ensure_ascii=False, separators=(",", ":")) + "\n")
                 stream.flush()
@@ -155,6 +178,49 @@ def _generate_predictions_loaded_tokenizer(
             qat_controller.restore()
     partial.replace(output_path)
     return completed
+
+
+class TokenLatencyStreamer:
+    """Observe HF host token delivery without decoding text in the hot path.
+
+    Time to first token includes prefill, initial weight-cache construction and
+    framework overhead. It is deliberately not labelled pure GPU prefill time.
+    HF sends the initial prompt once before any generated-token callbacks.
+    """
+
+    def __init__(self, *, clock=time.perf_counter):
+        self._clock = clock
+        self.started = clock()
+        self._prompt_seen = False
+        self._first = self._last = None
+        self._tokens = 0
+
+    def put(self, value):
+        if not self._prompt_seen:
+            self._prompt_seen = True
+            return
+        now = self._clock()
+        if self._first is None:
+            self._first = now
+        self._last = now
+        self._tokens += int(value.numel())
+
+    def end(self):
+        pass
+
+    def metrics(self) -> dict[str, Any]:
+        if self._first is None:
+            return {}
+        seconds = self._last - self._first
+        result = {
+            "time_to_first_token_seconds": self._first - self.started,
+            "decode_seconds": seconds,
+            "decode_tokens_after_first": max(0, self._tokens - 1),
+            "latency_measurement": "host_token_delivery; TTFT includes prefill and first-use weight cache",
+        }
+        if seconds > 0:
+            result["decode_tokens_per_second"] = max(0, self._tokens - 1) / seconds
+        return result
 
 
 def place_model_for_generation(model: Any, model_config: dict[str, Any]) -> str:
@@ -191,26 +257,55 @@ def aggregate_generation_performance(rows: Sequence[dict[str, Any]]) -> dict[str
     The throughput denominator is the sum of measured per-row times. Distributed
     callbacks separately report aggregate wall throughput including rank waiting.
     """
+    durations: list[float] = []
     observed: list[tuple[float, float]] = []
     for row in rows:
         runtime = row.get("runtime") if isinstance(row.get("runtime"), dict) else {}
         seconds, tokens = runtime.get("generation_seconds"), runtime.get("output_tokens")
-        if any(isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) for value in (seconds, tokens)):
+        if (isinstance(seconds, bool) or not isinstance(seconds, (int, float))
+                or not math.isfinite(seconds) or seconds <= 0):
             continue
-        if seconds > 0 and tokens >= 0:
+        durations.append(float(seconds))
+        if (not isinstance(tokens, bool) and isinstance(tokens, (int, float))
+                and math.isfinite(tokens) and tokens >= 0):
             observed.append((float(seconds), float(tokens)))
-    if not observed:
-        return {}
-    seconds = sum(pair[0] for pair in observed)
-    tokens = sum(pair[1] for pair in observed)
-    return {
-        "generation_runtime_measured_rows": len(observed),
-        "generation_runtime_row_seconds_sum": seconds,
-        "generation_runtime_mean_row_seconds": seconds / len(observed),
-        "generation_runtime_max_row_seconds": max(pair[0] for pair in observed),
-        "generation_runtime_output_tokens": int(tokens),
-        "generation_runtime_tokens_per_row_second": tokens / seconds,
-    }
+    report: dict[str, float | int] = {}
+    if durations:
+        report.update(
+            generation_runtime_measured_rows=len(durations),
+            generation_runtime_row_seconds_sum=sum(durations),
+            generation_runtime_mean_row_seconds=sum(durations) / len(durations),
+            generation_runtime_max_row_seconds=max(durations),
+        )
+    if observed:
+        seconds = sum(pair[0] for pair in observed)
+        tokens = sum(pair[1] for pair in observed)
+        report.update(
+            generation_runtime_output_tokens=int(tokens),
+            generation_runtime_tokens_per_row_second=tokens / seconds,
+            generation_runtime_throughput_measured_rows=len(observed),
+            generation_runtime_throughput_row_seconds_sum=seconds,
+        )
+    # Native runtimes can measure latency without exposing exact output IDs.
+    # Preserve those timings while leaving exact-token throughput unmeasured.
+    for field in ("generation_seconds", "time_to_first_token_seconds", "decode_seconds",
+                  "output_tokens_per_second", "decode_tokens_per_second", "input_preparation_seconds",
+                  "inference_seconds", "prefill_seconds", "gpu_evidence_seconds",
+                  "native_last_decode_tokens_per_second", "native_last_prefill_tokens_per_second"):
+        values = sorted(float(runtime[field]) for row in rows
+            if isinstance((runtime := row.get("runtime")), dict)
+            and isinstance(runtime.get(field), (int, float)) and not isinstance(runtime[field], bool)
+            and math.isfinite(runtime[field]) and runtime[field] >= 0)
+        if not values:
+            continue
+        prefix = f"generation_runtime_{field}"
+        report[prefix + "_measured_rows"] = len(values)
+        for percentile in (50, 95, 99):
+            # Linear interpolation gives defined percentiles even for tiny cohorts.
+            index = (len(values) - 1) * percentile / 100
+            lower, upper = math.floor(index), math.ceil(index)
+            report[prefix + f"_p{percentile}"] = values[lower] + (values[upper] - values[lower]) * (index - lower)
+    return report
 
 
 def build_prediction_record(

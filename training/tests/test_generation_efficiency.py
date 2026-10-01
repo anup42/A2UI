@@ -310,3 +310,33 @@ def test_finalization_keeps_final_and_selected_checkpoint_provenance_distinct(tm
     assert _checkpoint_manifest_matches_adapter(records, adapter_path=selected_dir, actual_adapter_files=actual)
     (selected_dir / "tokenizer_config.json").write_text('{"changed":true}')
     assert not _checkpoint_manifest_matches_adapter(records, adapter_path=selected_dir, actual_adapter_files=actual)
+
+
+def test_native_latency_is_reported_without_inventing_exact_tokens():
+    result = aggregate_generation_performance([
+        {"runtime": {"generation_seconds": 2.0, "inference_seconds": 1.9,
+                     "prefill_seconds": 0.1, "time_to_first_token_seconds": 0.2,
+                     "native_last_decode_tokens_per_second": 80.0}},
+        {"runtime": {"generation_seconds": 4.0, "inference_seconds": 3.9,
+                     "prefill_seconds": 0.3, "time_to_first_token_seconds": 0.4,
+                     "native_last_decode_tokens_per_second": 70.0}},
+    ])
+    assert result["generation_runtime_measured_rows"] == 2
+    assert result["generation_runtime_mean_row_seconds"] == 3.0
+    assert result["generation_runtime_generation_seconds_p95"] == pytest.approx(3.9)
+    assert result["generation_runtime_inference_seconds_p50"] == pytest.approx(2.9)
+    assert result["generation_runtime_native_last_decode_tokens_per_second_p50"] == 75.0
+    assert "generation_runtime_output_tokens" not in result
+    assert "generation_runtime_tokens_per_row_second" not in result
+
+
+def test_latency_only_rows_do_not_enter_exact_token_throughput_denominator():
+    result = aggregate_generation_performance([
+        {"runtime": {"generation_seconds": 2.0}},
+        {"runtime": {"generation_seconds": 1.0, "output_tokens": 20}},
+        {"runtime": {"generation_seconds": True, "output_tokens": 200}},
+        {"runtime": {"generation_seconds": float("nan"), "output_tokens": 200}},
+    ])
+    assert result["generation_runtime_measured_rows"] == 2
+    assert result["generation_runtime_throughput_measured_rows"] == 1
+    assert result["generation_runtime_tokens_per_row_second"] == 20.0

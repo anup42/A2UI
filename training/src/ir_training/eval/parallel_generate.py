@@ -198,6 +198,15 @@ def generate_predictions_parallel(
                     OMP_NUM_THREADS=str(threads), MKL_NUM_THREADS=str(threads),
                     TOKENIZERS_PARALLELISM="false", PYTHONUNBUFFERED="1",
                     PYTHONPATH=os.pathsep.join((src, dataset_src, environment.get("PYTHONPATH", ""))))
+                # Compiler metadata must not reference another worker's files.
+                # Shared/network caches can publish an index before its kernel
+                # source is visible to a peer. Keep each assigned device's
+                # Inductor and Triton files in separate directories.
+                cache_identity = sha256_text(str(identifier or "cpu"))[:16]
+                for variable, default_name in (("TORCHINDUCTOR_CACHE_DIR", "inductor"), ("TRITON_CACHE_DIR", "triton")):
+                    cache_root = Path(environment.get(variable) or (work / "compiler_cache" / default_name))
+                    environment[variable] = str(cache_root / f"device_{cache_identity}")
+                environment.setdefault("TORCHINDUCTOR_COMPILE_THREADS", str(threads))
                 for key in ("RANK", "LOCAL_RANK", "WORLD_SIZE", "LOCAL_WORLD_SIZE", "GROUP_RANK", "ROLE_RANK"):
                     environment.pop(key, None)
                 processes.append(subprocess.Popen(

@@ -76,6 +76,7 @@ def main() -> None:
         default=str(REPO_ROOT / "dataset" / "configs" / "run.yaml"),
     )
     parser.add_argument("--baseline-aggregate")
+    parser.add_argument("--android-repair-runtime", help="Manifest built by setup_android_repair.py; defaults to A2UI_ANDROID_REPAIR_RUNTIME")
     parser.add_argument(
         "--metric-version", choices=("legacy", "v5_4", "dual"), default="dual"
     )
@@ -158,6 +159,7 @@ def main() -> None:
             weights_config_path=args.weights_config,
             baseline_aggregate_path=args.baseline_aggregate,
             metric_version=args.metric_version,
+            android_repair_config=args.android_repair_runtime,
         )
     aggregate.update(performance_metrics)
     aggregate_path = output_dir / "aggregate_metrics.json"

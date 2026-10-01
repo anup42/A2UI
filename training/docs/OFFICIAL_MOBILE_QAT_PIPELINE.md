@@ -1110,3 +1110,41 @@ No training, full-model conversion, H100 job, or existing-run modification was
 performed. Model artifacts, qparams, hashes, retained scales, MTP and the exact
 205/70 module scopes were not changed. The real hardware preflight remains
 required before training; passing local regressions is not a GPU-success claim.
+
+## Fast QAT Golden inference and Android repair scores
+
+Standalone Golden workers now keep exact effective fake-quantized weights in an
+inference-only cache. BF16 retained-mobile SRQ activations use precise Inductor
+fusion when supported, preserving intermediate BF16 rounding. The scope releases
+weights before training resumes; gradient passes, parameter mutations, active
+observers and ZeRO-3 gathered parameters cannot use stale cached weights.
+`qat.inference_weight_cache: false` and `qat.inference_compile_srq: false` opt out
+of either optimization. Model families without this QAT controller are unchanged.
+
+Give each GPU worker a separate compiler directory on local disk. The evaluator
+adds a physical-device suffix automatically. On this Space, use:
+
+```bash
+export TORCHINDUCTOR_CACHE_DIR=$HOME/working_dir/a2ui_golden/inductor
+export TRITON_CACHE_DIR=$HOME/working_dir/a2ui_golden/triton
+export TORCHINDUCTOR_COMPILE_THREADS=4
+```
+
+The retained activation quantizer still executes on every token. Ordinary
+fusion can remove BF16 rounding and change the completion; this path requires
+`emulate_precision_casts`. First-token latency includes prefill, first-use weight
+materialization and any compilation. Per-row runtime metadata and aggregate
+p50/p95/p99 values separate setup, first-token and decode measurements.
+
+Build the [Android repair scorer](android_repair_scoring.md) once, then add
+`--android-repair-runtime /absolute/path/to/android_repair_runtime.json` to this
+pipeline command. The option reaches training callbacks and all three final
+holdouts. Existing invocations can instead set `A2UI_ANDROID_REPAIR_RUNTIME`.
+Reports show raw score and Android post-repair score independently; the raw
+Golden32 source-macro score remains the checkpoint selector. Without a configured
+runtime, post-repair cells explicitly say that repair was not run.
+
+The [Space LiteRT-LM runtime](litertlm_space_runtime.md) uses an independent
+Python environment, a persistent GPU engine, FP32 text activations matching the
+Android trained profile, and eight decode steps per synchronization. It scores
+real generated packages against the complete prepared cohort.

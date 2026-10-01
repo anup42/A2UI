@@ -1,0 +1,11 @@
+........................................................................ [ 25%]
+........................................................................ [ 51%]
+.....................sss................................................ [ 77%]
+..............................................................           [100%]
+=============================== warnings summary ===============================
+training/tests/test_parallel_golden_generation.py: 14 warnings
+  /group-volume/k.anup/envs/a2ui-qat-zero3-211/lib/python3.12/site-packages/torch/jit/_script.py:365: DeprecationWarning: `torch.jit.script_method` is deprecated. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+275 passed, 3 skipped, 14 warnings in 139.90s (0:02:19)

@@ -35,6 +35,9 @@ def main() -> None:
     parser.add_argument("--require-prepared-contract", action="store_true", help="Verify source/run/Golden/tokenizer bindings before inference")
     parser.add_argument("--runtime-python", help="Separate Python with requirements-litertlm-runtime.txt installed")
     parser.add_argument("--runtime-cache-dir")
+    parser.add_argument("--gpu-decode-steps-per-sync", type=int, default=8)
+    parser.add_argument("--activation-dtype", choices=("float32", "float16"), default="float32",
+                        help="GPU text activation precision; float32 matches Android's QAT accuracy mitigation")
     parser.add_argument("--runtime-timeout-seconds", type=float, default=7200)
     parser.add_argument("--case-timeout-seconds", type=float, default=600)
     parser.add_argument("--load-timeout-seconds", type=float, default=1800)
@@ -63,6 +66,7 @@ def main() -> None:
         default=str(REPO_ROOT / "dataset" / "configs" / "run.yaml"),
     )
     parser.add_argument("--baseline-aggregate")
+    parser.add_argument("--android-repair-runtime", help="Manifest for the exact Android repair JVM runtime")
     parser.add_argument(
         "--metric-version", choices=("legacy", "v5_4", "dual"), default="dual"
     )
@@ -96,6 +100,8 @@ def main() -> None:
             runtime_python=args.runtime_python, cache_dir=args.runtime_cache_dir,
             timeout_seconds=args.runtime_timeout_seconds, case_timeout_seconds=args.case_timeout_seconds,
             load_timeout_seconds=args.load_timeout_seconds,
+            gpu_decode_steps_per_sync=args.gpu_decode_steps_per_sync,
+            activation_dtype=args.activation_dtype,
         )
     else:
         if args.require_prepared_contract:
@@ -135,6 +141,7 @@ def main() -> None:
         weights_config_path=args.weights_config,
         baseline_aggregate_path=args.baseline_aggregate,
         metric_version=args.metric_version,
+        android_repair_config=args.android_repair_runtime,
     )
     aggregate.update(manifest.get("runtime_metrics") or {})
     aggregate_path = output_dir / "aggregate_metrics.json"

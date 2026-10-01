@@ -1,0 +1,91 @@
+Space inference latency and Android repair report
+
+HF QAT inference is 2.90 times faster per sample with identical output token IDs on all 32 cases.
+Code: D:/git/anup-code/A2UI (uncommitted; no push).
+Space: 10.13.196.24, four H100 80GB GPUs, 128 logical CPUs / 52 CPUs quota.
+
+The baseline and optimized HF benchmarks use the same RunE best checkpoint at step 22776.
+LiteRT uses the existing RunD Sept27 generated package; its weights differ from the HF checkpoint.
+
+QAT rebuilt and fake-quantized effective LoRA weights every token. Scoped exact weight caching
+and precise BF16 SRQ fusion remove repeated work. In the eight-token profiler, kernel launches
+fell from 111,575 to 23,575 for cached eager versus cached precise SRQ activations.
+LiteRT uses one persistent Vulkan GPU engine, FP32 text activations matching Android, eight
+decode steps per synchronization, local model/cache storage, and safe asynchronous cancellation.
+
+hf_baseline: golden32, 32 samples, 4 GPU(s)
+  Generation worker wall: 1754.884 s (29.248 min)
+  generation_seconds: mean=206.961856 p50=200.385602 p95=283.617405 p99=305.278942 max=308.746198 (n=32)
+  output_tokens_per_second: mean=4.833745 p50=4.863673 p95=4.904233 p99=4.983677 max=5.018609 (n=32)
+  Unrepaired serving reward v5.4: 55.009046; Android repaired reward: 74.500052
+  Strict validity: 93.750% -> 96.875%
+  Android repair batch including JVM: 0.959468 s; mean compute: 0.017689 s; p95 compute: 0.077257 s
+  Python scoring (separate CPU work): 14.660541 s
+  Stop counts: {"closing_sentinel": 32}
+
+hf_optimized: golden32, 32 samples, 3 GPU(s)
+  Generation worker wall: 841.636 s (14.027 min)
+  generation_seconds: mean=71.350910 p50=68.830485 p95=99.570810 p99=106.985533 max=109.579238 (n=32)
+  time_to_first_token_seconds: mean=0.848128 p50=0.120038 p95=7.820130 p99=7.842010 max=7.850197 (n=32)
+  decode_seconds: mean=70.497228 p50=68.701726 p95=99.437394 p99=106.850036 max=109.440187 (n=32)
+  input_preparation_seconds: mean=0.011987 p50=0.007588 p95=0.054770 p99=0.055189 max=0.055359 (n=32)
+  output_tokens_per_second: mean=14.053937 p50=14.365278 p95=14.891385 p99=15.194377 max=15.303062 (n=32)
+  decode_tokens_per_second: mean=14.234591 p50=14.448672 p95=14.923474 p99=15.227312 max=15.324581 (n=32)
+  Unrepaired serving reward v5.4: 55.009046; Android repaired reward: 74.500052
+  Strict validity: 93.750% -> 96.875%
+  Android repair batch including JVM: 0.946776 s; mean compute: 0.017620 s; p95 compute: 0.069656 s
+  Python scoring (separate CPU work): 12.406487 s
+  Stop counts: {"closing_sentinel": 32}
+  Worker 0 load/setup: {"tokenizer_load_seconds": 6.762874227017164, "base_model_load_seconds": 4.792309753596783, "adapter_load_seconds": 2.200353167951107, "device_placement_seconds": 5.3651630878448486e-05, "qat_preparation_seconds": 0.3125225752592087}
+  Worker 1 load/setup: {"tokenizer_load_seconds": 6.742336440831423, "base_model_load_seconds": 4.934097722172737, "adapter_load_seconds": 2.057459529489279, "device_placement_seconds": 5.998089909553528e-05, "qat_preparation_seconds": 0.3247511647641659}
+  Worker 2 load/setup: {"tokenizer_load_seconds": 6.7470547035336494, "base_model_load_seconds": 4.822458554059267, "adapter_load_seconds": 2.185668483376503, "device_placement_seconds": 5.440041422843933e-05, "qat_preparation_seconds": 0.324828639626503}
+
+litert_gpu_golden32: golden32, 32 samples, 1 GPU(s)
+  Generation worker wall: 498.000 s (8.300 min)
+  One-time engine load: 5.430 s
+  generation_seconds: mean=15.271615 p50=14.945102 p95=19.906509 p99=26.482415 max=29.157586 (n=32)
+  inference_seconds: mean=14.439447 p50=14.040536 p95=18.919453 p99=25.863181 max=28.542137 (n=32)
+  prefill_seconds: mean=0.851706 p50=0.641265 p95=1.369502 p99=1.398543 max=1.408754 (n=32)
+  time_to_first_token_seconds: mean=0.902485 p50=0.745153 p95=1.406254 p99=1.433820 max=1.440472 (n=32)
+  decode_seconds: mean=13.587304 p50=13.260266 p95=17.965113 p99=24.467747 max=27.132943 (n=32)
+  gpu_evidence_seconds: mean=0.832168 p50=0.668647 p95=1.295366 p99=1.352979 max=1.371033 (n=32)
+  native_last_decode_tokens_per_second: mean=75.649361 p50=75.561247 p95=76.416454 p99=76.505345 max=76.507492 (n=32)
+  native_last_prefill_tokens_per_second: mean=4772.879008 p50=5776.489807 p95=6339.464464 p99=6441.909694 max=6474.882735 (n=32)
+  Unrepaired serving reward v5.4: 36.690327; Android repaired reward: 75.113269
+  Strict validity: 71.875% -> 100.000%
+  Android repair batch including JVM: 1.082529 s; mean compute: 0.018966 s; p95 compute: 0.034425 s
+  Python scoring (separate CPU work): 10.692753 s
+  Stop counts: {"closing_sentinel": 30, "native_stop_or_token_limit": 2}
+
+litert_gpu_golden35: golden35, 35 samples, 1 GPU(s)
+  Generation worker wall: 754.200 s (12.570 min)
+  One-time engine load: 3.087 s
+  generation_seconds: mean=21.386170 p50=24.093641 p95=29.279390 p99=29.349148 max=29.351455 (n=35)
+  inference_seconds: mean=20.593617 p50=23.509209 p95=28.558746 p99=28.618408 max=28.648442 (n=35)
+  prefill_seconds: mean=0.823289 p50=0.703426 p95=1.304579 p99=1.477737 max=1.538501 (n=35)
+  time_to_first_token_seconds: mean=0.883056 p50=0.782296 p95=1.369372 p99=1.512503 max=1.570630 (n=35)
+  decode_seconds: mean=19.769850 p50=22.241668 p95=27.647018 p99=27.756898 max=27.773394 (n=35)
+  gpu_evidence_seconds: mean=0.792553 p50=0.750046 p95=1.089289 p99=1.183560 max=1.200060 (n=35)
+  native_last_decode_tokens_per_second: mean=74.910499 p50=75.172731 p95=76.139440 p99=76.238488 max=76.253561 (n=35)
+  native_last_prefill_tokens_per_second: mean=4829.370913 p50=5303.796707 p95=6180.300770 p99=6294.949958 max=6325.578689 (n=35)
+  Unrepaired serving reward v5.4: 14.833701; Android repaired reward: 77.089917
+  Strict validity: 28.571% -> 100.000%
+  Android repair batch including JVM: 0.985012 s; mean compute: 0.016917 s; p95 compute: 0.025413 s
+  Python scoring (separate CPU work): 7.592427 s
+  Stop counts: {"closing_sentinel": 16, "native_stop_or_token_limit": 19}
+
+Native timings use native token counters; the API does not expose exact output token IDs.
+Native generation_seconds includes exact-process GPU verification. inference_seconds excludes it.
+HF first-token time includes prefill plus first-use materialization/compilation; warm median is 0.120 s.
+Both native cohorts completed successfully with every repaired output accepted.
+Repair is the actual Android SDK TRAINED_E2B_V10_W4 compiler, with no source or reference fallback.
+The original pipeline was resumed and its verified process tree is running.
+
+Environment: /group-volume/k.anup/working_dir/golden_eval_speed_20261001/litert/venv
+Fast HF settings: source /group-volume/k.anup/working_dir/golden_eval_speed_20261001/activate_fast_eval.sh
+Native Vulkan settings: source /group-volume/k.anup/working_dir/golden_eval_speed_20261001/litert/activate.sh
+
+Validation: {"final_regression_tests.log": "275 passed, 3 skipped, 14 warnings in 139.90s (0:02:19)", "latency_reporting_regression.log": "100 passed in 5.18s", "setup_shell_syntax": "passed bash -n", "pipeline_restored": true}
+
+latency.csv contains 163 individual case timings, including the retained secondary attempt.
+summary.json includes full percentile summaries, model identities, hardware, source hashes and caveats.

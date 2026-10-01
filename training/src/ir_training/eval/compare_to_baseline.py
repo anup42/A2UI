@@ -1,6 +1,7 @@
 ﻿from __future__ import annotations
 
 import json
+import time
 from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
@@ -23,6 +24,7 @@ def evaluate_predictions(
     weights_config_path: str | Path | None = None,
     baseline_aggregate_path: str | Path | None = None,
     metric_version: str | None = None,
+    android_repair_config: str | Path | None = None,
 ) -> dict[str, Any]:
     rows_out: list[dict[str, Any]] = []
     predictions = list(read_jsonl(predictions_path))
@@ -31,7 +33,20 @@ def evaluate_predictions(
            for row in predictions):
         from ir_training.data.bixby50 import validate_source_only_predictions
         validate_source_only_predictions(predictions)
-    for row in predictions:
+    from ir_training.eval.android_repair import repair_batch, resolve_runtime
+    repair_runtime = resolve_runtime(android_repair_config)
+    repair_results = None
+    repair_evidence = None
+    if repair_runtime is not None:
+        # Supply the same final generated text consumed by Android's trained
+        # converter. Source responses and reference IR never enter this JVM.
+        repair_inputs = [str(restore_url_placeholders(
+            row.get("generated_text") or row.get("prediction") or "",
+            row.get("url_map") if isinstance(row.get("url_map"), dict) else {},
+        )) for row in predictions]
+        repair_results, repair_evidence = repair_batch(repair_inputs, repair_runtime)
+    scoring_started = time.perf_counter()
+    for row_index, row in enumerate(predictions):
         if row.get("source_context_sha256") and row["source_context_sha256"] != prediction_source_context_hash(row):
             raise ValueError(f"Scoring context hash mismatch for row {row.get('id')}")
         url_map = row.get("url_map") if isinstance(row.get("url_map"), dict) else {}
@@ -90,17 +105,26 @@ def evaluate_predictions(
         out["metrics"] = metrics
         raw_text = str(restore_url_placeholders(row.get("raw_generated_text", generated_text), url_map))
         stopped_text = stop_express_completion(raw_text)
+        score_cache = {restored_generated_text: metrics}
         def score_variant(text: str) -> dict[str, Any]:
-            if text == restored_generated_text:
-                return dict(metrics)
-            return score_prediction(response_text, expected, text,
-                metric_version=metric_version, intent=intent, assets=assets,
-                expected_ui_contract=expected_ui_contract,
-                expected_ui_contract_source=expected_ui_contract_source)
+            if text not in score_cache:
+                score_cache[text] = score_prediction(response_text, expected, text,
+                    metric_version=metric_version, intent=intent, assets=assets,
+                    expected_ui_contract=expected_ui_contract,
+                    expected_ui_contract_source=expected_ui_contract_source)
+            return dict(score_cache[text])
         out["raw_metrics"] = score_variant(raw_text)
         out["serving_stopped_metrics"] = score_variant(stopped_text)
         out["serving_stopped_text"] = stopped_text
-        out["diagnostic_policy"] = "quote-aware closing sentinel only; no ID or graph repair"
+        out["diagnostic_policy"] = "quote-aware closing sentinel only; Android repair is reported separately"
+        if repair_results is not None:
+            repair = repair_results[row_index]
+            out["android_repair"] = repair
+            repaired_text = repair.get("express", "") if repair["success"] else ""
+            out["android_repaired_text"] = repaired_text
+            # Rejected rows remain in the denominator and have no displayed UI;
+            # do not reuse raw quality or substitute the source response.
+            out["android_repaired_metrics"] = score_variant(repaired_text)
         rows_out.append(out)
     weights = load_dataset_weights(weights_config_path)
     baseline = load_baseline_aggregate(baseline_aggregate_path)
@@ -111,6 +135,19 @@ def evaluate_predictions(
         aggregate[f"{label}_diagnostics"] = aggregate_scores(
             [{"metrics": row[f"{label}_metrics"]} for row in rows_out], weights=weights)
     aggregate["raw_output_scope"] = "observed runtime output only; an early-stopped run has no raw continuation to reconstruct"
+    aggregate["scoring_wall_seconds"] = time.perf_counter() - scoring_started
+    aggregate["android_repair_available"] = repair_results is not None
+    if repair_results is not None:
+        repaired_rows = [dict(row, metrics=row["android_repaired_metrics"]) for row in rows_out]
+        repaired_aggregate = aggregate_scores(repaired_rows, weights=weights)
+        repaired_aggregate.update(repeated_benchmark_scores(repaired_rows, weights))
+        aggregate["android_repaired_diagnostics"] = repaired_aggregate
+        aggregate["android_repair"] = repair_evidence
+        # Flat scalar names are also consumed by TensorBoard and score tables.
+        aggregate.update({f"android_repaired_{key}": value for key, value in repaired_aggregate.items()
+                          if isinstance(value, (float, int, bool))})
+    else:
+        aggregate["android_repair_status"] = "not configured; set A2UI_ANDROID_REPAIR_RUNTIME or android_repair_config"
     if output_dir is not None:
         out_dir = Path(output_dir)
         out_dir.mkdir(parents=True, exist_ok=True)

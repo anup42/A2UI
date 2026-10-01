@@ -163,6 +163,9 @@ def test_spawn_environments_are_isolated_and_metrics_are_wall_measured(tmp_path,
     assert [env["CUDA_VISIBLE_DEVICES"] for env in launched] == [f"GPU-{rank}" for rank in range(workers)]
     assert all("RANK" not in env and "WORLD_SIZE" not in env for env in launched)
     assert all(int(env["OMP_NUM_THREADS"]) >= 1 for env in launched)
+    assert len({env["TORCHINDUCTOR_CACHE_DIR"] for env in launched}) == workers
+    assert len({env["TRITON_CACHE_DIR"] for env in launched}) == workers
+    assert all(int(env["TORCHINDUCTOR_COMPILE_THREADS"]) >= 1 for env in launched)
     assert metrics["generation_runtime_gpu_count"] == workers
     assert metrics["generation_runtime_case_count"] == 35
     assert metrics["generation_runtime_wall_seconds"] > 0

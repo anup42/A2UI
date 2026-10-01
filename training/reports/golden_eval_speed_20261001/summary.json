@@ -1,0 +1,831 @@
+{
+  "space_host": "run180015-exp18",
+  "space_ip": "10.13.196.24",
+  "repo": "/group-volume/k.anup/code/A2UI",
+  "local_selected_repo": "D:/git/anup-code/A2UI",
+  "hardware": {
+    "gpu_inventory_csv": "0, NVIDIA H100 80GB HBM3, GPU-be3bf20f-bd6e-f0a0-10f6-2e8a9d41ea8c, 81559, 535.129.03\n1, NVIDIA H100 80GB HBM3, GPU-c6abd58d-9372-de37-4ff5-33fb9c3e0eeb, 81559, 535.129.03\n2, NVIDIA H100 80GB HBM3, GPU-2e843e41-422c-dfbd-21f5-1be947856bce, 81559, 535.129.03\n3, NVIDIA H100 80GB HBM3, GPU-de40d863-61d0-316a-50ce-34bf0e663d14, 81559, 535.129.03\n",
+    "logical_cpus": 128,
+    "cpu_affinity_count": 128,
+    "cpu_quota": "5200000 100000"
+  },
+  "training_checkpoint": "/group-volume/k.anup/working_dir/e2b_v10_qat_lora_runE_r64_6144_resume10500_20260928/training/e2b_v10_qat_lora_runE_r64_6144_resume10500_20260928/best_golden_checkpoint",
+  "checkpoint_step": 22776,
+  "litert_model_original": "/group-volume/k.anup/working_dir/e2b_v10_official_mobile_qat_lora_runD_r64_6144_8gpu_20260926_v1/retained_scale_export_qat_compatible_20260927_183211/gemma4_e2b_a2ui_mobile.litertlm",
+  "litert_model_sha256": "de60d19c8e1ef06ed1032212d0d4ae5d9b0ec105db72db34a988453004e63e62",
+  "litert_environment": "/group-volume/k.anup/working_dir/golden_eval_speed_20261001/litert/venv",
+  "runtime_version": "0.17.0",
+  "runs": {
+    "hf_baseline": {
+      "split": "golden32",
+      "row_count": 32,
+      "gpu_count": 4,
+      "primary_comparison": true,
+      "aggregate_metrics_path": "/group-volume/k.anup/working_dir/golden_eval_speed_20261001/report/hf_baseline_full_metrics.json",
+      "latency": {
+        "generation_seconds": {
+          "count": 32,
+          "mean": 206.96185557090212,
+          "min": 107.53921230882406,
+          "p50": 200.38560218922794,
+          "p95": 283.61740532405673,
+          "p99": 305.27894244305793,
+          "max": 308.74619813263416,
+          "sum": 6622.779378268868
+        },
+        "output_tokens_per_second": {
+          "count": 32,
+          "mean": 4.83374529206891,
+          "min": 4.690757860551656,
+          "p50": 4.863672588843555,
+          "p95": 4.90423297502128,
+          "p99": 4.98367746234494,
+          "max": 5.018608517609833,
+          "sum": 154.67984934620512
+        }
+      },
+      "scores": {
+        "count": 32,
+        "generation_reward_v5_4": 55.0090455376394,
+        "unique_source_generation_reward_v5_4": 53.6277911113297,
+        "schema_valid_strict_rate": 0.9375,
+        "android_repaired_generation_reward_v5_4": 74.50005192789276,
+        "android_repaired_unique_source_generation_reward_v5_4": 73.74753964320412,
+        "android_repaired_schema_valid_strict_rate": 0.96875,
+        "raw_diagnostics": {
+          "generation_reward_v5_4": 55.0090455376394,
+          "schema_valid_strict_rate": 0.9375
+        },
+        "android_repair": {
+          "profile": "TRAINED_E2B_V10_W4",
+          "source_sha256": "2223b4d6eb1b256567ea21e0411b7650c1199303663898506c2a8e515f1e1c14",
+          "runtime_manifest": "/group-volume/k.anup/working_dir/golden_eval_speed_20261001/repair/android_repair_runtime.json",
+          "implementation": "actual Android SDK Kotlin compiler and repair sources",
+          "allow_generated_dsl_repair": true,
+          "allow_source_text_fallback": false,
+          "source_or_reference_supplied_to_repair": false,
+          "batch_wall_seconds": 0.9594676829874516,
+          "repair_compute_seconds": 0.5660530579999999,
+          "mean_repair_seconds": 0.017689158062499998,
+          "max_repair_seconds": 0.089694295,
+          "p50_repair_seconds": 0.012477012999999999,
+          "p95_repair_seconds": 0.0772568241,
+          "repair_kind_counts": {
+            "NONE": 12,
+            "GENERATED_DSL_REPAIR": 19,
+            "REJECTED": 1
+          },
+          "accepted_count": 31,
+          "rejected_count": 1
+        },
+        "scoring_wall_seconds": 14.66054056212306
+      },
+      "generation_worker_wall_seconds": 1754.8840036205947,
+      "worker_setup": [],
+      "one_time_engine_load_seconds": null,
+      "stop_reason_counts": {
+        "closing_sentinel": 32
+      },
+      "exact_output_token_ids_available": true
+    },
+    "hf_optimized": {
+      "split": "golden32",
+      "row_count": 32,
+      "gpu_count": 3,
+      "primary_comparison": true,
+      "aggregate_metrics_path": "/group-volume/k.anup/working_dir/golden_eval_speed_20261001/hf_golden32_clean/aggregate_metrics.json",
+      "latency": {
+        "generation_seconds": {
+          "count": 32,
+          "mean": 71.35091027838644,
+          "min": 34.43755146116018,
+          "p50": 68.83048464730382,
+          "p95": 99.57080984320491,
+          "p99": 106.98553294278682,
+          "max": 109.57923844456673,
+          "sum": 2283.229128908366
+        },
+        "time_to_first_token_seconds": {
+          "count": 32,
+          "mean": 0.8481284802546725,
+          "min": 0.10698936507105827,
+          "p50": 0.1200383547693491,
+          "p95": 7.82012996841222,
+          "p99": 7.84201007489115,
+          "max": 7.850196607410908,
+          "sum": 27.14011136814952
+        },
+        "decode_seconds": {
+          "count": 32,
+          "mean": 70.49722819728777,
+          "min": 34.32394088804722,
+          "p50": 68.70172576420009,
+          "p95": 99.43739398587495,
+          "p99": 106.8500355140865,
+          "max": 109.44018702581525,
+          "sum": 2255.9113023132086
+        },
+        "input_preparation_seconds": {
+          "count": 32,
+          "mean": 0.011986723402515054,
+          "min": 0.00674077495932579,
+          "p50": 0.007588185369968414,
+          "p95": 0.05477036163210869,
+          "p99": 0.0551889968290925,
+          "max": 0.05535914748907089,
+          "sum": 0.3835751488804817
+        },
+        "output_tokens_per_second": {
+          "count": 32,
+          "mean": 14.053937477175264,
+          "min": 10.406201017957436,
+          "p50": 14.36527836946626,
+          "p95": 14.891385247556858,
+          "p99": 15.194376990013858,
+          "max": 15.30306243155435,
+          "sum": 449.72599926960845
+        },
+        "decode_tokens_per_second": {
+          "count": 32,
+          "mean": 14.23459072231177,
+          "min": 10.411711841952412,
+          "p50": 14.448671982277922,
+          "p95": 14.923473894108378,
+          "p99": 15.227312384386542,
+          "max": 15.324580639374407,
+          "sum": 455.50690311397665
+        }
+      },
+      "scores": {
+        "count": 32,
+        "generation_reward_v5_4": 55.0090455376394,
+        "unique_source_generation_reward_v5_4": 53.6277911113297,
+        "schema_valid_strict_rate": 0.9375,
+        "android_repaired_generation_reward_v5_4": 74.50005192789276,
+        "android_repaired_unique_source_generation_reward_v5_4": 73.74753964320412,
+        "android_repaired_schema_valid_strict_rate": 0.96875,
+        "raw_diagnostics": {
+          "generation_reward_v5_4": 55.0090455376394,
+          "schema_valid_strict_rate": 0.9375
+        },
+        "android_repair": {
+          "profile": "TRAINED_E2B_V10_W4",
+          "source_sha256": "2223b4d6eb1b256567ea21e0411b7650c1199303663898506c2a8e515f1e1c14",
+          "runtime_manifest": "/group-volume/k.anup/working_dir/golden_eval_speed_20261001/repair/android_repair_runtime.json",
+          "implementation": "actual Android SDK Kotlin compiler and repair sources",
+          "allow_generated_dsl_repair": true,
+          "allow_source_text_fallback": false,
+          "source_or_reference_supplied_to_repair": false,
+          "batch_wall_seconds": 0.9467761255800724,
+          "repair_compute_seconds": 0.563830457,
+          "mean_repair_seconds": 0.01761970178125,
+          "max_repair_seconds": 0.0998619,
+          "p50_repair_seconds": 0.011657917,
+          "p95_repair_seconds": 0.06965624234999997,
+          "repair_kind_counts": {
+            "NONE": 12,
+            "GENERATED_DSL_REPAIR": 19,
+            "REJECTED": 1
+          },
+          "accepted_count": 31,
+          "rejected_count": 1
+        },
+        "scoring_wall_seconds": 12.406487312167883
+      },
+      "generation_worker_wall_seconds": 841.636012353003,
+      "worker_setup": [
+        {
+          "tokenizer_load_seconds": 6.762874227017164,
+          "base_model_load_seconds": 4.792309753596783,
+          "adapter_load_seconds": 2.200353167951107,
+          "device_placement_seconds": 5.3651630878448486e-05,
+          "qat_preparation_seconds": 0.3125225752592087
+        },
+        {
+          "tokenizer_load_seconds": 6.742336440831423,
+          "base_model_load_seconds": 4.934097722172737,
+          "adapter_load_seconds": 2.057459529489279,
+          "device_placement_seconds": 5.998089909553528e-05,
+          "qat_preparation_seconds": 0.3247511647641659
+        },
+        {
+          "tokenizer_load_seconds": 6.7470547035336494,
+          "base_model_load_seconds": 4.822458554059267,
+          "adapter_load_seconds": 2.185668483376503,
+          "device_placement_seconds": 5.440041422843933e-05,
+          "qat_preparation_seconds": 0.324828639626503
+        }
+      ],
+      "one_time_engine_load_seconds": null,
+      "stop_reason_counts": {
+        "closing_sentinel": 32
+      },
+      "exact_output_token_ids_available": true
+    },
+    "hf_optimized_contended_attempt": {
+      "split": "golden32",
+      "row_count": 32,
+      "gpu_count": 3,
+      "primary_comparison": false,
+      "aggregate_metrics_path": "/group-volume/k.anup/working_dir/golden_eval_speed_20261001/hf_golden32_v2/aggregate_metrics.json",
+      "latency": {
+        "generation_seconds": {
+          "count": 32,
+          "mean": 70.74620033055544,
+          "min": 35.42166682705283,
+          "p50": 68.21951290778816,
+          "p95": 95.7579313268885,
+          "p99": 102.06979446854443,
+          "max": 103.08504083380103,
+          "sum": 2263.878410577774
+        },
+        "time_to_first_token_seconds": {
+          "count": 32,
+          "mean": 0.9994509241078049,
+          "min": 0.10571029037237167,
+          "p50": 0.12583667412400246,
+          "p95": 9.415555662289261,
+          "p99": 9.46730549093336,
+          "max": 9.472677107900381,
+          "sum": 31.982429571449757
+        },
+        "decode_seconds": {
+          "count": 32,
+          "mean": 69.74111423362046,
+          "min": 35.306061275303364,
+          "p50": 68.08242364041507,
+          "p95": 95.41458248011767,
+          "p99": 101.91653578303755,
+          "max": 102.93269657716155,
+          "sum": 2231.715655475855
+        },
+        "input_preparation_seconds": {
+          "count": 32,
+          "mean": 0.01172790047712624,
+          "min": 0.006163891404867172,
+          "p50": 0.0072492267936468124,
+          "p95": 0.05416895411908627,
+          "p99": 0.056336748339235784,
+          "max": 0.057299673557281494,
+          "sum": 0.3752928152680397
+        },
+        "output_tokens_per_second": {
+          "count": 32,
+          "mean": 14.128739000442138,
+          "min": 11.832176467338313,
+          "p50": 14.283072328245348,
+          "p95": 14.939908371680161,
+          "p99": 15.069601038217643,
+          "max": 15.093818810616318,
+          "sum": 452.1196480141484
+        },
+        "decode_tokens_per_second": {
+          "count": 32,
+          "mean": 14.331835180991163,
+          "min": 13.227969290159614,
+          "p50": 14.348749024990752,
+          "p95": 14.958919645248669,
+          "p99": 15.089305069557598,
+          "max": 15.114592359992342,
+          "sum": 458.6187257917172
+        }
+      },
+      "scores": {
+        "count": 32,
+        "generation_reward_v5_4": 55.0090455376394,
+        "unique_source_generation_reward_v5_4": 53.6277911113297,
+        "schema_valid_strict_rate": 0.9375,
+        "android_repaired_generation_reward_v5_4": 74.50005192789276,
+        "android_repaired_unique_source_generation_reward_v5_4": 73.74753964320412,
+        "android_repaired_schema_valid_strict_rate": 0.96875,
+        "raw_diagnostics": {
+          "generation_reward_v5_4": 55.0090455376394,
+          "schema_valid_strict_rate": 0.9375
+        },
+        "android_repair": {
+          "profile": "TRAINED_E2B_V10_W4",
+          "source_sha256": "2223b4d6eb1b256567ea21e0411b7650c1199303663898506c2a8e515f1e1c14",
+          "runtime_manifest": "/group-volume/k.anup/working_dir/golden_eval_speed_20261001/repair/android_repair_runtime.json",
+          "implementation": "actual Android SDK Kotlin compiler and repair sources",
+          "allow_generated_dsl_repair": true,
+          "allow_source_text_fallback": false,
+          "source_or_reference_supplied_to_repair": false,
+          "batch_wall_seconds": 0.9730837866663933,
+          "repair_compute_seconds": 0.551503272,
+          "mean_repair_seconds": 0.01723447725,
+          "max_repair_seconds": 0.092596775,
+          "p50_repair_seconds": 0.013262680499999999,
+          "p95_repair_seconds": 0.060081777849999976,
+          "repair_kind_counts": {
+            "NONE": 12,
+            "GENERATED_DSL_REPAIR": 19,
+            "REJECTED": 1
+          },
+          "accepted_count": 31,
+          "rejected_count": 1
+        },
+        "scoring_wall_seconds": 12.035815086215734
+      },
+      "generation_worker_wall_seconds": 823.5618327744305,
+      "worker_setup": [
+        {
+          "tokenizer_load_seconds": 11.79154397919774,
+          "base_model_load_seconds": 4.106177594512701,
+          "adapter_load_seconds": 1.8665714636445045,
+          "device_placement_seconds": 6.108358502388e-05,
+          "qat_preparation_seconds": 0.2880565971136093
+        },
+        {
+          "tokenizer_load_seconds": 11.836940944194794,
+          "base_model_load_seconds": 4.30050128698349,
+          "adapter_load_seconds": 1.6681557595729828,
+          "device_placement_seconds": 5.609169602394104e-05,
+          "qat_preparation_seconds": 0.28354909643530846
+        },
+        {
+          "tokenizer_load_seconds": 11.745646268129349,
+          "base_model_load_seconds": 4.408448997884989,
+          "adapter_load_seconds": 1.619787160307169,
+          "device_placement_seconds": 5.409121513366699e-05,
+          "qat_preparation_seconds": 0.3154049217700958
+        }
+      ],
+      "one_time_engine_load_seconds": null,
+      "stop_reason_counts": {
+        "closing_sentinel": 32
+      },
+      "exact_output_token_ids_available": true
+    },
+    "litert_gpu_golden32": {
+      "split": "golden32",
+      "row_count": 32,
+      "gpu_count": 1,
+      "primary_comparison": true,
+      "aggregate_metrics_path": "/group-volume/k.anup/working_dir/golden_eval_speed_20261001/litert/r64_fp32_drained_golden32/aggregate_metrics.json",
+      "latency": {
+        "generation_seconds": {
+          "count": 32,
+          "mean": 15.271614968893118,
+          "min": 9.002023294568062,
+          "p50": 14.94510167464614,
+          "p95": 19.90650900583714,
+          "p99": 26.482415135987114,
+          "max": 29.157585613429546,
+          "sum": 488.6916790045798
+        },
+        "inference_seconds": {
+          "count": 32,
+          "mean": 14.439446616219357,
+          "min": 8.325991295278072,
+          "p50": 14.040535885840654,
+          "p95": 18.919453005865215,
+          "p99": 25.86318078804762,
+          "max": 28.542136572301388,
+          "sum": 462.0622917190194
+        },
+        "prefill_seconds": {
+          "count": 32,
+          "mean": 0.85170580400154,
+          "min": 0.5122915022075176,
+          "p50": 0.6412650719285011,
+          "p95": 1.3695020519196988,
+          "p99": 1.398542504683137,
+          "max": 1.408753763884306,
+          "sum": 27.25458572804928
+        },
+        "time_to_first_token_seconds": {
+          "count": 32,
+          "mean": 0.9024850489804521,
+          "min": 0.5588767267763615,
+          "p50": 0.745152935385704,
+          "p95": 1.4062535312026738,
+          "p99": 1.4338202887773515,
+          "max": 1.4404724165797234,
+          "sum": 28.879521567374468
+        },
+        "decode_seconds": {
+          "count": 32,
+          "mean": 13.587304233224131,
+          "min": 6.949748691171408,
+          "p50": 13.260265603661537,
+          "p95": 17.96511336155236,
+          "p99": 24.467746751606477,
+          "max": 27.132942523807287,
+          "sum": 434.7937354631722
+        },
+        "gpu_evidence_seconds": {
+          "count": 32,
+          "mean": 0.8321683526737615,
+          "min": 0.5995722822844982,
+          "p50": 0.6686472967267036,
+          "p95": 1.2953660121187567,
+          "p99": 1.3529787175357342,
+          "max": 1.371033139526844,
+          "sum": 26.62938728556037
+        },
+        "native_last_decode_tokens_per_second": {
+          "count": 32,
+          "mean": 75.64936133620313,
+          "min": 74.39766757096106,
+          "p50": 75.5612465838324,
+          "p95": 76.41645432811046,
+          "p99": 76.50534497912753,
+          "max": 76.50749171719117,
+          "sum": 2420.7795627585
+        },
+        "native_last_prefill_tokens_per_second": {
+          "count": 32,
+          "mean": 4772.879007836647,
+          "min": 2422.32865986969,
+          "p50": 5776.489807466215,
+          "p95": 6339.464463869397,
+          "p99": 6441.909694330565,
+          "max": 6474.882735473256,
+          "sum": 152732.12825077272
+        }
+      },
+      "scores": {
+        "count": 32,
+        "generation_reward_v5_4": 36.690327472852545,
+        "unique_source_generation_reward_v5_4": 35.61582190746069,
+        "schema_valid_strict_rate": 0.71875,
+        "android_repaired_generation_reward_v5_4": 75.11326859576495,
+        "android_repaired_unique_source_generation_reward_v5_4": 75.27821274401543,
+        "android_repaired_schema_valid_strict_rate": 1.0,
+        "raw_diagnostics": {
+          "generation_reward_v5_4": 36.690327472852545,
+          "schema_valid_strict_rate": 0.71875
+        },
+        "android_repair": {
+          "profile": "TRAINED_E2B_V10_W4",
+          "source_sha256": "2223b4d6eb1b256567ea21e0411b7650c1199303663898506c2a8e515f1e1c14",
+          "runtime_manifest": "/group-volume/k.anup/working_dir/golden_eval_speed_20261001/repair/android_repair_runtime.json",
+          "implementation": "actual Android SDK Kotlin compiler and repair sources",
+          "allow_generated_dsl_repair": true,
+          "allow_source_text_fallback": false,
+          "source_or_reference_supplied_to_repair": false,
+          "batch_wall_seconds": 1.0825287364423275,
+          "repair_compute_seconds": 0.606897401,
+          "mean_repair_seconds": 0.01896554378125,
+          "max_repair_seconds": 0.16438288,
+          "p50_repair_seconds": 0.0138770615,
+          "p95_repair_seconds": 0.03442543119999999,
+          "repair_kind_counts": {
+            "GENERATED_DSL_REPAIR": 29,
+            "NONE": 3
+          },
+          "accepted_count": 32,
+          "rejected_count": 0
+        },
+        "scoring_wall_seconds": 10.692752845585346
+      },
+      "generation_worker_wall_seconds": 498.0,
+      "worker_setup": [],
+      "one_time_engine_load_seconds": 5.429558660835028,
+      "stop_reason_counts": {
+        "closing_sentinel": 30,
+        "native_stop_or_token_limit": 2
+      },
+      "exact_output_token_ids_available": false,
+      "native_counter_tokens_total": 32881,
+      "native_counter_at_output_limit_rows": 1,
+      "gpu_execution": {
+        "requested_backend": "gpu",
+        "engine_backend": "gpu",
+        "process_context_verified": true,
+        "allocation_observed": false,
+        "tokenizer_parity_passed": true,
+        "all_operations_gpu_verified": false,
+        "gpu_uuids": [
+          "GPU-be3bf20f-bd6e-f0a0-10f6-2e8a9d41ea8c"
+        ]
+      }
+    },
+    "litert_gpu_golden35": {
+      "split": "golden35",
+      "row_count": 35,
+      "gpu_count": 1,
+      "primary_comparison": true,
+      "aggregate_metrics_path": "/group-volume/k.anup/working_dir/golden_eval_speed_20261001/litert/r64_fp32_drained_golden35/aggregate_metrics.json",
+      "latency": {
+        "generation_seconds": {
+          "count": 35,
+          "mean": 21.386169848058906,
+          "min": 8.489108882844448,
+          "p50": 24.093641128391027,
+          "p95": 29.279389724880456,
+          "p99": 29.34914763584733,
+          "max": 29.35145502910018,
+          "sum": 748.5159446820617
+        },
+        "inference_seconds": {
+          "count": 35,
+          "mean": 20.593616884201765,
+          "min": 7.810085967183113,
+          "p50": 23.50920919328928,
+          "p95": 28.558745799586177,
+          "p99": 28.618407513201237,
+          "max": 28.648441899567842,
+          "sum": 720.7765909470618
+        },
+        "prefill_seconds": {
+          "count": 35,
+          "mean": 0.8232894686715944,
+          "min": 0.52799341827631,
+          "p50": 0.7034255489706993,
+          "p95": 1.3045788574963806,
+          "p99": 1.477736749053001,
+          "max": 1.5385007299482822,
+          "sum": 28.815131403505802
+        },
+        "time_to_first_token_seconds": {
+          "count": 35,
+          "mean": 0.8830563811319215,
+          "min": 0.5692169368267059,
+          "p50": 0.7822963334619999,
+          "p95": 1.3693715006113052,
+          "p99": 1.512503409236669,
+          "max": 1.570629645138979,
+          "sum": 30.906973339617252
+        },
+        "decode_seconds": {
+          "count": 35,
+          "mean": 19.76985004746488,
+          "min": 7.209322437644005,
+          "p50": 22.2416676543653,
+          "p95": 27.647018321603536,
+          "p99": 27.756897642612458,
+          "max": 27.773394107818604,
+          "sum": 691.9447516612709
+        },
+        "gpu_evidence_seconds": {
+          "count": 35,
+          "mean": 0.7925529638571399,
+          "min": 0.5639958307147026,
+          "p50": 0.7500456012785435,
+          "p95": 1.089288970455527,
+          "p99": 1.1835603999346493,
+          "max": 1.200059749186039,
+          "sum": 27.739353734999895
+        },
+        "native_last_decode_tokens_per_second": {
+          "count": 35,
+          "mean": 74.91049887271434,
+          "min": 72.54881683236333,
+          "p50": 75.17273143715762,
+          "p95": 76.13943970153015,
+          "p99": 76.23848832624367,
+          "max": 76.25356096571375,
+          "sum": 2621.867460545002
+        },
+        "native_last_prefill_tokens_per_second": {
+          "count": 35,
+          "mean": 4829.370912733662,
+          "min": 2471.525561742803,
+          "p50": 5303.796707364039,
+          "p95": 6180.300769534587,
+          "p99": 6294.949958349696,
+          "max": 6325.578689404627,
+          "sum": 169027.98194567818
+        }
+      },
+      "scores": {
+        "count": 35,
+        "generation_reward_v5_4": 14.833701090972356,
+        "unique_source_generation_reward_v5_4": null,
+        "schema_valid_strict_rate": 0.2857142857142857,
+        "android_repaired_generation_reward_v5_4": 77.08991673223437,
+        "android_repaired_unique_source_generation_reward_v5_4": null,
+        "android_repaired_schema_valid_strict_rate": 1.0,
+        "raw_diagnostics": {
+          "generation_reward_v5_4": 14.833701090972356,
+          "schema_valid_strict_rate": 0.2857142857142857
+        },
+        "android_repair": {
+          "profile": "TRAINED_E2B_V10_W4",
+          "source_sha256": "2223b4d6eb1b256567ea21e0411b7650c1199303663898506c2a8e515f1e1c14",
+          "runtime_manifest": "/group-volume/k.anup/working_dir/golden_eval_speed_20261001/repair/android_repair_runtime.json",
+          "implementation": "actual Android SDK Kotlin compiler and repair sources",
+          "allow_generated_dsl_repair": true,
+          "allow_source_text_fallback": false,
+          "source_or_reference_supplied_to_repair": false,
+          "batch_wall_seconds": 0.9850115180015564,
+          "repair_compute_seconds": 0.592087556,
+          "mean_repair_seconds": 0.016916787314285715,
+          "max_repair_seconds": 0.175461012,
+          "p50_repair_seconds": 0.011881569,
+          "p95_repair_seconds": 0.025413178099999996,
+          "repair_kind_counts": {
+            "GENERATED_DSL_REPAIR": 33,
+            "NONE": 2
+          },
+          "accepted_count": 35,
+          "rejected_count": 0
+        },
+        "scoring_wall_seconds": 7.59242719784379
+      },
+      "generation_worker_wall_seconds": 754.2,
+      "worker_setup": [],
+      "one_time_engine_load_seconds": 3.0871845185756683,
+      "stop_reason_counts": {
+        "closing_sentinel": 16,
+        "native_stop_or_token_limit": 19
+      },
+      "exact_output_token_ids_available": false,
+      "native_counter_tokens_total": 51788,
+      "native_counter_at_output_limit_rows": 16,
+      "gpu_execution": {
+        "requested_backend": "gpu",
+        "engine_backend": "gpu",
+        "process_context_verified": true,
+        "allocation_observed": false,
+        "tokenizer_parity_passed": true,
+        "all_operations_gpu_verified": false,
+        "gpu_uuids": [
+          "GPU-be3bf20f-bd6e-f0a0-10f6-2e8a9d41ea8c"
+        ]
+      }
+    }
+  },
+  "hf_exact_parity": {
+    "all_exact_match": true,
+    "case_count": 32
+  },
+  "comparison": {
+    "hf_per_case_speedup": 2.90061969445672,
+    "hf_cohort_wall_speedup": 2.0850866382420823,
+    "baseline_gpu_count": 4,
+    "optimized_gpu_count": 3
+  },
+  "precision_parity": [
+    {
+      "scale": 0.0,
+      "values": 65536,
+      "bit_mismatches": 0,
+      "numeric_mismatches": 0
+    },
+    {
+      "scale": 0.015670500695705414,
+      "values": 65536,
+      "bit_mismatches": 0,
+      "numeric_mismatches": 0
+    },
+    {
+      "scale": 0.020895034074783325,
+      "values": 65536,
+      "bit_mismatches": 0,
+      "numeric_mismatches": 0
+    },
+    {
+      "scale": 0.024852370843291283,
+      "values": 65536,
+      "bit_mismatches": 0,
+      "numeric_mismatches": 0
+    },
+    {
+      "scale": 0.030019694939255714,
+      "values": 65536,
+      "bit_mismatches": 0,
+      "numeric_mismatches": 0
+    },
+    {
+      "scale": 0.0433070994913578,
+      "values": 65536,
+      "bit_mismatches": 0,
+      "numeric_mismatches": 0
+    },
+    {
+      "scale": 0.06889764219522476,
+      "values": 65536,
+      "bit_mismatches": 0,
+      "numeric_mismatches": 0
+    },
+    {
+      "scale": 0.10531344264745712,
+      "values": 65536,
+      "bit_mismatches": 0,
+      "numeric_mismatches": 0
+    },
+    {
+      "scale": 0.15428009629249573,
+      "values": 65536,
+      "bit_mismatches": 0,
+      "numeric_mismatches": 0
+    },
+    {
+      "scale": 0.1919291466474533,
+      "values": 65536,
+      "bit_mismatches": 0,
+      "numeric_mismatches": 0
+    },
+    {
+      "scale": 0.30314961075782776,
+      "values": 65536,
+      "bit_mismatches": 0,
+      "numeric_mismatches": 0
+    },
+    {
+      "scale": 0.4206320643424988,
+      "values": 65536,
+      "bit_mismatches": 0,
+      "numeric_mismatches": 0
+    },
+    {
+      "scale": 1.450958251953125,
+      "values": 65536,
+      "bit_mismatches": 0,
+      "numeric_mismatches": 0
+    },
+    {
+      "scale": 27.842519760131836,
+      "values": 65536,
+      "bit_mismatches": 0,
+      "numeric_mismatches": 0
+    },
+    {
+      "scale": 0.0,
+      "values": 65536,
+      "bit_mismatches": 0,
+      "numeric_mismatches": 0
+    },
+    {
+      "scale": 1.0,
+      "values": 65536,
+      "bit_mismatches": 0,
+      "numeric_mismatches": 0
+    },
+    {
+      "scale": 0.03125,
+      "values": 65536,
+      "bit_mismatches": 0,
+      "numeric_mismatches": 0
+    }
+  ],
+  "pipeline_restored": {
+    "resumed_pids": [
+      36618,
+      46913,
+      47018,
+      47107,
+      47108,
+      47109,
+      47110
+    ],
+    "states": {
+      "36618": "State:\tS (sleeping)",
+      "46913": "State:\tS (sleeping)",
+      "47018": "State:\tS (sleeping)",
+      "47107": "State:\tR (running)",
+      "47108": "State:\tR (running)",
+      "47109": "State:\tR (running)",
+      "47110": "State:\tR (running)"
+    },
+    "all_resumed": true,
+    "owned_safety_watchdog_cancelled": 95053
+  },
+  "notes": [
+    "HF comparisons use identical checkpoint, prompt token IDs, greedy policy and full generated token IDs for all 32 occurrences.",
+    "Golden32 contains 32 occurrences from 31 unique sources; source-macro reward remains the raw checkpoint selector.",
+    "LiteRT model is the existing RunD Sept27 export, distinct from RunE HF weights; cross-runtime quality is not a parity comparison.",
+    "Scores labelled generation_reward_v5_4 use the normal unrepaired serving output; separately retained raw diagnostics score all observed native output.",
+    "Native inference_seconds excludes exact-process GPU-evidence query overhead; generation_seconds includes it. Engine load is one-time and must not be summed over cases.",
+    "Native token counters and rates are reported by the runtime, which does not expose exact generated token IDs.",
+    "Native worker wall times come from measured parent Progress logs rounded to 0.1 second and include worker startup/load/cases; scoring is separate.",
+    "The old contended attempt is retained as secondary evidence. Original paused golden35 latency includes the pause and is excluded.",
+    "Failed FP16/naive fusion/native cancellation/cache collision attempts are retained as diagnostics and are not published as full cohort evaluations.",
+    "All native runs use FP32 text activations, greedy decoding, no MTP, output limit 2048, exact tokenizer parity and Android TRAINED_E2B_V10_W4 repair with no source/reference fallback."
+  ],
+  "fast_eval_activation_script": "/group-volume/k.anup/working_dir/golden_eval_speed_20261001/activate_fast_eval.sh",
+  "validation": {
+    "final_regression_tests.log": "275 passed, 3 skipped, 14 warnings in 139.90s (0:02:19)",
+    "latency_reporting_regression.log": "100 passed in 5.18s",
+    "setup_shell_syntax": "passed bash -n",
+    "pipeline_restored": true,
+    "native_tensorboard_artifact_bindings": "updated and verified after latency metadata addition"
+  },
+  "source_file_sha256": {
+    "training/src/ir_training/qat/fake_quant.py": "fd6e947e48c2ad5022c108fc9642e6f77b03c0570bb02e18f9d81d5f61fade67",
+    "training/src/ir_training/eval/generate.py": "d2c8188067eac4c95aea37c6ec5917728f9a1170b789cdec45894fe71a068471",
+    "training/src/ir_training/eval/litert_gpu.py": "fb7a94a7a1fa90201629f69a81bbb71b237079d36a5ded8841c0460d0f4697bc",
+    "training/src/ir_training/eval/parallel_generate.py": "3739459397353bb93854f4bc098df94534ad6af4f0c6a90addfd28f9b5d0c47f",
+    "training/src/ir_training/eval/compare_to_baseline.py": "c26bd2fd4f03d77edafcf3f9eae56fa741dbbfd27df4634c21babdca86c7672e",
+    "training/src/ir_training/eval/android_repair.py": "39c6eaae36dfab89f1dd21d6d2d9fccd01e796fad322d89ed209428b920adeb2",
+    "training/src/ir_training/pipeline/result_tables.py": "e4a7eb4219242b9f8b708b9ab52fb5872d151df940ba6b17218642828f2c8f96",
+    "training/src/ir_training/pipeline/official_mobile.py": "18707a29c5dc2f516d16f6edcd79a5a35adb13e652e6c1c4cae8f772a14b482a",
+    "training/scripts/evaluate_checkpoint_on_golden.py": "cb5ba53909fd34f02ea004b29718eef191940774ce52e7c1a647da3962153c66",
+    "training/scripts/evaluate_litertlm_on_golden.py": "c493964aaa82d4ad09bd23cae3eca8c0c66b4aa3094ad417dbe9745af4040688",
+    "training/scripts/benchmark_golden_inference.py": "2d4bad8a8f1742e0d319d2b8281619b54cef9603402be938860c15aef2e0ca81",
+    "training/scripts/setup_litertlm_runtime.sh": "bfa14aa9a72158a8c2de2f00fc2cd4de74afd3bd59d67947275ee009f0479237"
+  },
+  "hf_short_probe_exact_parity": {
+    "probe_token_exact_match": true,
+    "compiled_probe_token_exact_match": true
+  },
+  "profiling": {
+    "probe_tokens": 8,
+    "weight_cached_eager_cuda_kernel_launches": 111575,
+    "weight_cached_precise_srq_cuda_kernel_launches": 23575,
+    "kernel_launch_reduction_fraction": 0.7887071476585257,
+    "remaining_bottleneck": "Autoregressive HF still dispatches many small kernels and compiled regions; additional CPU cores cannot parallelize dependent tokens."
+  }
+}

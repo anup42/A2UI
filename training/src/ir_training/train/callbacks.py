@@ -17,6 +17,7 @@ from ir_training.eval.tensorboard_logging import log_evaluation_result
 from ir_training.eval.generate import build_prediction_record, _extract_user_text as _bound_source_text
 from ir_training.eval.golden_set import load_fixed_golden_rows
 from ir_training.generation_policy import build_stopping_criteria, generation_diagnostics, preserve_generation_eos, generation_cache_scope
+from ir_training.qat.fake_quant import qat_inference_cache_scope
 
 
 class TrainingMetadataCallback:
@@ -495,7 +496,7 @@ def _generate_predictions_with_model(
     started = time.perf_counter()
     generation_error: Exception | None = None
     try:
-        with generation_cache_scope(generation_model, enabled=use_cache):
+        with qat_inference_cache_scope(generation_model, enabled=zero3_trainer is None), generation_cache_scope(generation_model, enabled=use_cache):
             indices = range(len(rows_for_eval)) if zero3_trainer is not None else range(rank, len(rows_for_eval), world_size)
             for idx in indices:
                 row = rows_for_eval[idx]

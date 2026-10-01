@@ -90,6 +90,7 @@ class OfficialMobileOptions:
     progress_seconds: float = 10
     stage_timeout_seconds: float = 172800
     generation_timeout_seconds: float = 7200
+    android_repair_runtime: Path | None = None
     augmentation: str = "none"
     augmentation_dir: Path | None = None
     augmentation_max_extra_fraction: float = 0.10
@@ -120,7 +121,7 @@ def build_plan(options: OfficialMobileOptions) -> dict[str, Any]:
     """Offline plan: no CUDA probe, downloads, model load, or filesystem writes."""
     values = asdict(options)
     for key in ("model_dir", "input_dir", "source_safetensors", "official_litertlm",
-                "output_dir", "preparation_cache_dir", "resume_from_checkpoint"):
+                "output_dir", "preparation_cache_dir", "resume_from_checkpoint", "android_repair_runtime"):
         if values[key] is not None:
             values[key] = str(Path(values[key]).expanduser().resolve())
     if values["prepared_input_dir"] is not None:
@@ -455,7 +456,7 @@ def evaluation_command(plan: dict, cohort: str) -> list[str]:
     values, paths = plan["options"], plan["paths"]
     output = Path(values["output_dir"])
     count = plan["preparation"]["goldens"][cohort]["rows"]
-    return [sys.executable, str(training_root() / "scripts/evaluate_checkpoint_on_golden.py"),
+    command = [sys.executable, str(training_root() / "scripts/evaluate_checkpoint_on_golden.py"),
         "--config", paths["config"], "--checkpoint", paths["best_checkpoint"], "--checkpoint-kind", "adapter",
         "--qat-mode", "on", "--require-prepared-contract", "--require-gpu", "--devices", "auto",
         "--split", str(Path(paths["prepared"]) / f"{cohort}.jsonl"), "--max-rows", str(count), "--required-rows", str(count),
@@ -464,6 +465,10 @@ def evaluation_command(plan: dict, cohort: str) -> list[str]:
         "--output-dir", str(output / f"evaluations/best_{cohort}"), "--run-id", output.name,
         "--evaluation-name", f"best_{cohort}", "--tensorboard-root", values["tensorboard_root"],
         "--generation-timeout-seconds", str(values["generation_timeout_seconds"]), "--metric-version", "v5_4"]
+
+    if values.get("android_repair_runtime"):
+        command += ["--android-repair-runtime", values["android_repair_runtime"]]
+    return command
 
 
 def _mobile_command(plan: dict, stage: str) -> list[str]:
@@ -544,6 +549,8 @@ def _environment(plan: dict, *, gpu: bool = False) -> dict[str, str]:
     values = plan["options"]
     env = {**os.environ, "PYTHONUNBUFFERED": "1", "A2UI_TENSORBOARD_ROOT": values["tensorboard_root"],
            "A2UI_TENSORBOARD_DETAIL": "minimal", "HF_HUB_OFFLINE": "1", "TRANSFORMERS_OFFLINE": "1"}
+    if values.get("android_repair_runtime"):
+        env["A2UI_ANDROID_REPAIR_RUNTIME"] = values["android_repair_runtime"]
     if gpu:
         from ir_training.train.gpu_profile import (
             training_environment,
@@ -770,19 +777,24 @@ def run_stage(plan: dict, stage: str) -> list[Path]:
 
 
 def _summary(state: dict) -> str:
-    from ir_training.pipeline.result_tables import _metric, _table
+    from ir_training.pipeline.result_tables import _metric, _repaired_metric, _table
     plan = state["plan"]
     rows = []
     for cohort, (_, count, _) in GOLDENS.items():
         result = state.get("results", {}).get(cohort, {})
         rows.append([cohort, "evaluated" if result else "not evaluated", f"{result.get('row_count', '?')}/{count}",
                      _metric(result, "generation_reward_v5_4_avg"), _metric(result, "schema_valid_strict_rate", percent=True),
-                     _metric(result, SELECTOR) if cohort == "golden32" else "not used for selection"])
+                     _metric(result, SELECTOR) if cohort == "golden32" else "not used for selection",
+                     _repaired_metric(result, "generation_reward_v5_4_avg"),
+                     _repaired_metric(result, "schema_valid_strict_rate", percent=True)])
     return "\n".join([
         "# Official-layout mobile QAT results", "", f"Run status: {state['status']}", "",
         "Best checkpoint evaluated with retained-scale fake QAT (not native LiteRT quality scores).", "",
-        _table(("Cohort", "Status", "Rows", "Reward v5.4 (0-100)", "Strict-valid %", "Unique-source selection reward"), rows), "",
+        _table(("Cohort", "Status", "Rows", "Reward v5.4 (0-100)", "Strict-valid %", "Unique-source selection reward",
+                "After repair reward", "After repair strict %"), rows), "",
         "Golden32: 32 occurrences / 31 unique sources. Golden35 and Bixby50 are final-only holdouts.",
+        "After repair uses the Android trained profile over the same cohort, including rejected outputs; raw checkpoint selection is unchanged.",
+        "Not run means repair was not configured; not measured means no repair evidence exists.",
         "Bixby50 has source responses but no reference IR: source-grounded reward/validity, not reference-match accuracy.", "",
         f"LiteRT-LM export: {'verified official layout' if 'export' in state['completed'] else 'not completed'}.",
         f"MTP: disabled; unused official drafter bytes preserved. Artifact: {plan['paths']['litertlm']}",

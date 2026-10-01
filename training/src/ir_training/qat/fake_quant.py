@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import re
+import weakref
+from contextlib import contextmanager
 from collections.abc import Callable
 from dataclasses import asdict, dataclass
 from typing import Any
@@ -566,6 +568,7 @@ def fake_quantize_weight(
 
 def mobile_srq_ste(
     values: Any, scale: Any, *, ste_gradient: str = "clipped", validate_scale: bool = True,
+    inference_forward: bool = False,
 ) -> Any:
     """Published mobile HF A8 forward, with an explicitly independent STE.
 
@@ -591,6 +594,14 @@ def mobile_srq_ste(
     safe_scale = torch.where(calibrated, tensor, torch.ones_like(tensor))
     rounded = torch.clamp(torch.round(values / safe_scale), -128.0, 127.0) * safe_scale
     quantized = torch.where(calibrated, rounded, values)
+    if inference_forward:
+        if torch.is_grad_enabled():
+            raise RuntimeError("SRQ inference_forward requires gradients to be disabled.")
+        if ste_gradient not in {"clipped", "identity"}:
+            raise ValueError(f"Unsupported mobile SRQ STE: {ste_gradient!r}")
+        # Keep the zero-valued subtraction: it preserves signed-zero/NaN/Inf
+        # behavior of the original forward while omitting the backward mask.
+        return quantized.detach() + (values - values.detach())
     if ste_gradient == "clipped":
         mask = (~calibrated | ((values >= -128 * safe_scale) & (values <= 127 * safe_scale))).to(values.dtype)
     elif ste_gradient == "identity":
@@ -669,6 +680,115 @@ class QATController:
         self._frozen_activation_bindings: dict[str, dict[str, Any]] = {}
         self.saturation_monitor: Any | None = None
         self.trainable_scope: dict[str, Any] | None = None
+        self._inference_cache_enabled = False
+        self._inference_weights: dict[Any, tuple[Any, Any]] = {}
+        self._inference_cache_hits = 0
+        self._inference_cache_misses = 0
+        self._inference_cache_peak_bytes = 0
+        self._model_ref: Any | None = None
+        self.inference_compile_srq = True
+        self._compile_srq_enabled = False
+        self._compiled_srq: Any | None = None
+        self._compiled_srq_calls = 0
+        self._compiled_srq_unavailable = False
+
+    @contextmanager
+    def inference_cache(self, *, enabled: bool = True, compile_srq: bool | None = None):
+        """Reuse exact fake-quantized weights only during scoped inference.
+
+        Weight quantization runs on the first use, under the caller's original
+        autocast context. Activation quantization preserves the original SRQ
+        arithmetic, including zero scales and nonfinite inputs. No cached
+        tensor can participate in training or survive the scope; ordinary
+        parameter/adapter mutations invalidate its entry. ZeRO-3 parameters
+        bypass caching because retaining gathered weights defeats sharding.
+        """
+        previous_enabled, previous_weights = self._inference_cache_enabled, self._inference_weights
+        previous_compile = self._compile_srq_enabled
+        self._compile_srq_enabled = bool(enabled and (self.inference_compile_srq if compile_srq is None else compile_srq))
+        self._compiled_srq_calls = 0
+        self._inference_cache_enabled, self._inference_weights = bool(enabled), {}
+        self._inference_cache_hits = self._inference_cache_misses = 0
+        self._inference_cache_peak_bytes = 0
+        try:
+            yield self
+        finally:
+            self._inference_weights.clear()
+            self._inference_cache_enabled, self._inference_weights = previous_enabled, previous_weights
+            self._compile_srq_enabled = previous_compile
+
+    @property
+    def inference_cache_stats(self) -> dict[str, int]:
+        return {
+            "hits": self._inference_cache_hits,
+            "misses": self._inference_cache_misses,
+            "cached_bytes": sum(value.numel() * value.element_size() for _, value in self._inference_weights.values()),
+            "peak_cached_bytes": self._inference_cache_peak_bytes,
+            "compiled_srq_calls": self._compiled_srq_calls,
+            "compiled_srq_unavailable": int(self._compiled_srq_unavailable),
+        }
+
+    def _activation(self, module: Any, values: Any, spec: QATSpec, *, scale_override: Any = None, validated_scale: bool = False) -> Any:
+        import torch
+
+        if (self._compile_srq_enabled and not self._compiled_srq_unavailable
+                and not module.training and not torch.is_grad_enabled()
+                and values.is_cuda and values.dtype == torch.bfloat16
+                and spec.activation_quantizer == "gemma_mobile_srq"
+                and spec.activation_bits == 8 and spec.scale_mode == "retained_mobile"
+                and validated_scale):
+            if self._compiled_srq is None:
+                import torch._inductor.config as compiler_config
+
+                if not hasattr(compiler_config, "emulate_precision_casts"):
+                    # Never substitute ordinary fusion: its removal of BF16
+                    # intermediate rounding changes generated model outputs.
+                    self._compiled_srq_unavailable = True
+                else:
+                    self._compiled_srq = torch.compile(mobile_srq_ste, dynamic=True, fullgraph=True,
+                        options={"emulate_precision_casts": True})
+            if self._compiled_srq is not None:
+                self._compiled_srq_calls += 1
+                return self._compiled_srq(values, scale_override, ste_gradient=spec.ste_gradient,
+                    validate_scale=False, inference_forward=True)
+        return fake_quantize_activation(values, spec, scale_override=scale_override, validated_scale=validated_scale)
+
+    def _inference_weight(self, module: Any, create: Callable[[], Any], *, adapter_names: tuple[str, ...] = ()) -> Any:
+        import torch
+
+        if (not self._inference_cache_enabled or module.training or torch.is_grad_enabled()
+                or (self.saturation_monitor is not None and getattr(self.saturation_monitor, "active", True))):
+            # An intervening training/gradient pass must not leave a stale entry.
+            self._inference_weights.pop(module, None)
+            return create()
+        weights = [module.base_layer.weight] if adapter_names else [module.weight]
+        for name in adapter_names:
+            weights.extend((module.lora_A[name].weight, module.lora_B[name].weight))
+        if any(hasattr(weight, "ds_id") for weight in weights):
+            return create()
+        try:
+            signature = tuple((id(weight), weight._version, weight.device, weight.dtype, tuple(weight.shape)) for weight in weights)
+            if adapter_names:
+                scales = []
+                for name in adapter_names:
+                    scale = module.scaling[name]
+                    scales.append((id(scale), scale._version, scale.device, scale.dtype) if isinstance(scale, torch.Tensor) else scale)
+                signature += (tuple(scales),)
+        except RuntimeError:
+            # Inference-created parameters or scales have no mutation counter.
+            self._inference_weights.pop(module, None)
+            return create()
+        device_type = weights[0].device.type
+        signature += (torch.is_autocast_enabled(device_type), torch.get_autocast_dtype(device_type))
+        cached = self._inference_weights.get(module)
+        if cached is not None and cached[0] == signature:
+            self._inference_cache_hits += 1
+            return cached[1]
+        value = create().detach()
+        self._inference_weights[module] = (signature, value)
+        self._inference_cache_misses += 1
+        self._inference_cache_peak_bytes = max(self._inference_cache_peak_bytes, self.inference_cache_stats["cached_bytes"])
+        return value
 
     def _retained_qparams_for_module(
         self,
@@ -787,7 +907,7 @@ class QATController:
             def frozen_forward(
                 inputs: Any, *args: Any, _name: str = name,
                 _original: Callable = original_forward, _spec: QATSpec = module_spec,
-                _binding: dict = binding, _cache: dict = cache, **kwargs: Any,
+                _binding: dict = binding, _cache: dict = cache, _module: Any = module, **kwargs: Any,
             ) -> Any:
                 if args or kwargs:
                     raise TypeError(f"Unexpected arguments for frozen mobile Linear {_name!r}.")
@@ -802,10 +922,11 @@ class QATController:
 
                 input_scale = scale_for("input", inputs)
                 self._observe(_name, inputs, input_scale, role="input", spec=_spec)
-                output = _original(fake_quantize_activation(inputs, _spec, scale_override=input_scale, validated_scale=True))
+                quantized_input = self._activation(_module, inputs, _spec, scale_override=input_scale, validated_scale=True)
+                output = _original(quantized_input)
                 output_scale = scale_for("output", output)
                 self._observe(_name, output, output_scale, role="output", spec=_spec)
-                return fake_quantize_activation(output, _spec, scale_override=output_scale, validated_scale=True)
+                return self._activation(_module, output, _spec, scale_override=output_scale, validated_scale=True)
 
             module.forward = frozen_forward
             self._original_forwards[module] = original_forward
@@ -816,6 +937,7 @@ class QATController:
             raise ValueError(f"Frozen A8 scope mismatch: missing={sorted(expected-set(bound))}, extra={sorted(set(bound)-expected)}.")
 
     def prepare(self, model: Any) -> QATController:
+        import torch
         from torch import nn
         from torch.nn import functional
 
@@ -899,21 +1021,20 @@ class QATController:
                         )
                     input_scale = _retained_scale("input", input_tensor)
                     self._observe(_module_name, input_tensor, input_scale, role="input", spec=_module_spec)
-                    quantized_input = fake_quantize_activation(
-                        input_tensor,
+                    quantized_input = self._activation(
+                        _module, input_tensor,
                         _module_spec,
                         scale_override=input_scale,
                         validated_scale=_has_retained_qparams,
                     )
-                    effective_weight = _effective_lora_weight(
-                        _module, _adapter_names
-                    )
-                    weight_scale = _retained_scale("weight", effective_weight)
-                    self._observe(_module_name, effective_weight, weight_scale, role="weight", spec=_module_spec)
-                    quantized_weight = fake_quantize_weight(
-                        effective_weight,
-                        _module_spec,
-                        scale_override=weight_scale,
+                    def quantize_effective_weight():
+                        effective_weight = _effective_lora_weight(_module, _adapter_names)
+                        weight_scale = _retained_scale("weight", effective_weight)
+                        self._observe(_module_name, effective_weight, weight_scale, role="weight", spec=_module_spec)
+                        return fake_quantize_weight(effective_weight, _module_spec, scale_override=weight_scale)
+
+                    quantized_weight = self._inference_weight(
+                        _module, quantize_effective_weight, adapter_names=_adapter_names,
                     )
                     output = functional.linear(
                         quantized_input,
@@ -923,8 +1044,8 @@ class QATController:
                     if _has_retained_qparams:
                         output_scale = _retained_scale("output", output)
                         self._observe(_module_name, output, output_scale, role="output", spec=_module_spec)
-                        return fake_quantize_activation(
-                            output,
+                        return self._activation(
+                            _module, output,
                             _module_spec,
                             scale_override=output_scale,
                             validated_scale=True,
@@ -1007,7 +1128,9 @@ class QATController:
                     if args or kwargs:
                         return _original_forward(input_tensor, *args, **kwargs)
                     quantized_input = fake_quantize_activation(input_tensor, _module_spec)
-                    quantized_weight = fake_quantize_weight(_module.weight, _module_spec)
+                    quantized_weight = self._inference_weight(
+                        _module, lambda: fake_quantize_weight(_module.weight, _module_spec),
+                    )
                     return functional.linear(quantized_input, quantized_weight, _module.bias)
 
             else:
@@ -1044,6 +1167,11 @@ class QATController:
         return self
 
     def restore(self) -> None:
+        self._inference_cache_enabled = False
+        self._inference_weights.clear()
+        model = self._model_ref() if self._model_ref is not None else None
+        if model is not None and getattr(model, "_a2ui_qat_controller", None) is self:
+            delattr(model, "_a2ui_qat_controller")
         for module, original_forward in self._original_forwards.items():
             module.forward = original_forward
         self._original_forwards.clear()
@@ -1399,6 +1527,17 @@ def _merge_public_schema(qat: dict[str, Any]) -> dict[str, Any]:
     return merged
 
 
+@contextmanager
+def qat_inference_cache_scope(model: Any, *, enabled: bool = True):
+    """Enable a prepared model's inference cache without changing training."""
+    controller = getattr(model, "_a2ui_qat_controller", None)
+    if controller is None:
+        yield None
+        return
+    with controller.inference_cache(enabled=enabled and getattr(model, "_a2ui_qat_inference_cache_enabled", True)):
+        yield controller
+
+
 def prepare_qat_model(model: Any, config: dict[str, Any]) -> QATController:
     """Apply configured fake quantization and fail if no base weights match."""
 
@@ -1488,4 +1627,8 @@ def prepare_qat_model(model: Any, config: dict[str, Any]) -> QATController:
             "Check qat.exclude_modules, qat.modules_to_not_convert, and "
             "qat.quantize_embeddings."
         )
+    controller.inference_compile_srq = bool(qat_config.get("inference_compile_srq", True))
+    controller._model_ref = weakref.ref(model)
+    model._a2ui_qat_controller = controller
+    model._a2ui_qat_inference_cache_enabled = bool(qat_config.get("inference_weight_cache", True))
     return controller

@@ -17,6 +17,7 @@ import subprocess
 import sys
 import threading
 import time
+import xml.etree.ElementTree as ET
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
@@ -55,6 +56,36 @@ def nvidia_inventory() -> list[dict[str, str]]:
     if not rows or any(len(row) != 4 for row in rows):
         raise RuntimeError("No NVIDIA GPUs were reported by nvidia-smi")
     return [dict(zip(("index", "uuid", "name", "memory_total_mib"), row)) for row in rows]
+
+
+def _nvidia_graphics_processes() -> list[dict[str, Any]]:
+    """Include Vulkan contexts, which the compute-only CSV query can omit.
+
+    Some container NVML shims report zero per-process MiB even for active H100
+    contexts. Exact PID + graphics registration proves a context on that UUID;
+    it does not establish allocation size or that every operation ran on GPU.
+    """
+    try:
+        result = subprocess.run(["nvidia-smi", "-q", "-x"], capture_output=True,
+                                text=True, timeout=15, check=False)
+        if result.returncode:
+            return []
+        root = ET.fromstring(result.stdout)
+    except (OSError, subprocess.TimeoutExpired, ET.ParseError):
+        return []
+    rows = []
+    for gpu in root.findall("gpu"):
+        for process in gpu.findall("processes/process_info"):
+            kind = process.findtext("type", "")
+            if "G" not in kind:
+                continue
+            try:
+                memory = float(process.findtext("used_memory", "").split()[0])
+            except (ValueError, IndexError):
+                memory = None
+            rows.append({"pid": process.findtext("pid"), "gpu_uuid": gpu.findtext("uuid"),
+                         "process_type": kind, "allocated_mib": memory})
+    return rows
 
 
 def allowed_gpu_uuids() -> set[str] | None:
@@ -122,7 +153,7 @@ def self_pid_identity() -> dict[str, Any]:
 
 
 def gpu_process_evidence() -> dict[str, Any]:
-    """Require an allocation for this process, not another training job's GPU.
+    """Require an allocation or graphics context belonging to this process.
 
     This observes allocation, not every individual delegated kernel. Engine GPU
     selection and native logs are retained separately; no all-op GPU claim is made.
@@ -143,6 +174,21 @@ def gpu_process_evidence() -> dict[str, Any]:
         if math.isfinite(memory) and memory > 0:
             devices.append({"gpu_uuid": row[1], "allocated_mib": memory})
             matched_pids.add(int(row[0]))
+    # A compute context on an allowed device does not rule out a Vulkan context
+    # on another device. Inspect both inventories before enforcing allocation.
+    for row in _nvidia_graphics_processes():
+        if row["pid"] not in candidates or not row.get("gpu_uuid"):
+            continue
+        memory = row["allocated_mib"]
+        if memory is not None and (not math.isfinite(memory) or memory < 0):
+            continue
+        matched_pids.add(int(row["pid"]))
+        existing = next((device for device in devices if device["gpu_uuid"] == row["gpu_uuid"]), None)
+        if existing is None:
+            existing = {"gpu_uuid": row["gpu_uuid"], "allocated_mib": memory}
+            devices.append(existing)
+        existing.update(graphics_process_registered=True, process_type=row["process_type"],
+                        allocation_size_verified=(existing.get("allocated_mib") or 0) > 0)
     if len(matched_pids) > 1:
         raise RuntimeError(
             f"Ambiguous NVIDIA PID-namespace evidence: multiple self PID candidates {sorted(matched_pids)} "
@@ -157,7 +203,9 @@ def gpu_process_evidence() -> dict[str, Any]:
             "If NVIDIA reports host PIDs hidden from /proc/self/status NSpid, use an administrator-approved "
             "host-PID-visible runtime container; no unrelated PID or memory-delta fallback is allowed."
         )
-    evidence = {"pid": owner, "devices": devices, "evidence": "nvidia-smi process GPU allocation",
+    evidence = {"pid": owner, "devices": devices,
+                "evidence": "nvidia-smi exact process GPU allocation or registered graphics context",
+                "allocation_observed": any((device.get("allocated_mib") or 0) > 0 for device in devices),
                 "pid_namespace_identity": identity, "nvidia_smi_pid": next(iter(matched_pids)),
                 "all_operations_gpu_verified": False}
     validate_gpu_allocation(evidence)
@@ -336,9 +384,15 @@ def run_gpu_worker(
     *, model_path: str | Path, requests_path: str | Path, outputs_path: str | Path,
     cache_dir: str | Path | None = None, runtime: Any = None,
     evidence_reader: Callable[[], dict[str, Any]] = gpu_process_evidence,
+    gpu_decode_steps_per_sync: int = 8,
+    activation_dtype: str = "float32",
 ) -> dict[str, Any]:
     """Called in an isolated child; parent enforces native-operation timeouts."""
     model = Path(model_path).expanduser().resolve()
+    if type(gpu_decode_steps_per_sync) is not int or gpu_decode_steps_per_sync <= 0:
+        raise ValueError("gpu_decode_steps_per_sync must be a positive integer")
+    if activation_dtype not in {"float32", "float16"}:
+        raise ValueError("activation_dtype must be float32 or float16")
     if not model.is_file():
         raise FileNotFoundError(model)
     output = Path(outputs_path).expanduser().resolve()
@@ -352,13 +406,16 @@ def run_gpu_worker(
     first = rows[0]
     output.parent.mkdir(parents=True, exist_ok=True)
     _event("engine_load", rows=len(rows), runtime_version=RUNTIME_VERSION, backend="gpu")
+    load_started = time.monotonic()
     with Progress("Load LiteRT-LM GPU engine", unit="stage"):
         try:
             engine = runtime.Engine(
-                str(model), backend=runtime.Backend.GPU(),
+                str(model), backend=runtime.Backend.GPU(gpu_decode_steps_per_sync=gpu_decode_steps_per_sync),
                 max_num_tokens=first["max_input_tokens"] + first["max_new_tokens"],
                 cache_dir=str(Path(cache_dir).resolve()) if cache_dir else None,
                 enable_speculative_decoding=first["mtp_enabled"],
+                enable_benchmark=True,
+                activation_data_type=getattr(runtime.ActivationDataType, activation_dtype.upper()),
             )
         except Exception as exc:
             raise RuntimeError(
@@ -369,6 +426,7 @@ def run_gpu_worker(
                 "For model/operator/precision errors, retain this variant's export_manifest.json "
                 "and package_inspection.json; do not relabel a CPU or different-precision run as passing."
             ) from exc
+    engine_load_seconds = time.monotonic() - load_started
     started_all = time.monotonic()
     with engine, output.open("x", encoding="utf-8") as stream:
         if engine.backend.get_name() != "gpu":
@@ -379,23 +437,52 @@ def run_gpu_worker(
             started = time.monotonic()
             chunks: list[str] = []
             stopped_on_envelope = False
+            first_token_seconds = None
+            native_metrics: dict[str, Any] = {}
             with Progress(f"LiteRT-LM case {index + 1}/{len(rows)} {request['id']}", unit="stage"):  # noqa: SIM117
                 with engine.create_session(
                     apply_prompt_template=False,
                     sampler_config=runtime.SamplerConfig(top_k=1, top_p=1.0, temperature=0.0, seed=42),
                     max_output_tokens=request["max_new_tokens"],
                 ) as session:
+                    prefill_started = time.monotonic()
                     session.run_prefill([prefill])
+                    prefill_seconds = time.monotonic() - prefill_started
+                    evidence_started = time.monotonic()
                     evidence = evidence_reader()
                     validate_gpu_allocation(evidence)
+                    evidence_seconds = time.monotonic() - evidence_started
+                    decode_started = time.monotonic()
+                    sentinel_tail = ""
                     for chunk in session.run_decode_async():
                         if len(chunk.texts) != 1 or not isinstance(chunk.texts[0], str):
                             raise RuntimeError("Unexpected LiteRT-LM response structure")
                         chunks.append(chunk.texts[0])
-                        if closing_sentinel_end("".join(chunks)) is not None:
+                        if first_token_seconds is None and chunk.texts[0]:
+                            first_token_seconds = time.monotonic() - started - evidence_seconds
+                        # Most chunks cannot contain the closing tag. Avoid rescanning
+                        # every preceding character at every decode step, but retain
+                        # the quote-aware full check whenever the tag is a candidate.
+                        candidate = sentinel_tail + chunk.texts[0]
+                        sentinel_tail = candidate[-6:]
+                        if not stopped_on_envelope and "</a2ui>" in candidate and closing_sentinel_end("".join(chunks)) is not None:
                             session.cancel_process()
                             stopped_on_envelope = True
-                            break
+                            # Cancellation is asynchronous. Drain the iterator to
+                            # its final/CANCELLED callback before freeing the
+                            # session; queued native callbacks can otherwise
+                            # access a closed session and crash a later case.
+                    decode_seconds = time.monotonic() - decode_started
+                    if callable(getattr(session, "get_benchmark_info", None)):
+                        try:
+                            benchmark = session.get_benchmark_info()
+                            for name in ("last_prefill_token_count", "last_prefill_tokens_per_second",
+                                         "last_decode_token_count", "last_decode_tokens_per_second"):
+                                value = getattr(benchmark, name, None)
+                                if isinstance(value, (int, float)) and math.isfinite(value):
+                                    native_metrics[f"native_{name}"] = value
+                        except RuntimeError as exc:
+                            native_metrics["native_benchmark_error"] = str(exc)
             raw = "".join(chunks)
             elapsed = time.monotonic() - started
             # Streaming responses do not expose exact generated token IDs in
@@ -405,12 +492,21 @@ def run_gpu_worker(
                 "raw_completion": raw, "runtime_version": RUNTIME_VERSION,
                 "requested_backend": "gpu", "engine_backend": engine.backend.get_name(),
                 "gpu_evidence": evidence, "generation_seconds": elapsed,
+                "engine_load_seconds": engine_load_seconds,
+                "gpu_decode_steps_per_sync": gpu_decode_steps_per_sync,
+                "activation_dtype": activation_dtype,
+                "engine_reused": index > 0,
+                "prefill_seconds": prefill_seconds, "decode_seconds": decode_seconds,
+                "gpu_evidence_seconds": evidence_seconds,
+                "inference_seconds": elapsed - evidence_seconds,
+                "time_to_first_token_seconds": first_token_seconds,
                 "input_tokens": len(native_ids), "prompt_sha256": request["prompt_sha256"],
                 "input_ids_sha256": sha256_text(json.dumps(native_ids)),
                 "tokenizer_parity_passed": True, "mtp_enabled": request["mtp_enabled"],
                 "max_new_tokens": request["max_new_tokens"],
                 "stop_reason": "closing_sentinel" if stopped_on_envelope else "native_stop_or_token_limit",
                 "exact_output_token_ids_available": False,
+                **native_metrics,
                 **bos_evidence,
             }
             stream.write(json.dumps(result, ensure_ascii=False) + "\n")
@@ -514,6 +610,8 @@ def run_litert_gpu_generation(
     cache_dir: str | Path | None = None, timeout_seconds: float = 7200,
     case_timeout_seconds: float = 600, load_timeout_seconds: float = 1800, gpu_workers: int = 1,
     runtime_python: str | Path | None = None,
+    gpu_decode_steps_per_sync: int = 8,
+    activation_dtype: str = "float32",
 ) -> dict[str, Any]:
     from ir_training.eval.external_runner import (
         aggregate_external_runtime_metrics,
@@ -541,12 +639,14 @@ def run_litert_gpu_generation(
     cache_base = Path(cache_dir).expanduser().resolve() if cache_dir else out / "runtime_cache"
     # Variants commonly share the basename model.litertlm. Never assume native
     # compiler cache filenames bind complete package bytes or runtime versions.
-    effective_cache = cache_base / RUNTIME_VERSION / model_hash
+    effective_cache = cache_base / RUNTIME_VERSION / model_hash / activation_dtype
     effective_cache.mkdir(parents=True, exist_ok=True)
     worker_script = Path(__file__).resolve().parents[3] / "scripts" / "run_litertlm_gpu.py"
     command = [str(runtime_python or sys.executable), "-u", str(worker_script), "--worker", "--model", str(model),
                "--requests", str(requests_path), "--outputs", str(outputs_path),
                "--cache-dir", str(effective_cache)]
+    command.extend(["--gpu-decode-steps-per-sync", str(gpu_decode_steps_per_sync)])
+    command.extend(["--activation-dtype", activation_dtype])
     runner_log = out / "runner.log"
     run_bounded_worker(command, log_path=runner_log, timeout_seconds=timeout_seconds,
                        case_timeout_seconds=case_timeout_seconds, load_timeout_seconds=load_timeout_seconds)
@@ -565,17 +665,23 @@ def run_litert_gpu_generation(
         "split_path": str(split), "row_count": len(rows), "runtime_version": RUNTIME_VERSION,
         "runtime_cache_base": str(cache_base), "runtime_cache_dir": str(effective_cache),
         "requested_backend": "gpu", "gpu_workers": 1, "multi_gpu_supported": False,
+        "gpu_decode_steps_per_sync": gpu_decode_steps_per_sync,
+        "activation_dtype": activation_dtype,
         "mtp_enabled": mtp_enabled, "max_input_tokens": max_input_tokens, "max_new_tokens": max_new_tokens,
         "command": command, "requests_path": str(requests_path), "runner_outputs_path": str(outputs_path),
         "predictions_path": str(predictions_path), "runner_log_path": str(runner_log), "returncode": 0,
         "runtime_metrics": aggregate_external_runtime_metrics(output_rows),
         "gpu_execution": {
-            "requested_backend": "gpu", "engine_backend": "gpu", "allocation_observed": True,
+            "requested_backend": "gpu", "engine_backend": "gpu",
+            "process_context_verified": True,
+            "allocation_observed": all(any((device.get("allocated_mib") or 0) > 0
+                                            for device in row["gpu_evidence"]["devices"])
+                                       for row in output_rows),
             "tokenizer_parity_passed": True, "all_operations_gpu_verified": False,
             "gpu_uuids": sorted({device["gpu_uuid"] for row in output_rows
                                  for device in row["gpu_evidence"]["devices"]}),
         },
-        "evidence_scope": "Explicit GPU engine with per-process NVIDIA allocations; not all operations or GPU utilization certified",
+        "evidence_scope": "Explicit GPU engine with exact process NVIDIA context; allocation sizes may be unavailable; not all operations or GPU utilization certified",
     }
     manifest_path = out / "external_runner_manifest.json"
     manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")

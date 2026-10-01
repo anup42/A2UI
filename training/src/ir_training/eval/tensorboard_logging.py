@@ -28,7 +28,14 @@ _IMPORTANT_EVALUATION_METRICS = frozenset({
     "evaluation_pause_seconds", "evaluation_generation_seconds", "evaluation_rows_per_second",
     "evaluation_output_tokens_per_second", "evaluation_world_size", "generation_runtime_gpu_count",
     "generation_runtime_wall_seconds", "generation_runtime_wall_output_tokens_per_second",
-    "runtime_latency_ms_avg",
+    "runtime_latency_ms_avg", "scoring_wall_seconds",
+    "android_repaired_generation_reward_v5_4", "android_repaired_generation_reward_v5_4_avg",
+    "android_repaired_render_artifact_quality_v5_4", "android_repaired_render_artifact_quality_v5_4_avg",
+    "android_repaired_unique_source_generation_reward_v5_4", "android_repaired_unique_source_generation_reward_v5_4_avg",
+    "android_repaired_native_syntax_valid_avg", "android_repaired_schema_valid_strict_rate",
+    "android_repair/batch_wall_seconds", "android_repair/mean_repair_seconds",
+    "android_repair/p50_repair_seconds", "android_repair/p95_repair_seconds",
+    "android_repair/accepted_count", "android_repair/rejected_count",
 })
 
 
@@ -54,7 +61,9 @@ def select_tensorboard_metrics(
     selected = {key: value for key, value in flattened.items() if key in _IMPORTANT_EVALUATION_METRICS}
     # Existing _avg tags are the stable selection/comparison contract. Avoid
     # plotting a second identical official-name alias alongside them.
-    for key in ("generation_reward_v5_4", "render_artifact_quality_v5_4", "unique_source_generation_reward_v5_4"):
+    for key in ("generation_reward_v5_4", "render_artifact_quality_v5_4", "unique_source_generation_reward_v5_4",
+                "android_repaired_generation_reward_v5_4", "android_repaired_render_artifact_quality_v5_4",
+                "android_repaired_unique_source_generation_reward_v5_4"):
         if f"{key}_avg" in selected:
             selected.pop(key, None)
     return selected

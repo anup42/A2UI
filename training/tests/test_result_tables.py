@@ -173,3 +173,42 @@ def test_partial_manifest_nulls_do_not_break_failure_report(tmp_path):
 def test_ansi_control_sequences_are_not_executed_by_report():
     text = module.render_deployment_results({"error": "bad\x1b[31merror"})
     assert "\x1b" not in text
+
+
+def test_after_repair_columns_preserve_raw_score_and_selection():
+    result = evaluation(32, reward=55, unique=53, strict=30 / 32)
+    result["aggregate"].update(android_repair_available=True,
+        android_repaired_generation_reward_v5_4_avg=74.5,
+        android_repaired_schema_valid_strict_rate=31 / 32)
+    state = {"status": "complete", "results": {"checkpoint_best_golden32": result}}
+    before = deepcopy(state)
+    text = module.render_deployment_results(state)
+    row = next(line for line in text.splitlines() if line.startswith("| checkpoint_best") and "Golden32" in line)
+    assert "55.0000" in row and "53.0000" in row and "74.5000" in row
+    assert "93.8" in row and "96.9" in row
+    assert "After repair reward" in text and "Raw checkpoint selection is unchanged" in text
+    assert state == before
+
+
+def test_after_repair_absence_and_explicit_skip_never_reuse_raw_score():
+    result = evaluation(32, reward=55)
+    assert module._repaired_metric(result, module.REWARD_METRIC) == "not measured"
+    result["aggregate"].update(android_repair_available=False,
+        android_repaired_generation_reward_v5_4_avg=99)
+    assert module._repaired_metric(result, module.REWARD_METRIC) == "not run"
+    result["aggregate"].update(android_repair_available=True,
+        android_repaired_generation_reward_v5_4_avg=0)
+    assert module._repaired_metric(result, module.REWARD_METRIC) == "0.0000"
+
+
+def test_official_summary_shows_after_repair_without_changing_selector():
+    from ir_training.pipeline import official_mobile
+    result = evaluation(32, reward=55, unique=53)
+    result["aggregate"].update(android_repair_available=True,
+        android_repaired_generation_reward_v5_4_avg=74.5,
+        android_repaired_schema_valid_strict_rate=31 / 32)
+    summary = official_mobile._summary({"plan": {"paths": {"litertlm": "model.litertlm"}},
+        "status": "running", "completed": {}, "results": {"golden32": result}})
+    assert "After repair reward" in summary and "74.5000" in summary
+    assert "53.0000" in summary
+    assert official_mobile.SELECTOR == module.UNIQUE_REWARD_METRIC
