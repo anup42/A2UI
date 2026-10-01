@@ -1,0 +1,191 @@
+{
+  "bixby50": {
+    "r32": {
+      "file": "C:\\Users\\anupk\\Downloads\\trained_model_data\\e2b_runD_predictions\\r32_bixby50_scored.jsonl",
+      "sha256": "bc36b7eeb682f2e95f97f798615fc0befb5e4d8c82f226bc5ed0b038b3d262b4",
+      "rows": 50,
+      "unique_ids": 50,
+      "unique_sources": 50,
+      "strict_valid": 30,
+      "fully_root_reachable": 11,
+      "valid_but_unreachable": 19,
+      "stop_reasons": {
+        "closing_sentinel": 37,
+        "max_new_tokens": 13
+      },
+      "mean_output_tokens": 991.3,
+      "mean_reward_v5_4": 37.80077516274085,
+      "mean_reachability": 0.47493341159539,
+      "mean_content_coverage_valid_only": 0.9818146574061316,
+      "mean_dup_rate_valid_only": 0.2513997090308425,
+      "inference_devices": {
+        "cuda:0": 50
+      },
+      "errors": {
+        "A2UI Express completion must contain exactly one <a2ui> block": 15,
+        "Unbalanced Express delimiter": 1,
+        "Element 'v' references missing 'x' at children[1]": 1,
+        "Expected ')' at 245": 1,
+        "Element 'root' references missing 'j' at children[7]": 1,
+        "Element 'root' references missing 'u' at children[6]": 1
+      }
+    },
+    "r64": {
+      "file": "C:\\Users\\anupk\\Downloads\\trained_model_data\\e2b_runD_predictions\\r64_bixby50_scored.jsonl",
+      "sha256": "fd0ac6364f9e9dbc376a961f82c9944cfc2eec13ca25d35100408d8884d96c53",
+      "rows": 50,
+      "unique_ids": 50,
+      "unique_sources": 50,
+      "strict_valid": 29,
+      "fully_root_reachable": 6,
+      "valid_but_unreachable": 23,
+      "stop_reasons": {
+        "closing_sentinel": 43,
+        "max_new_tokens": 7
+      },
+      "mean_output_tokens": 852.8,
+      "mean_reward_v5_4": 32.3728397312496,
+      "mean_reachability": 0.4534421091042475,
+      "mean_content_coverage_valid_only": 0.9729114498398358,
+      "mean_dup_rate_valid_only": 0.2649732869997743,
+      "inference_devices": {
+        "cuda:0": 50
+      },
+      "errors": {
+        "Element 'root' references missing 's' at children[6]": 1,
+        "A2UI Express completion must contain exactly one <a2ui> block": 9,
+        "Element 'e' references missing 'h' at children[2]": 1,
+        "Element 'e' references missing 'g' at children[1]": 1,
+        "Element 'd' references missing 'f' at children[1]": 1,
+        "Element 'root' references missing 'z' at children[4]": 1,
+        "Element 'root' references missing 'm' at children[12]": 1,
+        "Element 'root' references missing 'i' at children[4]": 1,
+        "Element 'j' references missing 'l' at children[1]": 1,
+        "Duplicate A2UI Express component id 'h'": 1,
+        "Expected ')' at 1068": 1,
+        "Duplicate A2UI Express component id 'l'": 1,
+        "Element 'g' references missing 'i' at children[1]": 1
+      }
+    },
+    "matched_source_prompt_and_policy": true
+  },
+  "golden32": {
+    "r32": {
+      "file": "C:\\Users\\anupk\\Downloads\\trained_model_data\\e2b_runD_predictions\\r32_golden32_scored.jsonl",
+      "sha256": "ed6e896fbca08e1811b8155d007fa9173ba034b4388d8f20e968754cbf82315d",
+      "rows": 32,
+      "unique_ids": 32,
+      "unique_sources": 31,
+      "strict_valid": 26,
+      "fully_root_reachable": 4,
+      "valid_but_unreachable": 22,
+      "stop_reasons": {
+        "closing_sentinel": 30,
+        "max_new_tokens": 2
+      },
+      "mean_output_tokens": 1060.6875,
+      "mean_reward_v5_4": 44.28506599901388,
+      "mean_reachability": 0.6410417852388802,
+      "mean_content_coverage_valid_only": 0.9427032123073495,
+      "mean_dup_rate_valid_only": 0.3283275144503233,
+      "inference_devices": {
+        "cuda:0": 32
+      },
+      "errors": {
+        "Element 'root' references missing 'ab' at children[4]": 1,
+        "Element 'g' references missing 'o' at children[3]": 1,
+        "Duplicate A2UI Express component id 'ao'": 1,
+        "A2UI Express completion must contain exactly one <a2ui> block": 3
+      }
+    },
+    "r64": {
+      "file": "C:\\Users\\anupk\\Downloads\\trained_model_data\\e2b_runD_predictions\\r64_golden32_scored.jsonl",
+      "sha256": "9d9197c5e5828c248e2c601f06e94371cbae196e77d0aa2c4cf0388ec92b7426",
+      "rows": 32,
+      "unique_ids": 32,
+      "unique_sources": 31,
+      "strict_valid": 28,
+      "fully_root_reachable": 4,
+      "valid_but_unreachable": 24,
+      "stop_reasons": {
+        "closing_sentinel": 31,
+        "max_new_tokens": 1
+      },
+      "mean_output_tokens": 1024.375,
+      "mean_reward_v5_4": 42.66727836399912,
+      "mean_reachability": 0.6218523521535079,
+      "mean_content_coverage_valid_only": 0.9248697792435531,
+      "mean_dup_rate_valid_only": 0.33226937767757864,
+      "inference_devices": {
+        "cuda:0": 32
+      },
+      "errors": {
+        "Expected '}' at 449": 1,
+        "Element 'root' references missing 'ac' at children[5]": 1,
+        "A2UI Express completion must contain exactly one <a2ui> block": 2
+      }
+    },
+    "matched_source_prompt_and_policy": true
+  },
+  "golden35": {
+    "r32": {
+      "file": "C:\\Users\\anupk\\Downloads\\trained_model_data\\e2b_runD_predictions\\r32_golden35_scored.jsonl",
+      "sha256": "220dd0403dd8c6949a801ccf25adef61204e53ec8676e95481e36772aadfb24a",
+      "rows": 35,
+      "unique_ids": 35,
+      "unique_sources": 35,
+      "strict_valid": 10,
+      "fully_root_reachable": 1,
+      "valid_but_unreachable": 9,
+      "stop_reasons": {
+        "closing_sentinel": 19,
+        "max_new_tokens": 16
+      },
+      "mean_output_tokens": 1492.4571428571428,
+      "mean_reward_v5_4": 12.428571428571429,
+      "mean_reachability": 0.1975149734316234,
+      "mean_content_coverage_valid_only": 0.9697487814231167,
+      "mean_dup_rate_valid_only": 0.27653959475028933,
+      "inference_devices": {
+        "cuda:0": 35
+      },
+      "errors": {
+        "A2UI Express completion must contain exactly one <a2ui> block": 18,
+        "Duplicate A2UI Express component id 'ai'": 1,
+        "Unbalanced Express delimiter": 1,
+        "Unknown named property 'variant' for EmailPreview": 1,
+        "Element 'root' references missing 'ad' at children[5]": 1,
+        "Unresolved Express variable 'python'": 1,
+        "Unterminated Express string or delimiter": 1,
+        "Row.children must be an array": 1
+      }
+    },
+    "r64": {
+      "file": "C:\\Users\\anupk\\Downloads\\trained_model_data\\e2b_runD_predictions\\r64_golden35_scored.jsonl",
+      "sha256": "b4afbbc184a39b3a5d24e7e6ea4950ee614f2a0241bdb0b0469ee0de65add122",
+      "rows": 35,
+      "unique_ids": 35,
+      "unique_sources": 35,
+      "strict_valid": 18,
+      "fully_root_reachable": 4,
+      "valid_but_unreachable": 14,
+      "stop_reasons": {
+        "closing_sentinel": 19,
+        "max_new_tokens": 13,
+        "eos_token": 3
+      },
+      "mean_output_tokens": 1356.3142857142857,
+      "mean_reward_v5_4": 28.093044685804987,
+      "mean_reachability": 0.38514527715848246,
+      "mean_content_coverage_valid_only": 0.9624023601492526,
+      "mean_dup_rate_valid_only": 0.30176915411479516,
+      "inference_devices": {
+        "cuda:0": 35
+      },
+      "errors": {
+        "A2UI Express completion must contain exactly one <a2ui> block": 17
+      }
+    },
+    "matched_source_prompt_and_policy": true
+  }
+}

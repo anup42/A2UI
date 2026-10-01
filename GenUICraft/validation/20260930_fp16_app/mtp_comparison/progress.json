@@ -1,0 +1,10 @@
+{
+  "activeArm": "r01_fp16_corrected_mtp_on",
+  "elapsedSeconds": 184.73499999998603,
+  "deviceStatus": {
+    "state": "complete",
+    "completed": 3,
+    "total": 3
+  },
+  "thermalStatus": 2
+}

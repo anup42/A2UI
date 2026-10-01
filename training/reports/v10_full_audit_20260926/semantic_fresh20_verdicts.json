@@ -1,0 +1,25 @@
+{
+  "scope": "Manual complete-pair review of 18 train and 2 validation records selected by semantic_fresh_sample.py. KEEP means no material issue identified in this review, not external factual certification.",
+  "verdicts": [
+    {"split": "train", "line": 6841, "verdict": "KEEP", "note": "Comparison cells, two product options, distinct View Product URL tokens, verdict, and source buttons retained."},
+    {"split": "train", "line": 14534, "verdict": "KEEP", "note": "Menu, four-hour timeline, checklist and actions retained."},
+    {"split": "train", "line": 19705, "verdict": "KEEP", "note": "API path, parameters, response fields, example request and JSON body retained."},
+    {"split": "train", "line": 24626, "verdict": "KEEP", "note": "Five price rows and trend statements retained; source's 150-to-165 gain is 10%."},
+    {"split": "train", "line": 24963, "verdict": "KEEP", "note": "Device comparison, feature details and source/action labels retained; device and validation claims were not externally checked."},
+    {"split": "train", "line": 38493, "verdict": "KEEP", "note": "Diagnosis context, cost and inspection tables, budget caveat and sources retained; repair advice was not externally checked."},
+    {"split": "train", "line": 41563, "verdict": "KEEP", "note": "Nutrient table, recommendation, option details and source/action labels retained; health claims were not externally checked."},
+    {"split": "train", "line": 42206, "verdict": "KEEP", "note": "Movie rows, ages, recommendation reasons and time arithmetic retained."},
+    {"split": "train", "line": 60428, "verdict": "REPAIR", "issue": "target_instruction_loss", "note": "Source checklist rows contain five fields under four headers; target drops Confirm Apple Inc., Click the Bell or Alert icon, both Currency set to USD checks, and Verify notification permissions. Repair source table structure and regenerate target; do not silently discard cells."},
+    {"split": "train", "line": 63340, "verdict": "KEEP", "note": "Three cooking options, times, instructions and three prep rows retained."},
+    {"split": "train", "line": 64773, "verdict": "REJECT_REGENERATE", "issue": "source_arithmetic_and_chart_omission", "note": "Source month/category totals equal 80,500, not stated 73,500; source pie percentages sum to 109.6%, Electronics is 47.2% of 80,500 rather than over half. Target repeats all inconsistencies and replaces the specified stacked bar and pie charts with tables. Source needs an authoritative correction and target regeneration."},
+    {"split": "train", "line": 69525, "verdict": "REPAIR", "issue": "target_chart_omission", "note": "Source specifies Chart Title, X-Axis and Y-Axis for Employee Sales vs. Leads; target presents only a table and prose, with no Chart component. Regenerate preserving visual role."},
+    {"split": "train", "line": 71391, "verdict": "KEEP", "note": "Four queue positions, shuffle state and active session context retained."},
+    {"split": "train", "line": 73806, "verdict": "REPAIR", "issue": "source_budget_contradiction", "note": "Source and target say 450 remains after meeting all 50/30/20 targets, but those targets are 1,750+1,050+700=3,500, equal to income. 450 remains after adding 700 savings to current 2,350 spending, which still does not meet the target allocations. Correct source premise and regenerate."},
+    {"split": "train", "line": 79715, "verdict": "KEEP", "note": "Two-play comparison, detailed thematic sections, and source/action buttons retained; literary interpretations were not independently verified."},
+    {"split": "train", "line": 85523, "verdict": "KEEP", "note": "Tooling caveat, all four step sections, optional pliers condition and source/action buttons retained; vehicle-specific claims were not independently verified."},
+    {"split": "train", "line": 86115, "verdict": "KEEP", "note": "Image, menu details, six shopping rows, 95-115 estimated range and source/action labels retained; item estimates sum to 105."},
+    {"split": "train", "line": 87111, "verdict": "KEEP", "note": "Three negotiation phases, market table, checklist and source/action labels retained; market salary values were not externally checked."},
+    {"split": "val", "line": 156, "verdict": "KEEP", "note": "Four product comparison rows, three recommendation blocks and actions retained. Option tag wording is compressed but main differentiators survive in the table/prose; plan features and prices were not externally checked."},
+    {"split": "val", "line": 697, "verdict": "KEEP", "note": "Comparison, four-step flows for both vaccine classes, and sources retained; biomedical claims were not independently verified."}
+  ]
+}

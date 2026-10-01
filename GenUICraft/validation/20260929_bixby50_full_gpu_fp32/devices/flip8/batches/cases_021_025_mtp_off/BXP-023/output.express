@@ -1,0 +1,15 @@
+<a2ui>
+root=Column([a,b,c,d,e,f,g,h,i,j,k,l],gap="md",padding=16)
+a=Text("Veterinary checkups","h2")
+b=Text("Schedule a wellness exam at least once a year; the vet should review weight, body condition, skin/coat, heart/lungs, teeth, and any behavior or litter-box changes. Indoor cats still need routine preventive care because problems can be missed early.[10]","caption")
+c=Text("Vaccinations","h2")
+d=Text("Discuss whether your cat’s FVRCP and rabies vaccines are current; these are core protections for cats in India.[1]","caption")
+e=Text("For adult low-risk cats, FVRCP boosters are often given every 1–3 years depending on the vaccine and vet advice, while rabies timing should follow local rules and the product label.[12]","caption")
+f=Text("Ask your vet about FeLV only if your cat has exposure risk, such as outdoor access or contact with other cats of unknown status.[14]","caption")
+g=Text("Parasite prevention","h2")
+h=Text("Use a vet-directed deworming and flea-prevention plan; indoor cats can still pick up parasites through shoes, litter, shared spaces, or prey exposure.[13][15]","caption")
+i=Text("Many adult cats are dewormed about four times per year; your veterinarian may adjust this based on lifestyle and local risk.","caption")
+j=Text("Nutrition and dental care","h2")
+k=Text("Feed a complete, balanced cat food with fresh water; milk is not a routine substitute for water.","caption")
+l=Text("Support dental health with regular tooth brushing and annual mouth checks during wellness visits; your vet may recommend professional cleaning if plaque or tartar builds up.","caption")
+</a2ui>

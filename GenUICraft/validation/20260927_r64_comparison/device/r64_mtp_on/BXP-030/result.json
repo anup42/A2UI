@@ -1,0 +1,23 @@
+{
+  "id": "BXP-030",
+  "status": "strict_invalid",
+  "strictValid": false,
+  "renderValid": false,
+  "elapsedMs": 82940,
+  "firstInRun": false,
+  "attempts": 1,
+  "metrics": {
+    "inputTokens": 3726,
+    "outputTokens": 2051,
+    "decodeTokensPerSecond": 26.13404615499182,
+    "providerCallMs": 82906
+  },
+  "provider": "gemma4_e2b",
+  "providerCalls": 1,
+  "rawStrictValid": false,
+  "runtime": "LiteRT-LM/Gemma4/GPU+MTP",
+  "renderedPromptSha256": "57a03a1b51358ae89b10c6df0bf814f1868f617d12c13e2c0fd7e57d60007196",
+  "error": "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed. No generated DSL repair produced a valid document; source fallback was disabled.",
+  "rawOutputCaptured": true,
+  "caseElapsedMs": 82943
+}

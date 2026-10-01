@@ -1,0 +1,11 @@
+{
+  "serial": "R3CY30QFWLP",
+  "deviceModel": "SM-F966B",
+  "androidVersion": "16",
+  "mainApkSha256": "0426477f7c874a9bf42c1ac32a2c6a24605d99cda5b29059fdac8e5cb16cdc3f",
+  "installedTestApkSha256": "176b2bd532efecf72dd27519bad3530b118d574b5f6d9914a719ab1593a2a0cf",
+  "modelPath": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_models/gemma4_e2b_a2ui_mobile_r32.litertlm",
+  "modelSha256": "6dbd97ea150b264c0dbd040fcb92b8b231b657365282194561749c1d41771825",
+  "originalStayOn": "15",
+  "startedAtUtc": "2026-09-29T18:43:32.248570+00:00"
+}

@@ -1,0 +1,442 @@
+{
+  "table_domain_rows": {
+    "schedule": {
+      "rows": 18680,
+      "over4096": 15960
+    },
+    "generic": {
+      "rows": 20116,
+      "over4096": 16858
+    },
+    "status": {
+      "rows": 13687,
+      "over4096": 9364
+    },
+    "formula": {
+      "rows": 15145,
+      "over4096": 11002
+    },
+    "comparison": {
+      "rows": 34744,
+      "over4096": 31053
+    },
+    "restaurants": {
+      "rows": 680,
+      "over4096": 305
+    },
+    "weather": {
+      "rows": 2181,
+      "over4096": 1299
+    },
+    "playlist": {
+      "rows": 1241,
+      "over4096": 609
+    },
+    "flight": {
+      "rows": 1580,
+      "over4096": 944
+    },
+    "booking": {
+      "rows": 1021,
+      "over4096": 761
+    },
+    "<unset>": {
+      "rows": 36,
+      "over4096": 19
+    },
+    "data": {
+      "rows": 6,
+      "over4096": 5
+    },
+    "analysis": {
+      "rows": 5,
+      "over4096": 3
+    },
+    "energy": {
+      "rows": 1,
+      "over4096": 1
+    },
+    "summary": {
+      "rows": 6,
+      "over4096": 1
+    },
+    "activity": {
+      "rows": 2,
+      "over4096": 0
+    },
+    "news": {
+      "rows": 2,
+      "over4096": 0
+    },
+    "gauge": {
+      "rows": 1,
+      "over4096": 1
+    },
+    "value": {
+      "rows": 1,
+      "over4096": 1
+    },
+    "distribution": {
+      "rows": 2,
+      "over4096": 0
+    },
+    "trends": {
+      "rows": 2,
+      "over4096": 2
+    },
+    "emissions": {
+      "rows": 1,
+      "over4096": 0
+    },
+    "price": {
+      "rows": 1,
+      "over4096": 1
+    },
+    "correlation": {
+      "rows": 1,
+      "over4096": 1
+    },
+    "trend": {
+      "rows": 1,
+      "over4096": 1
+    },
+    "fare_trend": {
+      "rows": 1,
+      "over4096": 1
+    },
+    "finance": {
+      "rows": 1,
+      "over4096": 1
+    },
+    "visualization": {
+      "rows": 2,
+      "over4096": 2
+    },
+    "sales": {
+      "rows": 1,
+      "over4096": 1
+    },
+    "volatility": {
+      "rows": 1,
+      "over4096": 1
+    },
+    "metrics": {
+      "rows": 1,
+      "over4096": 1
+    },
+    "efficiency": {
+      "rows": 1,
+      "over4096": 1
+    },
+    "utilization": {
+      "rows": 1,
+      "over4096": 0
+    },
+    "funnel": {
+      "rows": 1,
+      "over4096": 1
+    },
+    "spending": {
+      "rows": 1,
+      "over4096": 0
+    },
+    "metric": {
+      "rows": 1,
+      "over4096": 1
+    },
+    "fare": {
+      "rows": 1,
+      "over4096": 0
+    },
+    "profile": {
+      "rows": 1,
+      "over4096": 1
+    }
+  },
+  "targets_over2048": [
+    {
+      "split": "train",
+      "line": 2307,
+      "id": "archive-train-035632-4befcc5f5c997548",
+      "valid": true,
+      "source_tokens": 1254,
+      "target_tokens": 2137,
+      "archived_sequence_tokens": 4901,
+      "deployed_sequence_tokens": 6393,
+      "component_count": 34,
+      "depth": 5
+    },
+    {
+      "split": "train",
+      "line": 3709,
+      "id": "archive-train-031939-65ba540d7a1ba10b",
+      "valid": true,
+      "source_tokens": 1074,
+      "target_tokens": 2177,
+      "archived_sequence_tokens": 4761,
+      "deployed_sequence_tokens": 6253,
+      "component_count": 101,
+      "depth": 6
+    },
+    {
+      "split": "train",
+      "line": 4782,
+      "id": "archive-train-029214-afdda37c38e57b20",
+      "valid": true,
+      "source_tokens": 1604,
+      "target_tokens": 2087,
+      "archived_sequence_tokens": 5201,
+      "deployed_sequence_tokens": 6693,
+      "component_count": 28,
+      "depth": 4
+    },
+    {
+      "split": "train",
+      "line": 7505,
+      "id": "archive-train-057909-3eb3ed07aea902c6",
+      "valid": true,
+      "source_tokens": 830,
+      "target_tokens": 2092,
+      "archived_sequence_tokens": 4432,
+      "deployed_sequence_tokens": 5924,
+      "component_count": 28,
+      "depth": 5
+    },
+    {
+      "split": "train",
+      "line": 8056,
+      "id": "archive-train-065757-7e7021471a8cd023",
+      "valid": true,
+      "source_tokens": 881,
+      "target_tokens": 2144,
+      "archived_sequence_tokens": 4535,
+      "deployed_sequence_tokens": 6027,
+      "component_count": 35,
+      "depth": 6
+    },
+    {
+      "split": "train",
+      "line": 10181,
+      "id": "archive-train-067562-65806980546d8a4f",
+      "valid": true,
+      "source_tokens": 730,
+      "target_tokens": 2325,
+      "archived_sequence_tokens": 4565,
+      "deployed_sequence_tokens": 6057,
+      "component_count": 39,
+      "depth": 6
+    },
+    {
+      "split": "train",
+      "line": 14277,
+      "id": "archive-train-071038-3543f563c254cd5e",
+      "valid": true,
+      "source_tokens": 1030,
+      "target_tokens": 2109,
+      "archived_sequence_tokens": 4649,
+      "deployed_sequence_tokens": 6141,
+      "component_count": 108,
+      "depth": 6
+    },
+    {
+      "split": "train",
+      "line": 15057,
+      "id": "archive-train-038980-e3e1810ebbd98ab6",
+      "valid": true,
+      "source_tokens": 882,
+      "target_tokens": 2295,
+      "archived_sequence_tokens": 4687,
+      "deployed_sequence_tokens": 6179,
+      "component_count": 32,
+      "depth": 4
+    },
+    {
+      "split": "train",
+      "line": 16742,
+      "id": "archive-train-059586-a95a083767c872b6",
+      "valid": true,
+      "source_tokens": 1156,
+      "target_tokens": 2310,
+      "archived_sequence_tokens": 4976,
+      "deployed_sequence_tokens": 6468,
+      "component_count": 106,
+      "depth": 6
+    },
+    {
+      "split": "train",
+      "line": 20110,
+      "id": "archive-train-040009-0dfe14e9b241655b",
+      "valid": true,
+      "source_tokens": 1496,
+      "target_tokens": 2200,
+      "archived_sequence_tokens": 5206,
+      "deployed_sequence_tokens": 6698,
+      "component_count": 35,
+      "depth": 5
+    },
+    {
+      "split": "train",
+      "line": 27829,
+      "id": "archive-train-058441-cfe4f5b7801d61dd",
+      "valid": true,
+      "source_tokens": 708,
+      "target_tokens": 2050,
+      "archived_sequence_tokens": 4268,
+      "deployed_sequence_tokens": 5760,
+      "component_count": 38,
+      "depth": 6
+    },
+    {
+      "split": "train",
+      "line": 29958,
+      "id": "archive-train-072141-f167411a8ceea0ab",
+      "valid": true,
+      "source_tokens": 1299,
+      "target_tokens": 2340,
+      "archived_sequence_tokens": 5149,
+      "deployed_sequence_tokens": 6641,
+      "component_count": 103,
+      "depth": 7
+    },
+    {
+      "split": "train",
+      "line": 34792,
+      "id": "archive-train-058375-0c0c509ba1dcc93a",
+      "valid": true,
+      "source_tokens": 797,
+      "target_tokens": 2100,
+      "archived_sequence_tokens": 4407,
+      "deployed_sequence_tokens": 5899,
+      "component_count": 23,
+      "depth": 5
+    },
+    {
+      "split": "train",
+      "line": 36745,
+      "id": "archive-train-069920-c163a8ddd16041c1",
+      "valid": true,
+      "source_tokens": 828,
+      "target_tokens": 2166,
+      "archived_sequence_tokens": 4504,
+      "deployed_sequence_tokens": 5996,
+      "component_count": 22,
+      "depth": 5
+    },
+    {
+      "split": "train",
+      "line": 41301,
+      "id": "archive-train-066472-35f395dd34f4ae5d",
+      "valid": true,
+      "source_tokens": 1016,
+      "target_tokens": 2192,
+      "archived_sequence_tokens": 4718,
+      "deployed_sequence_tokens": 6210,
+      "component_count": 49,
+      "depth": 5
+    },
+    {
+      "split": "train",
+      "line": 52733,
+      "id": "archive-train-039227-537bc139358cad24",
+      "valid": true,
+      "source_tokens": 695,
+      "target_tokens": 2060,
+      "archived_sequence_tokens": 4265,
+      "deployed_sequence_tokens": 5757,
+      "component_count": 57,
+      "depth": 7
+    },
+    {
+      "split": "train",
+      "line": 68240,
+      "id": "archive-train-064936-a42f40d7b0e1db6d",
+      "valid": true,
+      "source_tokens": 1005,
+      "target_tokens": 2062,
+      "archived_sequence_tokens": 4577,
+      "deployed_sequence_tokens": 6069,
+      "component_count": 111,
+      "depth": 6
+    },
+    {
+      "split": "train",
+      "line": 70933,
+      "id": "archive-train-016997-d66038dccc81a608",
+      "valid": true,
+      "source_tokens": 1017,
+      "target_tokens": 2202,
+      "archived_sequence_tokens": 4729,
+      "deployed_sequence_tokens": 6221,
+      "component_count": 26,
+      "depth": 5
+    },
+    {
+      "split": "train",
+      "line": 70968,
+      "id": "archive-train-058540-e8ef562faf404de5",
+      "valid": true,
+      "source_tokens": 1481,
+      "target_tokens": 2285,
+      "archived_sequence_tokens": 5276,
+      "deployed_sequence_tokens": 6768,
+      "component_count": 102,
+      "depth": 6
+    },
+    {
+      "split": "train",
+      "line": 74301,
+      "id": "archive-train-062269-923e1003adf937b8",
+      "valid": true,
+      "source_tokens": 997,
+      "target_tokens": 2058,
+      "archived_sequence_tokens": 4565,
+      "deployed_sequence_tokens": 6057,
+      "component_count": 97,
+      "depth": 6
+    },
+    {
+      "split": "train",
+      "line": 74305,
+      "id": "archive-train-069420-75256860421ce609",
+      "valid": true,
+      "source_tokens": 861,
+      "target_tokens": 2307,
+      "archived_sequence_tokens": 4678,
+      "deployed_sequence_tokens": 6170,
+      "component_count": 39,
+      "depth": 6
+    },
+    {
+      "split": "train",
+      "line": 75845,
+      "id": "archive-train-066775-f90ce4a5c3b15c0b",
+      "valid": true,
+      "source_tokens": 866,
+      "target_tokens": 2355,
+      "archived_sequence_tokens": 4731,
+      "deployed_sequence_tokens": 6223,
+      "component_count": 36,
+      "depth": 5
+    },
+    {
+      "split": "train",
+      "line": 86645,
+      "id": "archive-train-057530-2aa334bb65aaca69",
+      "valid": true,
+      "source_tokens": 897,
+      "target_tokens": 2467,
+      "archived_sequence_tokens": 4874,
+      "deployed_sequence_tokens": 6366,
+      "component_count": 43,
+      "depth": 5
+    }
+  ],
+  "additional_counts": {
+    "deployed_prompt_over4096": 56,
+    "archive_prompt_over4096": 0,
+    "any_current4096_gate": 73316,
+    "sdk_input_chars_over120000": 0,
+    "sdk_components_over1024": 0,
+    "graph_depth_over64": 0
+  }
+}

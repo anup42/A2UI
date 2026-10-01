@@ -1,0 +1,210 @@
+[
+  {
+    "event": "recording_started",
+    "elapsed_seconds": 0.015,
+    "query": "show morning flights from bengaluru to varanasi for tomorrow"
+  },
+  {
+    "event": "submitted_query",
+    "elapsed_seconds": 2.093
+  },
+  {
+    "event": "screenshot",
+    "elapsed_seconds": 4.437,
+    "file": "screen_000.png"
+  },
+  {
+    "event": "screenshot",
+    "elapsed_seconds": 9.828,
+    "file": "screen_001.png"
+  },
+  {
+    "event": "selected_genuicraft",
+    "elapsed_seconds": 17.125,
+    "bounds": [
+      72,
+      522,
+      423,
+      618
+    ]
+  },
+  {
+    "event": "screenshot",
+    "elapsed_seconds": 17.406,
+    "file": "screen_002.png"
+  },
+  {
+    "event": "screenshot",
+    "elapsed_seconds": 20.75,
+    "file": "screen_003.png"
+  },
+  {
+    "event": "screenshot",
+    "elapsed_seconds": 24.14,
+    "file": "screen_004.png"
+  },
+  {
+    "event": "screenshot",
+    "elapsed_seconds": 27.515,
+    "file": "screen_005.png"
+  },
+  {
+    "event": "screenshot",
+    "elapsed_seconds": 30.953,
+    "file": "screen_006.png"
+  },
+  {
+    "event": "screenshot",
+    "elapsed_seconds": 34.39,
+    "file": "screen_007.png"
+  },
+  {
+    "event": "screenshot",
+    "elapsed_seconds": 37.843,
+    "file": "screen_008.png"
+  },
+  {
+    "event": "screenshot",
+    "elapsed_seconds": 41.25,
+    "file": "screen_009.png"
+  },
+  {
+    "event": "screenshot",
+    "elapsed_seconds": 44.781,
+    "file": "screen_010.png"
+  },
+  {
+    "event": "screenshot",
+    "elapsed_seconds": 48.281,
+    "file": "screen_011.png"
+  },
+  {
+    "event": "screenshot",
+    "elapsed_seconds": 51.75,
+    "file": "screen_012.png"
+  },
+  {
+    "event": "screenshot",
+    "elapsed_seconds": 55.187,
+    "file": "screen_013.png"
+  },
+  {
+    "event": "screenshot",
+    "elapsed_seconds": 58.718,
+    "file": "screen_014.png"
+  },
+  {
+    "event": "screenshot",
+    "elapsed_seconds": 62.14,
+    "file": "screen_015.png"
+  },
+  {
+    "event": "screenshot",
+    "elapsed_seconds": 65.656,
+    "file": "screen_016.png"
+  },
+  {
+    "event": "screenshot",
+    "elapsed_seconds": 69.187,
+    "file": "screen_017.png"
+  },
+  {
+    "event": "screenshot",
+    "elapsed_seconds": 72.593,
+    "file": "screen_018.png"
+  },
+  {
+    "event": "screenshot",
+    "elapsed_seconds": 76.078,
+    "file": "screen_019.png"
+  },
+  {
+    "event": "screenshot",
+    "elapsed_seconds": 79.546,
+    "file": "screen_020.png"
+  },
+  {
+    "event": "screenshot",
+    "elapsed_seconds": 83.093,
+    "file": "screen_021.png"
+  },
+  {
+    "event": "screenshot",
+    "elapsed_seconds": 86.625,
+    "file": "screen_022.png"
+  },
+  {
+    "event": "screenshot",
+    "elapsed_seconds": 90.156,
+    "file": "screen_023.png"
+  },
+  {
+    "event": "screenshot",
+    "elapsed_seconds": 93.703,
+    "file": "screen_024.png"
+  },
+  {
+    "event": "screenshot",
+    "elapsed_seconds": 97.125,
+    "file": "screen_025.png"
+  },
+  {
+    "event": "screenshot",
+    "elapsed_seconds": 100.609,
+    "file": "screen_026.png"
+  },
+  {
+    "event": "screenshot",
+    "elapsed_seconds": 104.046,
+    "file": "screen_027.png"
+  },
+  {
+    "event": "screenshot",
+    "elapsed_seconds": 107.5,
+    "file": "screen_028.png"
+  },
+  {
+    "event": "screenshot",
+    "elapsed_seconds": 110.921,
+    "file": "screen_029.png"
+  },
+  {
+    "event": "screenshot",
+    "elapsed_seconds": 114.359,
+    "file": "screen_030.png"
+  },
+  {
+    "event": "screenshot",
+    "elapsed_seconds": 117.796,
+    "file": "screen_031.png"
+  },
+  {
+    "event": "screenshot",
+    "elapsed_seconds": 121.203,
+    "file": "screen_032.png"
+  },
+  {
+    "event": "screenshot",
+    "elapsed_seconds": 124.593,
+    "file": "screen_033.png"
+  },
+  {
+    "event": "screenshot",
+    "elapsed_seconds": 128.0,
+    "file": "screen_034.png"
+  },
+  {
+    "event": "screenshot",
+    "elapsed_seconds": 131.375,
+    "file": "screen_035.png"
+  },
+  {
+    "event": "stopping_recording",
+    "elapsed_seconds": 134.375
+  },
+  {
+    "event": "recording_pulled",
+    "elapsed_seconds": 139.796,
+    "return_code": 0
+  }
+]

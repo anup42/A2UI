@@ -1,0 +1,101 @@
+{
+  "annotations": [
+    {
+      "start": 0,
+      "end": 3.5,
+      "stage": "A FRESH BIXBY REQUEST",
+      "title": "Bengaluru\nto Varanasi",
+      "body": "Morning flights for tomorrow.\nWatch the full live flow.",
+      "accent": "blue",
+      "arrow_y_source": 2130
+    },
+    {
+      "start": 3.5,
+      "end": 8.5,
+      "stage": "FINDING THE ANSWER",
+      "title": "Bixby searches",
+      "body": "The request is submitted\non the connected phone.",
+      "accent": "blue",
+      "arrow_y_source": 640
+    },
+    {
+      "start": 8.5,
+      "end": 15.8,
+      "stage": "ORIGINAL BIXBY VIEW",
+      "title": "The flight answer\nappears first",
+      "body": "Airlines, times and fares\narrive as a text response.",
+      "accent": "blue",
+      "arrow_y_source": 1020
+    },
+    {
+      "start": 15.8,
+      "end": 19,
+      "stage": "OPEN GENUICRAFT",
+      "title": "Watch generation\nas it happens",
+      "body": "The spinner shows that\nconversion is still running.",
+      "accent": "green",
+      "arrow_y_source": 570
+    },
+    {
+      "start": 19,
+      "end": 27,
+      "stage": "LIVE A2UI EXPRESS",
+      "title": "Flight data\nstreams in",
+      "body": "The generated text grows\nas the model runs.",
+      "accent": "green",
+      "arrow_y_source": 1090
+    },
+    {
+      "start": 27,
+      "end": 41.3,
+      "stage": "LIVE A2UI EXPRESS",
+      "title": "The layout\ntakes shape",
+      "body": "Flight data is followed by\nlayout instructions.",
+      "accent": "green",
+      "arrow_y_source": 1710
+    },
+    {
+      "start": 41.3,
+      "end": 46,
+      "stage": "RENDERED IN BIXBY",
+      "title": "From streamed text\nto flight cards",
+      "body": "The completed output\nreplaces the generation view.",
+      "accent": "green",
+      "arrow_y_source": 1190
+    },
+    {
+      "start": 46,
+      "end": 51.5,
+      "stage": "COMPARE AT A GLANCE",
+      "title": "Times and duration\nin one place",
+      "body": "Departure and arrival times\nshare a consistent layout.",
+      "accent": "green",
+      "arrow_y_source": 1350
+    },
+    {
+      "start": 51.5,
+      "end": 55,
+      "stage": "EXPLORE THE RESULTS",
+      "title": "Scroll through\nthe flight options",
+      "body": "The cards stay within\nthe Bixby conversation.",
+      "accent": "green"
+    },
+    {
+      "start": 55,
+      "end": 60,
+      "stage": "SCAN THE FARES",
+      "title": "Prices beside\neach flight",
+      "body": "Airline, flight number and fare\nare grouped on each card.",
+      "accent": "green",
+      "arrow_y_source": 770
+    },
+    {
+      "start": 60,
+      "end": 65,
+      "stage": "ONE LIVE RUN",
+      "title": "Request. Stream.\nRender.",
+      "body": "A continuous capture\nof GenUICraft inside Bixby.",
+      "accent": "green"
+    }
+  ]
+}

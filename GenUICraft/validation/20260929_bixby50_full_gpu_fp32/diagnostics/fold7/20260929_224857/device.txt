@@ -1,0 +1,11 @@
+serial: R3CY30QFWLP
+model: SM-F966B
+brand: samsung
+android: 16
+sdk: 36
+focused: mCurrentFocus=null
+  mFocusedApp=null
+  mCurrentFocus=Window{5e92ac7 u0 com.samsung.genuicraft/com.samsung.genuicraft.GenUiSdkDemoActivity}
+  mFocusedApp=ActivityRecord{265717341 u0 com.samsung.genuicraft/.GenUiSdkDemoActivity t134}
+package: com.samsung.genuicraft
+pidof: 19630

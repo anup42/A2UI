@@ -1,0 +1,58 @@
+{
+  "roi_xywh": [
+    82,
+    242,
+    24,
+    24
+  ],
+  "mean_normal_speed_error": 2.5496666666666665,
+  "mean_accelerated_error": 11.851888888888888,
+  "normal_speed_spinner_verified": true,
+  "samples": [
+    {
+      "output_seconds": 17.5,
+      "normal_speed_roi_mae": 1.528,
+      "accelerated_roi_mae": 15.708
+    },
+    {
+      "output_seconds": 18,
+      "normal_speed_roi_mae": 2.369,
+      "accelerated_roi_mae": 16.158
+    },
+    {
+      "output_seconds": 19,
+      "normal_speed_roi_mae": 2.359,
+      "accelerated_roi_mae": 3.935
+    },
+    {
+      "output_seconds": 20,
+      "normal_speed_roi_mae": 2.947,
+      "accelerated_roi_mae": 15.727
+    },
+    {
+      "output_seconds": 21,
+      "normal_speed_roi_mae": 3.056,
+      "accelerated_roi_mae": 4.098
+    },
+    {
+      "output_seconds": 22,
+      "normal_speed_roi_mae": 2.755,
+      "accelerated_roi_mae": 15.878
+    },
+    {
+      "output_seconds": 23,
+      "normal_speed_roi_mae": 2.625,
+      "accelerated_roi_mae": 3.599
+    },
+    {
+      "output_seconds": 24,
+      "normal_speed_roi_mae": 2.875,
+      "accelerated_roi_mae": 15.988
+    },
+    {
+      "output_seconds": 24.5,
+      "normal_speed_roi_mae": 2.433,
+      "accelerated_roi_mae": 15.576
+    }
+  ]
+}

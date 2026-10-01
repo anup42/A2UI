@@ -1,0 +1,15 @@
+{
+  "serial": "R3CY30QFWLP",
+  "completedBatches": [
+    "cases_032_036_mtp_on",
+    "cases_032_036_mtp_off",
+    "cases_037_041_mtp_off",
+    "cases_037_041_mtp_on",
+    "cases_042_046_mtp_on",
+    "cases_042_046_mtp_off",
+    "cases_047_050_mtp_off",
+    "cases_047_050_mtp_on"
+  ],
+  "generations": 38,
+  "finishedAtUtc": "2026-09-29T17:41:42.093939+00:00"
+}

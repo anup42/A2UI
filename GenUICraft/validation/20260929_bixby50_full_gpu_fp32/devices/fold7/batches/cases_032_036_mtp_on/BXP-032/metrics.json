@@ -1,0 +1,17 @@
+{
+  "providerCallMs": 38044,
+  "runtime": "LiteRT-LM/Gemma4/GPU+FP32+MTP",
+  "outputCharacters": 3641,
+  "outputTokens": 963,
+  "inputTokens": 3759,
+  "actualOutputTokens": 963,
+  "decodeTokensPerSecond": 46.932785633644784,
+  "error": null,
+  "prefillTokensPerSecond": 667.8940624020806,
+  "timeToFirstTokenSeconds": 5.649445137750001,
+  "engineInitializationSeconds": 11.874488225,
+  "engineInitializedForRequest": true,
+  "nativeInitializationPhaseSeconds": 17.036644315999997,
+  "finishReason": "COMPLETED",
+  "finishDetail": null
+}

@@ -1,0 +1,15 @@
+{
+  "serial": "R3CY30QFWLP",
+  "phase": "between_batches",
+  "completedBatches": [
+    "cases_032_036_mtp_on",
+    "cases_032_036_mtp_off",
+    "cases_037_041_mtp_off",
+    "cases_037_041_mtp_on",
+    "cases_042_046_mtp_on",
+    "cases_042_046_mtp_off",
+    "cases_047_050_mtp_off",
+    "cases_047_050_mtp_on"
+  ],
+  "lastRunId": "v54_full_fold7_cases_047_050_mtp_on_1790703504"
+}

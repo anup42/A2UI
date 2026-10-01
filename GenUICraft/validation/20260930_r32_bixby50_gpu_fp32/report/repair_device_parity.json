@@ -1,0 +1,738 @@
+[
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-001",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_001_005_mtp_off\\BXP-001\\a2ui.json",
+    "device_a2ui_sha256": "fa552d0b1a808b5acbca045ae9c74a74a868d646350de27852c7f67952e7a853",
+    "host_a2ui_sha256": "fa552d0b1a808b5acbca045ae9c74a74a868d646350de27852c7f67952e7a853",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-002",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_001_005_mtp_off\\BXP-002\\a2ui.json",
+    "device_a2ui_sha256": "bec2df34e74e4ac965af1074e41ac7075da5851694a77db82536c0fc7c831f2c",
+    "host_a2ui_sha256": "bec2df34e74e4ac965af1074e41ac7075da5851694a77db82536c0fc7c831f2c",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-003",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_001_005_mtp_off\\BXP-003\\a2ui.json",
+    "device_a2ui_sha256": "a4e5baa88ee6ff82bab044a57bba9927ad92d982fd9c4d35f29016541b2a2350",
+    "host_a2ui_sha256": "a4e5baa88ee6ff82bab044a57bba9927ad92d982fd9c4d35f29016541b2a2350",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-004",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_001_005_mtp_off\\BXP-004\\a2ui.json",
+    "device_a2ui_sha256": "ceccea1d27e445302c47c8c8c077c262fc9abb78b1da3f816d6a247f9fd75e9f",
+    "host_a2ui_sha256": "ceccea1d27e445302c47c8c8c077c262fc9abb78b1da3f816d6a247f9fd75e9f",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-005",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_001_005_mtp_off\\BXP-005\\a2ui.json",
+    "device_a2ui_sha256": "444b73d6b4ba1034e854bb6ca65e3374b19f75a2dfc18b8612434dfe4c63d257",
+    "host_a2ui_sha256": "444b73d6b4ba1034e854bb6ca65e3374b19f75a2dfc18b8612434dfe4c63d257",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-006",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_006_010_mtp_off\\BXP-006\\a2ui.json",
+    "device_a2ui_sha256": "fa161d7732a02d49cb86edfb9b78e32bf0f1d6cffdecef26ceb6019ca352391e",
+    "host_a2ui_sha256": "fa161d7732a02d49cb86edfb9b78e32bf0f1d6cffdecef26ceb6019ca352391e",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-007",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_006_010_mtp_off\\BXP-007\\a2ui.json",
+    "device_a2ui_sha256": "21d82b4588c0d0b9b7c81f6853f74bf7529331caf75777553191807379ee4a8b",
+    "host_a2ui_sha256": "21d82b4588c0d0b9b7c81f6853f74bf7529331caf75777553191807379ee4a8b",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-008",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_006_010_mtp_off\\BXP-008\\a2ui.json",
+    "device_a2ui_sha256": "3f41573c3abe91dfea78cec6bfaac31544eb0e34f28bb9340284788ac6c308ff",
+    "host_a2ui_sha256": "3f41573c3abe91dfea78cec6bfaac31544eb0e34f28bb9340284788ac6c308ff",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-009",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_006_010_mtp_off\\BXP-009\\a2ui.json",
+    "device_a2ui_sha256": "885364dfd5ae6066329d9022ed74ab618ce2cc6a00896b2d6ef1f09aebcf44f9",
+    "host_a2ui_sha256": "885364dfd5ae6066329d9022ed74ab618ce2cc6a00896b2d6ef1f09aebcf44f9",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-010",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_006_010_mtp_off\\BXP-010\\a2ui.json",
+    "device_a2ui_sha256": "703f05690bae4ec38dad4be53ad9b591260641ebec40db0558e7df8030fd5c67",
+    "host_a2ui_sha256": "703f05690bae4ec38dad4be53ad9b591260641ebec40db0558e7df8030fd5c67",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-011",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_011_015_mtp_off\\BXP-011\\a2ui.json",
+    "device_a2ui_sha256": "3bb4bb582c9967cd979b406a899dd8d923d56c9fdbd39eb0925a339e2e09f366",
+    "host_a2ui_sha256": "3bb4bb582c9967cd979b406a899dd8d923d56c9fdbd39eb0925a339e2e09f366",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-012",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_011_015_mtp_off\\BXP-012\\a2ui.json",
+    "device_a2ui_sha256": "d3d4581b5d90ccbf92781df9e87eadad260b883c38c85e97b70172f5c6fb7f40",
+    "host_a2ui_sha256": "d3d4581b5d90ccbf92781df9e87eadad260b883c38c85e97b70172f5c6fb7f40",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-013",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_011_015_mtp_off\\BXP-013\\a2ui.json",
+    "device_a2ui_sha256": "210bba886228e8fbd0ceeb56da2776db633f93ea6b9110c6c136e5b64f85a67d",
+    "host_a2ui_sha256": "210bba886228e8fbd0ceeb56da2776db633f93ea6b9110c6c136e5b64f85a67d",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-014",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_011_015_mtp_off\\BXP-014\\a2ui.json",
+    "device_a2ui_sha256": "af4aed4c9e04e5ff669ed42002450b1962c5d4e372741ec57c16fb50bfb4b9a7",
+    "host_a2ui_sha256": "af4aed4c9e04e5ff669ed42002450b1962c5d4e372741ec57c16fb50bfb4b9a7",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-016",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_016_020_mtp_off\\BXP-016\\a2ui.json",
+    "device_a2ui_sha256": "2f1045fdc60a15b99b236076d298ddd3ca72d862d71f5cd97559156856025264",
+    "host_a2ui_sha256": "2f1045fdc60a15b99b236076d298ddd3ca72d862d71f5cd97559156856025264",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-017",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_016_020_mtp_off\\BXP-017\\a2ui.json",
+    "device_a2ui_sha256": "e11673a0cc052f320bf400af394475bfa0a9e4696dfafb1d6f0e90b45a18e80d",
+    "host_a2ui_sha256": "e11673a0cc052f320bf400af394475bfa0a9e4696dfafb1d6f0e90b45a18e80d",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-019",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_016_020_mtp_off\\BXP-019\\a2ui.json",
+    "device_a2ui_sha256": "f039ef2a6e7e0c691ca9d905dece7de608396a6c9117c77a94c744598c049687",
+    "host_a2ui_sha256": "f039ef2a6e7e0c691ca9d905dece7de608396a6c9117c77a94c744598c049687",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-020",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_016_020_mtp_off\\BXP-020\\a2ui.json",
+    "device_a2ui_sha256": "a4a136f83ba6bf6fe909817dd9b8e0aa0d1f2843c8a92e327dd461be0cbc4968",
+    "host_a2ui_sha256": "a4a136f83ba6bf6fe909817dd9b8e0aa0d1f2843c8a92e327dd461be0cbc4968",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-022",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_021_025_mtp_off\\BXP-022\\a2ui.json",
+    "device_a2ui_sha256": "5a7b100da5e491c336aa425178ccb8b125f28eb0d8f7b6468490c56328549b7f",
+    "host_a2ui_sha256": "5a7b100da5e491c336aa425178ccb8b125f28eb0d8f7b6468490c56328549b7f",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-023",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_021_025_mtp_off\\BXP-023\\a2ui.json",
+    "device_a2ui_sha256": "8b7767a47bac653c5ec164a17fde54e81af6a8ddb27c39d7745ad359ecc8e413",
+    "host_a2ui_sha256": "8b7767a47bac653c5ec164a17fde54e81af6a8ddb27c39d7745ad359ecc8e413",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-024",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_021_025_mtp_off\\BXP-024\\a2ui.json",
+    "device_a2ui_sha256": "94c18d47a2cc4bcad32145dde7705780c2b4a03a437ff6cb17bf202e3a75b8ac",
+    "host_a2ui_sha256": "94c18d47a2cc4bcad32145dde7705780c2b4a03a437ff6cb17bf202e3a75b8ac",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-025",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_021_025_mtp_off\\BXP-025\\a2ui.json",
+    "device_a2ui_sha256": "c426dd1c35091d6e307873f40c80c3b5ba1a8ba938894335021a27f7ef4bed69",
+    "host_a2ui_sha256": "c426dd1c35091d6e307873f40c80c3b5ba1a8ba938894335021a27f7ef4bed69",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-026",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_026_030_mtp_off\\BXP-026\\a2ui.json",
+    "device_a2ui_sha256": "bc46eb50a3f7de25b7620b1aeefc5e92abdeb1f4ff84891fb492372a915c4a79",
+    "host_a2ui_sha256": "bc46eb50a3f7de25b7620b1aeefc5e92abdeb1f4ff84891fb492372a915c4a79",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-027",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_026_030_mtp_off\\BXP-027\\a2ui.json",
+    "device_a2ui_sha256": "860923ba815d2b61dac6867ccceced45f62bb90e8b2bcac74a7321b66921bf06",
+    "host_a2ui_sha256": "860923ba815d2b61dac6867ccceced45f62bb90e8b2bcac74a7321b66921bf06",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-028",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_026_030_mtp_off\\BXP-028\\a2ui.json",
+    "device_a2ui_sha256": "b6b4651aaa99727af1942b375b621e6506f252de43e951d34a3a81ffb427ae93",
+    "host_a2ui_sha256": "b6b4651aaa99727af1942b375b621e6506f252de43e951d34a3a81ffb427ae93",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-029",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_026_030_mtp_off\\BXP-029\\a2ui.json",
+    "device_a2ui_sha256": "3b90c00eb8bebc9bfd2e2e4a19d19c7d0fad3944d3f5d2c87a71df9a9cc8c927",
+    "host_a2ui_sha256": "3b90c00eb8bebc9bfd2e2e4a19d19c7d0fad3944d3f5d2c87a71df9a9cc8c927",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-030",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_026_030_mtp_off\\BXP-030\\a2ui.json",
+    "device_a2ui_sha256": "fba17a81684077d61c79a67b1363342cad00665ba211bf770e184b347177f373",
+    "host_a2ui_sha256": "fba17a81684077d61c79a67b1363342cad00665ba211bf770e184b347177f373",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-031",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_031_035_mtp_off\\BXP-031\\a2ui.json",
+    "device_a2ui_sha256": "848b1c9951359575b3231ca53667e029f51159954cd1168f891fe7a13c3ea34a",
+    "host_a2ui_sha256": "848b1c9951359575b3231ca53667e029f51159954cd1168f891fe7a13c3ea34a",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-032",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_031_035_mtp_off\\BXP-032\\a2ui.json",
+    "device_a2ui_sha256": "bc86878b0c501cc96e0391462a46a40c312882f9b85fa2c1108fb67170467686",
+    "host_a2ui_sha256": "bc86878b0c501cc96e0391462a46a40c312882f9b85fa2c1108fb67170467686",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-034",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_031_035_mtp_off\\BXP-034\\a2ui.json",
+    "device_a2ui_sha256": "f3779c10c832549b3689a0b515a52c3538f4666d800ff2a87c4228f1901ed746",
+    "host_a2ui_sha256": "f3779c10c832549b3689a0b515a52c3538f4666d800ff2a87c4228f1901ed746",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-035",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_031_035_mtp_off\\BXP-035\\a2ui.json",
+    "device_a2ui_sha256": "efb865fcfa84f14569c1b7146f0f5bbb634521cfc15ab78e7942c093212d72f5",
+    "host_a2ui_sha256": "efb865fcfa84f14569c1b7146f0f5bbb634521cfc15ab78e7942c093212d72f5",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-036",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_036_040_mtp_off\\BXP-036\\a2ui.json",
+    "device_a2ui_sha256": "310ef99a96881e1b02183c16e9008dcce9c8fc9b837b416d316b030de59b9efe",
+    "host_a2ui_sha256": "310ef99a96881e1b02183c16e9008dcce9c8fc9b837b416d316b030de59b9efe",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-037",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_036_040_mtp_off\\BXP-037\\a2ui.json",
+    "device_a2ui_sha256": "857420572315016cf3b887f1e8beb753d25046290edd53f5ff792bc6787502d2",
+    "host_a2ui_sha256": "857420572315016cf3b887f1e8beb753d25046290edd53f5ff792bc6787502d2",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-038",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_036_040_mtp_off\\BXP-038\\a2ui.json",
+    "device_a2ui_sha256": "1da54d0a642b052cd5a65e93bfc10c197715b16e4e703fce929fbf0013dff9e5",
+    "host_a2ui_sha256": "1da54d0a642b052cd5a65e93bfc10c197715b16e4e703fce929fbf0013dff9e5",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-039",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_036_040_mtp_off\\BXP-039\\a2ui.json",
+    "device_a2ui_sha256": "623dd8bf368f90f8049317faa5d263f8c780275aa135bba4c56be9ca3379c091",
+    "host_a2ui_sha256": "623dd8bf368f90f8049317faa5d263f8c780275aa135bba4c56be9ca3379c091",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-040",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_036_040_mtp_off\\BXP-040\\a2ui.json",
+    "device_a2ui_sha256": "551caef387ba37e133f7a1a5b9fdbca9e5b048508af04adb43c360b920c91dc7",
+    "host_a2ui_sha256": "551caef387ba37e133f7a1a5b9fdbca9e5b048508af04adb43c360b920c91dc7",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-041",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_041_045_mtp_off\\BXP-041\\a2ui.json",
+    "device_a2ui_sha256": "34496a2c2cc156b142d5b21d435417ca2b80a7db52b3251f09049ee4382d0b1c",
+    "host_a2ui_sha256": "34496a2c2cc156b142d5b21d435417ca2b80a7db52b3251f09049ee4382d0b1c",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-042",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_041_045_mtp_off\\BXP-042\\a2ui.json",
+    "device_a2ui_sha256": "6716cc2217845f28adbdda9861332930336440e26ac856394f5d169c2c3e8014",
+    "host_a2ui_sha256": "6716cc2217845f28adbdda9861332930336440e26ac856394f5d169c2c3e8014",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-043",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_041_045_mtp_off\\BXP-043\\a2ui.json",
+    "device_a2ui_sha256": "e95b0941e07871edde68cf824530d7c0abc88dee9fbe7d560a6ee055935f45fa",
+    "host_a2ui_sha256": "e95b0941e07871edde68cf824530d7c0abc88dee9fbe7d560a6ee055935f45fa",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-044",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_041_045_mtp_off\\BXP-044\\a2ui.json",
+    "device_a2ui_sha256": "52bacdccf9793389e98cabf4b365abba1ccd0392f912c9bf9085529ba683d0c9",
+    "host_a2ui_sha256": "52bacdccf9793389e98cabf4b365abba1ccd0392f912c9bf9085529ba683d0c9",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-045",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_041_045_mtp_off\\BXP-045\\a2ui.json",
+    "device_a2ui_sha256": "fe4e77936feb7b2c980ce5e0caa42eed9340776d973d4388bce5b4f03a2de4e9",
+    "host_a2ui_sha256": "fe4e77936feb7b2c980ce5e0caa42eed9340776d973d4388bce5b4f03a2de4e9",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-046",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_046_050_mtp_off\\BXP-046\\a2ui.json",
+    "device_a2ui_sha256": "b780fa7fe9fed25221817954ee204b3f619b8dd362e7351f94e03989a98d14d6",
+    "host_a2ui_sha256": "b780fa7fe9fed25221817954ee204b3f619b8dd362e7351f94e03989a98d14d6",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-047",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_046_050_mtp_off\\BXP-047\\a2ui.json",
+    "device_a2ui_sha256": "dbcbd611edea6afc77b89fc350f4735e83e454fa17d3c7c2b461d6d8c3c96242",
+    "host_a2ui_sha256": "dbcbd611edea6afc77b89fc350f4735e83e454fa17d3c7c2b461d6d8c3c96242",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-048",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_046_050_mtp_off\\BXP-048\\a2ui.json",
+    "device_a2ui_sha256": "c86be1f52ee784a9a6ff6b6d3439effc2d1b1751789df2bb70605cf4e0835171",
+    "host_a2ui_sha256": "c86be1f52ee784a9a6ff6b6d3439effc2d1b1751789df2bb70605cf4e0835171",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-049",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_046_050_mtp_off\\BXP-049\\a2ui.json",
+    "device_a2ui_sha256": "b855a6c0009dd2ce87ade726d82e4ea62755bd1634176f162f30e0835e8ac7ca",
+    "host_a2ui_sha256": "b855a6c0009dd2ce87ade726d82e4ea62755bd1634176f162f30e0835e8ac7ca",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-050",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_046_050_mtp_off\\BXP-050\\a2ui.json",
+    "device_a2ui_sha256": "05d0d668d232268fc3b530b164d9700a44a42da3217236100d13f85fca3c1733",
+    "host_a2ui_sha256": "05d0d668d232268fc3b530b164d9700a44a42da3217236100d13f85fca3c1733",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-001",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_001_005_mtp_on\\BXP-001\\a2ui.json",
+    "device_a2ui_sha256": "1052ad3634eceb05f0cd67138d7ef121959837e8a1aef06838e8ea24e41d574a",
+    "host_a2ui_sha256": "1052ad3634eceb05f0cd67138d7ef121959837e8a1aef06838e8ea24e41d574a",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-002",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_001_005_mtp_on\\BXP-002\\a2ui.json",
+    "device_a2ui_sha256": "e688b32b526f9dd566c8fd874916b96dc7f447d44cb97d491b91dae23820a060",
+    "host_a2ui_sha256": "e688b32b526f9dd566c8fd874916b96dc7f447d44cb97d491b91dae23820a060",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-003",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_001_005_mtp_on\\BXP-003\\a2ui.json",
+    "device_a2ui_sha256": "da4376435e46cb34ee91389362e10987ae71bb3449a25102bcefd83893830939",
+    "host_a2ui_sha256": "da4376435e46cb34ee91389362e10987ae71bb3449a25102bcefd83893830939",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-004",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_001_005_mtp_on\\BXP-004\\a2ui.json",
+    "device_a2ui_sha256": "883e16220ab405c9bc589d0a3ad960144f16a121aed5c2cde7a07f6bc7eea2fe",
+    "host_a2ui_sha256": "883e16220ab405c9bc589d0a3ad960144f16a121aed5c2cde7a07f6bc7eea2fe",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-005",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_001_005_mtp_on\\BXP-005\\a2ui.json",
+    "device_a2ui_sha256": "11b741a1f93f408f6ddb5f47d74b7f8bdd0c0dc8296415da82dc0a95f314b0b0",
+    "host_a2ui_sha256": "11b741a1f93f408f6ddb5f47d74b7f8bdd0c0dc8296415da82dc0a95f314b0b0",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-006",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_006_010_mtp_on\\BXP-006\\a2ui.json",
+    "device_a2ui_sha256": "fa161d7732a02d49cb86edfb9b78e32bf0f1d6cffdecef26ceb6019ca352391e",
+    "host_a2ui_sha256": "fa161d7732a02d49cb86edfb9b78e32bf0f1d6cffdecef26ceb6019ca352391e",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-007",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_006_010_mtp_on\\BXP-007\\a2ui.json",
+    "device_a2ui_sha256": "e12c4605e041708b9191747c4c6931539922c9353a7636f3fa68a9dfd4e6d96b",
+    "host_a2ui_sha256": "e12c4605e041708b9191747c4c6931539922c9353a7636f3fa68a9dfd4e6d96b",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-008",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_006_010_mtp_on\\BXP-008\\a2ui.json",
+    "device_a2ui_sha256": "3f41573c3abe91dfea78cec6bfaac31544eb0e34f28bb9340284788ac6c308ff",
+    "host_a2ui_sha256": "3f41573c3abe91dfea78cec6bfaac31544eb0e34f28bb9340284788ac6c308ff",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-009",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_006_010_mtp_on\\BXP-009\\a2ui.json",
+    "device_a2ui_sha256": "988dd56864bd1a1bfb371f98ea9d62eb0465f83f96fc91e403e3c44e3e542f40",
+    "host_a2ui_sha256": "988dd56864bd1a1bfb371f98ea9d62eb0465f83f96fc91e403e3c44e3e542f40",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-010",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_006_010_mtp_on\\BXP-010\\a2ui.json",
+    "device_a2ui_sha256": "e635ff19225d662d12d8a6a8dab42364618d5270d0466eb1793f5c412f8fddf0",
+    "host_a2ui_sha256": "e635ff19225d662d12d8a6a8dab42364618d5270d0466eb1793f5c412f8fddf0",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-011",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_011_015_mtp_on\\BXP-011\\a2ui.json",
+    "device_a2ui_sha256": "d521703fe021d513647b22eda8d24899c9eb60e336796f335105f93f871bd798",
+    "host_a2ui_sha256": "d521703fe021d513647b22eda8d24899c9eb60e336796f335105f93f871bd798",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-012",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_011_015_mtp_on\\BXP-012\\a2ui.json",
+    "device_a2ui_sha256": "406a5f46cb72722c7405f68733adb8855c467578146c1e449fe2886bab00d599",
+    "host_a2ui_sha256": "406a5f46cb72722c7405f68733adb8855c467578146c1e449fe2886bab00d599",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-013",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_011_015_mtp_on\\BXP-013\\a2ui.json",
+    "device_a2ui_sha256": "85e58ad9038234be29cd408be85f9d24b679f33af18cc57552c4a918bd9173cb",
+    "host_a2ui_sha256": "85e58ad9038234be29cd408be85f9d24b679f33af18cc57552c4a918bd9173cb",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-014",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_011_015_mtp_on\\BXP-014\\a2ui.json",
+    "device_a2ui_sha256": "0f9d8940ce11f06d0d6881162e3d036a20bd32cacda94905707b0cc7e7d92fa2",
+    "host_a2ui_sha256": "0f9d8940ce11f06d0d6881162e3d036a20bd32cacda94905707b0cc7e7d92fa2",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-015",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_011_015_mtp_on\\BXP-015\\a2ui.json",
+    "device_a2ui_sha256": "8b91e54a2de3ccc5e978599e2e0e5b8136af1cb33e76590f2dff80cc776d3669",
+    "host_a2ui_sha256": "8b91e54a2de3ccc5e978599e2e0e5b8136af1cb33e76590f2dff80cc776d3669",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-016",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_016_020_mtp_on\\BXP-016\\a2ui.json",
+    "device_a2ui_sha256": "32dd4dc02c9f93949927c8b3a3daccbd5c6c7a1912abf52ccc5c66b762b4ae3d",
+    "host_a2ui_sha256": "32dd4dc02c9f93949927c8b3a3daccbd5c6c7a1912abf52ccc5c66b762b4ae3d",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-017",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_016_020_mtp_on\\BXP-017\\a2ui.json",
+    "device_a2ui_sha256": "e11673a0cc052f320bf400af394475bfa0a9e4696dfafb1d6f0e90b45a18e80d",
+    "host_a2ui_sha256": "e11673a0cc052f320bf400af394475bfa0a9e4696dfafb1d6f0e90b45a18e80d",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-019",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_016_020_mtp_on\\BXP-019\\a2ui.json",
+    "device_a2ui_sha256": "db656a3e34e5429303459918ddf929e6fe5c60a2408f6a68c38ee1a1e224e95a",
+    "host_a2ui_sha256": "db656a3e34e5429303459918ddf929e6fe5c60a2408f6a68c38ee1a1e224e95a",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-020",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_016_020_mtp_on\\BXP-020\\a2ui.json",
+    "device_a2ui_sha256": "3a37e8838f673742e3a2308cb7838034eaf52bbdbd59ab28092b88f6b6ec9b56",
+    "host_a2ui_sha256": "3a37e8838f673742e3a2308cb7838034eaf52bbdbd59ab28092b88f6b6ec9b56",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-021",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_021_025_mtp_on\\BXP-021\\a2ui.json",
+    "device_a2ui_sha256": "81ebc6cb5bca550f2741ab01cc9a405e1ad3016fc423fa5de158b3a4bf991e98",
+    "host_a2ui_sha256": "81ebc6cb5bca550f2741ab01cc9a405e1ad3016fc423fa5de158b3a4bf991e98",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-022",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_021_025_mtp_on\\BXP-022\\a2ui.json",
+    "device_a2ui_sha256": "4415ee8d1c828b32508192bf42fd89c66c264a0adcc42da48edb3e6bfbcc0516",
+    "host_a2ui_sha256": "4415ee8d1c828b32508192bf42fd89c66c264a0adcc42da48edb3e6bfbcc0516",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-023",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_021_025_mtp_on\\BXP-023\\a2ui.json",
+    "device_a2ui_sha256": "afdf210e47d7bc72c3248321ed555cfafb754ab888ea07af34a0f026f6c56dbc",
+    "host_a2ui_sha256": "afdf210e47d7bc72c3248321ed555cfafb754ab888ea07af34a0f026f6c56dbc",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-024",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_021_025_mtp_on\\BXP-024\\a2ui.json",
+    "device_a2ui_sha256": "2afad37e2d82af800a6c7e7b24d27bdf0271fd4ad40da83393eb76dcec3b2607",
+    "host_a2ui_sha256": "2afad37e2d82af800a6c7e7b24d27bdf0271fd4ad40da83393eb76dcec3b2607",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-025",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_021_025_mtp_on\\BXP-025\\a2ui.json",
+    "device_a2ui_sha256": "c426dd1c35091d6e307873f40c80c3b5ba1a8ba938894335021a27f7ef4bed69",
+    "host_a2ui_sha256": "c426dd1c35091d6e307873f40c80c3b5ba1a8ba938894335021a27f7ef4bed69",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-026",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_026_030_mtp_on\\BXP-026\\a2ui.json",
+    "device_a2ui_sha256": "cdc774ca12479b8e382741716a3e2c1f6d006bf4aaa1acfb8b16316e23e000fb",
+    "host_a2ui_sha256": "cdc774ca12479b8e382741716a3e2c1f6d006bf4aaa1acfb8b16316e23e000fb",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-028",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_026_030_mtp_on\\BXP-028\\a2ui.json",
+    "device_a2ui_sha256": "b6b4651aaa99727af1942b375b621e6506f252de43e951d34a3a81ffb427ae93",
+    "host_a2ui_sha256": "b6b4651aaa99727af1942b375b621e6506f252de43e951d34a3a81ffb427ae93",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-029",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_026_030_mtp_on\\BXP-029\\a2ui.json",
+    "device_a2ui_sha256": "950b452843efbe8b76f7d89c758f7018e6496aee647af1c69c72eb607ba96521",
+    "host_a2ui_sha256": "950b452843efbe8b76f7d89c758f7018e6496aee647af1c69c72eb607ba96521",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-030",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_026_030_mtp_on\\BXP-030\\a2ui.json",
+    "device_a2ui_sha256": "fba17a81684077d61c79a67b1363342cad00665ba211bf770e184b347177f373",
+    "host_a2ui_sha256": "fba17a81684077d61c79a67b1363342cad00665ba211bf770e184b347177f373",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-031",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_031_035_mtp_on\\BXP-031\\a2ui.json",
+    "device_a2ui_sha256": "1ac8e448f1c473e2361aaaa2f0a1c00509c48bb3f2e0ee668665c154d21d739f",
+    "host_a2ui_sha256": "1ac8e448f1c473e2361aaaa2f0a1c00509c48bb3f2e0ee668665c154d21d739f",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-032",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_031_035_mtp_on\\BXP-032\\a2ui.json",
+    "device_a2ui_sha256": "bc86878b0c501cc96e0391462a46a40c312882f9b85fa2c1108fb67170467686",
+    "host_a2ui_sha256": "bc86878b0c501cc96e0391462a46a40c312882f9b85fa2c1108fb67170467686",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-034",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_031_035_mtp_on\\BXP-034\\a2ui.json",
+    "device_a2ui_sha256": "bae7c737ab7fbed2c09456f1090ebb33bfc9158f6413f7531e0b633ca9d7cb7a",
+    "host_a2ui_sha256": "bae7c737ab7fbed2c09456f1090ebb33bfc9158f6413f7531e0b633ca9d7cb7a",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-035",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_031_035_mtp_on\\BXP-035\\a2ui.json",
+    "device_a2ui_sha256": "f00584474b42f2bf258e2611b1e2d652cdb16e82fe0fd4b890733fc1193e6b97",
+    "host_a2ui_sha256": "f00584474b42f2bf258e2611b1e2d652cdb16e82fe0fd4b890733fc1193e6b97",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-037",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_036_040_mtp_on\\BXP-037\\a2ui.json",
+    "device_a2ui_sha256": "39df9e0087781abc4f134b5275223d1c75cf3c491aa2493aafb247929247c62a",
+    "host_a2ui_sha256": "39df9e0087781abc4f134b5275223d1c75cf3c491aa2493aafb247929247c62a",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-038",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_036_040_mtp_on\\BXP-038\\a2ui.json",
+    "device_a2ui_sha256": "1da54d0a642b052cd5a65e93bfc10c197715b16e4e703fce929fbf0013dff9e5",
+    "host_a2ui_sha256": "1da54d0a642b052cd5a65e93bfc10c197715b16e4e703fce929fbf0013dff9e5",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-039",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_036_040_mtp_on\\BXP-039\\a2ui.json",
+    "device_a2ui_sha256": "23a4fcda22b0ae805ec9c840469d2ee39a61afbc6d9e4b178f65dbaed4bc0f1f",
+    "host_a2ui_sha256": "23a4fcda22b0ae805ec9c840469d2ee39a61afbc6d9e4b178f65dbaed4bc0f1f",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-040",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_036_040_mtp_on\\BXP-040\\a2ui.json",
+    "device_a2ui_sha256": "126363dab023147ace6f920c28fbbbf0e98e3945edf7be9b8435605e75d2a578",
+    "host_a2ui_sha256": "126363dab023147ace6f920c28fbbbf0e98e3945edf7be9b8435605e75d2a578",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-041",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_041_045_mtp_on\\BXP-041\\a2ui.json",
+    "device_a2ui_sha256": "34496a2c2cc156b142d5b21d435417ca2b80a7db52b3251f09049ee4382d0b1c",
+    "host_a2ui_sha256": "34496a2c2cc156b142d5b21d435417ca2b80a7db52b3251f09049ee4382d0b1c",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-042",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_041_045_mtp_on\\BXP-042\\a2ui.json",
+    "device_a2ui_sha256": "fa133b1149a7d93a03d8441a5d5b4ae211b62fc1337a41bb69e1c007c41c295f",
+    "host_a2ui_sha256": "fa133b1149a7d93a03d8441a5d5b4ae211b62fc1337a41bb69e1c007c41c295f",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-043",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_041_045_mtp_on\\BXP-043\\a2ui.json",
+    "device_a2ui_sha256": "97b2582492f44e9ca09ba581a359031bfcb22e225879728e0b7a0aa0c029b601",
+    "host_a2ui_sha256": "97b2582492f44e9ca09ba581a359031bfcb22e225879728e0b7a0aa0c029b601",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-044",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_041_045_mtp_on\\BXP-044\\a2ui.json",
+    "device_a2ui_sha256": "437aef4e0db9da9be96144586c4a8cbccd22c3867639969b7caa187288bc64cd",
+    "host_a2ui_sha256": "437aef4e0db9da9be96144586c4a8cbccd22c3867639969b7caa187288bc64cd",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-045",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_041_045_mtp_on\\BXP-045\\a2ui.json",
+    "device_a2ui_sha256": "fe4e77936feb7b2c980ce5e0caa42eed9340776d973d4388bce5b4f03a2de4e9",
+    "host_a2ui_sha256": "fe4e77936feb7b2c980ce5e0caa42eed9340776d973d4388bce5b4f03a2de4e9",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-046",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_046_050_mtp_on\\BXP-046\\a2ui.json",
+    "device_a2ui_sha256": "780101e369dd00a18179e79f3c233515d3527136696e4942adb71352133670e5",
+    "host_a2ui_sha256": "780101e369dd00a18179e79f3c233515d3527136696e4942adb71352133670e5",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-047",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_046_050_mtp_on\\BXP-047\\a2ui.json",
+    "device_a2ui_sha256": "5274880a144c34607da89c156448abb93a0111208ac7c093ccbb94ccd9c63a16",
+    "host_a2ui_sha256": "5274880a144c34607da89c156448abb93a0111208ac7c093ccbb94ccd9c63a16",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-048",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_046_050_mtp_on\\BXP-048\\a2ui.json",
+    "device_a2ui_sha256": "40c710e0f0743675aa90ff0904c453d1845f00d280b26d49ae9516682c32c477",
+    "host_a2ui_sha256": "40c710e0f0743675aa90ff0904c453d1845f00d280b26d49ae9516682c32c477",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-049",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_046_050_mtp_on\\BXP-049\\a2ui.json",
+    "device_a2ui_sha256": "b855a6c0009dd2ce87ade726d82e4ea62755bd1634176f162f30e0835e8ac7ca",
+    "host_a2ui_sha256": "b855a6c0009dd2ce87ade726d82e4ea62755bd1634176f162f30e0835e8ac7ca",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-050",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_046_050_mtp_on\\BXP-050\\a2ui.json",
+    "device_a2ui_sha256": "ff6b21d96a1b79caa05317a53b084212cfb5f4b5e81168b814bf89d4525e152c",
+    "host_a2ui_sha256": "ff6b21d96a1b79caa05317a53b084212cfb5f4b5e81168b814bf89d4525e152c",
+    "json_structure_and_values_equal": true
+  }
+]

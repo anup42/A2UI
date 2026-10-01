@@ -1,0 +1,15 @@
+<a2ui>
+$/={game_data:[{game:"It Takes Two",age:"13+ for online features",coop:"Online co-op; Friend’s Pass supports inviting a friend",players:"2",price:"₹2,199; SteamDB shows ₹659 on a past promotion [1][21][40]"},{game:"Unravel Two",age:"13+ or 16+ to register an EA account, depending on region",coop:"Local co-op; also playable solo",players:"2",price:"₹1,199; SteamDB shows ₹299 on a past promotion [2][29][31]"},{game:"Overcooked! 2",age:"No formal age rating listed on the store page",coop:"Local couch co-op and online play",players:"1-4",price:"₹1,920 on Steam; Steam page shows $24.99 and supports up to four players [4][17]"}]}
+root=Column([a,b,c,f,k],gap="md",padding=16)
+a=Text("Family-friendly co-op picks","h2")
+b=Table(columns=[{key:"game",label:"Game"},{key:"age",label:"Age rating"},{key:"coop",label:"Co-op support"},{key:"players",label:"Players"},{key:"price",label:"Indicative India price"}],statePath="/game_data",domain="comparison",preferredPresentation="cards",primaryColumn="game",numericColumns=["players","price"])
+f=Card([g])
+g=Column([h,i,j],"sm",padding=16)
+h=Text("Best fit","h3")
+i=Text("Best pure two-player story co-op: It Takes Two, with full teamwork focus and free Friend’s Pass access for a second player[11].",variant="body")
+j=Text("Best relaxed local co-op: Unravel Two, which is family-friendly and works well on one screen[19].",variant="body")
+k=Card([l])
+l=Column([m,n,o],"sm",padding=16)
+m=Text("Best larger-group party game: Overcooked! 2, especially if you want chaotic family sessions for up to four players.",variant="body")
+o=Text("Indicative India prices are based on current Steam/SteamDB records and may change with sales or regional updates.","caption")
+</a2ui>

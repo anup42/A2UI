@@ -1,0 +1,26 @@
+{
+  "duration_seconds": 41,
+  "width": 1080,
+  "height": 1080,
+  "fps": 30,
+  "frames": 1230,
+  "audio": false,
+  "decode_errors": 0,
+  "files": {
+    "final": {
+      "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\demos\\20260930_bixby_flight\\Bixby_GenUICraft_Flight_Demo.mp4",
+      "bytes": 1315569,
+      "sha256": "9675be9fa438ab0eafe02701d314ba95d545317bb37d7de61299793a58526ebd"
+    },
+    "raw_recording": {
+      "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\.tmp\\bixby_flight_video\\bixby_flight_raw.mp4",
+      "bytes": 5293228,
+      "sha256": "8e6fe671ec3fb3c24b433793180ab34d052f85d4cb8b56c0f459c072cc927674"
+    },
+    "edit_source": {
+      "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\.tmp\\bixby_flight_video\\bixby_flight_edit_source.mp4",
+      "bytes": 2339875,
+      "sha256": "fac860025a4354704978fb0cd8f9a44a1a8d30bb48005b368b2d2faf9de23586"
+    }
+  }
+}

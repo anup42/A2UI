@@ -1,0 +1,51 @@
+[
+  {
+    "id": "BXP-001",
+    "warmup": false,
+    "status": "conversion_failure",
+    "caseElapsedMs": 22994,
+    "deviceBefore": {
+      "epochMs": 1790720271531,
+      "thermalStatus": 0,
+      "batteryTemperatureC": 33.5,
+      "batteryLevel": 99,
+      "plugged": 2
+    },
+    "deviceAfter": {
+      "epochMs": 1790720294542,
+      "thermalStatus": 1,
+      "batteryTemperatureC": 33.5,
+      "batteryLevel": 98,
+      "plugged": 2
+    },
+    "attempts": 1,
+    "rawCaptured": true,
+    "rawComplete": false,
+    "rawSha256": "c8817cbe971ea6f226c383ec359ae4fd1fab435c4da643c2e491cf19a6487a6f",
+    "rawStrictValid": false,
+    "rawStrictError": "Invalid GenUI Express: Unknown A2UI Express component 'ColumnLaptop'.",
+    "repairedStrictValid": false,
+    "repairedStrictError": null,
+    "repairKind": null,
+    "sourceFidelityWarnings": null,
+    "usedFallback": false,
+    "conversionElapsedMs": 22991,
+    "conversionError": "The GPU compiler did not apply the FP16 Q/DQ correction. Select FP32.",
+    "exception": null,
+    "runtime": null,
+    "renderedPromptSha256": null,
+    "finishReason": null,
+    "finishDetail": null,
+    "inputTokens": null,
+    "outputTokens": null,
+    "prefillTokensPerSecond": null,
+    "decodeTokensPerSecond": null,
+    "timeToFirstTokenSeconds": null,
+    "engineInitializationSeconds": null,
+    "engineInitializedForRequest": null,
+    "nativeInitializationPhaseSeconds": null,
+    "providerElapsedMs": 22991,
+    "sdkRenderSmokeValid": null,
+    "renderStatus": null
+  }
+]

@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "input_files": {
+    "train": {
+      "sha256": "707244a5ffe2af459605e8629055c18829c65123294191112016cd69892addf5",
+      "rows": 91115
+    },
+    "val": {
+      "sha256": "b5024919ea0c3557cad452193f90f7133919bb0c10e4ece05fe1a54278cb0fa7",
+      "rows": 1862
+    }
+  },
+  "benchmark_source_cases": {
+    "golden35_accepted": 35,
+    "golden32_accepted": 31,
+    "bixby50": 50,
+    "golden35_excluded": 15
+  },
+  "anchor_info": {
+    "distinct_anchors": 3107,
+    "min_per_validation": 8,
+    "max_per_validation": 24
+  },
+  "counts": {
+    "train_rows": 91115,
+    "one_anchor_candidate_pairs": 54668,
+    "two_anchor_candidate_pairs": 3834,
+    "pairs_after_length_filter": 3536,
+    "val_rows": 1862
+  },
+  "matched_benchmark_cases": {
+    "bixby50": 0,
+    "golden32_accepted": 0,
+    "golden35_accepted": 0,
+    "golden35_excluded": 0
+  },
+  "thresholds": [
+    {
+      "jaccard_at_least": 0.95,
+      "pairs": 0,
+      "benchmark_cases": 0
+    },
+    {
+      "jaccard_at_least": 0.9,
+      "pairs": 0,
+      "benchmark_cases": 0
+    },
+    {
+      "jaccard_at_least": 0.8,
+      "pairs": 0,
+      "benchmark_cases": 0
+    },
+    {
+      "jaccard_at_least": 0.7,
+      "pairs": 0,
+      "benchmark_cases": 0
+    },
+    {
+      "jaccard_at_least": 0.6,
+      "pairs": 0,
+      "benchmark_cases": 0
+    }
+  ],
+  "method": "Reference-insensitive source_signature (repo v10 function), Unicode casefolded words, 3-word shingles; <=24 rare anchors per benchmark, >=2 common anchors, token-length ratio >=.40; retain Jaccard >=.60 or >=.90 containment of shorter >=50-word source; ordered ratio only for retained pairs.",
+  "limits": "Complete dataset row scan but bounded lexical retrieval, not an exhaustive semantic paraphrase search. Different reference destinations are intentionally removed before comparison; retained matches require human task/fact review.",
+  "elapsed_seconds": 251.06
+}

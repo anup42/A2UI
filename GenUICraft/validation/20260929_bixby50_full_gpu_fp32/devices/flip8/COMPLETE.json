@@ -1,0 +1,16 @@
+{
+  "serial": "R3GL203AKSF",
+  "completedBatches": [
+    "missing_013_015_mtp_on",
+    "cases_016_020_mtp_off",
+    "cases_016_020_mtp_on",
+    "cases_021_025_mtp_on",
+    "cases_021_025_mtp_off",
+    "cases_026_030_mtp_off",
+    "cases_026_030_mtp_on",
+    "cases_031_031_mtp_on",
+    "cases_031_031_mtp_off"
+  ],
+  "generations": 35,
+  "finishedAtUtc": "2026-09-29T17:41:15.894784+00:00"
+}

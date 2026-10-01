@@ -1,0 +1,27 @@
+{
+  "serial": "R3CY30QFWLP",
+  "phase": "between_batches",
+  "completedBatches": [
+    "cases_001_005_mtp_off",
+    "cases_001_005_mtp_on",
+    "cases_006_010_mtp_on",
+    "cases_006_010_mtp_off",
+    "cases_011_015_mtp_off",
+    "cases_011_015_mtp_on",
+    "cases_016_020_mtp_on",
+    "cases_016_020_mtp_off",
+    "cases_021_025_mtp_off",
+    "cases_021_025_mtp_on",
+    "cases_026_030_mtp_on",
+    "cases_026_030_mtp_off",
+    "cases_031_035_mtp_off",
+    "cases_031_035_mtp_on",
+    "cases_036_040_mtp_on",
+    "cases_036_040_mtp_off",
+    "cases_041_045_mtp_off",
+    "cases_041_045_mtp_on",
+    "cases_046_050_mtp_on",
+    "cases_046_050_mtp_off"
+  ],
+  "lastRunId": "v54_r32_fold7_cases_046_050_mtp_off_1790710807"
+}

@@ -1,0 +1,237 @@
+{
+  "schema_version": 1,
+  "definition": {
+    "placeholder": "\\[(?:IMAGE_URL|ICON_URL|ACTION_URL|SOURCE_URL|MEDIA_URL|URL|IMAGE_ASSET|ICON_ASSET|MEDIA_ASSET)_\\d+\\]",
+    "real_url": "\\bhttps?://[^\\s<>\\\"']+",
+    "other_scheme": "\\b(?:mailto|tel|geo|intent|genuicraft|data|javascript|blob|urn|sms|market):[^\\s<>\\\"']+",
+    "placeholder_rich_threshold": "at least 3 distinct placeholder tokens in response_text"
+  },
+  "splits": {
+    "train": {
+      "file_sha256": "707244a5ffe2af459605e8629055c18829c65123294191112016cd69892addf5",
+      "counts": {
+        "rows": 91115,
+        "has_placeholder": 91052,
+        "placeholder_rich_3plus": 87846,
+        "has_real_http_url": 17,
+        "has_other_scheme_reference": 56,
+        "placeholder_only_no_real_http": 91035,
+        "real_http_only_no_placeholder": 0,
+        "placeholder_and_real_http": 17,
+        "neither_placeholder_nor_real_http": 63,
+        "source_placeholder_occurrences": 616664,
+        "source_distinct_placeholder_tokens": 585267,
+        "source_real_http_url_occurrences": 23,
+        "url_metadata_present": 91115,
+        "url_map_nonempty": 47180,
+        "url_map_entries": 285926,
+        "source_tokens_mapped_by_current_map": 285926,
+        "source_tokens_unmapped_by_current_map": 299341,
+        "placeholder_rows_all_tokens_mapped": 47180,
+        "placeholder_rows_partial_map": 0,
+        "placeholder_rows_no_tokens_mapped": 43872,
+        "map_entries_http_url": 285762,
+        "map_entries_local_asset": 116,
+        "has_placeholder_and_empty_map": 43872,
+        "has_real_http_and_empty_map": 3,
+        "url_preprocessing_enabled": 47180,
+        "url_source_closed": 91115,
+        "original_url_map_marked_missing": 91115,
+        "original_query_id_marked_missing": 91115,
+        "generator_lineage_marked_missing": 91115,
+        "asset_manifest_marked_missing": 91115,
+        "source_model_family_present": 0
+      },
+      "placeholder_kind_distinct_token_totals": {
+        "ACTION_URL": 233683,
+        "SOURCE_URL": 81121,
+        "ICON_URL": 267879,
+        "IMAGE_URL": 2366,
+        "MEDIA_ASSET": 216,
+        "IMAGE_ASSET": 2
+      },
+      "missing_historical_metadata": {
+        "original_query_id": 91115,
+        "original_response_id": 91115,
+        "generator_lineage": 91115,
+        "original_url_map": 91115,
+        "asset_manifest": 91115,
+        "intent": 91115
+      },
+      "examples": {
+        "placeholder_rich_no_map": [
+          {
+            "coordinate": "train:1",
+            "placeholder_tokens": 10,
+            "real_http_urls": 0,
+            "url_map_entries": 0,
+            "source_preview": "## TOPIK II Intensive Final Sprint Media: Icon=[ICON_URL_1] This 3-day high-impact plan focuses on bridging the gap between intermediate knowledge and the rigor"
+          },
+          {
+            "coordinate": "train:5",
+            "placeholder_tokens": 3,
+            "real_http_urls": 0,
+            "url_map_entries": 0,
+            "source_preview": "## Mortgage Payment Overview Media: Icon=[ICON_URL_1] For a loan amount of **$450,000** over **30 years** at a fixed rate of **6.5%**, your estimated monthly pr"
+          },
+          {
+            "coordinate": "train:6",
+            "placeholder_tokens": 3,
+            "real_http_urls": 0,
+            "url_map_entries": 0,
+            "source_preview": "## TechCorp Annual Revenue Analysis Media: Icon=[ICON_URL_1] TechCorp shows a fluctuating revenue pattern across the fiscal year, peaking significantly in the f"
+          },
+          {
+            "coordinate": "train:7",
+            "placeholder_tokens": 4,
+            "real_http_urls": 0,
+            "url_map_entries": 0,
+            "source_preview": "## Global AI Summit 2024 Event Overview Media: Icon=[ICON_URL_1] The summit features a concentrated series of keynotes, technical panels, and live demonstration"
+          },
+          {
+            "coordinate": "train:8",
+            "placeholder_tokens": 6,
+            "real_http_urls": 0,
+            "url_map_entries": 0,
+            "source_preview": "## High-Protein Nutrition Strategy Media: Icon=[ICON_URL_1] This plan focuses on a **2,000-calorie daily intake** with a high-protein emphasis (~150g-170g per d"
+          }
+        ],
+        "real_url_nonempty_map": [
+          {
+            "coordinate": "train:306",
+            "placeholder_tokens": 9,
+            "real_http_urls": 2,
+            "url_map_entries": 9,
+            "source_preview": "## QR Code Generator Design Specification Media: Icon=[ICON_URL_1] This blueprint outlines a professional, single-page utility for generating customized QR code"
+          },
+          {
+            "coordinate": "train:435",
+            "placeholder_tokens": 6,
+            "real_http_urls": 2,
+            "url_map_entries": 6,
+            "source_preview": "## QR Code Generator Design Blueprint Media: Icon=[ICON_URL_1] This layout focuses on a \"Single-Page App\" (SPA) feel, prioritizing a live-preview loop where cha"
+          },
+          {
+            "coordinate": "train:1259",
+            "placeholder_tokens": 9,
+            "real_http_urls": 1,
+            "url_map_entries": 9,
+            "source_preview": "## APA 7th Edition Citation Essentials Media: Icon=[ICON_URL_1] APA 7th edition simplifies the citation process by removing the publisher location for books and"
+          },
+          {
+            "coordinate": "train:6923",
+            "placeholder_tokens": 4,
+            "real_http_urls": 2,
+            "url_map_entries": 4,
+            "source_preview": "## OpenTable Sync Discrepancy Analysis Media: Icon=[ICON_URL_1] The mismatch between your OpenTable dashboard (available) and your website widget (unavailable) "
+          },
+          {
+            "coordinate": "train:7002",
+            "placeholder_tokens": 8,
+            "real_http_urls": 1,
+            "url_map_entries": 8,
+            "source_preview": "## Branded QR Generator Overview Media: Icon=[ICON_URL_1] This interface provides business owners with a streamlined, three-step configuration process to transf"
+          }
+        ],
+        "real_url_empty_map": []
+      }
+    },
+    "val": {
+      "file_sha256": "b5024919ea0c3557cad452193f90f7133919bb0c10e4ece05fe1a54278cb0fa7",
+      "counts": {
+        "rows": 1862,
+        "has_placeholder": 1859,
+        "placeholder_rich_3plus": 1778,
+        "has_real_http_url": 0,
+        "has_other_scheme_reference": 1,
+        "placeholder_only_no_real_http": 1859,
+        "real_http_only_no_placeholder": 0,
+        "placeholder_and_real_http": 0,
+        "neither_placeholder_nor_real_http": 3,
+        "source_placeholder_occurrences": 12549,
+        "source_distinct_placeholder_tokens": 11903,
+        "source_real_http_url_occurrences": 0,
+        "url_metadata_present": 1862,
+        "url_map_nonempty": 928,
+        "url_map_entries": 5595,
+        "source_tokens_mapped_by_current_map": 5595,
+        "source_tokens_unmapped_by_current_map": 6308,
+        "placeholder_rows_all_tokens_mapped": 928,
+        "placeholder_rows_partial_map": 0,
+        "placeholder_rows_no_tokens_mapped": 931,
+        "map_entries_http_url": 5595,
+        "map_entries_local_asset": 0,
+        "has_placeholder_and_empty_map": 931,
+        "has_real_http_and_empty_map": 0,
+        "url_preprocessing_enabled": 928,
+        "url_source_closed": 1862,
+        "original_url_map_marked_missing": 1862,
+        "original_query_id_marked_missing": 1862,
+        "generator_lineage_marked_missing": 1862,
+        "asset_manifest_marked_missing": 1862,
+        "source_model_family_present": 0
+      },
+      "placeholder_kind_distinct_token_totals": {
+        "ACTION_URL": 4700,
+        "ICON_URL": 5490,
+        "SOURCE_URL": 1663,
+        "IMAGE_URL": 49,
+        "MEDIA_ASSET": 1
+      },
+      "missing_historical_metadata": {
+        "original_query_id": 1862,
+        "original_response_id": 1862,
+        "generator_lineage": 1862,
+        "original_url_map": 1862,
+        "asset_manifest": 1862,
+        "intent": 1862
+      },
+      "examples": {
+        "placeholder_rich_no_map": [
+          {
+            "coordinate": "val:2",
+            "placeholder_tokens": 7,
+            "real_http_urls": 0,
+            "url_map_entries": 0,
+            "source_preview": "## Understanding the Jeonse Rental System Media: Icon=[ICON_URL_1] Jeonse is a unique Korean housing lease system where the tenant provides a large lump-sum dep"
+          },
+          {
+            "coordinate": "val:6",
+            "placeholder_tokens": 7,
+            "real_http_urls": 0,
+            "url_map_entries": 0,
+            "source_preview": "# Spring Date Night Menu Media: Icon=[ICON_URL_1] A curated three-course vegetarian experience featuring bright, seasonal spring produce designed for elegance a"
+          },
+          {
+            "coordinate": "val:8",
+            "placeholder_tokens": 7,
+            "real_http_urls": 0,
+            "url_map_entries": 0,
+            "source_preview": "## Vancouver Townhome Search Strategy Media: Icon=[ICON_URL_1] To find a 2-bedroom townhouse within a $900,000 budget that meets high walkability and convenienc"
+          },
+          {
+            "coordinate": "val:11",
+            "placeholder_tokens": 5,
+            "real_http_urls": 0,
+            "url_map_entries": 0,
+            "source_preview": "## Order #88219 Delivery Status Media: Icon=[ICON_URL_1] Your package is currently **Out for Delivery** and is expected to arrive today in Tokyo, Japan. ## Deli"
+          },
+          {
+            "coordinate": "val:12",
+            "placeholder_tokens": 7,
+            "real_http_urls": 0,
+            "url_map_entries": 0,
+            "source_preview": "## Honda Odyssey Road Trip Readiness Media: Icon=[ICON_URL_1] Ensuring your 2011 Honda Odyssey is in peak condition for a 2,000-mile journey involves focusing o"
+          }
+        ],
+        "real_url_nonempty_map": [],
+        "real_url_empty_map": []
+      }
+    }
+  },
+  "limits": [
+    "A nonempty current url_preprocessing.url_map can map newly recognized real references, but it does not prove recovery of the historical map for preexisting placeholders.",
+    "Presence of placeholders is a surface signal; it does not prove a URL is invalid or absent from the original response.",
+    "The HTTP regex is intentionally narrow. Other URI schemes are counted separately; local asset paths are not categorized as HTTP URLs."
+  ]
+}

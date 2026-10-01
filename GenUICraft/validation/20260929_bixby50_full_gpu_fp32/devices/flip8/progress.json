@@ -1,0 +1,16 @@
+{
+  "serial": "R3GL203AKSF",
+  "phase": "between_batches",
+  "completedBatches": [
+    "missing_013_015_mtp_on",
+    "cases_016_020_mtp_off",
+    "cases_016_020_mtp_on",
+    "cases_021_025_mtp_on",
+    "cases_021_025_mtp_off",
+    "cases_026_030_mtp_off",
+    "cases_026_030_mtp_on",
+    "cases_031_031_mtp_on",
+    "cases_031_031_mtp_off"
+  ],
+  "lastRunId": "v54_full_flip8_cases_031_031_mtp_off_1790703589"
+}

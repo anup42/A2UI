@@ -1,0 +1,13 @@
+{
+  "label": "fp16_smoke",
+  "precision": "FP16_CORRECTED",
+  "mtpRequested": false,
+  "completed": 1,
+  "total": 1,
+  "runComplete": true,
+  "rawStrictValid": 1,
+  "repairedStrictValid": 1,
+  "sdkRenderSmokeValid": 1,
+  "closeError": null,
+  "finishedAtEpochMs": 1790722102549
+}

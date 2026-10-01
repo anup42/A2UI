@@ -1,0 +1,12 @@
+<a2ui>
+$/={civil_lines:[{feature:"Access to sights",detail:"Good for reaching central Jaipur and many major sights by taxi or auto, with a practical location near the city center."},{feature:"Transport",detail:"Strong road access and usually easier ride-hailing connectivity than outer areas."},{feature:"Atmosphere",detail:"Quieter, more residential, and typically less hectic than the old-city core."},{feature:"Main drawback",detail:"Not the most walkable or characterful area if you want bazaars and heritage streets right outside the hotel."}],c_scheme:[{feature:"Access to sights",detail:"One of the best all-around bases for a first visit because it sits close to core attractions and city amenities."},{feature:"Transport",detail:"Easy to move around by cab, auto, and local roads, making day planning straightforward."},{feature:"Atmosphere",detail:"Busy, urban, and convenient, with a more modern city feel."},{feature:"Main drawback",detail:"Less historic atmosphere than staying nearer the old city, so it can feel more generic."}],vaishali_nagar:[{feature:"Access to sights",detail:"Useful for outer-west Jaipur and still workable for major attractions by car, but farther from the heritage core."},{feature:"Transport",detail:"Well connected by road, though trips to older sights usually take longer."},{feature:"Atmosphere",detail:"Residential, popular, and generally comfortable for mid-range hotels."},{feature:"Main drawback",detail:"Distance from Amber, the old city, and central monuments makes sightseeing less efficient."}]}
+root=Column([a,b,c,g],gap="md",padding=16)
+a=Text("Civil Lines","h2")
+b=Table(columns=[{key:"feature",label:"Feature"},{key:"detail",label:"Details"}],statePath="/civil_lines",domain="comparison",preferredPresentation="cards")
+c=Column([d,e],"sm")
+d=Text("C-Scheme / central Jaipur","h2")
+e=Table(columns=[{key:"feature",label:"Feature"},{key:"detail",label:"Details"}],statePath="/c_scheme",domain="comparison",preferredPresentation="cards")
+f=Column([g,h],"sm")
+g=Text("Vaishali Nagar","h2")
+h=Table(columns=[{key:"feature",label:"Feature"},{key:"detail",label:"Details"}],statePath="/vaishali_nagar",domain="comparison",preferredPresentation="cards")
+</a2ui>

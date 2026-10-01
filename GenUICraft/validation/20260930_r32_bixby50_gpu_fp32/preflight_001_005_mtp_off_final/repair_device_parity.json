@@ -1,0 +1,42 @@
+[
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-001",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_001_005_mtp_off\\BXP-001\\a2ui.json",
+    "device_a2ui_sha256": "fa552d0b1a808b5acbca045ae9c74a74a868d646350de27852c7f67952e7a853",
+    "host_a2ui_sha256": "fa552d0b1a808b5acbca045ae9c74a74a868d646350de27852c7f67952e7a853",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-002",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_001_005_mtp_off\\BXP-002\\a2ui.json",
+    "device_a2ui_sha256": "bec2df34e74e4ac965af1074e41ac7075da5851694a77db82536c0fc7c831f2c",
+    "host_a2ui_sha256": "bec2df34e74e4ac965af1074e41ac7075da5851694a77db82536c0fc7c831f2c",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-003",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_001_005_mtp_off\\BXP-003\\a2ui.json",
+    "device_a2ui_sha256": "a4e5baa88ee6ff82bab044a57bba9927ad92d982fd9c4d35f29016541b2a2350",
+    "host_a2ui_sha256": "a4e5baa88ee6ff82bab044a57bba9927ad92d982fd9c4d35f29016541b2a2350",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-004",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_001_005_mtp_off\\BXP-004\\a2ui.json",
+    "device_a2ui_sha256": "ceccea1d27e445302c47c8c8c077c262fc9abb78b1da3f816d6a247f9fd75e9f",
+    "host_a2ui_sha256": "ceccea1d27e445302c47c8c8c077c262fc9abb78b1da3f816d6a247f9fd75e9f",
+    "json_structure_and_values_equal": true
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-005",
+    "device_a2ui_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_001_005_mtp_off\\BXP-005\\a2ui.json",
+    "device_a2ui_sha256": "444b73d6b4ba1034e854bb6ca65e3374b19f75a2dfc18b8612434dfe4c63d257",
+    "host_a2ui_sha256": "444b73d6b4ba1034e854bb6ca65e3374b19f75a2dfc18b8612434dfe4c63d257",
+    "json_structure_and_values_equal": true
+  }
+]

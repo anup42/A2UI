@@ -1,0 +1,1 @@
+CANNOT LINK EXECUTABLE "/data/local/tmp/r64_gpu_controls/probe": library ".tmp\r64_gpu_controls\c_api\lib\android_arm64\liblitert-lm.so" not found: needed by main executable

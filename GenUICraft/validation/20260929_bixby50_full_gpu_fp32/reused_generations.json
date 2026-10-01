@@ -1,0 +1,245 @@
+[
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-001",
+    "serial": "R3GL203AKSF",
+    "source_run": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_01_mtp_off",
+    "raw_input_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_01_mtp_off\\BXP-001\\output.express",
+    "sha256": "ec835d1214b014e0b9ffbf496272b1baa9bacafbb407d07777e1300633323369",
+    "generation_origin": "prior_verified"
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-002",
+    "serial": "R3GL203AKSF",
+    "source_run": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_01_mtp_off",
+    "raw_input_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_01_mtp_off\\BXP-002\\output.express",
+    "sha256": "8ff64d5608c1d53089b225541b4543cfe6e28bf8110ef6995517cfdc929b7dfc",
+    "generation_origin": "prior_verified"
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-003",
+    "serial": "R3GL203AKSF",
+    "source_run": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_01_mtp_off",
+    "raw_input_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_01_mtp_off\\BXP-003\\output.express",
+    "sha256": "1161435a54a7f852892f803e11b73d25b61e1a1c3794c8adf070431844df4e94",
+    "generation_origin": "prior_verified"
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-004",
+    "serial": "R3GL203AKSF",
+    "source_run": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_01_mtp_off",
+    "raw_input_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_01_mtp_off\\BXP-004\\output.express",
+    "sha256": "22dd1cca5d0c6adfb5ce4b21bc173df11994fda4fe60a536cfb5e8951889f277",
+    "generation_origin": "prior_verified"
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-005",
+    "serial": "R3GL203AKSF",
+    "source_run": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_01_mtp_off",
+    "raw_input_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_01_mtp_off\\BXP-005\\output.express",
+    "sha256": "a79e47c49163ddb89130dd7091a18493625767c454cc0422f56d11fde958c10a",
+    "generation_origin": "prior_verified"
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-001",
+    "serial": "R3GL203AKSF",
+    "source_run": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_01_mtp_on",
+    "raw_input_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_01_mtp_on\\BXP-001\\output.express",
+    "sha256": "f2eb2e4ccb4b08c86b290437dcb3bbc2af133c22dc4a49644bfaa253f9bd7072",
+    "generation_origin": "prior_verified"
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-002",
+    "serial": "R3GL203AKSF",
+    "source_run": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_01_mtp_on",
+    "raw_input_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_01_mtp_on\\BXP-002\\output.express",
+    "sha256": "8ff64d5608c1d53089b225541b4543cfe6e28bf8110ef6995517cfdc929b7dfc",
+    "generation_origin": "prior_verified"
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-003",
+    "serial": "R3GL203AKSF",
+    "source_run": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_01_mtp_on",
+    "raw_input_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_01_mtp_on\\BXP-003\\output.express",
+    "sha256": "fffd01b422e93376fb9d4fed259716d0e43dfa7b6dba3102d22b6191764fb92c",
+    "generation_origin": "prior_verified"
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-004",
+    "serial": "R3GL203AKSF",
+    "source_run": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_01_mtp_on",
+    "raw_input_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_01_mtp_on\\BXP-004\\output.express",
+    "sha256": "1f637e6bfc13783e04035585acdc24615cda75dca0339c0c2c56a9c054a540e9",
+    "generation_origin": "prior_verified"
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-005",
+    "serial": "R3GL203AKSF",
+    "source_run": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_01_mtp_on",
+    "raw_input_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_01_mtp_on\\BXP-005\\output.express",
+    "sha256": "98719f3afc96d2f8dc358acb9113fff6aac92219b27e37bf1daee31e1e647813",
+    "generation_origin": "prior_verified"
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-006",
+    "serial": "R3GL203AKSF",
+    "source_run": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_02_mtp_off",
+    "raw_input_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_02_mtp_off\\BXP-006\\output.express",
+    "sha256": "92bc56c1f90257557f082a5eb6a5c7cc38a41b5e23389fa8ede5a9605877a4cc",
+    "generation_origin": "prior_verified"
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-007",
+    "serial": "R3GL203AKSF",
+    "source_run": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_02_mtp_off",
+    "raw_input_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_02_mtp_off\\BXP-007\\output.express",
+    "sha256": "529cbb4673f571f989b1c58c7b733965f4c68c5fc8d0fdc18f84c1c6a71c015e",
+    "generation_origin": "prior_verified"
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-008",
+    "serial": "R3GL203AKSF",
+    "source_run": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_02_mtp_off",
+    "raw_input_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_02_mtp_off\\BXP-008\\output.express",
+    "sha256": "7912a110369ee05b2c18e1dcb94939a3698b3661d8d559b738ef8a0ba4e83715",
+    "generation_origin": "prior_verified"
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-009",
+    "serial": "R3GL203AKSF",
+    "source_run": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_02_mtp_off",
+    "raw_input_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_02_mtp_off\\BXP-009\\output.express",
+    "sha256": "1fef84b96b46c04b8ede8ea97395f07130631488367e14e72462f09385e7e43b",
+    "generation_origin": "prior_verified"
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-010",
+    "serial": "R3GL203AKSF",
+    "source_run": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_02_mtp_off",
+    "raw_input_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_02_mtp_off\\BXP-010\\output.express",
+    "sha256": "1f58dd21318ad271e19935cd0449bcbd1bd227faf1db72a856d6eb3c634f1532",
+    "generation_origin": "prior_verified"
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-006",
+    "serial": "R3GL203AKSF",
+    "source_run": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_02_mtp_on",
+    "raw_input_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_02_mtp_on\\BXP-006\\output.express",
+    "sha256": "1498b23d826b8390776fd40d24b4c959b487a006eee733a6a461a1d64c94899d",
+    "generation_origin": "prior_verified"
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-007",
+    "serial": "R3GL203AKSF",
+    "source_run": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_02_mtp_on",
+    "raw_input_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_02_mtp_on\\BXP-007\\output.express",
+    "sha256": "1e134e08493909e4a87ce9cfffa8cc88019f8d7366f0ed8d7909cfa0e5fd2667",
+    "generation_origin": "prior_verified"
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-008",
+    "serial": "R3GL203AKSF",
+    "source_run": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_02_mtp_on",
+    "raw_input_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_02_mtp_on\\BXP-008\\output.express",
+    "sha256": "071d48e5d955938ccc3439e28c1f39497cd8fba8c0f94d57dc9ce4d21e305f77",
+    "generation_origin": "prior_verified"
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-009",
+    "serial": "R3GL203AKSF",
+    "source_run": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_02_mtp_on",
+    "raw_input_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_02_mtp_on\\BXP-009\\output.express",
+    "sha256": "dad4c866ca093dec12b63a6f591b92dab210151dca405d36eae3d3184bd112aa",
+    "generation_origin": "prior_verified"
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-010",
+    "serial": "R3GL203AKSF",
+    "source_run": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_02_mtp_on",
+    "raw_input_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_02_mtp_on\\BXP-010\\output.express",
+    "sha256": "4ed16522ca453777d2ca50b64fe9db5753d33b087886f5e332b504a439e4ec97",
+    "generation_origin": "prior_verified"
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-011",
+    "serial": "R3GL203AKSF",
+    "source_run": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_03_mtp_off",
+    "raw_input_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_03_mtp_off\\BXP-011\\output.express",
+    "sha256": "3bf9e7972919ef6bd8f16f26c0ecb8d75abe436632eded13885d6bd3c9eca146",
+    "generation_origin": "prior_verified"
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-012",
+    "serial": "R3GL203AKSF",
+    "source_run": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_03_mtp_off",
+    "raw_input_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_03_mtp_off\\BXP-012\\output.express",
+    "sha256": "b6051be0a530f96e38b80c029abec37c38bfd2921a777f398ebebb219a78803e",
+    "generation_origin": "prior_verified"
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-013",
+    "serial": "R3GL203AKSF",
+    "source_run": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_03_mtp_off",
+    "raw_input_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_03_mtp_off\\BXP-013\\output.express",
+    "sha256": "4c31ee5b8f157a735066f877f235e1d4fdebf3d2bbaed8fbff4f6fe8d0b08ea6",
+    "generation_origin": "prior_verified"
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-014",
+    "serial": "R3GL203AKSF",
+    "source_run": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_03_mtp_off",
+    "raw_input_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_03_mtp_off\\BXP-014\\output.express",
+    "sha256": "d73d815523c028a9617c8937d76ac504de9564b47f24a5240c50e8c05adbcb62",
+    "generation_origin": "prior_verified"
+  },
+  {
+    "model": "litert_mtp_off",
+    "id": "BXP-015",
+    "serial": "R3GL203AKSF",
+    "source_run": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_03_mtp_off",
+    "raw_input_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_03_mtp_off\\BXP-015\\output.express",
+    "sha256": "1205143885a79210a18bd271081ae28b8cfd6ac3eb19b0b339412467f730e4e4",
+    "generation_origin": "prior_verified"
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-011",
+    "serial": "R3GL203AKSF",
+    "source_run": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_03_mtp_on",
+    "raw_input_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_03_mtp_on\\BXP-011\\output.express",
+    "sha256": "f665fa74fee2bd7d62305f4ea36a9c88fde097d92d35d65bb27a3a79df1bf8bb",
+    "generation_origin": "prior_verified"
+  },
+  {
+    "model": "litert_mtp_on",
+    "id": "BXP-012",
+    "serial": "R3GL203AKSF",
+    "source_run": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_03_mtp_on",
+    "raw_input_file": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260928_fp32_bixby50_mtp\\batches\\group_03_mtp_on\\BXP-012\\output.express",
+    "sha256": "b03407c8c1f9bce7fa8744517b7db79e0afe7003598534b82a2773d2631bf6c7",
+    "generation_origin": "prior_verified"
+  }
+]

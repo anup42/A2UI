@@ -1,0 +1,880 @@
+{
+  "created_at_utc": "2026-09-29T16:49:48.048040+00:00",
+  "metric_identity": {
+    "metric_version": "5.4.0",
+    "metric_name": "GenUI Representation Quality",
+    "metric_fingerprint": "3472befab7a179db4302b95a1ba3fa7cbd67858db86cc9f8ba0d96e3a4034a95",
+    "reward_pipeline_fingerprint": "24e352841c215e3f88f0347fe836ffae3354e6505e96fcae4c1ce3cd0071375a"
+  },
+  "score_scope": "Raw source-grounded generation quality; not factual accuracy",
+  "all_available": {
+    "checkpoint_r32": {
+      "n": 50,
+      "ids": [
+        "BXP-001",
+        "BXP-002",
+        "BXP-003",
+        "BXP-004",
+        "BXP-005",
+        "BXP-006",
+        "BXP-007",
+        "BXP-008",
+        "BXP-009",
+        "BXP-010",
+        "BXP-011",
+        "BXP-012",
+        "BXP-013",
+        "BXP-014",
+        "BXP-015",
+        "BXP-016",
+        "BXP-017",
+        "BXP-018",
+        "BXP-019",
+        "BXP-020",
+        "BXP-021",
+        "BXP-022",
+        "BXP-023",
+        "BXP-024",
+        "BXP-025",
+        "BXP-026",
+        "BXP-027",
+        "BXP-028",
+        "BXP-029",
+        "BXP-030",
+        "BXP-031",
+        "BXP-032",
+        "BXP-033",
+        "BXP-034",
+        "BXP-035",
+        "BXP-036",
+        "BXP-037",
+        "BXP-038",
+        "BXP-039",
+        "BXP-040",
+        "BXP-041",
+        "BXP-042",
+        "BXP-043",
+        "BXP-044",
+        "BXP-045",
+        "BXP-046",
+        "BXP-047",
+        "BXP-048",
+        "BXP-049",
+        "BXP-050"
+      ],
+      "mean": 37.80077516274085,
+      "median": 40.0,
+      "min": 0.0,
+      "max": 99.1698755261037,
+      "strict_valid": 30,
+      "wire_valid": 30,
+      "fully_reachable": 11,
+      "zero_score": 20,
+      "at_least_80": 11,
+      "active_cap_case_counts": {
+        "reachability_below_90": 16,
+        "partial_reachability": 3,
+        "parse_failure": 20,
+        "missing_special_role": 1
+      },
+      "dimensions_observed_only": {
+        "integrity": {
+          "observed_count": 30,
+          "mean_0_100": 97.91555685992317
+        },
+        "fidelity": {
+          "observed_count": 30,
+          "mean_0_100": 78.83878144679566
+        },
+        "semantic_mapping": {
+          "observed_count": 30,
+          "mean_0_100": 98.2051282051282
+        },
+        "hierarchy": {
+          "observed_count": 30,
+          "mean_0_100": 95.46300694441233
+        },
+        "economy": {
+          "observed_count": 30,
+          "mean_0_100": 97.01471861471862
+        },
+        "accessibility": {
+          "observed_count": 50,
+          "mean_0_100": 100.0
+        }
+      },
+      "finish_reason_counts": {
+        "closing_sentinel": 37,
+        "max_new_tokens": 13
+      }
+    },
+    "checkpoint_r64": {
+      "n": 50,
+      "ids": [
+        "BXP-001",
+        "BXP-002",
+        "BXP-003",
+        "BXP-004",
+        "BXP-005",
+        "BXP-006",
+        "BXP-007",
+        "BXP-008",
+        "BXP-009",
+        "BXP-010",
+        "BXP-011",
+        "BXP-012",
+        "BXP-013",
+        "BXP-014",
+        "BXP-015",
+        "BXP-016",
+        "BXP-017",
+        "BXP-018",
+        "BXP-019",
+        "BXP-020",
+        "BXP-021",
+        "BXP-022",
+        "BXP-023",
+        "BXP-024",
+        "BXP-025",
+        "BXP-026",
+        "BXP-027",
+        "BXP-028",
+        "BXP-029",
+        "BXP-030",
+        "BXP-031",
+        "BXP-032",
+        "BXP-033",
+        "BXP-034",
+        "BXP-035",
+        "BXP-036",
+        "BXP-037",
+        "BXP-038",
+        "BXP-039",
+        "BXP-040",
+        "BXP-041",
+        "BXP-042",
+        "BXP-043",
+        "BXP-044",
+        "BXP-045",
+        "BXP-046",
+        "BXP-047",
+        "BXP-048",
+        "BXP-049",
+        "BXP-050"
+      ],
+      "mean": 32.3728397312496,
+      "median": 40.0,
+      "min": 0.0,
+      "max": 99.006835443542,
+      "strict_valid": 29,
+      "wire_valid": 29,
+      "fully_reachable": 6,
+      "zero_score": 21,
+      "at_least_80": 6,
+      "active_cap_case_counts": {
+        "reachability_below_90": 19,
+        "parse_failure": 21,
+        "partial_reachability": 4,
+        "missing_table": 1,
+        "missing_special_role": 1
+      },
+      "dimensions_observed_only": {
+        "integrity": {
+          "observed_count": 29,
+          "mean_0_100": 97.8179673983491
+        },
+        "fidelity": {
+          "observed_count": 29,
+          "mean_0_100": 79.29116551979638
+        },
+        "semantic_mapping": {
+          "observed_count": 29,
+          "mean_0_100": 96.28647214854111
+        },
+        "hierarchy": {
+          "observed_count": 29,
+          "mean_0_100": 95.24201567116307
+        },
+        "economy": {
+          "observed_count": 29,
+          "mean_0_100": 94.95761662383674
+        },
+        "accessibility": {
+          "observed_count": 50,
+          "mean_0_100": 100.0
+        }
+      },
+      "finish_reason_counts": {
+        "closing_sentinel": 43,
+        "max_new_tokens": 7
+      }
+    },
+    "litert_mtp_off": {
+      "n": 15,
+      "ids": [
+        "BXP-001",
+        "BXP-002",
+        "BXP-003",
+        "BXP-004",
+        "BXP-005",
+        "BXP-006",
+        "BXP-007",
+        "BXP-008",
+        "BXP-009",
+        "BXP-010",
+        "BXP-011",
+        "BXP-012",
+        "BXP-013",
+        "BXP-014",
+        "BXP-015"
+      ],
+      "mean": 59.77462956264591,
+      "median": 70.0,
+      "min": 0.0,
+      "max": 99.006835443542,
+      "strict_valid": 12,
+      "wire_valid": 12,
+      "fully_reachable": 6,
+      "zero_score": 3,
+      "at_least_80": 6,
+      "active_cap_case_counts": {
+        "reachability_below_90": 3,
+        "partial_reachability": 3,
+        "parse_failure": 3
+      },
+      "dimensions_observed_only": {
+        "integrity": {
+          "observed_count": 12,
+          "mean_0_100": 98.49260461760461
+        },
+        "fidelity": {
+          "observed_count": 12,
+          "mean_0_100": 80.57472402666667
+        },
+        "semantic_mapping": {
+          "observed_count": 12,
+          "mean_0_100": 100.0
+        },
+        "hierarchy": {
+          "observed_count": 12,
+          "mean_0_100": 92.52083138785638
+        },
+        "economy": {
+          "observed_count": 12,
+          "mean_0_100": 96.83585858585857
+        },
+        "accessibility": {
+          "observed_count": 15,
+          "mean_0_100": 100.0
+        }
+      },
+      "finish_reason_counts": {
+        "COMPLETED": 15
+      }
+    },
+    "sdk_mtp_off": {
+      "n": 15,
+      "ids": [
+        "BXP-001",
+        "BXP-002",
+        "BXP-003",
+        "BXP-004",
+        "BXP-005",
+        "BXP-006",
+        "BXP-007",
+        "BXP-008",
+        "BXP-009",
+        "BXP-010",
+        "BXP-011",
+        "BXP-012",
+        "BXP-013",
+        "BXP-014",
+        "BXP-015"
+      ],
+      "mean": 93.48252667325725,
+      "median": 95.7279513080049,
+      "min": 70.0,
+      "max": 99.006835443542,
+      "strict_valid": 15,
+      "wire_valid": 15,
+      "fully_reachable": 14,
+      "zero_score": 0,
+      "at_least_80": 14,
+      "active_cap_case_counts": {
+        "partial_reachability": 1
+      },
+      "dimensions_observed_only": {
+        "integrity": {
+          "observed_count": 15,
+          "mean_0_100": 99.97619047619047
+        },
+        "fidelity": {
+          "observed_count": 15,
+          "mean_0_100": 89.18073904912393
+        },
+        "semantic_mapping": {
+          "observed_count": 15,
+          "mean_0_100": 100.0
+        },
+        "hierarchy": {
+          "observed_count": 15,
+          "mean_0_100": 92.60041045058685
+        },
+        "economy": {
+          "observed_count": 15,
+          "mean_0_100": 100.0
+        },
+        "accessibility": {
+          "observed_count": 15,
+          "mean_0_100": 100.0
+        }
+      },
+      "finish_reason_counts": {
+        "COMPLETED": 15
+      }
+    },
+    "litert_mtp_on": {
+      "n": 12,
+      "ids": [
+        "BXP-001",
+        "BXP-002",
+        "BXP-003",
+        "BXP-004",
+        "BXP-005",
+        "BXP-006",
+        "BXP-007",
+        "BXP-008",
+        "BXP-009",
+        "BXP-010",
+        "BXP-011",
+        "BXP-012"
+      ],
+      "mean": 46.30188192304855,
+      "median": 40.0,
+      "min": 0.0,
+      "max": 95.7279513080049,
+      "strict_valid": 8,
+      "wire_valid": 8,
+      "fully_reachable": 4,
+      "zero_score": 4,
+      "at_least_80": 4,
+      "active_cap_case_counts": {
+        "reachability_below_90": 3,
+        "parse_failure": 4,
+        "partial_reachability": 1
+      },
+      "dimensions_observed_only": {
+        "integrity": {
+          "observed_count": 8,
+          "mean_0_100": 98.25
+        },
+        "fidelity": {
+          "observed_count": 8,
+          "mean_0_100": 77.16259636438988
+        },
+        "semantic_mapping": {
+          "observed_count": 8,
+          "mean_0_100": 100.0
+        },
+        "hierarchy": {
+          "observed_count": 8,
+          "mean_0_100": 89.67184515777113
+        },
+        "economy": {
+          "observed_count": 8,
+          "mean_0_100": 99.54545454545455
+        },
+        "accessibility": {
+          "observed_count": 12,
+          "mean_0_100": 100.0
+        }
+      },
+      "finish_reason_counts": {
+        "COMPLETED": 12
+      }
+    },
+    "sdk_mtp_on": {
+      "n": 12,
+      "ids": [
+        "BXP-001",
+        "BXP-002",
+        "BXP-003",
+        "BXP-004",
+        "BXP-005",
+        "BXP-006",
+        "BXP-007",
+        "BXP-008",
+        "BXP-009",
+        "BXP-010",
+        "BXP-011",
+        "BXP-012"
+      ],
+      "mean": 94.19714410824007,
+      "median": 95.29513059534221,
+      "min": 89.25661954636809,
+      "max": 99.006835443542,
+      "strict_valid": 12,
+      "wire_valid": 12,
+      "fully_reachable": 12,
+      "zero_score": 0,
+      "at_least_80": 12,
+      "active_cap_case_counts": {},
+      "dimensions_observed_only": {
+        "integrity": {
+          "observed_count": 12,
+          "mean_0_100": 100.0
+        },
+        "fidelity": {
+          "observed_count": 12,
+          "mean_0_100": 86.94947926158764
+        },
+        "semantic_mapping": {
+          "observed_count": 12,
+          "mean_0_100": 100.0
+        },
+        "hierarchy": {
+          "observed_count": 12,
+          "mean_0_100": 90.84154717770518
+        },
+        "economy": {
+          "observed_count": 12,
+          "mean_0_100": 100.0
+        },
+        "accessibility": {
+          "observed_count": 12,
+          "mean_0_100": 100.0
+        }
+      },
+      "finish_reason_counts": {
+        "COMPLETED": 12
+      }
+    }
+  },
+  "paired_ids": [
+    "BXP-001",
+    "BXP-002",
+    "BXP-003",
+    "BXP-004",
+    "BXP-005",
+    "BXP-006",
+    "BXP-007",
+    "BXP-008",
+    "BXP-009",
+    "BXP-010",
+    "BXP-011",
+    "BXP-012"
+  ],
+  "paired": {
+    "checkpoint_r32": {
+      "n": 12,
+      "ids": [
+        "BXP-001",
+        "BXP-002",
+        "BXP-003",
+        "BXP-004",
+        "BXP-005",
+        "BXP-006",
+        "BXP-007",
+        "BXP-008",
+        "BXP-009",
+        "BXP-010",
+        "BXP-011",
+        "BXP-012"
+      ],
+      "mean": 52.75056853019689,
+      "median": 55.0,
+      "min": 0.0,
+      "max": 95.7279513080049,
+      "strict_valid": 9,
+      "wire_valid": 9,
+      "fully_reachable": 4,
+      "zero_score": 3,
+      "at_least_80": 4,
+      "active_cap_case_counts": {
+        "reachability_below_90": 3,
+        "partial_reachability": 2,
+        "parse_failure": 3
+      },
+      "dimensions_observed_only": {
+        "integrity": {
+          "observed_count": 9,
+          "mean_0_100": 98.76085841219941
+        },
+        "fidelity": {
+          "observed_count": 9,
+          "mean_0_100": 82.04394235627753
+        },
+        "semantic_mapping": {
+          "observed_count": 9,
+          "mean_0_100": 100.0
+        },
+        "hierarchy": {
+          "observed_count": 9,
+          "mean_0_100": 95.13425450629659
+        },
+        "economy": {
+          "observed_count": 9,
+          "mean_0_100": 99.5959595959596
+        },
+        "accessibility": {
+          "observed_count": 12,
+          "mean_0_100": 100.0
+        }
+      },
+      "finish_reason_counts": {
+        "closing_sentinel": 11,
+        "max_new_tokens": 1
+      }
+    },
+    "checkpoint_r64": {
+      "n": 12,
+      "ids": [
+        "BXP-001",
+        "BXP-002",
+        "BXP-003",
+        "BXP-004",
+        "BXP-005",
+        "BXP-006",
+        "BXP-007",
+        "BXP-008",
+        "BXP-009",
+        "BXP-010",
+        "BXP-011",
+        "BXP-012"
+      ],
+      "mean": 43.102199083780256,
+      "median": 40.0,
+      "min": 0.0,
+      "max": 99.006835443542,
+      "strict_valid": 8,
+      "wire_valid": 8,
+      "fully_reachable": 3,
+      "zero_score": 4,
+      "at_least_80": 3,
+      "active_cap_case_counts": {
+        "reachability_below_90": 4,
+        "parse_failure": 4,
+        "partial_reachability": 1
+      },
+      "dimensions_observed_only": {
+        "integrity": {
+          "observed_count": 8,
+          "mean_0_100": 98.24404761904762
+        },
+        "fidelity": {
+          "observed_count": 8,
+          "mean_0_100": 79.94552941430604
+        },
+        "semantic_mapping": {
+          "observed_count": 8,
+          "mean_0_100": 100.0
+        },
+        "hierarchy": {
+          "observed_count": 8,
+          "mean_0_100": 98.02245993091519
+        },
+        "economy": {
+          "observed_count": 8,
+          "mean_0_100": 95.5448717948718
+        },
+        "accessibility": {
+          "observed_count": 12,
+          "mean_0_100": 100.0
+        }
+      },
+      "finish_reason_counts": {
+        "closing_sentinel": 12
+      }
+    },
+    "litert_mtp_off": {
+      "n": 12,
+      "ids": [
+        "BXP-001",
+        "BXP-002",
+        "BXP-003",
+        "BXP-004",
+        "BXP-005",
+        "BXP-006",
+        "BXP-007",
+        "BXP-008",
+        "BXP-009",
+        "BXP-010",
+        "BXP-011",
+        "BXP-012"
+      ],
+      "mean": 58.874608190719776,
+      "median": 70.0,
+      "min": 0.0,
+      "max": 99.006835443542,
+      "strict_valid": 10,
+      "wire_valid": 10,
+      "fully_reachable": 4,
+      "zero_score": 2,
+      "at_least_80": 4,
+      "active_cap_case_counts": {
+        "reachability_below_90": 3,
+        "partial_reachability": 3,
+        "parse_failure": 2
+      },
+      "dimensions_observed_only": {
+        "integrity": {
+          "observed_count": 10,
+          "mean_0_100": 98.19112554112554
+        },
+        "fidelity": {
+          "observed_count": 10,
+          "mean_0_100": 79.17544227873738
+        },
+        "semantic_mapping": {
+          "observed_count": 10,
+          "mean_0_100": 100.0
+        },
+        "hierarchy": {
+          "observed_count": 10,
+          "mean_0_100": 92.00998265041262
+        },
+        "economy": {
+          "observed_count": 10,
+          "mean_0_100": 96.2030303030303
+        },
+        "accessibility": {
+          "observed_count": 12,
+          "mean_0_100": 100.0
+        }
+      },
+      "finish_reason_counts": {
+        "COMPLETED": 12
+      }
+    },
+    "sdk_mtp_off": {
+      "n": 12,
+      "ids": [
+        "BXP-001",
+        "BXP-002",
+        "BXP-003",
+        "BXP-004",
+        "BXP-005",
+        "BXP-006",
+        "BXP-007",
+        "BXP-008",
+        "BXP-009",
+        "BXP-010",
+        "BXP-011",
+        "BXP-012"
+      ],
+      "mean": 92.85046876586168,
+      "median": 95.48874274152442,
+      "min": 70.0,
+      "max": 99.006835443542,
+      "strict_valid": 12,
+      "wire_valid": 12,
+      "fully_reachable": 11,
+      "zero_score": 0,
+      "at_least_80": 11,
+      "active_cap_case_counts": {
+        "partial_reachability": 1
+      },
+      "dimensions_observed_only": {
+        "integrity": {
+          "observed_count": 12,
+          "mean_0_100": 99.9702380952381
+        },
+        "fidelity": {
+          "observed_count": 12,
+          "mean_0_100": 88.96599188254967
+        },
+        "semantic_mapping": {
+          "observed_count": 12,
+          "mean_0_100": 100.0
+        },
+        "hierarchy": {
+          "observed_count": 12,
+          "mean_0_100": 91.71456305072105
+        },
+        "economy": {
+          "observed_count": 12,
+          "mean_0_100": 100.0
+        },
+        "accessibility": {
+          "observed_count": 12,
+          "mean_0_100": 100.0
+        }
+      },
+      "finish_reason_counts": {
+        "COMPLETED": 12
+      }
+    },
+    "litert_mtp_on": {
+      "n": 12,
+      "ids": [
+        "BXP-001",
+        "BXP-002",
+        "BXP-003",
+        "BXP-004",
+        "BXP-005",
+        "BXP-006",
+        "BXP-007",
+        "BXP-008",
+        "BXP-009",
+        "BXP-010",
+        "BXP-011",
+        "BXP-012"
+      ],
+      "mean": 46.30188192304855,
+      "median": 40.0,
+      "min": 0.0,
+      "max": 95.7279513080049,
+      "strict_valid": 8,
+      "wire_valid": 8,
+      "fully_reachable": 4,
+      "zero_score": 4,
+      "at_least_80": 4,
+      "active_cap_case_counts": {
+        "reachability_below_90": 3,
+        "parse_failure": 4,
+        "partial_reachability": 1
+      },
+      "dimensions_observed_only": {
+        "integrity": {
+          "observed_count": 8,
+          "mean_0_100": 98.25
+        },
+        "fidelity": {
+          "observed_count": 8,
+          "mean_0_100": 77.16259636438988
+        },
+        "semantic_mapping": {
+          "observed_count": 8,
+          "mean_0_100": 100.0
+        },
+        "hierarchy": {
+          "observed_count": 8,
+          "mean_0_100": 89.67184515777113
+        },
+        "economy": {
+          "observed_count": 8,
+          "mean_0_100": 99.54545454545455
+        },
+        "accessibility": {
+          "observed_count": 12,
+          "mean_0_100": 100.0
+        }
+      },
+      "finish_reason_counts": {
+        "COMPLETED": 12
+      }
+    },
+    "sdk_mtp_on": {
+      "n": 12,
+      "ids": [
+        "BXP-001",
+        "BXP-002",
+        "BXP-003",
+        "BXP-004",
+        "BXP-005",
+        "BXP-006",
+        "BXP-007",
+        "BXP-008",
+        "BXP-009",
+        "BXP-010",
+        "BXP-011",
+        "BXP-012"
+      ],
+      "mean": 94.19714410824007,
+      "median": 95.29513059534221,
+      "min": 89.25661954636809,
+      "max": 99.006835443542,
+      "strict_valid": 12,
+      "wire_valid": 12,
+      "fully_reachable": 12,
+      "zero_score": 0,
+      "at_least_80": 12,
+      "active_cap_case_counts": {},
+      "dimensions_observed_only": {
+        "integrity": {
+          "observed_count": 12,
+          "mean_0_100": 100.0
+        },
+        "fidelity": {
+          "observed_count": 12,
+          "mean_0_100": 86.94947926158764
+        },
+        "semantic_mapping": {
+          "observed_count": 12,
+          "mean_0_100": 100.0
+        },
+        "hierarchy": {
+          "observed_count": 12,
+          "mean_0_100": 90.84154717770518
+        },
+        "economy": {
+          "observed_count": 12,
+          "mean_0_100": 100.0
+        },
+        "accessibility": {
+          "observed_count": 12,
+          "mean_0_100": 100.0
+        }
+      },
+      "finish_reason_counts": {
+        "COMPLETED": 12
+      }
+    }
+  },
+  "paired_differences": {
+    "checkpoint_r64_minus_checkpoint_r32": {
+      "mean_points": -9.648369446416632,
+      "second_higher": 2,
+      "first_higher": 4,
+      "ties": 6,
+      "n": 12
+    },
+    "litert_mtp_off_minus_checkpoint_r64": {
+      "mean_points": 15.77240910693952,
+      "second_higher": 4,
+      "first_higher": 2,
+      "ties": 6,
+      "n": 12
+    },
+    "litert_mtp_on_minus_checkpoint_r64": {
+      "mean_points": 3.199682839268295,
+      "second_higher": 3,
+      "first_higher": 3,
+      "ties": 6,
+      "n": 12
+    },
+    "litert_mtp_on_minus_litert_mtp_off": {
+      "mean_points": -12.572726267671225,
+      "second_higher": 1,
+      "first_higher": 5,
+      "ties": 6,
+      "n": 12
+    }
+  },
+  "archived_score_reproduction": {
+    "checkpoint_r32": {
+      "archived_mean": 37.80077516274085,
+      "current_mean": 37.80077516274085,
+      "changed_cases": 0,
+      "max_absolute_delta": 0.0
+    },
+    "checkpoint_r64": {
+      "archived_mean": 32.3728397312496,
+      "current_mean": 32.3728397312496,
+      "changed_cases": 0,
+      "max_absolute_delta": 0.0
+    },
+    "litert_mtp_off": {
+      "archived_mean": 59.77462956264591,
+      "current_mean": 59.77462956264591,
+      "changed_cases": 0,
+      "max_absolute_delta": 0.0
+    },
+    "litert_mtp_on": {
+      "archived_mean": 46.30188192304855,
+      "current_mean": 46.30188192304855,
+      "changed_cases": 0,
+      "max_absolute_delta": 0.0
+    }
+  }
+}

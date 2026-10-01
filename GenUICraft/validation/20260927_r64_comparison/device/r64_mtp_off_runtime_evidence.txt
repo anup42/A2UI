@@ -1,0 +1,1 @@
+09-27 18:11:52.027  6712  6881 I GenUICraftRuntime: Gemma4 backend=GPU; MTP=false; MTPRequested=false; modelSupportsMtp=true; thinking=false; metrics=true

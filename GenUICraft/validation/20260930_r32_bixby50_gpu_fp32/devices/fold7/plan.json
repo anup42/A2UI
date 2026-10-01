@@ -1,0 +1,226 @@
+{
+  "serial": "R3CY30QFWLP",
+  "deviceAlias": "fold7",
+  "batches": [
+    {
+      "name": "cases_001_005_mtp_off",
+      "mtp": false,
+      "cases": [
+        "BXP-001",
+        "BXP-002",
+        "BXP-003",
+        "BXP-004",
+        "BXP-005"
+      ]
+    },
+    {
+      "name": "cases_001_005_mtp_on",
+      "mtp": true,
+      "cases": [
+        "BXP-001",
+        "BXP-002",
+        "BXP-003",
+        "BXP-004",
+        "BXP-005"
+      ]
+    },
+    {
+      "name": "cases_006_010_mtp_on",
+      "mtp": true,
+      "cases": [
+        "BXP-006",
+        "BXP-007",
+        "BXP-008",
+        "BXP-009",
+        "BXP-010"
+      ]
+    },
+    {
+      "name": "cases_006_010_mtp_off",
+      "mtp": false,
+      "cases": [
+        "BXP-006",
+        "BXP-007",
+        "BXP-008",
+        "BXP-009",
+        "BXP-010"
+      ]
+    },
+    {
+      "name": "cases_011_015_mtp_off",
+      "mtp": false,
+      "cases": [
+        "BXP-011",
+        "BXP-012",
+        "BXP-013",
+        "BXP-014",
+        "BXP-015"
+      ]
+    },
+    {
+      "name": "cases_011_015_mtp_on",
+      "mtp": true,
+      "cases": [
+        "BXP-011",
+        "BXP-012",
+        "BXP-013",
+        "BXP-014",
+        "BXP-015"
+      ]
+    },
+    {
+      "name": "cases_016_020_mtp_on",
+      "mtp": true,
+      "cases": [
+        "BXP-016",
+        "BXP-017",
+        "BXP-018",
+        "BXP-019",
+        "BXP-020"
+      ]
+    },
+    {
+      "name": "cases_016_020_mtp_off",
+      "mtp": false,
+      "cases": [
+        "BXP-016",
+        "BXP-017",
+        "BXP-018",
+        "BXP-019",
+        "BXP-020"
+      ]
+    },
+    {
+      "name": "cases_021_025_mtp_off",
+      "mtp": false,
+      "cases": [
+        "BXP-021",
+        "BXP-022",
+        "BXP-023",
+        "BXP-024",
+        "BXP-025"
+      ]
+    },
+    {
+      "name": "cases_021_025_mtp_on",
+      "mtp": true,
+      "cases": [
+        "BXP-021",
+        "BXP-022",
+        "BXP-023",
+        "BXP-024",
+        "BXP-025"
+      ]
+    },
+    {
+      "name": "cases_026_030_mtp_on",
+      "mtp": true,
+      "cases": [
+        "BXP-026",
+        "BXP-027",
+        "BXP-028",
+        "BXP-029",
+        "BXP-030"
+      ]
+    },
+    {
+      "name": "cases_026_030_mtp_off",
+      "mtp": false,
+      "cases": [
+        "BXP-026",
+        "BXP-027",
+        "BXP-028",
+        "BXP-029",
+        "BXP-030"
+      ]
+    },
+    {
+      "name": "cases_031_035_mtp_off",
+      "mtp": false,
+      "cases": [
+        "BXP-031",
+        "BXP-032",
+        "BXP-033",
+        "BXP-034",
+        "BXP-035"
+      ]
+    },
+    {
+      "name": "cases_031_035_mtp_on",
+      "mtp": true,
+      "cases": [
+        "BXP-031",
+        "BXP-032",
+        "BXP-033",
+        "BXP-034",
+        "BXP-035"
+      ]
+    },
+    {
+      "name": "cases_036_040_mtp_on",
+      "mtp": true,
+      "cases": [
+        "BXP-036",
+        "BXP-037",
+        "BXP-038",
+        "BXP-039",
+        "BXP-040"
+      ]
+    },
+    {
+      "name": "cases_036_040_mtp_off",
+      "mtp": false,
+      "cases": [
+        "BXP-036",
+        "BXP-037",
+        "BXP-038",
+        "BXP-039",
+        "BXP-040"
+      ]
+    },
+    {
+      "name": "cases_041_045_mtp_off",
+      "mtp": false,
+      "cases": [
+        "BXP-041",
+        "BXP-042",
+        "BXP-043",
+        "BXP-044",
+        "BXP-045"
+      ]
+    },
+    {
+      "name": "cases_041_045_mtp_on",
+      "mtp": true,
+      "cases": [
+        "BXP-041",
+        "BXP-042",
+        "BXP-043",
+        "BXP-044",
+        "BXP-045"
+      ]
+    },
+    {
+      "name": "cases_046_050_mtp_on",
+      "mtp": true,
+      "cases": [
+        "BXP-046",
+        "BXP-047",
+        "BXP-048",
+        "BXP-049",
+        "BXP-050"
+      ]
+    },
+    {
+      "name": "cases_046_050_mtp_off",
+      "mtp": false,
+      "cases": [
+        "BXP-046",
+        "BXP-047",
+        "BXP-048",
+        "BXP-049",
+        "BXP-050"
+      ]
+    }
+  ]
+}

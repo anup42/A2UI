@@ -1,0 +1,30 @@
+{
+  "initial_compile_observation": "Sandboxed javac returned zero and generated the class, but reported AccessDeniedException during JAR cleanup. Recompilation outside the sandbox completed without diagnostics.",
+  "command": [
+    "C:\\Program Files\\Android\\Android Studio\\jbr\\bin\\javac.EXE",
+    "-encoding",
+    "UTF-8",
+    "-cp",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_full_gpu_fp32\\runtime\\genuicraft-0.5.6-classes.jar;C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_full_gpu_fp32\\runtime\\gson-2.11.0.jar;C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_full_gpu_fp32\\runtime\\kotlin-stdlib-2.2.21.jar",
+    "-d",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_full_gpu_fp32\\runtime\\driver_classes_verified",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\tools\\GenUiRepairReplay.java"
+  ],
+  "returncode": 0,
+  "class_sha256": "f81630931ea1905b70a87e1d5aee2e153dd5d251db91794b95e4eac81e1c9ad1",
+  "class_identical_to_executed_repair_driver": true,
+  "dependencies": [
+    {
+      "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_full_gpu_fp32\\runtime\\genuicraft-0.5.6-classes.jar",
+      "sha256": "69954347411d7d3b4959cc914ecfd290f9c399202ea2d83279c023062a1bcf11"
+    },
+    {
+      "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_full_gpu_fp32\\runtime\\gson-2.11.0.jar",
+      "sha256": "57928d6e5a6edeb2abd3770a8f95ba44dce45f3b23b7a9dc2b309c581552a78b"
+    },
+    {
+      "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_full_gpu_fp32\\runtime\\kotlin-stdlib-2.2.21.jar",
+      "sha256": "6558a3d233da56a20934b32159f9db5f86ed5816ef098f78a2c223dc6abb79dd"
+    }
+  ]
+}

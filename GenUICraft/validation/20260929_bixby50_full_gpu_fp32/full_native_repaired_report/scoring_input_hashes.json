@@ -1,0 +1,15 @@
+{
+  "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_full_gpu_fp32\\model_inputs.jsonl": "ee02577f983e5665a9f7626ac03227dff2879116dc62eb0d545376971af862af",
+  "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_full_gpu_fp32\\repair_outcomes.jsonl": "07b6e73830aa16339228c146949c8bdabbf45896cde671622cc2a03e9c35e890",
+  "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_full_gpu_fp32\\protocol.json": "cd3c37a76f76eda4ac66707e0f38398d8f65639ab250af1222bc3fa715269f10",
+  "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_full_gpu_fp32\\repair_provenance.json": "aad49db6d3d70788e448f8a210116c8e6e6fd3caf2e3e064cc3d401c5a006710",
+  "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_full_gpu_fp32\\preflight\\fold7_model_copy.json": "944dc91ad95e3da9320bc41dd3b2ff8632b6b615f5800d72824d7d6619a2c0b7",
+  "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_full_gpu_fp32\\preflight\\R3GL203AKSF.json": "e07e99123bc962ecbca5a861438f65fff121ddc017659f677fab8c59a36afb68",
+  "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_v54_repaired_scores\\summary.json": "c31fa4505c323a159c2296f1312a017f7c7ffed6f077550783fc7144d797d3af",
+  "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_v54_repaired_scores\\scored\\litert_mtp_off.jsonl": "40c8f9f8076f9fad2ce0133d72cbc973a6196c10cc7f971f771c0cbfba074e86",
+  "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_v54_repaired_scores\\scored\\litert_mtp_on.jsonl": "75a07ecc3592cc3401f8bfe08d482a9259979570f8afe5aa9daad0bf228749c0",
+  "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_v54_repaired_scores\\scored\\checkpoint_r32.jsonl": "7a73540d2a04ee2aae055a43b8bfa5e988f30e525ec51780c3db1124ac5d5fe8",
+  "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_v54_repaired_scores\\scored\\checkpoint_r64.jsonl": "0de9bdc54f3c689f20df545cf8890ccae34f892d0096657291e005994ccf9359",
+  "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\data\\eval\\bixby50_v1\\bixby50.jsonl": "27bdc9ad4c7d3735d3c5f7c26fa37be2472e7aafd7c99afa31910a22b5bfdb4d",
+  "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\tools\\report_bixby50_full_native_repaired.py": "24f580a2b76d1b1096a6b91767ea245bcedf46360d796db23df2dacbdcc23dea"
+}

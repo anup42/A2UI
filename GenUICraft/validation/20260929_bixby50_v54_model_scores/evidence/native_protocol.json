@@ -1,0 +1,238 @@
+{
+  "startedAtUtc": "2026-09-28T04:10:59.742141+00:00",
+  "serial": "R3GL203AKSF",
+  "modelPath": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_models/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm",
+  "precision": "FP32",
+  "contextTokens": 8192,
+  "maxOutputTokens": 2048,
+  "temperature": 0.0,
+  "thinking": false,
+  "sourceFallback": false,
+  "generatedDslRecovery": true,
+  "batchSize": 5,
+  "restBetweenBatchesSeconds": 15,
+  "telemetryIntervalSeconds": 15,
+  "order": "ABBA across adjacent five-case groups",
+  "plan": [
+    {
+      "batch": "group_01_mtp_off",
+      "mtp": false,
+      "cases": [
+        "BXP-001",
+        "BXP-002",
+        "BXP-003",
+        "BXP-004",
+        "BXP-005"
+      ]
+    },
+    {
+      "batch": "group_01_mtp_on",
+      "mtp": true,
+      "cases": [
+        "BXP-001",
+        "BXP-002",
+        "BXP-003",
+        "BXP-004",
+        "BXP-005"
+      ]
+    },
+    {
+      "batch": "group_02_mtp_on",
+      "mtp": true,
+      "cases": [
+        "BXP-006",
+        "BXP-007",
+        "BXP-008",
+        "BXP-009",
+        "BXP-010"
+      ]
+    },
+    {
+      "batch": "group_02_mtp_off",
+      "mtp": false,
+      "cases": [
+        "BXP-006",
+        "BXP-007",
+        "BXP-008",
+        "BXP-009",
+        "BXP-010"
+      ]
+    },
+    {
+      "batch": "group_03_mtp_off",
+      "mtp": false,
+      "cases": [
+        "BXP-011",
+        "BXP-012",
+        "BXP-013",
+        "BXP-014",
+        "BXP-015"
+      ]
+    },
+    {
+      "batch": "group_03_mtp_on",
+      "mtp": true,
+      "cases": [
+        "BXP-011",
+        "BXP-012",
+        "BXP-013",
+        "BXP-014",
+        "BXP-015"
+      ]
+    },
+    {
+      "batch": "group_04_mtp_on",
+      "mtp": true,
+      "cases": [
+        "BXP-016",
+        "BXP-017",
+        "BXP-018",
+        "BXP-019",
+        "BXP-020"
+      ]
+    },
+    {
+      "batch": "group_04_mtp_off",
+      "mtp": false,
+      "cases": [
+        "BXP-016",
+        "BXP-017",
+        "BXP-018",
+        "BXP-019",
+        "BXP-020"
+      ]
+    },
+    {
+      "batch": "group_05_mtp_off",
+      "mtp": false,
+      "cases": [
+        "BXP-021",
+        "BXP-022",
+        "BXP-023",
+        "BXP-024",
+        "BXP-025"
+      ]
+    },
+    {
+      "batch": "group_05_mtp_on",
+      "mtp": true,
+      "cases": [
+        "BXP-021",
+        "BXP-022",
+        "BXP-023",
+        "BXP-024",
+        "BXP-025"
+      ]
+    },
+    {
+      "batch": "group_06_mtp_on",
+      "mtp": true,
+      "cases": [
+        "BXP-026",
+        "BXP-027",
+        "BXP-028",
+        "BXP-029",
+        "BXP-030"
+      ]
+    },
+    {
+      "batch": "group_06_mtp_off",
+      "mtp": false,
+      "cases": [
+        "BXP-026",
+        "BXP-027",
+        "BXP-028",
+        "BXP-029",
+        "BXP-030"
+      ]
+    },
+    {
+      "batch": "group_07_mtp_off",
+      "mtp": false,
+      "cases": [
+        "BXP-031",
+        "BXP-032",
+        "BXP-033",
+        "BXP-034",
+        "BXP-035"
+      ]
+    },
+    {
+      "batch": "group_07_mtp_on",
+      "mtp": true,
+      "cases": [
+        "BXP-031",
+        "BXP-032",
+        "BXP-033",
+        "BXP-034",
+        "BXP-035"
+      ]
+    },
+    {
+      "batch": "group_08_mtp_on",
+      "mtp": true,
+      "cases": [
+        "BXP-036",
+        "BXP-037",
+        "BXP-038",
+        "BXP-039",
+        "BXP-040"
+      ]
+    },
+    {
+      "batch": "group_08_mtp_off",
+      "mtp": false,
+      "cases": [
+        "BXP-036",
+        "BXP-037",
+        "BXP-038",
+        "BXP-039",
+        "BXP-040"
+      ]
+    },
+    {
+      "batch": "group_09_mtp_off",
+      "mtp": false,
+      "cases": [
+        "BXP-041",
+        "BXP-042",
+        "BXP-043",
+        "BXP-044",
+        "BXP-045"
+      ]
+    },
+    {
+      "batch": "group_09_mtp_on",
+      "mtp": true,
+      "cases": [
+        "BXP-041",
+        "BXP-042",
+        "BXP-043",
+        "BXP-044",
+        "BXP-045"
+      ]
+    },
+    {
+      "batch": "group_10_mtp_on",
+      "mtp": true,
+      "cases": [
+        "BXP-046",
+        "BXP-047",
+        "BXP-048",
+        "BXP-049",
+        "BXP-050"
+      ]
+    },
+    {
+      "batch": "group_10_mtp_off",
+      "mtp": false,
+      "cases": [
+        "BXP-046",
+        "BXP-047",
+        "BXP-048",
+        "BXP-049",
+        "BXP-050"
+      ]
+    }
+  ]
+}

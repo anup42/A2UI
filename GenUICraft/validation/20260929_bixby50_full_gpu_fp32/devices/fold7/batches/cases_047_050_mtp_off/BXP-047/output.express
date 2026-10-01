@@ -1,0 +1,17 @@
+<a2ui>
+$/={battery_comparison:[{chemistry:"LFP",energy_density:"Lower than NMC; IEA says LFP packs are about one-fifth lower by mass and one-third lower by volume than NMC packs [22]",cycle_life:"Typically long; sources cite roughly 2,000–6,000+ cycles, with some BESS-grade cells higher [3][18]",safety:"Strong; better thermal stability and lower thermal-runaway risk than NMC",cost:"Lower; IEA says LFP packs were almost 30% cheaper per kWh than NMC in 2025, and more than 40% cheaper on average in 2025 data[21]",maturity:"Mature, widely deployed in EVs and especially stationary storage",maturity_note:""},{chemistry:"NMC",energy_density:"Higher; generally the best of the three for compactness and range, with IEA confirming the energy-density advantage over LFP",cycle_life:"Moderate; commonly around 1,000–3,000 cycles, varying by design and usage [4][7]",safety:"Good but weaker than LFP; high-nickel versions have greater thermal-risk sensitivity",cost:"Higher; IEA reports LFP is substantially cheaper per kWh than NMC",maturity:"Very mature and mainstream in EVs, especially where range and weight matter most",maturity_note:""},{chemistry:"Sodium-ion",energy_density:"Lower than lithium-ion; commercial ranges are often around 90–160 Wh/kg, though some newer cells are higher [5][6]",cycle_life:"Promising; commercial ranges are broad, roughly 500–8,000 cycles depending on chemistry and duty cycle",safety:"Good; generally regarded as safer and more thermally stable than many lithium-ion chemistries",cost:"Potentially attractive, but current pricing is still variable; IRENA and industry sources place it roughly in the same order as or above today’s LFP in many cases[14]",maturity:"Emerging; gaining traction, but still less mature than LFP and NMC",maturity_note:""}]}
+root=Column([a,b,c,f],gap="md",padding=16)
+a=Text("Battery comparison","h2")
+b=Table(columns=[{key:"chemistry",label:"Chemistry"},{key:"energy_density",label:"Energy density"},{key:"cycle_life",label:"Cycle life"},{key:"safety",label:"Safety"},{key:"cost",label:"Cost"},{key:"maturity",label:"Maturity"},{key:"maturity_note",label:"Maturity Note"}],statePath="/battery_comparison",domain="comparison",preferredPresentation="cards",primaryColumn="chemistry",highlightColumns=["safety","cost","maturity"])
+c=Card([d])
+d=Column([e,f],"sm",padding=16)
+e=Text("Best-fit uses","h2")
+f=Text("For EVs, NMC is best for range/weight; LFP for cost-sensitive; Sodium-ion for short-range/low-cost. For stationary storage, LFP is default due to safety/cost; Sodium-ion is good for grid storage. NMC is less attractive for stationary storage unless high density is needed.",variant="body")
+g=Card([h])
+h=Column([i,j],"sm",padding=16)
+i=Text("Practical takeaway","h2")
+j=Text("If you need the safest and most economical mainstream option, choose LFP. If you need the highest range in the smallest battery, choose NMC. If you want an emerging lower-risk chemistry for storage or lower-cost EVs, sodium-ion is promising but still less mature.",variant="body")
+k=Column([l,m],"sm","stretch")
+l=Text("End","caption")
+m=Text("A2UI Express v1","caption")
+</a2ui>

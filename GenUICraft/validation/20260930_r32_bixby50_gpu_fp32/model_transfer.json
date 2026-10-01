@@ -1,0 +1,15 @@
+{
+  "sourceSerial": "R3GL203AKSF",
+  "sourcePath": "/sdcard/gemma4_e2b_a2ui_mobile_r32.litertlm",
+  "sourceSizeBytes": 2588147712,
+  "sourceSha256": "6dbd97ea150b264c0dbd040fcb92b8b231b657365282194561749c1d41771825",
+  "hostSha256": "6dbd97ea150b264c0dbd040fcb92b8b231b657365282194561749c1d41771825",
+  "destinationSerial": "R3CY30QFWLP",
+  "destinationPath": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_models/gemma4_e2b_a2ui_mobile_r32.litertlm",
+  "destinationSha256": "6dbd97ea150b264c0dbd040fcb92b8b231b657365282194561749c1d41771825",
+  "verified": true,
+  "previousModelsOverwritten": false,
+  "flip8Actions": "Read-only model listing, stat, checksum and adb pull; no UI, app or inference actions",
+  "recordedAtUtc": "2026-09-30T00:14:07.033288+05:30",
+  "hostStagingRemovedAfterVerifiedTransfer": true
+}

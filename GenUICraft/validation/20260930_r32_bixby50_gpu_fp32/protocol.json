@@ -1,0 +1,258 @@
+{
+  "scope": "All 50 Bixby50 cases, both MTP off and on; 100 fresh generations on Fold7",
+  "modelLabel": "Supplied R32 LiteRT model",
+  "modelSha256": "6dbd97ea150b264c0dbd040fcb92b8b231b657365282194561749c1d41771825",
+  "modelSizeBytes": 2588147712,
+  "sourceDevice": "R3GL203AKSF",
+  "sourceModelPath": "/sdcard/gemma4_e2b_a2ui_mobile_r32.litertlm",
+  "modelPath": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_models/gemma4_e2b_a2ui_mobile_r32.litertlm",
+  "mainApkSha256": "0426477f7c874a9bf42c1ac32a2c6a24605d99cda5b29059fdac8e5cb16cdc3f",
+  "installedTestApkSha256": "176b2bd532efecf72dd27519bad3530b118d574b5f6d9914a719ab1593a2a0cf",
+  "repairSdkVersion": "0.5.6",
+  "runtime": {
+    "accelerator": "GPU",
+    "gpuPrecision": "FP32",
+    "weights": "W4",
+    "contextTokens": 8192,
+    "maxOutputTokens": 2048,
+    "temperature": 0.0,
+    "thinkingEnabled": false,
+    "sourceFallback": false
+  },
+  "pairedDeviceAssignment": {
+    "R3CY30QFWLP": "BXP-001 through BXP-050, both modes"
+  },
+  "plans": [
+    {
+      "serial": "R3CY30QFWLP",
+      "deviceAlias": "fold7",
+      "batches": [
+        {
+          "name": "cases_001_005_mtp_off",
+          "mtp": false,
+          "cases": [
+            "BXP-001",
+            "BXP-002",
+            "BXP-003",
+            "BXP-004",
+            "BXP-005"
+          ]
+        },
+        {
+          "name": "cases_001_005_mtp_on",
+          "mtp": true,
+          "cases": [
+            "BXP-001",
+            "BXP-002",
+            "BXP-003",
+            "BXP-004",
+            "BXP-005"
+          ]
+        },
+        {
+          "name": "cases_006_010_mtp_on",
+          "mtp": true,
+          "cases": [
+            "BXP-006",
+            "BXP-007",
+            "BXP-008",
+            "BXP-009",
+            "BXP-010"
+          ]
+        },
+        {
+          "name": "cases_006_010_mtp_off",
+          "mtp": false,
+          "cases": [
+            "BXP-006",
+            "BXP-007",
+            "BXP-008",
+            "BXP-009",
+            "BXP-010"
+          ]
+        },
+        {
+          "name": "cases_011_015_mtp_off",
+          "mtp": false,
+          "cases": [
+            "BXP-011",
+            "BXP-012",
+            "BXP-013",
+            "BXP-014",
+            "BXP-015"
+          ]
+        },
+        {
+          "name": "cases_011_015_mtp_on",
+          "mtp": true,
+          "cases": [
+            "BXP-011",
+            "BXP-012",
+            "BXP-013",
+            "BXP-014",
+            "BXP-015"
+          ]
+        },
+        {
+          "name": "cases_016_020_mtp_on",
+          "mtp": true,
+          "cases": [
+            "BXP-016",
+            "BXP-017",
+            "BXP-018",
+            "BXP-019",
+            "BXP-020"
+          ]
+        },
+        {
+          "name": "cases_016_020_mtp_off",
+          "mtp": false,
+          "cases": [
+            "BXP-016",
+            "BXP-017",
+            "BXP-018",
+            "BXP-019",
+            "BXP-020"
+          ]
+        },
+        {
+          "name": "cases_021_025_mtp_off",
+          "mtp": false,
+          "cases": [
+            "BXP-021",
+            "BXP-022",
+            "BXP-023",
+            "BXP-024",
+            "BXP-025"
+          ]
+        },
+        {
+          "name": "cases_021_025_mtp_on",
+          "mtp": true,
+          "cases": [
+            "BXP-021",
+            "BXP-022",
+            "BXP-023",
+            "BXP-024",
+            "BXP-025"
+          ]
+        },
+        {
+          "name": "cases_026_030_mtp_on",
+          "mtp": true,
+          "cases": [
+            "BXP-026",
+            "BXP-027",
+            "BXP-028",
+            "BXP-029",
+            "BXP-030"
+          ]
+        },
+        {
+          "name": "cases_026_030_mtp_off",
+          "mtp": false,
+          "cases": [
+            "BXP-026",
+            "BXP-027",
+            "BXP-028",
+            "BXP-029",
+            "BXP-030"
+          ]
+        },
+        {
+          "name": "cases_031_035_mtp_off",
+          "mtp": false,
+          "cases": [
+            "BXP-031",
+            "BXP-032",
+            "BXP-033",
+            "BXP-034",
+            "BXP-035"
+          ]
+        },
+        {
+          "name": "cases_031_035_mtp_on",
+          "mtp": true,
+          "cases": [
+            "BXP-031",
+            "BXP-032",
+            "BXP-033",
+            "BXP-034",
+            "BXP-035"
+          ]
+        },
+        {
+          "name": "cases_036_040_mtp_on",
+          "mtp": true,
+          "cases": [
+            "BXP-036",
+            "BXP-037",
+            "BXP-038",
+            "BXP-039",
+            "BXP-040"
+          ]
+        },
+        {
+          "name": "cases_036_040_mtp_off",
+          "mtp": false,
+          "cases": [
+            "BXP-036",
+            "BXP-037",
+            "BXP-038",
+            "BXP-039",
+            "BXP-040"
+          ]
+        },
+        {
+          "name": "cases_041_045_mtp_off",
+          "mtp": false,
+          "cases": [
+            "BXP-041",
+            "BXP-042",
+            "BXP-043",
+            "BXP-044",
+            "BXP-045"
+          ]
+        },
+        {
+          "name": "cases_041_045_mtp_on",
+          "mtp": true,
+          "cases": [
+            "BXP-041",
+            "BXP-042",
+            "BXP-043",
+            "BXP-044",
+            "BXP-045"
+          ]
+        },
+        {
+          "name": "cases_046_050_mtp_on",
+          "mtp": true,
+          "cases": [
+            "BXP-046",
+            "BXP-047",
+            "BXP-048",
+            "BXP-049",
+            "BXP-050"
+          ]
+        },
+        {
+          "name": "cases_046_050_mtp_off",
+          "mtp": false,
+          "cases": [
+            "BXP-046",
+            "BXP-047",
+            "BXP-048",
+            "BXP-049",
+            "BXP-050"
+          ]
+        }
+      ]
+    }
+  ],
+  "restSecondsBetweenNewBatches": 5,
+  "perCaseTimeoutMs": 360000,
+  "hostNoProgressWatchdogSeconds": 540,
+  "retryPolicy": "No score-selection retries; preserve attempted failures, only reschedule unattempted cases after infrastructure failure",
+  "comparisonCaveat": "Prior R64 results used Flip8 for cases 001-031 and Fold7 for 032-050. This R32 run uses Fold7 for every case. R32 model rank is identified from the supplied filename; checkpoint/export identity is not independently certified."
+}

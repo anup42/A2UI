@@ -57,3 +57,14 @@ training/scripts/*space_v11*.py -text whitespace=cr-at-eol
 training/scripts/repair_v11_base.py -text whitespace=cr-at-eol
 training/scripts/project_space_archive.py -text whitespace=cr-at-eol
 training/tests/test_space_v11*.py -text whitespace=cr-at-eol
+
+# Preserve the byte-bound inputs and output evidence in historical dataset audits.
+training/reports/20260927_official_e2b_export_audit/** -text whitespace=cr-at-eol
+training/reports/20260927_r64_metadata_audit/** -text whitespace=cr-at-eol
+training/reports/v10_full_audit_20260926/** -text whitespace=cr-at-eol
+
+# The reviewed training-source archive exceeds GitHub's regular Git file limit.
+review_exports/official_e2b_lora_qat_training_bundle_ed0c433d.zip filter=lfs diff=lfs merge=lfs -text
+
+# Preserve intentional whitespace in imported diagnostics and historical scoring evidence.
+training/reports/v10_full_audit_20260926/duplicate_source_examples.csv whitespace=cr-at-eol,-blank-at-eol

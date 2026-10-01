@@ -1,0 +1,11 @@
+SDK repair: 10 attempted; 10 accepted
+SDK repair: 20 attempted; 18 accepted
+SDK repair: 30 attempted; 27 accepted
+SDK repair: 40 attempted; 36 accepted
+SDK repair: 50 attempted; 46 accepted
+SDK repair: 60 attempted; 56 accepted
+SDK repair: 70 attempted; 65 accepted
+SDK repair: 80 attempted; 74 accepted
+SDK repair: 90 attempted; 82 accepted
+SDK repair: 100 attempted; 92 accepted
+SDK repair complete: 92/100 accepted; no fallback or model calls

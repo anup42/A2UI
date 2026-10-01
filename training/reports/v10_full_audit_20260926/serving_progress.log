@@ -1,0 +1,33 @@
+{
+  "counts": {
+    "train": {
+      "rows": 91115,
+      "original_query_missing": 91115,
+      "intent_unknown": 91115,
+      "contains_sourceText": 0,
+      "number_runs_10plus_source": 20,
+      "number_runs_10plus_target": 20,
+      "repeated_digit_8plus_source": 5,
+      "repeated_digit_8plus_target": 6,
+      "literal_aa_ab_ac_sequence": 7548,
+      "raw_url_in_target": 25,
+      "numeric_citation_in_target": 7,
+      "stop_candidates": 1
+    },
+    "val": {
+      "rows": 1862,
+      "original_query_missing": 1862,
+      "intent_unknown": 1862,
+      "contains_sourceText": 0,
+      "number_runs_10plus_source": 0,
+      "number_runs_10plus_target": 0,
+      "repeated_digit_8plus_source": 0,
+      "repeated_digit_8plus_target": 0,
+      "literal_aa_ab_ac_sequence": 136,
+      "raw_url_in_target": 0,
+      "numeric_citation_in_target": 0
+    }
+  },
+  "scaffolds": 1,
+  "candidate_examples": 1
+}

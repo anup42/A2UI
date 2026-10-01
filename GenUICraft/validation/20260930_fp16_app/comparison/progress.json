@@ -1,0 +1,9 @@
+{
+  "activeArm": "r02_fp16_corrected_mtp_off",
+  "elapsedSeconds": 31.016000000061467,
+  "deviceStatus": {
+    "state": "starting",
+    "completed": 0
+  },
+  "thermalStatus": 2
+}

@@ -1,0 +1,94 @@
+{
+  "dataset": "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\datasets\\full_data_archive_recovered_v10",
+  "counts": {
+    "train": {
+      "rows": 91115,
+      "original_query_missing": 91115,
+      "intent_unknown": 91115,
+      "contains_sourceText": 0,
+      "number_runs_10plus_source": 20,
+      "number_runs_10plus_target": 20,
+      "repeated_digit_8plus_source": 5,
+      "repeated_digit_8plus_target": 6,
+      "literal_aa_ab_ac_sequence": 7548,
+      "raw_url_in_target": 25,
+      "numeric_citation_in_target": 7,
+      "stop_candidates": 1
+    },
+    "val": {
+      "rows": 1862,
+      "original_query_missing": 1862,
+      "intent_unknown": 1862,
+      "contains_sourceText": 0,
+      "number_runs_10plus_source": 0,
+      "number_runs_10plus_target": 0,
+      "repeated_digit_8plus_source": 0,
+      "repeated_digit_8plus_target": 0,
+      "literal_aa_ab_ac_sequence": 136,
+      "raw_url_in_target": 0,
+      "numeric_citation_in_target": 0
+    }
+  },
+  "scaffolds": {
+    "db1667de8e7c52b2c574fcbe0b797832c8682039b494df18e35b329044161b4a": {
+      "count": 92977,
+      "system_chars": 4766,
+      "messages": [
+        {
+          "role": "system",
+          "content": "# A2UI Express v1 generated model contract\n\n<!-- Generated from pinned grammar/catalog/profile/quality policy: grammar=37044656eb10e4c4a4a54c822432f327c5340761b5bfe914b58fa0db3581cf42 catalog=b5571b35b1af2629361d66e896d59c7dbc5b27aaea17492c274933f6125b518e profile=c0259faae3a08bdb245faf9bb2abe0798b665ddb95c1b174f7e7c5d09ae52b83 quality=299b206f0280f3a622bcab96a8f6d32d113432e473174b8790fc5a266693de0e -->\n\nYou convert the supplied response into one rich, lossless GenUICraft A2UI\nExpress v1 program. A2UI Express is an assignment DSL, not JSON, HTML, JSX,\nCSS, or a FlatSpec object. Preserve the complete canonical UI semantics;\nsyntax optimization must never remove meaningful UI content or interactions.\n\nResponse:\n[RESPONSE_TEXT_IS_PROVIDED_IN_THE_USER_MESSAGE]\n\n## Strict output contract\n\n- Return exactly one `<a2ui>...</a2ui>` block, with no prose, JSON, markdown\n  fences, or trailing content.\n- Assign the root component to reserved variable `root`; every reference must\n  resolve, and every useful assignment must be reachable from `root`.\n- Use one assignment per line. Child lists contain assigned identifiers or\n  inline calls, never bare component type names.\n- Use positional arguments only while unambiguous; after a named argument is\n  used, use named arguments. `_` may skip only an optional final positional\n  slot. Omit trailing catalog defaults when semantics are unchanged.\n- Use explicit named properties, children, repeat, visible, watch, and action\n  arguments. Opaque `_props`, `_children`, `_repeat`, `_visible`, `_on`, and\n  `_watch` bags are forbidden for new output.\n- Event values must be action calls such as `Event(\"name\",{})` or\n  `openUrl(\"https://...\")`, never quoted URLs/event names by themselves.\n- Use `$={...}` or `$/path=value` for state and valid data bindings.\n- Reject the temptation to invent URLs, paths, values, or filler components.\n\n## Pinned catalog signatures\n\n- Alert(message, title, tone, timestamp)\n- AudioPlayer(url, description, posterUrl, title)\n- Button(label, variant, icon)\n- Card(children, title, subtitle, tone)\n- Chart(chartType, columns, statePath, rows, title, subtitle)\n- CheckBox(label, value, statePath)\n- Checklist(items, title, disclaimer, source)\n- ChoicePicker(label, options, value, statePath)\n- CodeBlock(code, language, title)\n- Column(children, gap, align, justify, wrap)\n- ConsoleLog(code, language, title)\n- DateTimeInput(label, value, mode, placeholder, statePath)\n- Divider()\n- EmailPreview(subject, body, from, to, date, title)\n- Formula(latex, title, result, display)\n- Icon(name, size, tint)\n- Image(url, alt, fit, width, height)\n- List(children, items)\n- Modal(trigger, content, title)\n- Row(children, gap, align, justify, wrap)\n- Slider(label, value, min, max, step, statePath)\n- Stack(children, direction, gap, align, justify, wrap)\n- Table(columns, statePath, rows, title, domain, preferredPresentation)\n- Tabs(tabs, activeTabId)\n- Text(text, variant)\n- TextField(label, value, statePath, placeholder)\n- Video(url, posterUrl, description, title)\n\n## Pinned actions\n\n- emitEvent(name, context, wantResponse, responsePath)\n- openUrl(url)\n- pushState(statePath, value, clearStatePath)\n- removeState(statePath, index)\n- setState(statePath, value)\n- validateForm(statePath, resultStatePath)\n\n## Shared quality policy\n\n- Preserve every requested fact, heading, section, table row, action, binding,\n  repeat, visibility rule, watch, and verified media reference.\n- Keep meaningful component richness and hierarchy; token savings must come\n  from Express syntax and default elision, never from dropping UI semantics.\n- Use specialist components such as Table, Chart, CodeBlock, ConsoleLog,\n  Formula, EmailPreview, Tabs, Modal, and forms when the response requires\n  them.\n- Every component reference must resolve and every useful assignment must be\n  reachable from `root`; preserve non-child references before pruning.\n- Table `highlightColumns` and `numericColumns` must be arrays of column keys,\n  even for one column: `highlightColumns=[\"price\"]`, never `\"price\"`. A dynamic\n  array binding must resolve to an array. Keep `primaryColumn` a single key.\n- Do not invent URLs or local paths. URL and local-asset placeholders supplied\n  by the pipeline must remain unchanged until explicit restoration.\n\n## Syntax example (do not copy its facts)\n\n<a2ui>\nroot=Column([title,details,action],gap=\"md\")\ntitle=Text(\"Result\",\"h2\")\ndetails=Table([\"Detail\",\"Value\"],rows=[[\"Status\",\"Ready\"]],title=\"Details\",domain=\"status\",preferredPresentation=\"table\")\naction=Button(\"Continue\",\"primary\",onPress=Event(\"continue\",{},true,\"/result\"))\n</a2ui>\n\nThe pipeline supplies the response in the user message and restores approved\nURL/local-asset placeholders only after strict parsing and compilation."
+        },
+        {
+          "role": "user",
+          "content": "Create A2UI Express v1 GenUI IR for this response:\n\nA small travel checklist with a title and two items."
+        },
+        {
+          "role": "assistant",
+          "content": "<a2ui>\nroot=Column([a,b])\na=Text(\"Travel Checklist\",\"h1\")\nb=List([c,d])\nc=Text(\"Passport\")\nd=Text(\"Charger\")\n</a2ui>"
+        }
+      ],
+      "first_id": "archive-train-017913-680b05c2ffc96895"
+    }
+  },
+  "repetition_guard_candidates": [
+    {
+      "split": "train",
+      "line": 6416,
+      "id": "archive-train-109871-f518eb549644b798",
+      "matches": [
+        {
+          "start": 531,
+          "repeated": 1,
+          "max_sequential": 22,
+          "ids": [
+            "m",
+            "n",
+            "o",
+            "p",
+            "q",
+            "r",
+            "s",
+            "t",
+            "u",
+            "v",
+            "w",
+            "x",
+            "y",
+            "z",
+            "aa",
+            "ab",
+            "ac",
+            "ad",
+            "ae",
+            "af",
+            "ag",
+            "ah"
+          ]
+        }
+      ],
+      "source": "## Cinematic Twist Overview\nMedia: Icon=[ICON_URL_1]\nA tense, noir-inspired sequence where the boundary between reality and production collapses. The scene emphasizes the transition from a gritty police procedural to the artificiality of a soundstage.\n\n## Screenplay: The Grand Illusion\nMedia: Icon=[ICON_URL_2]\n\n**INT. GRITTY ALLEYWAY - NIGHT**\n\nRain lashes down in rhythmic sheets. A single flickering streetlamp casts long, jagged shadows across the brick walls.\n\n**CLOSE UP** on a puddle of blood mixing with rainwater. A gold watch glints beside a lifeless hand.\n\nDETECTIVE ELIAS THORNE (45, trench coat soaked, eyes like burnt-out fuses) crouches over the body. He doesn't breathe. He just stares.\n\nTHORNE\n(A whisper, raspy)\nYou always had a taste for the dramatic, didn't you, Leo?\n\nThorne reaches out to touch the victim's shoulder.\n\n**CAMERA ZOOM: FAST** as Thorne's fingers make contact.\n\nThe \"body\" doesn't feel like flesh. It feels like high-density foam. Thorne frowns, his brow furrowing. He pushes harder.\n\n**SOUND: A HOLLOW, PLASTIC THUD.**\n\nThorne freezes. He looks up. He notices a thin, black cable running from the victim's neck into a crack in the brick wall.\n\n**PAN RIGHT** to follow the cable. It leads directly to a massive, black-shrouded object.\n\nThorne stands up slowly. He reaches out and rips the shroud away.\n\n**REVEAL:** A Panavision cinema camera, mounted on a heavy tripod, staring right at him.\n\nTHORNE\n(Confused, breathless)\nWhat the...\n\nSuddenly, the \"rain\" stops instantly. Not a fade, but a hard switch. The flickering streetlamp stops flickering and glows with a steady, sterile white light.\n\nA voice booms from a loudspeaker, echoing through the alley.\n\nDIRECTOR (V.O.)\n(Irritated)\nCut! For God's sake, Elias, you're not in the scene yet! You're supposed to enter from Stage Left on my mark!\n\nThorne spins around. The \"brick wall\" behind him wobbles. He pushes it. The entire wall swings open on a hinge, revealing a cavernous warehouse filled with lighting rigs, craft services, and a dozen crew members staring at him in silence.\n\nThorne looks at his hands. He looks at the \"corpse.\"\n\nTHORNE\n(A hollow laugh)\nI thought I was actually losing my mind this time.\n\nDIRECTOR (V.O.)\nYou are losing it. Now get back to your mark before we lose the light!\n\n**FADE TO BLACK.**\n\n## Quick Actions\nAction: [Button: Script Formatting Guide] <[ACTION_URL_1]>\nAction: [Button: Screenwriting Software] <[ACTION_URL_2]>",
+      "completion": "<a2ui>\nroot=Column([a,g,ai],\"lg\",padding=16)\na=Card([b])\nb=Column([c,f],gap=\"md\")\nc=Row([d,e],\"sm\",\"center\")\nd=Icon(\"[ICON_URL_1]\")\ne=Text(\"Cinematic Twist Overview\",\"h2\")\nf=Text(\"A tense, noir-inspired sequence where the boundary between reality and production collapses. The scene emphasizes the transition from a gritty police procedural to the artificiality of a soundstage.\",variant=\"body\")\ng=Card([h])\nh=Column([i,l],gap=\"md\")\ni=Row([j,k],\"sm\",\"center\")\nj=Icon(\"[ICON_URL_2]\")\nk=Text(\"Screenplay: The Grand Illusion\",\"h2\")\nl=Column([m,n,o,p,q,r,s,t,u,v,w,x,y,z,aa,ab,ac,ad,ae,af,ag,ah],\"sm\")\nm=Text(\"INT. GRITTY ALLEYWAY - NIGHT\",\"label\")\nn=Text(\"Rain lashes down in rhythmic sheets. A single flickering streetlamp casts long, jagged shadows across the brick walls.\",variant=\"body\")\no=Text(\"CLOSE UP on a puddle of blood mixing with rainwater. A gold watch glints beside a lifeless hand.\",variant=\"body\")\np=Text(\"DETECTIVE ELIAS THORNE (45, trench coat soaked, eyes like burnt-out fuses) crouches over the body. He doesn't breathe. He just stares.\",variant=\"body\")\nq=Text(\"THORNE (A whisper, raspy): You always had a taste for the dramatic, didn't you, Leo?\",variant=\"body\")\nr=Text(\"Thorne reaches out to touch the victim's shoulder.\",variant=\"body\")\ns=Text(\"CAMERA ZOOM: FAST as Thorne's fingers make contact. The body doesn't feel like flesh. It feels like high-density foam.\",variant=\"body\")\nt=Text(\"Thorne frowns, his brow furrowing. He pushes harder.\",variant=\"body\")\nu=Text(\"SOUND: A HOLLOW, PLASTIC THUD.\",variant=\"body\")\nv=Text(\"Thorne freezes. He looks up. He notices a thin, black cable running from the victim's neck into a crack in the brick wall.\",variant=\"body\")\nw=Text(\"PAN RIGHT to follow the cable. It leads directly to a massive, black-shrouded object.\",variant=\"body\")\nx=Text(\"Thorne stands up slowly. He reaches out and rips the shroud away.\",variant=\"body\")\ny=Text(\"REVEAL: A Panavision cinema camera, mounted on a heavy tripod, staring right at him.\",variant=\"body\")\nz=Text(\"THORNE (Confused, breathless): What the...\",variant=\"body\")\naa=Text(\"Suddenly, the rain stops instantly. Not a fade, but a hard switch.\",variant=\"body\")\nab=Text(\"The flickering streetlamp stops flickering and glows with a steady, sterile white light. A voice booms from a loudspeaker, echoing through the alley.\",variant=\"body\")\nac=Text(\"DIRECTOR (V.O.) (Irritated): Cut! For God's sake, Elias, you're not in the scene yet! You're supposed to enter from Stage Left on my mark!\",variant=\"body\")\nad=Text(\"Thorne spins around. The brick wall behind him wobbles. He pushes it.\",variant=\"body\")\nae=Text(\"The entire wall swings open on a hinge, revealing a cavernous warehouse filled with lighting rigs, craft services, and a dozen crew members staring at him in silence. Thorne looks at his hands. He looks at the corpse.\",variant=\"body\")\naf=Text(\"THORNE (A hollow laugh): I thought I was actually losing my mind this time.\",variant=\"body\")\nag=Text(\"DIRECTOR (V.O.): You are losing it. Now get back to your mark before we lose the light!\",variant=\"body\")\nah=Text(\"FADE TO BLACK.\",\"caption\")\nai=Column([aj,ak],gap=\"md\")\naj=Text(\"Quick Actions\",\"h2\")\nak=Column([al,am],\"sm\")\nal=Button(\"Script Formatting Guide\",\"primary\",onPress=openUrl(\"[ACTION_URL_1]\"))\nam=Button(\"Screenwriting Software\",\"primary\",onPress=openUrl(\"[ACTION_URL_2]\"))\n</a2ui>"
+    }
+  ],
+  "method": "Replay complete bare component lists before closing sentinel; candidate implies a streaming prefix would meet current Kotlin guard condition. No device generation performed."
+}

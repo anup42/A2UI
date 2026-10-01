@@ -1,0 +1,841 @@
+{
+  "files": {
+    "training/data/eval/bixby50_v1/bixby50.jsonl": {
+      "sha256": "27bdc9ad4c7d3735d3c5f7c26fa37be2472e7aafd7c99afa31910a22b5bfdb4d",
+      "bytes": 159335
+    },
+    "android/app/src/main/assets/genuicraft_bixby50.jsonl": {
+      "sha256": "fc46aa381957bed206f9e0f53e28edbb21b5096ca093985ad184fda73faaea0a",
+      "bytes": 132322
+    },
+    "GenUICraft/tools/report_bixby50_v54_models.py": {
+      "sha256": "73c8b8dfb2b8e53bccbf6d830a89608c1848f204c6f11e7a2c0bc69eb1da3c17",
+      "bytes": 42746
+    },
+    "dataset/configs/genui_metric_v5_4.yaml": {
+      "sha256": "0d8628f7e21773c22473eee57186cb0cfd5e5aa0975eb20b7f16c6975d501918",
+      "bytes": 3639
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/provenance.json": {
+      "sha256": "4eadc0d2ba1266833d685f6cca7c71069965ded1f75c8aa3c5438d39f053980b",
+      "bytes": 313
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/protocol.json": {
+      "sha256": "565c40f737e729c141cb47728f72d6fd1e12f11ad9cbef80cf41426323738992",
+      "bytes": 4504
+    },
+    "C:\\Users\\anupk\\Downloads\\trained_model_data\\e2b_runD_predictions\\r32_bixby50_scored.jsonl": {
+      "sha256": "bc36b7eeb682f2e95f97f798615fc0befb5e4d8c82f226bc5ed0b038b3d262b4",
+      "bytes": 1125116
+    },
+    "C:\\Users\\anupk\\Downloads\\trained_model_data\\e2b_runD_predictions\\r64_bixby50_scored.jsonl": {
+      "sha256": "fd0ac6364f9e9dbc376a961f82c9944cfc2eec13ca25d35100408d8884d96c53",
+      "bytes": 1077892
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/report/mtp_off/scored_predictions.jsonl": {
+      "sha256": "e328214c9c90b43e907291e0a68d78d0c5ca55acf26387e337dbafd54f1cf2eb",
+      "bytes": 142489
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_off/run_config.json": {
+      "sha256": "59cbbcd583c4fa8a89c47f3e5cdc03831f3d5a1c20c15f6300efacfe72184696",
+      "bytes": 1726
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_off/BXP-001/source.json": {
+      "sha256": "2540e259bf569fb6d34c6eeb3ac1d44de4c29f3da3ab3e9c7cfc2a12dcdb7359",
+      "bytes": 1175
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_off/BXP-001/metrics.json": {
+      "sha256": "17377ae6581c58fa24163d00fb33b0876d26d927d98ff37019bf6fb211235cab",
+      "bytes": 533
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_off/BXP-001/result.json": {
+      "sha256": "031652be5f8fadc473f44e79bc5b345b08b2042055926372751ae6713c3826c5",
+      "bytes": 2347
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_off/BXP-001/output.express": {
+      "sha256": "ec835d1214b014e0b9ffbf496272b1baa9bacafbb407d07777e1300633323369",
+      "bytes": 976
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_off/BXP-001/source.output.express": {
+      "sha256": "ec835d1214b014e0b9ffbf496272b1baa9bacafbb407d07777e1300633323369",
+      "bytes": 976
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_off/BXP-001/replay_result.json": {
+      "sha256": "51c609c6eee1b02fb706516cafc6a7e9096ec28354b74c23b7a9caacc9a46e22",
+      "bytes": 3560
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_off/BXP-001/recovered.output.express": {
+      "sha256": "59671e3b384c5410c8dfe6883c1d6b18a51009c8c69b54737c9b4c5a4af4b5db",
+      "bytes": 998
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_off/BXP-002/source.json": {
+      "sha256": "994bb0c2581f95caacdc67dfc904ae0dc8032ad15fa45960fb023774c8ac7889",
+      "bytes": 1008
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_off/BXP-002/metrics.json": {
+      "sha256": "c15a7580269c24349cb20ab65a49f7f17d9a2c83c4e6ab895919818aa02b6409",
+      "bytes": 505
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_off/BXP-002/result.json": {
+      "sha256": "4ed9c1ab9ff7f635629f728ca3e02f86eac5a11e659ee1eaf42f86b7c40b59c1",
+      "bytes": 2381
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_off/BXP-002/output.express": {
+      "sha256": "8ff64d5608c1d53089b225541b4543cfe6e28bf8110ef6995517cfdc929b7dfc",
+      "bytes": 607
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_off/BXP-002/source.output.express": {
+      "sha256": "8ff64d5608c1d53089b225541b4543cfe6e28bf8110ef6995517cfdc929b7dfc",
+      "bytes": 607
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_off/BXP-002/replay_result.json": {
+      "sha256": "6ef0db93349815c9442d9c52c3e44b0fe0281e576f79bbd9d7641278ddaa14e5",
+      "bytes": 3266
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_off/BXP-002/recovered.output.express": {
+      "sha256": "42b07a4514b70e554e7cfc4adeaae76730acff50b532807259b23529dd93d8de",
+      "bytes": 567
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_off/BXP-003/source.json": {
+      "sha256": "cb9e937a1ab5d300175d935051cd1c18a4e34efb91ccba17d444b082000d0b56",
+      "bytes": 1730
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_off/BXP-003/metrics.json": {
+      "sha256": "cd133ae5c191ac9c3ec6e6b62e8002891bc7e7bd6ecdb874c5a91513ab578ef9",
+      "bytes": 508
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_off/BXP-003/result.json": {
+      "sha256": "2588c80f8d0c08bd5409bb73082784116f94f44f68bf712b8b9b94de0f0ed32a",
+      "bytes": 2508
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_off/BXP-003/output.express": {
+      "sha256": "1161435a54a7f852892f803e11b73d25b61e1a1c3794c8adf070431844df4e94",
+      "bytes": 1696
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_off/BXP-003/source.output.express": {
+      "sha256": "1161435a54a7f852892f803e11b73d25b61e1a1c3794c8adf070431844df4e94",
+      "bytes": 1696
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_off/BXP-003/replay_result.json": {
+      "sha256": "e3f67b9097d6abdf7885643f348c98fd552d3eef6373d8428e5478405d024008",
+      "bytes": 3953
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_off/BXP-003/recovered.output.express": {
+      "sha256": "6c365e65c489343be6cbd5f387d8498044be3559f4a6f33c43e13323c4c55df3",
+      "bytes": 1724
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_off/BXP-004/source.json": {
+      "sha256": "5b84054f2540fbc50b54149715774eae5fd1f8ec874eeb6aca90b22f6c4d113e",
+      "bytes": 1921
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_off/BXP-004/metrics.json": {
+      "sha256": "0c3bbf8697d0dcdd20cda7fc9066a2fa8e7553f0afbcffd9035e9043f6dafaa7",
+      "bytes": 512
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_off/BXP-004/result.json": {
+      "sha256": "f9c06275da6da3c48c31699030e150d4ed49467abc2937eda4392e31d70e139e",
+      "bytes": 2274
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_off/BXP-004/output.express": {
+      "sha256": "22dd1cca5d0c6adfb5ce4b21bc173df11994fda4fe60a536cfb5e8951889f277",
+      "bytes": 1565
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_off/BXP-004/source.output.express": {
+      "sha256": "22dd1cca5d0c6adfb5ce4b21bc173df11994fda4fe60a536cfb5e8951889f277",
+      "bytes": 1565
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_off/BXP-004/replay_result.json": {
+      "sha256": "635cb0a546f0034f0a5109e2524f59925aeaf0d4020479c5038ea0e49df9fe95",
+      "bytes": 3996
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_off/BXP-004/recovered.output.express": {
+      "sha256": "2c00b9414017a7400a66c2c9061057cbefcde3d454956375bb2c8c4863fe584a",
+      "bytes": 1483
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_off/BXP-005/source.json": {
+      "sha256": "ef1da62ccafc5492a5a1dd63ce154dda094a8d0e3749d14e497d2d76c080d498",
+      "bytes": 2027
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_off/BXP-005/metrics.json": {
+      "sha256": "e9d2ebb989a94825476211898f560e3ae5013d2d2476e889a5c53e6405fb4dc6",
+      "bytes": 507
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_off/BXP-005/result.json": {
+      "sha256": "9c0d2d90df219676fdd5b47badac6f4341126676f7cd231808bdd017150aacf9",
+      "bytes": 2646
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_off/BXP-005/output.express": {
+      "sha256": "a79e47c49163ddb89130dd7091a18493625767c454cc0422f56d11fde958c10a",
+      "bytes": 1911
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_off/BXP-005/source.output.express": {
+      "sha256": "a79e47c49163ddb89130dd7091a18493625767c454cc0422f56d11fde958c10a",
+      "bytes": 1911
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_off/BXP-005/replay_result.json": {
+      "sha256": "c25906f0bb75947c2e59a00bf65229a9010f3634418296cf6e8fdd3e902a844d",
+      "bytes": 5571
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_off/BXP-005/recovered.output.express": {
+      "sha256": "bbfb8e24b9b32bf89b9f8ba1ebb1a0bfdb585e6a3c7cc4b4864f428d20ab937f",
+      "bytes": 1907
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_off/run_config.json": {
+      "sha256": "54fb6eefcab5a84b6853468166b0c1902f342febd221097abdd079a64afb43f6",
+      "bytes": 1726
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_off/BXP-006/source.json": {
+      "sha256": "20b67a8e4f3953b12e7854dbbce17cac57295367120162a0eb5b2f6cba3cbb8f",
+      "bytes": 2849
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_off/BXP-006/metrics.json": {
+      "sha256": "e96780042744abc888452f7eae8446578fddff7931e6f7d98d56259bc3708adf",
+      "bytes": 523
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_off/BXP-006/result.json": {
+      "sha256": "af6c64b503e5a246d24d3cfc4bfda3137ecfcaaf6b26acb8ae6095fb7390b4ca",
+      "bytes": 3290
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_off/BXP-006/output.express": {
+      "sha256": "92bc56c1f90257557f082a5eb6a5c7cc38a41b5e23389fa8ede5a9605877a4cc",
+      "bytes": 3231
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_off/BXP-006/source.output.express": {
+      "sha256": "92bc56c1f90257557f082a5eb6a5c7cc38a41b5e23389fa8ede5a9605877a4cc",
+      "bytes": 3231
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_off/BXP-006/replay_result.json": {
+      "sha256": "d228603dc36e5d248d2463373cebd36be98c8bad6e590031e59e85675d1dff4c",
+      "bytes": 4869
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_off/BXP-006/recovered.output.express": {
+      "sha256": "6a38a75ce196962d4fad8fe5d4ba173e5e7e15b10024ee70366933bb4b312ba7",
+      "bytes": 3247
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_off/BXP-007/source.json": {
+      "sha256": "69530508b6993b8541b694b80b6f06e8e5e91399068cbd97c26d299bca1de333",
+      "bytes": 1568
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_off/BXP-007/metrics.json": {
+      "sha256": "7d46349d8a5c915b19b9fe6e1e77be1661cb86e94f249787fcca796d5055abe8",
+      "bytes": 511
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_off/BXP-007/result.json": {
+      "sha256": "ac4e781b12dc481a006080004a4c6c78a8464bc507272f94042a9f86f5961d50",
+      "bytes": 2624
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_off/BXP-007/output.express": {
+      "sha256": "529cbb4673f571f989b1c58c7b733965f4c68c5fc8d0fdc18f84c1c6a71c015e",
+      "bytes": 1437
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_off/BXP-007/source.output.express": {
+      "sha256": "529cbb4673f571f989b1c58c7b733965f4c68c5fc8d0fdc18f84c1c6a71c015e",
+      "bytes": 1437
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_off/BXP-007/replay_result.json": {
+      "sha256": "1cfa191fb9eb0cfb7e874dbf276ce3b558f895c5973b9bd64b11602f6ecac6a7",
+      "bytes": 5447
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_off/BXP-007/recovered.output.express": {
+      "sha256": "0bbdbc7128b9eab0a33eb8def94453e2092afcdd21bf7eaeee58cc61f282b3cf",
+      "bytes": 1427
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_off/BXP-008/source.json": {
+      "sha256": "7f3f359fda0366b29a517793bae6ab85cdbf990c71f0749ba15be12bcb40eb9a",
+      "bytes": 1584
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_off/BXP-008/metrics.json": {
+      "sha256": "098bff170fea85593b846f324650542a27e0d8be8c3d1613b5fed44a6d856973",
+      "bytes": 509
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_off/BXP-008/result.json": {
+      "sha256": "fcb24e588013e247439c3b6a27cdf73dfb1249ff201422da62ab53282bf1b7ee",
+      "bytes": 2676
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_off/BXP-008/output.express": {
+      "sha256": "7912a110369ee05b2c18e1dcb94939a3698b3661d8d559b738ef8a0ba4e83715",
+      "bytes": 1493
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_off/BXP-008/source.output.express": {
+      "sha256": "7912a110369ee05b2c18e1dcb94939a3698b3661d8d559b738ef8a0ba4e83715",
+      "bytes": 1493
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_off/BXP-008/replay_result.json": {
+      "sha256": "6c7c68a9e56195e5eb48093526bb28432cf27222a8154beb70064f7112cbdc5a",
+      "bytes": 3647
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_off/BXP-008/recovered.output.express": {
+      "sha256": "fe1f8a7342680a0e4b626c45a4ca44335147ea595987d8545013209d4c8a4e66",
+      "bytes": 1511
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_off/BXP-009/source.json": {
+      "sha256": "ed5a140ad7a6d25bbf5f971845e9594405e5e841387d80518736d9a30ba14e70",
+      "bytes": 1985
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_off/BXP-009/metrics.json": {
+      "sha256": "1df133a8cbe59428637862e1fbf22d25464cae70919f888bf62f44a1f3fb5ce6",
+      "bytes": 508
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_off/BXP-009/result.json": {
+      "sha256": "c894ad73e50a67b088b6157ccf7396164bf433466a826154715c3cc4b7022b19",
+      "bytes": 2366
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_off/BXP-009/output.express": {
+      "sha256": "1fef84b96b46c04b8ede8ea97395f07130631488367e14e72462f09385e7e43b",
+      "bytes": 1804
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_off/BXP-009/source.output.express": {
+      "sha256": "1fef84b96b46c04b8ede8ea97395f07130631488367e14e72462f09385e7e43b",
+      "bytes": 1804
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_off/BXP-009/replay_result.json": {
+      "sha256": "b7524009a6a844bbd0ae98b33f7f6bf74c8585abf6871b7bd5d8c49c6adce49e",
+      "bytes": 3618
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_off/BXP-009/recovered.output.express": {
+      "sha256": "213a245504079ee553e28a258c360506cb8476e0d58a3b2f96abd13dba7b0bf8",
+      "bytes": 1804
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_off/BXP-010/source.json": {
+      "sha256": "36e0cecb083983d20d9d4f25e1f1babcc95eb575f59523cd1cce0ad21f10b58b",
+      "bytes": 1585
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_off/BXP-010/metrics.json": {
+      "sha256": "a02d94dff54c5248c874e459543f0f825a075ab063352e0a8ce4aceb220487c5",
+      "bytes": 507
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_off/BXP-010/result.json": {
+      "sha256": "2b78db45196d3ffd6941311a65cbd5af495efd70c411af7ca1d8170d19e7740e",
+      "bytes": 2515
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_off/BXP-010/output.express": {
+      "sha256": "1f58dd21318ad271e19935cd0449bcbd1bd227faf1db72a856d6eb3c634f1532",
+      "bytes": 1451
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_off/BXP-010/source.output.express": {
+      "sha256": "1f58dd21318ad271e19935cd0449bcbd1bd227faf1db72a856d6eb3c634f1532",
+      "bytes": 1451
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_off/BXP-010/replay_result.json": {
+      "sha256": "5d9db3f1c80cc1a088b31b4c0939523cdf3541a5a43bab3a0fc8db20ea67a527",
+      "bytes": 3788
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_off/BXP-010/recovered.output.express": {
+      "sha256": "b02ff8b540164bcd58d7201d8f8a41e5c74c759de3307fe3f22be09d2efead6d",
+      "bytes": 1451
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_off/run_config.json": {
+      "sha256": "59053fdcbf90e31df9cbc1224d25f74f419169ba9d0023f2e84f65a7a44e2da7",
+      "bytes": 1726
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_off/BXP-011/source.json": {
+      "sha256": "aa2ed1c44697c4290a1c90c6a7291fbf159ec6fe470429a21b2ae653c6666104",
+      "bytes": 1627
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_off/BXP-011/metrics.json": {
+      "sha256": "cb52976f6ecda0fbe54d7ec6ee110f2b5893edd6b491b91f4c1542ddb4d00117",
+      "bytes": 531
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_off/BXP-011/result.json": {
+      "sha256": "2bc108b0be9fe8f2fde47360d542b9c452cbbf7eb3f2abbfb325c464ba2c1c7a",
+      "bytes": 2549
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_off/BXP-011/output.express": {
+      "sha256": "3bf9e7972919ef6bd8f16f26c0ecb8d75abe436632eded13885d6bd3c9eca146",
+      "bytes": 1606
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_off/BXP-011/source.output.express": {
+      "sha256": "3bf9e7972919ef6bd8f16f26c0ecb8d75abe436632eded13885d6bd3c9eca146",
+      "bytes": 1606
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_off/BXP-011/replay_result.json": {
+      "sha256": "2ca4a41980f66d03568539e575d0cb63de3c704d178e90d6d6e25bc589d61288",
+      "bytes": 3915
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_off/BXP-011/recovered.output.express": {
+      "sha256": "9025cf6900373a64d5e567d08b73fc4d4d7d9c87eed99660cc7829503a48199c",
+      "bytes": 1616
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_off/BXP-012/source.json": {
+      "sha256": "459304bf73eb0314c98a88f84cb29769f256ecae5f54f6f587559221e626fefc",
+      "bytes": 2242
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_off/BXP-012/metrics.json": {
+      "sha256": "ced97d9b5cb7c9cbb00da5a0e92898dee32777a11b98126bc17f00586402ca1b",
+      "bytes": 510
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_off/BXP-012/result.json": {
+      "sha256": "bf89ff0d23e69388d5be920b716ec128adcdb172ad0dd0c44a83d9aee240244b",
+      "bytes": 2616
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_off/BXP-012/output.express": {
+      "sha256": "b6051be0a530f96e38b80c029abec37c38bfd2921a777f398ebebb219a78803e",
+      "bytes": 2159
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_off/BXP-012/source.output.express": {
+      "sha256": "b6051be0a530f96e38b80c029abec37c38bfd2921a777f398ebebb219a78803e",
+      "bytes": 2159
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_off/BXP-012/replay_result.json": {
+      "sha256": "3b1c5a0e1de2533674a013f4c5f496a91af2dc51e2113d353af0eeaf01304d7a",
+      "bytes": 5508
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_off/BXP-012/recovered.output.express": {
+      "sha256": "3096b3ec9fcad274b5a7bbd3fcbb72465ebb8ed3669db321a2d2ebe631cb1ca9",
+      "bytes": 2163
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_off/BXP-013/source.json": {
+      "sha256": "2e971814ef9774e554d163ce64b87975649e81b20cca547b81fa7b8fec360502",
+      "bytes": 3354
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_off/BXP-013/metrics.json": {
+      "sha256": "1ddac2a5789d0419890a7f69744e1d1d48e75f931b3415a4f05b5d6f9f09b94b",
+      "bytes": 509
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_off/BXP-013/result.json": {
+      "sha256": "7faaeca2c5e5a27b1fcba9839f0bbe9352fd79fc0a9e101f98a627341c9aa14d",
+      "bytes": 2710
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_off/BXP-013/output.express": {
+      "sha256": "4c31ee5b8f157a735066f877f235e1d4fdebf3d2bbaed8fbff4f6fe8d0b08ea6",
+      "bytes": 3532
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_off/BXP-013/source.output.express": {
+      "sha256": "4c31ee5b8f157a735066f877f235e1d4fdebf3d2bbaed8fbff4f6fe8d0b08ea6",
+      "bytes": 3532
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_off/BXP-013/replay_result.json": {
+      "sha256": "8d3f2511174b4d803db4698f44390173098b12022b0cb53339771093f73c2787",
+      "bytes": 4406
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_off/BXP-013/recovered.output.express": {
+      "sha256": "a7da98ea1d50551f2663a78158a3e0cb5959fc31bbc84bdd27b2cd2e7a128639",
+      "bytes": 3452
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_off/BXP-014/source.json": {
+      "sha256": "21cd144cf1d72228c6f55685d9f940d894837bf6400009d6d38fc89eeb189a4c",
+      "bytes": 1247
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_off/BXP-014/metrics.json": {
+      "sha256": "1fe135c6fda8c50da94a91843a3c04db3a1b5036bc2e4179306ec49cd187e214",
+      "bytes": 508
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_off/BXP-014/result.json": {
+      "sha256": "7b09790a7d089055567a56ec79919efb9d0173fa5c2d01cd2a0eda823e32faff",
+      "bytes": 2455
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_off/BXP-014/output.express": {
+      "sha256": "d73d815523c028a9617c8937d76ac504de9564b47f24a5240c50e8c05adbcb62",
+      "bytes": 1032
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_off/BXP-014/source.output.express": {
+      "sha256": "d73d815523c028a9617c8937d76ac504de9564b47f24a5240c50e8c05adbcb62",
+      "bytes": 1032
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_off/BXP-014/replay_result.json": {
+      "sha256": "d12edabc13a0d604f22af0e6e5e74ee002815d547a3d3c45c5f62c1e711957bc",
+      "bytes": 3833
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_off/BXP-014/recovered.output.express": {
+      "sha256": "6e21e978870d52fa0835603a9413110655a78aa782184434fad918a6fbaa23ce",
+      "bytes": 1040
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_off/BXP-015/source.json": {
+      "sha256": "e0c768a4f76d0c8cbe76dba252900a6a734a07c8c8c0b27bb508a60cf9e80bbb",
+      "bytes": 1172
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_off/BXP-015/metrics.json": {
+      "sha256": "918368568d3bc852d32d7ec68e8c6bb0c3348844f234e65845ff75dfefc0d2b1",
+      "bytes": 505
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_off/BXP-015/result.json": {
+      "sha256": "9d254b0c44cac15cde9db9d0821aa59775396bba4d40d2a0ee89ef0e75f2f59f",
+      "bytes": 1710
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_off/BXP-015/output.express": {
+      "sha256": "1205143885a79210a18bd271081ae28b8cfd6ac3eb19b0b339412467f730e4e4",
+      "bytes": 847
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_off/BXP-015/source.output.express": {
+      "sha256": "1205143885a79210a18bd271081ae28b8cfd6ac3eb19b0b339412467f730e4e4",
+      "bytes": 847
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_off/BXP-015/replay_result.json": {
+      "sha256": "144a01013926c21c664720acdfc987f0d3b3c414d3162188c964addab611a90b",
+      "bytes": 1222
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_off/BXP-015/recovered.output.express": {
+      "sha256": "9ad5f61e771488412310871f59d4ca0f7ca73d4c8e415b357e214086e99a81b8",
+      "bytes": 827
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/report/mtp_on/scored_predictions.jsonl": {
+      "sha256": "b841421db772c5a85cb3b1411d7d822a22be655f01872bea7e72bab802890d37",
+      "bytes": 110477
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_on/run_config.json": {
+      "sha256": "2e78c0b81a6e3209ff0f8e32c1be636a5f20ecebbc69d564ef9831145f2a4d0c",
+      "bytes": 1724
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_on/BXP-001/source.json": {
+      "sha256": "2540e259bf569fb6d34c6eeb3ac1d44de4c29f3da3ab3e9c7cfc2a12dcdb7359",
+      "bytes": 1175
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_on/BXP-001/metrics.json": {
+      "sha256": "d354b36c61206fb626d26b595e26c4c437c5669ad22481a7e933ab31f821a2cf",
+      "bytes": 528
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_on/BXP-001/result.json": {
+      "sha256": "1067c7e8a83a10f0b3ce60d4d11085b0ea90c5f9967bf251979780948bfd4da6",
+      "bytes": 2346
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_on/BXP-001/output.express": {
+      "sha256": "f2eb2e4ccb4b08c86b290437dcb3bbc2af133c22dc4a49644bfaa253f9bd7072",
+      "bytes": 962
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_on/BXP-001/source.output.express": {
+      "sha256": "f2eb2e4ccb4b08c86b290437dcb3bbc2af133c22dc4a49644bfaa253f9bd7072",
+      "bytes": 962
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_on/BXP-001/replay_result.json": {
+      "sha256": "c0b74bec2da036e77305ed196a54edf14612cefa4643fd10dd95fa16c0078d1f",
+      "bytes": 3673
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_on/BXP-001/recovered.output.express": {
+      "sha256": "9795ecba3577e1659f4af39cd074f2e2edc03034545774c98c47f05be0834d19",
+      "bytes": 984
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_on/BXP-002/source.json": {
+      "sha256": "994bb0c2581f95caacdc67dfc904ae0dc8032ad15fa45960fb023774c8ac7889",
+      "bytes": 1008
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_on/BXP-002/metrics.json": {
+      "sha256": "d6bf0228beda88abca03707bc64a62fe94dfff368a2f9ed3ef81b721a88b10fb",
+      "bytes": 510
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_on/BXP-002/result.json": {
+      "sha256": "cb21d20e03cac9ea42483e08219e63b287c76c908f7445b938b2b121eff4a666",
+      "bytes": 2390
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_on/BXP-002/output.express": {
+      "sha256": "8ff64d5608c1d53089b225541b4543cfe6e28bf8110ef6995517cfdc929b7dfc",
+      "bytes": 607
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_on/BXP-002/source.output.express": {
+      "sha256": "8ff64d5608c1d53089b225541b4543cfe6e28bf8110ef6995517cfdc929b7dfc",
+      "bytes": 607
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_on/BXP-002/replay_result.json": {
+      "sha256": "d1d728910ae6b180e750d52909405e75e44cce7bc3ae4a83a9acc76af2b3f2df",
+      "bytes": 3264
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_on/BXP-002/recovered.output.express": {
+      "sha256": "42b07a4514b70e554e7cfc4adeaae76730acff50b532807259b23529dd93d8de",
+      "bytes": 567
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_on/BXP-003/source.json": {
+      "sha256": "cb9e937a1ab5d300175d935051cd1c18a4e34efb91ccba17d444b082000d0b56",
+      "bytes": 1730
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_on/BXP-003/metrics.json": {
+      "sha256": "c19c0ff888509fb778194e3ce72c9da998a8aff267006926c3619a10cf9c0282",
+      "bytes": 511
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_on/BXP-003/result.json": {
+      "sha256": "b23c6ccf19fdd1ee3260d1b0834b05738c002d08fad55b3b5d9fcbaac31e859e",
+      "bytes": 2762
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_on/BXP-003/output.express": {
+      "sha256": "fffd01b422e93376fb9d4fed259716d0e43dfa7b6dba3102d22b6191764fb92c",
+      "bytes": 1675
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_on/BXP-003/source.output.express": {
+      "sha256": "fffd01b422e93376fb9d4fed259716d0e43dfa7b6dba3102d22b6191764fb92c",
+      "bytes": 1675
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_on/BXP-003/replay_result.json": {
+      "sha256": "ed64862efe89af5d3f4ea1d4585d2130cbcdcabc443227b9ea92d8a663895dc0",
+      "bytes": 3637
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_on/BXP-003/recovered.output.express": {
+      "sha256": "5898fe560f31e2c484bb7bbecb3f105ff1e42089116ae7d5b0c896603b2025f2",
+      "bytes": 1653
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_on/BXP-004/source.json": {
+      "sha256": "5b84054f2540fbc50b54149715774eae5fd1f8ec874eeb6aca90b22f6c4d113e",
+      "bytes": 1921
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_on/BXP-004/metrics.json": {
+      "sha256": "3b98d8a8664c93b82e870d1facbde88a57f865634e72161318f2f11a4fa70a4f",
+      "bytes": 510
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_on/BXP-004/result.json": {
+      "sha256": "c069b482f6ce32015aa3323dbf11769e6528ae645c68c844908ccb8b1fb87018",
+      "bytes": 2300
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_on/BXP-004/output.express": {
+      "sha256": "1f637e6bfc13783e04035585acdc24615cda75dca0339c0c2c56a9c054a540e9",
+      "bytes": 1563
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_on/BXP-004/source.output.express": {
+      "sha256": "1f637e6bfc13783e04035585acdc24615cda75dca0339c0c2c56a9c054a540e9",
+      "bytes": 1563
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_on/BXP-004/replay_result.json": {
+      "sha256": "e790d3f47e0230c7043b3ff614cd3fb1d03ce3da545798202e299387e33ec57e",
+      "bytes": 4180
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_on/BXP-004/recovered.output.express": {
+      "sha256": "2c00b9414017a7400a66c2c9061057cbefcde3d454956375bb2c8c4863fe584a",
+      "bytes": 1483
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_on/BXP-005/source.json": {
+      "sha256": "ef1da62ccafc5492a5a1dd63ce154dda094a8d0e3749d14e497d2d76c080d498",
+      "bytes": 2027
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_on/BXP-005/metrics.json": {
+      "sha256": "f1908c3e9131d116f861b3d6435b06ba696025f5ca71dfe75cd98adc3ae653de",
+      "bytes": 517
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_on/BXP-005/result.json": {
+      "sha256": "1be093e4ca033129afe7eb59c8331ba53b3adf35257bebf5ef73ff3b60ff3b45",
+      "bytes": 2494
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_01_mtp_on/BXP-005/output.express": {
+      "sha256": "98719f3afc96d2f8dc358acb9113fff6aac92219b27e37bf1daee31e1e647813",
+      "bytes": 2036
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_on/BXP-005/source.output.express": {
+      "sha256": "98719f3afc96d2f8dc358acb9113fff6aac92219b27e37bf1daee31e1e647813",
+      "bytes": 2036
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_on/BXP-005/replay_result.json": {
+      "sha256": "c8c416e7ded69775850519eff2a39ee651a22e609df7811dc7384e729a25201b",
+      "bytes": 5520
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_on/BXP-005/recovered.output.express": {
+      "sha256": "2e0e994a16d49236ac93d47f545c471d29cc8b93378b8685e1d1726444e45f75",
+      "bytes": 2034
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_on/run_config.json": {
+      "sha256": "06e9a3ce2c49bdd1831aad352fc088a79e4370b4f9b477d60cbfdaedf4dca249",
+      "bytes": 1724
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_on/BXP-006/source.json": {
+      "sha256": "20b67a8e4f3953b12e7854dbbce17cac57295367120162a0eb5b2f6cba3cbb8f",
+      "bytes": 2849
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_on/BXP-006/metrics.json": {
+      "sha256": "0a9a7ff64aae9e47d2f373d27b617ef69df262c6f00f2a11da127a08d9d744cb",
+      "bytes": 528
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_on/BXP-006/result.json": {
+      "sha256": "1c223f751d5409dacf24a6b01a678c15cad9d2b3f9fb4f1cd6a86d370a428fe4",
+      "bytes": 2506
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_on/BXP-006/output.express": {
+      "sha256": "1498b23d826b8390776fd40d24b4c959b487a006eee733a6a461a1d64c94899d",
+      "bytes": 2778
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_on/BXP-006/source.output.express": {
+      "sha256": "1498b23d826b8390776fd40d24b4c959b487a006eee733a6a461a1d64c94899d",
+      "bytes": 2778
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_on/BXP-006/replay_result.json": {
+      "sha256": "ad0544999e0483bf57a7eb44e6ff5ac7b35cdfbbc6e30a27fbfb09db7677312f",
+      "bytes": 3852
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_on/BXP-006/recovered.output.express": {
+      "sha256": "887a1a77cdc4fd2dce3683085a4d713cc4e6c3e790997921319a8e783fac88fd",
+      "bytes": 2756
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_on/BXP-007/source.json": {
+      "sha256": "69530508b6993b8541b694b80b6f06e8e5e91399068cbd97c26d299bca1de333",
+      "bytes": 1568
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_on/BXP-007/metrics.json": {
+      "sha256": "75e664aff87a3c3429c80599ea5466838eebd8400efd050f7f9cf703ed843442",
+      "bytes": 511
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_on/BXP-007/result.json": {
+      "sha256": "81b60c1800bf29838273f1dd912f08e1a2c71beb32c63977c5e1e944b15d2a7e",
+      "bytes": 2630
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_on/BXP-007/output.express": {
+      "sha256": "1e134e08493909e4a87ce9cfffa8cc88019f8d7366f0ed8d7909cfa0e5fd2667",
+      "bytes": 1432
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_on/BXP-007/source.output.express": {
+      "sha256": "1e134e08493909e4a87ce9cfffa8cc88019f8d7366f0ed8d7909cfa0e5fd2667",
+      "bytes": 1432
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_on/BXP-007/replay_result.json": {
+      "sha256": "c414c84af5759217f7923cf52597294976a2886f9045643acdd56ada32c066cd",
+      "bytes": 5445
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_on/BXP-007/recovered.output.express": {
+      "sha256": "a0f4123f0150b4b40c9f5c8100bd966899b67154d1c4e975d1ec2554becc81b4",
+      "bytes": 1430
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_on/BXP-008/source.json": {
+      "sha256": "7f3f359fda0366b29a517793bae6ab85cdbf990c71f0749ba15be12bcb40eb9a",
+      "bytes": 1584
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_on/BXP-008/metrics.json": {
+      "sha256": "ddb6ed768c0ef911f2af842b5e7d66e3f3d85123611e959eac6253a3c17e1c89",
+      "bytes": 512
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_on/BXP-008/result.json": {
+      "sha256": "385b3463cb7dbd603981efb382f256422261974f813cf73e39d0835b89edb37c",
+      "bytes": 2682
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_on/BXP-008/output.express": {
+      "sha256": "071d48e5d955938ccc3439e28c1f39497cd8fba8c0f94d57dc9ce4d21e305f77",
+      "bytes": 1535
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_on/BXP-008/source.output.express": {
+      "sha256": "071d48e5d955938ccc3439e28c1f39497cd8fba8c0f94d57dc9ce4d21e305f77",
+      "bytes": 1535
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_on/BXP-008/replay_result.json": {
+      "sha256": "6e7e8278ed679e3eb3a326b778505e20d58f0baa9eb8d7f529ad39d6dd4ec8a2",
+      "bytes": 3633
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_on/BXP-008/recovered.output.express": {
+      "sha256": "ff130ddcd47ff55e2ed6612d1aed68e7f7a3067bcaa98daefa8aa8da369ee6a2",
+      "bytes": 1553
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_on/BXP-009/source.json": {
+      "sha256": "ed5a140ad7a6d25bbf5f971845e9594405e5e841387d80518736d9a30ba14e70",
+      "bytes": 1985
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_on/BXP-009/metrics.json": {
+      "sha256": "0e7221b2fec4ba3952cee4f5180b889e7b27a00b8b14d873208e1fde862a4827",
+      "bytes": 509
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_on/BXP-009/result.json": {
+      "sha256": "9a5128016673025e38c78744f240afce9b2b140b4ce59a8140cf5c8c1b793389",
+      "bytes": 2641
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_on/BXP-009/output.express": {
+      "sha256": "dad4c866ca093dec12b63a6f591b92dab210151dca405d36eae3d3184bd112aa",
+      "bytes": 1694
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_on/BXP-009/source.output.express": {
+      "sha256": "dad4c866ca093dec12b63a6f591b92dab210151dca405d36eae3d3184bd112aa",
+      "bytes": 1694
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_on/BXP-009/replay_result.json": {
+      "sha256": "2564c4939b468d52e8e00921526b4fbc8fab89f134765552f6a30c0fb344c9b4",
+      "bytes": 3594
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_on/BXP-009/recovered.output.express": {
+      "sha256": "bf598f5ac41005963baf6f77e078854fe7c2e3a18361155fd4f594a96a7583c4",
+      "bytes": 1686
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_on/BXP-010/source.json": {
+      "sha256": "36e0cecb083983d20d9d4f25e1f1babcc95eb575f59523cd1cce0ad21f10b58b",
+      "bytes": 1585
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_on/BXP-010/metrics.json": {
+      "sha256": "ffd06a6e33eca1af81905545819c2663c0416a1b092be05652a735a21e6c57d0",
+      "bytes": 512
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_on/BXP-010/result.json": {
+      "sha256": "656b2135ccf796cd485faab430ae431716769081db2338683b821564520f2efb",
+      "bytes": 2530
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_02_mtp_on/BXP-010/output.express": {
+      "sha256": "4ed16522ca453777d2ca50b64fe9db5753d33b087886f5e332b504a439e4ec97",
+      "bytes": 1449
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_on/BXP-010/source.output.express": {
+      "sha256": "4ed16522ca453777d2ca50b64fe9db5753d33b087886f5e332b504a439e4ec97",
+      "bytes": 1449
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_on/BXP-010/replay_result.json": {
+      "sha256": "50aefac0c6dcbfe0ad008d9ab24ee55df1702c7975d0ea17821c6dcd379158df",
+      "bytes": 3801
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_on/BXP-010/recovered.output.express": {
+      "sha256": "e1609bb18e37ac6a01dc13a1f0b7b8b8d646d54d962deb57fb91725885d161bf",
+      "bytes": 1449
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_on/run_config.json": {
+      "sha256": "d448e7161bcdf8203a37ba7e08c7af30a21f6e242901cf16c0ac5aa90dce5848",
+      "bytes": 1724
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_on/BXP-011/source.json": {
+      "sha256": "aa2ed1c44697c4290a1c90c6a7291fbf159ec6fe470429a21b2ae653c6666104",
+      "bytes": 1627
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_on/BXP-011/metrics.json": {
+      "sha256": "5e481cbf7e8d163f6a2724db9e40983e889dbb7fa548900dadee536c43ab41cc",
+      "bytes": 523
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_on/BXP-011/result.json": {
+      "sha256": "ae37ee893788cbc5d63af7cc520cd0e752279b909fdad3c2030e5bf11b49fbd7",
+      "bytes": 2545
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_on/BXP-011/output.express": {
+      "sha256": "f665fa74fee2bd7d62305f4ea36a9c88fde097d92d35d65bb27a3a79df1bf8bb",
+      "bytes": 1616
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_on/BXP-011/source.output.express": {
+      "sha256": "f665fa74fee2bd7d62305f4ea36a9c88fde097d92d35d65bb27a3a79df1bf8bb",
+      "bytes": 1616
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_on/BXP-011/replay_result.json": {
+      "sha256": "ed9bac84eb35af0b968713aee9e9c19df0b86c8c156f5b931b5ba15319294df8",
+      "bytes": 3913
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_on/BXP-011/recovered.output.express": {
+      "sha256": "d00ddc17098ff2d50fb15ec9c52d3f3f1001c7adf4116adc9e971286d31fb351",
+      "bytes": 1626
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_on/BXP-012/source.json": {
+      "sha256": "459304bf73eb0314c98a88f84cb29769f256ecae5f54f6f587559221e626fefc",
+      "bytes": 2242
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_on/BXP-012/metrics.json": {
+      "sha256": "e73e60c001efb0985dbc1982c920c9f362b27f4d9f4ab73e1caf186220138d66",
+      "bytes": 512
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_on/BXP-012/result.json": {
+      "sha256": "06a546b188169d5a089c8c525e4ec21ca8905d2c3e2a641b3ff517ab49cf7b4a",
+      "bytes": 2941
+    },
+    "GenUICraft/validation/20260928_fp32_bixby50_mtp/batches/group_03_mtp_on/BXP-012/output.express": {
+      "sha256": "b03407c8c1f9bce7fa8744517b7db79e0afe7003598534b82a2773d2631bf6c7",
+      "bytes": 1998
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_on/BXP-012/source.output.express": {
+      "sha256": "b03407c8c1f9bce7fa8744517b7db79e0afe7003598534b82a2773d2631bf6c7",
+      "bytes": 1998
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_on/BXP-012/replay_result.json": {
+      "sha256": "63c493ff8a14cfa32aa3cd81783940559c4efe892f863fa234581567158bcd38",
+      "bytes": 4027
+    },
+    "GenUICraft/validation/20260929_bixby50_presentation/device/after/r64_fp32_on/BXP-012/recovered.output.express": {
+      "sha256": "33bb7c1d4f6aeaad72c19da3616e99735ad4703b776aa165135a131d3a9f7d0d",
+      "bytes": 2008
+    }
+  },
+  "git_head": "4e86705e15aba9b2837248923e40a25bb0a22a0e",
+  "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "native_provenance": {
+    "mainApkDeviceSha256": "bb2f4b255ff0132efca7ce5a3de68efac2ecf7d8ba5f31f69af02692c4053428",
+    "testApkHostSha256": "176b2bd532efecf72dd27519bad3530b118d574b5f6d9914a719ab1593a2a0cf",
+    "modelDeviceSha256": "de60d19c8e1ef06ed1032212d0d4ae5d9b0ec105db72db34a988453004e63e62",
+    "deviceModel": "SM-F776U"
+  },
+  "metric_identity": {
+    "metric_version": "5.4.0",
+    "metric_name": "GenUI Representation Quality",
+    "metric_fingerprint": "3472befab7a179db4302b95a1ba3fa7cbd67858db86cc9f8ba0d96e3a4034a95",
+    "reward_pipeline_fingerprint": "24e352841c215e3f88f0347fe836ffae3354e6505e96fcae4c1ce3cd0071375a"
+  },
+  "supplied_checkpoint_weight_hash": null,
+  "checkpoint_identity_limit": "Supplied prediction filenames and CUDA runtime metadata identify ranks; exact checkpoint weight/step hashes were not provided in these JSONL records."
+}

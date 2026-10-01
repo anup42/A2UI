@@ -1,0 +1,812 @@
+{
+  "schema_sha256": "90137067429316d2ecba4997c43198bccf7241a9bbeeb34ef8c4ae52f6e14881",
+  "engine": "fastjsonschema, unchanged schema assertions, compatible keyword subset verified",
+  "format_checks": false,
+  "apply_defaults": false,
+  "production_parity_cases": [
+    {
+      "cohort": "golden32",
+      "line": 1,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden32",
+      "line": 1,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden32",
+      "line": 2,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden32",
+      "line": 2,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden32",
+      "line": 3,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden32",
+      "line": 3,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden32",
+      "line": 4,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden32",
+      "line": 4,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden32",
+      "line": 5,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden32",
+      "line": 5,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden32",
+      "line": 6,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden32",
+      "line": 6,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden32",
+      "line": 7,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden32",
+      "line": 7,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden32",
+      "line": 8,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden32",
+      "line": 8,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden32",
+      "line": 9,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden32",
+      "line": 9,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden32",
+      "line": 10,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden32",
+      "line": 10,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden32",
+      "line": 11,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden32",
+      "line": 11,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden32",
+      "line": 12,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden32",
+      "line": 12,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden32",
+      "line": 13,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden32",
+      "line": 13,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden32",
+      "line": 14,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden32",
+      "line": 14,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden32",
+      "line": 15,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden32",
+      "line": 15,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden32",
+      "line": 16,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden32",
+      "line": 16,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden32",
+      "line": 17,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden32",
+      "line": 17,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden32",
+      "line": 18,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden32",
+      "line": 18,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden32",
+      "line": 19,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden32",
+      "line": 19,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden32",
+      "line": 20,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden32",
+      "line": 20,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden32",
+      "line": 21,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden32",
+      "line": 21,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden32",
+      "line": 22,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden32",
+      "line": 22,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden32",
+      "line": 23,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden32",
+      "line": 23,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden32",
+      "line": 24,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden32",
+      "line": 24,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden32",
+      "line": 25,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden32",
+      "line": 25,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden32",
+      "line": 26,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden32",
+      "line": 26,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden32",
+      "line": 27,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden32",
+      "line": 27,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden32",
+      "line": 28,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden32",
+      "line": 28,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden32",
+      "line": 29,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden32",
+      "line": 29,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden32",
+      "line": 30,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden32",
+      "line": 30,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden32",
+      "line": 31,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden32",
+      "line": 31,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden32",
+      "line": 32,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden32",
+      "line": 32,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden35",
+      "line": 1,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden35",
+      "line": 1,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden35",
+      "line": 2,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden35",
+      "line": 2,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden35",
+      "line": 3,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden35",
+      "line": 3,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden35",
+      "line": 4,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden35",
+      "line": 4,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden35",
+      "line": 5,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden35",
+      "line": 5,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden35",
+      "line": 6,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden35",
+      "line": 6,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden35",
+      "line": 7,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden35",
+      "line": 7,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden35",
+      "line": 8,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden35",
+      "line": 8,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden35",
+      "line": 9,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden35",
+      "line": 9,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden35",
+      "line": 10,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden35",
+      "line": 10,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden35",
+      "line": 11,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden35",
+      "line": 11,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden35",
+      "line": 12,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden35",
+      "line": 12,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden35",
+      "line": 13,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden35",
+      "line": 13,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden35",
+      "line": 14,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden35",
+      "line": 14,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden35",
+      "line": 15,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden35",
+      "line": 15,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden35",
+      "line": 16,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden35",
+      "line": 16,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden35",
+      "line": 17,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden35",
+      "line": 17,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden35",
+      "line": 18,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden35",
+      "line": 18,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden35",
+      "line": 19,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden35",
+      "line": 19,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden35",
+      "line": 20,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden35",
+      "line": 20,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden35",
+      "line": 21,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden35",
+      "line": 21,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden35",
+      "line": 22,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden35",
+      "line": 22,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden35",
+      "line": 23,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden35",
+      "line": 23,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden35",
+      "line": 24,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden35",
+      "line": 24,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden35",
+      "line": 25,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden35",
+      "line": 25,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden35",
+      "line": 26,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden35",
+      "line": 26,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden35",
+      "line": 27,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden35",
+      "line": 27,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden35",
+      "line": 28,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden35",
+      "line": 28,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden35",
+      "line": 29,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden35",
+      "line": 29,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden35",
+      "line": 30,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden35",
+      "line": 30,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden35",
+      "line": 31,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden35",
+      "line": 31,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden35",
+      "line": 32,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden35",
+      "line": 32,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden35",
+      "line": 33,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden35",
+      "line": 33,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden35",
+      "line": 34,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden35",
+      "line": 34,
+      "variant": "invalid_copy",
+      "valid": false
+    },
+    {
+      "cohort": "golden35",
+      "line": 35,
+      "variant": "original",
+      "valid": true
+    },
+    {
+      "cohort": "golden35",
+      "line": 35,
+      "variant": "invalid_copy",
+      "valid": false
+    }
+  ]
+}

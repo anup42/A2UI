@@ -1,0 +1,11 @@
+<a2ui>
+$/={rates:[{currency:"USD/INR",rate:"95.5614",date:"28-Aug-2026 14:23:47 IST"},{currency:"EUR/INR",rate:"111.2956",date:"28-Aug-2026 14:23:47 IST"},{currency:"GBP/INR",rate:"129.8867",date:"28-Aug-2026 14:23:47 IST"}]}
+root=Column([a,b,c,d],gap="md",padding=16)
+a=Text("Latest quoted rates","h2")
+b=Table(columns=[{key:"currency",label:"Currency"},{key:"rate",label:"Rate"},{key:"date",label:"Quoted As Of"}],statePath="/rates",domain="comparison",preferredPresentation="cards",primaryColumn="currency",numericColumns=["rate"])
+c=Divider()
+d=Card([e])
+e=Column([f,g],"sm",padding=16)
+f=Text("Reference rates vs traveler rates","h2")
+g=Text("Reference rates are benchmark or indicative market rates used for pricing and valuation, while travelers usually receive a worse rate because providers add a spread, fees, and sometimes cash handling or card conversion charges. ECB and NSE publish reference-style rates, and Reuters notes its market quote data can be delayed, which also distinguishes it from the final retail rate a traveler pays.",variant="body")
+</a2ui>

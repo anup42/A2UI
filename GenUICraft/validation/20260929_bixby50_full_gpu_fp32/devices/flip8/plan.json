@@ -1,0 +1,95 @@
+{
+  "serial": "R3GL203AKSF",
+  "deviceAlias": "flip8",
+  "batches": [
+    {
+      "name": "missing_013_015_mtp_on",
+      "mtp": true,
+      "cases": [
+        "BXP-013",
+        "BXP-014",
+        "BXP-015"
+      ]
+    },
+    {
+      "name": "cases_016_020_mtp_off",
+      "mtp": false,
+      "cases": [
+        "BXP-016",
+        "BXP-017",
+        "BXP-018",
+        "BXP-019",
+        "BXP-020"
+      ]
+    },
+    {
+      "name": "cases_016_020_mtp_on",
+      "mtp": true,
+      "cases": [
+        "BXP-016",
+        "BXP-017",
+        "BXP-018",
+        "BXP-019",
+        "BXP-020"
+      ]
+    },
+    {
+      "name": "cases_021_025_mtp_on",
+      "mtp": true,
+      "cases": [
+        "BXP-021",
+        "BXP-022",
+        "BXP-023",
+        "BXP-024",
+        "BXP-025"
+      ]
+    },
+    {
+      "name": "cases_021_025_mtp_off",
+      "mtp": false,
+      "cases": [
+        "BXP-021",
+        "BXP-022",
+        "BXP-023",
+        "BXP-024",
+        "BXP-025"
+      ]
+    },
+    {
+      "name": "cases_026_030_mtp_off",
+      "mtp": false,
+      "cases": [
+        "BXP-026",
+        "BXP-027",
+        "BXP-028",
+        "BXP-029",
+        "BXP-030"
+      ]
+    },
+    {
+      "name": "cases_026_030_mtp_on",
+      "mtp": true,
+      "cases": [
+        "BXP-026",
+        "BXP-027",
+        "BXP-028",
+        "BXP-029",
+        "BXP-030"
+      ]
+    },
+    {
+      "name": "cases_031_031_mtp_on",
+      "mtp": true,
+      "cases": [
+        "BXP-031"
+      ]
+    },
+    {
+      "name": "cases_031_031_mtp_off",
+      "mtp": false,
+      "cases": [
+        "BXP-031"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "status": "five-case preflight only; full-run result not yet available",
+  "batch": "cases_001_005_mtp_on",
+  "mode": "litert_mtp_on",
+  "cases": 5,
+  "raw_mean": 50.230713952333545,
+  "repaired_mean": 94.68963344736498,
+  "sdk_accepted": 5,
+  "device_a2ui_parity": 5,
+  "speculative_decoding_enabled": true,
+  "drafter_acceptance_rate": 0.667106,
+  "repair_provenance": {
+    "repair_api": "GenUiCompiler.compileWithRepair(raw, null, false, true)",
+    "repair_library": "published GenUICraft 0.5.6",
+    "aar": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\build\\repo\\com\\samsung\\genuicraft\\genuicraft\\0.5.6\\genuicraft-0.5.6.aar",
+    "aar_sha256": "c59eeae4debf4e8428a806ac7b7d7cb1b13f2d3559a12a655a56ef2f0be723b1",
+    "driver_source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\tools\\GenUiRepairReplay.java",
+    "driver_source_sha256": "456d6fcb8c791731727152aef516bde0266e48db5de3654acd8d8dfd31c20f03",
+    "verified_driver_class": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_full_gpu_fp32\\runtime\\driver_classes_verified\\GenUiRepairReplay.class",
+    "verified_driver_class_sha256": "f81630931ea1905b70a87e1d5aee2e153dd5d251db91794b95e4eac81e1c9ad1",
+    "classpath": [
+      {
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_full_gpu_fp32\\runtime\\genuicraft-0.5.6-classes.jar",
+        "sha256": "69954347411d7d3b4959cc914ecfd290f9c399202ea2d83279c023062a1bcf11"
+      },
+      {
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_full_gpu_fp32\\runtime\\gson-2.11.0.jar",
+        "sha256": "57928d6e5a6edeb2abd3770a8f95ba44dce45f3b23b7a9dc2b309c581552a78b"
+      },
+      {
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_full_gpu_fp32\\runtime\\kotlin-stdlib-2.2.21.jar",
+        "sha256": "6558a3d233da56a20934b32159f9db5f86ed5816ef098f78a2c223dc6abb79dd"
+      }
+    ],
+    "source_text_supplied_to_repair": false,
+    "source_fallback_enabled": false,
+    "new_model_inference": false,
+    "raw_outputs_sent": 5,
+    "runtime_no_output": 0,
+    "command": [
+      "C:\\Program Files\\Android\\Android Studio\\jbr\\bin\\java.EXE",
+      "-Xmx1g",
+      "-cp",
+      "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_full_gpu_fp32\\runtime\\driver_classes_verified;C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_full_gpu_fp32\\runtime\\genuicraft-0.5.6-classes.jar;C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_full_gpu_fp32\\runtime\\gson-2.11.0.jar;C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_full_gpu_fp32\\runtime\\kotlin-stdlib-2.2.21.jar",
+      "GenUiRepairReplay",
+      "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\preflight_001_005_mtp_on\\runtime\\repair_input.jsonl",
+      "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\preflight_001_005_mtp_on\\runtime\\repair_captured_outcomes.jsonl"
+    ],
+    "repair_input_sha256": "afb3765968dd6670a1237ced5ac253c66c3ddd0db55cd9c40921798b3a58469c",
+    "repair_output_sha256": "27b68a75de0aacc26d704d2040a6d571419d0fc77fc9ce43354937b3410d31ce"
+  }
+}

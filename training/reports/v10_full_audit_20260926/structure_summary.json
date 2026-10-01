@@ -1,0 +1,1938 @@
+{
+  "dataset": "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\datasets\\full_data_archive_recovered_v10",
+  "rows": 92977,
+  "input_sha256": {
+    "train": "707244a5ffe2af459605e8629055c18829c65123294191112016cd69892addf5",
+    "val": "b5024919ea0c3557cad452193f90f7133919bb0c10e4ece05fe1a54278cb0fa7"
+  },
+  "tokenizer_sha256": "e594c8a90eb08d8bda498ff4747977dc827ae0c3c56b5c0d41a605a22d02ef03",
+  "tokenizer_path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\tmp\\e2b_mobile_20260921\\tokenizer.model",
+  "token_method": "Exact local SentencePiece; BOS added once, Gemma non-thinking text template, <turn|> newline EOS. Remote HF tokenizer parity not asserted.",
+  "seconds": 1165.5033552646637,
+  "counts": {
+    "train": {
+      "rows": 91115,
+      "valid": 91115,
+      "source_has_markdown_heading": 91100,
+      "source_has_pipe_table": 54031,
+      "source_has_media": 90774,
+      "source_has_action": 87175,
+      "source_has_url_placeholder": 91052,
+      "source_has_numeric_citation": 7,
+      "source_has_live_url": 42,
+      "source_non_ascii": 24152,
+      "target_has_source_placeholder": 0,
+      "target_over_1024": 29218,
+      "target_over_1536": 304,
+      "target_over_2048": 23,
+      "target_over_3072": 0,
+      "target_over_4096": 0,
+      "deployed_sequence_over_4096": 71839,
+      "archived_sequence_over_4096": 139,
+      "deployed_sequence_over_6144": 21,
+      "archived_sequence_over_6144": 0,
+      "deployed_sequence_over_8192": 0,
+      "archived_sequence_over_8192": 0,
+      "rows_repeated_long_literals": 34
+    },
+    "train:system_sha": {
+      "e89c13860a8c7a6b54b2a95ab882d71e542a8e43a5a0b5661550baf5b611f547": 91115
+    },
+    "train:scaffold_sha": {
+      "db1667de8e7c52b2c574fcbe0b797832c8682039b494df18e35b329044161b4a": 91115
+    },
+    "train:component_counts": {
+      "Stack": 981530,
+      "Card": 393509,
+      "Icon": 267746,
+      "Text": 1109222,
+      "Table": 118134,
+      "Button": 342132,
+      "Formula": 16595,
+      "Image": 2346,
+      "Divider": 1218,
+      "EmailPreview": 239,
+      "Tabs": 1483,
+      "ConsoleLog": 617,
+      "Slider": 58,
+      "CodeBlock": 536,
+      "TextField": 52,
+      "CheckBox": 361,
+      "ChoicePicker": 43,
+      "AudioPlayer": 1
+    },
+    "train:table_domains": {
+      "schedule": 19517,
+      "generic": 21949,
+      "status": 13825,
+      "formula": 21468,
+      "comparison": 34617,
+      "restaurants": 683,
+      "weather": 2147,
+      "playlist": 1273,
+      "flight": 1560,
+      "booking": 981,
+      "<unset>": 69,
+      "data": 6,
+      "analysis": 5,
+      "energy": 1,
+      "summary": 6,
+      "activity": 2,
+      "news": 2,
+      "gauge": 1,
+      "value": 1,
+      "distribution": 2,
+      "trends": 2,
+      "emissions": 1,
+      "price": 1,
+      "correlation": 1,
+      "trend": 1,
+      "fare_trend": 1,
+      "finance": 1,
+      "visualization": 2,
+      "sales": 1,
+      "volatility": 1,
+      "metrics": 1,
+      "efficiency": 1,
+      "utilization": 1,
+      "funnel": 1,
+      "spending": 1,
+      "metric": 1,
+      "fare": 1
+    },
+    "train:table_presentations": {
+      "cards": 68655,
+      "table": 49254,
+      "<unset>": 225
+    },
+    "train:rows_with_component": {
+      "Stack": 91115,
+      "Card": 91046,
+      "Icon": 90679,
+      "Text": 91115,
+      "Table": 89790,
+      "Button": 87260,
+      "Formula": 15759,
+      "Image": 1708,
+      "Divider": 1154,
+      "EmailPreview": 147,
+      "Tabs": 1433,
+      "ConsoleLog": 211,
+      "Slider": 42,
+      "CodeBlock": 336,
+      "TextField": 23,
+      "CheckBox": 86,
+      "ChoicePicker": 28,
+      "AudioPlayer": 1
+    },
+    "all": {
+      "rows": 92977,
+      "valid": 92977,
+      "source_has_markdown_heading": 92962,
+      "source_has_pipe_table": 55099,
+      "source_has_media": 92624,
+      "source_has_action": 88934,
+      "source_has_url_placeholder": 92911,
+      "source_has_numeric_citation": 7,
+      "source_has_live_url": 42,
+      "source_non_ascii": 24676,
+      "target_has_source_placeholder": 0,
+      "target_over_1024": 29813,
+      "target_over_1536": 310,
+      "target_over_2048": 23,
+      "target_over_3072": 0,
+      "target_over_4096": 0,
+      "deployed_sequence_over_4096": 73316,
+      "archived_sequence_over_4096": 143,
+      "deployed_sequence_over_6144": 21,
+      "archived_sequence_over_6144": 0,
+      "deployed_sequence_over_8192": 0,
+      "archived_sequence_over_8192": 0,
+      "rows_repeated_long_literals": 37
+    },
+    "all:system_sha": {
+      "e89c13860a8c7a6b54b2a95ab882d71e542a8e43a5a0b5661550baf5b611f547": 92977
+    },
+    "all:scaffold_sha": {
+      "db1667de8e7c52b2c574fcbe0b797832c8682039b494df18e35b329044161b4a": 92977
+    },
+    "all:component_counts": {
+      "Stack": 1001587,
+      "Card": 401467,
+      "Icon": 273225,
+      "Text": 1132014,
+      "Table": 120557,
+      "Button": 349077,
+      "Formula": 16929,
+      "Image": 2396,
+      "Divider": 1241,
+      "EmailPreview": 242,
+      "Tabs": 1515,
+      "ConsoleLog": 632,
+      "Slider": 58,
+      "CodeBlock": 544,
+      "TextField": 55,
+      "CheckBox": 385,
+      "ChoicePicker": 43,
+      "AudioPlayer": 1
+    },
+    "all:table_domains": {
+      "schedule": 19935,
+      "generic": 22385,
+      "status": 14127,
+      "formula": 21905,
+      "comparison": 35299,
+      "restaurants": 694,
+      "weather": 2189,
+      "playlist": 1300,
+      "flight": 1585,
+      "booking": 1021,
+      "<unset>": 69,
+      "data": 6,
+      "analysis": 5,
+      "energy": 1,
+      "summary": 6,
+      "activity": 2,
+      "news": 2,
+      "gauge": 1,
+      "value": 1,
+      "distribution": 2,
+      "trends": 2,
+      "emissions": 1,
+      "price": 1,
+      "correlation": 1,
+      "trend": 1,
+      "fare_trend": 1,
+      "finance": 1,
+      "visualization": 2,
+      "sales": 1,
+      "volatility": 1,
+      "metrics": 1,
+      "efficiency": 1,
+      "utilization": 1,
+      "funnel": 1,
+      "spending": 1,
+      "metric": 1,
+      "fare": 1,
+      "profile": 3
+    },
+    "all:table_presentations": {
+      "cards": 70059,
+      "table": 50273,
+      "<unset>": 225
+    },
+    "all:rows_with_component": {
+      "Stack": 92977,
+      "Card": 92908,
+      "Icon": 92527,
+      "Text": 92977,
+      "Table": 91624,
+      "Button": 89020,
+      "Formula": 16075,
+      "Image": 1744,
+      "Divider": 1175,
+      "EmailPreview": 150,
+      "Tabs": 1465,
+      "ConsoleLog": 218,
+      "Slider": 42,
+      "CodeBlock": 342,
+      "TextField": 24,
+      "CheckBox": 89,
+      "ChoicePicker": 28,
+      "AudioPlayer": 1
+    },
+    "val": {
+      "rows": 1862,
+      "valid": 1862,
+      "source_has_markdown_heading": 1862,
+      "source_has_pipe_table": 1068,
+      "source_has_media": 1850,
+      "source_has_action": 1759,
+      "source_has_url_placeholder": 1859,
+      "source_has_numeric_citation": 0,
+      "source_has_live_url": 0,
+      "source_non_ascii": 524,
+      "target_has_source_placeholder": 0,
+      "target_over_1024": 595,
+      "target_over_1536": 6,
+      "target_over_2048": 0,
+      "target_over_3072": 0,
+      "target_over_4096": 0,
+      "deployed_sequence_over_4096": 1477,
+      "archived_sequence_over_4096": 4,
+      "deployed_sequence_over_6144": 0,
+      "archived_sequence_over_6144": 0,
+      "deployed_sequence_over_8192": 0,
+      "archived_sequence_over_8192": 0,
+      "rows_repeated_long_literals": 3
+    },
+    "val:system_sha": {
+      "e89c13860a8c7a6b54b2a95ab882d71e542a8e43a5a0b5661550baf5b611f547": 1862
+    },
+    "val:scaffold_sha": {
+      "db1667de8e7c52b2c574fcbe0b797832c8682039b494df18e35b329044161b4a": 1862
+    },
+    "val:component_counts": {
+      "Stack": 20057,
+      "Card": 7958,
+      "Icon": 5479,
+      "Text": 22792,
+      "Table": 2423,
+      "Formula": 334,
+      "Button": 6945,
+      "Tabs": 32,
+      "Image": 50,
+      "Divider": 23,
+      "ConsoleLog": 15,
+      "CodeBlock": 8,
+      "EmailPreview": 3,
+      "TextField": 3,
+      "CheckBox": 24
+    },
+    "val:table_domains": {
+      "generic": 436,
+      "formula": 437,
+      "comparison": 682,
+      "schedule": 418,
+      "status": 302,
+      "flight": 25,
+      "weather": 42,
+      "booking": 40,
+      "restaurants": 11,
+      "playlist": 27,
+      "profile": 3
+    },
+    "val:table_presentations": {
+      "table": 1019,
+      "cards": 1404
+    },
+    "val:rows_with_component": {
+      "Stack": 1862,
+      "Card": 1862,
+      "Icon": 1848,
+      "Text": 1862,
+      "Table": 1834,
+      "Formula": 316,
+      "Button": 1760,
+      "Tabs": 32,
+      "Image": 36,
+      "Divider": 21,
+      "ConsoleLog": 7,
+      "CodeBlock": 6,
+      "EmailPreview": 3,
+      "TextField": 1,
+      "CheckBox": 3
+    }
+  },
+  "stats": {
+    "train": {
+      "source_chars": {
+        "min": 165,
+        "p50": 1797.0,
+        "p90": 2505.0,
+        "p95": 2695.0,
+        "p99": 3203.8600000000006,
+        "max": 7181,
+        "mean": 1777.960478516161
+      },
+      "target_chars": {
+        "min": 375,
+        "p50": 2943.0,
+        "p90": 3852.0,
+        "p95": 4102.0,
+        "p99": 4708.0,
+        "max": 8723,
+        "mean": 2899.61850408824
+      },
+      "source_tokens": {
+        "min": 62,
+        "p50": 489.0,
+        "p90": 650.0,
+        "p95": 694.0,
+        "p99": 810.0,
+        "max": 1720,
+        "mean": 483.4521977720463
+      },
+      "target_tokens": {
+        "min": 160,
+        "p50": 921.0,
+        "p90": 1184.0,
+        "p95": 1254.0,
+        "p99": 1407.8600000000006,
+        "max": 2467,
+        "mean": 910.8124019096746
+      },
+      "canonical_target_tokens": {
+        "min": 160,
+        "p50": 921.0,
+        "p90": 1184.0,
+        "p95": 1254.0,
+        "p99": 1407.8600000000006,
+        "max": 2467,
+        "mean": 910.8124019096746
+      },
+      "archived_prompt_tokens": {
+        "min": 1570,
+        "p50": 1997.0,
+        "p90": 2158.0,
+        "p95": 2202.0,
+        "p99": 2318.0,
+        "max": 3228,
+        "mean": 1991.4521977720462
+      },
+      "deployed_prompt_tokens": {
+        "min": 3062,
+        "p50": 3489.0,
+        "p90": 3650.0,
+        "p95": 3694.0,
+        "p99": 3810.0,
+        "max": 4720,
+        "mean": 3483.4521977720465
+      },
+      "archived_sequence_tokens": {
+        "min": 1735,
+        "p50": 2923.0,
+        "p90": 3337.0,
+        "p95": 3448.0,
+        "p99": 3708.0,
+        "max": 5276,
+        "mean": 2904.264599681721
+      },
+      "deployed_sequence_tokens": {
+        "min": 3227,
+        "p50": 4415.0,
+        "p90": 4829.0,
+        "p95": 4940.0,
+        "p99": 5200.0,
+        "max": 6768,
+        "mean": 4396.264599681721
+      },
+      "component_count": {
+        "min": 6,
+        "p50": 35.0,
+        "p90": 49.0,
+        "p95": 53.0,
+        "p99": 60.0,
+        "max": 111,
+        "mean": 35.51360368764748
+      },
+      "depth": {
+        "min": 2,
+        "p50": 5.0,
+        "p90": 6.0,
+        "p95": 7.0,
+        "p99": 7.0,
+        "max": 11,
+        "mean": 5.1970806124128845
+      },
+      "longest_text_chars": {
+        "min": 21,
+        "p50": 221.0,
+        "p90": 327.0,
+        "p95": 364.0,
+        "p99": 474.0,
+        "max": 2539,
+        "mean": 227.02773418207758
+      },
+      "alpha_id_components": {
+        "min": 5,
+        "p50": 34.0,
+        "p90": 48.0,
+        "p95": 52.0,
+        "p99": 59.0,
+        "max": 110,
+        "mean": 34.51360368764748
+      }
+    },
+    "all": {
+      "source_chars": {
+        "min": 165,
+        "p50": 1798.0,
+        "p90": 2505.0,
+        "p95": 2695.0,
+        "p99": 3206.2400000000052,
+        "max": 7181,
+        "mean": 1778.4109941168247
+      },
+      "target_chars": {
+        "min": 375,
+        "p50": 2944.0,
+        "p90": 3853.0,
+        "p95": 4103.0,
+        "p99": 4711.240000000005,
+        "max": 8723,
+        "mean": 2900.125375092765
+      },
+      "source_tokens": {
+        "min": 62,
+        "p50": 489.0,
+        "p90": 650.0,
+        "p95": 694.0,
+        "p99": 810.0,
+        "max": 1720,
+        "mean": 483.52691525861235
+      },
+      "target_tokens": {
+        "min": 160,
+        "p50": 922.0,
+        "p90": 1184.0,
+        "p95": 1255.0,
+        "p99": 1408.0,
+        "max": 2467,
+        "mean": 910.9123008916183
+      },
+      "canonical_target_tokens": {
+        "min": 160,
+        "p50": 922.0,
+        "p90": 1184.0,
+        "p95": 1255.0,
+        "p99": 1408.0,
+        "max": 2467,
+        "mean": 910.9123008916183
+      },
+      "archived_prompt_tokens": {
+        "min": 1570,
+        "p50": 1997.0,
+        "p90": 2158.0,
+        "p95": 2202.0,
+        "p99": 2318.0,
+        "max": 3228,
+        "mean": 1991.5269152586122
+      },
+      "deployed_prompt_tokens": {
+        "min": 3062,
+        "p50": 3489.0,
+        "p90": 3650.0,
+        "p95": 3694.0,
+        "p99": 3810.0,
+        "max": 4720,
+        "mean": 3483.5269152586125
+      },
+      "archived_sequence_tokens": {
+        "min": 1735,
+        "p50": 2923.0,
+        "p90": 3337.0,
+        "p95": 3448.0,
+        "p99": 3709.0,
+        "max": 5276,
+        "mean": 2904.4392161502305
+      },
+      "deployed_sequence_tokens": {
+        "min": 3227,
+        "p50": 4415.0,
+        "p90": 4829.0,
+        "p95": 4940.0,
+        "p99": 5201.0,
+        "max": 6768,
+        "mean": 4396.439216150231
+      },
+      "component_count": {
+        "min": 6,
+        "p50": 35.0,
+        "p90": 49.0,
+        "p95": 53.0,
+        "p99": 60.0,
+        "max": 111,
+        "mean": 35.51381524463039
+      },
+      "depth": {
+        "min": 2,
+        "p50": 5.0,
+        "p90": 6.0,
+        "p95": 7.0,
+        "p99": 7.0,
+        "max": 11,
+        "mean": 5.197027221786033
+      },
+      "longest_text_chars": {
+        "min": 21,
+        "p50": 221.0,
+        "p90": 327.0,
+        "p95": 364.0,
+        "p99": 474.0,
+        "max": 2539,
+        "mean": 227.12553642298633
+      },
+      "alpha_id_components": {
+        "min": 5,
+        "p50": 34.0,
+        "p90": 48.0,
+        "p95": 52.0,
+        "p99": 59.0,
+        "max": 110,
+        "mean": 34.51381524463039
+      }
+    },
+    "val": {
+      "source_chars": {
+        "min": 381,
+        "p50": 1835.0,
+        "p90": 2526.9,
+        "p95": 2713.0,
+        "p99": 3307.1699999999996,
+        "max": 5341,
+        "mean": 1800.4564983888292
+      },
+      "target_chars": {
+        "min": 733,
+        "p50": 2975.0,
+        "p90": 3886.2000000000007,
+        "p95": 4134.9,
+        "p99": 4808.299999999991,
+        "max": 6911,
+        "mean": 2924.9285714285716
+      },
+      "source_tokens": {
+        "min": 109,
+        "p50": 493.0,
+        "p90": 653.0,
+        "p95": 702.0,
+        "p99": 837.7799999999997,
+        "max": 1230,
+        "mean": 487.1831364124597
+      },
+      "target_tokens": {
+        "min": 283,
+        "p50": 929.0,
+        "p90": 1186.9,
+        "p95": 1279.8999999999996,
+        "p99": 1433.3399999999992,
+        "max": 2019,
+        "mean": 915.8007518796992
+      },
+      "canonical_target_tokens": {
+        "min": 283,
+        "p50": 929.0,
+        "p90": 1186.9,
+        "p95": 1279.8999999999996,
+        "p99": 1433.3399999999992,
+        "max": 2019,
+        "mean": 915.8007518796992
+      },
+      "archived_prompt_tokens": {
+        "min": 1617,
+        "p50": 2001.0,
+        "p90": 2161.0,
+        "p95": 2210.0,
+        "p99": 2345.7799999999997,
+        "max": 2738,
+        "mean": 1995.1831364124598
+      },
+      "deployed_prompt_tokens": {
+        "min": 3109,
+        "p50": 3493.0,
+        "p90": 3653.0,
+        "p95": 3702.0,
+        "p99": 3837.7799999999997,
+        "max": 4230,
+        "mean": 3487.1831364124596
+      },
+      "archived_sequence_tokens": {
+        "min": 1903,
+        "p50": 2937.5,
+        "p90": 3341.8,
+        "p95": 3488.8499999999995,
+        "p99": 3764.0,
+        "max": 4410,
+        "mean": 2912.983888292159
+      },
+      "deployed_sequence_tokens": {
+        "min": 3395,
+        "p50": 4429.5,
+        "p90": 4833.8,
+        "p95": 4980.849999999999,
+        "p99": 5256.0,
+        "max": 5902,
+        "mean": 4404.983888292159
+      },
+      "component_count": {
+        "min": 7,
+        "p50": 35.0,
+        "p90": 49.0,
+        "p95": 53.0,
+        "p99": 60.0,
+        "max": 74,
+        "mean": 35.524167561761544
+      },
+      "depth": {
+        "min": 3,
+        "p50": 5.0,
+        "p90": 6.0,
+        "p95": 7.0,
+        "p99": 7.0,
+        "max": 8,
+        "mean": 5.194414607948443
+      },
+      "longest_text_chars": {
+        "min": 34,
+        "p50": 223.0,
+        "p90": 334.0,
+        "p95": 372.9499999999998,
+        "p99": 477.3899999999999,
+        "max": 2096,
+        "mean": 231.91138560687432
+      },
+      "alpha_id_components": {
+        "min": 6,
+        "p50": 34.0,
+        "p90": 48.0,
+        "p95": 52.0,
+        "p99": 59.0,
+        "max": 73,
+        "mean": 34.524167561761544
+      }
+    }
+  },
+  "examples": {
+    "repeated_long_literals": [
+      {
+        "split": "train",
+        "line": 1595,
+        "id": "archive-train-065300-83936bcfa21aa41a",
+        "source_chars": 1803,
+        "target_chars": 4580,
+        "source_tokens": 565,
+        "target_tokens": 1456,
+        "archived_prompt_tokens": 2073,
+        "deployed_prompt_tokens": 3565,
+        "deployed_sequence_tokens": 5023,
+        "archived_sequence_tokens": 3531,
+        "system_sha": "e89c13860a8c7a6b54b2a95ab882d71e542a8e43a5a0b5661550baf5b611f547",
+        "scaffold_sha": "db1667de8e7c52b2c574fcbe0b797832c8682039b494df18e35b329044161b4a",
+        "source_has_markdown_heading": true,
+        "source_has_pipe_table": false,
+        "source_has_media": true,
+        "source_has_action": true,
+        "source_has_url_placeholder": true,
+        "source_has_numeric_citation": false,
+        "source_has_live_url": false,
+        "source_non_ascii": false,
+        "target_has_source_placeholder": false,
+        "valid": true,
+        "semantic_hash": "2bfc0dd55cff475696f2a90af4b0b229ba3e82a3dd2f569c29cd21d3f5f0d0e6",
+        "canonical_target_tokens": 1456,
+        "component_counts": {
+          "Stack": 7,
+          "Card": 1,
+          "Icon": 3,
+          "Text": 4,
+          "Table": 2,
+          "Button": 2
+        },
+        "component_count": 19,
+        "depth": 4,
+        "table_domains": {
+          "schedule": 1,
+          "generic": 1
+        },
+        "table_presentations": {
+          "cards": 1,
+          "table": 1
+        },
+        "state_chars": 3625,
+        "longest_text_chars": 177,
+        "repeated_long_literals": [
+          [
+            "Day 1: Foundation & Ideation (June 10, 2025)",
+            6
+          ],
+          [
+            "Day 2: Technical Deep-Dive (June 11, 2025)",
+            6
+          ],
+          [
+            "Day 3: Refinement & Finalization (June 12, 2025)",
+            7
+          ]
+        ],
+        "alpha_id_components": 18,
+        "flags": []
+      },
+      {
+        "split": "train",
+        "line": 3106,
+        "id": "archive-train-011621-06a290ca579f958c",
+        "source_chars": 1622,
+        "target_chars": 2772,
+        "source_tokens": 421,
+        "target_tokens": 808,
+        "archived_prompt_tokens": 1929,
+        "deployed_prompt_tokens": 3421,
+        "deployed_sequence_tokens": 4231,
+        "archived_sequence_tokens": 2739,
+        "system_sha": "e89c13860a8c7a6b54b2a95ab882d71e542a8e43a5a0b5661550baf5b611f547",
+        "scaffold_sha": "db1667de8e7c52b2c574fcbe0b797832c8682039b494df18e35b329044161b4a",
+        "source_has_markdown_heading": true,
+        "source_has_pipe_table": false,
+        "source_has_media": true,
+        "source_has_action": true,
+        "source_has_url_placeholder": true,
+        "source_has_numeric_citation": false,
+        "source_has_live_url": false,
+        "source_non_ascii": false,
+        "target_has_source_placeholder": false,
+        "valid": true,
+        "semantic_hash": "9f7453b764c013e91de55e75bc3f778957bfb29f1b3649990d5bd943aafbd29f",
+        "canonical_target_tokens": 808,
+        "component_counts": {
+          "Stack": 8,
+          "Card": 1,
+          "Icon": 3,
+          "Text": 5,
+          "Table": 2,
+          "Button": 2
+        },
+        "component_count": 21,
+        "depth": 5,
+        "table_domains": {
+          "schedule": 1,
+          "generic": 1
+        },
+        "table_presentations": {
+          "cards": 1,
+          "table": 1
+        },
+        "state_chars": 1607,
+        "longest_text_chars": 190,
+        "repeated_long_literals": [
+          [
+            "Diabetes (Blood Glucose) | Blood Pressure | Vision Checks",
+            6
+          ]
+        ],
+        "alpha_id_components": 20,
+        "flags": []
+      },
+      {
+        "split": "train",
+        "line": 4061,
+        "id": "archive-train-079980-57b6c20512df0e59",
+        "source_chars": 1286,
+        "target_chars": 2032,
+        "source_tokens": 435,
+        "target_tokens": 718,
+        "archived_prompt_tokens": 1943,
+        "deployed_prompt_tokens": 3435,
+        "deployed_sequence_tokens": 4155,
+        "archived_sequence_tokens": 2663,
+        "system_sha": "e89c13860a8c7a6b54b2a95ab882d71e542a8e43a5a0b5661550baf5b611f547",
+        "scaffold_sha": "db1667de8e7c52b2c574fcbe0b797832c8682039b494df18e35b329044161b4a",
+        "source_has_markdown_heading": true,
+        "source_has_pipe_table": true,
+        "source_has_media": true,
+        "source_has_action": true,
+        "source_has_url_placeholder": true,
+        "source_has_numeric_citation": false,
+        "source_has_live_url": false,
+        "source_non_ascii": true,
+        "target_has_source_placeholder": false,
+        "valid": true,
+        "semantic_hash": "8e3d2d99dcecb538bc18b2e439a73dea63e6cb48e2049a347f86345f76e287c0",
+        "canonical_target_tokens": 718,
+        "component_counts": {
+          "Stack": 7,
+          "Card": 3,
+          "Icon": 2,
+          "Text": 5,
+          "Formula": 1,
+          "Table": 1,
+          "Button": 2
+        },
+        "component_count": 21,
+        "depth": 5,
+        "table_domains": {
+          "schedule": 1
+        },
+        "table_presentations": {
+          "cards": 1
+        },
+        "state_chars": 801,
+        "longest_text_chars": 214,
+        "repeated_long_literals": [
+          [
+            "Dusting (1h); Vacuum/Mop (2h); Kitchen Deep Clean (2h)",
+            5
+          ]
+        ],
+        "alpha_id_components": 20,
+        "flags": []
+      },
+      {
+        "split": "train",
+        "line": 6131,
+        "id": "archive-train-099091-9d94cd67190bd02f",
+        "source_chars": 1328,
+        "target_chars": 2289,
+        "source_tokens": 435,
+        "target_tokens": 795,
+        "archived_prompt_tokens": 1943,
+        "deployed_prompt_tokens": 3435,
+        "deployed_sequence_tokens": 4232,
+        "archived_sequence_tokens": 2740,
+        "system_sha": "e89c13860a8c7a6b54b2a95ab882d71e542a8e43a5a0b5661550baf5b611f547",
+        "scaffold_sha": "db1667de8e7c52b2c574fcbe0b797832c8682039b494df18e35b329044161b4a",
+        "source_has_markdown_heading": true,
+        "source_has_pipe_table": true,
+        "source_has_media": true,
+        "source_has_action": true,
+        "source_has_url_placeholder": true,
+        "source_has_numeric_citation": false,
+        "source_has_live_url": false,
+        "source_non_ascii": false,
+        "target_has_source_placeholder": false,
+        "valid": true,
+        "semantic_hash": "9d03e1ff91572495b977f9cc0ae59a61913ba6aad2a13009463bcd02718a5642",
+        "canonical_target_tokens": 795,
+        "component_counts": {
+          "Stack": 9,
+          "Card": 4,
+          "Icon": 2,
+          "Text": 6,
+          "Table": 1,
+          "Button": 4
+        },
+        "component_count": 26,
+        "depth": 5,
+        "table_domains": {
+          "schedule": 1
+        },
+        "table_presentations": {
+          "cards": 1
+        },
+        "state_chars": 864,
+        "longest_text_chars": 186,
+        "repeated_long_literals": [
+          [
+            "Dusting (1h); Vacuum/Mop (2h); Deep Kitchen (2h)",
+            5
+          ]
+        ],
+        "alpha_id_components": 25,
+        "flags": []
+      },
+      {
+        "split": "train",
+        "line": 8938,
+        "id": "archive-train-044265-6dd656ac44230b1c",
+        "source_chars": 2691,
+        "target_chars": 4510,
+        "source_tokens": 716,
+        "target_tokens": 1316,
+        "archived_prompt_tokens": 2224,
+        "deployed_prompt_tokens": 3716,
+        "deployed_sequence_tokens": 5034,
+        "archived_sequence_tokens": 3542,
+        "system_sha": "e89c13860a8c7a6b54b2a95ab882d71e542a8e43a5a0b5661550baf5b611f547",
+        "scaffold_sha": "db1667de8e7c52b2c574fcbe0b797832c8682039b494df18e35b329044161b4a",
+        "source_has_markdown_heading": true,
+        "source_has_pipe_table": true,
+        "source_has_media": true,
+        "source_has_action": true,
+        "source_has_url_placeholder": true,
+        "source_has_numeric_citation": false,
+        "source_has_live_url": false,
+        "source_non_ascii": false,
+        "target_has_source_placeholder": false,
+        "valid": true,
+        "semantic_hash": "709951eee7e2a67a27f11549dd91affa3ac68acc333d253a66b270349bff0ef2",
+        "canonical_target_tokens": 1316,
+        "component_counts": {
+          "Stack": 9,
+          "Card": 1,
+          "Icon": 3,
+          "Text": 5,
+          "Table": 2,
+          "Button": 2
+        },
+        "component_count": 22,
+        "depth": 5,
+        "table_domains": {
+          "schedule": 2
+        },
+        "table_presentations": {
+          "cards": 2
+        },
+        "state_chars": 3297,
+        "longest_text_chars": 232,
+        "repeated_long_literals": [
+          [
+            "Day 1: Foundations of Executive Presence",
+            5
+          ]
+        ],
+        "alpha_id_components": 21,
+        "flags": []
+      },
+      {
+        "split": "train",
+        "line": 16478,
+        "id": "archive-train-016248-63f6aa5418572f50",
+        "source_chars": 2336,
+        "target_chars": 4305,
+        "source_tokens": 552,
+        "target_tokens": 1173,
+        "archived_prompt_tokens": 2060,
+        "deployed_prompt_tokens": 3552,
+        "deployed_sequence_tokens": 4727,
+        "archived_sequence_tokens": 3235,
+        "system_sha": "e89c13860a8c7a6b54b2a95ab882d71e542a8e43a5a0b5661550baf5b611f547",
+        "scaffold_sha": "db1667de8e7c52b2c574fcbe0b797832c8682039b494df18e35b329044161b4a",
+        "source_has_markdown_heading": true,
+        "source_has_pipe_table": true,
+        "source_has_media": true,
+        "source_has_action": true,
+        "source_has_url_placeholder": true,
+        "source_has_numeric_citation": false,
+        "source_has_live_url": false,
+        "source_non_ascii": false,
+        "target_has_source_placeholder": false,
+        "valid": true,
+        "semantic_hash": "a42f7dd9096c8cd1dfb8138372d1601c663324760bc19b3f8c95d5e1da354454",
+        "canonical_target_tokens": 1173,
+        "component_counts": {
+          "Stack": 10,
+          "Card": 1,
+          "Icon": 3,
+          "Text": 6,
+          "Table": 2,
+          "Button": 5
+        },
+        "component_count": 27,
+        "depth": 5,
+        "table_domains": {
+          "generic": 2
+        },
+        "table_presentations": {
+          "cards": 1,
+          "table": 1
+        },
+        "state_chars": 2860,
+        "longest_text_chars": 198,
+        "repeated_long_literals": [
+          [
+            "Priority 1: Critical Monitoring & First Aid",
+            5
+          ]
+        ],
+        "alpha_id_components": 26,
+        "flags": []
+      },
+      {
+        "split": "train",
+        "line": 18738,
+        "id": "archive-train-074099-ef74833cc2a7da4f",
+        "source_chars": 1968,
+        "target_chars": 3187,
+        "source_tokens": 606,
+        "target_tokens": 1001,
+        "archived_prompt_tokens": 2114,
+        "deployed_prompt_tokens": 3606,
+        "deployed_sequence_tokens": 4609,
+        "archived_sequence_tokens": 3117,
+        "system_sha": "e89c13860a8c7a6b54b2a95ab882d71e542a8e43a5a0b5661550baf5b611f547",
+        "scaffold_sha": "db1667de8e7c52b2c574fcbe0b797832c8682039b494df18e35b329044161b4a",
+        "source_has_markdown_heading": true,
+        "source_has_pipe_table": false,
+        "source_has_media": true,
+        "source_has_action": true,
+        "source_has_url_placeholder": true,
+        "source_has_numeric_citation": false,
+        "source_has_live_url": false,
+        "source_non_ascii": true,
+        "target_has_source_placeholder": false,
+        "valid": true,
+        "semantic_hash": "fd6bb8b6760d470b91e03e9951eac1a42f29111871029bd6d5317f83570a6231",
+        "canonical_target_tokens": 1001,
+        "component_counts": {
+          "Stack": 8,
+          "Card": 1,
+          "Image": 1,
+          "Text": 4,
+          "Icon": 1,
+          "Table": 2,
+          "Button": 5
+        },
+        "component_count": 22,
+        "depth": 5,
+        "table_domains": {
+          "generic": 1,
+          "schedule": 1
+        },
+        "table_presentations": {
+          "table": 1,
+          "cards": 1
+        },
+        "state_chars": 2035,
+        "longest_text_chars": 41,
+        "repeated_long_literals": [
+          [
+            "Private 1-on-1 deep dive with designated analyst.",
+            5
+          ]
+        ],
+        "alpha_id_components": 21,
+        "flags": []
+      },
+      {
+        "split": "train",
+        "line": 20725,
+        "id": "archive-train-104915-f5f515b6ac1c6a3b",
+        "source_chars": 1736,
+        "target_chars": 2605,
+        "source_tokens": 533,
+        "target_tokens": 837,
+        "archived_prompt_tokens": 2041,
+        "deployed_prompt_tokens": 3533,
+        "deployed_sequence_tokens": 4372,
+        "archived_sequence_tokens": 2880,
+        "system_sha": "e89c13860a8c7a6b54b2a95ab882d71e542a8e43a5a0b5661550baf5b611f547",
+        "scaffold_sha": "db1667de8e7c52b2c574fcbe0b797832c8682039b494df18e35b329044161b4a",
+        "source_has_markdown_heading": true,
+        "source_has_pipe_table": true,
+        "source_has_media": true,
+        "source_has_action": true,
+        "source_has_url_placeholder": true,
+        "source_has_numeric_citation": false,
+        "source_has_live_url": false,
+        "source_non_ascii": false,
+        "target_has_source_placeholder": false,
+        "valid": true,
+        "semantic_hash": "4a7ca61a74e4b2dfff30a29fac727479144fca31d720abe81c27fcf7aea7caae",
+        "canonical_target_tokens": 837,
+        "component_counts": {
+          "Stack": 6,
+          "Card": 3,
+          "Text": 4,
+          "Icon": 1,
+          "Table": 1,
+          "Button": 2
+        },
+        "component_count": 17,
+        "depth": 5,
+        "table_domains": {
+          "schedule": 1
+        },
+        "table_presentations": {
+          "cards": 1
+        },
+        "state_chars": 1810,
+        "longest_text_chars": 173,
+        "repeated_long_literals": [
+          [
+            "Low-impact stretching; Short assisted walk",
+            7
+          ]
+        ],
+        "alpha_id_components": 16,
+        "flags": []
+      },
+      {
+        "split": "train",
+        "line": 22732,
+        "id": "archive-train-123717-803dc541006fceb8",
+        "source_chars": 1328,
+        "target_chars": 2245,
+        "source_tokens": 435,
+        "target_tokens": 777,
+        "archived_prompt_tokens": 1943,
+        "deployed_prompt_tokens": 3435,
+        "deployed_sequence_tokens": 4214,
+        "archived_sequence_tokens": 2722,
+        "system_sha": "e89c13860a8c7a6b54b2a95ab882d71e542a8e43a5a0b5661550baf5b611f547",
+        "scaffold_sha": "db1667de8e7c52b2c574fcbe0b797832c8682039b494df18e35b329044161b4a",
+        "source_has_markdown_heading": true,
+        "source_has_pipe_table": true,
+        "source_has_media": true,
+        "source_has_action": true,
+        "source_has_url_placeholder": true,
+        "source_has_numeric_citation": false,
+        "source_has_live_url": false,
+        "source_non_ascii": false,
+        "target_has_source_placeholder": false,
+        "valid": true,
+        "semantic_hash": "0863a21c1c5b2a1b21b78c31552026b37b6c626f6ef01e02c026e95a74db73fb",
+        "canonical_target_tokens": 777,
+        "component_counts": {
+          "Stack": 9,
+          "Card": 4,
+          "Icon": 2,
+          "Text": 6,
+          "Table": 1,
+          "Button": 4
+        },
+        "component_count": 26,
+        "depth": 5,
+        "table_domains": {
+          "schedule": 1
+        },
+        "table_presentations": {
+          "cards": 1
+        },
+        "state_chars": 837,
+        "longest_text_chars": 186,
+        "repeated_long_literals": [
+          [
+            "Dusting (1h); Vacuum/Mop (2h); Deep Kitchen (2h)",
+            5
+          ]
+        ],
+        "alpha_id_components": 25,
+        "flags": []
+      },
+      {
+        "split": "train",
+        "line": 27980,
+        "id": "archive-train-130705-20dd8339c6545184",
+        "source_chars": 1927,
+        "target_chars": 3078,
+        "source_tokens": 580,
+        "target_tokens": 1014,
+        "archived_prompt_tokens": 2088,
+        "deployed_prompt_tokens": 3580,
+        "deployed_sequence_tokens": 4596,
+        "archived_sequence_tokens": 3104,
+        "system_sha": "e89c13860a8c7a6b54b2a95ab882d71e542a8e43a5a0b5661550baf5b611f547",
+        "scaffold_sha": "db1667de8e7c52b2c574fcbe0b797832c8682039b494df18e35b329044161b4a",
+        "source_has_markdown_heading": true,
+        "source_has_pipe_table": true,
+        "source_has_media": true,
+        "source_has_action": true,
+        "source_has_url_placeholder": true,
+        "source_has_numeric_citation": false,
+        "source_has_live_url": false,
+        "source_non_ascii": false,
+        "target_has_source_placeholder": false,
+        "valid": true,
+        "semantic_hash": "b66ea3985c0233933c73def5b98609dd7e39fa8487714ea360f6d19680b40349",
+        "canonical_target_tokens": 1014,
+        "component_counts": {
+          "Stack": 11,
+          "Card": 5,
+          "Icon": 2,
+          "Text": 9,
+          "Table": 1,
+          "Button": 4
+        },
+        "component_count": 32,
+        "depth": 5,
+        "table_domains": {
+          "schedule": 1
+        },
+        "table_presentations": {
+          "cards": 1
+        },
+        "state_chars": 1357,
+        "longest_text_chars": 215,
+        "repeated_long_literals": [
+          [
+            "ROM exercises (AM); Icing 3x daily; 15m walk (PM)",
+            5
+          ]
+        ],
+        "alpha_id_components": 31,
+        "flags": []
+      },
+      {
+        "split": "train",
+        "line": 28382,
+        "id": "archive-train-128271-8c53e6da79b0a383",
+        "source_chars": 1634,
+        "target_chars": 2548,
+        "source_tokens": 561,
+        "target_tokens": 891,
+        "archived_prompt_tokens": 2069,
+        "deployed_prompt_tokens": 3561,
+        "deployed_sequence_tokens": 4454,
+        "archived_sequence_tokens": 2962,
+        "system_sha": "e89c13860a8c7a6b54b2a95ab882d71e542a8e43a5a0b5661550baf5b611f547",
+        "scaffold_sha": "db1667de8e7c52b2c574fcbe0b797832c8682039b494df18e35b329044161b4a",
+        "source_has_markdown_heading": true,
+        "source_has_pipe_table": true,
+        "source_has_media": true,
+        "source_has_action": true,
+        "source_has_url_placeholder": true,
+        "source_has_numeric_citation": false,
+        "source_has_live_url": false,
+        "source_non_ascii": true,
+        "target_has_source_placeholder": false,
+        "valid": true,
+        "semantic_hash": "94a19c79ffea7a4806b21463cb02c4f4bf4aa122aef27be8dee6b23bc603bb9b",
+        "canonical_target_tokens": 891,
+        "component_counts": {
+          "Stack": 6,
+          "Icon": 1,
+          "Text": 9,
+          "Card": 2,
+          "Table": 1,
+          "Button": 4
+        },
+        "component_count": 23,
+        "depth": 4,
+        "table_domains": {
+          "schedule": 1
+        },
+        "table_presentations": {
+          "cards": 1
+        },
+        "state_chars": 1108,
+        "longest_text_chars": 115,
+        "repeated_long_literals": [
+          [
+            "08:00 Stretching (30m); 14:00 Strength (45m); 19:00 Icing (20m)",
+            7
+          ]
+        ],
+        "alpha_id_components": 22,
+        "flags": []
+      },
+      {
+        "split": "train",
+        "line": 29659,
+        "id": "archive-train-023715-7f285d267d8f78d2",
+        "source_chars": 2018,
+        "target_chars": 4893,
+        "source_tokens": 626,
+        "target_tokens": 1457,
+        "archived_prompt_tokens": 2134,
+        "deployed_prompt_tokens": 3626,
+        "deployed_sequence_tokens": 5085,
+        "archived_sequence_tokens": 3593,
+        "system_sha": "e89c13860a8c7a6b54b2a95ab882d71e542a8e43a5a0b5661550baf5b611f547",
+        "scaffold_sha": "db1667de8e7c52b2c574fcbe0b797832c8682039b494df18e35b329044161b4a",
+        "source_has_markdown_heading": true,
+        "source_has_pipe_table": false,
+        "source_has_media": true,
+        "source_has_action": true,
+        "source_has_url_placeholder": true,
+        "source_has_numeric_citation": false,
+        "source_has_live_url": false,
+        "source_non_ascii": false,
+        "target_has_source_placeholder": false,
+        "valid": true,
+        "semantic_hash": "a9362f6a18ca3d58426bf4c754a978a247c5d79f3279fbc11590fb70d4eb8ad4",
+        "canonical_target_tokens": 1457,
+        "component_counts": {
+          "Stack": 7,
+          "Card": 2,
+          "Icon": 3,
+          "Text": 5,
+          "Table": 2,
+          "Button": 2
+        },
+        "component_count": 21,
+        "depth": 4,
+        "table_domains": {
+          "schedule": 2
+        },
+        "table_presentations": {
+          "cards": 2
+        },
+        "state_chars": 3916,
+        "longest_text_chars": 233,
+        "repeated_long_literals": [
+          [
+            "Day 1: Foundation and Core Competencies (Nov 10)",
+            8
+          ],
+          [
+            "Day 2: Specialized Nursing Practice (Nov 11)",
+            8
+          ],
+          [
+            "Day 3: Mastery and Examination Strategy (Nov 12)",
+            8
+          ]
+        ],
+        "alpha_id_components": 20,
+        "flags": []
+      }
+    ],
+    "target_over_2048": [
+      {
+        "split": "train",
+        "line": 2307,
+        "id": "archive-train-035632-4befcc5f5c997548",
+        "source_chars": 4370,
+        "target_chars": 7093,
+        "source_tokens": 1254,
+        "target_tokens": 2137,
+        "archived_prompt_tokens": 2762,
+        "deployed_prompt_tokens": 4254,
+        "deployed_sequence_tokens": 6393,
+        "archived_sequence_tokens": 4901,
+        "system_sha": "e89c13860a8c7a6b54b2a95ab882d71e542a8e43a5a0b5661550baf5b611f547",
+        "scaffold_sha": "db1667de8e7c52b2c574fcbe0b797832c8682039b494df18e35b329044161b4a",
+        "source_has_markdown_heading": true,
+        "source_has_pipe_table": false,
+        "source_has_media": true,
+        "source_has_action": true,
+        "source_has_url_placeholder": true,
+        "source_has_numeric_citation": false,
+        "source_has_live_url": false,
+        "source_non_ascii": false,
+        "target_has_source_placeholder": false,
+        "valid": true,
+        "semantic_hash": "900bb49f22d6eabe0ea38bd0402cc5ee2874f1b3703f2785e6d4a2b208eba7c2",
+        "canonical_target_tokens": 2137,
+        "component_counts": {
+          "Stack": 11,
+          "Card": 3,
+          "Icon": 3,
+          "Text": 13,
+          "Table": 2,
+          "Button": 2
+        },
+        "component_count": 34,
+        "depth": 5,
+        "table_domains": {
+          "schedule": 2
+        },
+        "table_presentations": {
+          "cards": 2
+        },
+        "state_chars": 5285,
+        "longest_text_chars": 246,
+        "repeated_long_literals": [],
+        "alpha_id_components": 33,
+        "flags": []
+      },
+      {
+        "split": "train",
+        "line": 3709,
+        "id": "archive-train-031939-65ba540d7a1ba10b",
+        "source_chars": 4647,
+        "target_chars": 7437,
+        "source_tokens": 1074,
+        "target_tokens": 2177,
+        "archived_prompt_tokens": 2582,
+        "deployed_prompt_tokens": 4074,
+        "deployed_sequence_tokens": 6253,
+        "archived_sequence_tokens": 4761,
+        "system_sha": "e89c13860a8c7a6b54b2a95ab882d71e542a8e43a5a0b5661550baf5b611f547",
+        "scaffold_sha": "db1667de8e7c52b2c574fcbe0b797832c8682039b494df18e35b329044161b4a",
+        "source_has_markdown_heading": true,
+        "source_has_pipe_table": false,
+        "source_has_media": true,
+        "source_has_action": true,
+        "source_has_url_placeholder": true,
+        "source_has_numeric_citation": false,
+        "source_has_live_url": false,
+        "source_non_ascii": false,
+        "target_has_source_placeholder": false,
+        "valid": true,
+        "semantic_hash": "a91912b485e19478e04218848b708045563a86ffaad9c556aae4fa326abd0f0d",
+        "canonical_target_tokens": 2177,
+        "component_counts": {
+          "Stack": 26,
+          "Card": 8,
+          "Icon": 2,
+          "Text": 59,
+          "Table": 1,
+          "Button": 5
+        },
+        "component_count": 101,
+        "depth": 6,
+        "table_domains": {
+          "schedule": 1
+        },
+        "table_presentations": {
+          "cards": 1
+        },
+        "state_chars": 727,
+        "longest_text_chars": 190,
+        "repeated_long_literals": [],
+        "alpha_id_components": 100,
+        "flags": []
+      },
+      {
+        "split": "train",
+        "line": 4782,
+        "id": "archive-train-029214-afdda37c38e57b20",
+        "source_chars": 3718,
+        "target_chars": 5298,
+        "source_tokens": 1604,
+        "target_tokens": 2087,
+        "archived_prompt_tokens": 3112,
+        "deployed_prompt_tokens": 4604,
+        "deployed_sequence_tokens": 6693,
+        "archived_sequence_tokens": 5201,
+        "system_sha": "e89c13860a8c7a6b54b2a95ab882d71e542a8e43a5a0b5661550baf5b611f547",
+        "scaffold_sha": "db1667de8e7c52b2c574fcbe0b797832c8682039b494df18e35b329044161b4a",
+        "source_has_markdown_heading": true,
+        "source_has_pipe_table": false,
+        "source_has_media": true,
+        "source_has_action": true,
+        "source_has_url_placeholder": true,
+        "source_has_numeric_citation": false,
+        "source_has_live_url": false,
+        "source_non_ascii": true,
+        "target_has_source_placeholder": false,
+        "valid": true,
+        "semantic_hash": "fb3bab6cec3267f51c8271a2764354b76040f3aeca497aeb3d57d42d1092cdf2",
+        "canonical_target_tokens": 2087,
+        "component_counts": {
+          "Stack": 6,
+          "Card": 5,
+          "Icon": 3,
+          "Text": 6,
+          "Formula": 1,
+          "Table": 3,
+          "Button": 4
+        },
+        "component_count": 28,
+        "depth": 4,
+        "table_domains": {
+          "formula": 1,
+          "schedule": 1,
+          "comparison": 1
+        },
+        "table_presentations": {
+          "table": 2,
+          "cards": 1
+        },
+        "state_chars": 3775,
+        "longest_text_chars": 138,
+        "repeated_long_literals": [],
+        "alpha_id_components": 27,
+        "flags": []
+      },
+      {
+        "split": "train",
+        "line": 7505,
+        "id": "archive-train-057909-3eb3ed07aea902c6",
+        "source_chars": 2314,
+        "target_chars": 6094,
+        "source_tokens": 830,
+        "target_tokens": 2092,
+        "archived_prompt_tokens": 2338,
+        "deployed_prompt_tokens": 3830,
+        "deployed_sequence_tokens": 5924,
+        "archived_sequence_tokens": 4432,
+        "system_sha": "e89c13860a8c7a6b54b2a95ab882d71e542a8e43a5a0b5661550baf5b611f547",
+        "scaffold_sha": "db1667de8e7c52b2c574fcbe0b797832c8682039b494df18e35b329044161b4a",
+        "source_has_markdown_heading": true,
+        "source_has_pipe_table": true,
+        "source_has_media": true,
+        "source_has_action": true,
+        "source_has_url_placeholder": true,
+        "source_has_numeric_citation": false,
+        "source_has_live_url": false,
+        "source_non_ascii": false,
+        "target_has_source_placeholder": false,
+        "valid": true,
+        "semantic_hash": "bb24ee5b9881647fee48db02d5a80599d52f0a367eca8d5483417ecf577d06c7",
+        "canonical_target_tokens": 2092,
+        "component_counts": {
+          "Stack": 7,
+          "Text": 8,
+          "Card": 4,
+          "Table": 4,
+          "Icon": 3,
+          "Button": 2
+        },
+        "component_count": 28,
+        "depth": 5,
+        "table_domains": {
+          "schedule": 4
+        },
+        "table_presentations": {
+          "cards": 4
+        },
+        "state_chars": 2604,
+        "longest_text_chars": 196,
+        "repeated_long_literals": [],
+        "alpha_id_components": 27,
+        "flags": []
+      },
+      {
+        "split": "train",
+        "line": 8056,
+        "id": "archive-train-065757-7e7021471a8cd023",
+        "source_chars": 3990,
+        "target_chars": 8723,
+        "source_tokens": 881,
+        "target_tokens": 2144,
+        "archived_prompt_tokens": 2389,
+        "deployed_prompt_tokens": 3881,
+        "deployed_sequence_tokens": 6027,
+        "archived_sequence_tokens": 4535,
+        "system_sha": "e89c13860a8c7a6b54b2a95ab882d71e542a8e43a5a0b5661550baf5b611f547",
+        "scaffold_sha": "db1667de8e7c52b2c574fcbe0b797832c8682039b494df18e35b329044161b4a",
+        "source_has_markdown_heading": true,
+        "source_has_pipe_table": false,
+        "source_has_media": true,
+        "source_has_action": true,
+        "source_has_url_placeholder": true,
+        "source_has_numeric_citation": false,
+        "source_has_live_url": false,
+        "source_non_ascii": false,
+        "target_has_source_placeholder": false,
+        "valid": true,
+        "semantic_hash": "02015e13502e0c0888483624ca8bf46d4b4a99c9945642483c6e639168bd66f8",
+        "canonical_target_tokens": 2144,
+        "component_counts": {
+          "Stack": 12,
+          "Card": 4,
+          "Icon": 2,
+          "Text": 11,
+          "Table": 4,
+          "Button": 2
+        },
+        "component_count": 35,
+        "depth": 6,
+        "table_domains": {
+          "schedule": 4
+        },
+        "table_presentations": {
+          "cards": 4
+        },
+        "state_chars": 3779,
+        "longest_text_chars": 305,
+        "repeated_long_literals": [],
+        "alpha_id_components": 34,
+        "flags": []
+      },
+      {
+        "split": "train",
+        "line": 10181,
+        "id": "archive-train-067562-65806980546d8a4f",
+        "source_chars": 2312,
+        "target_chars": 7633,
+        "source_tokens": 730,
+        "target_tokens": 2325,
+        "archived_prompt_tokens": 2238,
+        "deployed_prompt_tokens": 3730,
+        "deployed_sequence_tokens": 6057,
+        "archived_sequence_tokens": 4565,
+        "system_sha": "e89c13860a8c7a6b54b2a95ab882d71e542a8e43a5a0b5661550baf5b611f547",
+        "scaffold_sha": "db1667de8e7c52b2c574fcbe0b797832c8682039b494df18e35b329044161b4a",
+        "source_has_markdown_heading": true,
+        "source_has_pipe_table": false,
+        "source_has_media": true,
+        "source_has_action": true,
+        "source_has_url_placeholder": true,
+        "source_has_numeric_citation": false,
+        "source_has_live_url": false,
+        "source_non_ascii": false,
+        "target_has_source_placeholder": false,
+        "valid": true,
+        "semantic_hash": "b4eda56e94f2623197b64cf53c84207c81fb5a507899631b2f1d65cdd5687033",
+        "canonical_target_tokens": 2325,
+        "component_counts": {
+          "Stack": 14,
+          "Card": 6,
+          "Icon": 5,
+          "Text": 8,
+          "Table": 4,
+          "Button": 2
+        },
+        "component_count": 39,
+        "depth": 6,
+        "table_domains": {
+          "schedule": 4
+        },
+        "table_presentations": {
+          "cards": 4
+        },
+        "state_chars": 3496,
+        "longest_text_chars": 203,
+        "repeated_long_literals": [],
+        "alpha_id_components": 38,
+        "flags": []
+      },
+      {
+        "split": "train",
+        "line": 14277,
+        "id": "archive-train-071038-3543f563c254cd5e",
+        "source_chars": 3969,
+        "target_chars": 6665,
+        "source_tokens": 1030,
+        "target_tokens": 2109,
+        "archived_prompt_tokens": 2538,
+        "deployed_prompt_tokens": 4030,
+        "deployed_sequence_tokens": 6141,
+        "archived_sequence_tokens": 4649,
+        "system_sha": "e89c13860a8c7a6b54b2a95ab882d71e542a8e43a5a0b5661550baf5b611f547",
+        "scaffold_sha": "db1667de8e7c52b2c574fcbe0b797832c8682039b494df18e35b329044161b4a",
+        "source_has_markdown_heading": true,
+        "source_has_pipe_table": false,
+        "source_has_media": true,
+        "source_has_action": true,
+        "source_has_url_placeholder": true,
+        "source_has_numeric_citation": false,
+        "source_has_live_url": false,
+        "source_non_ascii": false,
+        "target_has_source_placeholder": false,
+        "valid": true,
+        "semantic_hash": "bc35be48a75cf2a12ef432f9fd8d5fbc9a13aa329799f345341c10652de4ac1b",
+        "canonical_target_tokens": 2109,
+        "component_counts": {
+          "Stack": 33,
+          "Card": 15,
+          "Icon": 15,
+          "Text": 41,
+          "Table": 2,
+          "Button": 2
+        },
+        "component_count": 108,
+        "depth": 6,
+        "table_domains": {
+          "schedule": 1,
+          "generic": 1
+        },
+        "table_presentations": {
+          "cards": 1,
+          "table": 1
+        },
+        "state_chars": 948,
+        "longest_text_chars": 242,
+        "repeated_long_literals": [],
+        "alpha_id_components": 107,
+        "flags": []
+      },
+      {
+        "split": "train",
+        "line": 15057,
+        "id": "archive-train-038980-e3e1810ebbd98ab6",
+        "source_chars": 2867,
+        "target_chars": 7550,
+        "source_tokens": 882,
+        "target_tokens": 2295,
+        "archived_prompt_tokens": 2390,
+        "deployed_prompt_tokens": 3882,
+        "deployed_sequence_tokens": 6179,
+        "archived_sequence_tokens": 4687,
+        "system_sha": "e89c13860a8c7a6b54b2a95ab882d71e542a8e43a5a0b5661550baf5b611f547",
+        "scaffold_sha": "db1667de8e7c52b2c574fcbe0b797832c8682039b494df18e35b329044161b4a",
+        "source_has_markdown_heading": true,
+        "source_has_pipe_table": false,
+        "source_has_media": true,
+        "source_has_action": true,
+        "source_has_url_placeholder": true,
+        "source_has_numeric_citation": false,
+        "source_has_live_url": false,
+        "source_non_ascii": false,
+        "target_has_source_placeholder": false,
+        "valid": true,
+        "semantic_hash": "72f916272934449f3ae21c12fc4fc96fb9a322c6ebc3ce48a9bdbe0ecfd51c6b",
+        "canonical_target_tokens": 2295,
+        "component_counts": {
+          "Stack": 6,
+          "Card": 7,
+          "Icon": 3,
+          "Text": 9,
+          "Table": 5,
+          "Button": 2
+        },
+        "component_count": 32,
+        "depth": 4,
+        "table_domains": {
+          "schedule": 5
+        },
+        "table_presentations": {
+          "cards": 5
+        },
+        "state_chars": 3561,
+        "longest_text_chars": 236,
+        "repeated_long_literals": [],
+        "alpha_id_components": 31,
+        "flags": []
+      },
+      {
+        "split": "train",
+        "line": 16742,
+        "id": "archive-train-059586-a95a083767c872b6",
+        "source_chars": 4261,
+        "target_chars": 7146,
+        "source_tokens": 1156,
+        "target_tokens": 2310,
+        "archived_prompt_tokens": 2664,
+        "deployed_prompt_tokens": 4156,
+        "deployed_sequence_tokens": 6468,
+        "archived_sequence_tokens": 4976,
+        "system_sha": "e89c13860a8c7a6b54b2a95ab882d71e542a8e43a5a0b5661550baf5b611f547",
+        "scaffold_sha": "db1667de8e7c52b2c574fcbe0b797832c8682039b494df18e35b329044161b4a",
+        "source_has_markdown_heading": true,
+        "source_has_pipe_table": false,
+        "source_has_media": true,
+        "source_has_action": true,
+        "source_has_url_placeholder": true,
+        "source_has_numeric_citation": false,
+        "source_has_live_url": false,
+        "source_non_ascii": true,
+        "target_has_source_placeholder": false,
+        "valid": true,
+        "semantic_hash": "2611d2c1c3ad07cb5ed189246a8b7bbdc02b2b9e685227b0494a73238c8a7596",
+        "canonical_target_tokens": 2310,
+        "component_counts": {
+          "Stack": 23,
+          "Card": 13,
+          "Icon": 5,
+          "Text": 61,
+          "Table": 2,
+          "Button": 2
+        },
+        "component_count": 106,
+        "depth": 6,
+        "table_domains": {
+          "schedule": 1,
+          "status": 1
+        },
+        "table_presentations": {
+          "cards": 2
+        },
+        "state_chars": 1161,
+        "longest_text_chars": 134,
+        "repeated_long_literals": [],
+        "alpha_id_components": 105,
+        "flags": []
+      },
+      {
+        "split": "train",
+        "line": 20110,
+        "id": "archive-train-040009-0dfe14e9b241655b",
+        "source_chars": 4505,
+        "target_chars": 7365,
+        "source_tokens": 1496,
+        "target_tokens": 2200,
+        "archived_prompt_tokens": 3004,
+        "deployed_prompt_tokens": 4496,
+        "deployed_sequence_tokens": 6698,
+        "archived_sequence_tokens": 5206,
+        "system_sha": "e89c13860a8c7a6b54b2a95ab882d71e542a8e43a5a0b5661550baf5b611f547",
+        "scaffold_sha": "db1667de8e7c52b2c574fcbe0b797832c8682039b494df18e35b329044161b4a",
+        "source_has_markdown_heading": true,
+        "source_has_pipe_table": false,
+        "source_has_media": true,
+        "source_has_action": true,
+        "source_has_url_placeholder": true,
+        "source_has_numeric_citation": false,
+        "source_has_live_url": false,
+        "source_non_ascii": true,
+        "target_has_source_placeholder": false,
+        "valid": true,
+        "semantic_hash": "361d4c9c46ecce11de9d74a8033a175c7c5d8d273395097abb75329fb34bee1e",
+        "canonical_target_tokens": 2200,
+        "component_counts": {
+          "Stack": 11,
+          "Text": 8,
+          "Card": 4,
+          "Icon": 4,
+          "Table": 4,
+          "Button": 4
+        },
+        "component_count": 35,
+        "depth": 5,
+        "table_domains": {
+          "generic": 4
+        },
+        "table_presentations": {
+          "table": 4
+        },
+        "state_chars": 6073,
+        "longest_text_chars": 128,
+        "repeated_long_literals": [],
+        "alpha_id_components": 34,
+        "flags": []
+      },
+      {
+        "split": "train",
+        "line": 27829,
+        "id": "archive-train-058441-cfe4f5b7801d61dd",
+        "source_chars": 2324,
+        "target_chars": 6347,
+        "source_tokens": 708,
+        "target_tokens": 2050,
+        "archived_prompt_tokens": 2216,
+        "deployed_prompt_tokens": 3708,
+        "deployed_sequence_tokens": 5760,
+        "archived_sequence_tokens": 4268,
+        "system_sha": "e89c13860a8c7a6b54b2a95ab882d71e542a8e43a5a0b5661550baf5b611f547",
+        "scaffold_sha": "db1667de8e7c52b2c574fcbe0b797832c8682039b494df18e35b329044161b4a",
+        "source_has_markdown_heading": true,
+        "source_has_pipe_table": false,
+        "source_has_media": true,
+        "source_has_action": true,
+        "source_has_url_placeholder": true,
+        "source_has_numeric_citation": false,
+        "source_has_live_url": false,
+        "source_non_ascii": false,
+        "target_has_source_placeholder": false,
+        "valid": true,
+        "semantic_hash": "a013bca50b792ee31fe0ea1faedf9c0c91344d6c0a567484fd4af7305fbbb544",
+        "canonical_target_tokens": 2050,
+        "component_counts": {
+          "Stack": 14,
+          "Card": 5,
+          "Icon": 5,
+          "Text": 8,
+          "Table": 4,
+          "Button": 2
+        },
+        "component_count": 38,
+        "depth": 6,
+        "table_domains": {
+          "schedule": 4
+        },
+        "table_presentations": {
+          "cards": 4
+        },
+        "state_chars": 2930,
+        "longest_text_chars": 204,
+        "repeated_long_literals": [],
+        "alpha_id_components": 37,
+        "flags": []
+      },
+      {
+        "split": "train",
+        "line": 29958,
+        "id": "archive-train-072141-f167411a8ceea0ab",
+        "source_chars": 5241,
+        "target_chars": 7811,
+        "source_tokens": 1299,
+        "target_tokens": 2340,
+        "archived_prompt_tokens": 2807,
+        "deployed_prompt_tokens": 4299,
+        "deployed_sequence_tokens": 6641,
+        "archived_sequence_tokens": 5149,
+        "system_sha": "e89c13860a8c7a6b54b2a95ab882d71e542a8e43a5a0b5661550baf5b611f547",
+        "scaffold_sha": "db1667de8e7c52b2c574fcbe0b797832c8682039b494df18e35b329044161b4a",
+        "source_has_markdown_heading": true,
+        "source_has_pipe_table": false,
+        "source_has_media": true,
+        "source_has_action": true,
+        "source_has_url_placeholder": true,
+        "source_has_numeric_citation": false,
+        "source_has_live_url": false,
+        "source_non_ascii": true,
+        "target_has_source_placeholder": false,
+        "valid": true,
+        "semantic_hash": "08a41ab483b06b75e43873c0a23eff817131166e97553719e763383cb912c3e6",
+        "canonical_target_tokens": 2340,
+        "component_counts": {
+          "Stack": 37,
+          "Card": 13,
+          "Icon": 16,
+          "Text": 33,
+          "Table": 2,
+          "Button": 2
+        },
+        "component_count": 103,
+        "depth": 7,
+        "table_domains": {
+          "schedule": 1,
+          "generic": 1
+        },
+        "table_presentations": {
+          "cards": 1,
+          "table": 1
+        },
+        "state_chars": 967,
+        "longest_text_chars": 615,
+        "repeated_long_literals": [],
+        "alpha_id_components": 102,
+        "flags": []
+      }
+    ]
+  }
+}

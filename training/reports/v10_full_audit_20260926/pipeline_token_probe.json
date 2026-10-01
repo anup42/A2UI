@@ -1,0 +1,252 @@
+{
+  "sample": "first 128 of each split, spaced rows across each split, and train 6416; deterministic; accepted normalization only",
+  "rows_examined": 503,
+  "normalized": 503,
+  "failed": 0,
+  "failure_examples": [],
+  "tokenizer_sha256": "e594c8a90eb08d8bda498ff4747977dc827ae0c3c56b5c0d41a605a22d02ef03",
+  "comparison": {
+    "prompt_trim_delta": {
+      "min": 0,
+      "median": 0,
+      "max": 0,
+      "nonzero": 0,
+      "negative": 0,
+      "positive": 0
+    },
+    "serialization_and_trim_delta": {
+      "min": 0,
+      "median": 0,
+      "max": 0,
+      "nonzero": 0,
+      "negative": 0,
+      "positive": 0
+    },
+    "boundary_delta": {
+      "min": 0,
+      "median": 0,
+      "max": 0,
+      "nonzero": 0,
+      "negative": 0,
+      "positive": 0
+    },
+    "true_proxy_minus_root": {
+      "min": 0,
+      "median": 0,
+      "max": 0,
+      "nonzero": 0,
+      "negative": 0,
+      "positive": 0
+    },
+    "canonical_target_minus_raw": {
+      "min": 0,
+      "median": 0,
+      "max": 0,
+      "nonzero": 0,
+      "negative": 0,
+      "positive": 0
+    }
+  },
+  "threshold_disagreements": {
+    "4096": 0,
+    "6144": 0,
+    "8192": 0
+  },
+  "target_2048_disagreements": 0,
+  "largest_boundary_differences": [
+    {
+      "split": "train",
+      "line": 1,
+      "id": "archive-train-017913-680b05c2ffc96895",
+      "root_prompt": 3648,
+      "actual_prompt": 3648,
+      "root_sequence": 4757,
+      "canonical_concat": 4757,
+      "canonical_separate": 4757,
+      "raw_target": 1107,
+      "canonical_target": 1107
+    },
+    {
+      "split": "train",
+      "line": 2,
+      "id": "archive-train-146903-ff887f40fc6bb55d",
+      "root_prompt": 3671,
+      "actual_prompt": 3671,
+      "root_sequence": 4797,
+      "canonical_concat": 4797,
+      "canonical_separate": 4797,
+      "raw_target": 1124,
+      "canonical_target": 1124
+    },
+    {
+      "split": "train",
+      "line": 3,
+      "id": "archive-train-114519-92048bb75bbd3229",
+      "root_prompt": 3482,
+      "actual_prompt": 3482,
+      "root_sequence": 4500,
+      "canonical_concat": 4500,
+      "canonical_separate": 4500,
+      "raw_target": 1016,
+      "canonical_target": 1016
+    },
+    {
+      "split": "train",
+      "line": 4,
+      "id": "archive-train-139266-6f6b748c4342698e",
+      "root_prompt": 3263,
+      "actual_prompt": 3263,
+      "root_sequence": 3809,
+      "canonical_concat": 3809,
+      "canonical_separate": 3809,
+      "raw_target": 544,
+      "canonical_target": 544
+    },
+    {
+      "split": "train",
+      "line": 5,
+      "id": "archive-train-039022-d98e072e31dfd6f1",
+      "root_prompt": 3404,
+      "actual_prompt": 3404,
+      "root_sequence": 4116,
+      "canonical_concat": 4116,
+      "canonical_separate": 4116,
+      "raw_target": 710,
+      "canonical_target": 710
+    },
+    {
+      "split": "train",
+      "line": 6,
+      "id": "archive-train-016063-4a91e1d0ecb9bed7",
+      "root_prompt": 3505,
+      "actual_prompt": 3505,
+      "root_sequence": 4479,
+      "canonical_concat": 4479,
+      "canonical_separate": 4479,
+      "raw_target": 972,
+      "canonical_target": 972
+    },
+    {
+      "split": "train",
+      "line": 7,
+      "id": "archive-train-068095-8d7651e635944ab6",
+      "root_prompt": 3442,
+      "actual_prompt": 3442,
+      "root_sequence": 4318,
+      "canonical_concat": 4318,
+      "canonical_separate": 4318,
+      "raw_target": 874,
+      "canonical_target": 874
+    },
+    {
+      "split": "train",
+      "line": 8,
+      "id": "archive-train-044342-9900f8f7c92843f5",
+      "root_prompt": 3637,
+      "actual_prompt": 3637,
+      "root_sequence": 4768,
+      "canonical_concat": 4768,
+      "canonical_separate": 4768,
+      "raw_target": 1129,
+      "canonical_target": 1129
+    }
+  ],
+  "largest_total_differences": [
+    {
+      "split": "train",
+      "line": 1,
+      "id": "archive-train-017913-680b05c2ffc96895",
+      "root_prompt": 3648,
+      "actual_prompt": 3648,
+      "root_sequence": 4757,
+      "canonical_concat": 4757,
+      "canonical_separate": 4757,
+      "raw_target": 1107,
+      "canonical_target": 1107
+    },
+    {
+      "split": "train",
+      "line": 2,
+      "id": "archive-train-146903-ff887f40fc6bb55d",
+      "root_prompt": 3671,
+      "actual_prompt": 3671,
+      "root_sequence": 4797,
+      "canonical_concat": 4797,
+      "canonical_separate": 4797,
+      "raw_target": 1124,
+      "canonical_target": 1124
+    },
+    {
+      "split": "train",
+      "line": 3,
+      "id": "archive-train-114519-92048bb75bbd3229",
+      "root_prompt": 3482,
+      "actual_prompt": 3482,
+      "root_sequence": 4500,
+      "canonical_concat": 4500,
+      "canonical_separate": 4500,
+      "raw_target": 1016,
+      "canonical_target": 1016
+    },
+    {
+      "split": "train",
+      "line": 4,
+      "id": "archive-train-139266-6f6b748c4342698e",
+      "root_prompt": 3263,
+      "actual_prompt": 3263,
+      "root_sequence": 3809,
+      "canonical_concat": 3809,
+      "canonical_separate": 3809,
+      "raw_target": 544,
+      "canonical_target": 544
+    },
+    {
+      "split": "train",
+      "line": 5,
+      "id": "archive-train-039022-d98e072e31dfd6f1",
+      "root_prompt": 3404,
+      "actual_prompt": 3404,
+      "root_sequence": 4116,
+      "canonical_concat": 4116,
+      "canonical_separate": 4116,
+      "raw_target": 710,
+      "canonical_target": 710
+    },
+    {
+      "split": "train",
+      "line": 6,
+      "id": "archive-train-016063-4a91e1d0ecb9bed7",
+      "root_prompt": 3505,
+      "actual_prompt": 3505,
+      "root_sequence": 4479,
+      "canonical_concat": 4479,
+      "canonical_separate": 4479,
+      "raw_target": 972,
+      "canonical_target": 972
+    },
+    {
+      "split": "train",
+      "line": 7,
+      "id": "archive-train-068095-8d7651e635944ab6",
+      "root_prompt": 3442,
+      "actual_prompt": 3442,
+      "root_sequence": 4318,
+      "canonical_concat": 4318,
+      "canonical_separate": 4318,
+      "raw_target": 874,
+      "canonical_target": 874
+    },
+    {
+      "split": "train",
+      "line": 8,
+      "id": "archive-train-044342-9900f8f7c92843f5",
+      "root_prompt": 3637,
+      "actual_prompt": 3637,
+      "root_sequence": 4768,
+      "canonical_concat": 4768,
+      "canonical_separate": 4768,
+      "raw_target": 1129,
+      "canonical_target": 1129
+    }
+  ]
+}

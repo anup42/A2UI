@@ -1,0 +1,33 @@
+{
+  "aar": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\build\\repo\\com\\samsung\\genuicraft\\genuicraft\\0.5.6\\genuicraft-0.5.6.aar",
+  "aar_sha256": "c59eeae4debf4e8428a806ac7b7d7cb1b13f2d3559a12a655a56ef2f0be723b1",
+  "classpath": [
+    {
+      "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_v54_repaired_scores\\runtime\\genuicraft-0.5.6-classes.jar",
+      "sha256": "69954347411d7d3b4959cc914ecfd290f9c399202ea2d83279c023062a1bcf11"
+    },
+    {
+      "path": "C:\\Users\\anupk\\.gradle\\caches\\modules-2\\files-2.1\\com.google.code.gson\\gson\\2.11.0\\527175ca6d81050b53bdd4c457a6d6e017626b0e\\gson-2.11.0.jar",
+      "sha256": "57928d6e5a6edeb2abd3770a8f95ba44dce45f3b23b7a9dc2b309c581552a78b"
+    },
+    {
+      "path": "C:\\Users\\anupk\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.kotlin\\kotlin-stdlib\\2.2.21\\fa374a986e128314c3db00a20aae55f72a258511\\kotlin-stdlib-2.2.21.jar",
+      "sha256": "6558a3d233da56a20934b32159f9db5f86ed5816ef098f78a2c223dc6abb79dd"
+    }
+  ],
+  "driver_source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\tools\\GenUiRepairReplay.java",
+  "driver_sha256": "456d6fcb8c791731727152aef516bde0266e48db5de3654acd8d8dfd31c20f03",
+  "command": [
+    "C:\\Program Files\\Android\\Android Studio\\jbr\\bin\\java.EXE",
+    "-Xmx1g",
+    "-cp",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_v54_repaired_scores\\runtime\\driver_classes;C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_v54_repaired_scores\\runtime\\genuicraft-0.5.6-classes.jar;C:\\Users\\anupk\\.gradle\\caches\\modules-2\\files-2.1\\com.google.code.gson\\gson\\2.11.0\\527175ca6d81050b53bdd4c457a6d6e017626b0e\\gson-2.11.0.jar;C:\\Users\\anupk\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.kotlin\\kotlin-stdlib\\2.2.21\\fa374a986e128314c3db00a20aae55f72a258511\\kotlin-stdlib-2.2.21.jar",
+    "GenUiRepairReplay",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_v54_repaired_scores\\runtime\\repair_input.jsonl",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_v54_repaired_scores\\repair_outcomes.jsonl"
+  ],
+  "new_model_inference": false,
+  "source_text_supplied_to_repair": false,
+  "fallback_enabled": false,
+  "java_version": "openjdk version \"21.0.7\" 2025-04-15\nOpenJDK Runtime Environment (build 21.0.7+-13880790-b1038.58)\nOpenJDK 64-Bit Server VM (build 21.0.7+-13880790-b1038.58, mixed mode)\n"
+}

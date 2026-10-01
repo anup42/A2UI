@@ -1,0 +1,216 @@
+{
+  "scope": "Complete 50 cases per MTP mode; 27 verified prior generations retained and 73 missing generations collected",
+  "prior_count": 27,
+  "new_count": 73,
+  "modelSha256": "de60d19c8e1ef06ed1032212d0d4ae5d9b0ec105db72db34a988453004e63e62",
+  "mainApkSha256": "0426477f7c874a9bf42c1ac32a2c6a24605d99cda5b29059fdac8e5cb16cdc3f",
+  "installedTestApkSha256": "176b2bd532efecf72dd27519bad3530b118d574b5f6d9914a719ab1593a2a0cf",
+  "repairSdkVersion": "0.5.6",
+  "runtime": {
+    "accelerator": "GPU",
+    "gpuPrecision": "FP32",
+    "weights": "W4",
+    "contextTokens": 8192,
+    "maxOutputTokens": 2048,
+    "temperature": 0.0,
+    "thinkingEnabled": false,
+    "sourceFallback": false
+  },
+  "pairedDeviceAssignment": {
+    "R3GL203AKSF": "BXP-001 through BXP-031",
+    "R3CY30QFWLP": "BXP-032 through BXP-050"
+  },
+  "plans": [
+    {
+      "serial": "R3GL203AKSF",
+      "deviceAlias": "flip8",
+      "batches": [
+        {
+          "name": "missing_013_015_mtp_on",
+          "mtp": true,
+          "cases": [
+            "BXP-013",
+            "BXP-014",
+            "BXP-015"
+          ]
+        },
+        {
+          "name": "cases_016_020_mtp_off",
+          "mtp": false,
+          "cases": [
+            "BXP-016",
+            "BXP-017",
+            "BXP-018",
+            "BXP-019",
+            "BXP-020"
+          ]
+        },
+        {
+          "name": "cases_016_020_mtp_on",
+          "mtp": true,
+          "cases": [
+            "BXP-016",
+            "BXP-017",
+            "BXP-018",
+            "BXP-019",
+            "BXP-020"
+          ]
+        },
+        {
+          "name": "cases_021_025_mtp_on",
+          "mtp": true,
+          "cases": [
+            "BXP-021",
+            "BXP-022",
+            "BXP-023",
+            "BXP-024",
+            "BXP-025"
+          ]
+        },
+        {
+          "name": "cases_021_025_mtp_off",
+          "mtp": false,
+          "cases": [
+            "BXP-021",
+            "BXP-022",
+            "BXP-023",
+            "BXP-024",
+            "BXP-025"
+          ]
+        },
+        {
+          "name": "cases_026_030_mtp_off",
+          "mtp": false,
+          "cases": [
+            "BXP-026",
+            "BXP-027",
+            "BXP-028",
+            "BXP-029",
+            "BXP-030"
+          ]
+        },
+        {
+          "name": "cases_026_030_mtp_on",
+          "mtp": true,
+          "cases": [
+            "BXP-026",
+            "BXP-027",
+            "BXP-028",
+            "BXP-029",
+            "BXP-030"
+          ]
+        },
+        {
+          "name": "cases_031_031_mtp_on",
+          "mtp": true,
+          "cases": [
+            "BXP-031"
+          ]
+        },
+        {
+          "name": "cases_031_031_mtp_off",
+          "mtp": false,
+          "cases": [
+            "BXP-031"
+          ]
+        }
+      ]
+    },
+    {
+      "serial": "R3CY30QFWLP",
+      "deviceAlias": "fold7",
+      "batches": [
+        {
+          "name": "cases_032_036_mtp_on",
+          "mtp": true,
+          "cases": [
+            "BXP-032",
+            "BXP-033",
+            "BXP-034",
+            "BXP-035",
+            "BXP-036"
+          ]
+        },
+        {
+          "name": "cases_032_036_mtp_off",
+          "mtp": false,
+          "cases": [
+            "BXP-032",
+            "BXP-033",
+            "BXP-034",
+            "BXP-035",
+            "BXP-036"
+          ]
+        },
+        {
+          "name": "cases_037_041_mtp_off",
+          "mtp": false,
+          "cases": [
+            "BXP-037",
+            "BXP-038",
+            "BXP-039",
+            "BXP-040",
+            "BXP-041"
+          ]
+        },
+        {
+          "name": "cases_037_041_mtp_on",
+          "mtp": true,
+          "cases": [
+            "BXP-037",
+            "BXP-038",
+            "BXP-039",
+            "BXP-040",
+            "BXP-041"
+          ]
+        },
+        {
+          "name": "cases_042_046_mtp_on",
+          "mtp": true,
+          "cases": [
+            "BXP-042",
+            "BXP-043",
+            "BXP-044",
+            "BXP-045",
+            "BXP-046"
+          ]
+        },
+        {
+          "name": "cases_042_046_mtp_off",
+          "mtp": false,
+          "cases": [
+            "BXP-042",
+            "BXP-043",
+            "BXP-044",
+            "BXP-045",
+            "BXP-046"
+          ]
+        },
+        {
+          "name": "cases_047_050_mtp_off",
+          "mtp": false,
+          "cases": [
+            "BXP-047",
+            "BXP-048",
+            "BXP-049",
+            "BXP-050"
+          ]
+        },
+        {
+          "name": "cases_047_050_mtp_on",
+          "mtp": true,
+          "cases": [
+            "BXP-047",
+            "BXP-048",
+            "BXP-049",
+            "BXP-050"
+          ]
+        }
+      ]
+    }
+  ],
+  "restSecondsBetweenNewBatches": 5,
+  "perCaseTimeoutMs": 360000,
+  "hostNoProgressWatchdogSeconds": 540,
+  "retryPolicy": "No score-selection retries; preserve attempted failures, only reschedule unattempted cases after infrastructure failure"
+}

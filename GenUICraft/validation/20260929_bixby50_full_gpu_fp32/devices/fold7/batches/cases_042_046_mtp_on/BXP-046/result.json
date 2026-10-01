@@ -1,0 +1,46 @@
+{
+  "id": "BXP-046",
+  "status": "strict_invalid",
+  "strictValid": false,
+  "renderValid": false,
+  "elapsedMs": 9463,
+  "firstInRun": false,
+  "attempts": 1,
+  "startedAtEpochMs": 1790702987493,
+  "deviceBefore": {
+    "epochMs": 1790702987493,
+    "thermalStatus": 3,
+    "batteryTemperatureC": 37.8,
+    "batteryLevel": 99,
+    "plugged": 2
+  },
+  "metrics": {
+    "inputTokens": 3678,
+    "outputTokens": 49,
+    "decodeTokensPerSecond": 24.72564079534581,
+    "providerCallMs": 9451,
+    "prefillTokensPerSecond": 493.55326747189093,
+    "timeToFirstTokenSeconds": 7.4925270195,
+    "engineInitializationSeconds": null,
+    "engineInitializedForRequest": false,
+    "nativeInitializationPhaseSeconds": null,
+    "finishReason": "REPETITION_LIMIT",
+    "finishDetail": "A2UI child identifiers 'a' through 't' continued for 20 sequential references."
+  },
+  "provider": "gemma4_e2b",
+  "providerCalls": 1,
+  "rawStrictValid": false,
+  "runtime": "LiteRT-LM/Gemma4/GPU+FP32+MTP",
+  "renderedPromptSha256": "207fba6867213c6d4b52caaee02c53fc0219cccec44646604ae6df8afb5783fd",
+  "error": "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed. No generated DSL repair produced a valid document; source fallback was disabled.",
+  "rawOutputCaptured": true,
+  "caseElapsedMs": 9466,
+  "finishedAtEpochMs": 1790702996960,
+  "deviceAfter": {
+    "epochMs": 1790702996960,
+    "thermalStatus": 3,
+    "batteryTemperatureC": 37.8,
+    "batteryLevel": 99,
+    "plugged": 2
+  }
+}

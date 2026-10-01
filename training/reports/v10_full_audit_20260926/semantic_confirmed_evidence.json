@@ -1,0 +1,148 @@
+{
+  "evidence_kind": "Exact anchor assertions on current pairs; semantic verdicts remain manual.",
+  "findings": [
+    {
+      "split": "train",
+      "line": 60428,
+      "id": "archive-train-097901-90b036649456855b",
+      "line_sha256": "5d204c1482027692a03693618bb45f7734ad45a3ebed13c725cd240d6bd67ed2",
+      "kind": "target_instruction_loss",
+      "source_quote": "Click the \"Bell\" or \"Alert\" icon",
+      "target_quote": "check:\"Ensure Price trigger is selected\"",
+      "absent_from": "target",
+      "absent_quote": "Click the \"Bell\" or \"Alert\" icon"
+    },
+    {
+      "split": "train",
+      "line": 64773,
+      "id": "archive-train-058823-5c4ac4a31054d433",
+      "line_sha256": "59182d492c7bc0a34fa8ca77616d1b829cd275d413332df97a1d4eca999438b6",
+      "kind": "source_arithmetic_and_chart",
+      "source_quote": "Total quarterly revenue reached **$73,500**",
+      "target_quote": "category_contribution:[{category:\"Electronics\",revenue:\"$38,000\",percentage:\"51.7%\"}",
+      "absent_from": "target",
+      "absent_quote": "Chart("
+    },
+    {
+      "split": "train",
+      "line": 69525,
+      "id": "archive-train-031255-384d6a26aae3a9ed",
+      "line_sha256": "c082f47c11cd0446a4935303783d1e70f677569949484a60b52f6da65f74b770",
+      "kind": "target_chart_omission",
+      "source_quote": "Chart Title: Employee Sales vs. Leads",
+      "target_quote": "l=Table(columns=[{key:\"name\",label:\"Employee Name\"}",
+      "absent_from": "target",
+      "absent_quote": "Chart("
+    },
+    {
+      "split": "train",
+      "line": 73806,
+      "id": "archive-train-052064-8af633b0e9753140",
+      "line_sha256": "80ec24b549a75e8670d2b17b77c6292adce4bb49f92b5f23334254ed40d049f2",
+      "kind": "source_budget_contradiction",
+      "source_quote": "After meeting all 50/30/20 targets",
+      "target_quote": "After meeting all 50/30/20 targets",
+      "absent_from": null,
+      "absent_quote": null
+    },
+    {
+      "split": "train",
+      "line": 1702,
+      "id": "archive-train-055532-6726821d9a933a12",
+      "line_sha256": "ed65ede957a6db727bcf4d741eb11e3d1a829dddc76a38098b60cd732259063f",
+      "kind": "target_schedule_omission",
+      "source_quote": "Swimming: 2 sessions | 35 mins | Sustained aerobic laps",
+      "target_quote": "n=Text(\"Weekly Activity Schedule\",\"h3\")",
+      "absent_from": "target",
+      "absent_quote": "Sustained aerobic laps"
+    },
+    {
+      "split": "train",
+      "line": 37244,
+      "id": "archive-train-148949-85a0d45614aa43e8",
+      "line_sha256": "8d4f592cf95f1082c1cb791f13c45442b49c3e8ed8e8a6f3ce24861e03099e60",
+      "kind": "target_passenger_detail_omission",
+      "source_quote": "Passenger Name**: Kenji Tanaka",
+      "target_quote": "r=Text(\"Passenger Status: Validated\"",
+      "absent_from": "target",
+      "absent_quote": "Kenji Tanaka"
+    },
+    {
+      "split": "train",
+      "line": 14450,
+      "id": "archive-train-121000-efd399affd233ac0",
+      "line_sha256": "c849317eae20807f9b16f9724ff31c01a9d2464f9026df3cbaa8f9a68a552511",
+      "kind": "target_listing_detail_omission",
+      "source_quote": "No pets allowed; strictly non-smoking.",
+      "target_quote": "Modern compact living near the tech hub | £1,150/mo",
+      "absent_from": "target",
+      "absent_quote": "strictly non-smoking"
+    },
+    {
+      "split": "train",
+      "line": 4964,
+      "id": "archive-train-000668-4961e727c670f556",
+      "line_sha256": "091cf19ec13071d4cbe732520ce5a7f346bbb432c1177a7cb97c01d8ebadf6ff",
+      "kind": "target_itinerary_detail_omission",
+      "source_quote": "Travel time to ensure on-time arrival.",
+      "target_quote": "k=Text(\"Daily Itinerary Breakdown\",\"h2\")",
+      "absent_from": "target",
+      "absent_quote": "Travel time to ensure on-time arrival"
+    },
+    {
+      "split": "train",
+      "line": 40233,
+      "id": "archive-train-138030-4db09155cbb5b122",
+      "line_sha256": "4f88195e311d1471ee2b0d98c7d3009e062d44664440d0077a6e362071ec8f9f",
+      "kind": "target_chart_and_highlight_omission",
+      "source_quote": "Mapo: 1400 (Highlight: Green)",
+      "target_quote": "Lowest Rent: Mapo, Seoul ($1,400)",
+      "absent_from": "target",
+      "absent_quote": "Highlight: Green"
+    },
+    {
+      "split": "train",
+      "line": 1584,
+      "id": "archive-train-078863-f9d4a3cd41535942",
+      "line_sha256": "fa6e366ea513c8b684d473a24504b4a65d344d90f21bb3b0f64bbe9230368d4e",
+      "kind": "target_source_attribution_omission",
+      "source_quote": "Bauhaus Germany: <[ACTION_URL_1]>",
+      "target_quote": "Button(\"Shop at Bauhaus\"",
+      "absent_from": "target",
+      "absent_quote": "Bauhaus Germany"
+    },
+    {
+      "split": "train",
+      "line": 2228,
+      "id": "archive-train-113160-ec0125d282be10af",
+      "line_sha256": "d00b18c4dc3cb7674892030cdd0e998512a8ce08ae5e0fdedff15529b9eac6b8",
+      "kind": "target_source_attribution_omission",
+      "source_quote": "California Privacy Protection Agency: <[ACTION_URL_2]>",
+      "target_quote": "Button(\"CCPA Official Site\"",
+      "absent_from": "target",
+      "absent_quote": "California Privacy Protection Agency"
+    },
+    {
+      "split": "train",
+      "line": 30894,
+      "id": "archive-train-029166-93fb5e6cec231445",
+      "line_sha256": "de4a508a8deae96b3c874d86e28e78489a4bef89e799788ba40bd5919b2a9df5",
+      "kind": "target_table_field_misbinding",
+      "source_quote": "Basic Activity Tracking",
+      "target_quote": "focus:\"Basic Activity Tracking\"",
+      "absent_from": null,
+      "absent_quote": null
+    },
+    {
+      "split": "train",
+      "line": 87790,
+      "id": "archive-train-049929-410cf9b7f25a6cbb",
+      "line_sha256": "b94b8067f0af441eba50c39a0fb5a9603eb2b8803f262c0f8c19b9eac3a3d7f7",
+      "kind": "unsupported_latent_action",
+      "source_quote": "Option 2: Hotel B | Budget-friendly alternative",
+      "target_quote": "actionLabel:\"Book Hotel C\"",
+      "absent_from": "source",
+      "absent_quote": "Book Hotel C"
+    }
+  ]
+}

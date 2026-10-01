@@ -1,0 +1,21 @@
+{
+  "runId": "v54_full_flip8_cases_021_025_mtp_off_1790702757",
+  "profile": "trained_e2b_v10_w4",
+  "total": 5,
+  "completed": 5,
+  "strictValid": 5,
+  "strictInvalid": 0,
+  "renderValid": 5,
+  "renderInvalid": 0,
+  "renderNotAttempted": 0,
+  "valid": 5,
+  "invalid": 0,
+  "timeouts": 0,
+  "runtimeErrors": 0,
+  "caseErrors": 0,
+  "providerCalls": 5,
+  "providerCloseError": null,
+  "runComplete": true,
+  "allValid": true,
+  "finishedAtEpochMs": 1790702986734
+}

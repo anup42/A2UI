@@ -1,0 +1,21 @@
+{
+  "runId": "v54_full_fold7_cases_047_050_mtp_off_1790703214",
+  "profile": "trained_e2b_v10_w4",
+  "total": 4,
+  "completed": 4,
+  "strictValid": 4,
+  "strictInvalid": 0,
+  "renderValid": 4,
+  "renderInvalid": 0,
+  "renderNotAttempted": 0,
+  "valid": 4,
+  "invalid": 0,
+  "timeouts": 0,
+  "runtimeErrors": 0,
+  "caseErrors": 0,
+  "providerCalls": 4,
+  "providerCloseError": null,
+  "runComplete": true,
+  "allValid": true,
+  "finishedAtEpochMs": 1790703496182
+}

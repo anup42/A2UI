@@ -1,0 +1,12 @@
+{
+  "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_v54_model_scores\\summary.json": "b1c6cdcb960355735f8b636ae487287a9194d0671d275abe9a55c838ac9dbd06",
+  "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_v54_repaired_scores\\repair_outcomes.jsonl": "46b02d7b1251491f7e97fd8d743b250f4cb10b589847b5bdb0d5326f01862f41",
+  "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_v54_repaired_scores\\repair_provenance.json": "25b027bb12e682bfc83550555cae8ce6c8ecc05e0826b7cbb4d1b5c2502f88b3",
+  "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_v54_repaired_scores\\device_repair_parity.json": "0b0c729701fa6faa1c9659164708cbc699dc420a386fc54dfc3b6511a1e1104a",
+  "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\tools\\report_bixby50_repaired_scores.py": "67400e0a04f9ab52d085c837aae261f664deb9b89c5228576b2e620fd56f12d2",
+  "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\tools\\GenUiRepairReplay.java": "456d6fcb8c791731727152aef516bde0266e48db5de3654acd8d8dfd31c20f03",
+  "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_v54_model_scores\\scored\\checkpoint_r32.jsonl": "53cc0f423fe6605fed5d0da32b68c145a246a064ba4a5335cf5226e59e2767cc",
+  "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_v54_model_scores\\scored\\checkpoint_r64.jsonl": "80f6989f9ca6bf9d18d1cbb2e6d0d46720ad076900048d16c4d9c081127a32a7",
+  "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_v54_model_scores\\scored\\litert_mtp_off.jsonl": "0ef237dfed1bcac7a6c0d90a95aa964f6d0f338b40a5b0c715427a7a7aad502d",
+  "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_v54_model_scores\\scored\\litert_mtp_on.jsonl": "dbd4fa71c265f6ad49b984538429b195d1bfdf52aa48b98e1d51d2b4411c2f2a"
+}

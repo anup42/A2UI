@@ -1,0 +1,116 @@
+{
+  "created_at_utc": "2026-09-29T18:22:46.598127+00:00",
+  "supplied_comparison_scores": {
+    "checkpoint_fp32_reference": 85.9,
+    "litert_mtp_off": 83.26,
+    "litert_mtp_on": 80.89
+  },
+  "score_provenance": "85.90 is the user-supplied original FP32 checkpoint reference. Native 83.26/80.89 match the rounded prior full50 repaired scores.",
+  "supplied_decode_speeds_tps": {
+    "litert_mtp_off": 35.0,
+    "litert_mtp_on": 52.0
+  },
+  "latency_status": "ESTIMATED using supplied decode rates; not newly measured latency at those rates",
+  "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_full_gpu_fp32\\model_inputs.jsonl",
+  "source_sha256": "ee02577f983e5665a9f7626ac03227dff2879116dc62eb0d545376971af862af",
+  "pooled_output_tokens_mean_over_100_attempts": 592.06,
+  "populations": {
+    "litert_mtp_off": {
+      "all_50": {
+        "n": 50,
+        "input_tokens_total": 173431,
+        "input_tokens_mean": 3468.62,
+        "output_tokens_total": 30771,
+        "output_tokens_mean": 615.42,
+        "decode_speed_supplied_tps": 35.0,
+        "estimated_decode_s": 17.58342857142857,
+        "measured_prefill_s": 6.60125912258,
+        "measured_provider_residual_s": 0.027234013680000124,
+        "measured_converter_and_recording_s": 0.13365999999999997,
+        "measured_other_warm_latency_s": 6.76215313626,
+        "estimated_warm_conversion_s": 24.34558170768857,
+        "cold_start_samples": 11,
+        "measured_cold_initialization_mean_s": 3.983219899,
+        "estimated_cold_conversion_s": 28.32880160668857,
+        "estimated_conversion_with_observed_batch_restart_frequency_s": 25.221890085468573,
+        "recorded_provider_call_mean_s": 44.14646,
+        "recorded_converter_elapsed_mean_s": 44.28012
+      },
+      "excluding_repetition_stops": {
+        "n": 44,
+        "input_tokens_total": 151427,
+        "input_tokens_mean": 3441.5227272727275,
+        "output_tokens_total": 29727,
+        "output_tokens_mean": 675.6136363636364,
+        "decode_speed_supplied_tps": 35.0,
+        "estimated_decode_s": 19.303246753246754,
+        "measured_prefill_s": 6.641874275477273,
+        "measured_provider_residual_s": 0.028440005363636504,
+        "measured_converter_and_recording_s": 0.14702272727272728,
+        "measured_other_warm_latency_s": 6.817337008113636,
+        "estimated_warm_conversion_s": 26.12058376136039,
+        "cold_start_samples": 9,
+        "measured_cold_initialization_mean_s": 3.8304094025555555,
+        "estimated_cold_conversion_s": 29.950993163915946,
+        "estimated_conversion_with_observed_batch_restart_frequency_s": 26.904076593701298,
+        "recorded_provider_call_mean_s": 48.274454545454546,
+        "recorded_converter_elapsed_mean_s": 48.42147727272727
+      }
+    },
+    "litert_mtp_on": {
+      "all_50": {
+        "n": 50,
+        "input_tokens_total": 173431,
+        "input_tokens_mean": 3468.62,
+        "output_tokens_total": 28435,
+        "output_tokens_mean": 568.7,
+        "decode_speed_supplied_tps": 52.0,
+        "estimated_decode_s": 10.936538461538461,
+        "measured_prefill_s": 6.16173121958,
+        "measured_provider_residual_s": 0.028785155179999897,
+        "measured_converter_and_recording_s": 0.12424000000000009,
+        "measured_other_warm_latency_s": 6.31475637476,
+        "estimated_warm_conversion_s": 17.251294836298463,
+        "cold_start_samples": 12,
+        "measured_cold_initialization_mean_s": 5.629983491916667,
+        "estimated_cold_conversion_s": 22.88127832821513,
+        "estimated_conversion_with_observed_batch_restart_frequency_s": 18.602490874358462,
+        "recorded_provider_call_mean_s": 30.38588,
+        "recorded_converter_elapsed_mean_s": 30.51012
+      },
+      "excluding_repetition_stops": {
+        "n": 43,
+        "input_tokens_total": 147810,
+        "input_tokens_mean": 3437.4418604651164,
+        "output_tokens_total": 27451,
+        "output_tokens_mean": 638.3953488372093,
+        "decode_speed_supplied_tps": 52.0,
+        "estimated_decode_s": 12.276833631484795,
+        "measured_prefill_s": 6.094090224255814,
+        "measured_provider_residual_s": 0.029936543604651075,
+        "measured_converter_and_recording_s": 0.14004651162790704,
+        "measured_other_warm_latency_s": 6.264073279488372,
+        "estimated_warm_conversion_s": 18.540906910973167,
+        "cold_start_samples": 11,
+        "measured_cold_initialization_mean_s": 5.7089797943636365,
+        "estimated_cold_conversion_s": 24.249886705336802,
+        "estimated_conversion_with_observed_batch_restart_frequency_s": 20.001343602554563,
+        "recorded_provider_call_mean_s": 33.44630232558139,
+        "recorded_converter_elapsed_mean_s": 33.5863488372093
+      }
+    }
+  },
+  "exclusions": [
+    "Perplexity answer generation/network",
+    "UI rendering and screenshot capture",
+    "test harness waits"
+  ],
+  "assumptions": [
+    "Prefill and non-decode overhead remain as recorded in the mixed-device September28/29 runs.",
+    "Decode time is native generated output tokens divided by the user-supplied35 or52 tokens/second.",
+    "Warm estimates remove engine loading; cold estimates add mean measured initialization among cold calls.",
+    "TTFT overlaps prefill and first-token decode; native initialization phase totals overlap wall initialization. Neither is added again.",
+    "Converter residual includes prompt construction, compile/repair, attribution and benchmark recording I/O; it is not pure repair duration.",
+    "All50 means include guard-stopped attempts and conversion failures; they do not imply every attempt produces a rendered answer."
+  ]
+}

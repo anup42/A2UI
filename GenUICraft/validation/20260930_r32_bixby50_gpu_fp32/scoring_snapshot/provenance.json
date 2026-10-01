@@ -1,0 +1,374 @@
+{
+  "reference_manifest": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_v54_model_scores\\evidence\\android_renderer_manifest.json",
+  "reference_sha256": "d0d1bfa34c1bb8cc590fb1db1ca2f74ba9a384f7119845c440c07aa44e19a458",
+  "git_head_for_recovered_files": "0ee52a42cafe3cb3ac4b162604ecf9d42341d20a",
+  "snapshot_renderer": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\scoring_snapshot\\renderer",
+  "files": [
+    {
+      "path": "FlatChartRender.kt",
+      "sha256_lf": "19812649927acecc4385c50823d9a858ac62cfe1680ce744d8598874da1a2199",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "FlatEmailPreviewRender.kt",
+      "sha256_lf": "6f7bb29ebb9759d4c89bec1b74417ae3a755231275a54a55f7f241109acde9fd",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "FlatItineraryHeroCards.kt",
+      "sha256_lf": "1ed8d9a8f4bd5102a9d6d41bb36efad2f053b9e6e1b97924292cfe9e5a798db3",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "FlatMarketRow.kt",
+      "sha256_lf": "92ca43910507c6d1008c075bb7ed2a4adf6dd8da41d378f75a384a7a8acc4d8d",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "FlatRendererApi.kt",
+      "sha256_lf": "f0a3993cbe24319f8997dd4f79afb83aa6ca63ac2dbffa06f9bf2ecdce4bba83",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "FlatRestaurantBookingCards.kt",
+      "sha256_lf": "d8ee60c39ff4b0ba72ab6b848ec0b0281783dde53645f654d086d9d3d6da518e",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "FlatSourceLinks.kt",
+      "sha256_lf": "8612f3ea879528e232cbcec1b77c5e7ee5e87b38d23915beef060e85f5c790a2",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "FlatSpecRenderer.kt",
+      "sha256_lf": "065bff64cf3fd5b75ab24f13a6a8b8165d9fca4c697fb996c1a19c4692e7beef",
+      "origin": "verified_git_blob"
+    },
+    {
+      "path": "FlatStatusHeroCards.kt",
+      "sha256_lf": "fe57953c3bfbe62fbb353b8190c43226b70486d18a6d900c8bd0d6f3b83858e4",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "FlatTableLayout.kt",
+      "sha256_lf": "884eccf492c5960369b506f10a4e4569f10b9242480184a41ace2e09b203d797",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "GenUiHtmlRenderer.kt",
+      "sha256_lf": "8645fb098c16bb3d94165be67173f992e5ec668f2821158be42f7d0737f18e42",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "GenUiNativeRenderer.kt",
+      "sha256_lf": "d1bf7c19db65186fe7cd54c49fd9a07ba75a3d33f4c84dc712d528796e63354d",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "RenderMode.kt",
+      "sha256_lf": "f846dceb98e1207b21f4e7b524cd79aa195be015db1482c50f9ed91d71b4bff0",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "RenderSessionStore.kt",
+      "sha256_lf": "487c144133ece9b0d65e4e86b7575d069878dea136315d151ad3970b0ee92c6f",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "RendererFlowRow.kt",
+      "sha256_lf": "0797d36777dce3fd298d135c7fe2b212ad4a44c70b1f542d7c8a41176b319b1c",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "flat/compose/FlatContentComposables.kt",
+      "sha256_lf": "a2604f896c6554adf38440a64144500781df91d09dadafb7e2afa8db3ed433c9",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "flat/compose/FlatDirectTableRender.kt",
+      "sha256_lf": "0038b5f757c4393bd2ce118e182225b7c06bcb4f46574945d4d8d5c861f8f8f1",
+      "origin": "verified_git_blob"
+    },
+    {
+      "path": "flat/compose/FlatFormComposables.kt",
+      "sha256_lf": "336d796575e17b00cb46e9694208fd9f1cabad3837155995393b7f4a8d78de08",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "flat/compose/FlatIconCatalog.kt",
+      "sha256_lf": "8388ee0605c6b48b1bce90992c0319b94cbd52310b3b53c8ccc631dbdd56f76b",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "flat/compose/FlatImageLoader.kt",
+      "sha256_lf": "b2443e7c637dd87e0b4662fe8f1010c530bb65558eac41e3b03da32d156eeb66",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "flat/compose/FlatIntentTemplateComposables.kt",
+      "sha256_lf": "0bad1c1215c1c1ae179559610db44a5a63dfdb676e3ca698f1bdafab5decb48c",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "flat/compose/FlatInteractiveComposables.kt",
+      "sha256_lf": "f008f8bbc2baae53d7c910bb3da7fffffe46c096f58cf08692df0d89bbdcf393",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "flat/compose/FlatMediaComposables.kt",
+      "sha256_lf": "bfbed56335ff2f2044aa24b83c55b0b33f83cbf19df14236d1e3227ffc79acc6",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "flat/compose/FlatPrimitiveComposables.kt",
+      "sha256_lf": "0d729cbd4d1358870bc81bd44a9b13b5d74556f4bd498ac61f9421d38b425805",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "flat/compose/FlatRenderRegistry.kt",
+      "sha256_lf": "7c8c25b5d3736f4b95bc8af48ad2d873c7a411b85aae2f3397173db6907ebe04",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "flat/compose/table/FlatTableModelExtraction.kt",
+      "sha256_lf": "1be26031a78984f1f0fe2098cc46973a106cbc861bd99fd7b50b8075cd6ae785",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "flat/domain/FlatComparisonDomain.kt",
+      "sha256_lf": "7107747f84ced61a371241b144bb9737d21a817258983acf9171dd06f1e12f37",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "flat/domain/FlatFlightCardsDomain.kt",
+      "sha256_lf": "f7dd2612856f5d6cce8e7049b6f76a6f72ddcb5f6faace4cc2d803b304d629cf",
+      "origin": "verified_git_blob"
+    },
+    {
+      "path": "flat/domain/FlatFlightViews.kt",
+      "sha256_lf": "6d319887158557c466687e7615bf5763b8750251495062907a595412fd49980a",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "flat/domain/FlatFormulaTableDomain.kt",
+      "sha256_lf": "196211251077d637ccff6be84b0f3dae8d99b910e47ad71c8d69d6f84ac4cd6d",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "flat/domain/FlatItineraryDomain.kt",
+      "sha256_lf": "cc42feb4895b1d5b2ec5a71656b538afad9626a2a2a2c099bed22c87dd6bd7dd",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "flat/domain/FlatMarketDomain.kt",
+      "sha256_lf": "b0e854a1fb7091417194fd627fff23ed91c8c997fa16b0246926e7c5b662c22c",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "flat/domain/FlatPlaylistDomain.kt",
+      "sha256_lf": "34105d6a92b4816f22c242bbf64afbe5fddd98bd02ddd520edf24d433e2d6ac3",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "flat/domain/FlatPlaylistViews.kt",
+      "sha256_lf": "7a8f5e22b908d6cec790f12f02f1c0ffd119d16932bc522505ba726c297146e7",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "flat/domain/FlatProductDomain.kt",
+      "sha256_lf": "b7b25d1705a8b87ecef5d7a06c12a1468de92a99558ddb60558b2b6380628c09",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "flat/domain/FlatStatusDomain.kt",
+      "sha256_lf": "1e5e2530813d1de7f9211e571788ca7dfb9abfe60f16fd152a808eaf17c3f96a",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "flat/domain/FlatWeatherClimateDomain.kt",
+      "sha256_lf": "35de6dc5ffd92d47809524d48eea6d99b0ff2e8bf502828f1911469b3d015304",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "flat/expr/FlatExprResolverCore.kt",
+      "sha256_lf": "cbff59fd2d95a6ec249ce67fc23c75bf7e016918fcca6c7be48df0ecbe4452af",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "flat/legacy/FlatHeaderHeuristics.kt",
+      "sha256_lf": "498fcbc0a338d0e25b4d9d7bbea046a2398fc8ed2490f33b60f4b66fc74d16aa",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "flat/model/FlatModel.kt",
+      "sha256_lf": "b9c26eb4d69db0cc40c0205177c2c48e0e83eb831ac3c05b114182e3bb692c3a",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "flat/parse/FlatListItems.kt",
+      "sha256_lf": "c8099a02f85180ae8eba2d345a371f270a5d450c35bd18f24f56147c01223413",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "flat/parse/FlatSpecParserCore.kt",
+      "sha256_lf": "de0b6d8fe4f9f370761ca500efd068d5f29a43067787116b47b9ada7079acd81",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "flat/runtime/FlatActionRuntimeCore.kt",
+      "sha256_lf": "bc21ed695fae12680cc47cc3932b40d2d2697a4c7fa7739da07cdd2ba24fe484",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "flat/runtime/FlatFormValidation.kt",
+      "sha256_lf": "0ae7d1228cebaea9ab7e6c5c66a08c75a293e86ceec208a3ecc79a859db0d3ba",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "native/NativeActionParsing.kt",
+      "sha256_lf": "bffdbb548fa7956871cdf8430b5b883e41bee57ffb61309b75e151d6923aef17",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "native/NativeFormComponents.kt",
+      "sha256_lf": "40bf2b133c4bd8be46b3647fe7d32680624d4e2f0ce755d081287540c2e54a07",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "native/NativeJsonExtensions.kt",
+      "sha256_lf": "7a41afd66515c4a524b041a6b37c164a50ee96278436c33df25a07689f9345d5",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "native/NativePayloadParser.kt",
+      "sha256_lf": "95ca052f3f49a816f23f0acf82493f3431a8de4f2c1be073a84ee4d3660e3af6",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "native/NativeRendererModels.kt",
+      "sha256_lf": "17aff2a36831aa1d9121f4da633d5ac9d0b301510d2a8374a486b4b9d89be518",
+      "origin": "verified_git_blob"
+    },
+    {
+      "path": "native/NativeTextFormatter.kt",
+      "sha256_lf": "f699a988fa8f56137f31b50bc260204a95989f7749f9f7a2aa6b841c7159ebb5",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "native/intents/NativeIntentModels.kt",
+      "sha256_lf": "bc4fc7e4b29cac946ba18e944bd89b2ac8639bc8c8179cc73a26bade44cebb55",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "native/intents/NativeIntentModule.kt",
+      "sha256_lf": "3ef55b7f684b69dd68df5662266cd058f71e998582c7afa060f400645dfc2a56",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "native/intents/NativeIntentRegistry.kt",
+      "sha256_lf": "a1078b34568f4537efd8213b0e90640713b86404bd18e69ad246c89def948e35",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "native/intents/flight/NativeFlightIntentModule.kt",
+      "sha256_lf": "91c199f3467b6e8e8336aca27d4f7d7d9f315ead417ca440d5b59385edc8ba82",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "native/intents/flight/NativeFlightSemantics.kt",
+      "sha256_lf": "c92438473f03284499bcc9c88d8a0593c24f8da4ac4927909bf0fe68472fbc33",
+      "origin": "verified_git_blob"
+    },
+    {
+      "path": "native/intents/flight/NativeFlightUiRenderer.kt",
+      "sha256_lf": "a0017ec1dd1849a8c0614c840d881d86ee7d5b1818442f44419dae7698e6894b",
+      "origin": "verified_git_blob"
+    },
+    {
+      "path": "native/intents/train/NativeTrainSemantics.kt",
+      "sha256_lf": "c6007cd694817c33f9de2a5723939b007f453f548919d2a4a817db2fcd59522e",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "native/intents/train/NativeTrainUiRenderer.kt",
+      "sha256_lf": "a4e351a43afef3baa2eb65ed633d3c63ef08f45fca0b55e78ee71ec4c38c57ae",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "native/intents/weather/NativeWeatherIntentModule.kt",
+      "sha256_lf": "b29ada7409bc9e6e23d5882c9ba5c7366a6b4bca1175d3aef716397dad88e494",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "native/intents/weather/NativeWeatherSemantics.kt",
+      "sha256_lf": "152c79273175bf813ec8a7a2412e5aafbf347350676355b53e492b340f2c488e",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "native/intents/weather/NativeWeatherUiRenderer.kt",
+      "sha256_lf": "906c286dc9f34df2517c7722670de4650679602df50b61a072a56906b7e313ec",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "native/media/NativeMediaVisualUtils.kt",
+      "sha256_lf": "6feb4a545eed715d3b9cf257ca6c238d1c739e039c27aff3dde5205d288e36cd",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "native/parser/NativeBlockHeuristics.kt",
+      "sha256_lf": "d99d5d130979cc31b1a2e2eb0095cd9dd5141be1745e5ea487e3c7b7ceb8804d",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "native/parser/NativeBookingParsing.kt",
+      "sha256_lf": "c029a6d2ee8f53685491998fd21e22d2d4e7621b55e749e5d9e62391b643681c",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "native/parser/NativeMediaParsing.kt",
+      "sha256_lf": "503a110568c14f199aab07734518ac60a569f84691c42daff10914c0782397c7",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "native/parser/NativeSourceParsing.kt",
+      "sha256_lf": "3004712a352b96d4676da81c291f5c969fbaf2c59ee953117df7c415d6d96422",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "native/parser/NativeStructureParsing.kt",
+      "sha256_lf": "669c143451d3a5e007c32acd1512afadfc09ee5a9c191415b928300565c8b1e1",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "native/parser/NativeTextBlockParser.kt",
+      "sha256_lf": "f95b60108603cbe791ba32dd23beb062c83b5948f9c925322ffad3d6961a95dc",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "native/parser/NativeTextBlockSemantics.kt",
+      "sha256_lf": "508eea869813a20aa2b7a13ddd667e55536844e3908c53f923fb26e06a37e6f5",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "native/table/NativeComponentTableExtractor.kt",
+      "sha256_lf": "688a44baf99d802e15f07f046dda2482ed4df288d512b3eadf9ebbbb07eb8d19",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "native/table/NativeTableSemantics.kt",
+      "sha256_lf": "9dc1e08fd2357d1d25ec4646b8607bac1039b69ce0d00a8268bbc7204c2ae7fe",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "native/table/NativeTableUi.kt",
+      "sha256_lf": "349b230d88718e231ca235408eaa03ff98c1a14b625c16abc8676f54d609e6bf",
+      "origin": "live_matches_frozen_reference"
+    },
+    {
+      "path": "native/text/NativeVariantStyleResolver.kt",
+      "sha256_lf": "be5dc653e9f7a0d4004f1a8614a57f50e4d9adcd5bf8255b30794825d1c70dd1",
+      "origin": "live_matches_frozen_reference"
+    }
+  ],
+  "live_files_changed_by_this_operation": false
+}

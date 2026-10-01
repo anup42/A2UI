@@ -1,0 +1,90 @@
+{
+  "prefill_time_assumption_seconds": 2.1,
+  "source_summary": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_full_gpu_fp32\\supplied_speed_latency_estimate\\summary.json",
+  "source_summary_sha256": "857f74f8af85b957ac74587d1f6d07e3cc7a7fc5bc8f1a7137a645ba8ded569d",
+  "supplied_comparison_scores": {
+    "checkpoint_fp32_reference": 85.9,
+    "litert_mtp_off": 83.26,
+    "litert_mtp_on": 80.89
+  },
+  "supplied_decode_speeds_tps": {
+    "litert_mtp_off": 35.0,
+    "litert_mtp_on": 52.0
+  },
+  "populations": {
+    "litert_mtp_off": {
+      "all_50": {
+        "n": 50,
+        "input_tokens_total": 173431,
+        "input_tokens_mean": 3468.62,
+        "output_tokens_total": 30771,
+        "output_tokens_mean": 615.42,
+        "decode_speed_supplied_tps": 35.0,
+        "estimated_decode_s": 17.58342857142857,
+        "measured_provider_residual_s": 0.027234013680000124,
+        "measured_converter_and_recording_s": 0.13365999999999997,
+        "estimated_warm_conversion_s": 19.84432258510857,
+        "recorded_provider_call_mean_s": 44.14646,
+        "recorded_converter_elapsed_mean_s": 44.28012,
+        "original_measured_prefill_s": 6.60125912258,
+        "assumed_prefill_s": 2.1,
+        "estimated_other_warm_latency_s": 2.26089401368
+      },
+      "excluding_repetition_stops": {
+        "n": 44,
+        "input_tokens_total": 151427,
+        "input_tokens_mean": 3441.5227272727275,
+        "output_tokens_total": 29727,
+        "output_tokens_mean": 675.6136363636364,
+        "decode_speed_supplied_tps": 35.0,
+        "estimated_decode_s": 19.303246753246754,
+        "measured_provider_residual_s": 0.028440005363636504,
+        "measured_converter_and_recording_s": 0.14702272727272728,
+        "estimated_warm_conversion_s": 21.57870948588312,
+        "recorded_provider_call_mean_s": 48.274454545454546,
+        "recorded_converter_elapsed_mean_s": 48.42147727272727,
+        "original_measured_prefill_s": 6.641874275477273,
+        "assumed_prefill_s": 2.1,
+        "estimated_other_warm_latency_s": 2.2754627326363637
+      }
+    },
+    "litert_mtp_on": {
+      "all_50": {
+        "n": 50,
+        "input_tokens_total": 173431,
+        "input_tokens_mean": 3468.62,
+        "output_tokens_total": 28435,
+        "output_tokens_mean": 568.7,
+        "decode_speed_supplied_tps": 52.0,
+        "estimated_decode_s": 10.936538461538461,
+        "measured_provider_residual_s": 0.028785155179999897,
+        "measured_converter_and_recording_s": 0.12424000000000009,
+        "estimated_warm_conversion_s": 13.189563616718461,
+        "recorded_provider_call_mean_s": 30.38588,
+        "recorded_converter_elapsed_mean_s": 30.51012,
+        "original_measured_prefill_s": 6.16173121958,
+        "assumed_prefill_s": 2.1,
+        "estimated_other_warm_latency_s": 2.25302515518
+      },
+      "excluding_repetition_stops": {
+        "n": 43,
+        "input_tokens_total": 147810,
+        "input_tokens_mean": 3437.4418604651164,
+        "output_tokens_total": 27451,
+        "output_tokens_mean": 638.3953488372093,
+        "decode_speed_supplied_tps": 52.0,
+        "estimated_decode_s": 12.276833631484795,
+        "measured_provider_residual_s": 0.029936543604651075,
+        "measured_converter_and_recording_s": 0.14004651162790704,
+        "estimated_warm_conversion_s": 14.546816686717353,
+        "recorded_provider_call_mean_s": 33.44630232558139,
+        "recorded_converter_elapsed_mean_s": 33.5863488372093,
+        "original_measured_prefill_s": 6.094090224255814,
+        "assumed_prefill_s": 2.1,
+        "estimated_other_warm_latency_s": 2.2699830552325584
+      }
+    }
+  },
+  "status": "Estimate using supplied2.1second prefill and35/52tokens per second decode; other overhead retained from saved run.",
+  "reported_latency_scope": "Conversion with the model already loaded; excludes engine initialization, Perplexity generation and UI rendering."
+}

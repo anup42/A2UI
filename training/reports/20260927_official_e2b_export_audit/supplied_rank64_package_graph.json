@@ -1,0 +1,1797 @@
+{
+  "format": "litertlm",
+  "path": "C:\\Users\\anupk\\Downloads\\trained_model_data\\gemma4_e2b_a2ui_mobile.litertlm",
+  "file_size": 2588147712,
+  "header": {
+    "magic": "LITERTLM",
+    "version": {
+      "major": 1,
+      "minor": 5,
+      "patch": 0
+    },
+    "header_end_offset": 1872,
+    "header_sha256": "a13b50ee5dfb59e69896ba93769a43a1ba9853416eb9d8b8ab50f9c820f9ce4a",
+    "system_metadata": {
+      "entries": [
+        {
+          "key": "author",
+          "type": "StringValue",
+          "value": "The ODML Authors"
+        },
+        {
+          "key": "uuid",
+          "type": "StringValue",
+          "value": "2fa073f5-2d5e-44ff-8bb9-64d926dc40e2"
+        },
+        {
+          "key": "creation_timestamp",
+          "type": "StringValue",
+          "value": "2026-04-28T22:06:55.560103+00:00"
+        }
+      ]
+    }
+  },
+  "sections": [
+    {
+      "data_type": 5,
+      "data_type_name": "LlmMetadataProto",
+      "begin_offset": 16384,
+      "end_offset": 28576,
+      "size": 12192,
+      "items": [],
+      "index": 0,
+      "alignment_ok": true,
+      "ordered_after_previous": true
+    },
+    {
+      "data_type": 4,
+      "data_type_name": "SP_Tokenizer",
+      "begin_offset": 32768,
+      "end_offset": 4721781,
+      "size": 4689013,
+      "items": [],
+      "index": 1,
+      "alignment_ok": true,
+      "ordered_after_previous": true
+    },
+    {
+      "data_type": 3,
+      "data_type_name": "TFLiteModel",
+      "begin_offset": 4734976,
+      "end_offset": 108546696,
+      "size": 103811720,
+      "items": [
+        {
+          "key": "model_type",
+          "type": "StringValue",
+          "value": "tf_lite_embedder"
+        }
+      ],
+      "index": 2,
+      "alignment_ok": true,
+      "ordered_after_previous": true,
+      "graph": {
+        "available": true,
+        "summary": {
+          "subgraph_count": 1,
+          "operator_code_count": 7,
+          "operator_count": 8,
+          "tensor_count": 16,
+          "buffer_count": 19,
+          "metadata_count": 2,
+          "operator_histogram": {
+            "EMBEDDING_LOOKUP": 1,
+            "GREATER_EQUAL": 1,
+            "LESS": 1,
+            "LOGICAL_AND": 1,
+            "MUL": 1,
+            "RESHAPE": 2,
+            "SELECT_V2": 1
+          },
+          "tensor_type_histogram": {
+            "BOOL": 3,
+            "FLOAT32": 4,
+            "INT2": 1,
+            "INT32": 8
+          },
+          "quantized_tensor_count": 1,
+          "quantization_layout_histogram": {
+            "INT2|scales=262144|zero_points=262144|quantized_dimension=0": 1
+          },
+          "quantization_shape_histogram": {
+            "INT2|scales=262144|zero_points=262144|quantized_dimension=0|shape=262144,1536": 1
+          },
+          "constant_tensor_type_histogram": {
+            "FLOAT32": 1,
+            "INT2": 1,
+            "INT32": 5
+          },
+          "constant_quantized_tensor_count": 1,
+          "constant_quantization_layout_histogram": {
+            "INT2|scales=262144|zero_points=262144|quantized_dimension=0": 1
+          },
+          "logical_buffer_size_total": 100663436
+        },
+        "structural_sha256": "54a68132d9576add880a40eda9c27d3a0413f297c8b19ef4bf4939957bf91c22",
+        "quantization_layout_sha256": "7b5737a002c24b6c6aeb5bd34560821cbf6a6acc47b802539a5f6712632eccc3",
+        "quantization_values_sha256": "83a87bd96112028f08ae2ae140c86929f3953a8b527c31e65c10c2ec445f12d3",
+        "buffer_storage_sha256": "8712ff405414829dbde403d4a875deda8d26dfcf550f4765f2abc6730b3e8659",
+        "execution_contract_schema_version": 1,
+        "execution_contract_complete": true,
+        "execution_contract_sha256": "2a94580c9f56ec379d179b3f2d21c54fc717613f02036b46da5310f4816c03e4",
+        "execution_contract_masked_fields": [
+          "tensor.quantization.scales",
+          "buffer.payload_bytes"
+        ],
+        "section_index": 2
+      }
+    },
+    {
+      "data_type": 3,
+      "data_type_name": "TFLiteModel",
+      "begin_offset": 108560384,
+      "end_offset": 1393078776,
+      "size": 1284518392,
+      "items": [
+        {
+          "key": "model_type",
+          "type": "StringValue",
+          "value": "tf_lite_per_layer_embedder"
+        }
+      ],
+      "index": 3,
+      "alignment_ok": true,
+      "ordered_after_previous": true,
+      "graph": {
+        "available": true,
+        "summary": {
+          "subgraph_count": 1,
+          "operator_code_count": 7,
+          "operator_count": 42,
+          "tensor_count": 83,
+          "buffer_count": 86,
+          "metadata_count": 2,
+          "operator_histogram": {
+            "CONCATENATION": 1,
+            "EMBEDDING_LOOKUP": 35,
+            "GREATER_EQUAL": 1,
+            "LESS": 1,
+            "LOGICAL_AND": 1,
+            "RESHAPE": 2,
+            "SELECT_V2": 1
+          },
+          "tensor_type_histogram": {
+            "BOOL": 3,
+            "FLOAT32": 37,
+            "INT32": 8,
+            "INT4": 35
+          },
+          "quantized_tensor_count": 35,
+          "quantization_layout_histogram": {
+            "INT4|scales=262144|zero_points=262144|quantized_dimension=0": 35
+          },
+          "quantization_shape_histogram": {
+            "INT4|scales=262144|zero_points=262144|quantized_dimension=0|shape=262144,256": 35
+          },
+          "constant_tensor_type_histogram": {
+            "INT32": 5,
+            "INT4": 35
+          },
+          "constant_quantized_tensor_count": 35,
+          "constant_quantization_layout_histogram": {
+            "INT4|scales=262144|zero_points=262144|quantized_dimension=0": 35
+          },
+          "logical_buffer_size_total": 1174405260
+        },
+        "structural_sha256": "9c46529edc6fd5d5ff9126439d06ee5850078728653698f1d38bd60c644b57dd",
+        "quantization_layout_sha256": "71994be74dc343ebd1a4cf1a69419f0f0cfeff12cc00cd2349e956ead9f2cf79",
+        "quantization_values_sha256": "dee9b5193823d24bc67fc1f291ce0de37d89f70fa8c5842c24fd34659a6fd3c9",
+        "buffer_storage_sha256": "cdeedb644cfeda28551005468d2a2c4641290bccea1688b13e6193741d9f05b3",
+        "execution_contract_schema_version": 1,
+        "execution_contract_complete": true,
+        "execution_contract_sha256": "be25909e7ad2d9705e785298bae4cb196e7b34593d79a2403017cb1d4ea6ceec",
+        "execution_contract_masked_fields": [
+          "tensor.quantization.scales",
+          "buffer.payload_bytes"
+        ],
+        "section_index": 3
+      }
+    },
+    {
+      "data_type": 3,
+      "data_type_name": "TFLiteModel",
+      "begin_offset": 1393082368,
+      "end_offset": 1487134648,
+      "size": 94052280,
+      "items": [
+        {
+          "key": "model_type",
+          "type": "StringValue",
+          "value": "tf_lite_audio_encoder_hw"
+        },
+        {
+          "key": "backend_constraint",
+          "type": "StringValue",
+          "value": "cpu"
+        }
+      ],
+      "index": 4,
+      "alignment_ok": true,
+      "ordered_after_previous": true,
+      "graph": {
+        "available": true,
+        "summary": {
+          "subgraph_count": 1,
+          "operator_code_count": 25,
+          "operator_count": 2182,
+          "tensor_count": 2530,
+          "buffer_count": 2533,
+          "metadata_count": 2,
+          "operator_histogram": {
+            "ADD": 170,
+            "BATCH_MATMUL": 36,
+            "CAST": 14,
+            "CONCATENATION": 37,
+            "CONV_2D": 1,
+            "DEPTHWISE_CONV_2D": 17,
+            "DEQUANTIZE": 132,
+            "FULLY_CONNECTED": 122,
+            "LOGICAL_AND": 1,
+            "LOGICAL_NOT": 1,
+            "LOGISTIC": 48,
+            "MUL": 579,
+            "NOT_EQUAL": 4,
+            "PAD": 41,
+            "QUANTIZE": 96,
+            "RESHAPE": 439,
+            "RSQRT": 110,
+            "SELECT_V2": 13,
+            "SLICE": 86,
+            "SOFTMAX": 12,
+            "SUB": 2,
+            "SUM": 112,
+            "TANH": 12,
+            "TILE": 1,
+            "TRANSPOSE": 96
+          },
+          "tensor_type_histogram": {
+            "BOOL": 38,
+            "FLOAT32": 1821,
+            "INT2": 108,
+            "INT32": 58,
+            "INT4": 12,
+            "INT64": 1,
+            "INT8": 492
+          },
+          "quantized_tensor_count": 612,
+          "quantization_layout_histogram": {
+            "INT2|scales=1024|zero_points=1024|quantized_dimension=0": 84,
+            "INT2|scales=4096|zero_points=4096|quantized_dimension=0": 24,
+            "INT4|scales=2048|zero_points=2048|quantized_dimension=0": 12,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0": 492
+          },
+          "quantization_shape_histogram": {
+            "INT2|scales=1024|zero_points=1024|quantized_dimension=0|shape=1024,1024": 60,
+            "INT2|scales=1024|zero_points=1024|quantized_dimension=0|shape=1024,4096": 24,
+            "INT2|scales=4096|zero_points=4096|quantized_dimension=0|shape=4096,1024": 24,
+            "INT4|scales=2048|zero_points=2048|quantized_dimension=0|shape=2048,1024": 12,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,204,1024": 156,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,204,2048": 12,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,204,4096": 48,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,204,8,128": 36,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,240,8,128": 24,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=17,12,8,128": 48,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=17,24,8,128": 24,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=17,8,128,24": 12,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=20,12,8,128": 48,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=204,1024": 72,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=8,17,128,24": 12
+          },
+          "constant_tensor_type_histogram": {
+            "BOOL": 1,
+            "FLOAT32": 168,
+            "INT2": 108,
+            "INT32": 56,
+            "INT4": 12,
+            "INT64": 1
+          },
+          "constant_quantized_tensor_count": 120,
+          "constant_quantization_layout_histogram": {
+            "INT2|scales=1024|zero_points=1024|quantized_dimension=0": 84,
+            "INT2|scales=4096|zero_points=4096|quantized_dimension=0": 24,
+            "INT4|scales=2048|zero_points=2048|quantized_dimension=0": 12
+          },
+          "logical_buffer_size_total": 90648056
+        },
+        "structural_sha256": "e8e20aed1e39d3e3b0779a76206f57e0f4568745c4c450dd0018dede5dce3839",
+        "quantization_layout_sha256": "ccb5ba65b818a769ce866de863487755f8441d00dfe3d0ff8abf5d0926aea716",
+        "quantization_values_sha256": "85289c32662273dd656cfe293912310fae62e88aa0ea74b96a22762bb482ec8c",
+        "buffer_storage_sha256": "e9eaddb7e2c3e97dd03173fa6e7f044499357c73f7960e85543b38a0e33e180f",
+        "execution_contract_schema_version": 1,
+        "execution_contract_complete": true,
+        "execution_contract_sha256": "14e781c1f3ff8ada5737d5b9e9254bcff2f269dcb2aab23df804c63e61b2b024",
+        "execution_contract_masked_fields": [
+          "tensor.quantization.scales",
+          "buffer.payload_bytes"
+        ],
+        "section_index": 4
+      }
+    },
+    {
+      "data_type": 3,
+      "data_type_name": "TFLiteModel",
+      "begin_offset": 1487142912,
+      "end_offset": 1496584156,
+      "size": 9441244,
+      "items": [
+        {
+          "key": "model_type",
+          "type": "StringValue",
+          "value": "tf_lite_audio_adapter"
+        },
+        {
+          "key": "backend_constraint",
+          "type": "StringValue",
+          "value": "cpu"
+        }
+      ],
+      "index": 5,
+      "alignment_ok": true,
+      "ordered_after_previous": true,
+      "graph": {
+        "available": true,
+        "summary": {
+          "subgraph_count": 1,
+          "operator_code_count": 7,
+          "operator_count": 11,
+          "tensor_count": 18,
+          "buffer_count": 21,
+          "metadata_count": 2,
+          "operator_histogram": {
+            "ADD": 1,
+            "CAST": 1,
+            "FULLY_CONNECTED": 1,
+            "MUL": 4,
+            "RESHAPE": 2,
+            "RSQRT": 1,
+            "SUM": 1
+          },
+          "tensor_type_histogram": {
+            "BOOL": 1,
+            "FLOAT32": 15,
+            "INT32": 2
+          },
+          "quantized_tensor_count": 0,
+          "quantization_layout_histogram": {},
+          "quantization_shape_histogram": {},
+          "constant_tensor_type_histogram": {
+            "FLOAT32": 3,
+            "INT32": 2
+          },
+          "constant_quantized_tensor_count": 0,
+          "constant_quantization_layout_histogram": {},
+          "logical_buffer_size_total": 9437320
+        },
+        "structural_sha256": "91fe17c7e1c3525a207a92dfbd68b4d3783dd74e7e745a148b7bd243f438e8d4",
+        "quantization_layout_sha256": "3227df1c6d8cdcbb71aab25d70bfdd22084c536990f1429a23a02b2dc150ef20",
+        "quantization_values_sha256": "d8f09f5f85a1fbfbe6c85d989617837d09788ecdab613318b6cd623645fb21fb",
+        "buffer_storage_sha256": "cd03c706b4eb150489a928761da0c97771407e11ab08544efb00817d6cc773f2",
+        "execution_contract_schema_version": 1,
+        "execution_contract_complete": true,
+        "execution_contract_sha256": "2c777f615531e452a6e92269c41491b8057dafc192c157614fa63ac06aa3d54f",
+        "execution_contract_masked_fields": [
+          "tensor.quantization.scales",
+          "buffer.payload_bytes"
+        ],
+        "section_index": 5
+      }
+    },
+    {
+      "data_type": 3,
+      "data_type_name": "TFLiteModel",
+      "begin_offset": 1496596480,
+      "end_offset": 1496603252,
+      "size": 6772,
+      "items": [
+        {
+          "key": "model_type",
+          "type": "StringValue",
+          "value": "tf_lite_end_of_audio"
+        }
+      ],
+      "index": 6,
+      "alignment_ok": true,
+      "ordered_after_previous": true,
+      "graph": {
+        "available": true,
+        "summary": {
+          "subgraph_count": 1,
+          "operator_code_count": 0,
+          "operator_count": 0,
+          "tensor_count": 1,
+          "buffer_count": 4,
+          "metadata_count": 2,
+          "operator_histogram": {},
+          "tensor_type_histogram": {
+            "FLOAT32": 1
+          },
+          "quantized_tensor_count": 0,
+          "quantization_layout_histogram": {},
+          "quantization_shape_histogram": {},
+          "constant_tensor_type_histogram": {
+            "FLOAT32": 1
+          },
+          "constant_quantized_tensor_count": 0,
+          "constant_quantization_layout_histogram": {},
+          "logical_buffer_size_total": 6256
+        },
+        "structural_sha256": "bf0c0fa3badcc8d66f4853772f126a91a530eb47d728687168389063dc4f9e5a",
+        "quantization_layout_sha256": "6c0361ed2d45ffc3bd9dc378cf02582c86c96f75e67c99f569cda8f477d123ce",
+        "quantization_values_sha256": "339e8bb7b5fa4c9584fa1d3a76c6bc1033542a441de4657a29ea788c5e1b6eb9",
+        "buffer_storage_sha256": "8460c0621da67f8e375b4f104ba41aec5df869c9ceb0d3c985813099cc51fbf0",
+        "execution_contract_schema_version": 1,
+        "execution_contract_complete": true,
+        "execution_contract_sha256": "51ab06867841cc31e6043c49d40062773a4615fdf6e04718cddb878fb698d8e3",
+        "execution_contract_masked_fields": [
+          "tensor.quantization.scales",
+          "buffer.payload_bytes"
+        ],
+        "section_index": 6
+      }
+    },
+    {
+      "data_type": 3,
+      "data_type_name": "TFLiteModel",
+      "begin_offset": 1496612864,
+      "end_offset": 1720750800,
+      "size": 224137936,
+      "items": [
+        {
+          "key": "model_type",
+          "type": "StringValue",
+          "value": "tf_lite_vision_encoder"
+        },
+        {
+          "key": "prefer_activation_type",
+          "type": "StringValue",
+          "value": "fp16"
+        }
+      ],
+      "index": 7,
+      "alignment_ok": true,
+      "ordered_after_previous": true,
+      "graph": {
+        "available": true,
+        "summary": {
+          "subgraph_count": 339,
+          "operator_code_count": 34,
+          "operator_count": 7119,
+          "tensor_count": 9891,
+          "buffer_count": 9894,
+          "metadata_count": 2,
+          "operator_histogram": {
+            "ADD": 633,
+            "BATCH_MATMUL": 99,
+            "CAST": 6,
+            "CONCATENATION": 291,
+            "COS": 6,
+            "DEQUANTIZE": 336,
+            "DIV": 6,
+            "EQUAL": 3,
+            "FLOOR_MOD": 6,
+            "FULLY_CONNECTED": 345,
+            "GELU": 48,
+            "GREATER_EQUAL": 6,
+            "LESS": 6,
+            "LOGICAL_AND": 12,
+            "LOGICAL_NOT": 3,
+            "LOGICAL_OR": 6,
+            "MUL": 2175,
+            "NOT_EQUAL": 18,
+            "ONE_HOT": 9,
+            "QUANTIZE": 192,
+            "REDUCE_ALL": 3,
+            "REDUCE_MAX": 3,
+            "RESHAPE": 846,
+            "RSQRT": 336,
+            "SELECT": 6,
+            "SELECT_V2": 6,
+            "SIGN": 6,
+            "SIN": 6,
+            "SLICE": 588,
+            "SOFTMAX": 48,
+            "STABLEHLO_COMPOSITE": 336,
+            "SUB": 198,
+            "SUM": 339,
+            "TRANSPOSE": 192
+          },
+          "tensor_type_histogram": {
+            "BOOL": 63,
+            "FLOAT32": 7938,
+            "INT32": 834,
+            "INT8": 1056
+          },
+          "quantized_tensor_count": 1056,
+          "quantization_layout_histogram": {
+            "INT8|scales=1|zero_points=1|quantized_dimension=0": 720,
+            "INT8|scales=3072|zero_points=3072|quantized_dimension=0": 96,
+            "INT8|scales=768|zero_points=768|quantized_dimension=0": 240
+          },
+          "quantization_shape_histogram": {
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1260,12,64": 64,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1260,3072": 48,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1260,768": 128,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,2520,12,64": 64,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,2520,3072": 48,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,2520,768": 128,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,630,12,64": 64,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,630,3072": 48,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,630,768": 128,
+            "INT8|scales=3072|zero_points=3072|quantized_dimension=0|shape=3072,768": 96,
+            "INT8|scales=768|zero_points=768|quantized_dimension=0|shape=768,3072": 48,
+            "INT8|scales=768|zero_points=768|quantized_dimension=0|shape=768,768": 192
+          },
+          "constant_tensor_type_histogram": {
+            "FLOAT32": 993,
+            "INT32": 765,
+            "INT8": 336
+          },
+          "constant_quantized_tensor_count": 336,
+          "constant_quantization_layout_histogram": {
+            "INT8|scales=3072|zero_points=3072|quantized_dimension=0": 96,
+            "INT8|scales=768|zero_points=768|quantized_dimension=0": 240
+          },
+          "logical_buffer_size_total": 216477860
+        },
+        "structural_sha256": "a892c2a67514641c65c01bb592f691c7510fe0a101c1868fcf63c0bcbe92dd35",
+        "quantization_layout_sha256": "bf4a18edce29b2b3c825b260674b1fea15e2febe52c1941f9890c9bc3969cc61",
+        "quantization_values_sha256": "3191cda2ecb2e3f425f0661127b289f69c9c985fb8e3c61cc3508833ef179d3d",
+        "buffer_storage_sha256": "da984650d62914255e99684118a0d06450561395ed8db73bc4fbed94d98be210",
+        "execution_contract_schema_version": 1,
+        "execution_contract_complete": true,
+        "execution_contract_sha256": "99e1d1491c8f4a4fe51395ff56a9c30a03e0be9b93ce88fca1f5b1730c4fab42",
+        "execution_contract_masked_fields": [
+          "tensor.quantization.scales",
+          "buffer.payload_bytes"
+        ],
+        "section_index": 7
+      }
+    },
+    {
+      "data_type": 3,
+      "data_type_name": "TFLiteModel",
+      "begin_offset": 1720762368,
+      "end_offset": 1725505296,
+      "size": 4742928,
+      "items": [
+        {
+          "key": "model_type",
+          "type": "StringValue",
+          "value": "tf_lite_vision_adapter"
+        },
+        {
+          "key": "backend_constraint",
+          "type": "StringValue",
+          "value": "cpu"
+        }
+      ],
+      "index": 8,
+      "alignment_ok": true,
+      "ordered_after_previous": true,
+      "graph": {
+        "available": true,
+        "summary": {
+          "subgraph_count": 3,
+          "operator_code_count": 6,
+          "operator_count": 45,
+          "tensor_count": 63,
+          "buffer_count": 66,
+          "metadata_count": 2,
+          "operator_histogram": {
+            "ADD": 6,
+            "FULLY_CONNECTED": 3,
+            "MUL": 18,
+            "RESHAPE": 6,
+            "RSQRT": 6,
+            "SUM": 6
+          },
+          "tensor_type_histogram": {
+            "FLOAT32": 57,
+            "INT32": 6
+          },
+          "quantized_tensor_count": 0,
+          "quantization_layout_histogram": {},
+          "quantization_shape_histogram": {},
+          "constant_tensor_type_histogram": {
+            "FLOAT32": 9,
+            "INT32": 6
+          },
+          "constant_quantized_tensor_count": 0,
+          "constant_quantization_layout_histogram": {},
+          "logical_buffer_size_total": 4718752
+        },
+        "structural_sha256": "4ba8f7fe5b0d9af49addfe6a8ce2f30f5901bc8c1c08c8f2e882e809d06af33a",
+        "quantization_layout_sha256": "d13b1f3e8e57bd51b93f53aa1c038e497c3b1bea784f643f60b590dfe9128d35",
+        "quantization_values_sha256": "a0f5a285fe3712abc97f1ebf26b3462929ec5a0caa190dddf40e347a14eca3f4",
+        "buffer_storage_sha256": "96dda9798afd9009489b2dfea61fab43e6aa900960490ecb1626fd70e41e3c2e",
+        "execution_contract_schema_version": 1,
+        "execution_contract_complete": true,
+        "execution_contract_sha256": "ac1fc0aa660f2ddc1f4d10643edcf8225802151ac58c4c93ab4633a7ef690ce4",
+        "execution_contract_masked_fields": [
+          "tensor.quantization.scales",
+          "buffer.payload_bytes"
+        ],
+        "section_index": 8
+      }
+    },
+    {
+      "data_type": 3,
+      "data_type_name": "TFLiteModel",
+      "begin_offset": 1725513728,
+      "end_offset": 1725520500,
+      "size": 6772,
+      "items": [
+        {
+          "key": "model_type",
+          "type": "StringValue",
+          "value": "tf_lite_end_of_vision"
+        }
+      ],
+      "index": 9,
+      "alignment_ok": true,
+      "ordered_after_previous": true,
+      "graph": {
+        "available": true,
+        "summary": {
+          "subgraph_count": 1,
+          "operator_code_count": 0,
+          "operator_count": 0,
+          "tensor_count": 1,
+          "buffer_count": 4,
+          "metadata_count": 2,
+          "operator_histogram": {},
+          "tensor_type_histogram": {
+            "FLOAT32": 1
+          },
+          "quantized_tensor_count": 0,
+          "quantization_layout_histogram": {},
+          "quantization_shape_histogram": {},
+          "constant_tensor_type_histogram": {
+            "FLOAT32": 1
+          },
+          "constant_quantized_tensor_count": 0,
+          "constant_quantization_layout_histogram": {},
+          "logical_buffer_size_total": 6256
+        },
+        "structural_sha256": "bf0c0fa3badcc8d66f4853772f126a91a530eb47d728687168389063dc4f9e5a",
+        "quantization_layout_sha256": "6c0361ed2d45ffc3bd9dc378cf02582c86c96f75e67c99f569cda8f477d123ce",
+        "quantization_values_sha256": "339e8bb7b5fa4c9584fa1d3a76c6bc1033542a441de4657a29ea788c5e1b6eb9",
+        "buffer_storage_sha256": "8460c0621da67f8e375b4f104ba41aec5df869c9ceb0d3c985813099cc51fbf0",
+        "execution_contract_schema_version": 1,
+        "execution_contract_complete": true,
+        "execution_contract_sha256": "bfe145f44b38d437fb9afd25c2e67610d47edd9efaa65b776f9e6d22782a2d90",
+        "execution_contract_masked_fields": [
+          "tensor.quantization.scales",
+          "buffer.payload_bytes"
+        ],
+        "section_index": 9
+      }
+    },
+    {
+      "data_type": 3,
+      "data_type_name": "TFLiteModel",
+      "begin_offset": 1725530112,
+      "end_offset": 2543805296,
+      "size": 818275184,
+      "items": [
+        {
+          "key": "model_type",
+          "type": "StringValue",
+          "value": "tf_lite_prefill_decode"
+        },
+        {
+          "key": "prefer_activation_type",
+          "type": "StringValue",
+          "value": "fp16"
+        }
+      ],
+      "index": 10,
+      "alignment_ok": true,
+      "ordered_after_previous": true,
+      "graph": {
+        "available": true,
+        "summary": {
+          "subgraph_count": 976,
+          "operator_code_count": 31,
+          "operator_count": 14259,
+          "tensor_count": 22990,
+          "buffer_count": 22995,
+          "metadata_count": 4,
+          "operator_histogram": {
+            "ADD": 1332,
+            "BATCH_MATMUL": 196,
+            "CAST": 30,
+            "CONCATENATION": 334,
+            "COS": 8,
+            "DEQUANTIZE": 1006,
+            "DYNAMIC_UPDATE_SLICE": 200,
+            "FILL": 80,
+            "FULLY_CONNECTED": 812,
+            "GELU": 196,
+            "GREATER_EQUAL": 4,
+            "LESS": 4,
+            "LOGICAL_AND": 4,
+            "MAXIMUM": 160,
+            "MUL": 3810,
+            "NOT_EQUAL": 16,
+            "PACK": 80,
+            "QUANTIZE": 714,
+            "REDUCE_MAX": 8,
+            "RESHAPE": 1343,
+            "RSQRT": 716,
+            "SELECT_V2": 196,
+            "SIN": 8,
+            "SLICE": 721,
+            "SOFTMAX": 98,
+            "STABLEHLO_COMPOSITE": 972,
+            "SUB": 318,
+            "SUM": 716,
+            "TANH": 2,
+            "TRANSPOSE": 171,
+            "UNPACK": 4
+          },
+          "tensor_type_histogram": {
+            "BOOL": 50,
+            "FLOAT32": 15048,
+            "INT2": 122,
+            "INT32": 4438,
+            "INT4": 490,
+            "INT8": 2842
+          },
+          "quantized_tensor_count": 3454,
+          "quantization_layout_histogram": {
+            "INT2|scales=12288|zero_points=12288|quantized_dimension=0": 80,
+            "INT2|scales=1536|zero_points=1536|quantized_dimension=0": 40,
+            "INT2|scales=262144|zero_points=262144|quantized_dimension=0": 2,
+            "INT4|scales=1536|zero_points=1536|quantized_dimension=0": 156,
+            "INT4|scales=2048|zero_points=2048|quantized_dimension=0": 80,
+            "INT4|scales=256|zero_points=256|quantized_dimension=0": 96,
+            "INT4|scales=4096|zero_points=4096|quantized_dimension=0": 18,
+            "INT4|scales=512|zero_points=512|quantized_dimension=0": 24,
+            "INT4|scales=6144|zero_points=6144|quantized_dimension=0": 116,
+            "INT8|scales=1536|zero_points=1536|quantized_dimension=0": 98,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0": 2642,
+            "INT8|scales=256|zero_points=256|quantized_dimension=0": 98,
+            "INT8|scales=8960|zero_points=8960|quantized_dimension=0": 4
+          },
+          "quantization_shape_histogram": {
+            "INT2|scales=12288|zero_points=12288|quantized_dimension=0|shape=12288,1536": 80,
+            "INT2|scales=1536|zero_points=1536|quantized_dimension=0|shape=1536,12288": 40,
+            "INT2|scales=262144|zero_points=262144|quantized_dimension=0|shape=262144,1536": 2,
+            "INT4|scales=1536|zero_points=1536|quantized_dimension=0|shape=1536,2048": 80,
+            "INT4|scales=1536|zero_points=1536|quantized_dimension=0|shape=1536,4096": 18,
+            "INT4|scales=1536|zero_points=1536|quantized_dimension=0|shape=1536,6144": 58,
+            "INT4|scales=2048|zero_points=2048|quantized_dimension=0|shape=2048,1536": 80,
+            "INT4|scales=256|zero_points=256|quantized_dimension=0|shape=256,1536": 96,
+            "INT4|scales=4096|zero_points=4096|quantized_dimension=0|shape=4096,1536": 18,
+            "INT4|scales=512|zero_points=512|quantized_dimension=0|shape=512,1536": 24,
+            "INT4|scales=6144|zero_points=6144|quantized_dimension=0|shape=6144,1536": 116,
+            "INT8|scales=1536|zero_points=1536|quantized_dimension=0|shape=1536,256": 98,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,1,256": 48,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,1,512": 12,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,1024,256": 24,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,1024,512": 6,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,12288": 60,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,128,256": 24,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,128,512": 6,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,1535,256": 12,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,1536": 211,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,2048": 56,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,256": 94,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,256,1": 12,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,256,1024": 12,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,256,128": 12,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,256,1535": 12,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,256,32003": 272,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,256,4": 12,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,256,512": 28,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,256,515": 28,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,256,639": 12,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,32003,256": 272,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,32003,512": 66,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,35,256": 1,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,4,256": 24,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,4,512": 6,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,4096": 14,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,512": 6,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,512,1": 3,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,512,1024": 3,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,512,128": 3,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,512,256": 28,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,512,32003": 66,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,512,4": 3,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,515,256": 28,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,6144": 45,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,639,256": 12,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,8,256": 28,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,8,512": 7,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,8960": 1,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1024,1,256": 24,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1024,1,512": 6,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1024,1536": 86,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1024,2048": 24,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1024,256": 52,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1024,35,256": 1,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1024,4096": 4,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1024,512": 6,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1024,6144": 42,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1024,8,256": 12,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1024,8,512": 2,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1024,8960": 1,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,128,1,256": 24,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,128,1,512": 6,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,128,1536": 86,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,128,2048": 24,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,128,256": 52,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,128,35,256": 1,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,128,4096": 4,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,128,512": 6,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,128,6144": 42,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,128,8,256": 12,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,128,8,512": 2,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,128,8960": 1,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,4,1,256": 24,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,4,1,512": 6,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,4,12288": 60,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,4,1536": 211,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,4,2048": 56,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,4,256": 94,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,4,35,256": 1,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,4,4096": 14,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,4,512": 6,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,4,6144": 45,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,4,8,256": 28,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,4,8,512": 7,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,4,8960": 1,
+            "INT8|scales=256|zero_points=256|quantized_dimension=0|shape=256,1536": 98,
+            "INT8|scales=8960|zero_points=8960|quantized_dimension=0|shape=8960,1536": 4
+          },
+          "constant_tensor_type_histogram": {
+            "FLOAT32": 2267,
+            "INT2": 122,
+            "INT32": 2838,
+            "INT4": 490,
+            "INT8": 200
+          },
+          "constant_quantized_tensor_count": 812,
+          "constant_quantization_layout_histogram": {
+            "INT2|scales=12288|zero_points=12288|quantized_dimension=0": 80,
+            "INT2|scales=1536|zero_points=1536|quantized_dimension=0": 40,
+            "INT2|scales=262144|zero_points=262144|quantized_dimension=0": 2,
+            "INT4|scales=1536|zero_points=1536|quantized_dimension=0": 156,
+            "INT4|scales=2048|zero_points=2048|quantized_dimension=0": 80,
+            "INT4|scales=256|zero_points=256|quantized_dimension=0": 96,
+            "INT4|scales=4096|zero_points=4096|quantized_dimension=0": 18,
+            "INT4|scales=512|zero_points=512|quantized_dimension=0": 24,
+            "INT4|scales=6144|zero_points=6144|quantized_dimension=0": 116,
+            "INT8|scales=1536|zero_points=1536|quantized_dimension=0": 98,
+            "INT8|scales=256|zero_points=256|quantized_dimension=0": 98,
+            "INT8|scales=8960|zero_points=8960|quantized_dimension=0": 4
+          },
+          "logical_buffer_size_total": 777983384
+        },
+        "structural_sha256": "e875954e158c257ce5c55c0a4a49d2e9a785be0290662eb15a9a9c7732ad5216",
+        "quantization_layout_sha256": "33363e08d40ac2a7c3cfc47ff7523ca6b85119ad3731e421f9cded3bbb15af67",
+        "quantization_values_sha256": "271470791cad7a2091d050df1558cf7b68f77717219fee432127494963a18f62",
+        "buffer_storage_sha256": "a581de31ed6f27b80287a5ae3df878b8ba0c88f86851de9f14071f414e8a655f",
+        "execution_contract_schema_version": 1,
+        "execution_contract_complete": true,
+        "execution_contract_sha256": "68a71a8f13a678084f25d71ed25cd1cb59a4e9ba80a42de2af874a41c4a9ef90",
+        "execution_contract_masked_fields": [
+          "tensor.quantization.scales",
+          "buffer.payload_bytes"
+        ],
+        "section_index": 10
+      }
+    },
+    {
+      "data_type": 3,
+      "data_type_name": "TFLiteModel",
+      "begin_offset": 2543812608,
+      "end_offset": 2588138320,
+      "size": 44325712,
+      "items": [
+        {
+          "key": "model_type",
+          "type": "StringValue",
+          "value": "tf_lite_mtp_drafter"
+        }
+      ],
+      "index": 11,
+      "alignment_ok": true,
+      "ordered_after_previous": true,
+      "graph": {
+        "available": true,
+        "summary": {
+          "subgraph_count": 30,
+          "operator_code_count": 25,
+          "operator_count": 365,
+          "tensor_count": 575,
+          "buffer_count": 578,
+          "metadata_count": 2,
+          "operator_histogram": {
+            "ADD": 33,
+            "BATCH_MATMUL": 8,
+            "CAST": 3,
+            "CONCATENATION": 6,
+            "COS": 2,
+            "DEQUANTIZE": 30,
+            "FULLY_CONNECTED": 23,
+            "GELU": 4,
+            "GREATER_EQUAL": 1,
+            "LESS": 1,
+            "LOGICAL_AND": 1,
+            "MUL": 112,
+            "NOT_EQUAL": 4,
+            "QUANTIZE": 18,
+            "REDUCE_MAX": 2,
+            "RESHAPE": 19,
+            "RSQRT": 21,
+            "SELECT_V2": 8,
+            "SIN": 2,
+            "SLICE": 8,
+            "SOFTMAX": 4,
+            "STABLEHLO_COMPOSITE": 29,
+            "SUB": 4,
+            "SUM": 21,
+            "TANH": 1
+          },
+          "tensor_type_histogram": {
+            "BOOL": 11,
+            "FLOAT32": 433,
+            "INT32": 52,
+            "INT4": 13,
+            "INT8": 66
+          },
+          "quantized_tensor_count": 79,
+          "quantization_layout_histogram": {
+            "INT4|scales=2048|zero_points=2048|quantized_dimension=0": 8,
+            "INT4|scales=256|zero_points=256|quantized_dimension=0": 4,
+            "INT4|scales=262144|zero_points=262144|quantized_dimension=0": 1,
+            "INT8|scales=1024|zero_points=1024|quantized_dimension=0": 3,
+            "INT8|scales=1536|zero_points=1536|quantized_dimension=0": 1,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0": 56,
+            "INT8|scales=2048|zero_points=2048|quantized_dimension=0": 1,
+            "INT8|scales=256|zero_points=256|quantized_dimension=0": 5
+          },
+          "quantization_shape_histogram": {
+            "INT4|scales=2048|zero_points=2048|quantized_dimension=0|shape=2048,256": 8,
+            "INT4|scales=256|zero_points=256|quantized_dimension=0|shape=256,2048": 4,
+            "INT4|scales=262144|zero_points=262144|quantized_dimension=0|shape=262144,256": 1,
+            "INT8|scales=1024|zero_points=1024|quantized_dimension=0|shape=1024,256": 3,
+            "INT8|scales=1536|zero_points=1536|quantized_dimension=0|shape=1536,256": 1,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,1024": 6,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,1536": 1,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,2048": 14,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,256": 18,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,256,32003": 4,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,3072": 1,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,32003,256": 4,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,32003,512": 2,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,4,256": 3,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,4,512": 1,
+            "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,512,32003": 2,
+            "INT8|scales=2048|zero_points=2048|quantized_dimension=0|shape=2048,256": 1,
+            "INT8|scales=256|zero_points=256|quantized_dimension=0|shape=256,1024": 3,
+            "INT8|scales=256|zero_points=256|quantized_dimension=0|shape=256,2048": 1,
+            "INT8|scales=256|zero_points=256|quantized_dimension=0|shape=256,3072": 1
+          },
+          "constant_tensor_type_histogram": {
+            "FLOAT32": 72,
+            "INT32": 41,
+            "INT4": 13,
+            "INT8": 10
+          },
+          "constant_quantized_tensor_count": 23,
+          "constant_quantization_layout_histogram": {
+            "INT4|scales=2048|zero_points=2048|quantized_dimension=0": 8,
+            "INT4|scales=256|zero_points=256|quantized_dimension=0": 4,
+            "INT4|scales=262144|zero_points=262144|quantized_dimension=0": 1,
+            "INT8|scales=1024|zero_points=1024|quantized_dimension=0": 3,
+            "INT8|scales=1536|zero_points=1536|quantized_dimension=0": 1,
+            "INT8|scales=2048|zero_points=2048|quantized_dimension=0": 1,
+            "INT8|scales=256|zero_points=256|quantized_dimension=0": 5
+          },
+          "logical_buffer_size_total": 40779664
+        },
+        "structural_sha256": "cfe4bcb7c559bee9a23d64ef43a89ca3d80e481e7401e921c7cb1ab7c43d78f7",
+        "quantization_layout_sha256": "7b9ea653d9bea4c32a3a6f9d161f7e1dcb59ae68091fe05eb20acc6a0feed427",
+        "quantization_values_sha256": "72a72de90c855e69bc9c0c170e83920e1bbc23705fea4519a8fdd314d44e9969",
+        "buffer_storage_sha256": "cb0eaee17ad9b506663d5ae8c8593f27c1f1e4780410cad6a6c89d2fd0c32908",
+        "execution_contract_schema_version": 1,
+        "execution_contract_complete": true,
+        "execution_contract_sha256": "b9807804a31a9eb864966fa57385f05ac3405545592f66ba31870d02ebc07d33",
+        "execution_contract_masked_fields": [
+          "tensor.quantization.scales",
+          "buffer.payload_bytes"
+        ],
+        "section_index": 11
+      }
+    }
+  ],
+  "graphs": [
+    {
+      "available": true,
+      "summary": {
+        "subgraph_count": 1,
+        "operator_code_count": 7,
+        "operator_count": 8,
+        "tensor_count": 16,
+        "buffer_count": 19,
+        "metadata_count": 2,
+        "operator_histogram": {
+          "EMBEDDING_LOOKUP": 1,
+          "GREATER_EQUAL": 1,
+          "LESS": 1,
+          "LOGICAL_AND": 1,
+          "MUL": 1,
+          "RESHAPE": 2,
+          "SELECT_V2": 1
+        },
+        "tensor_type_histogram": {
+          "BOOL": 3,
+          "FLOAT32": 4,
+          "INT2": 1,
+          "INT32": 8
+        },
+        "quantized_tensor_count": 1,
+        "quantization_layout_histogram": {
+          "INT2|scales=262144|zero_points=262144|quantized_dimension=0": 1
+        },
+        "quantization_shape_histogram": {
+          "INT2|scales=262144|zero_points=262144|quantized_dimension=0|shape=262144,1536": 1
+        },
+        "constant_tensor_type_histogram": {
+          "FLOAT32": 1,
+          "INT2": 1,
+          "INT32": 5
+        },
+        "constant_quantized_tensor_count": 1,
+        "constant_quantization_layout_histogram": {
+          "INT2|scales=262144|zero_points=262144|quantized_dimension=0": 1
+        },
+        "logical_buffer_size_total": 100663436
+      },
+      "structural_sha256": "54a68132d9576add880a40eda9c27d3a0413f297c8b19ef4bf4939957bf91c22",
+      "quantization_layout_sha256": "7b5737a002c24b6c6aeb5bd34560821cbf6a6acc47b802539a5f6712632eccc3",
+      "quantization_values_sha256": "83a87bd96112028f08ae2ae140c86929f3953a8b527c31e65c10c2ec445f12d3",
+      "buffer_storage_sha256": "8712ff405414829dbde403d4a875deda8d26dfcf550f4765f2abc6730b3e8659",
+      "execution_contract_schema_version": 1,
+      "execution_contract_complete": true,
+      "execution_contract_sha256": "2a94580c9f56ec379d179b3f2d21c54fc717613f02036b46da5310f4816c03e4",
+      "execution_contract_masked_fields": [
+        "tensor.quantization.scales",
+        "buffer.payload_bytes"
+      ],
+      "section_index": 2
+    },
+    {
+      "available": true,
+      "summary": {
+        "subgraph_count": 1,
+        "operator_code_count": 7,
+        "operator_count": 42,
+        "tensor_count": 83,
+        "buffer_count": 86,
+        "metadata_count": 2,
+        "operator_histogram": {
+          "CONCATENATION": 1,
+          "EMBEDDING_LOOKUP": 35,
+          "GREATER_EQUAL": 1,
+          "LESS": 1,
+          "LOGICAL_AND": 1,
+          "RESHAPE": 2,
+          "SELECT_V2": 1
+        },
+        "tensor_type_histogram": {
+          "BOOL": 3,
+          "FLOAT32": 37,
+          "INT32": 8,
+          "INT4": 35
+        },
+        "quantized_tensor_count": 35,
+        "quantization_layout_histogram": {
+          "INT4|scales=262144|zero_points=262144|quantized_dimension=0": 35
+        },
+        "quantization_shape_histogram": {
+          "INT4|scales=262144|zero_points=262144|quantized_dimension=0|shape=262144,256": 35
+        },
+        "constant_tensor_type_histogram": {
+          "INT32": 5,
+          "INT4": 35
+        },
+        "constant_quantized_tensor_count": 35,
+        "constant_quantization_layout_histogram": {
+          "INT4|scales=262144|zero_points=262144|quantized_dimension=0": 35
+        },
+        "logical_buffer_size_total": 1174405260
+      },
+      "structural_sha256": "9c46529edc6fd5d5ff9126439d06ee5850078728653698f1d38bd60c644b57dd",
+      "quantization_layout_sha256": "71994be74dc343ebd1a4cf1a69419f0f0cfeff12cc00cd2349e956ead9f2cf79",
+      "quantization_values_sha256": "dee9b5193823d24bc67fc1f291ce0de37d89f70fa8c5842c24fd34659a6fd3c9",
+      "buffer_storage_sha256": "cdeedb644cfeda28551005468d2a2c4641290bccea1688b13e6193741d9f05b3",
+      "execution_contract_schema_version": 1,
+      "execution_contract_complete": true,
+      "execution_contract_sha256": "be25909e7ad2d9705e785298bae4cb196e7b34593d79a2403017cb1d4ea6ceec",
+      "execution_contract_masked_fields": [
+        "tensor.quantization.scales",
+        "buffer.payload_bytes"
+      ],
+      "section_index": 3
+    },
+    {
+      "available": true,
+      "summary": {
+        "subgraph_count": 1,
+        "operator_code_count": 25,
+        "operator_count": 2182,
+        "tensor_count": 2530,
+        "buffer_count": 2533,
+        "metadata_count": 2,
+        "operator_histogram": {
+          "ADD": 170,
+          "BATCH_MATMUL": 36,
+          "CAST": 14,
+          "CONCATENATION": 37,
+          "CONV_2D": 1,
+          "DEPTHWISE_CONV_2D": 17,
+          "DEQUANTIZE": 132,
+          "FULLY_CONNECTED": 122,
+          "LOGICAL_AND": 1,
+          "LOGICAL_NOT": 1,
+          "LOGISTIC": 48,
+          "MUL": 579,
+          "NOT_EQUAL": 4,
+          "PAD": 41,
+          "QUANTIZE": 96,
+          "RESHAPE": 439,
+          "RSQRT": 110,
+          "SELECT_V2": 13,
+          "SLICE": 86,
+          "SOFTMAX": 12,
+          "SUB": 2,
+          "SUM": 112,
+          "TANH": 12,
+          "TILE": 1,
+          "TRANSPOSE": 96
+        },
+        "tensor_type_histogram": {
+          "BOOL": 38,
+          "FLOAT32": 1821,
+          "INT2": 108,
+          "INT32": 58,
+          "INT4": 12,
+          "INT64": 1,
+          "INT8": 492
+        },
+        "quantized_tensor_count": 612,
+        "quantization_layout_histogram": {
+          "INT2|scales=1024|zero_points=1024|quantized_dimension=0": 84,
+          "INT2|scales=4096|zero_points=4096|quantized_dimension=0": 24,
+          "INT4|scales=2048|zero_points=2048|quantized_dimension=0": 12,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0": 492
+        },
+        "quantization_shape_histogram": {
+          "INT2|scales=1024|zero_points=1024|quantized_dimension=0|shape=1024,1024": 60,
+          "INT2|scales=1024|zero_points=1024|quantized_dimension=0|shape=1024,4096": 24,
+          "INT2|scales=4096|zero_points=4096|quantized_dimension=0|shape=4096,1024": 24,
+          "INT4|scales=2048|zero_points=2048|quantized_dimension=0|shape=2048,1024": 12,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,204,1024": 156,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,204,2048": 12,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,204,4096": 48,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,204,8,128": 36,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,240,8,128": 24,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=17,12,8,128": 48,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=17,24,8,128": 24,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=17,8,128,24": 12,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=20,12,8,128": 48,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=204,1024": 72,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=8,17,128,24": 12
+        },
+        "constant_tensor_type_histogram": {
+          "BOOL": 1,
+          "FLOAT32": 168,
+          "INT2": 108,
+          "INT32": 56,
+          "INT4": 12,
+          "INT64": 1
+        },
+        "constant_quantized_tensor_count": 120,
+        "constant_quantization_layout_histogram": {
+          "INT2|scales=1024|zero_points=1024|quantized_dimension=0": 84,
+          "INT2|scales=4096|zero_points=4096|quantized_dimension=0": 24,
+          "INT4|scales=2048|zero_points=2048|quantized_dimension=0": 12
+        },
+        "logical_buffer_size_total": 90648056
+      },
+      "structural_sha256": "e8e20aed1e39d3e3b0779a76206f57e0f4568745c4c450dd0018dede5dce3839",
+      "quantization_layout_sha256": "ccb5ba65b818a769ce866de863487755f8441d00dfe3d0ff8abf5d0926aea716",
+      "quantization_values_sha256": "85289c32662273dd656cfe293912310fae62e88aa0ea74b96a22762bb482ec8c",
+      "buffer_storage_sha256": "e9eaddb7e2c3e97dd03173fa6e7f044499357c73f7960e85543b38a0e33e180f",
+      "execution_contract_schema_version": 1,
+      "execution_contract_complete": true,
+      "execution_contract_sha256": "14e781c1f3ff8ada5737d5b9e9254bcff2f269dcb2aab23df804c63e61b2b024",
+      "execution_contract_masked_fields": [
+        "tensor.quantization.scales",
+        "buffer.payload_bytes"
+      ],
+      "section_index": 4
+    },
+    {
+      "available": true,
+      "summary": {
+        "subgraph_count": 1,
+        "operator_code_count": 7,
+        "operator_count": 11,
+        "tensor_count": 18,
+        "buffer_count": 21,
+        "metadata_count": 2,
+        "operator_histogram": {
+          "ADD": 1,
+          "CAST": 1,
+          "FULLY_CONNECTED": 1,
+          "MUL": 4,
+          "RESHAPE": 2,
+          "RSQRT": 1,
+          "SUM": 1
+        },
+        "tensor_type_histogram": {
+          "BOOL": 1,
+          "FLOAT32": 15,
+          "INT32": 2
+        },
+        "quantized_tensor_count": 0,
+        "quantization_layout_histogram": {},
+        "quantization_shape_histogram": {},
+        "constant_tensor_type_histogram": {
+          "FLOAT32": 3,
+          "INT32": 2
+        },
+        "constant_quantized_tensor_count": 0,
+        "constant_quantization_layout_histogram": {},
+        "logical_buffer_size_total": 9437320
+      },
+      "structural_sha256": "91fe17c7e1c3525a207a92dfbd68b4d3783dd74e7e745a148b7bd243f438e8d4",
+      "quantization_layout_sha256": "3227df1c6d8cdcbb71aab25d70bfdd22084c536990f1429a23a02b2dc150ef20",
+      "quantization_values_sha256": "d8f09f5f85a1fbfbe6c85d989617837d09788ecdab613318b6cd623645fb21fb",
+      "buffer_storage_sha256": "cd03c706b4eb150489a928761da0c97771407e11ab08544efb00817d6cc773f2",
+      "execution_contract_schema_version": 1,
+      "execution_contract_complete": true,
+      "execution_contract_sha256": "2c777f615531e452a6e92269c41491b8057dafc192c157614fa63ac06aa3d54f",
+      "execution_contract_masked_fields": [
+        "tensor.quantization.scales",
+        "buffer.payload_bytes"
+      ],
+      "section_index": 5
+    },
+    {
+      "available": true,
+      "summary": {
+        "subgraph_count": 1,
+        "operator_code_count": 0,
+        "operator_count": 0,
+        "tensor_count": 1,
+        "buffer_count": 4,
+        "metadata_count": 2,
+        "operator_histogram": {},
+        "tensor_type_histogram": {
+          "FLOAT32": 1
+        },
+        "quantized_tensor_count": 0,
+        "quantization_layout_histogram": {},
+        "quantization_shape_histogram": {},
+        "constant_tensor_type_histogram": {
+          "FLOAT32": 1
+        },
+        "constant_quantized_tensor_count": 0,
+        "constant_quantization_layout_histogram": {},
+        "logical_buffer_size_total": 6256
+      },
+      "structural_sha256": "bf0c0fa3badcc8d66f4853772f126a91a530eb47d728687168389063dc4f9e5a",
+      "quantization_layout_sha256": "6c0361ed2d45ffc3bd9dc378cf02582c86c96f75e67c99f569cda8f477d123ce",
+      "quantization_values_sha256": "339e8bb7b5fa4c9584fa1d3a76c6bc1033542a441de4657a29ea788c5e1b6eb9",
+      "buffer_storage_sha256": "8460c0621da67f8e375b4f104ba41aec5df869c9ceb0d3c985813099cc51fbf0",
+      "execution_contract_schema_version": 1,
+      "execution_contract_complete": true,
+      "execution_contract_sha256": "51ab06867841cc31e6043c49d40062773a4615fdf6e04718cddb878fb698d8e3",
+      "execution_contract_masked_fields": [
+        "tensor.quantization.scales",
+        "buffer.payload_bytes"
+      ],
+      "section_index": 6
+    },
+    {
+      "available": true,
+      "summary": {
+        "subgraph_count": 339,
+        "operator_code_count": 34,
+        "operator_count": 7119,
+        "tensor_count": 9891,
+        "buffer_count": 9894,
+        "metadata_count": 2,
+        "operator_histogram": {
+          "ADD": 633,
+          "BATCH_MATMUL": 99,
+          "CAST": 6,
+          "CONCATENATION": 291,
+          "COS": 6,
+          "DEQUANTIZE": 336,
+          "DIV": 6,
+          "EQUAL": 3,
+          "FLOOR_MOD": 6,
+          "FULLY_CONNECTED": 345,
+          "GELU": 48,
+          "GREATER_EQUAL": 6,
+          "LESS": 6,
+          "LOGICAL_AND": 12,
+          "LOGICAL_NOT": 3,
+          "LOGICAL_OR": 6,
+          "MUL": 2175,
+          "NOT_EQUAL": 18,
+          "ONE_HOT": 9,
+          "QUANTIZE": 192,
+          "REDUCE_ALL": 3,
+          "REDUCE_MAX": 3,
+          "RESHAPE": 846,
+          "RSQRT": 336,
+          "SELECT": 6,
+          "SELECT_V2": 6,
+          "SIGN": 6,
+          "SIN": 6,
+          "SLICE": 588,
+          "SOFTMAX": 48,
+          "STABLEHLO_COMPOSITE": 336,
+          "SUB": 198,
+          "SUM": 339,
+          "TRANSPOSE": 192
+        },
+        "tensor_type_histogram": {
+          "BOOL": 63,
+          "FLOAT32": 7938,
+          "INT32": 834,
+          "INT8": 1056
+        },
+        "quantized_tensor_count": 1056,
+        "quantization_layout_histogram": {
+          "INT8|scales=1|zero_points=1|quantized_dimension=0": 720,
+          "INT8|scales=3072|zero_points=3072|quantized_dimension=0": 96,
+          "INT8|scales=768|zero_points=768|quantized_dimension=0": 240
+        },
+        "quantization_shape_histogram": {
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1260,12,64": 64,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1260,3072": 48,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1260,768": 128,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,2520,12,64": 64,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,2520,3072": 48,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,2520,768": 128,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,630,12,64": 64,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,630,3072": 48,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,630,768": 128,
+          "INT8|scales=3072|zero_points=3072|quantized_dimension=0|shape=3072,768": 96,
+          "INT8|scales=768|zero_points=768|quantized_dimension=0|shape=768,3072": 48,
+          "INT8|scales=768|zero_points=768|quantized_dimension=0|shape=768,768": 192
+        },
+        "constant_tensor_type_histogram": {
+          "FLOAT32": 993,
+          "INT32": 765,
+          "INT8": 336
+        },
+        "constant_quantized_tensor_count": 336,
+        "constant_quantization_layout_histogram": {
+          "INT8|scales=3072|zero_points=3072|quantized_dimension=0": 96,
+          "INT8|scales=768|zero_points=768|quantized_dimension=0": 240
+        },
+        "logical_buffer_size_total": 216477860
+      },
+      "structural_sha256": "a892c2a67514641c65c01bb592f691c7510fe0a101c1868fcf63c0bcbe92dd35",
+      "quantization_layout_sha256": "bf4a18edce29b2b3c825b260674b1fea15e2febe52c1941f9890c9bc3969cc61",
+      "quantization_values_sha256": "3191cda2ecb2e3f425f0661127b289f69c9c985fb8e3c61cc3508833ef179d3d",
+      "buffer_storage_sha256": "da984650d62914255e99684118a0d06450561395ed8db73bc4fbed94d98be210",
+      "execution_contract_schema_version": 1,
+      "execution_contract_complete": true,
+      "execution_contract_sha256": "99e1d1491c8f4a4fe51395ff56a9c30a03e0be9b93ce88fca1f5b1730c4fab42",
+      "execution_contract_masked_fields": [
+        "tensor.quantization.scales",
+        "buffer.payload_bytes"
+      ],
+      "section_index": 7
+    },
+    {
+      "available": true,
+      "summary": {
+        "subgraph_count": 3,
+        "operator_code_count": 6,
+        "operator_count": 45,
+        "tensor_count": 63,
+        "buffer_count": 66,
+        "metadata_count": 2,
+        "operator_histogram": {
+          "ADD": 6,
+          "FULLY_CONNECTED": 3,
+          "MUL": 18,
+          "RESHAPE": 6,
+          "RSQRT": 6,
+          "SUM": 6
+        },
+        "tensor_type_histogram": {
+          "FLOAT32": 57,
+          "INT32": 6
+        },
+        "quantized_tensor_count": 0,
+        "quantization_layout_histogram": {},
+        "quantization_shape_histogram": {},
+        "constant_tensor_type_histogram": {
+          "FLOAT32": 9,
+          "INT32": 6
+        },
+        "constant_quantized_tensor_count": 0,
+        "constant_quantization_layout_histogram": {},
+        "logical_buffer_size_total": 4718752
+      },
+      "structural_sha256": "4ba8f7fe5b0d9af49addfe6a8ce2f30f5901bc8c1c08c8f2e882e809d06af33a",
+      "quantization_layout_sha256": "d13b1f3e8e57bd51b93f53aa1c038e497c3b1bea784f643f60b590dfe9128d35",
+      "quantization_values_sha256": "a0f5a285fe3712abc97f1ebf26b3462929ec5a0caa190dddf40e347a14eca3f4",
+      "buffer_storage_sha256": "96dda9798afd9009489b2dfea61fab43e6aa900960490ecb1626fd70e41e3c2e",
+      "execution_contract_schema_version": 1,
+      "execution_contract_complete": true,
+      "execution_contract_sha256": "ac1fc0aa660f2ddc1f4d10643edcf8225802151ac58c4c93ab4633a7ef690ce4",
+      "execution_contract_masked_fields": [
+        "tensor.quantization.scales",
+        "buffer.payload_bytes"
+      ],
+      "section_index": 8
+    },
+    {
+      "available": true,
+      "summary": {
+        "subgraph_count": 1,
+        "operator_code_count": 0,
+        "operator_count": 0,
+        "tensor_count": 1,
+        "buffer_count": 4,
+        "metadata_count": 2,
+        "operator_histogram": {},
+        "tensor_type_histogram": {
+          "FLOAT32": 1
+        },
+        "quantized_tensor_count": 0,
+        "quantization_layout_histogram": {},
+        "quantization_shape_histogram": {},
+        "constant_tensor_type_histogram": {
+          "FLOAT32": 1
+        },
+        "constant_quantized_tensor_count": 0,
+        "constant_quantization_layout_histogram": {},
+        "logical_buffer_size_total": 6256
+      },
+      "structural_sha256": "bf0c0fa3badcc8d66f4853772f126a91a530eb47d728687168389063dc4f9e5a",
+      "quantization_layout_sha256": "6c0361ed2d45ffc3bd9dc378cf02582c86c96f75e67c99f569cda8f477d123ce",
+      "quantization_values_sha256": "339e8bb7b5fa4c9584fa1d3a76c6bc1033542a441de4657a29ea788c5e1b6eb9",
+      "buffer_storage_sha256": "8460c0621da67f8e375b4f104ba41aec5df869c9ceb0d3c985813099cc51fbf0",
+      "execution_contract_schema_version": 1,
+      "execution_contract_complete": true,
+      "execution_contract_sha256": "bfe145f44b38d437fb9afd25c2e67610d47edd9efaa65b776f9e6d22782a2d90",
+      "execution_contract_masked_fields": [
+        "tensor.quantization.scales",
+        "buffer.payload_bytes"
+      ],
+      "section_index": 9
+    },
+    {
+      "available": true,
+      "summary": {
+        "subgraph_count": 976,
+        "operator_code_count": 31,
+        "operator_count": 14259,
+        "tensor_count": 22990,
+        "buffer_count": 22995,
+        "metadata_count": 4,
+        "operator_histogram": {
+          "ADD": 1332,
+          "BATCH_MATMUL": 196,
+          "CAST": 30,
+          "CONCATENATION": 334,
+          "COS": 8,
+          "DEQUANTIZE": 1006,
+          "DYNAMIC_UPDATE_SLICE": 200,
+          "FILL": 80,
+          "FULLY_CONNECTED": 812,
+          "GELU": 196,
+          "GREATER_EQUAL": 4,
+          "LESS": 4,
+          "LOGICAL_AND": 4,
+          "MAXIMUM": 160,
+          "MUL": 3810,
+          "NOT_EQUAL": 16,
+          "PACK": 80,
+          "QUANTIZE": 714,
+          "REDUCE_MAX": 8,
+          "RESHAPE": 1343,
+          "RSQRT": 716,
+          "SELECT_V2": 196,
+          "SIN": 8,
+          "SLICE": 721,
+          "SOFTMAX": 98,
+          "STABLEHLO_COMPOSITE": 972,
+          "SUB": 318,
+          "SUM": 716,
+          "TANH": 2,
+          "TRANSPOSE": 171,
+          "UNPACK": 4
+        },
+        "tensor_type_histogram": {
+          "BOOL": 50,
+          "FLOAT32": 15048,
+          "INT2": 122,
+          "INT32": 4438,
+          "INT4": 490,
+          "INT8": 2842
+        },
+        "quantized_tensor_count": 3454,
+        "quantization_layout_histogram": {
+          "INT2|scales=12288|zero_points=12288|quantized_dimension=0": 80,
+          "INT2|scales=1536|zero_points=1536|quantized_dimension=0": 40,
+          "INT2|scales=262144|zero_points=262144|quantized_dimension=0": 2,
+          "INT4|scales=1536|zero_points=1536|quantized_dimension=0": 156,
+          "INT4|scales=2048|zero_points=2048|quantized_dimension=0": 80,
+          "INT4|scales=256|zero_points=256|quantized_dimension=0": 96,
+          "INT4|scales=4096|zero_points=4096|quantized_dimension=0": 18,
+          "INT4|scales=512|zero_points=512|quantized_dimension=0": 24,
+          "INT4|scales=6144|zero_points=6144|quantized_dimension=0": 116,
+          "INT8|scales=1536|zero_points=1536|quantized_dimension=0": 98,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0": 2642,
+          "INT8|scales=256|zero_points=256|quantized_dimension=0": 98,
+          "INT8|scales=8960|zero_points=8960|quantized_dimension=0": 4
+        },
+        "quantization_shape_histogram": {
+          "INT2|scales=12288|zero_points=12288|quantized_dimension=0|shape=12288,1536": 80,
+          "INT2|scales=1536|zero_points=1536|quantized_dimension=0|shape=1536,12288": 40,
+          "INT2|scales=262144|zero_points=262144|quantized_dimension=0|shape=262144,1536": 2,
+          "INT4|scales=1536|zero_points=1536|quantized_dimension=0|shape=1536,2048": 80,
+          "INT4|scales=1536|zero_points=1536|quantized_dimension=0|shape=1536,4096": 18,
+          "INT4|scales=1536|zero_points=1536|quantized_dimension=0|shape=1536,6144": 58,
+          "INT4|scales=2048|zero_points=2048|quantized_dimension=0|shape=2048,1536": 80,
+          "INT4|scales=256|zero_points=256|quantized_dimension=0|shape=256,1536": 96,
+          "INT4|scales=4096|zero_points=4096|quantized_dimension=0|shape=4096,1536": 18,
+          "INT4|scales=512|zero_points=512|quantized_dimension=0|shape=512,1536": 24,
+          "INT4|scales=6144|zero_points=6144|quantized_dimension=0|shape=6144,1536": 116,
+          "INT8|scales=1536|zero_points=1536|quantized_dimension=0|shape=1536,256": 98,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,1,256": 48,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,1,512": 12,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,1024,256": 24,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,1024,512": 6,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,12288": 60,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,128,256": 24,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,128,512": 6,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,1535,256": 12,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,1536": 211,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,2048": 56,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,256": 94,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,256,1": 12,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,256,1024": 12,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,256,128": 12,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,256,1535": 12,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,256,32003": 272,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,256,4": 12,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,256,512": 28,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,256,515": 28,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,256,639": 12,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,32003,256": 272,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,32003,512": 66,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,35,256": 1,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,4,256": 24,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,4,512": 6,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,4096": 14,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,512": 6,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,512,1": 3,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,512,1024": 3,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,512,128": 3,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,512,256": 28,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,512,32003": 66,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,512,4": 3,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,515,256": 28,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,6144": 45,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,639,256": 12,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,8,256": 28,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,8,512": 7,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,8960": 1,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1024,1,256": 24,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1024,1,512": 6,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1024,1536": 86,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1024,2048": 24,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1024,256": 52,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1024,35,256": 1,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1024,4096": 4,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1024,512": 6,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1024,6144": 42,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1024,8,256": 12,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1024,8,512": 2,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1024,8960": 1,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,128,1,256": 24,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,128,1,512": 6,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,128,1536": 86,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,128,2048": 24,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,128,256": 52,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,128,35,256": 1,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,128,4096": 4,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,128,512": 6,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,128,6144": 42,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,128,8,256": 12,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,128,8,512": 2,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,128,8960": 1,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,4,1,256": 24,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,4,1,512": 6,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,4,12288": 60,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,4,1536": 211,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,4,2048": 56,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,4,256": 94,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,4,35,256": 1,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,4,4096": 14,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,4,512": 6,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,4,6144": 45,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,4,8,256": 28,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,4,8,512": 7,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,4,8960": 1,
+          "INT8|scales=256|zero_points=256|quantized_dimension=0|shape=256,1536": 98,
+          "INT8|scales=8960|zero_points=8960|quantized_dimension=0|shape=8960,1536": 4
+        },
+        "constant_tensor_type_histogram": {
+          "FLOAT32": 2267,
+          "INT2": 122,
+          "INT32": 2838,
+          "INT4": 490,
+          "INT8": 200
+        },
+        "constant_quantized_tensor_count": 812,
+        "constant_quantization_layout_histogram": {
+          "INT2|scales=12288|zero_points=12288|quantized_dimension=0": 80,
+          "INT2|scales=1536|zero_points=1536|quantized_dimension=0": 40,
+          "INT2|scales=262144|zero_points=262144|quantized_dimension=0": 2,
+          "INT4|scales=1536|zero_points=1536|quantized_dimension=0": 156,
+          "INT4|scales=2048|zero_points=2048|quantized_dimension=0": 80,
+          "INT4|scales=256|zero_points=256|quantized_dimension=0": 96,
+          "INT4|scales=4096|zero_points=4096|quantized_dimension=0": 18,
+          "INT4|scales=512|zero_points=512|quantized_dimension=0": 24,
+          "INT4|scales=6144|zero_points=6144|quantized_dimension=0": 116,
+          "INT8|scales=1536|zero_points=1536|quantized_dimension=0": 98,
+          "INT8|scales=256|zero_points=256|quantized_dimension=0": 98,
+          "INT8|scales=8960|zero_points=8960|quantized_dimension=0": 4
+        },
+        "logical_buffer_size_total": 777983384
+      },
+      "structural_sha256": "e875954e158c257ce5c55c0a4a49d2e9a785be0290662eb15a9a9c7732ad5216",
+      "quantization_layout_sha256": "33363e08d40ac2a7c3cfc47ff7523ca6b85119ad3731e421f9cded3bbb15af67",
+      "quantization_values_sha256": "271470791cad7a2091d050df1558cf7b68f77717219fee432127494963a18f62",
+      "buffer_storage_sha256": "a581de31ed6f27b80287a5ae3df878b8ba0c88f86851de9f14071f414e8a655f",
+      "execution_contract_schema_version": 1,
+      "execution_contract_complete": true,
+      "execution_contract_sha256": "68a71a8f13a678084f25d71ed25cd1cb59a4e9ba80a42de2af874a41c4a9ef90",
+      "execution_contract_masked_fields": [
+        "tensor.quantization.scales",
+        "buffer.payload_bytes"
+      ],
+      "section_index": 10
+    },
+    {
+      "available": true,
+      "summary": {
+        "subgraph_count": 30,
+        "operator_code_count": 25,
+        "operator_count": 365,
+        "tensor_count": 575,
+        "buffer_count": 578,
+        "metadata_count": 2,
+        "operator_histogram": {
+          "ADD": 33,
+          "BATCH_MATMUL": 8,
+          "CAST": 3,
+          "CONCATENATION": 6,
+          "COS": 2,
+          "DEQUANTIZE": 30,
+          "FULLY_CONNECTED": 23,
+          "GELU": 4,
+          "GREATER_EQUAL": 1,
+          "LESS": 1,
+          "LOGICAL_AND": 1,
+          "MUL": 112,
+          "NOT_EQUAL": 4,
+          "QUANTIZE": 18,
+          "REDUCE_MAX": 2,
+          "RESHAPE": 19,
+          "RSQRT": 21,
+          "SELECT_V2": 8,
+          "SIN": 2,
+          "SLICE": 8,
+          "SOFTMAX": 4,
+          "STABLEHLO_COMPOSITE": 29,
+          "SUB": 4,
+          "SUM": 21,
+          "TANH": 1
+        },
+        "tensor_type_histogram": {
+          "BOOL": 11,
+          "FLOAT32": 433,
+          "INT32": 52,
+          "INT4": 13,
+          "INT8": 66
+        },
+        "quantized_tensor_count": 79,
+        "quantization_layout_histogram": {
+          "INT4|scales=2048|zero_points=2048|quantized_dimension=0": 8,
+          "INT4|scales=256|zero_points=256|quantized_dimension=0": 4,
+          "INT4|scales=262144|zero_points=262144|quantized_dimension=0": 1,
+          "INT8|scales=1024|zero_points=1024|quantized_dimension=0": 3,
+          "INT8|scales=1536|zero_points=1536|quantized_dimension=0": 1,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0": 56,
+          "INT8|scales=2048|zero_points=2048|quantized_dimension=0": 1,
+          "INT8|scales=256|zero_points=256|quantized_dimension=0": 5
+        },
+        "quantization_shape_histogram": {
+          "INT4|scales=2048|zero_points=2048|quantized_dimension=0|shape=2048,256": 8,
+          "INT4|scales=256|zero_points=256|quantized_dimension=0|shape=256,2048": 4,
+          "INT4|scales=262144|zero_points=262144|quantized_dimension=0|shape=262144,256": 1,
+          "INT8|scales=1024|zero_points=1024|quantized_dimension=0|shape=1024,256": 3,
+          "INT8|scales=1536|zero_points=1536|quantized_dimension=0|shape=1536,256": 1,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,1024": 6,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,1536": 1,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,2048": 14,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,256": 18,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,256,32003": 4,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,3072": 1,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,32003,256": 4,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,32003,512": 2,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,4,256": 3,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,4,512": 1,
+          "INT8|scales=1|zero_points=1|quantized_dimension=0|shape=1,1,512,32003": 2,
+          "INT8|scales=2048|zero_points=2048|quantized_dimension=0|shape=2048,256": 1,
+          "INT8|scales=256|zero_points=256|quantized_dimension=0|shape=256,1024": 3,
+          "INT8|scales=256|zero_points=256|quantized_dimension=0|shape=256,2048": 1,
+          "INT8|scales=256|zero_points=256|quantized_dimension=0|shape=256,3072": 1
+        },
+        "constant_tensor_type_histogram": {
+          "FLOAT32": 72,
+          "INT32": 41,
+          "INT4": 13,
+          "INT8": 10
+        },
+        "constant_quantized_tensor_count": 23,
+        "constant_quantization_layout_histogram": {
+          "INT4|scales=2048|zero_points=2048|quantized_dimension=0": 8,
+          "INT4|scales=256|zero_points=256|quantized_dimension=0": 4,
+          "INT4|scales=262144|zero_points=262144|quantized_dimension=0": 1,
+          "INT8|scales=1024|zero_points=1024|quantized_dimension=0": 3,
+          "INT8|scales=1536|zero_points=1536|quantized_dimension=0": 1,
+          "INT8|scales=2048|zero_points=2048|quantized_dimension=0": 1,
+          "INT8|scales=256|zero_points=256|quantized_dimension=0": 5
+        },
+        "logical_buffer_size_total": 40779664
+      },
+      "structural_sha256": "cfe4bcb7c559bee9a23d64ef43a89ca3d80e481e7401e921c7cb1ab7c43d78f7",
+      "quantization_layout_sha256": "7b9ea653d9bea4c32a3a6f9d161f7e1dcb59ae68091fe05eb20acc6a0feed427",
+      "quantization_values_sha256": "72a72de90c855e69bc9c0c170e83920e1bbc23705fea4519a8fdd314d44e9969",
+      "buffer_storage_sha256": "cb0eaee17ad9b506663d5ae8c8593f27c1f1e4780410cad6a6c89d2fd0c32908",
+      "execution_contract_schema_version": 1,
+      "execution_contract_complete": true,
+      "execution_contract_sha256": "b9807804a31a9eb864966fa57385f05ac3405545592f66ba31870d02ebc07d33",
+      "execution_contract_masked_fields": [
+        "tensor.quantization.scales",
+        "buffer.payload_bytes"
+      ],
+      "section_index": 11
+    }
+  ],
+  "weights": {
+    "section_count": 0,
+    "hashed": false
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "input_files_sha256_verified": 205,
+  "scored_records": 154,
+  "raw_records": 127,
+  "sdk_repaired_records": 27,
+  "raw_output_hashes_verified": true,
+  "independent_aggregate_checks": true,
+  "archived_raw_scores_reproduced": 127,
+  "html_cases": 50,
+  "html_raw_output_panels": 127,
+  "html_links_verified": true,
+  "native_full_50_case_score_available": false
+}

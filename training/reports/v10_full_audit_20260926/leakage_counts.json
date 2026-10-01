@@ -1,0 +1,379 @@
+{
+  "schema_version": 1,
+  "completed_at_utc": "2026-09-26T13:33:33.760562+00:00",
+  "script_sha256": "c656f3aa83b0e624764ac3a95924c5964b35c89dd2f0ce2037253dcbd79c5a14",
+  "input_files": {
+    "val": {
+      "rows": 1862,
+      "bytes": 46457227,
+      "sha256": "b5024919ea0c3557cad452193f90f7133919bb0c10e4ece05fe1a54278cb0fa7"
+    },
+    "train": {
+      "rows": 91115,
+      "bytes": 2262691062,
+      "sha256": "707244a5ffe2af459605e8629055c18829c65123294191112016cd69892addf5"
+    }
+  },
+  "restored_files_match_tracked_bundle": {
+    "train": true,
+    "val": true
+  },
+  "benchmark_files_sha256": {
+    "golden35_v1/golden35.jsonl": "8fec7fde8c31634f66e4c77dd0ca7a0e3b37d36e453398f167fd30b9604c2d20",
+    "golden32_archive_repeat_v1/golden32.jsonl": "8c7357103e6ea52d99d66430dd4b93242e1c4a4f0bf02f2fcfdf2a2e9c48de4c",
+    "bixby50_v1/bixby50.jsonl": "27bdc9ad4c7d3735d3c5f7c26fa37be2472e7aafd7c99afa31910a22b5bfdb4d",
+    "golden35_v1\\benchmark_manifest.json": "1d468e05015744b8165c03e92ed009e03aac845513471b8f0b99cbe9d93939fb",
+    "dataset\\data\\runs\\golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4\\responses.jsonl": "5a375c0526446218ba47321c7a77ffe7979c33bcdc7ba8a59397ad14f2453fc3",
+    "golden32_archive_repeat_v1\\benchmark_manifest.json": "2b62797db7fd267c3f75e8ab1a7cb1a450d601df3f7785f5b78a62fe2657caa8"
+  },
+  "provenance": {
+    "train": {
+      "rows": 91115,
+      "query_id_missing": 91115,
+      "intent_missing": 91115,
+      "original_generator_identity_declared": 0,
+      "original_file_coordinate_present": 91115,
+      "original_source_sha_present": 91115,
+      "original_target_sha_present": 91115,
+      "stage3_run_claimed": 0,
+      "synthetic_source_id_prefix": 91115,
+      "assigned_split_mismatch": 0,
+      "source_hash_metadata_mismatch": 0,
+      "target_hash_metadata_mismatch": 0,
+      "transformation:source_cp437_utf8": 23949,
+      "transformation:target_cp437_utf8": 37287,
+      "transformation:placeholder_label_rebindings": 18279,
+      "transformation:source_identity_url_normalization": 47180,
+      "transformation:remove_unsupported_empty_media_columns": 1862,
+      "transformation:placeholder_media_namespace_rebindings": 11398,
+      "transformation:literal_state_key_pointer_escape": 2020,
+      "transformation:source_table_label_restoration": 2920,
+      "transformation:unique_source_clause_restoration": 3711,
+      "transformation:placeholder_unique_media_rebindings": 404,
+      "transformation:unused_target_url_map_entries_removed": 987,
+      "transformation:source_proven_partial_codec_repair": 136,
+      "transformation:ungrounded_reference_fields_removed": 127,
+      "transformation:empty_table_columns_removed": 99,
+      "transformation:empty_layout_elements_removed": 176,
+      "transformation:ungrounded_reference_elements_removed": 61,
+      "transformation:proven_false_asset_mask": 4,
+      "transformation:source_proven_missing_button_label": 19,
+      "transformation:source_proven_citation_binding": 24,
+      "transformation:ungrounded_open_url_events_removed": 3,
+      "transformation:midword_text_boundary_joins": 3,
+      "transformation:source_proven_join_separator": 1
+    },
+    "val": {
+      "rows": 1862,
+      "query_id_missing": 1862,
+      "intent_missing": 1862,
+      "original_generator_identity_declared": 0,
+      "original_file_coordinate_present": 1862,
+      "original_source_sha_present": 1862,
+      "original_target_sha_present": 1862,
+      "stage3_run_claimed": 0,
+      "synthetic_source_id_prefix": 1862,
+      "assigned_split_mismatch": 0,
+      "source_hash_metadata_mismatch": 0,
+      "target_hash_metadata_mismatch": 0,
+      "transformation:target_cp437_utf8": 815,
+      "transformation:source_identity_url_normalization": 928,
+      "transformation:placeholder_label_rebindings": 388,
+      "transformation:source_cp437_utf8": 520,
+      "transformation:unique_source_clause_restoration": 84,
+      "transformation:placeholder_media_namespace_rebindings": 242,
+      "transformation:remove_unsupported_empty_media_columns": 37,
+      "transformation:source_table_label_restoration": 60,
+      "transformation:unused_target_url_map_entries_removed": 13,
+      "transformation:literal_state_key_pointer_escape": 32,
+      "transformation:ungrounded_reference_fields_removed": 2,
+      "transformation:ungrounded_open_url_events_removed": 1,
+      "transformation:placeholder_unique_media_rebindings": 6,
+      "transformation:source_proven_missing_button_label": 1,
+      "transformation:empty_layout_elements_removed": 1,
+      "transformation:empty_table_columns_removed": 1
+    }
+  },
+  "all_rows_census": {
+    "raw": {
+      "unique_groups": 90485,
+      "repeated_groups": 2478,
+      "rows_in_repeated_groups": 4970,
+      "extra_rows_beyond_one_per_group": 2492,
+      "groups_with_multiple_raw_targets": 2478,
+      "groups_with_multiple_semantic_hashes": 2478,
+      "cross_split_groups": 0,
+      "cross_split_val_rows": 0,
+      "cross_split_train_rows": 0
+    },
+    "whitespace": {
+      "unique_groups": 90485,
+      "repeated_groups": 2478,
+      "rows_in_repeated_groups": 4970,
+      "extra_rows_beyond_one_per_group": 2492,
+      "groups_with_multiple_raw_targets": 2478,
+      "groups_with_multiple_semantic_hashes": 2478,
+      "cross_split_groups": 0,
+      "cross_split_val_rows": 0,
+      "cross_split_train_rows": 0
+    },
+    "reference_insensitive": {
+      "unique_groups": 90485,
+      "repeated_groups": 2478,
+      "rows_in_repeated_groups": 4970,
+      "extra_rows_beyond_one_per_group": 2492,
+      "groups_with_multiple_raw_targets": 2478,
+      "groups_with_multiple_semantic_hashes": 2478,
+      "cross_split_groups": 0,
+      "cross_split_val_rows": 0,
+      "cross_split_train_rows": 0
+    },
+    "source_id": {
+      "unique_groups": 90483,
+      "repeated_groups": 2480,
+      "rows_in_repeated_groups": 4974,
+      "extra_rows_beyond_one_per_group": 2494,
+      "groups_with_multiple_raw_targets": 2480,
+      "groups_with_multiple_semantic_hashes": 2480,
+      "cross_split_groups": 0,
+      "cross_split_val_rows": 0,
+      "cross_split_train_rows": 0
+    },
+    "target": {
+      "unique_groups": 92977,
+      "repeated_groups": 0,
+      "rows_in_repeated_groups": 0,
+      "extra_rows_beyond_one_per_group": 0,
+      "groups_with_multiple_raw_targets": 0,
+      "groups_with_multiple_semantic_hashes": 0,
+      "cross_split_groups": 0,
+      "cross_split_val_rows": 0,
+      "cross_split_train_rows": 0
+    },
+    "original_source": {
+      "unique_groups": 90485,
+      "repeated_groups": 2478,
+      "rows_in_repeated_groups": 4970,
+      "extra_rows_beyond_one_per_group": 2492,
+      "groups_with_multiple_raw_targets": 2478,
+      "groups_with_multiple_semantic_hashes": 2478,
+      "cross_split_groups": 0,
+      "cross_split_val_rows": 0,
+      "cross_split_train_rows": 0
+    }
+  },
+  "per_split_census": {
+    "train": {
+      "raw": {
+        "unique_groups": 88671,
+        "repeated_groups": 2431,
+        "rows_in_repeated_groups": 4875,
+        "extra_rows_beyond_one_per_group": 2444,
+        "groups_with_multiple_raw_targets": 2431,
+        "groups_with_multiple_semantic_hashes": 2431,
+        "cross_split_groups": 0,
+        "cross_split_val_rows": 0,
+        "cross_split_train_rows": 0
+      },
+      "whitespace": {
+        "unique_groups": 88671,
+        "repeated_groups": 2431,
+        "rows_in_repeated_groups": 4875,
+        "extra_rows_beyond_one_per_group": 2444,
+        "groups_with_multiple_raw_targets": 2431,
+        "groups_with_multiple_semantic_hashes": 2431,
+        "cross_split_groups": 0,
+        "cross_split_val_rows": 0,
+        "cross_split_train_rows": 0
+      },
+      "reference_insensitive": {
+        "unique_groups": 88671,
+        "repeated_groups": 2431,
+        "rows_in_repeated_groups": 4875,
+        "extra_rows_beyond_one_per_group": 2444,
+        "groups_with_multiple_raw_targets": 2431,
+        "groups_with_multiple_semantic_hashes": 2431,
+        "cross_split_groups": 0,
+        "cross_split_val_rows": 0,
+        "cross_split_train_rows": 0
+      },
+      "source_id": {
+        "unique_groups": 88669,
+        "repeated_groups": 2433,
+        "rows_in_repeated_groups": 4879,
+        "extra_rows_beyond_one_per_group": 2446,
+        "groups_with_multiple_raw_targets": 2433,
+        "groups_with_multiple_semantic_hashes": 2433,
+        "cross_split_groups": 0,
+        "cross_split_val_rows": 0,
+        "cross_split_train_rows": 0
+      },
+      "target": {
+        "unique_groups": 91115,
+        "repeated_groups": 0,
+        "rows_in_repeated_groups": 0,
+        "extra_rows_beyond_one_per_group": 0,
+        "groups_with_multiple_raw_targets": 0,
+        "groups_with_multiple_semantic_hashes": 0,
+        "cross_split_groups": 0,
+        "cross_split_val_rows": 0,
+        "cross_split_train_rows": 0
+      }
+    },
+    "val": {
+      "raw": {
+        "unique_groups": 1814,
+        "repeated_groups": 47,
+        "rows_in_repeated_groups": 95,
+        "extra_rows_beyond_one_per_group": 48,
+        "groups_with_multiple_raw_targets": 47,
+        "groups_with_multiple_semantic_hashes": 47,
+        "cross_split_groups": 0,
+        "cross_split_val_rows": 0,
+        "cross_split_train_rows": 0
+      },
+      "whitespace": {
+        "unique_groups": 1814,
+        "repeated_groups": 47,
+        "rows_in_repeated_groups": 95,
+        "extra_rows_beyond_one_per_group": 48,
+        "groups_with_multiple_raw_targets": 47,
+        "groups_with_multiple_semantic_hashes": 47,
+        "cross_split_groups": 0,
+        "cross_split_val_rows": 0,
+        "cross_split_train_rows": 0
+      },
+      "reference_insensitive": {
+        "unique_groups": 1814,
+        "repeated_groups": 47,
+        "rows_in_repeated_groups": 95,
+        "extra_rows_beyond_one_per_group": 48,
+        "groups_with_multiple_raw_targets": 47,
+        "groups_with_multiple_semantic_hashes": 47,
+        "cross_split_groups": 0,
+        "cross_split_val_rows": 0,
+        "cross_split_train_rows": 0
+      },
+      "source_id": {
+        "unique_groups": 1814,
+        "repeated_groups": 47,
+        "rows_in_repeated_groups": 95,
+        "extra_rows_beyond_one_per_group": 48,
+        "groups_with_multiple_raw_targets": 47,
+        "groups_with_multiple_semantic_hashes": 47,
+        "cross_split_groups": 0,
+        "cross_split_val_rows": 0,
+        "cross_split_train_rows": 0
+      },
+      "target": {
+        "unique_groups": 1862,
+        "repeated_groups": 0,
+        "rows_in_repeated_groups": 0,
+        "extra_rows_beyond_one_per_group": 0,
+        "groups_with_multiple_raw_targets": 0,
+        "groups_with_multiple_semantic_hashes": 0,
+        "cross_split_groups": 0,
+        "cross_split_val_rows": 0,
+        "cross_split_train_rows": 0
+      }
+    }
+  },
+  "benchmark_overlap": {
+    "bixby50": {
+      "benchmark_cases": 50,
+      "matched_cases": 0,
+      "matched_train_cases": 0,
+      "matched_val_cases": 0,
+      "matching_dataset_rows": 0,
+      "methods": {}
+    },
+    "golden32_accepted": {
+      "benchmark_cases": 31,
+      "matched_cases": 0,
+      "matched_train_cases": 0,
+      "matched_val_cases": 0,
+      "matching_dataset_rows": 0,
+      "methods": {}
+    },
+    "golden32_excluded_hash_only": {
+      "benchmark_cases": 1,
+      "matched_cases": 0,
+      "matched_train_cases": 0,
+      "matched_val_cases": 0,
+      "matching_dataset_rows": 0,
+      "methods": {}
+    },
+    "golden35_accepted": {
+      "benchmark_cases": 35,
+      "matched_cases": 0,
+      "matched_train_cases": 0,
+      "matched_val_cases": 0,
+      "matching_dataset_rows": 0,
+      "methods": {}
+    },
+    "golden35_excluded": {
+      "benchmark_cases": 15,
+      "matched_cases": 0,
+      "matched_train_cases": 0,
+      "matched_val_cases": 0,
+      "matching_dataset_rows": 0,
+      "methods": {}
+    }
+  },
+  "bounded_near_source": {
+    "method": "Casefolded Unicode word trigrams; <=24 rare validation anchors, >=2 common anchors, word-length ratio >=.65, trigram Jaccard >=.60; SequenceMatcher applied to retained pairs. Bounded lexical retrieval, not exhaustive semantic paraphrase detection.",
+    "anchors": {
+      "distinct_anchors": 42151,
+      "min_per_validation": 16,
+      "max_per_validation": 24
+    },
+    "retrieval": {
+      "one_anchor_candidate_pairs": 3513161,
+      "two_anchor_candidate_pairs": 1475445,
+      "pairs_after_length_filter": 134009
+    },
+    "retained_pairs": 0,
+    "nonexact_pairs": 0,
+    "nonexact_validation_rows": 0,
+    "thresholds": [
+      {
+        "jaccard": 0.95,
+        "sequence_ratio": 0.98,
+        "pairs": 0,
+        "validation_rows": 0
+      },
+      {
+        "jaccard": 0.9,
+        "sequence_ratio": 0.95,
+        "pairs": 0,
+        "validation_rows": 0
+      },
+      {
+        "jaccard": 0.8,
+        "sequence_ratio": 0.9,
+        "pairs": 0,
+        "validation_rows": 0
+      },
+      {
+        "jaccard": 0.7,
+        "sequence_ratio": 0.85,
+        "pairs": 0,
+        "validation_rows": 0
+      },
+      {
+        "jaccard": 0.6,
+        "sequence_ratio": 0,
+        "pairs": 0,
+        "validation_rows": 0
+      }
+    ]
+  },
+  "duplicate_example_limit": 25,
+  "limitations": [
+    "Different target/semantic hashes for the same source identify divergent labels, not automatically a factual contradiction.",
+    "The reference-insensitive signature is the v10 archive policy function; it strips references and folds case/Unicode, so a collision is a review candidate.",
+    "The near-source search indexes limited lexical anchors and can miss paraphrases or short shared passages.",
+    "Original generator/run/query IDs and premasked URL maps cannot be recovered from the current v10 row fields.",
+    "This audits input membership, not the examples consumed by any already-trained checkpoint."
+  ]
+}

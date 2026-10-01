@@ -1,0 +1,346 @@
+{
+  "scope": "metadata_binding_audit_and_synthetic_cpu_reproduction_no_fresh_model_inference",
+  "metadata_directory": "C:\\Users\\anupk\\Downloads\\r64_lora_litert_metadata",
+  "input_hashes": {
+    "training": "3611813895c06bc3f2eef787fc9118eca021a5f6693f7a835e4cb47ff686e7d5",
+    "merge": "960252721fc415b3a5607e612d1973961208e6550db386969106a23d72baf929",
+    "export": "2cc37405508c84d30a23aad5ffd991c60002daba9c39d41782253727cea2c464"
+  },
+  "local_model_sha256": "c1794ee273ac13f9ddc3c24e1037e17367aabc6a810a3de3c836e1fa79efbf44",
+  "checks": {
+    "training_metadata_hash_matches_merge": true,
+    "training_metadata_hash_matches_export": true,
+    "merge_metadata_hash_matches_export": true,
+    "local_model_hash_matches_export": true,
+    "local_model_size_matches_export": true,
+    "training_config_hashes_agree": true,
+    "adapter_hashes_agree": true,
+    "seed_hashes_agree": true,
+    "qparams_hashes_agree": true,
+    "scale_storage_hashes_agree": true,
+    "lora_rank_and_alpha_agree": true,
+    "checkpoint_step_matches_selection": true,
+    "local_target_section_hash_matches_export": true,
+    "supplied_golden32_metric_equals_selected_metric": true
+  },
+  "recorded_run_id": "e2b_v10_official_mobile_qat_lora_runD_r64_6144_8gpu_20260926_v1",
+  "recorded_training_commit": "5dc5e19c6ca0c1b44702a6df280617239ec353cb",
+  "source_verification": [
+    {
+      "file": "training/src/ir_training/qat/fake_quant.py",
+      "function": "_effective_lora_weight",
+      "same_ast_at_recorded_training_commit": true
+    },
+    {
+      "file": "training/scripts/build_gemma4_retained_scale_litertlm.py",
+      "function": "_base_lora_projection_parity",
+      "same_ast_at_recorded_training_commit": true
+    }
+  ],
+  "lora": {
+    "r": 64,
+    "alpha": 64,
+    "dropout": 0.0,
+    "target_modules": "peft-default",
+    "modules_to_save": []
+  },
+  "selected_checkpoint": {
+    "metric": "unique_source_generation_reward_v5_4_avg",
+    "metric_value": 42.753319601547474,
+    "greater_is_better": true,
+    "step": 9000,
+    "epoch": 3.161236497760604,
+    "checkpoint_dir": "/group-volume/k.anup/working_dir/e2b_v10_official_mobile_qat_lora_runD_r64_6144_8gpu_20260926_v1/training/e2b_v10_official_mobile_qat_lora_runD_r64_6144_8gpu_20260926_v1/best_golden_checkpoint"
+  },
+  "train_max_seq_length": 6144,
+  "token_cache_splits": {
+    "train": {
+      "rows": 91094,
+      "raw_rows_checked": 91094,
+      "tensor_rows_checked": 91094,
+      "max_full_tokens": 6141,
+      "max_prompt_tokens": 4413,
+      "max_completion_tokens": 2327
+    },
+    "validation": {
+      "rows": 1862,
+      "raw_rows_checked": 1862,
+      "tensor_rows_checked": 1862,
+      "max_full_tokens": 5902,
+      "max_prompt_tokens": 4230,
+      "max_completion_tokens": 2021
+    }
+  },
+  "golden_max_input_tokens": 5120,
+  "golden_max_new_tokens": 2048,
+  "native_runtime_numeric_parity_verified": false,
+  "native_kv_cache_simulated": false,
+  "preflight": {
+    "policy": "retained_mobile_safety_v1",
+    "cross_mode_comparison": "diagnostic",
+    "qat_off_loss": 1.3205786123036447,
+    "qat_on_loss": 0.6237950770535446,
+    "top1_match": 0.7421875,
+    "diagnostic_min_top1_match": 0.9,
+    "greedy_common_prefix": 1,
+    "diagnostic_min_common_prefix": 8,
+    "greedy_probe_rows": 1,
+    "greedy_probe_tokens": 32,
+    "mandatory_checks": {
+      "finite_completion_losses": true,
+      "finite_logits": true,
+      "comparable_numeric_probes": true,
+      "absolute_qat_loss_bounded": true
+    },
+    "greedy_mandatory_checks": {
+      "valid_repeated_greedy_probes": true,
+      "qat_greedy_deterministic": true
+    },
+    "saturation": {
+      "windows": 1,
+      "steps": [
+        0
+      ],
+      "sampled_values": 1546140,
+      "finite_values": 1546140,
+      "clipped_low": 437,
+      "clipped_high": 592,
+      "saturation_fraction": 0.0006655283480150569,
+      "by_role": {
+        "input": {
+          "sampled_values": 563165,
+          "finite_values": 563165,
+          "clipped_low": 246,
+          "clipped_high": 385,
+          "saturation_fraction": 0.0011204531531611517
+        },
+        "output": {
+          "sampled_values": 563135,
+          "finite_values": 563135,
+          "clipped_low": 191,
+          "clipped_high": 207,
+          "saturation_fraction": 0.0007067577046356557
+        },
+        "weight": {
+          "sampled_values": 419840,
+          "finite_values": 419840,
+          "clipped_low": 0,
+          "clipped_high": 0,
+          "saturation_fraction": 0.0
+        }
+      }
+    }
+  },
+  "supplied_export_gates": {
+    "zero_adapter_target_byte_exact": true,
+    "processed_205": true,
+    "base_lora_candidate_dtype_match_205": true,
+    "base_lora_candidate_bfloat16_205": true,
+    "base_lora_numerical_parity_205": true,
+    "base_lora_code_parity_205": true,
+    "base_delta_norms_finite_205": true,
+    "at_least_one_lora_delta_nonzero": true,
+    "changed_buffers_within_expected_205": true,
+    "at_least_one_trained_code_changed": true,
+    "restored_official_payload_target_byte_exact": true,
+    "frozen_72_byte_exact": true,
+    "weight_qparams_byte_exact": true,
+    "activation_a8_qparams_byte_exact": true,
+    "all_tensor_qparams_byte_exact": true,
+    "official_retained_weight_scales_exact": true,
+    "official_retained_a8_scales_exact": true,
+    "graph_layout_execution_identity": true,
+    "section_size_unchanged": true,
+    "exact_205_key_buffer_bijection": true,
+    "expected_bit_histogram": true,
+    "retained_qparams_verified": true,
+    "legacy_metadata_rejected": true,
+    "package_outside_target_byte_exact": true,
+    "mtp_byte_exact": true,
+    "package_parseable": true
+  },
+  "all_supplied_export_gates_pass": true,
+  "projection_telemetry": {
+    "by_bits": {
+      "2": {
+        "projections": 60,
+        "values": 1132462080,
+        "clipped_values": 649381
+      },
+      "4": {
+        "projections": 145,
+        "values": 703070208,
+        "clipped_values": 113926
+      }
+    },
+    "total_values": 1835532288,
+    "clipped_fraction": 0.0004158504892505601,
+    "changed_projections": 203,
+    "unchanged_projection_names": [
+      "model.layers.1.self_attn.v_proj.weight",
+      "model.layers.3.self_attn.v_proj.weight"
+    ],
+    "top_clipped_projections": [
+      {
+        "weight": "model.layers.31.mlp.down_proj.weight",
+        "bits": 2,
+        "values": 18874368,
+        "clipped_values": 32973,
+        "clipped_fraction": 0.0017469724019368489,
+        "codes_changed": true,
+        "delta_to_base_l2_ratio": 0.19895575344122657
+      },
+      {
+        "weight": "model.layers.26.mlp.gate_proj.weight",
+        "bits": 2,
+        "values": 18874368,
+        "clipped_values": 28295,
+        "clipped_fraction": 0.0014991230434841579,
+        "codes_changed": true,
+        "delta_to_base_l2_ratio": 0.1714423407950896
+      },
+      {
+        "weight": "model.layers.25.mlp.gate_proj.weight",
+        "bits": 2,
+        "values": 18874368,
+        "clipped_values": 26593,
+        "clipped_fraction": 0.0014089478386773004,
+        "codes_changed": true,
+        "delta_to_base_l2_ratio": 0.1644853465790732
+      },
+      {
+        "weight": "model.layers.22.mlp.gate_proj.weight",
+        "bits": 2,
+        "values": 18874368,
+        "clipped_values": 22823,
+        "clipped_fraction": 0.0012092060512966579,
+        "codes_changed": true,
+        "delta_to_base_l2_ratio": 0.15249278921587708
+      },
+      {
+        "weight": "model.layers.20.mlp.gate_proj.weight",
+        "bits": 2,
+        "values": 18874368,
+        "clipped_values": 22162,
+        "clipped_fraction": 0.0011741850111219618,
+        "codes_changed": true,
+        "delta_to_base_l2_ratio": 0.15153571787666006
+      },
+      {
+        "weight": "model.layers.21.mlp.gate_proj.weight",
+        "bits": 2,
+        "values": 18874368,
+        "clipped_values": 22070,
+        "clipped_fraction": 0.0011693106757269965,
+        "codes_changed": true,
+        "delta_to_base_l2_ratio": 0.15539661832490798
+      },
+      {
+        "weight": "model.layers.28.mlp.gate_proj.weight",
+        "bits": 2,
+        "values": 18874368,
+        "clipped_values": 21854,
+        "clipped_fraction": 0.0011578665839301215,
+        "codes_changed": true,
+        "delta_to_base_l2_ratio": 0.16975115763375556
+      },
+      {
+        "weight": "model.layers.27.mlp.gate_proj.weight",
+        "bits": 2,
+        "values": 18874368,
+        "clipped_values": 20737,
+        "clipped_fraction": 0.0010986857944064671,
+        "codes_changed": true,
+        "delta_to_base_l2_ratio": 0.1636868061074024
+      }
+    ]
+  },
+  "supplied_golden32": {
+    "sha256": "9d9197c5e5828c248e2c601f06e94371cbae196e77d0aa2c4cf0388ec92b7426",
+    "rows": 32,
+    "unique_sources": 31,
+    "unique_source_reward": 42.753319601547474,
+    "note": "Score equality supports consistency, not a per-prediction adapter hash or QAT-mode receipt."
+  },
+  "rounding_reproduction": {
+    "kind": "synthetic_cpu_counterexample_not_actual_checkpoint_measurement",
+    "torch_version": "2.13.0+cpu",
+    "base_dtype": "BF16",
+    "adapter_dtype": "F32",
+    "base_value": 1.0,
+    "delta_value_float32": -0.49799999594688416,
+    "retained_scale": 1.0,
+    "results": [
+      {
+        "bits": 2,
+        "qat_effective_weight": [
+          [
+            0.5,
+            0.5,
+            0.5,
+            0.5
+          ]
+        ],
+        "export_effective_weight": [
+          [
+            0.50390625,
+            0.50390625,
+            0.50390625,
+            0.50390625
+          ]
+        ],
+        "actual_qat_dequantized": [
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "qat_packed_hex": "00",
+        "export_packed_hex": "55",
+        "export_gate_numerical_exact": true,
+        "export_gate_retained_scale_code_exact": true,
+        "qat_and_export_codes_equal": false
+      },
+      {
+        "bits": 4,
+        "qat_effective_weight": [
+          [
+            0.5,
+            0.5,
+            0.5,
+            0.5
+          ]
+        ],
+        "export_effective_weight": [
+          [
+            0.50390625,
+            0.50390625,
+            0.50390625,
+            0.50390625
+          ]
+        ],
+        "actual_qat_dequantized": [
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "qat_packed_hex": "0000",
+        "export_packed_hex": "1111",
+        "export_gate_numerical_exact": true,
+        "export_gate_retained_scale_code_exact": true,
+        "qat_and_export_codes_equal": false
+      }
+    ]
+  },
+  "missing_runtime_evidence": [
+    "Exact evaluation result/manifest binding prediction hashes to adapter hash and qat_applied",
+    "Same input-token-ID and teacher-forced logits comparison across QAT checkpoint, native CPU and GPU",
+    "Late-training activation saturation telemetry",
+    "Actual adapter and base weights for code-difference census"
+  ]
+}

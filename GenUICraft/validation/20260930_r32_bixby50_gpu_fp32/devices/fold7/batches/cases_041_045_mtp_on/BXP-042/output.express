@@ -1,0 +1,19 @@
+<a2ui>
+$/={tata_nexon:[{model:"Tata Nexon EV",price:"₹12.49 lakh ex-showroom",range:"275–489 km (Autocar India)",warranty:"8-year or 1.60 lakh km battery warranty"},{model:"Tata Nexon EV",range:"312 km (ARAI certified)"}],tata_tigor:[{model:"Tata Tigor EV",price:"₹12.49 lakh ex-showroom",range:"315 km (Autocar India)",warranty:"Cannot verify latest official warranty term"},{model:"Tata Tigor EV",range:"315 km (Commonly quoted)"}],mg_windsor:[{model:"MG Windsor EV",price:"₹14.10 lakh ex-showroom",range:"332–449 km (Autocar India)",warranty:"Cannot confirm exact term with confidence"}]}
+root=Column([a,d,i,q,x],gap="md",padding=16)
+a=Column([b,c],"sm")
+b=Text("Tata Nexon EV","h2")
+c=Table(columns=[{key:"model",label:"Model"},{key:"price",label:"Price"},{key:"range",label:"Range (Autocar India)"}],statePath="/tata_nexon",domain="comparison",preferredPresentation="cards",primaryColumn="model",numericColumns=["price","range"])
+d=Column([e,f],"sm")
+e=Text("Tata Tigor EV","h2")
+f=Table(columns=[{key:"model",label:"Model"},{key:"price",label:"Price"},{key:"range",label:"Range (Autocar India)""},{key:"warranty",label:"Warranty/Verification"}],statePath="/tata_tigor",domain="comparison",preferredPresentation="cards",primaryColumn="model",numericColumns=["price","range"])
+i=Column([j,k],"sm")
+j=Text("MG Windsor EV","h2")
+k=Table(columns=[{key:"model",label:"Model"},{key:"price",label:"Price"},{key:"range",label:"Range (Autocar India)""},{key:"warranty",label:"Warranty/Verification"}],statePath="/mg_windsor",domain="comparison",preferredPresentation="cards",primaryColumn="model",numericColumns=["price","range"])
+o=Column([p,q],"sm")
+p=Text("Quick take","h2")
+q=Column([r,s,t],"sm")
+r=Text("Best value SUV: Tata Nexon EV, because it combines a sub-₹15 lakh starting price, wide range coverage, and a well-established battery warranty.",variant="body")
+s=Text("Best sedan choice: Tata Tigor EV, if you prefer a more compact, traditional car shape for urban use.",variant="body")
+t=Text("Best range-focused pick: MG Windsor EV, if you want the highest starting-range flexibility among these three.",variant="body")
+</a2ui>

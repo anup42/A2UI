@@ -1,0 +1,16 @@
+An exception has occurred in the compiler (21.0.7). Please file a bug against the Java compiler via the Java bug reporting page (https://bugreport.java.com) after checking the Bug Database (https://bugs.java.com) for duplicates. Include your program, the following diagnostic, and the parameters passed to the Java compiler in your report. Thank you.
+java.nio.file.AccessDeniedException: C:\Users\anupk\.gradle\caches\modules-2\files-2.1\com.google.code.gson\gson\2.11.0\527175ca6d81050b53bdd4c457a6d6e017626b0e\gson-2.11.0.jar
+	at java.base/sun.nio.fs.WindowsException.translateToIOException(Unknown Source)
+	at java.base/sun.nio.fs.WindowsException.rethrowAsIOException(Unknown Source)
+	at java.base/sun.nio.fs.WindowsLinkSupport.getRealPath(Unknown Source)
+	at java.base/sun.nio.fs.WindowsPath.toRealPath(Unknown Source)
+	at java.base/sun.nio.fs.WindowsPath.toRealPath(Unknown Source)
+	at jdk.zipfs/jdk.nio.zipfs.ZipFileSystemProvider.lambda$removeFileSystem$0(Unknown Source)
+	at java.base/java.security.AccessController.doPrivileged(Unknown Source)
+	at jdk.zipfs/jdk.nio.zipfs.ZipFileSystemProvider.removeFileSystem(Unknown Source)
+	at jdk.zipfs/jdk.nio.zipfs.ZipFileSystem.close(Unknown Source)
+	at jdk.compiler/com.sun.tools.javac.file.JavacFileManager$ArchiveContainer.close(Unknown Source)
+	at jdk.compiler/com.sun.tools.javac.file.JavacFileManager.close(Unknown Source)
+	at jdk.compiler/com.sun.tools.javac.main.Main.compile(Unknown Source)
+	at jdk.compiler/com.sun.tools.javac.Main.compile(Unknown Source)
+	at jdk.compiler/com.sun.tools.javac.Main.main(Unknown Source)

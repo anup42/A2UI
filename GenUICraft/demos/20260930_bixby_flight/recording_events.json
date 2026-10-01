@@ -1,0 +1,28 @@
+{
+  "serial": "R3GL203AKSF",
+  "remote": "/sdcard/Download/bixby_genuicraft_flight_raw_20260930.mp4",
+  "events": [
+    {
+      "event": "tap_genui",
+      "start_s": 12.0,
+      "end_s": 12.077999999979511
+    },
+    {
+      "event": "scroll_to_cards",
+      "start_s": 15.0,
+      "end_s": 16.26500000001397
+    },
+    {
+      "event": "stable_cards_screenshot",
+      "start_s": 21.0,
+      "end_s": 21.25
+    },
+    {
+      "event": "stable_cards_hierarchy",
+      "start_s": 22.0,
+      "end_s": 24.07799999997951
+    }
+  ],
+  "app": "com.samsung.android.bixby.agent",
+  "generation_recorded": false
+}

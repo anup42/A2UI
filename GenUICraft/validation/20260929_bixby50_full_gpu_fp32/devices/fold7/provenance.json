@@ -1,0 +1,10 @@
+{
+  "serial": "R3CY30QFWLP",
+  "deviceModel": "SM-F966B",
+  "androidVersion": "16",
+  "mainApkSha256": "0426477f7c874a9bf42c1ac32a2c6a24605d99cda5b29059fdac8e5cb16cdc3f",
+  "installedTestApkSha256": "176b2bd532efecf72dd27519bad3530b118d574b5f6d9914a719ab1593a2a0cf",
+  "modelSha256": "de60d19c8e1ef06ed1032212d0d4ae5d9b0ec105db72db34a988453004e63e62",
+  "originalStayOn": "15",
+  "startedAtUtc": "2026-09-29T17:17:27.821607+00:00"
+}

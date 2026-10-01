@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "kind": "trained_e2b_gpu_precision_comparison",
+  "label": "fp16_smoke",
+  "outputDir": "fp16_smoke_01",
+  "startedAtEpochMs": 1790720252720,
+  "modelPathArgument": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_models/model-fp16-corrected.litertlm",
+  "modelPath": "/storage/emulated/0/Android/data/com.samsung.genuicraft/files/sdk_models/model-fp16-corrected.litertlm",
+  "modelBytes": 2682454016,
+  "precision": "FP16_CORRECTED",
+  "gpuBackend": true,
+  "mtpRequested": false,
+  "cases": [
+    "BXP-001"
+  ],
+  "warmupCase": "BXP-001",
+  "caseTimeoutMs": 360000,
+  "corpusAsset": "genuicraft_bixby50.jsonl",
+  "corpusSha256": "fc46aa381957bed206f9e0f53e28edbb21b5096ca093985ad184fda73faaea0a",
+  "promptAsset": "genuicraft/prompts/e2b_v10_shared_prompt.json",
+  "promptSha256": "96803a39869fb21f9f58a0f0adccab6f7746a32f124dc9da83d7df62a9f7ccb8",
+  "promptContractSha256": "005ef700eee29a4429c895ac6c86580003c43d0ad35e67cbb92a9d4cf0e8c1d2",
+  "profile": "TRAINED_E2B_V10_W4",
+  "maxContextTokens": 8192,
+  "maxOutputTokens": 2048,
+  "temperature": 0.0,
+  "thinkingEnabled": false,
+  "sourceFallbackEnabled": false,
+  "generatedDslRepairEnabled": true,
+  "requireSourceIntegrity": false,
+  "renderer": "GenUiSdkDemoActivity/GenUiView smoke check",
+  "device": {
+    "manufacturer": "samsung",
+    "model": "SM-F776U",
+    "product": "b8qsqw",
+    "sdkInt": 37,
+    "fingerprint": "samsung/b8qsqw/b8q:17/CP2A.260330.023/F776USQU0AZE3_OYN0AZE3:userdebug/test-keys"
+  }
+}

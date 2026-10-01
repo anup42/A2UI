@@ -1,0 +1,11 @@
+<a2ui>
+root=Column([a,b,c,d,e,f,g],gap="md",padding=16)
+a=Text("Rakhigarhi burial discovery","h2")
+b=Text("In June 2026, the Archaeological Survey of India reported the recovery of eight skeletons from a mature Harappan burial at Rakhigarhi in Haryana, one of the largest known Indus Valley Civilization sites. The remains came from Mound No. 7, and officials said five skeletons had been retrieved so far from the burial area.",variant="body")
+c=Text("Dating evidence","h2")
+d=Text("The dating is based on the site’s Harappan archaeological context, with the burials identified as Harappan-era rather than by a published lab date in the news report. That means the age is grounded in stratigraphy and associated material culture, while finer dating and biological conclusions still depend on ongoing scientific testing.",variant="body")
+e=Text("Why it matters","h2")
+f=Text("This find is important because human burials from the Indus Civilization are relatively rare, so the skeletons can help researchers study health, ancestry, burial practice, and population movement in one of South Asia’s key Bronze Age cultures. The remains were transferred for advanced scientific investigation, including DNA-oriented research, which may clarify relationships among ancient populations.",variant="body")
+g=Text("What is established vs. speculative","h2")
+h=Text("The established finding is the recovery of Harappan burials and associated pottery offerings. Any broader claims about exact ancestry, migration, or social organization remain provisional until laboratory results are published.",variant="body")
+</a2ui>

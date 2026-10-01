@@ -1,0 +1,3 @@
+<a2ui>
+$/={devices:[{device:"Air purifier",problem:"Dust, smoke, PM2.5, pollen, pet dander, and other airborne particles [3]",fit:"Homes near traffic, construction, seasonal smoke, or for allergy relief"},{device:"Humidifier",problem:"Air that is too dry, which can irritate skin, throat, and breathing comfort [10][13]",fit:"Very dry rooms, usually in heavily air-conditioned spaces or dry winter conditions"},{device:"Dehumidifier",problem:"Excess moisture, damp walls, condensation, musty smell, mould risk, and clothes that do not dry [6]",fit:"Monsoon-prone, coastal, ground-floor, or poorly ventilated rooms"}]}
+root=Column([a,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w

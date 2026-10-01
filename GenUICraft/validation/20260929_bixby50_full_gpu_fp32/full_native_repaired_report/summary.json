@@ -1,0 +1,681 @@
+{
+  "created_at_utc": "2026-09-29T17:44:56.362628+00:00",
+  "population": "100 evaluated native attempts: 27 archived verified generations and 73 new generations",
+  "collection_dates": {
+    "prior_verified": "2026-09-28",
+    "new_run": "2026-09-29"
+  },
+  "repair_library": "published GenUICraft 0.5.6",
+  "repair_api": "GenUiCompiler.compileWithRepair(raw, null, false, true)",
+  "repair_policy": "generated output only; no source fallback; repair failures and runtime no-output contribute zero to each 50-case mean",
+  "metric_identity": {
+    "metric_version": "5.4.0",
+    "metric_name": "GenUI Representation Quality",
+    "metric_fingerprint": "3472befab7a179db4302b95a1ba3fa7cbd67858db86cc9f8ba0d96e3a4034a95",
+    "reward_pipeline_fingerprint": "24e352841c215e3f88f0347fe836ffae3354e6505e96fcae4c1ce3cd0071375a"
+  },
+  "model_sha256_expected": "de60d19c8e1ef06ed1032212d0d4ae5d9b0ec105db72db34a988453004e63e62",
+  "aar_sha256_expected": "c59eeae4debf4e8428a806ac7b7d7cb1b13f2d3559a12a655a56ef2f0be723b1",
+  "aar_sha256_verified": "c59eeae4debf4e8428a806ac7b7d7cb1b13f2d3559a12a655a56ef2f0be723b1",
+  "modes": {
+    "litert_mtp_off": {
+      "n": 50,
+      "raw_mean_failures_zero": 37.560826399393754,
+      "repaired_mean_failures_zero": 83.25794194833765,
+      "raw_output_missing": 0,
+      "raw_strict_valid": 26,
+      "repair_accepted": 46,
+      "repair_failed": 4,
+      "repaired_strict_valid": 46,
+      "raw_repaired_source_contract_verified": 46,
+      "repair_kinds": {
+        "NONE": 12,
+        "GENERATED_DSL_REPAIR": 34,
+        "REJECTED": 4
+      },
+      "finish_reason_counts": {
+        "COMPLETED": 44,
+        "REPETITION_LIMIT": 6
+      },
+      "repetition_guard_stopped": 6,
+      "repetition_guard_repair_accepted": 2,
+      "repetition_guard_repair_rejected": 4,
+      "at_or_above_output_cap": 1,
+      "failure_category_counts": {
+        "SCREEN_CAPTURE_FAILED": 1,
+        "SDK_REPAIR_REJECTED": 4
+      },
+      "screen_capture_failed": 1,
+      "origins": {
+        "prior_verified": 15,
+        "new_run": 35
+      },
+      "native_decode": {
+        "method": "sum(native output tokens) / sum(native output tokens / native decode tokens per second)",
+        "tokens_per_second_weighted": 16.550781990525156,
+        "completed_measured_cases": 44,
+        "output_tokens": 29727.0,
+        "estimated_decode_seconds_from_native_rates": 1796.10848702
+      }
+    },
+    "litert_mtp_on": {
+      "n": 50,
+      "raw_mean_failures_zero": 40.04621123762895,
+      "repaired_mean_failures_zero": 80.89039717826645,
+      "raw_output_missing": 0,
+      "raw_strict_valid": 27,
+      "repair_accepted": 45,
+      "repair_failed": 5,
+      "repaired_strict_valid": 45,
+      "raw_repaired_source_contract_verified": 45,
+      "repair_kinds": {
+        "NONE": 14,
+        "GENERATED_DSL_REPAIR": 31,
+        "REJECTED": 5
+      },
+      "finish_reason_counts": {
+        "COMPLETED": 43,
+        "REPETITION_LIMIT": 7
+      },
+      "repetition_guard_stopped": 7,
+      "repetition_guard_repair_accepted": 2,
+      "repetition_guard_repair_rejected": 5,
+      "at_or_above_output_cap": 0,
+      "failure_category_counts": {
+        "SCREEN_CAPTURE_FAILED": 2,
+        "SDK_REPAIR_REJECTED": 5
+      },
+      "screen_capture_failed": 2,
+      "origins": {
+        "prior_verified": 12,
+        "new_run": 38
+      },
+      "native_decode": {
+        "method": "sum(native output tokens) / sum(native output tokens / native decode tokens per second)",
+        "tokens_per_second_weighted": 24.684839780401287,
+        "completed_measured_cases": 43,
+        "output_tokens": 27451.0,
+        "estimated_decode_seconds_from_native_rates": 1112.059071244
+      }
+    }
+  },
+  "devices": {
+    "R3GL203AKSF": {
+      "device_model": "SM-F776U",
+      "ids": [
+        "BXP-001",
+        "BXP-002",
+        "BXP-003",
+        "BXP-004",
+        "BXP-005",
+        "BXP-006",
+        "BXP-007",
+        "BXP-008",
+        "BXP-009",
+        "BXP-010",
+        "BXP-011",
+        "BXP-012",
+        "BXP-013",
+        "BXP-014",
+        "BXP-015",
+        "BXP-016",
+        "BXP-017",
+        "BXP-018",
+        "BXP-019",
+        "BXP-020",
+        "BXP-021",
+        "BXP-022",
+        "BXP-023",
+        "BXP-024",
+        "BXP-025",
+        "BXP-026",
+        "BXP-027",
+        "BXP-028",
+        "BXP-029",
+        "BXP-030",
+        "BXP-031"
+      ],
+      "paired_case_count": 31,
+      "modes": {
+        "litert_mtp_off": {
+          "n": 31,
+          "raw_mean_failures_zero": 49.455885772449754,
+          "repaired_mean_failures_zero": 89.22669202060948,
+          "raw_output_missing": 0,
+          "raw_strict_valid": 21,
+          "repair_accepted": 30,
+          "repair_failed": 1,
+          "repaired_strict_valid": 30,
+          "raw_repaired_source_contract_verified": 30,
+          "repair_kinds": {
+            "NONE": 10,
+            "GENERATED_DSL_REPAIR": 20,
+            "REJECTED": 1
+          },
+          "finish_reason_counts": {
+            "COMPLETED": 30,
+            "REPETITION_LIMIT": 1
+          },
+          "repetition_guard_stopped": 1,
+          "repetition_guard_repair_accepted": 0,
+          "repetition_guard_repair_rejected": 1,
+          "at_or_above_output_cap": 0,
+          "failure_category_counts": {
+            "SCREEN_CAPTURE_FAILED": 1,
+            "SDK_REPAIR_REJECTED": 1
+          },
+          "screen_capture_failed": 1,
+          "origins": {
+            "prior_verified": 15,
+            "new_run": 16
+          },
+          "native_decode": {
+            "method": "sum(native output tokens) / sum(native output tokens / native decode tokens per second)",
+            "tokens_per_second_weighted": 13.75175602698959,
+            "completed_measured_cases": 30,
+            "output_tokens": 16972.0,
+            "estimated_decode_seconds_from_native_rates": 1234.16965562
+          }
+        },
+        "litert_mtp_on": {
+          "n": 31,
+          "raw_mean_failures_zero": 48.125394874171114,
+          "repaired_mean_failures_zero": 87.58670547806088,
+          "raw_output_missing": 0,
+          "raw_strict_valid": 21,
+          "repair_accepted": 30,
+          "repair_failed": 1,
+          "repaired_strict_valid": 30,
+          "raw_repaired_source_contract_verified": 30,
+          "repair_kinds": {
+            "NONE": 11,
+            "GENERATED_DSL_REPAIR": 19,
+            "REJECTED": 1
+          },
+          "finish_reason_counts": {
+            "COMPLETED": 30,
+            "REPETITION_LIMIT": 1
+          },
+          "repetition_guard_stopped": 1,
+          "repetition_guard_repair_accepted": 0,
+          "repetition_guard_repair_rejected": 1,
+          "at_or_above_output_cap": 0,
+          "failure_category_counts": {
+            "SCREEN_CAPTURE_FAILED": 2,
+            "SDK_REPAIR_REJECTED": 1
+          },
+          "screen_capture_failed": 2,
+          "origins": {
+            "prior_verified": 12,
+            "new_run": 19
+          },
+          "native_decode": {
+            "method": "sum(native output tokens) / sum(native output tokens / native decode tokens per second)",
+            "tokens_per_second_weighted": 21.449294523221504,
+            "completed_measured_cases": 30,
+            "output_tokens": 16877.0,
+            "estimated_decode_seconds_from_native_rates": 786.832405221
+          }
+        }
+      },
+      "repaired_on_minus_off_mean": -1.6399865425485984
+    },
+    "R3CY30QFWLP": {
+      "device_model": "SM-F966B",
+      "ids": [
+        "BXP-032",
+        "BXP-033",
+        "BXP-034",
+        "BXP-035",
+        "BXP-036",
+        "BXP-037",
+        "BXP-038",
+        "BXP-039",
+        "BXP-040",
+        "BXP-041",
+        "BXP-042",
+        "BXP-043",
+        "BXP-044",
+        "BXP-045",
+        "BXP-046",
+        "BXP-047",
+        "BXP-048",
+        "BXP-049",
+        "BXP-050"
+      ],
+      "paired_case_count": 19,
+      "modes": {
+        "litert_mtp_off": {
+          "n": 19,
+          "raw_mean_failures_zero": 18.153097948618175,
+          "repaired_mean_failures_zero": 73.51945498831518,
+          "raw_output_missing": 0,
+          "raw_strict_valid": 5,
+          "repair_accepted": 16,
+          "repair_failed": 3,
+          "repaired_strict_valid": 16,
+          "raw_repaired_source_contract_verified": 16,
+          "repair_kinds": {
+            "GENERATED_DSL_REPAIR": 14,
+            "NONE": 2,
+            "REJECTED": 3
+          },
+          "finish_reason_counts": {
+            "REPETITION_LIMIT": 5,
+            "COMPLETED": 14
+          },
+          "repetition_guard_stopped": 5,
+          "repetition_guard_repair_accepted": 2,
+          "repetition_guard_repair_rejected": 3,
+          "at_or_above_output_cap": 1,
+          "failure_category_counts": {
+            "SDK_REPAIR_REJECTED": 3
+          },
+          "screen_capture_failed": 0,
+          "origins": {
+            "new_run": 19
+          },
+          "native_decode": {
+            "method": "sum(native output tokens) / sum(native output tokens / native decode tokens per second)",
+            "tokens_per_second_weighted": 22.698200030459756,
+            "completed_measured_cases": 14,
+            "output_tokens": 12755.0,
+            "estimated_decode_seconds_from_native_rates": 561.9388314
+          }
+        },
+        "litert_mtp_on": {
+          "n": 19,
+          "raw_mean_failures_zero": 26.86438530432331,
+          "repaired_mean_failures_zero": 69.96484153123343,
+          "raw_output_missing": 0,
+          "raw_strict_valid": 6,
+          "repair_accepted": 15,
+          "repair_failed": 4,
+          "repaired_strict_valid": 15,
+          "raw_repaired_source_contract_verified": 15,
+          "repair_kinds": {
+            "GENERATED_DSL_REPAIR": 12,
+            "NONE": 3,
+            "REJECTED": 4
+          },
+          "finish_reason_counts": {
+            "COMPLETED": 13,
+            "REPETITION_LIMIT": 6
+          },
+          "repetition_guard_stopped": 6,
+          "repetition_guard_repair_accepted": 2,
+          "repetition_guard_repair_rejected": 4,
+          "at_or_above_output_cap": 0,
+          "failure_category_counts": {
+            "SDK_REPAIR_REJECTED": 4
+          },
+          "screen_capture_failed": 0,
+          "origins": {
+            "new_run": 19
+          },
+          "native_decode": {
+            "method": "sum(native output tokens) / sum(native output tokens / native decode tokens per second)",
+            "tokens_per_second_weighted": 32.512709149292846,
+            "completed_measured_cases": 13,
+            "output_tokens": 10574.0,
+            "estimated_decode_seconds_from_native_rates": 325.226666023
+          }
+        }
+      },
+      "repaired_on_minus_off_mean": -3.554613457081743
+    }
+  },
+  "checkpoint_baselines": {
+    "checkpoint_r32": {
+      "n": 50,
+      "raw_mean_failures_zero": 37.80077516274085,
+      "repaired_mean_failures_zero": 83.74480646476755,
+      "raw_strict_valid": 30,
+      "repair_accepted": 49,
+      "repaired_strict_valid": 49
+    },
+    "checkpoint_r64": {
+      "n": 50,
+      "raw_mean_failures_zero": 32.3728397312496,
+      "repaired_mean_failures_zero": 77.11170606076985,
+      "raw_strict_valid": 29,
+      "repair_accepted": 43,
+      "repaired_strict_valid": 43
+    }
+  },
+  "provenance": {
+    "protocol.json": {
+      "scope": "Complete 50 cases per MTP mode; 27 verified prior generations retained and 73 missing generations collected",
+      "prior_count": 27,
+      "new_count": 73,
+      "modelSha256": "de60d19c8e1ef06ed1032212d0d4ae5d9b0ec105db72db34a988453004e63e62",
+      "mainApkSha256": "0426477f7c874a9bf42c1ac32a2c6a24605d99cda5b29059fdac8e5cb16cdc3f",
+      "installedTestApkSha256": "176b2bd532efecf72dd27519bad3530b118d574b5f6d9914a719ab1593a2a0cf",
+      "repairSdkVersion": "0.5.6",
+      "runtime": {
+        "accelerator": "GPU",
+        "gpuPrecision": "FP32",
+        "weights": "W4",
+        "contextTokens": 8192,
+        "maxOutputTokens": 2048,
+        "temperature": 0.0,
+        "thinkingEnabled": false,
+        "sourceFallback": false
+      },
+      "pairedDeviceAssignment": {
+        "R3GL203AKSF": "BXP-001 through BXP-031",
+        "R3CY30QFWLP": "BXP-032 through BXP-050"
+      },
+      "plans": [
+        {
+          "serial": "R3GL203AKSF",
+          "deviceAlias": "flip8",
+          "batches": [
+            {
+              "name": "missing_013_015_mtp_on",
+              "mtp": true,
+              "cases": [
+                "BXP-013",
+                "BXP-014",
+                "BXP-015"
+              ]
+            },
+            {
+              "name": "cases_016_020_mtp_off",
+              "mtp": false,
+              "cases": [
+                "BXP-016",
+                "BXP-017",
+                "BXP-018",
+                "BXP-019",
+                "BXP-020"
+              ]
+            },
+            {
+              "name": "cases_016_020_mtp_on",
+              "mtp": true,
+              "cases": [
+                "BXP-016",
+                "BXP-017",
+                "BXP-018",
+                "BXP-019",
+                "BXP-020"
+              ]
+            },
+            {
+              "name": "cases_021_025_mtp_on",
+              "mtp": true,
+              "cases": [
+                "BXP-021",
+                "BXP-022",
+                "BXP-023",
+                "BXP-024",
+                "BXP-025"
+              ]
+            },
+            {
+              "name": "cases_021_025_mtp_off",
+              "mtp": false,
+              "cases": [
+                "BXP-021",
+                "BXP-022",
+                "BXP-023",
+                "BXP-024",
+                "BXP-025"
+              ]
+            },
+            {
+              "name": "cases_026_030_mtp_off",
+              "mtp": false,
+              "cases": [
+                "BXP-026",
+                "BXP-027",
+                "BXP-028",
+                "BXP-029",
+                "BXP-030"
+              ]
+            },
+            {
+              "name": "cases_026_030_mtp_on",
+              "mtp": true,
+              "cases": [
+                "BXP-026",
+                "BXP-027",
+                "BXP-028",
+                "BXP-029",
+                "BXP-030"
+              ]
+            },
+            {
+              "name": "cases_031_031_mtp_on",
+              "mtp": true,
+              "cases": [
+                "BXP-031"
+              ]
+            },
+            {
+              "name": "cases_031_031_mtp_off",
+              "mtp": false,
+              "cases": [
+                "BXP-031"
+              ]
+            }
+          ]
+        },
+        {
+          "serial": "R3CY30QFWLP",
+          "deviceAlias": "fold7",
+          "batches": [
+            {
+              "name": "cases_032_036_mtp_on",
+              "mtp": true,
+              "cases": [
+                "BXP-032",
+                "BXP-033",
+                "BXP-034",
+                "BXP-035",
+                "BXP-036"
+              ]
+            },
+            {
+              "name": "cases_032_036_mtp_off",
+              "mtp": false,
+              "cases": [
+                "BXP-032",
+                "BXP-033",
+                "BXP-034",
+                "BXP-035",
+                "BXP-036"
+              ]
+            },
+            {
+              "name": "cases_037_041_mtp_off",
+              "mtp": false,
+              "cases": [
+                "BXP-037",
+                "BXP-038",
+                "BXP-039",
+                "BXP-040",
+                "BXP-041"
+              ]
+            },
+            {
+              "name": "cases_037_041_mtp_on",
+              "mtp": true,
+              "cases": [
+                "BXP-037",
+                "BXP-038",
+                "BXP-039",
+                "BXP-040",
+                "BXP-041"
+              ]
+            },
+            {
+              "name": "cases_042_046_mtp_on",
+              "mtp": true,
+              "cases": [
+                "BXP-042",
+                "BXP-043",
+                "BXP-044",
+                "BXP-045",
+                "BXP-046"
+              ]
+            },
+            {
+              "name": "cases_042_046_mtp_off",
+              "mtp": false,
+              "cases": [
+                "BXP-042",
+                "BXP-043",
+                "BXP-044",
+                "BXP-045",
+                "BXP-046"
+              ]
+            },
+            {
+              "name": "cases_047_050_mtp_off",
+              "mtp": false,
+              "cases": [
+                "BXP-047",
+                "BXP-048",
+                "BXP-049",
+                "BXP-050"
+              ]
+            },
+            {
+              "name": "cases_047_050_mtp_on",
+              "mtp": true,
+              "cases": [
+                "BXP-047",
+                "BXP-048",
+                "BXP-049",
+                "BXP-050"
+              ]
+            }
+          ]
+        }
+      ],
+      "restSecondsBetweenNewBatches": 5,
+      "perCaseTimeoutMs": 360000,
+      "hostNoProgressWatchdogSeconds": 540,
+      "retryPolicy": "No score-selection retries; preserve attempted failures, only reschedule unattempted cases after infrastructure failure"
+    },
+    "repair_provenance.json": {
+      "aar": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\build\\repo\\com\\samsung\\genuicraft\\genuicraft\\0.5.6\\genuicraft-0.5.6.aar",
+      "aar_sha256": "c59eeae4debf4e8428a806ac7b7d7cb1b13f2d3559a12a655a56ef2f0be723b1",
+      "driver_source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\tools\\GenUiRepairReplay.java",
+      "driver_sha256": "456d6fcb8c791731727152aef516bde0266e48db5de3654acd8d8dfd31c20f03",
+      "classpath": [
+        {
+          "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_full_gpu_fp32\\runtime\\genuicraft-0.5.6-classes.jar",
+          "sha256": "69954347411d7d3b4959cc914ecfd290f9c399202ea2d83279c023062a1bcf11"
+        },
+        {
+          "path": "C:\\Users\\anupk\\.gradle\\caches\\modules-2\\files-2.1\\com.google.code.gson\\gson\\2.11.0\\527175ca6d81050b53bdd4c457a6d6e017626b0e\\gson-2.11.0.jar",
+          "sha256": "57928d6e5a6edeb2abd3770a8f95ba44dce45f3b23b7a9dc2b309c581552a78b"
+        },
+        {
+          "path": "C:\\Users\\anupk\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.kotlin\\kotlin-stdlib\\2.2.21\\fa374a986e128314c3db00a20aae55f72a258511\\kotlin-stdlib-2.2.21.jar",
+          "sha256": "6558a3d233da56a20934b32159f9db5f86ed5816ef098f78a2c223dc6abb79dd"
+        }
+      ],
+      "command": [
+        "C:\\Program Files\\Android\\Android Studio\\jbr\\bin\\java.EXE",
+        "-Xmx1g",
+        "-cp",
+        "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_full_gpu_fp32\\runtime\\driver_classes;C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_full_gpu_fp32\\runtime\\genuicraft-0.5.6-classes.jar;C:\\Users\\anupk\\.gradle\\caches\\modules-2\\files-2.1\\com.google.code.gson\\gson\\2.11.0\\527175ca6d81050b53bdd4c457a6d6e017626b0e\\gson-2.11.0.jar;C:\\Users\\anupk\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.kotlin\\kotlin-stdlib\\2.2.21\\fa374a986e128314c3db00a20aae55f72a258511\\kotlin-stdlib-2.2.21.jar",
+        "GenUiRepairReplay",
+        "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_full_gpu_fp32\\runtime\\repair_input.jsonl",
+        "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_full_gpu_fp32\\runtime\\repair_captured_outcomes.jsonl"
+      ],
+      "new_model_inference": false,
+      "source_text_supplied_to_repair": false,
+      "fallback_enabled": false,
+      "attempted_outputs": 100,
+      "runtime_no_output": 0,
+      "new_device_a2ui_parity_checks": 64,
+      "new_device_a2ui_parity_passed": true,
+      "clean_recompilation_verification": {
+        "initial_compile_observation": "Sandboxed javac returned zero and generated the class, but reported AccessDeniedException during JAR cleanup. Recompilation outside the sandbox completed without diagnostics.",
+        "command": [
+          "C:\\Program Files\\Android\\Android Studio\\jbr\\bin\\javac.EXE",
+          "-encoding",
+          "UTF-8",
+          "-cp",
+          "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_full_gpu_fp32\\runtime\\genuicraft-0.5.6-classes.jar;C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_full_gpu_fp32\\runtime\\gson-2.11.0.jar;C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_full_gpu_fp32\\runtime\\kotlin-stdlib-2.2.21.jar",
+          "-d",
+          "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_full_gpu_fp32\\runtime\\driver_classes_verified",
+          "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\tools\\GenUiRepairReplay.java"
+        ],
+        "returncode": 0,
+        "class_sha256": "f81630931ea1905b70a87e1d5aee2e153dd5d251db91794b95e4eac81e1c9ad1",
+        "class_identical_to_executed_repair_driver": true,
+        "dependencies": [
+          {
+            "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_full_gpu_fp32\\runtime\\genuicraft-0.5.6-classes.jar",
+            "sha256": "69954347411d7d3b4959cc914ecfd290f9c399202ea2d83279c023062a1bcf11"
+          },
+          {
+            "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_full_gpu_fp32\\runtime\\gson-2.11.0.jar",
+            "sha256": "57928d6e5a6edeb2abd3770a8f95ba44dce45f3b23b7a9dc2b309c581552a78b"
+          },
+          {
+            "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_full_gpu_fp32\\runtime\\kotlin-stdlib-2.2.21.jar",
+            "sha256": "6558a3d233da56a20934b32159f9db5f86ed5816ef098f78a2c223dc6abb79dd"
+          }
+        ]
+      }
+    },
+    "preflight/fold7_model_copy.json": {
+      "local": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_full_gpu_fp32\\runtime\\gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm",
+      "remote": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_models/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm",
+      "sha256": "de60d19c8e1ef06ed1032212d0d4ae5d9b0ec105db72db34a988453004e63e62",
+      "copied": true,
+      "existing_old_models_preserved": true
+    },
+    "preflight/R3GL203AKSF.json": {
+      "main_apk_device": {
+        "path": "/data/app/~~07s13lJRAWvPtzVWQCzQqg==/com.samsung.genuicraft-LWnYuLjHCY-6n4R4HbYU3Q==/base.apk",
+        "sha256": "09bf4884326ab4bedd1ac4c16c459f9965751ef35e60f3bd5ebada8ebf8d8b30"
+      },
+      "test_apk_device": {
+        "path": "/data/app/~~tbXXXYfMySFULUWi879rzA==/com.samsung.genuicraft.test-A1dJwGaL6BnkOHt_6u2UJw==/base.apk",
+        "sha256": "176b2bd532efecf72dd27519bad3530b118d574b5f6d9914a719ab1593a2a0cf"
+      },
+      "main_apk_host": {
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\android\\app\\build\\outputs\\apk\\debug\\app-debug.apk",
+        "sha256": "0426477f7c874a9bf42c1ac32a2c6a24605d99cda5b29059fdac8e5cb16cdc3f",
+        "bytes": 203337013
+      },
+      "test_apk_host": {
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\android\\app\\build\\outputs\\apk\\androidTest\\debug\\app-debug-androidTest.apk",
+        "sha256": "176b2bd532efecf72dd27519bad3530b118d574b5f6d9914a719ab1593a2a0cf",
+        "bytes": 1497026
+      },
+      "model_device_sha256": "de60d19c8e1ef06ed1032212d0d4ae5d9b0ec105db72db34a988453004e63e62  /sdcard/Android/data/com.samsung.genuicraft/files/sdk_models/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm",
+      "serial": "R3GL203AKSF",
+      "model_path": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_models/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm",
+      "device_model": "SM-F776U"
+    }
+  },
+  "input_hashes": {
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_full_gpu_fp32\\model_inputs.jsonl": "ee02577f983e5665a9f7626ac03227dff2879116dc62eb0d545376971af862af",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_full_gpu_fp32\\repair_outcomes.jsonl": "07b6e73830aa16339228c146949c8bdabbf45896cde671622cc2a03e9c35e890",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_full_gpu_fp32\\protocol.json": "cd3c37a76f76eda4ac66707e0f38398d8f65639ab250af1222bc3fa715269f10",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_full_gpu_fp32\\repair_provenance.json": "aad49db6d3d70788e448f8a210116c8e6e6fd3caf2e3e064cc3d401c5a006710",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_full_gpu_fp32\\preflight\\fold7_model_copy.json": "944dc91ad95e3da9320bc41dd3b2ff8632b6b615f5800d72824d7d6619a2c0b7",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_full_gpu_fp32\\preflight\\R3GL203AKSF.json": "e07e99123bc962ecbca5a861438f65fff121ddc017659f677fab8c59a36afb68",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_v54_repaired_scores\\summary.json": "c31fa4505c323a159c2296f1312a017f7c7ffed6f077550783fc7144d797d3af",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_v54_repaired_scores\\scored\\litert_mtp_off.jsonl": "40c8f9f8076f9fad2ce0133d72cbc973a6196c10cc7f971f771c0cbfba074e86",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_v54_repaired_scores\\scored\\litert_mtp_on.jsonl": "75a07ecc3592cc3401f8bfe08d482a9259979570f8afe5aa9daad0bf228749c0",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_v54_repaired_scores\\scored\\checkpoint_r32.jsonl": "7a73540d2a04ee2aae055a43b8bfa5e988f30e525ec51780c3db1124ac5d5fe8",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260929_bixby50_v54_repaired_scores\\scored\\checkpoint_r64.jsonl": "0de9bdc54f3c689f20df545cf8890ccae34f892d0096657291e005994ccf9359",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\data\\eval\\bixby50_v1\\bixby50.jsonl": "27bdc9ad4c7d3735d3c5f7c26fa37be2472e7aafd7c99afa31910a22b5bfdb4d",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\tools\\report_bixby50_full_native_repaired.py": "24f580a2b76d1b1096a6b91767ea245bcedf46360d796db23df2dacbdcc23dea"
+  },
+  "paired": {
+    "n": 50,
+    "raw_on_minus_off_mean": 2.4853848382351984,
+    "repaired_on_minus_off_mean": -2.3675447700711914
+  }
+}

@@ -1,0 +1,2 @@
+09-30 01:55:00.998 27819  1485 I GenUICraftRuntime: Gemma4 backend=GPU; precision=FP32; MTP=true; MTPRequested=true; modelSupportsMtp=true; thinking=false; metrics=false; model=/storage/emulated/0/Android/data/com.samsung.android.bixby.agent/files/genuicraft/models/runtime-cache/genuicraft-gpu-fp32/f4ae99a1def5995c5a8d7e04a404e544465d7d2035fc8c710991f4ced4601ae9/model-gpu-fp32.litertlm
+09-30 01:55:28.990 27819 31095 I BCL@Renderer: (GenUiIntegration) GenUICraft conversion succeeded: attempts=1, repair=GENERATED_DSL_REPAIR, warnings=14

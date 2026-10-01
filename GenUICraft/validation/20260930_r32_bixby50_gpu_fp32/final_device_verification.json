@@ -1,0 +1,12 @@
+{
+  "verified_at_utc": "2026-09-29T19:47:25.916416+00:00",
+  "serial": "R3CY30QFWLP",
+  "model_sha256_after_run": "6dbd97ea150b264c0dbd040fcb92b8b231b657365282194561749c1d41771825",
+  "model_hash_unchanged": true,
+  "stay_on_while_plugged_in_after_run": "15",
+  "power_setting_restored": true,
+  "collector_exit_code": 0,
+  "generations": 100,
+  "batches": 20,
+  "model_inference_reruns": 0
+}

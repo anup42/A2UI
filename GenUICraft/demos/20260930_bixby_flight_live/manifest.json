@@ -1,0 +1,31 @@
+{
+  "query": "show morning flights from bengaluru to varanasi for tomorrow",
+  "device": "SM-F776U",
+  "serial": "R3GL203AKSF",
+  "source_interval_seconds": [
+    0,
+    65
+  ],
+  "speed": 1,
+  "interior_cuts": false,
+  "inserted_stills": false,
+  "added_holds": false,
+  "files": {
+    "Bixby_GenUICraft_Varanasi_Live.mp4": {
+      "bytes": 2138812,
+      "sha256": "9c385abcc59cfefd57a68b56dce975d9ffd5e978cfe83594588ef0b1ca419832",
+      "frame_count_and_duration": [
+        1950,
+        65.0
+      ]
+    },
+    "Bixby_Varanasi_Full_Raw_Recording.mp4": {
+      "bytes": 37579146,
+      "sha256": "9f42c697857f9ebdc008d6ec11935263a5120c80f05bb3610a292515fc91b0a7",
+      "frame_count_and_duration": [
+        4173,
+        133.52
+      ]
+    }
+  }
+}

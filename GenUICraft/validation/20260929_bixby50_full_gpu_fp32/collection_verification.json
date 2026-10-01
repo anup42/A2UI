@@ -1,0 +1,49 @@
+{
+  "checked_at_utc": "2026-09-29T17:45:03.465946+00:00",
+  "devices": [
+    {
+      "device": "flip8",
+      "serial": "R3GL203AKSF",
+      "new_generations": 35,
+      "stay_on_restored": true,
+      "complete": {
+        "serial": "R3GL203AKSF",
+        "completedBatches": [
+          "missing_013_015_mtp_on",
+          "cases_016_020_mtp_off",
+          "cases_016_020_mtp_on",
+          "cases_021_025_mtp_on",
+          "cases_021_025_mtp_off",
+          "cases_026_030_mtp_off",
+          "cases_026_030_mtp_on",
+          "cases_031_031_mtp_on",
+          "cases_031_031_mtp_off"
+        ],
+        "generations": 35,
+        "finishedAtUtc": "2026-09-29T17:41:15.894784+00:00"
+      }
+    },
+    {
+      "device": "fold7",
+      "serial": "R3CY30QFWLP",
+      "new_generations": 38,
+      "stay_on_restored": true,
+      "complete": {
+        "serial": "R3CY30QFWLP",
+        "completedBatches": [
+          "cases_032_036_mtp_on",
+          "cases_032_036_mtp_off",
+          "cases_037_041_mtp_off",
+          "cases_037_041_mtp_on",
+          "cases_042_046_mtp_on",
+          "cases_042_046_mtp_off",
+          "cases_047_050_mtp_off",
+          "cases_047_050_mtp_on"
+        ],
+        "generations": 38,
+        "finishedAtUtc": "2026-09-29T17:41:42.093939+00:00"
+      }
+    }
+  ],
+  "new_total": 73
+}

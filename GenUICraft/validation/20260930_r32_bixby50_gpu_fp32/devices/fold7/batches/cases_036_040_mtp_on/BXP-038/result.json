@@ -1,0 +1,62 @@
+{
+  "id": "BXP-038",
+  "status": "valid",
+  "strictValid": true,
+  "renderValid": true,
+  "elapsedMs": 6541,
+  "firstInRun": false,
+  "attempts": 1,
+  "startedAtEpochMs": 1790709872818,
+  "deviceBefore": {
+    "epochMs": 1790709872818,
+    "thermalStatus": 3,
+    "batteryTemperatureC": 39.4,
+    "batteryLevel": 96,
+    "plugged": 2
+  },
+  "metrics": {
+    "inputTokens": 3031,
+    "outputTokens": 50,
+    "decodeTokensPerSecond": 34.18344963232264,
+    "providerCallMs": 6518,
+    "prefillTokensPerSecond": 601.2417723041402,
+    "timeToFirstTokenSeconds": 5.07048714975,
+    "engineInitializationSeconds": null,
+    "engineInitializedForRequest": false,
+    "nativeInitializationPhaseSeconds": null,
+    "finishReason": "COMPLETED",
+    "finishDetail": null
+  },
+  "provider": "gemma4_e2b",
+  "providerCalls": 1,
+  "rawStrictValid": false,
+  "runtime": "LiteRT-LM/Gemma4/GPU+FP32+MTP",
+  "renderedPromptSha256": "5e2ce528e66eda343ff86734689525fe857ed2b4f4de35f1355a911e1e8ce789",
+  "repairKind": "GENERATED_DSL_REPAIR",
+  "usedFallback": false,
+  "sourceFidelityWarnings": 0,
+  "warnings": [
+    "Runtime: LiteRT-LM/Gemma4/GPU+FP32+MTP",
+    "Generated-output diagnostic mode: renders repaired model output; no source-text fallback.",
+    "Trained E2B output passed generated-output DSL repair and mechanical source-integrity checks.",
+    "Strict compile rejected output: Invalid GenUI Express: A2UI Express statement is not an assignment: Text(\"I’m sorry, but I cannot provide a source-cited comparison in this turn bec",
+    "Salvaged 1 additional complete generated string literal value(s) from damaged structure.",
+    "Ignored 1 key, style, corrupt, duplicate, or over-budget string literal(s).",
+    "Rebuilt a generated-literal List; source text was not used."
+  ],
+  "rendererContractValid": true,
+  "rendererWarnings": [],
+  "screenCaptured": true,
+  "scrolledScreenCaptured": true,
+  "currentCaseVisible": true,
+  "rendererErrorVisible": false,
+  "caseElapsedMs": 15711,
+  "finishedAtEpochMs": 1790709888529,
+  "deviceAfter": {
+    "epochMs": 1790709888529,
+    "thermalStatus": 3,
+    "batteryTemperatureC": 39.4,
+    "batteryLevel": 96,
+    "plugged": 2
+  }
+}

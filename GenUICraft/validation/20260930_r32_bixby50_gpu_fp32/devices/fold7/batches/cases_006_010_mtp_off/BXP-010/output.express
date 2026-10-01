@@ -1,0 +1,13 @@
+<a2ui>
+$/={bud_options:[{model:"OnePlus Nord Buds 4 Pro",price:"₹3,999",features:"up to 55dB ANC, up to 54 hours total playback; main trade-off: strong feature set, but the review notes some connectivity and low-end clarity issues [6][2]"},{model:"Realme Buds Air 8",price:"₹3,799",features:"up to 55dB ANC, up to 58 hours total playback; main trade-off: feature-rich, but users may need to accept a more compromised tuning/controls experience"},{model:"Oppo Enco Buds 3 Pro+",price:"₹2,999",features:"up to 32dB ANC, up to 43 hours total playback; main trade-off: cheaper and comfortable, but ANC is weaker than the two above [7]"}]}
+root=Column([a,b,c,f],gap="md",padding=16)
+a=Text("Current status","h2")
+b=Text("I’m unable to verify live India pricing reliably for all three models right now, so I can’t give a fully current under-₹5,000 comparison with confidence.",variant="body")
+c=Column([d,e],"sm")
+d=Text("Closest verified options","h2")
+e=Table(columns=[{key:"model",label:"Model"},{key:"price",label:"Price"},{key:"features",label:"Features/Trade-off"}],statePath="/bud_options",domain="comparison",preferredPresentation="cards",primaryColumn="model",numericColumns=["price"])
+f=Card([g])
+g=Column([h,i],"sm",padding=16)
+h=Text("Best fit","h2")
+i=Text("If ANC is the priority, the Realme Buds Air 8 and OnePlus Nord Buds 4 Pro look strongest on paper; if you want the lowest price, the Oppo Enco Buds 3 Pro+ is the value pick.",variant="body")
+</a2ui>

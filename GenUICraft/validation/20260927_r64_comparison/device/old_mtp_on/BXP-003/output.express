@@ -1,0 +1,8 @@
+<a2ui>
+$/={train_comparison:[{service:"Shatabdi Express (120007)",departure_station:"KSR Bengaluru (BC)",typical_departure_time:"10:35–1004",journey_duration:"2 h15 m to 2h25 m",seating_class:"CC, EC"},{service:"Rajya Rani Express (20606)",departure_station:"KSR Bengaluru (BC)",typical_departure_time:"11:000",journey_duration:"2h30 m",seating_class:"CC, 2, 2S GN"},{service:"Wodeyar Express (21246)",departure_station:"KSR Bengaluru (BC)",typical_departure_time:"15:5",journey_duration:"2h30 m",seating_class:"CC,2S GN"}]}
+rows_notes:[{note:"Shatabdi Express has a small timing discrepancy across sources: one source lists 0:45 while another lists 1:35.",source:"[1111]"},{note:"Shatabdi Express also shows slight variation in duration, from about 2 h 15 to 2 h25.",source:"[1]"},{note:"Rajya Rani Express is consistently shown at 1:30 with a 2 h30 journey.",source:"[1]"},{note:"Wodeyar Express is consistently shown at 5:15 with a 2h30 m journey.",source:"[1]"}],comparison_arrival_times_days_of_operation_={arrival_times:"N/A",days_of_operation:"N/A"}
+rows_comparison_table=$/train_comparison
+rows_table=rows_notes_table
+_table=rows_comparison_table
+columns=["service","departure_station","typical_departure_time","journey_duration","seating_class"]
+</a2ui>

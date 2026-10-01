@@ -1,0 +1,8 @@
+<a2ui>
+$/={films:[{title:"Bandar",platform:"ZEE5",releaseDate:"28 August 2026",description:"A tense drama centered on accusation, accountability, and justice, led by Bobby Deol. [33]",platformReleaseDate:"28 August 2026"},{title:"Gandhari",platform:"Netflix",releaseDate:"3 September 2026",description:"An emotionally charged action-thriller about a mother’s relentless fight to protect her child. [21]",platformReleaseDate:"3 September 2026"},{title:"Before Colours",platform:"ZEE5",releaseDate:"28 August 2026",description:"A newly added Hindi film on ZEE5’s latest releases list, available from 28 August 2026. [22]",platformReleaseDate:"28 August 2026"}]}
+root=Column([a,b,c],gap="md",padding=16)
+a=Text("Three recent Hindi films","h2")
+b=Table(columns=[{key:"title",label:"Title"},{key:"platform",label:"Platform"},{key:"releaseDate",label:"Streaming release date"},{key:"description",label:"Spoiler-free description"}],statePath="/films",domain="generic",preferredPresentation="cards",primaryColumn="title")
+c=Column([d],"sm")
+d=Text("These titles were listed in recent India OTT release coverage and platform release pages published in late August and early September 2026.","caption")
+</a2ui>

@@ -1,0 +1,44 @@
+{
+  "file": "Bixby_GenUICraft_Varanasi_NoTimer.mp4",
+  "bytes": 1739805,
+  "sha256": "ba54cf5404b6bd5579e12d73960555c5cf33addf0bc2b2e33c5b8484f66c4d6d",
+  "frames": 1464,
+  "duration_seconds": 48.8,
+  "source": "Bixby_GenUICraft_Varanasi_Live.mp4",
+  "source_speed_sections": [
+    {
+      "from": 0,
+      "to": 17,
+      "speed": 1
+    },
+    {
+      "from": 17,
+      "to": 41.3,
+      "speed": 3
+    },
+    {
+      "from": 41.3,
+      "to": 65,
+      "speed": 1
+    }
+  ],
+  "accelerated_output_seconds": [
+    17,
+    25.1
+  ],
+  "spinner": {
+    "speed": 1,
+    "roi_xywh": [
+      82,
+      242,
+      24,
+      24
+    ],
+    "output_start": 17,
+    "output_end": 24.844444,
+    "source_start": 17
+  },
+  "speed_label_in_video": false,
+  "timer_visible": false,
+  "decode_errors": 0
+}

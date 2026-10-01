@@ -1,0 +1,73 @@
+{
+  "segments": [
+    {
+      "source_start": 1,
+      "source_end": 5.5,
+      "stage": "BIXBY + GENUICRAFT",
+      "title": "One flight request.\nTwo ways to view it.",
+      "body": "Bengaluru to Lucknow\nMorning flight options",
+      "accent": "blue"
+    },
+    {
+      "source_start": 5.5,
+      "source_end": 11,
+      "stage": "ORIGINAL BIXBY VIEW",
+      "title": "Flight details\nin a text answer",
+      "body": "Read airlines, times and fares\nacross the bullet list.",
+      "accent": "blue",
+      "arrow_y_source": 1260
+    },
+    {
+      "source_start": 11,
+      "source_end": 14.7,
+      "stage": "SWITCH THE VIEW",
+      "title": "Tap GenUICraft",
+      "body": "Change presentation within\nthe same Bixby answer.",
+      "accent": "green",
+      "arrow_y_source": 570
+    },
+    {
+      "source_start": 14.7,
+      "source_end": 18,
+      "stage": "GENUICRAFT VIEW",
+      "title": "Flight details\nbecome cards",
+      "body": "Each option has a consistent\nvisual layout.",
+      "accent": "green"
+    },
+    {
+      "source_start": 18,
+      "source_end": 24,
+      "stage": "SCAN THE OPTIONS",
+      "title": "Spot each airline\nat a glance",
+      "body": "Distinct airline labels\nseparate the flight options.",
+      "accent": "green",
+      "arrow_y_source": 645
+    },
+    {
+      "source_start": 24,
+      "source_end": 30,
+      "stage": "COMPARE TIMES",
+      "title": "Departure. Arrival.\nDuration.",
+      "body": "A consistent timeline makes\neach flight easier to scan.",
+      "accent": "green",
+      "arrow_y_source": 1240
+    },
+    {
+      "source_start": 30,
+      "source_end": 36,
+      "stage": "FIND THE FARE",
+      "title": "Prices stand out",
+      "body": "Supplied fares appear\non the relevant flight card.",
+      "accent": "green",
+      "arrow_y_source": 1460
+    },
+    {
+      "source_start": 36,
+      "source_end": 42,
+      "stage": "GENUICRAFT IN BIXBY",
+      "title": "Compare flight\noptions visually",
+      "body": "Airlines, times and fares.\nOrganized inside Bixby.",
+      "accent": "green"
+    }
+  ]
+}

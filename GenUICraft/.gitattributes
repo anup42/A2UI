@@ -5,3 +5,27 @@
 # Preserve upstream notices and whitespace in validated, hash-bound source files.
 genuicraft/src/main/assets/genuicraft_licenses/LiteRT-THIRD-PARTY-NOTICE.txt -whitespace
 genuicraft/src/main/java/com/samsung/genuicraft/sdk/internal/renderer/native/intents/weather/NativeWeatherSemantics.kt whitespace=cr-at-eol,-blank-at-eof
+
+# Preserve intentional whitespace in imported diagnostics and historical scoring evidence.
+validation/20260928_r64_accuracy_gap/diagnostics/20260928_015359/summary.md whitespace=cr-at-eol,-blank-at-eol
+validation/20260928_r64_accuracy_gap/diagnostics/20260928_015755/device.txt whitespace=cr-at-eol,-blank-at-eol
+validation/20260928_r64_gpu_controls/diagnostics/20260928_023917/summary.md whitespace=cr-at-eol,-blank-at-eol
+validation/20260928_r64_gpu_controls/diagnostics/original_logs/gpu_cpu_sampler/BXP-001.native.log whitespace=cr-at-eol,-blank-at-eol
+validation/20260928_r64_gpu_controls/diagnostics/original_logs/gpu_cpu_sampler/BXP-003.native.log whitespace=cr-at-eol,-blank-at-eol
+validation/20260928_r64_gpu_controls/diagnostics/original_logs/gpu_default_r2/BXP-001.native.log whitespace=cr-at-eol,-blank-at-eol
+validation/20260928_r64_gpu_controls/diagnostics/original_logs/gpu_default_r2/BXP-003.native.log whitespace=cr-at-eol,-blank-at-eol
+validation/20260928_r64_gpu_controls/diagnostics/original_logs/gpu_fp32/BXP-001.native.log whitespace=cr-at-eol,-blank-at-eol
+validation/20260928_r64_gpu_controls/diagnostics/original_logs/gpu_fp32/BXP-003.native.log whitespace=cr-at-eol,-blank-at-eol
+validation/20260928_r64_gpu_controls/diagnostics/original_logs/native_device_logcat.log whitespace=cr-at-eol,-blank-at-eol
+validation/20260928_r64_qat_reexport/diagnostics/20260928_005441/device.txt whitespace=cr-at-eol,-blank-at-eol
+validation/20260928_r64_qat_reexport/diagnostics/20260928_005729/device.txt whitespace=cr-at-eol,-blank-at-eol
+validation/20260929_bixby50_full_gpu_fp32/full_native_repaired_report/index.html whitespace=cr-at-eol,-blank-at-eol
+validation/20260929_bixby50_v54_model_scores/REPORT.md whitespace=cr-at-eol,-blank-at-eol
+validation/20260929_bixby50_v54_model_scores/index.html whitespace=cr-at-eol,-blank-at-eol
+validation/20260929_bixby50_v54_repaired_scores/REPORT.md whitespace=cr-at-eol,-blank-at-eol
+validation/20260929_bixby50_v54_repaired_scores/index.html whitespace=cr-at-eol,-blank-at-eol
+validation/20260930_r32_bixby50_gpu_fp32/report/REPORT.md whitespace=cr-at-eol,-blank-at-eof
+validation/20260930_r32_bixby50_gpu_fp32/report/index.html whitespace=cr-at-eol,-blank-at-eol
+validation/20260930_r32_bixby50_gpu_fp32/scoring_snapshot/renderer/GenUiHtmlRenderer.kt whitespace=cr-at-eol,-blank-at-eof
+validation/20260930_r32_bixby50_gpu_fp32/scoring_snapshot/renderer/RenderSessionStore.kt whitespace=cr-at-eol,-blank-at-eof
+validation/20260930_r32_bixby50_gpu_fp32/scoring_snapshot/renderer/native/intents/weather/NativeWeatherSemantics.kt whitespace=cr-at-eol,-blank-at-eof

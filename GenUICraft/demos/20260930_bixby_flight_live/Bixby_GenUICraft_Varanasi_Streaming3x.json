@@ -1,0 +1,31 @@
+{
+  "file": "Bixby_GenUICraft_Varanasi_Streaming3x.mp4",
+  "bytes": 1795335,
+  "sha256": "b52211e3856a7f616aa8cca8f1cb521a85800184f283a5f523de8509a9003db8",
+  "frames": 1464,
+  "duration_seconds": 48.8,
+  "source": "Bixby_GenUICraft_Varanasi_Live.mp4",
+  "source_speed_sections": [
+    {
+      "from": 0,
+      "to": 17,
+      "speed": 1
+    },
+    {
+      "from": 17,
+      "to": 41.3,
+      "speed": 3
+    },
+    {
+      "from": 41.3,
+      "to": 65,
+      "speed": 1
+    }
+  ],
+  "accelerated_output_seconds": [
+    17,
+    25.1
+  ],
+  "timer": "elapsed time in the original recording",
+  "decode_errors": 0
+}

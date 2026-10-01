@@ -1,0 +1,37 @@
+{
+  "status": "PASS",
+  "cases_attempted": 127,
+  "sdk_accepted_and_python_strict_valid": 119,
+  "failed_repairs_in_denominator": 8,
+  "source_fallbacks": 0,
+  "model_calls": 0,
+  "native_device_exact_matches": 27,
+  "input_and_artifact_hashes_verified": true,
+  "independent_aggregate_checks": true,
+  "html_cases": 50,
+  "raw_output_panels": 127,
+  "repaired_output_panels": 119,
+  "native_missing_cases_remain_unmeasured": true,
+  "counts": {
+    "checkpoint_r32": {
+      "total": 50,
+      "sdk_accepted": 49,
+      "mean": 83.74480646476755
+    },
+    "checkpoint_r64": {
+      "total": 50,
+      "sdk_accepted": 43,
+      "mean": 77.11170606076985
+    },
+    "litert_mtp_off": {
+      "total": 15,
+      "sdk_accepted": 15,
+      "mean": 93.48252667325725
+    },
+    "litert_mtp_on": {
+      "total": 12,
+      "sdk_accepted": 12,
+      "mean": 94.19714410824007
+    }
+  }
+}

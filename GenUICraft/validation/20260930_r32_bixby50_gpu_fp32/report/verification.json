@@ -1,0 +1,35 @@
+{
+  "verified_at_utc": "2026-09-29T19:52:54.365899+00:00",
+  "status": "PASS",
+  "modes": {
+    "litert_mtp_off": {
+      "n": 50,
+      "repaired_mean": 79.33077784045558,
+      "accepted": 46,
+      "failure_ids": [
+        "BXP-015",
+        "BXP-018",
+        "BXP-021",
+        "BXP-033"
+      ]
+    },
+    "litert_mtp_on": {
+      "n": 50,
+      "repaired_mean": 80.27917222532179,
+      "accepted": 46,
+      "failure_ids": [
+        "BXP-018",
+        "BXP-027",
+        "BXP-033",
+        "BXP-036"
+      ]
+    }
+  },
+  "html_cases": 50,
+  "html_mode_panels": 100,
+  "csv_rows": 100,
+  "device_repair_parity_passed": 92,
+  "all_recorded_source_hashes_unchanged": true,
+  "one_native_attempt_and_model_call_per_case": true,
+  "metric_fingerprint": "3472befab7a179db4302b95a1ba3fa7cbd67858db86cc9f8ba0d96e3a4034a95"
+}

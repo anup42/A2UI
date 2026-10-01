@@ -91,6 +91,10 @@ android/local.properties
 android/**/build/
 android/tmp/
 
+# JVM crash and replay files are local diagnostics, not source artifacts.
+hs_err_pid*.log
+replay_pid*.log
+
 # Training logs
 training/logs/
 dpo/runs/

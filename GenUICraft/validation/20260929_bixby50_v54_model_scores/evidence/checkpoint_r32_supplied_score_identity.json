@@ -1,0 +1,15 @@
+{
+  "metric_version": "5.4.0",
+  "metric_name": "GenUI Representation Quality",
+  "metric_fingerprint": "e3f4568fb64e13b09d1fdf4314c88c375525cf1624dc963265e0f5051e3a6889",
+  "reward_pipeline_fingerprint": "f509a49fede9964cac95e59c88702e779b77712f26882c2ffbc298ba6dfa153e",
+  "source_hash": "ec9b4b65494c5b81d01eaa41a9e42b0a2d7f261bea16a5addb84b0c9327ebc9f",
+  "raw_candidate_hash": "a2ca44a247b423b8b2541077728d4d447e85e160778f0b3a43a5ad046c1e4066",
+  "canonical_candidate_hash": "cff33ae2f8ed2d46f0dc4fd56c6acea04cac377621f5be56c6e2602d3dbc2b2a",
+  "expected_contract_hash": "17686b540c93c521052620e0210b0139440c1d08565b72a945c95b77c20ee5e7",
+  "computed_registry_id": "android-flat-spec-builtins",
+  "computed_registry_version": "2.0.0",
+  "computed_registry_manifest_hash": "3e693f3aedc6273eb9cd3aa7c417a43e4b732884759149b5876b02032a55811c",
+  "computed_registry_hash": "056f2a68ce8f312c1bda9e17c62ff9f5253fa82105d95d7dc5bff5c045b731b9",
+  "reference_map_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+}

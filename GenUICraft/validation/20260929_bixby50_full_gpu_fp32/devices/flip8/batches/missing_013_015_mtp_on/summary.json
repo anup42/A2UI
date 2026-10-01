@@ -1,0 +1,21 @@
+{
+  "runId": "v54_full_flip8_missing_013_015_mtp_on_1790702249",
+  "profile": "trained_e2b_v10_w4",
+  "total": 3,
+  "completed": 3,
+  "strictValid": 3,
+  "strictInvalid": 0,
+  "renderValid": 3,
+  "renderInvalid": 0,
+  "renderNotAttempted": 0,
+  "valid": 3,
+  "invalid": 0,
+  "timeouts": 0,
+  "runtimeErrors": 0,
+  "caseErrors": 0,
+  "providerCalls": 3,
+  "providerCloseError": null,
+  "runComplete": true,
+  "allValid": true,
+  "finishedAtEpochMs": 1790702318595
+}

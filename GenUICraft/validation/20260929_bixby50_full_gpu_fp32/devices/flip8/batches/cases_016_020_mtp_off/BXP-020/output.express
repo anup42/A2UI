@@ -1,0 +1,16 @@
+<a2ui>
+root=Column([a,b,c,g],gap="md",padding=16)
+a=Text("Next publicly scheduled ISRO launch","h2")
+b=Card([c])
+c=Column([d,e],"sm",padding=16)
+d=Text("Mission name: Cartosat-3B","label")
+e=Text("Planned date: December 10, 2026","label")
+f=Text("Launch vehicle: PSLV-XL","label")
+g=Card([h])
+h=Column([i,j],"sm",padding=16)
+i=Text("Payload purpose: Earth observation satellite","label")
+j=Text("Schedule uncertainty: The public schedule is presented as a launch listing rather than an official fixed ISRO mission page, so the date should be treated as provisional until ISRO confirms it on its own launch list or another official update.","caption")
+k=Card([l])
+l=Column([m,n],"sm",padding=16)
+m=Text("ISRO’s official launch missions page currently shows the latest completed launch as GSLV-F17/EOS-05 on September 4, 2026, and does not yet list a later upcoming mission in the visible entries, which is why the next launch date is being inferred from third-party schedule trackers.","caption")
+</a2ui>

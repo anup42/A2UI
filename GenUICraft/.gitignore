@@ -14,3 +14,8 @@ __pycache__/
 # Active file-sharing links stay in local delivery evidence.
 validation/20260918_model_download/quickshare_result.json
 validation/20260918_model_download/quickshare_window.xml
+
+# Keep editable presentation scripts and delivered decks; omit build intermediates.
+presentations/**/.build/*
+!presentations/**/.build/*.mjs
+presentations/**/.chart-data-*/

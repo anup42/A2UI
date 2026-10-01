@@ -1,0 +1,17 @@
+{
+  "providerCallMs": 31514,
+  "runtime": "LiteRT-LM/Gemma4/GPU+FP32",
+  "outputCharacters": 1714,
+  "outputTokens": 450,
+  "inputTokens": 3726,
+  "actualOutputTokens": 450,
+  "decodeTokensPerSecond": 19.905841369689604,
+  "error": null,
+  "prefillTokensPerSecond": 419.1647822244466,
+  "timeToFirstTokenSeconds": 8.939342079,
+  "engineInitializationSeconds": null,
+  "engineInitializedForRequest": false,
+  "nativeInitializationPhaseSeconds": null,
+  "finishReason": "REPETITION_LIMIT",
+  "finishDetail": "A2UI child identifiers 'a' through 't' continued for 20 sequential references."
+}
