@@ -224,6 +224,10 @@ def _validated_prepared_root(
 def inspect_completed_run(run_dir: str | Path) -> dict[str, Any]:
     """Verify the completed run, selected checkpoint, prepared data and export."""
     run = Path(run_dir).expanduser().resolve()
+    if (run / "qat_grpo_plan.json").is_file():
+        from ir_training.eval.qat_grpo_native import inspect_qat_grpo_run
+
+        return inspect_qat_grpo_run(run)
     plan_path = run / "official_mobile_plan.json"
     manifest_path = run / "official_mobile_manifest.json"
     plan, manifest = read_json(plan_path), read_json(manifest_path)
@@ -452,6 +456,34 @@ def inspect_completed_run(run_dir: str | Path) -> dict[str, Any]:
             "This evaluator accepts only the no-MTP official-mobile workflow"
         )
 
+    prepared_manifest, cohorts = inspect_hf_cohorts(
+        prepared_root=prepared_root, run=run, original_root=original_root,
+        max_sequence=max_input_tokens, max_input_tokens=max_input_tokens,
+    )
+    return {
+        "run_dir": run,
+        "original_root": original_root,
+        "plan_path": plan_path,
+        "plan_sha256": plan_digest,
+        "plan": plan,
+        "manifest_path": manifest_path,
+        "paths": paths,
+        "config": config,
+        "model_sha256": model_sha,
+        "max_input_tokens": max_input_tokens,
+        "max_new_tokens": max_new_tokens,
+        "prepared_manifest_sha256": file_sha256(prepared_root / "manifest.json"),
+        "prepared_manifest": prepared_manifest,
+        "cohorts": cohorts,
+        "receipt_bindings": receipt_bindings,
+    }
+
+
+def inspect_hf_cohorts(
+    *, prepared_root: Path, run: Path, original_root: str,
+    max_sequence: int, max_input_tokens: int,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Shared hash/row/source/holdout checks, independent of training algorithm."""
     prepared_manifest = checked_preparation_manifest(prepared_root)
     cohorts: dict[str, Any] = {}
     for name, count in COHORTS.items():
@@ -485,7 +517,7 @@ def inspect_completed_run(run_dir: str | Path) -> dict[str, Any]:
             prepared_root,
             split,
             required_rows=count,
-            max_sequence=max_input_tokens,
+            max_sequence=max_sequence,
             max_prompt=max_input_tokens,
             expected_kind=kind,
         )
@@ -516,23 +548,7 @@ def inspect_completed_run(run_dir: str | Path) -> dict[str, Any]:
             "hf_result": result,
             "hf_predictions": predictions,
         }
-    return {
-        "run_dir": run,
-        "original_root": original_root,
-        "plan_path": plan_path,
-        "plan_sha256": plan_digest,
-        "plan": plan,
-        "manifest_path": manifest_path,
-        "paths": paths,
-        "config": config,
-        "model_sha256": model_sha,
-        "max_input_tokens": max_input_tokens,
-        "max_new_tokens": max_new_tokens,
-        "prepared_manifest_sha256": file_sha256(prepared_root / "manifest.json"),
-        "prepared_manifest": prepared_manifest,
-        "cohorts": cohorts,
-        "receipt_bindings": receipt_bindings,
-    }
+    return prepared_manifest, cohorts
 
 
 def build_bound_requests(binding: dict[str, Any]) -> list[dict[str, Any]]:

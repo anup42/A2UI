@@ -36,7 +36,12 @@ def resolve_numeric_policy(config: dict[str, Any]) -> str:
 
         validate_full_qat_config(config)
         return policy
-    official = (config.get("run") or {}).get("purpose") == OFFICIAL_MOBILE_WORKFLOW
+    grpo = (
+        (config.get("run") or {}).get("purpose") == "qat_lora_grpo_v1"
+        and (config.get("training") or {}).get("method") == "qat_lora_grpo"
+        and (config.get("grpo") or {}).get("family") == "e2b"
+    )
+    official = (config.get("run") or {}).get("purpose") == OFFICIAL_MOBILE_WORKFLOW or grpo
     if official != (policy == RETAINED_MOBILE_POLICY):
         raise ValueError(
             f"{OFFICIAL_MOBILE_WORKFLOW} requires explicit "
@@ -238,6 +243,13 @@ def numeric_preflight_provenance(config: dict, numeric: dict) -> dict[str, Any]:
                 numeric.get("adapter_initialization_mode") == "full_model"
                 and zero == {"required": False, "reason": "full_finetune", "verified_zero_delta": False}
             )
+        elif (config.get("training") or {}).get("method") == "qat_lora_grpo":
+            from ir_training.train.qat_grpo_contract import verify_sft_adapter_lineage
+
+            lineage = verify_sft_adapter_lineage(config, numeric)
+            checks.pop("zero_adapter_initialization_verified")
+            checks["sft_adapter_initialization_verified"] = lineage.get("verified") is True
+            report["sft_adapter_lineage"] = lineage
         elif (config.get("training") or {}).get("resume_policy") is not None:
             from pathlib import Path
 

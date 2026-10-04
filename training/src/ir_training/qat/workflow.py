@@ -48,14 +48,21 @@ def validate_qat_config(config: dict[str, Any]) -> list[WorkflowIssue]:
 
     method = str(training.get("method") or "").strip().lower()
     full_finetune = method == "full_finetune_qat"
-    if method not in {"qat_lora_sft", "lora_sft", "sft_lora", "full_finetune_qat"}:
+    if method not in {"qat_lora_sft", "lora_sft", "sft_lora", "full_finetune_qat", "qat_lora_grpo"}:
         issues.append(
             WorkflowIssue(
                 "error",
                 "unsupported_qat_training_method",
-                "QAT supports qat_lora_sft or full_finetune_qat with the checked HF SFT backend.",
+                "QAT supports the checked SFT paths or the explicit qat_lora_grpo workflow.",
             )
         )
+
+    if method == "qat_lora_grpo" and (
+        _section(config, "run").get("purpose") != "qat_lora_grpo_v1"
+        or _section(config, "grpo").get("family") not in {"e2b", "270m"}
+    ):
+        issues.append(WorkflowIssue("error", "invalid_qat_grpo_workflow",
+                                    "QAT GRPO requires its explicit family and workflow contract."))
 
     if bool(model.get("load_in_4bit", False)):
         issues.append(

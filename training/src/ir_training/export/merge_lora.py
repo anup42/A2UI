@@ -722,6 +722,18 @@ def _verify_qat_training_metadata(
     )
     checks["numeric_preflight_policy_verified"] = numeric_policy_report["verified"]
     report["numeric_preflight_policy"] = numeric_policy_report
+    grpo_training = training_method == "qat_lora_grpo"
+    if grpo_training:
+        from ir_training.train.qat_grpo_contract import verify_qat_grpo_provenance
+
+        grpo_provenance = verify_qat_grpo_provenance(training_config or {}, metadata)
+        checks["qat_grpo_provenance_verified"] = grpo_provenance["verified"]
+        report["qat_grpo_provenance"] = grpo_provenance
+        selection = _golden_selection_binding(metadata, training_config or {})
+        checks["grpo_best_golden_selection_verified"] = bool(
+            metadata.get("checkpoint_role") == "best_golden" and selection["verified"]
+        )
+        report["golden_selection"] = selection
     qat = metadata.get("qat") if isinstance(metadata.get("qat"), dict) else {}
     qat_spec = qat.get("spec") if isinstance(qat.get("spec"), dict) else {}
     lora = metadata.get("lora") if isinstance(metadata.get("lora"), dict) else {}
@@ -955,6 +967,13 @@ def _verify_qat_training_metadata(
                 metadata, training_config_sha256=training_config_sha256
             )
         )
+        if grpo_training:
+            # A trained SFT adapter has nonzero deltas and is launched by the
+            # dedicated GRPO runner. All seed/scale/scope/numeric/selection
+            # checks above still apply; only these SFT-specific claims differ.
+            checks.pop("zero_adapter_initialization_verified", None)
+            checks.pop("portable_launcher_artifacts_bound", None)
+            checks["trained_sft_initialization_and_grpo_preflight_bound"] = grpo_provenance["verified"]
         report["golden_selection"] = golden_selection
     report["training_git_commit"] = git_commit or None
     report["adapter_files"] = actual_files
@@ -982,7 +1001,7 @@ def _recorded_qat_evidence(adapter_path: Path) -> list[str]:
             raise ValueError(f"Invalid saved training provenance: {path}")
         qat = record.get("qat") or {}
         method = str((record.get("training") or {}).get("method", "")).lower()
-        if (isinstance(qat, dict) and qat.get("enabled") is True) or method in {"qat_lora_sft", "full_finetune_qat"}:
+        if (isinstance(qat, dict) and qat.get("enabled") is True) or method in {"qat_lora_sft", "qat_lora_grpo", "full_finetune_qat"}:
             evidence.append(str(path))
     return evidence
 

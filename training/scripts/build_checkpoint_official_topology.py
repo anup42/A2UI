@@ -671,6 +671,16 @@ def _training_scope_report(
             checks["per_layer_embedding_group_size_matches"] = False
         result["mobile_training_seed"] = mobile_training_seed
     checks["qat_lora_sft"] = str(training.get("method") or "") == "qat_lora_sft"
+    if training.get("method") == "qat_lora_grpo":
+        from ir_training.train.qat_grpo_contract import validate_qat_grpo_config
+
+        try:
+            validate_qat_grpo_config(config)
+        except (TypeError, ValueError):
+            checks["qat_lora_grpo_config"] = False
+        else:
+            checks["qat_lora_grpo_config"] = True
+        del checks["qat_lora_sft"]
     checks["qat_enabled"] = bool(qat.get("enabled", False))
     modules_to_save = lora.get("modules_to_save", [])
     target_modules = lora.get("target_modules", "auto")
@@ -864,6 +874,25 @@ def _merge_provenance_report(
         else {}
     )
     checks["training_run_metadata_verified"] = run_metadata.get("verified") is True
+    if metadata.get("training_method") == "qat_lora_grpo":
+        from ir_training.train.qat_grpo_contract import (
+            file_identity,
+            verify_qat_grpo_provenance,
+        )
+
+        checks.pop("qat_lora_sft")
+        checks["qat_lora_grpo_provenance"] = False
+        try:
+            source_metadata_path = Path(str(run_metadata.get("path") or ""))
+            source_metadata = json.loads(source_metadata_path.read_text(encoding="utf-8"))
+            config = load_yaml(Path(training_config)) if training_config else {}
+            checks["qat_lora_grpo_provenance"] = bool(
+                config.get("training", {}).get("method") == "qat_lora_grpo"
+                and file_identity(source_metadata_path)["sha256"] == run_metadata.get("sha256")
+                and verify_qat_grpo_provenance(config, source_metadata)["verified"]
+            )
+        except (OSError, TypeError, ValueError, KeyError):
+            pass
     checks["continued_qat_performed"] = metadata.get("continued_qat_performed") is True
     checks["merge_did_not_fake_qat"] = metadata.get("merge_performed_qat") is False
     adapter_files = metadata.get("adapter_files")

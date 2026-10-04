@@ -11,6 +11,14 @@ checkpoint tests. Export requires no Vulkan. Optional matched Android testing
 measures speed with MTP disabled on both models; format parity alone is not a
 throughput guarantee. The unchanged official drafter remains packaged but unused.
 
+For **GRPO continuation of a QAT LoRA SFT adapter (E2B or Gemma 3 270M)**,
+use [`run_qat_grpo_pipeline.py`](scripts/run_qat_grpo_pipeline.py) and the
+[QAT GRPO runbook](docs/QAT_GRPO_PIPELINE.md). This opt-in lane reuses preparation,
+QAT, Golden32 selection, Golden35/Bixby50 testing, merging, the family-specific
+official-format exporter, and Android LiteRT-LM evaluation. Native evaluation
+is required for completion or explicitly deferred to the Android host. The
+SFT entry points are unchanged; real GPU/device validation remains necessary.
+
 For **true all-parameter E2B QAT SFT**, use the separate
 [`run_full_parameter_qat_pipeline.py`](scripts/run_full_parameter_qat_pipeline.py)
 and [all-parameter runbook](docs/FULL_PARAMETER_QAT_PIPELINE.md). It trains every

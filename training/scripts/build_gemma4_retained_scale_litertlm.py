@@ -955,6 +955,10 @@ def _best_adapter_provenance_report(
         )
     if resume_lineage is not None:
         checks["resume_lineage_verified"] = resume_lineage["verified"] is True
+    if (config.get("training") or {}).get("method") == "qat_lora_grpo":
+        from ir_training.train.qat_grpo_contract import verify_qat_grpo_provenance
+
+        checks["qat_grpo_provenance_verified"] = verify_qat_grpo_provenance(config, metadata)["verified"]
     return {
         "path": str(metadata_path),
         "sha256": _sha256_file(metadata_path) if metadata_path.is_file() else None,
@@ -1049,6 +1053,16 @@ def _config_report(
         "seed_manifest_cli_matches_config": configured_seed == seed_manifest,
         "qparams_cli_matches_config": configured_qparams == qparams_path,
     }
+    if (config.get("training") or {}).get("method") == "qat_lora_grpo":
+        from ir_training.train.qat_grpo_contract import validate_qat_grpo_config
+
+        try:
+            validate_qat_grpo_config(config)
+        except (TypeError, ValueError):
+            checks["qat_lora_grpo_config"] = False
+        else:
+            checks["qat_lora_grpo_config"] = True
+        del checks["qat_lora_sft"]
     return {
         "path": str(config_path),
         "sha256": _sha256_file(config_path),
