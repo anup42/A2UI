@@ -53,6 +53,11 @@ def test_standalone_then_training_adopts_same_bytes_without_muse(options, profil
     )
     assert state["status"] == "prepared"
     assert state["training_executed"] is False and state["student_weights_loaded"] is False
+    from pipeline.muse_prompt import PROMPT_PATH
+
+    producer_files = state["producer_contract"]["producer_files"]
+    assert producer_files[PROMPT_PATH.relative_to(ROOT).as_posix()] == sha256(PROMPT_PATH)
+    assert "dataset/prompts/muse_stage3_quality_v1.md" not in producer_files
     assert len(teacher.calls) == 1
     assert not (options.output_dir / "fit").exists()
     bundle = Path(state["prepared_input_dir"])
@@ -81,6 +86,69 @@ def test_standalone_then_training_adopts_same_bytes_without_muse(options, profil
     golden_training.prepare_data(plan, tokenizer_loader=lambda *_: Tokenizer())
     assert {path.name: sha256(path) for path in (consumer.output_dir / "prepared").iterdir()} == state["bundle_files"]
     assert len(teacher.calls) == 1
+
+
+@pytest.mark.parametrize("failure", ["prompt", "source_hash"])
+def test_early_dependency_failure_leaves_no_output_and_allows_fresh_retry(options, monkeypatch, failure):
+    from ir_training.data.express_preparation import _api
+
+    _api()
+    from pipeline import muse_prompt
+
+    source_bytes = {path.name: path.read_bytes() for path in options.input_dir.iterdir()}
+
+    def forbidden(*args, **kwargs):
+        pytest.fail("Dependency failure must happen before tokenizer loading or teacher calls")
+
+    with monkeypatch.context() as patch:
+        if failure == "prompt":
+            patch.setattr(muse_prompt, "PROMPT_PATH", muse_prompt.PROMPT_PATH.with_name("missing_muse_prompt.md"))
+        else:
+            original_sha256 = semantic_preparation.sha256
+
+            def unreadable(path):
+                if path == options.input_dir / "train.jsonl":
+                    raise OSError("source hash failed")
+                return original_sha256(path)
+
+            patch.setattr(semantic_preparation, "sha256", unreadable)
+        with pytest.raises(OSError):
+            semantic_preparation.prepare_semantic_dataset(
+                options, execute=True, tokenizer_loader=forbidden, command_runner=forbidden,
+            )
+    assert not options.output_dir.exists()
+    assert {path.name: path.read_bytes() for path in options.input_dir.iterdir()} == source_bytes
+
+    teacher = Teacher()
+    result = semantic_preparation.prepare_semantic_dataset(
+        options, execute=True, tokenizer_loader=lambda *_: Tokenizer(), command_runner=teacher,
+    )
+    assert result["status"] == "prepared" and len(teacher.calls) == 1
+    assert {path.name: path.read_bytes() for path in options.input_dir.iterdir()} == source_bytes
+
+
+@pytest.mark.parametrize("existing", ["empty_directory", "populated_directory", "file"])
+def test_fresh_preparation_preserves_existing_output_before_dependency_checks(options, monkeypatch, existing):
+    if existing == "file":
+        options.output_dir.write_bytes(b"existing output file")
+        before = options.output_dir.read_bytes()
+    else:
+        options.output_dir.mkdir()
+        if existing == "populated_directory":
+            (options.output_dir / "keep.json").write_bytes(b"existing run evidence")
+        before = {path.name: path.read_bytes() for path in options.output_dir.iterdir()}
+
+    def forbidden(*args, **kwargs):
+        pytest.fail("An existing output must be refused before producer checks or work")
+
+    monkeypatch.setattr(semantic_preparation, "_producer_contract", forbidden)
+    with pytest.raises(FileExistsError, match="already exists"):
+        semantic_preparation.prepare_semantic_dataset(
+            options, execute=True, tokenizer_loader=forbidden, command_runner=forbidden,
+        )
+    after = (options.output_dir.read_bytes() if existing == "file"
+             else {path.name: path.read_bytes() for path in options.output_dir.iterdir()})
+    assert after == before
 
 
 def test_failed_teacher_does_not_start_training_or_report_completion(options):

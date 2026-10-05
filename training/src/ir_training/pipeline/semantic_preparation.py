@@ -31,7 +31,11 @@ def _read(path: Path) -> dict:
 
 
 def _producer_contract(plan: dict, raw_files: dict) -> dict:
+    from ir_training.data.express_preparation import _api
     from ir_training.pipeline.preparation_cache import identity
+
+    _api()
+    from pipeline.muse_prompt import PROMPT_PATH
 
     root = golden_training.repo_root()
     paths = [
@@ -44,7 +48,7 @@ def _producer_contract(plan: dict, raw_files: dict) -> dict:
         "dataset/configs/models.yaml",
         "dataset/prompts/training_augmentation_v1.md",
         "dataset/prompts/genui_gen_mobile_a2ui_express_v1.md",
-        "dataset/prompts/muse_stage3_quality_v1.md",
+        PROMPT_PATH.relative_to(root).as_posix(),
         "dataset/schema/canonical_ui_graph_v1.schema.json",
     ]
     # Include transitive generation/reference gates, not just its CLI wrapper.
@@ -219,10 +223,15 @@ def _execute_preparation(plan: dict, options: GoldenTrainingOptions, state: dict
         state.pop("error", None)
         state.update(status="running", active_stage="augment")
     else:
-        output.mkdir(parents=True, exist_ok=False)
+        if output.exists():
+            raise FileExistsError(f"Standalone preparation output already exists: {output}")
+        # Missing inputs or producer dependencies must not strand a directory
+        # without a manifest that neither a fresh run nor resume can use.
         raw = {path: sha256(Path(path)) for path in plan["source_files"]}
+        producer_contract = _producer_contract(plan, raw)
+        output.mkdir(parents=True, exist_ok=False)
         state.update(status="running", active_stage="prepare", raw_files=raw,
-                     producer_contract=_producer_contract(plan, raw))
+                     producer_contract=producer_contract)
     _write(receipt, state)
     try:
         if not resume:
