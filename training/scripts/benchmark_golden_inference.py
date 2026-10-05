@@ -37,6 +37,9 @@ def main():
     from ir_training.qat.fake_quant import prepare_qat_model
     from ir_training.qat.full_model_contract import full_parameter_autocast
     from ir_training.train.cuda_runtime import sdpa_policy
+    from ir_training.train.precision import (
+        bind_full_finetune_precision, full_finetune_load_config, full_finetune_precision_policy,
+    )
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
     job = json.loads(args.worker_job.read_text(encoding="utf-8"))
@@ -44,11 +47,13 @@ def main():
     config["model"].update(device_map={"": 0}, inference_device="auto")
     torch.set_num_threads(int(os.environ.get("OMP_NUM_THREADS", "4")))
     started = time.perf_counter()
-    adapter = create_adapter(config["model"])
+    precision_policy = full_finetune_precision_policy(config)
+    adapter = create_adapter(full_finetune_load_config(config["model"], precision_policy))
     tokenizer = adapter.load_tokenizer()
     tokenizer_seconds = time.perf_counter() - started
     started = time.perf_counter()
     model = adapter.load_model()
+    bind_full_finetune_precision(model, precision_policy)
     base_load_seconds = time.perf_counter() - started
     started = time.perf_counter()
     if job.get("adapter_checkpoint"):

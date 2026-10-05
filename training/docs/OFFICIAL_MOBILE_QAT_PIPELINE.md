@@ -559,6 +559,15 @@ Trainer checkpoint such as `checkpoint-3500` and choose a different, nonexistent
 `--output-dir`. A callback-created best adapter, final adapter, or weight-only
 folder is not resumable because it does not contain the complete Trainer state.
 
+The current clipped weight STE uses the pre-saturation rounded integer code to
+decide which gradients pass. It preserves valid low-precision endpoint values
+without changing forward quantization or the mobile SRQ activation rule. A
+training resume additionally requires saved
+`qat.numeric_contract.weight_ste_rule: rounded_code_range_v1`. A checkpoint
+produced by the earlier endpoint-comparison rule must not restore its optimizer
+under the changed rule as an exact continuation. This runtime-only guard does
+not block export of historical checkpoints or modify their saved provenance.
+
 The checkpoint must contain hash-bound model/adapter and tokenizer files,
 `trainer_state.json`, `optimizer.pt`, `scheduler.pt`, every required per-rank
 `rng_state*.pth`, `golden_callback_state.json`, its resolved training config,

@@ -47,8 +47,13 @@ def is_full_qat(config: dict) -> bool:
 
 
 def full_parameter_autocast(model: Any):
-    """Match BF16 training compute during this lane's probes and generation."""
+    """Match full-finetuning compute during direct probes and generation."""
     from contextlib import nullcontext
+    from ir_training.train.precision import full_finetune_autocast
+
+    generic_context = full_finetune_autocast(model)
+    if generic_context is not None:
+        return generic_context
     if not getattr(model, "_a2ui_full_parameter_amp", False):
         return nullcontext()
     import torch

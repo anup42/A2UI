@@ -21,6 +21,11 @@ from ir_training.generation_policy import (
 )
 from ir_training.models.registry import create_adapter
 from ir_training.qat.full_model_contract import full_parameter_autocast
+from ir_training.train.precision import (
+    bind_full_finetune_precision,
+    full_finetune_load_config,
+    full_finetune_precision_policy,
+)
 from ir_training.qat.fake_quant import qat_inference_cache_scope
 
 
@@ -41,7 +46,8 @@ def generate_predictions(
         raise RuntimeError("Install training/requirements-training.txt before running generation.") from exc
 
     model_cfg = config.get("model") if isinstance(config.get("model"), dict) else {}
-    adapter = create_adapter(model_cfg)
+    precision_policy = full_finetune_precision_policy(config)
+    adapter = create_adapter(full_finetune_load_config(model_cfg, precision_policy))
     tokenizer_started = time.perf_counter()
     with Progress(f"Golden worker {os.environ.get('A2UI_EVAL_WORKER', '0')}: load tokenizer", unit="stage"):
         tokenizer = adapter.load_tokenizer()
@@ -75,6 +81,7 @@ def _generate_predictions_loaded_tokenizer(
     setup_started = time.perf_counter()
     with Progress(f"Golden worker {worker}: load model", unit="stage"):
         model = adapter.load_model()
+    bind_full_finetune_precision(model, full_finetune_precision_policy(config))
     setup_timings["base_model_load_seconds"] = time.perf_counter() - setup_started
     setup_started = time.perf_counter()
     if adapter_checkpoint is not None:

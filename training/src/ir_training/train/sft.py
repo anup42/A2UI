@@ -56,6 +56,13 @@ from ir_training.train.lora_config import (
 from ir_training.train.lora_targets import bind_retained_mobile_peft_targets
 from ir_training.train.prepared_binding import verify_tokenizer_binding
 from ir_training.train.resume_contract import build_resume_contract, verify_resume_contract
+from ir_training.train.precision import (
+    bind_full_finetune_precision,
+    full_finetune_load_config,
+    full_finetune_precision_policy,
+    resolve_training_dtype,
+    training_precision_flags,
+)
 from ir_training.train.cuda_runtime import active_attention_policy, cuda_memory_snapshot, training_attention_policy
 
 
@@ -187,6 +194,7 @@ def train_sft(
     requested_dtype = str(model_cfg.get("dtype", "bfloat16")).lower()
     resolved_dtype = _resolve_training_dtype(requested_dtype)
     model_cfg["dtype"] = resolved_dtype
+    full_finetune_precision = full_finetune_precision_policy(config, resolved_dtype=resolved_dtype)
 
     dataset_dir = resolve_path(run_cfg.get("dataset_dir", "outputs/datasets/dataset_v1_stage3"), base)
     output_dir = resolve_path(run_cfg.get("output_dir", "runs/gemma_e2b_ir_lora"), base)
@@ -200,8 +208,14 @@ def train_sft(
         raise FileNotFoundError(f"Missing train split: {train_path}")
     resume_contract = build_resume_contract(config, dataset_dir, effective_batch=effective_batch)
     resume_state_report = verify_resume_contract(resolved_resume_checkpoint, resume_contract, config=config) if resolved_resume_checkpoint is not None else None
+    if resolved_resume_checkpoint is not None:
+        from ir_training.train.numeric_resume import verify_numeric_training_resume
 
-    load_cfg = dict(model_cfg)
+        verify_numeric_training_resume(
+            resolved_resume_checkpoint, config, expected_full_precision=full_finetune_precision,
+        )
+
+    load_cfg = full_finetune_load_config(model_cfg, full_finetune_precision)
     if full_finetune and resolved_resume_checkpoint is not None:
         _require_full_model_checkpoint(resolved_resume_checkpoint)
         load_cfg["model_source"] = str(resolved_resume_checkpoint)
@@ -253,8 +267,16 @@ def train_sft(
             # itself receives explicit BF16 AMP with FP32 optimizer parameters.
             model._a2ui_full_parameter_amp = True
         else:
-            for parameter in model.parameters():
-                parameter.requires_grad_(True)
+            from ir_training.train.full_parameters import enable_full_parameter_training
+
+            bind_full_finetune_precision(model, full_finetune_precision)
+            full_parameter_scope = enable_full_parameter_training(model)
+            print(
+                "Full-finetuning precision: FP32 optimizer parameters; "
+                f"compute={full_finetune_precision['compute_dtype']}. "
+                "FP32 weights, gradients and optimizer state require more memory than BF16 storage.",
+                flush=True,
+            )
     elif resolved_resume_checkpoint is not None:
         _require_peft_resume_checkpoint(resolved_resume_checkpoint)
         model = PeftModel.from_pretrained(
@@ -878,6 +900,7 @@ def train_sft(
         "training_limit": training_limit,
         "checkpoint_kind": "full_model" if full_finetune else "lora_adapter",
         "full_parameter_scope": full_parameter_scope,
+        **({"full_finetune_precision": full_finetune_precision} if full_finetune_precision is not None else {}),
         "full_model_inventory": full_model_inventory,
         "full_qat_coverage": full_qat_coverage,
         "full_optimizer_preflight": full_optimizer_preflight,
@@ -3224,55 +3247,13 @@ def _enforce_cuda_requirement(model_cfg: dict[str, Any], training_cfg: dict[str,
 
 
 def _resolve_training_dtype(requested_dtype: str) -> str:
-    dtype = (requested_dtype or "bfloat16").strip().lower()
-    if dtype in {"bf16", "bfloat16"}:
-        if _cuda_bf16_supported():
-            print("Training precision: bfloat16", flush=True)
-            return "bfloat16"
-        if _cuda_available():
-            print(
-                "Training precision fallback: requested bfloat16, but this GPU/PyTorch setup "
-                "does not support bf16. Using float16 instead.",
-                flush=True,
-            )
-            return "float16"
-        print(
-            "Training precision fallback: requested bfloat16, but CUDA is unavailable. "
-            "Using float32 so TrainingArguments does not fail before reporting the real device issue.",
-            flush=True,
-        )
-        return "float32"
-    if dtype in {"fp16", "float16", "half"}:
-        if _cuda_available():
-            print("Training precision: float16", flush=True)
-            return "float16"
-        print(
-            "Training precision fallback: requested float16, but CUDA is unavailable. Using float32.",
-            flush=True,
-        )
-        return "float32"
-    if dtype in {"fp32", "float32", "full"}:
-        print("Training precision: float32", flush=True)
-        return "float32"
-    print(f"Training precision: unknown dtype {requested_dtype!r}; using float32.", flush=True)
-    return "float32"
+    return resolve_training_dtype(
+        requested_dtype, cuda_available=_cuda_available, bf16_supported=_cuda_bf16_supported,
+    )
 
 
 def _training_precision_flags(dtype_name: str, training_cfg: dict[str, Any] | None = None) -> dict[str, bool]:
-    cfg = training_cfg if isinstance(training_cfg, dict) else {}
-    precision_mode = str(cfg.get("mixed_precision", "auto")).strip().lower()
-    if precision_mode in {"none", "off", "false", "disabled", "no"}:
-        print("Trainer mixed precision disabled; model dtype still comes from model.dtype.", flush=True)
-        return {"bf16": False, "fp16": False}
-    if precision_mode in {"bf16", "bfloat16"}:
-        return {"bf16": True, "fp16": False}
-    if precision_mode in {"fp16", "float16", "half"}:
-        return {"bf16": False, "fp16": True}
-    dtype = dtype_name.strip().lower()
-    return {
-        "bf16": dtype == "bfloat16",
-        "fp16": dtype == "float16",
-    }
+    return training_precision_flags(dtype_name, training_cfg)
 
 
 def _cuda_available() -> bool:

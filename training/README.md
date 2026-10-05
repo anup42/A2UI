@@ -144,6 +144,35 @@ bytes are preserved while trained integer codes are transplanted. The optimizer
 and STE-QAT loop are repository implementations, not Google's private training
 or calibration recipe.
 
+### Training precision and numerical continuation
+
+The shared trainer's generic `full_finetune_sft` and `full_finetune_qat` paths
+load trainable parameters in FP32, including when restoring a full checkpoint.
+This preserves small optimizer updates instead of rounding them away in BF16.
+`model.dtype` and `training.mixed_precision` still select compute precision;
+Trainer, direct preflight/Golden calls and standalone evaluation share that
+autocast policy and its hardware fallback. Metadata records actual parameter
+and compute precision separately in `full_finetune_precision`. The dedicated
+all-parameter E2B workflow keeps its existing FP32/BF16 policy, and LoRA loading
+is unchanged. FP32 parameters, gradients and Adam moments require more GPU
+memory, and full weight checkpoints are larger; CPU tests do not establish GPU
+memory headroom.
+
+Clipped weight STE now masks gradients using the forward quantizer's rounded
+integer codes before saturation. Valid BF16 endpoint values and values within
+the endpoint rounding bin remain trainable; truly out-of-range codes are still
+blocked. Forward quantization, retained scales, identity STE and the separate
+mobile SRQ activation rule are unchanged. New QAT metadata records
+`qat.numeric_contract.weight_ste_rule: rounded_code_range_v1`.
+
+Training-time optimizer resume requires matching numerical metadata for these
+changed paths. Checkpoints missing the new FP32 or clipped-STE policy are
+rejected before model loading rather than silently changing an existing run's
+optimization. Historical export-lineage checks remain unchanged: old artifacts
+can still be exported. To train under the new rules, use a fresh run or an
+explicitly supported weight-only initialization; do not relabel old checkpoint
+metadata as having used the new policy.
+
 The two retained-scale/QAT multiformat pipelines use the pinned 2026-09-03 Golden-32
 only for evaluation. Older deployable profiles described below still use their
 separate Golden-100 contract; do not combine those sets or copy Golden rows into

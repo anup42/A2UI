@@ -373,25 +373,30 @@ def _fake_quantize_with_scale(
 ) -> Any:
     import torch
 
-    quantized = torch.round(values / scale + zero_point).clamp(qmin, qmax)
+    normalized_gradient = str(ste_gradient).strip().lower()
+    rounded = torch.round(values / scale + zero_point)
+    if normalized_gradient == "clipped":
+        # Use the forward quantizer's round-then-clamp decision, including its
+        # tie-breaking and zero point. Comparing values against dequantized
+        # endpoints instead drops valid boundary-code gradients (for example,
+        # BF16 0.1 is slightly above an FP32 retained endpoint of 0.1). Only
+        # rounded codes that actually require saturation should be blocked.
+        inside = ((rounded >= qmin) & (rounded <= qmax)).to(dtype=values.dtype)
+    quantized = rounded.clamp(qmin, qmax)
+    # The pre-clamp tensor is needed only for the backward mask; do not retain
+    # another full-size weight temporary through dequantization or inference.
+    del rounded
     dequantized = (quantized - zero_point) * scale
     # FLOAT32 scale computation must not promote a BF16/FP16 training model's
     # forward pass.  The integer codes and scales match the converter; the
     # simulated dequantized value returns to the model's original dtype.
     if dequantized.dtype != values.dtype:
         dequantized = dequantized.to(dtype=values.dtype)
-    normalized_gradient = str(ste_gradient).strip().lower()
     if normalized_gradient == "identity":
         # Historical STE: use the quantized forward value but identity
         # d(output)/d(values), including outside the representable interval.
         return values + (dequantized - values).detach()
     if normalized_gradient == "clipped":
-        # Saturation-aware STE. The forward value is still exactly quantized,
-        # but values outside the retained code range receive no gradient that
-        # would push them farther beyond an immutable mobile scale.
-        lower = (qmin - zero_point) * scale
-        upper = (qmax - zero_point) * scale
-        inside = ((values >= lower) & (values <= upper)).to(dtype=values.dtype)
         surrogate = values * inside
         return surrogate + (dequantized - surrogate).detach()
     raise ValueError(
@@ -1468,7 +1473,7 @@ def qat_numeric_contract(spec: QATSpec) -> dict[str, Any]:
     min_scale_matches = bool(
         is_ai_edge and float(spec.eps) == float(AI_EDGE_MIN_SCALE)
     )
-    return {
+    contract = {
         "quantizer": spec.quantizer,
         "reference_package": "ai-edge-quantizer",
         "reference_version": AI_EDGE_REFERENCE_QUANTIZER_VERSION,
@@ -1505,6 +1510,11 @@ def qat_numeric_contract(spec: QATSpec) -> dict[str, Any]:
         "frozen_activation_simulation": spec.simulate_frozen_activations,
         "native_runtime_numeric_parity_verified": False,
     }
+    if spec.ste_gradient == "clipped":
+        # Version the changed weight backward rule independently from the
+        # pinned mobile SRQ activation forward/backward policy.
+        contract["weight_ste_rule"] = "rounded_code_range_v1"
+    return contract
 
 
 def _merge_public_schema(qat: dict[str, Any]) -> dict[str, Any]:
