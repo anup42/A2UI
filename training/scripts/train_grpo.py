@@ -147,12 +147,32 @@ def load_training_dataset(
     prompt_source: str = "prepared",
     chat_template_kwargs: Mapping[str, Any] | None = None,
 ) -> Dataset:
-    from datasets import load_dataset
+    from datasets import Dataset
     if Path(path).suffix.lower() not in {".json", ".jsonl"}:
         raise ValueError("The reference loader supports .json and .jsonl")
-    dataset = load_dataset("json", data_files=path, split="train")
-    if "response_text" not in dataset.column_names:
-        raise ValueError("Dataset is missing required column: response_text")
+
+    def rows():
+        with Path(path).open("r", encoding="utf-8-sig") as handle:
+            first = handle.read(1)
+            while first and first.isspace():
+                first = handle.read(1)
+            handle.seek(0)
+            if Path(path).suffix.lower() == ".json" or first == "[":
+                try:
+                    data = json.load(handle)
+                except json.JSONDecodeError:
+                    handle.seek(0)
+                    data = (json.loads(line) for line in handle if line.strip())
+                else:
+                    data = data if isinstance(data, list) else [data]
+            else:
+                data = (json.loads(line) for line in handle if line.strip())
+            for row in data:
+                if not isinstance(row, dict):
+                    raise TypeError("Training rows must be JSON objects")
+                if "response_text" not in row:
+                    raise ValueError("Dataset is missing required column: response_text")
+                yield row
 
     def prepare(row: dict[str, Any]) -> dict[str, Any]:
         completion = _express_completion_from_row(row)
@@ -203,7 +223,12 @@ def load_training_dataset(
             "target_format": "a2ui_express_v1",
         }
 
-    return dataset.map(prepare, remove_columns=dataset.column_names)
+    # Raw V11 metadata can change types across JSON batches. Only the existing
+    # prepared GRPO fields enter Arrow; source/reward context is still read above.
+    prepared_rows = [prepare(row) for row in rows()]
+    if not prepared_rows:
+        raise ValueError("Training dataset has no rows")
+    return Dataset.from_list(prepared_rows)
 
 
 def split_by_source_model_time(dataset: Dataset, eval_fraction: float, seed: int) -> DatasetDict:

@@ -4,13 +4,23 @@ import hashlib
 import importlib.util
 import json
 from pathlib import Path
-import sys
 from types import SimpleNamespace
 
 import pytest
-
 from ir_training.data.chat_templates import build_messages
 from ir_training.train.grpo_runtime import audited_reward
+
+
+class Tokenizer:
+    bos_token_id = None
+    chat_template = "test"
+
+    def apply_chat_template(self, messages, **kwargs):
+        return "\n".join(item["content"] for item in messages)
+
+    def __call__(self, text, **kwargs):
+        assert kwargs["add_special_tokens"] is False
+        return {"input_ids": [ord(char) for char in text]}
 
 
 def script():
@@ -68,7 +78,8 @@ def test_full_seed_verifies_config_and_uses_portable_artifact_filenames(tmp_path
         script().validate_sft_checkpoint(str(tmp_path))
 
 
-def test_grpo_rewards_use_golden_source_contract_and_url_context(monkeypatch, tmp_path):
+def test_grpo_rewards_use_golden_source_contract_and_url_context(tmp_path):
+    pytest.importorskip("datasets")
     placeholder = "[IMAGE_URL_1]"
     uri = "https://example.test/a.png"
     completion = f'<a2ui>\nroot=Text("Photo {placeholder}")\n</a2ui>'
@@ -79,23 +90,10 @@ def test_grpo_rewards_use_golden_source_contract_and_url_context(monkeypatch, tm
                         "expected_ui_contract_v5_4_source": "persisted",
                         "url_preprocessing": {"url_map": {placeholder: {"url": uri}}}}}
 
-    class FakeDataset:
-        column_names = list(row)
-        def map(self, fn, **kwargs):
-            return [fn(row)]
+    source = tmp_path / "train.jsonl"
+    source.write_text(json.dumps(row) + "\n", encoding="utf-8")
 
-    monkeypatch.setitem(sys.modules, "datasets", SimpleNamespace(load_dataset=lambda *args, **kwargs: FakeDataset()))
-
-    class Tokenizer:
-        bos_token_id = None
-        chat_template = "test"
-        def apply_chat_template(self, messages, **kwargs):
-            return "\n".join(item["content"] for item in messages)
-        def __call__(self, text, **kwargs):
-            assert kwargs["add_special_tokens"] is False
-            return {"input_ids": [ord(char) for char in text]}
-
-    prepared = script().load_training_dataset("unused.jsonl", None, tokenizer=Tokenizer())[0]
+    prepared = script().load_training_dataset(str(source), None, tokenizer=Tokenizer())[0]
     assert prepared["response_text"] == "Photo " + uri
     assert prepared["source_id"] == "source-one" and prepared["query_id"] == "query-one"
     assert prepared["id"] == "one"
@@ -118,6 +116,70 @@ def test_grpo_rewards_use_golden_source_contract_and_url_context(monkeypatch, tm
     audit = json.loads((tmp_path / "grpo_rewards.rank0.jsonl").read_text())
     assert audit["raw_completion"] == raw
     assert audit["completion"] == captured["completions"][0]
+
+
+@pytest.mark.parametrize("format", ["jsonl", "json-array", "json-lines", "jsonl-array"])
+def test_grpo_loads_v11_null_then_string_metadata_without_changing_context(tmp_path, monkeypatch, format):
+    datasets = pytest.importorskip("datasets")
+    original_load = datasets.load_dataset
+
+    def small_json_batches(*args, **kwargs):
+        # The old raw JSON loader infers a null-only first batch, then fails
+        # to cast the later string. Force that boundary without a large file.
+        return original_load(*args, **kwargs, chunksize=1024, cache_dir=str(tmp_path / "cache"))
+
+    monkeypatch.setattr(datasets, "load_dataset", small_json_batches)
+    completion = '<a2ui>root=Text("Photo [IMAGE_URL_1]")</a2ui>'
+    rows = [{
+        "id": f"row-{index}", "response_text": "Photo [IMAGE_URL_1]", "completion": completion,
+        "messages": build_messages("system", "Photo [IMAGE_URL_1]", completion),
+        "metadata": {
+            "intent": intent, "source_id": f"source-{index}", "query_id": f"query-{index}",
+            "assets": [{"url": "[IMAGE_URL_1]"}],
+            "expected_ui_contract_v5_4": {"expected_url": "[IMAGE_URL_1]"},
+            "expected_ui_contract_v5_4_source": "persisted",
+            "url_preprocessing": {"url_map": {"[IMAGE_URL_1]": {"url": "https://example.test/a.png"}}},
+            "unused_v11": {"intent": intent, "padding": "x" * 2048},
+        },
+    } for index, intent in enumerate((None, "status"))]
+    source = tmp_path / ("train.jsonl" if format.startswith("jsonl") else "train.json")
+    payload = json.dumps(rows, indent=2) if format.endswith("array") else "\n".join(map(json.dumps, rows))
+    source.write_text(payload, encoding="utf-8")
+    original_bytes = source.read_bytes()
+    module = script()
+    prepared = module.load_training_dataset(str(source), None, tokenizer=Tokenizer())
+
+    assert source.read_bytes() == original_bytes
+    assert len(prepared) == 2
+    assert "metadata" not in prepared.column_names
+    for actual, row in zip(prepared, rows):
+        expected = module.build_prediction_record(row, "")
+        assert actual["id"] == row["id"]
+        assert actual["prompt"] == Tokenizer().apply_chat_template(
+            row["messages"][:-1], tokenize=False, add_generation_prompt=True)
+        assert actual["prompt_message_roles"] == [message["role"] for message in row["messages"][:-1]]
+        assert actual["completion"] == completion
+        assert actual["intent_bucket"] == row["metadata"]["intent"]
+        for key in ("source_id", "query_id", "response_text", "response_text_sha256", "source_context_sha256"):
+            assert actual[key] == expected[key]
+        assert actual["assets"] == [{"url": "https://example.test/a.png"}]
+        assert actual["expected_ui_contract"] == {"expected_url": "https://example.test/a.png"}
+        assert actual["expected_ui_contract_source"] == "persisted"
+
+
+@pytest.mark.parametrize("payload, error", [
+    (json.dumps({"response_text": "source", "completion": '<a2ui>root=Text("OK")</a2ui>'}) + "\ninvalid\n", json.JSONDecodeError),
+    ('["not a row"]', TypeError),
+    ('[{"completion": "target"}]', ValueError),
+    ('[]', ValueError),
+    ('\n', ValueError),
+])
+def test_grpo_json_loader_rejects_invalid_rows(tmp_path, payload, error):
+    pytest.importorskip("datasets")
+    source = tmp_path / "train.json"
+    source.write_text(payload, encoding="utf-8")
+    with pytest.raises(error):
+        script().load_training_dataset(str(source), "Create: {response_text}", prompt_source="template")
 
 
 def test_grpo_model_dispatch_materializes_direct_and_wrapped_linear_targets(monkeypatch):
