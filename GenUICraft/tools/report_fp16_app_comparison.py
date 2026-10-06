@@ -115,6 +115,14 @@ def build_report(root: Path) -> tuple[dict[str, Any], str]:
             mismatches.append("promptContractSha256")
         if config.get("modelPathArgument") != planned["modelPath"]:
             mismatches.append("modelPathArgument")
+        if protocol.get("warmupCase") and config.get("warmupCase") != protocol["warmupCase"]:
+            mismatches.append("warmupCase")
+        if protocol.get("cooldownTimeoutMs", 0):
+            gate_file = directory / "thermal_ready.json"
+            gate = read_json(gate_file) if gate_file.is_file() else {}
+            if (config.get("cooldownTimeoutMs") != protocol["cooldownTimeoutMs"]
+                    or gate.get("ready") is not True):
+                mismatches.append("thermalReadyGate")
         warmup_file = directory / "warmup_result.json"
         warmup = read_json(warmup_file) if warmup_file.is_file() else {}
         if warmup.get("rawComplete") is not True or not warmup.get("runtime"):
@@ -191,7 +199,7 @@ def build_report(root: Path) -> tuple[dict[str, Any], str]:
         "interpretation": {
             "quality": "Raw strict, repaired strict, and SDK render smoke counts are distinct. Source fidelity warnings remain separate; no aggregate score proves faithful conversion.",
             "timing": "Provider wall time includes native generation and prompt prefill. Native decode tokens/s excludes engine initialization and prefill. Warmup cases are excluded.",
-            "scope": "Three development-informed Bixby50 cases on one device are a diagnostic comparison, not a 50-case or holdout quality estimate.",
+            "scope": f"{len(protocol['cases'])} selected Bixby50 cases on one device are a diagnostic comparison, not a 50-case or holdout quality estimate.",
         },
     }
     lines = [
@@ -232,8 +240,8 @@ def build_report(root: Path) -> tuple[dict[str, Any], str]:
               "the SDK returned a document that compiles. SDK render smoke means the app displayed that document "
               "without a visible error and captured a screenshot. These mechanical checks do not prove content fidelity. "
               "The per-case source fidelity warning count in `summary.json` provides another diagnostic, not a score.", "",
-              "The sample has only weather, train, and airline baggage cases from a development-informed corpus. "
-              "It does not establish a 50-case success rate or production readiness.", ""]
+              "Selected cases: " + ", ".join(protocol["cases"]) + ". These development-informed samples "
+              "do not establish a 50-case success rate or production readiness.", ""]
     incomplete = [run for run in runs if run["state"] != "complete" or run.get("configMismatches")]
     if incomplete:
         lines += ["Incomplete or mismatched runs: " + ", ".join(

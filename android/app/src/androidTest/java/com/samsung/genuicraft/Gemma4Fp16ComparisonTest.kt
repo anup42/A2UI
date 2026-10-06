@@ -42,7 +42,8 @@ import org.junit.runner.RunWith
  * Quality failures are evidence, not instrumentation failures. The host runner alternates arms.
  *
  * Required arguments: modelPath, precision=FP32|FP16_CORRECTED, outputDir, label.
- * Optional: mtp=true|false, cases=BXP-001,BXP-003,BXP-004, caseTimeoutMs=360000.
+ * Optional: mtp=true|false, cases=BXP-001,BXP-003,BXP-004, caseTimeoutMs=360000,
+ * warmupCase=<corpus ID>, cooldownTimeoutMs=0 (disabled; otherwise wait for thermal status 0).
  * outputDir is a new leaf under the app's sdk_fp16_comparison external-files directory.
  */
 @RunWith(AndroidJUnit4::class)
@@ -81,6 +82,12 @@ class Gemma4Fp16ComparisonTest {
         require(ids.isNotEmpty() && ids.size == ids.distinct().size && ids.all(corpus::containsKey)) {
             "cases must be unique IDs from the frozen Bixby50 asset"
         }
+        val warmupId = args.getString("warmupCase", ids.first())!!.trim().also {
+            require(corpus.containsKey(it)) { "warmupCase must be an ID from the frozen Bixby50 asset" }
+        }
+        val cooldownTimeoutMs = args.getString("cooldownTimeoutMs", "0")!!.toLong().also {
+            require(it in 0L..600_000L) { "cooldownTimeoutMs out of range" }
+        }
         val promptBytes = context.assets.open(GenUiTrainedConverter.PROMPT_ASSET).use { it.readBytes() }
         val root = File(requireNotNull(context.getExternalFilesDir(null)), "sdk_fp16_comparison/$outputDir")
         require(!root.exists() && root.mkdirs()) { "Output directory must be new: ${root.absolutePath}" }
@@ -98,7 +105,8 @@ class Gemma4Fp16ComparisonTest {
             "gpuBackend" to true,
             "mtpRequested" to mtp,
             "cases" to ids,
-            "warmupCase" to ids.first(),
+            "warmupCase" to warmupId,
+            "cooldownTimeoutMs" to cooldownTimeoutMs,
             "caseTimeoutMs" to timeoutMs,
             "corpusAsset" to CORPUS_ASSET,
             "corpusSha256" to sha256(corpusBytes),
@@ -149,13 +157,14 @@ class Gemma4Fp16ComparisonTest {
         try {
             ActivityScenario.launch(GenUiSdkDemoActivity::class.java).use { activity ->
                 val warmup = runCase(
-                    context, instrumentation, activity, session, corpus.getValue(ids.first()),
+                    context, instrumentation, activity, session, corpus.getValue(warmupId),
                     File(root, "warmup"), true, timeoutMs, gson,
                 )
                 writeJson(File(root, "warmup_result.json"), warmup, gson)
                 instrumentation.sendStatus(0, Bundle().apply {
                     putString("stream", "$label warmup ${warmup["status"]}\n")
                 })
+                waitForThermalReady(context, instrumentation, root, cooldownTimeoutMs, label, gson)
                 ids.forEachIndexed { index, id ->
                     val report = runCase(
                         context, instrumentation, activity, session, corpus.getValue(id),
@@ -208,6 +217,44 @@ class Gemma4Fp16ComparisonTest {
         }
         check(reports.size == ids.size && closeError == null) {
             "Instrumentation did not complete; inspect preserved evidence: ${root.absolutePath}"
+        }
+    }
+
+    /** Cooling is outside the measured interval and retains the initialized native engine. */
+    private suspend fun waitForThermalReady(
+        context: Context,
+        instrumentation: android.app.Instrumentation,
+        root: File,
+        timeoutMs: Long,
+        label: String,
+        gson: Gson,
+    ) {
+        if (timeoutMs == 0L) return
+        require(Build.VERSION.SDK_INT >= 29) { "Thermal readiness requires Android 10 or newer" }
+        val started = System.nanoTime()
+        val samples = mutableListOf<Map<String, Any?>>()
+        var consecutiveReady = 0
+        while (true) {
+            val sample = deviceState(context)
+            samples += sample
+            consecutiveReady = if (sample["thermalStatus"] == PowerManager.THERMAL_STATUS_NONE) {
+                consecutiveReady + 1
+            } else 0
+            val elapsedMs = (System.nanoTime() - started) / 1_000_000L
+            val ready = consecutiveReady >= 3
+            writeJson(
+                File(root, "thermal_ready.json"),
+                mapOf("ready" to ready, "elapsedMs" to elapsedMs, "samples" to samples),
+                gson,
+            )
+            if (ready) {
+                instrumentation.sendStatus(0, Bundle().apply {
+                    putString("stream", "$label thermal ready: status 0; cooling ${elapsedMs}ms excluded\n")
+                })
+                return
+            }
+            check(elapsedMs < timeoutMs) { "Device did not cool to thermal status 0 within ${timeoutMs}ms" }
+            delay(1_000)
         }
     }
 

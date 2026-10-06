@@ -171,13 +171,18 @@ def run_arm(adb: Adb, output: Path, protocol: dict[str, Any], entry: dict[str, A
         "-e", "cases", ",".join(protocol["cases"]),
         "-e", "caseTimeoutMs", str(args.case_timeout_ms), TEST_RUNNER,
     ]
+    if getattr(args, "warmup_case", None):
+        invocation[-1:-1] = ["-e", "warmupCase", args.warmup_case]
+    if getattr(args, "cooldown_timeout_ms", 0):
+        invocation[-1:-1] = ["-e", "cooldownTimeoutMs", str(args.cooldown_timeout_ms)]
     (output / "commands").mkdir(exist_ok=True)
     write_json(output / "commands" / f"{label}.json", {"argv": adb.prefix + invocation,
                                                        "remoteDir": remote_dir})
     print(f"START {label}: {','.join(protocol['cases'])}", flush=True)
     telemetry(adb, output, label, "before")
     started = time.monotonic()
-    deadline = (len(protocol["cases"]) + 1) * args.case_timeout_ms / 1000 + 180
+    deadline = ((len(protocol["cases"]) + 1) * args.case_timeout_ms / 1000
+                + getattr(args, "cooldown_timeout_ms", 0) / 1000 + 180)
     process: subprocess.Popen[bytes] | None = None
     exit_code: int | None = None
     failure: str | None = None
@@ -228,6 +233,13 @@ def run_arm(adb: Adb, output: Path, protocol: dict[str, Any], entry: dict[str, A
     summary = json.loads((local_dir / "summary.json").read_text(encoding="utf-8"))
     if config["precision"] != entry["precision"] or config["mtpRequested"] != entry["mtp"]:
         raise RuntimeError(f"{label}: pulled arm identity mismatch")
+    if getattr(args, "warmup_case", None) and config.get("warmupCase") != args.warmup_case:
+        raise RuntimeError(f"{label}: instrumentation did not apply the requested warmup case")
+    if getattr(args, "cooldown_timeout_ms", 0):
+        gate_file = local_dir / "thermal_ready.json"
+        if (config.get("cooldownTimeoutMs") != args.cooldown_timeout_ms or not gate_file.is_file()
+                or json.loads(gate_file.read_text(encoding="utf-8")).get("ready") is not True):
+            raise RuntimeError(f"{label}: requested thermal gate did not pass")
     if not summary.get("runComplete") or summary.get("completed") != len(protocol["cases"]):
         raise RuntimeError(f"{label}: incomplete arm; evidence preserved")
     warmup = json.loads((local_dir / "warmup_result.json").read_text(encoding="utf-8"))
@@ -254,6 +266,9 @@ def main() -> None:
     parser.add_argument("--out", required=True, type=Path, help="Fresh host evidence directory")
     parser.add_argument("--tag", default="comparison", help="Short unique device-directory tag")
     parser.add_argument("--cases", default=",".join(DEFAULT_CASES))
+    parser.add_argument("--warmup-case", help="Optional frozen corpus ID for a shorter excluded warmup")
+    parser.add_argument("--cooldown-timeout-ms", type=int, default=0,
+                        help="After warmup, retain the engine and wait for thermal status 0; 0 disables the gate")
     parser.add_argument("--repetitions", type=int, default=2)
     parser.add_argument("--mtp-mode", choices=("off", "on", "both"), default="off")
     parser.add_argument("--mtp-drafter-verified", action="store_true",
@@ -278,6 +293,10 @@ def main() -> None:
     frozen = {json.loads(line)["id"] for line in CORPUS.read_text(encoding="utf-8").splitlines() if line}
     if not set(cases) <= frozen:
         parser.error("--cases includes an ID outside frozen Bixby50")
+    if args.warmup_case and args.warmup_case not in frozen:
+        parser.error("--warmup-case must be a frozen Bixby50 ID")
+    if not 0 <= args.cooldown_timeout_ms <= 600_000:
+        parser.error("--cooldown-timeout-ms must be 0..600000")
     original = args.original_model.strip()
     corrected = args.corrected_model.strip()
     if not original.startswith("/") or not corrected.startswith("/") or original == corrected:
@@ -298,7 +317,10 @@ def main() -> None:
         "caseTimeoutMs": args.case_timeout_ms, "cooldownSeconds": args.cooldown_seconds,
         "order": ("AB only; single-pair pilot, not counterbalanced" if args.repetitions == 1
                   else "Alternating AB/BA within each MTP mode (ABBA for two repetitions)"),
-        "warmup": "Each arm reruns its first case once before measured cases; warmup excluded",
+        "warmup": (f"Each arm uses {args.warmup_case} as an excluded warmup" if args.warmup_case
+                   else "Each arm reruns its first case once before measured cases; warmup excluded"),
+        "warmupCase": args.warmup_case,
+        "cooldownTimeoutMs": args.cooldown_timeout_ms,
         "plan": plan,
     }
     write_json(output / "protocol.json", protocol)
