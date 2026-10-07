@@ -1,0 +1,21 @@
+
+[01_flights]
+10-07 11:27:40.369  5718 13580 I GenUICraftRuntime: Gemma4 backend=GPU; precision=FP16_CORRECTED; MTP=true; MTPRequested=true; modelSupportsMtp=true; thinking=false; metrics=false; model=/storage/emulated/0/Android/data/com.samsung.android.bixby.agent/files/genuicraft/models/model-fp16-corrected.litertlm
+10-07 11:27:51.633  5718 13580 I GenUICraftFp16: policy=genuicraft-fp16-rope-qdq-v1 source_programs=235; qdq_programs=49; qdq_blocks=206; rejected=0
+10-07 11:27:51.726  5718 13342 I BCL@Renderer: (GenUiIntegration) GenUICraft conversion succeeded: attempts=1, repair=NONE, warnings=10
+
+[02_trains]
+10-07 11:29:41.502  5718 13580 I GenUICraftFp16: policy=genuicraft-fp16-rope-qdq-v1 source_programs=235; qdq_programs=49; qdq_blocks=206; rejected=0
+10-07 11:29:41.569  5718  5783 I BCL@Renderer: (GenUiIntegration) GenUICraft conversion succeeded: attempts=1, repair=GENERATED_DSL_REPAIR, warnings=13
+
+[03_phones_cards]
+10-07 11:36:36.247  5718 13580 I GenUICraftFp16: policy=genuicraft-fp16-rope-qdq-v1 source_programs=235; qdq_programs=49; qdq_blocks=206; rejected=0
+10-07 11:36:36.294  5718 17762 I BCL@Renderer: (GenUiIntegration) GenUICraft conversion succeeded: attempts=1, repair=GENERATED_DSL_REPAIR, warnings=12
+
+[04_climate]
+10-07 11:39:56.434  5718 13580 I GenUICraftFp16: policy=genuicraft-fp16-rope-qdq-v1 source_programs=235; qdq_programs=49; qdq_blocks=206; rejected=0
+10-07 11:39:56.471  5718 14825 I BCL@Renderer: (GenUiIntegration) GenUICraft conversion succeeded: attempts=1, repair=NONE, warnings=10
+
+[05_restaurants]
+10-07 11:49:59.076  5718 13580 I GenUICraftFp16: policy=genuicraft-fp16-rope-qdq-v1 source_programs=235; qdq_programs=49; qdq_blocks=206; rejected=0
+10-07 11:49:59.118  5718 17761 I BCL@Renderer: (GenUiIntegration) GenUICraft conversion succeeded: attempts=1, repair=GENERATED_DSL_REPAIR, warnings=11

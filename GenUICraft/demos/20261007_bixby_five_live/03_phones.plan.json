@@ -1,0 +1,63 @@
+{
+  "trim": [
+    3.5,
+    47.25
+  ],
+  "annotations": [
+    {
+      "start": 3.5,
+      "end": 13.8,
+      "stage": "LIVE BIXBY",
+      "title": "Compare phones",
+      "body": "Galaxy S25, iPhone 16\nand Pixel 9."
+    },
+    {
+      "start": 13.8,
+      "end": 17.8,
+      "stage": "LIVE EXPRESS",
+      "title": "Model-generated\nstructure",
+      "body": "A2UI Express streams\nfrom the on-device model.",
+      "arrow_y_source": 1070
+    },
+    {
+      "start": 17.8,
+      "end": 21.6,
+      "stage": "GENUICRAFT",
+      "title": "Features become\nlabeled cards",
+      "body": "Price, battery, camera\nand update support\nstay together.",
+      "accent": "green",
+      "arrow_y_source": 1430
+    },
+    {
+      "start": 27.5,
+      "end": 30.0,
+      "stage": "BIXBY VIEW",
+      "title": "A wide comparison",
+      "body": "The table hides fields\nbeyond the screen edge.",
+      "arrow_y_source": 1280
+    },
+    {
+      "start": 30.0,
+      "end": 43.2,
+      "stage": "SAME ANSWER",
+      "title": "One card\nper phone",
+      "body": "Read each option\nwithout moving sideways.",
+      "accent": "green",
+      "arrow_y_source": 1450
+    },
+    {
+      "start": 43.2,
+      "end": 47.25,
+      "stage": "CLEARER DETAILS",
+      "title": "Keep the labels",
+      "body": "Camera and battery\nremain easy to scan.",
+      "arrow_y_source": 1630
+    }
+  ],
+  "cuts": [
+    [
+      22.0,
+      27.2
+    ]
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "trim": [
+    3.4,
+    49.3
+  ],
+  "annotations": [
+    {
+      "start": 3.4,
+      "end": 13.5,
+      "stage": "LIVE BIXBY",
+      "title": "Compare trains",
+      "body": "Delhi to Agra,\nfour services."
+    },
+    {
+      "start": 13.5,
+      "end": 18.8,
+      "stage": "LIVE EXPRESS",
+      "title": "Generate the UI",
+      "body": "E2B generates the\nstructure on device.",
+      "arrow_y_source": 990
+    },
+    {
+      "start": 18.8,
+      "end": 24.2,
+      "stage": "GENUICRAFT",
+      "title": "All fields\nstay visible",
+      "body": "Fare, departure and\ntravel time on each row.",
+      "accent": "green",
+      "arrow_y_source": 1450
+    },
+    {
+      "start": 31.0,
+      "end": 36.6,
+      "stage": "BIXBY VIEW",
+      "title": "Fare goes\noff-screen",
+      "body": "The wide Markdown\ntable needs sideways\nscrolling.",
+      "arrow_y_source": 1200
+    },
+    {
+      "start": 36.6,
+      "end": 46.5,
+      "stage": "CLEARER COMPARISON",
+      "title": "One compact\nrail card",
+      "body": "Four labeled services\nfit together.",
+      "accent": "green",
+      "arrow_y_source": 1530
+    },
+    {
+      "start": 46.5,
+      "end": 49.3,
+      "stage": "ONE CONVERSATION",
+      "title": "Read the details",
+      "body": "Scroll the answer\nin the same conversation.",
+      "arrow_y_source": 1160
+    }
+  ],
+  "cuts": [
+    [
+      24.7,
+      30.8
+    ]
+  ]
+}

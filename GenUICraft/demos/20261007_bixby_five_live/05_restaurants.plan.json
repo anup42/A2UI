@@ -1,0 +1,63 @@
+{
+  "trim": [
+    3.8,
+    60.4
+  ],
+  "annotations": [
+    {
+      "start": 3.8,
+      "end": 17.3,
+      "stage": "LIVE BIXBY",
+      "title": "Breakfast\nplaces",
+      "body": "Compare three\nBengaluru restaurants."
+    },
+    {
+      "start": 17.3,
+      "end": 30.7,
+      "stage": "LIVE EXPRESS",
+      "title": "Watch the\nstructure build",
+      "body": "The model structures\nthe place details\non device.",
+      "arrow_y_source": 1160
+    },
+    {
+      "start": 30.7,
+      "end": 34.5,
+      "stage": "GENUICRAFT",
+      "title": "Details stay\nwith the place",
+      "body": "Cost and hours\nappear together.",
+      "accent": "green",
+      "arrow_y_source": 1760
+    },
+    {
+      "start": 41.2,
+      "end": 46.5,
+      "stage": "BIXBY VIEW",
+      "title": "A wide\nrestaurant table",
+      "body": "Cost, hours and address\nsit beyond the screen edge.",
+      "arrow_y_source": 1450
+    },
+    {
+      "start": 46.5,
+      "end": 58.0,
+      "stage": "SAME ANSWER",
+      "title": "A place card",
+      "body": "Read the cost and hours\nwithout scrolling sideways.",
+      "accent": "green",
+      "arrow_y_source": 1740
+    },
+    {
+      "start": 58.0,
+      "end": 60.4,
+      "stage": "CLEARER DETAILS",
+      "title": "Address\nin context",
+      "body": "The address stays\nwith its restaurant.",
+      "arrow_y_source": 1960
+    }
+  ],
+  "cuts": [
+    [
+      34.8,
+      40.9
+    ]
+  ]
+}

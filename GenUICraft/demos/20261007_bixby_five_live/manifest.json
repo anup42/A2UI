@@ -1,0 +1,407 @@
+{
+  "date": "2026-10-07",
+  "app": "Bixby 5.0.10.50",
+  "device_model": "SM-F776U",
+  "inference": "trained E2B, GPU, FP16_CORRECTED, MTP enabled",
+  "model_sha256": "7f01bdf1c6ba9bdf658e57c75001fc35a42edad88238bc5dab0a5f7dcf3de373",
+  "pipeline": "Bixby answer -> on-device A2UI Express -> shared SDK repair/compiler -> renderer",
+  "evaluation_scope": "Qualitative presentation comparison; selected key values checked against the same Bixby answer. Not an accuracy benchmark or independent fact verification.",
+  "records": [
+    {
+      "id": "01_flights",
+      "title": "Flights",
+      "video": "Bixby_GenUICraft_Flights.mp4",
+      "poster": "review/01_flights.jpg",
+      "benefit": "Airline logos, fare, duration and departure/arrival times together.",
+      "query": "Show morning flights from Bengaluru to Varanasi for tomorrow. Compare 3 options in a compact table with airline, departure and arrival times, duration and fare.",
+      "duration_seconds": 53.36666666666667,
+      "bytes": 1825822,
+      "sha256": "c9d280ff119c2a1bb2406efa704a3e9c54a637edd23f72cea1411ad37608b4f0",
+      "source_sha256": "07b0b5aa979533523621632b030cbac52bff0be6a95dcd458705eb44a212f0df",
+      "conversion": {
+        "attempts": 1,
+        "repair": "NONE",
+        "warnings": 10
+      },
+      "key_value_presence_checks": [
+        {
+          "value": "Air India Express",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "Akasa Air",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "IndiGo",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "6,613",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "7,064",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "7,473",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "06:05",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "08:40",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "07:25",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "10:00",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "10:10",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "12:40",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        }
+      ],
+      "visible_limitations": []
+    },
+    {
+      "id": "02_trains",
+      "title": "Trains",
+      "video": "Bixby_GenUICraft_Trains.mp4",
+      "poster": "review/02_trains.jpg",
+      "benefit": "Four compact rail services with fares and journey times visible.",
+      "query": "Compare 4 trains from Delhi to Agra in a compact table with train number, departure, travel time and fare. Keep the introduction to one short sentence.",
+      "duration_seconds": 39.8,
+      "bytes": 1387558,
+      "sha256": "2187a2d16be222c0c65f5f37f90932fafed351b7e0303a7678875f05608bd199",
+      "source_sha256": "5e56b87d76c644dfafcb32f97dffb52d328a38ddee00448f0c6cff27b6edbf71",
+      "conversion": {
+        "attempts": 1,
+        "repair": "GENERATED_DSL_REPAIR",
+        "warnings": 13
+      },
+      "key_value_presence_checks": [
+        {
+          "value": "20172",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "12002",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "12280",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "14212",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "95",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "340",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "181",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "90",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "14:40",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "06:00",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "06:55",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "17:40",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        }
+      ],
+      "visible_limitations": []
+    },
+    {
+      "id": "03_phones_cards",
+      "title": "Phone comparison",
+      "video": "Bixby_GenUICraft_PhoneComparison.mp4",
+      "poster": "review/03_phones_cards.jpg",
+      "benefit": "One card per phone with labeled price, battery, camera and update support.",
+      "query": "Help me compare Samsung Galaxy S25, iPhone 16 and Google Pixel 9. Give one short introduction then a table with one row per phone and columns for India price, camera, battery and software updates. Keep it under 150 words.",
+      "duration_seconds": 38.56666666666667,
+      "bytes": 1388133,
+      "sha256": "35ae116481fbcfa9e8acc65ce287bd03cec03bcc4b4c82f49937da5698c7e4fa",
+      "source_sha256": "a042d20cd6533b3366aa8661a2169b4887d32025d93c8d00434a66984ebbf3c9",
+      "conversion": {
+        "attempts": 1,
+        "repair": "GENERATED_DSL_REPAIR",
+        "warnings": 12
+      },
+      "key_value_presence_checks": [
+        {
+          "value": "Samsung Galaxy S25",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "iPhone 16",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "Google Pixel 9",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "62,999",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "69,900",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "79,999",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "4,000",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "3,561",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "4,700",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        }
+      ],
+      "visible_limitations": []
+    },
+    {
+      "id": "04_climate",
+      "title": "Seasonal weather",
+      "video": "Bixby_GenUICraft_WeatherComparison.mp4",
+      "poster": "review/04_climate.jpg",
+      "benefit": "Month, high/low temperatures, rainfall and conditions within the phone width.",
+      "query": "Compare typical Bengaluru weather in January, April, July and October. Give one short introduction then a compact table with Month, High, Low, Rainfall and Conditions. Keep it under 130 words.",
+      "duration_seconds": 39.46666666666667,
+      "bytes": 1370918,
+      "sha256": "bf0c19ede32f9e83b8bbd55dc18286b5a5a5c29b14589bc807882df8f4f31402",
+      "source_sha256": "a775fd347f3dbf2dd2eb2a78fbfd4be06c99fc32ad827382ebee5415e46af972",
+      "conversion": {
+        "attempts": 1,
+        "repair": "NONE",
+        "warnings": 10
+      },
+      "key_value_presence_checks": [
+        {
+          "value": "January",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "April",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "July",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "October",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "29",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "16",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "33",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "35",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "20",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "23",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "127",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "168",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        }
+      ],
+      "visible_limitations": [
+        "The generated section title says Weather Forecast although the request asks for typical seasonal climate."
+      ]
+    },
+    {
+      "id": "05_restaurants",
+      "title": "Restaurant comparison",
+      "video": "Bixby_GenUICraft_RestaurantComparison.mp4",
+      "poster": "review/05_restaurants.jpg",
+      "benefit": "Cost, opening hours and address grouped with each restaurant.",
+      "query": "Compare MTR, Vidyarthi Bhavan and Brahmins Coffee Bar for vegetarian breakfast in Bengaluru. Show the signature dish, approximate cost, address and opening hours for each. Keep it under 140 words.",
+      "duration_seconds": 50.5,
+      "bytes": 1567937,
+      "sha256": "df8e0bf16a49832fb04f7b03e9da1aeb58a8b564b8da36d0af7dcf985242c6f7",
+      "source_sha256": "77b93c7962c57f061e65941831fcabe3171b114f9c8d14221b00b8a5ae58ba47",
+      "conversion": {
+        "attempts": 1,
+        "repair": "GENERATED_DSL_REPAIR",
+        "warnings": 11
+      },
+      "key_value_presence_checks": [
+        {
+          "value": "MTR",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "Vidyarthi Bhavan",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "Brahmins Coffee Bar",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "200",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "400",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "150",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "300",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "7:30am",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "9:00pm",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "6:30am",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "11:30am",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "Gandhi Bazaar",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        },
+        {
+          "value": "Not available",
+          "in_original_answer_tree": true,
+          "in_generated_answer_tree": true
+        }
+      ],
+      "visible_limitations": [
+        "The renderer uses decorative placeholders; these are not restaurant photos.",
+        "Signature dish is retained in the accessible row data but is not displayed as a visible field.",
+        "The large placeholder and truncated long address still need renderer refinement."
+      ]
+    }
+  ]
+}

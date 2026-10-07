@@ -1,0 +1,202 @@
+{
+  "schema_version": 1,
+  "created_utc": "2026-10-07T06:23:17.330030+00:00",
+  "source": {
+    "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\demos\\20261007_bixby_five_live\\evidence\\03_phones_cards\\raw.mp4",
+    "bytes": 23814574,
+    "sha256": "a042d20cd6533b3366aa8661a2169b4887d32025d93c8d00434a66984ebbf3c9",
+    "width": 1080,
+    "height": 2520,
+    "duration_seconds": 47.31,
+    "nominal_fps": 36.73,
+    "frames": 1738,
+    "decoded_time_seconds": 47.312644,
+    "strict_decode": "passed",
+    "decode_errors": 0
+  },
+  "plan": {
+    "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\demos\\20261007_bixby_five_live\\03_phones.plan.json",
+    "sha256": "19c3df2fbab65c41093c50d63d26599b2819f740e03ee6f12f057f7015b89afe",
+    "time_basis": "absolute raw source seconds"
+  },
+  "output": {
+    "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\demos\\20261007_bixby_five_live\\Bixby_GenUICraft_PhoneComparison.mp4",
+    "bytes": 1388133,
+    "sha256": "35ae116481fbcfa9e8acc65ce287bd03cec03bcc4b4c82f49937da5698c7e4fa",
+    "width": 1080,
+    "height": 1080,
+    "duration_seconds": 38.56666666666667,
+    "nominal_fps": 30.0,
+    "frames": 1157,
+    "decoded_time_seconds": 38.566667,
+    "strict_decode": "passed",
+    "decode_errors": 0,
+    "fps": 30,
+    "codec": "H.264",
+    "pixel_format": "yuv420p",
+    "audio": false
+  },
+  "cuts": [
+    {
+      "source_start": 0.0,
+      "source_end": 3.5,
+      "position": "head"
+    },
+    {
+      "source_start": 22.0,
+      "source_end": 27.2,
+      "position": "internal"
+    },
+    {
+      "source_start": 47.25,
+      "source_end": 47.31,
+      "position": "tail"
+    }
+  ],
+  "source_speed_sections": [
+    {
+      "source_start": 3.5,
+      "source_end": 22.0,
+      "multiplier": 1.0,
+      "output_start": 0.0,
+      "output_end": 18.5
+    },
+    {
+      "source_start": 27.2,
+      "source_end": 47.25,
+      "multiplier": 1.0,
+      "output_start": 18.5,
+      "output_end": 38.55
+    }
+  ],
+  "spinner_patches": [],
+  "crop_xywh": [
+    0,
+    108,
+    1080,
+    2292
+  ],
+  "phone_canvas_xywh": [
+    40,
+    60,
+    452,
+    960
+  ],
+  "annotations": [
+    {
+      "source_start": 3.5,
+      "source_end": 13.8,
+      "stage": "LIVE BIXBY",
+      "title": "Compare phones",
+      "body": "Galaxy S25, iPhone 16\nand Pixel 9.",
+      "accent": "#1967C8",
+      "arrow_y_source": null,
+      "output_start": 0.0,
+      "output_end": 10.3
+    },
+    {
+      "source_start": 13.8,
+      "source_end": 17.8,
+      "stage": "LIVE EXPRESS",
+      "title": "Model-generated\nstructure",
+      "body": "A2UI Express streams\nfrom the on-device model.",
+      "accent": "#1967C8",
+      "arrow_y_source": 1070.0,
+      "output_start": 10.3,
+      "output_end": 14.3
+    },
+    {
+      "source_start": 17.8,
+      "source_end": 21.6,
+      "stage": "GENUICRAFT",
+      "title": "Features become\nlabeled cards",
+      "body": "Price, battery, camera\nand update support\nstay together.",
+      "accent": "#198E44",
+      "arrow_y_source": 1430.0,
+      "output_start": 14.3,
+      "output_end": 18.1
+    },
+    {
+      "source_start": 27.5,
+      "source_end": 30.0,
+      "stage": "BIXBY VIEW",
+      "title": "A wide comparison",
+      "body": "The table hides fields\nbeyond the screen edge.",
+      "accent": "#1967C8",
+      "arrow_y_source": 1280.0,
+      "output_start": 18.8,
+      "output_end": 21.3
+    },
+    {
+      "source_start": 30.0,
+      "source_end": 43.2,
+      "stage": "SAME ANSWER",
+      "title": "One card\nper phone",
+      "body": "Read each option\nwithout moving sideways.",
+      "accent": "#198E44",
+      "arrow_y_source": 1450.0,
+      "output_start": 21.3,
+      "output_end": 34.5
+    },
+    {
+      "source_start": 43.2,
+      "source_end": 47.25,
+      "stage": "CLEARER DETAILS",
+      "title": "Keep the labels",
+      "body": "Camera and battery\nremain easy to scan.",
+      "accent": "#1967C8",
+      "arrow_y_source": 1630.0,
+      "output_start": 34.5,
+      "output_end": 38.55
+    }
+  ],
+  "contact_sheet": {
+    "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\demos\\20261007_bixby_five_live\\Bixby_GenUICraft_PhoneComparison.contact_sheet.jpg",
+    "samples": [
+      {
+        "output_seconds": 0.0,
+        "source_seconds": 3.5
+      },
+      {
+        "output_seconds": 5.15,
+        "source_seconds": 8.65
+      },
+      {
+        "output_seconds": 12.3,
+        "source_seconds": 15.8
+      },
+      {
+        "output_seconds": 16.2,
+        "source_seconds": 19.7
+      },
+      {
+        "output_seconds": 20.05,
+        "source_seconds": 28.75
+      },
+      {
+        "output_seconds": 27.9,
+        "source_seconds": 36.6
+      },
+      {
+        "output_seconds": 36.525,
+        "source_seconds": 45.225
+      },
+      {
+        "output_seconds": 38.417,
+        "source_seconds": 47.117
+      }
+    ]
+  },
+  "continuous_source": false,
+  "one_source_recording": true,
+  "retained_source_contiguous": false,
+  "static_phone_holds": false,
+  "mock_phone_ui": false,
+  "timer_visible": false,
+  "source_time_text_visible": false,
+  "speed_label_in_video": false,
+  "frame_sampling": "30 fps resampling of raw capture timing; existing source frames cover natural VFR intervals",
+  "time_mapping_tolerance_seconds": 0.166667,
+  "ffmpeg_version": "ffmpeg version 7.1-essentials_build-www.gyan.dev Copyright (c) 2000-2024 the FFmpeg developers",
+  "filter_graph": "[0:v:0]setpts=PTS-STARTPTS,fps=30,split=2[v0][v1];\n[v0]trim=start=3.500000000:end=22.000000000,setpts=(PTS-STARTPTS)/1.000000000,fps=30,trim=duration=18.500000000,setpts=PTS-STARTPTS[part0];\n[v1]trim=start=27.200000000:end=47.250000000,setpts=(PTS-STARTPTS)/1.000000000,fps=30,trim=duration=20.050000000,setpts=PTS-STARTPTS[part1];\n[part0][part1]concat=n=2:v=1:a=0[timeline];\n[timeline]crop=1080:2292:0:108,scale=452:960:flags=lanczos,setsar=1,pad=1080:1080:40:60:color=#F7F8FA[canvas];\n[canvas][1:v]overlay=eof_action=repeat:repeatlast=1[common];\n[common][2:v]overlay=eof_action=repeat:repeatlast=1:enable='gte(t,0.000000000)*lt(t,10.300000000)'[caption0];\n[caption0][3:v]overlay=eof_action=repeat:repeatlast=1:enable='gte(t,10.300000000)*lt(t,14.300000000)'[caption1];\n[caption1][4:v]overlay=eof_action=repeat:repeatlast=1:enable='gte(t,14.300000000)*lt(t,18.100000000)'[caption2];\n[caption2][5:v]overlay=eof_action=repeat:repeatlast=1:enable='gte(t,18.800000000)*lt(t,21.300000000)'[caption3];\n[caption3][6:v]overlay=eof_action=repeat:repeatlast=1:enable='gte(t,21.300000000)*lt(t,34.500000000)'[caption4];\n[caption4][7:v]overlay=eof_action=repeat:repeatlast=1:enable='gte(t,34.500000000)*lt(t,38.550000000)'[caption5];\n[caption5]format=yuv420p[out]\n"
+}

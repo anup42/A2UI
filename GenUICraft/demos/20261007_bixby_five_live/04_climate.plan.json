@@ -1,0 +1,63 @@
+{
+  "trim": [
+    3.8,
+    49.15
+  ],
+  "annotations": [
+    {
+      "start": 3.8,
+      "end": 14,
+      "stage": "LIVE BIXBY",
+      "title": "Bengaluru\nby season",
+      "body": "Compare four months\nof typical weather."
+    },
+    {
+      "start": 14,
+      "end": 19.2,
+      "stage": "LIVE EXPRESS",
+      "title": "Generate\nmonth cards",
+      "body": "E2B structures the\nweather comparison.",
+      "arrow_y_source": 1090
+    },
+    {
+      "start": 19.2,
+      "end": 23.5,
+      "stage": "GENUICRAFT",
+      "title": "Weather fields\nstay together",
+      "body": "Highs, lows, rainfall\nand conditions together.",
+      "accent": "green",
+      "arrow_y_source": 1720
+    },
+    {
+      "start": 29.9,
+      "end": 33.8,
+      "stage": "BIXBY VIEW",
+      "title": "A wide table",
+      "body": "Rainfall and conditions\nneed sideways scrolling.",
+      "arrow_y_source": 1350
+    },
+    {
+      "start": 33.8,
+      "end": 45.7,
+      "stage": "SAME ANSWER",
+      "title": "Scan by month",
+      "body": "Read labeled values\nwithin the phone width.",
+      "accent": "green",
+      "arrow_y_source": 1750
+    },
+    {
+      "start": 45.7,
+      "end": 49.15,
+      "stage": "CLEARER DETAILS",
+      "title": "Rainfall\nin context",
+      "body": "Conditions stay beside\neach month\u2019s values.",
+      "arrow_y_source": 1340
+    }
+  ],
+  "cuts": [
+    [
+      23.8,
+      29.7
+    ]
+  ]
+}

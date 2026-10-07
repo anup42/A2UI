@@ -1,0 +1,202 @@
+{
+  "schema_version": 1,
+  "created_utc": "2026-10-07T06:24:38.541345+00:00",
+  "source": {
+    "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\demos\\20261007_bixby_five_live\\evidence\\04_climate\\raw.mp4",
+    "bytes": 23573582,
+    "sha256": "a775fd347f3dbf2dd2eb2a78fbfd4be06c99fc32ad827382ebee5415e46af972",
+    "width": 1080,
+    "height": 2520,
+    "duration_seconds": 49.21,
+    "nominal_fps": 37.55,
+    "frames": 1848,
+    "decoded_time_seconds": 49.213844,
+    "strict_decode": "passed",
+    "decode_errors": 0
+  },
+  "plan": {
+    "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\demos\\20261007_bixby_five_live\\04_climate.plan.json",
+    "sha256": "fd9f1089b090b5f9fe7ff0a2e7eafee91a14c956f099e11f88fcd6d4589137b5",
+    "time_basis": "absolute raw source seconds"
+  },
+  "output": {
+    "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\demos\\20261007_bixby_five_live\\Bixby_GenUICraft_WeatherComparison.mp4",
+    "bytes": 1370918,
+    "sha256": "bf0c19ede32f9e83b8bbd55dc18286b5a5a5c29b14589bc807882df8f4f31402",
+    "width": 1080,
+    "height": 1080,
+    "duration_seconds": 39.46666666666667,
+    "nominal_fps": 30.0,
+    "frames": 1184,
+    "decoded_time_seconds": 39.466667,
+    "strict_decode": "passed",
+    "decode_errors": 0,
+    "fps": 30,
+    "codec": "H.264",
+    "pixel_format": "yuv420p",
+    "audio": false
+  },
+  "cuts": [
+    {
+      "source_start": 0.0,
+      "source_end": 3.8,
+      "position": "head"
+    },
+    {
+      "source_start": 23.8,
+      "source_end": 29.7,
+      "position": "internal"
+    },
+    {
+      "source_start": 49.15,
+      "source_end": 49.21,
+      "position": "tail"
+    }
+  ],
+  "source_speed_sections": [
+    {
+      "source_start": 3.8,
+      "source_end": 23.8,
+      "multiplier": 1.0,
+      "output_start": 0.0,
+      "output_end": 20.0
+    },
+    {
+      "source_start": 29.7,
+      "source_end": 49.15,
+      "multiplier": 1.0,
+      "output_start": 20.0,
+      "output_end": 39.45
+    }
+  ],
+  "spinner_patches": [],
+  "crop_xywh": [
+    0,
+    108,
+    1080,
+    2292
+  ],
+  "phone_canvas_xywh": [
+    40,
+    60,
+    452,
+    960
+  ],
+  "annotations": [
+    {
+      "source_start": 3.8,
+      "source_end": 14.0,
+      "stage": "LIVE BIXBY",
+      "title": "Bengaluru\nby season",
+      "body": "Compare four months\nof typical weather.",
+      "accent": "#1967C8",
+      "arrow_y_source": null,
+      "output_start": 0.0,
+      "output_end": 10.2
+    },
+    {
+      "source_start": 14.0,
+      "source_end": 19.2,
+      "stage": "LIVE EXPRESS",
+      "title": "Generate\nmonth cards",
+      "body": "E2B structures the\nweather comparison.",
+      "accent": "#1967C8",
+      "arrow_y_source": 1090.0,
+      "output_start": 10.2,
+      "output_end": 15.399999999999999
+    },
+    {
+      "source_start": 19.2,
+      "source_end": 23.5,
+      "stage": "GENUICRAFT",
+      "title": "Weather fields\nstay together",
+      "body": "Highs, lows, rainfall\nand conditions together.",
+      "accent": "#198E44",
+      "arrow_y_source": 1720.0,
+      "output_start": 15.399999999999999,
+      "output_end": 19.7
+    },
+    {
+      "source_start": 29.9,
+      "source_end": 33.8,
+      "stage": "BIXBY VIEW",
+      "title": "A wide table",
+      "body": "Rainfall and conditions\nneed sideways scrolling.",
+      "accent": "#1967C8",
+      "arrow_y_source": 1350.0,
+      "output_start": 20.2,
+      "output_end": 24.099999999999998
+    },
+    {
+      "source_start": 33.8,
+      "source_end": 45.7,
+      "stage": "SAME ANSWER",
+      "title": "Scan by month",
+      "body": "Read labeled values\nwithin the phone width.",
+      "accent": "#198E44",
+      "arrow_y_source": 1750.0,
+      "output_start": 24.099999999999998,
+      "output_end": 36.0
+    },
+    {
+      "source_start": 45.7,
+      "source_end": 49.15,
+      "stage": "CLEARER DETAILS",
+      "title": "Rainfall\nin context",
+      "body": "Conditions stay beside\neach month\u2019s values.",
+      "accent": "#1967C8",
+      "arrow_y_source": 1340.0,
+      "output_start": 36.0,
+      "output_end": 39.45
+    }
+  ],
+  "contact_sheet": {
+    "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\demos\\20261007_bixby_five_live\\Bixby_GenUICraft_WeatherComparison.contact_sheet.jpg",
+    "samples": [
+      {
+        "output_seconds": 0.0,
+        "source_seconds": 3.8
+      },
+      {
+        "output_seconds": 5.1,
+        "source_seconds": 8.9
+      },
+      {
+        "output_seconds": 12.8,
+        "source_seconds": 16.6
+      },
+      {
+        "output_seconds": 17.55,
+        "source_seconds": 21.35
+      },
+      {
+        "output_seconds": 22.15,
+        "source_seconds": 31.85
+      },
+      {
+        "output_seconds": 30.05,
+        "source_seconds": 39.75
+      },
+      {
+        "output_seconds": 37.725,
+        "source_seconds": 47.425
+      },
+      {
+        "output_seconds": 39.317,
+        "source_seconds": 49.017
+      }
+    ]
+  },
+  "continuous_source": false,
+  "one_source_recording": true,
+  "retained_source_contiguous": false,
+  "static_phone_holds": false,
+  "mock_phone_ui": false,
+  "timer_visible": false,
+  "source_time_text_visible": false,
+  "speed_label_in_video": false,
+  "frame_sampling": "30 fps resampling of raw capture timing; existing source frames cover natural VFR intervals",
+  "time_mapping_tolerance_seconds": 0.166667,
+  "ffmpeg_version": "ffmpeg version 7.1-essentials_build-www.gyan.dev Copyright (c) 2000-2024 the FFmpeg developers",
+  "filter_graph": "[0:v:0]setpts=PTS-STARTPTS,fps=30,split=2[v0][v1];\n[v0]trim=start=3.800000000:end=23.800000000,setpts=(PTS-STARTPTS)/1.000000000,fps=30,trim=duration=20.000000000,setpts=PTS-STARTPTS[part0];\n[v1]trim=start=29.700000000:end=49.150000000,setpts=(PTS-STARTPTS)/1.000000000,fps=30,trim=duration=19.450000000,setpts=PTS-STARTPTS[part1];\n[part0][part1]concat=n=2:v=1:a=0[timeline];\n[timeline]crop=1080:2292:0:108,scale=452:960:flags=lanczos,setsar=1,pad=1080:1080:40:60:color=#F7F8FA[canvas];\n[canvas][1:v]overlay=eof_action=repeat:repeatlast=1[common];\n[common][2:v]overlay=eof_action=repeat:repeatlast=1:enable='gte(t,0.000000000)*lt(t,10.200000000)'[caption0];\n[caption0][3:v]overlay=eof_action=repeat:repeatlast=1:enable='gte(t,10.200000000)*lt(t,15.400000000)'[caption1];\n[caption1][4:v]overlay=eof_action=repeat:repeatlast=1:enable='gte(t,15.400000000)*lt(t,19.700000000)'[caption2];\n[caption2][5:v]overlay=eof_action=repeat:repeatlast=1:enable='gte(t,20.200000000)*lt(t,24.100000000)'[caption3];\n[caption3][6:v]overlay=eof_action=repeat:repeatlast=1:enable='gte(t,24.100000000)*lt(t,36.000000000)'[caption4];\n[caption4][7:v]overlay=eof_action=repeat:repeatlast=1:enable='gte(t,36.000000000)*lt(t,39.450000000)'[caption5];\n[caption5]format=yuv420p[out]\n"
+}

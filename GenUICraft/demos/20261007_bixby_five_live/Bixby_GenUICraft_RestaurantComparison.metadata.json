@@ -1,0 +1,202 @@
+{
+  "schema_version": 1,
+  "created_utc": "2026-10-07T06:34:41.536110+00:00",
+  "source": {
+    "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\demos\\20261007_bixby_five_live\\evidence\\05_restaurants\\raw.mp4",
+    "bytes": 38436804,
+    "sha256": "77b93c7962c57f061e65941831fcabe3171b114f9c8d14221b00b8a5ae58ba47",
+    "width": 1080,
+    "height": 2520,
+    "duration_seconds": 60.78,
+    "nominal_fps": 53.45,
+    "frames": 3249,
+    "decoded_time_seconds": 60.781067,
+    "strict_decode": "passed",
+    "decode_errors": 0
+  },
+  "plan": {
+    "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\demos\\20261007_bixby_five_live\\05_restaurants.plan.json",
+    "sha256": "61d84efeda3d1e9b7564d548f90da918be35f6218c1f96b383029c68ff4d2cca",
+    "time_basis": "absolute raw source seconds"
+  },
+  "output": {
+    "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\demos\\20261007_bixby_five_live\\Bixby_GenUICraft_RestaurantComparison.mp4",
+    "bytes": 1567937,
+    "sha256": "df8e0bf16a49832fb04f7b03e9da1aeb58a8b564b8da36d0af7dcf985242c6f7",
+    "width": 1080,
+    "height": 1080,
+    "duration_seconds": 50.5,
+    "nominal_fps": 30.0,
+    "frames": 1515,
+    "decoded_time_seconds": 50.5,
+    "strict_decode": "passed",
+    "decode_errors": 0,
+    "fps": 30,
+    "codec": "H.264",
+    "pixel_format": "yuv420p",
+    "audio": false
+  },
+  "cuts": [
+    {
+      "source_start": 0.0,
+      "source_end": 3.8,
+      "position": "head"
+    },
+    {
+      "source_start": 34.8,
+      "source_end": 40.9,
+      "position": "internal"
+    },
+    {
+      "source_start": 60.4,
+      "source_end": 60.78,
+      "position": "tail"
+    }
+  ],
+  "source_speed_sections": [
+    {
+      "source_start": 3.8,
+      "source_end": 34.8,
+      "multiplier": 1.0,
+      "output_start": 0.0,
+      "output_end": 30.999999999999996
+    },
+    {
+      "source_start": 40.9,
+      "source_end": 60.4,
+      "multiplier": 1.0,
+      "output_start": 30.999999999999996,
+      "output_end": 50.5
+    }
+  ],
+  "spinner_patches": [],
+  "crop_xywh": [
+    0,
+    108,
+    1080,
+    2292
+  ],
+  "phone_canvas_xywh": [
+    40,
+    60,
+    452,
+    960
+  ],
+  "annotations": [
+    {
+      "source_start": 3.8,
+      "source_end": 17.3,
+      "stage": "LIVE BIXBY",
+      "title": "Breakfast\nplaces",
+      "body": "Compare three\nBengaluru restaurants.",
+      "accent": "#1967C8",
+      "arrow_y_source": null,
+      "output_start": 0.0,
+      "output_end": 13.5
+    },
+    {
+      "source_start": 17.3,
+      "source_end": 30.7,
+      "stage": "LIVE EXPRESS",
+      "title": "Watch the\nstructure build",
+      "body": "The model structures\nthe place details\non device.",
+      "accent": "#1967C8",
+      "arrow_y_source": 1160.0,
+      "output_start": 13.5,
+      "output_end": 26.9
+    },
+    {
+      "source_start": 30.7,
+      "source_end": 34.5,
+      "stage": "GENUICRAFT",
+      "title": "Details stay\nwith the place",
+      "body": "Cost and hours\nappear together.",
+      "accent": "#198E44",
+      "arrow_y_source": 1760.0,
+      "output_start": 26.9,
+      "output_end": 30.7
+    },
+    {
+      "source_start": 41.2,
+      "source_end": 46.5,
+      "stage": "BIXBY VIEW",
+      "title": "A wide\nrestaurant table",
+      "body": "Cost, hours and address\nsit beyond the screen edge.",
+      "accent": "#1967C8",
+      "arrow_y_source": 1450.0,
+      "output_start": 31.3,
+      "output_end": 36.599999999999994
+    },
+    {
+      "source_start": 46.5,
+      "source_end": 58.0,
+      "stage": "SAME ANSWER",
+      "title": "A place card",
+      "body": "Read the cost and hours\nwithout scrolling sideways.",
+      "accent": "#198E44",
+      "arrow_y_source": 1740.0,
+      "output_start": 36.599999999999994,
+      "output_end": 48.099999999999994
+    },
+    {
+      "source_start": 58.0,
+      "source_end": 60.4,
+      "stage": "CLEARER DETAILS",
+      "title": "Address\nin context",
+      "body": "The address stays\nwith its restaurant.",
+      "accent": "#1967C8",
+      "arrow_y_source": 1960.0,
+      "output_start": 48.099999999999994,
+      "output_end": 50.5
+    }
+  ],
+  "contact_sheet": {
+    "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\demos\\20261007_bixby_five_live\\Bixby_GenUICraft_RestaurantComparison.contact_sheet.jpg",
+    "samples": [
+      {
+        "output_seconds": 0.0,
+        "source_seconds": 3.8
+      },
+      {
+        "output_seconds": 6.75,
+        "source_seconds": 10.55
+      },
+      {
+        "output_seconds": 20.2,
+        "source_seconds": 24.0
+      },
+      {
+        "output_seconds": 28.8,
+        "source_seconds": 32.6
+      },
+      {
+        "output_seconds": 33.95,
+        "source_seconds": 43.85
+      },
+      {
+        "output_seconds": 42.35,
+        "source_seconds": 52.25
+      },
+      {
+        "output_seconds": 49.3,
+        "source_seconds": 59.2
+      },
+      {
+        "output_seconds": 50.35,
+        "source_seconds": 60.25
+      }
+    ]
+  },
+  "continuous_source": false,
+  "one_source_recording": true,
+  "retained_source_contiguous": false,
+  "static_phone_holds": false,
+  "mock_phone_ui": false,
+  "timer_visible": false,
+  "source_time_text_visible": false,
+  "speed_label_in_video": false,
+  "frame_sampling": "30 fps resampling of raw capture timing; existing source frames cover natural VFR intervals",
+  "time_mapping_tolerance_seconds": 0.166667,
+  "ffmpeg_version": "ffmpeg version 7.1-essentials_build-www.gyan.dev Copyright (c) 2000-2024 the FFmpeg developers",
+  "filter_graph": "[0:v:0]setpts=PTS-STARTPTS,fps=30,split=2[v0][v1];\n[v0]trim=start=3.800000000:end=34.800000000,setpts=(PTS-STARTPTS)/1.000000000,fps=30,trim=duration=31.000000000,setpts=PTS-STARTPTS[part0];\n[v1]trim=start=40.900000000:end=60.400000000,setpts=(PTS-STARTPTS)/1.000000000,fps=30,trim=duration=19.500000000,setpts=PTS-STARTPTS[part1];\n[part0][part1]concat=n=2:v=1:a=0[timeline];\n[timeline]crop=1080:2292:0:108,scale=452:960:flags=lanczos,setsar=1,pad=1080:1080:40:60:color=#F7F8FA[canvas];\n[canvas][1:v]overlay=eof_action=repeat:repeatlast=1[common];\n[common][2:v]overlay=eof_action=repeat:repeatlast=1:enable='gte(t,0.000000000)*lt(t,13.500000000)'[caption0];\n[caption0][3:v]overlay=eof_action=repeat:repeatlast=1:enable='gte(t,13.500000000)*lt(t,26.900000000)'[caption1];\n[caption1][4:v]overlay=eof_action=repeat:repeatlast=1:enable='gte(t,26.900000000)*lt(t,30.700000000)'[caption2];\n[caption2][5:v]overlay=eof_action=repeat:repeatlast=1:enable='gte(t,31.300000000)*lt(t,36.600000000)'[caption3];\n[caption3][6:v]overlay=eof_action=repeat:repeatlast=1:enable='gte(t,36.600000000)*lt(t,48.100000000)'[caption4];\n[caption4][7:v]overlay=eof_action=repeat:repeatlast=1:enable='gte(t,48.100000000)*lt(t,50.500000000)'[caption5];\n[caption5]format=yuv420p[out]\n"
+}

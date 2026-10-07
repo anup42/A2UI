@@ -1,0 +1,256 @@
+{
+  "schema_version": 1,
+  "created_utc": "2026-10-07T06:19:32.550692+00:00",
+  "source": {
+    "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\demos\\20261007_bixby_five_live\\evidence\\01_flights\\raw.mp4",
+    "bytes": 36011684,
+    "sha256": "07b0b5aa979533523621632b030cbac52bff0be6a95dcd458705eb44a212f0df",
+    "width": 1080,
+    "height": 2520,
+    "duration_seconds": 65.22,
+    "nominal_fps": 55.08,
+    "frames": 3592,
+    "decoded_time_seconds": 65.220033,
+    "strict_decode": "passed",
+    "decode_errors": 0
+  },
+  "plan": {
+    "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\demos\\20261007_bixby_five_live\\01_flights.plan.json",
+    "sha256": "a860a11eef054b2ca2e31b28374ac6c93c1204100e9a32d09eb03810b3bed2d8",
+    "time_basis": "absolute raw source seconds"
+  },
+  "output": {
+    "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\demos\\20261007_bixby_five_live\\Bixby_GenUICraft_Flights.mp4",
+    "bytes": 1825822,
+    "sha256": "c9d280ff119c2a1bb2406efa704a3e9c54a637edd23f72cea1411ad37608b4f0",
+    "width": 1080,
+    "height": 1080,
+    "duration_seconds": 53.36666666666667,
+    "nominal_fps": 30.0,
+    "frames": 1601,
+    "decoded_time_seconds": 53.366667,
+    "strict_decode": "passed",
+    "decode_errors": 0,
+    "fps": 30,
+    "codec": "H.264",
+    "pixel_format": "yuv420p",
+    "audio": false
+  },
+  "cuts": [
+    {
+      "source_start": 0.0,
+      "source_end": 3.4,
+      "position": "head"
+    },
+    {
+      "source_start": 41.9,
+      "source_end": 45.3,
+      "position": "internal"
+    },
+    {
+      "source_start": 65.15,
+      "source_end": 65.22,
+      "position": "tail"
+    }
+  ],
+  "source_speed_sections": [
+    {
+      "source_start": 3.4,
+      "source_end": 25.0,
+      "multiplier": 1.0,
+      "output_start": 0.0,
+      "output_end": 21.6
+    },
+    {
+      "source_start": 25.0,
+      "source_end": 33.3,
+      "multiplier": 2.5,
+      "output_start": 21.6,
+      "output_end": 24.92
+    },
+    {
+      "source_start": 33.3,
+      "source_end": 41.9,
+      "multiplier": 1.0,
+      "output_start": 24.92,
+      "output_end": 33.52
+    },
+    {
+      "source_start": 45.3,
+      "source_end": 65.15,
+      "multiplier": 1.0,
+      "output_start": 33.52,
+      "output_end": 53.37000000000001
+    }
+  ],
+  "spinner_patches": [
+    {
+      "roi_xywh": [
+        106,
+        795,
+        44,
+        44
+      ],
+      "multiplier": 1.0,
+      "source_start": 25.0,
+      "source_end": 28.32,
+      "output_start": 21.6,
+      "output_end": 24.92,
+      "same_source_recording": true,
+      "looped": false,
+      "held": false
+    }
+  ],
+  "crop_xywh": [
+    0,
+    108,
+    1080,
+    2292
+  ],
+  "phone_canvas_xywh": [
+    40,
+    60,
+    452,
+    960
+  ],
+  "annotations": [
+    {
+      "source_start": 3.4,
+      "source_end": 17.2,
+      "stage": "LIVE BIXBY",
+      "title": "Morning flights",
+      "body": "A real Bengaluru to\nVaranasi request.",
+      "accent": "#1967C8",
+      "arrow_y_source": null,
+      "output_start": 0.0,
+      "output_end": 13.799999999999999
+    },
+    {
+      "source_start": 17.2,
+      "source_end": 25.0,
+      "stage": "ON-DEVICE MODEL",
+      "title": "Answer to UI",
+      "body": "The E2B model converts\nthe answer into\nA2UI Express.",
+      "accent": "#1967C8",
+      "arrow_y_source": 815.0,
+      "output_start": 13.799999999999999,
+      "output_end": 21.6
+    },
+    {
+      "source_start": 25.0,
+      "source_end": 33.5,
+      "stage": "LIVE GENERATION",
+      "title": "Watch Express\nstream",
+      "body": "Generated structure\nappears as it is written.",
+      "accent": "#1967C8",
+      "arrow_y_source": 1190.0,
+      "output_start": 21.6,
+      "output_end": 25.120000000000005
+    },
+    {
+      "source_start": 33.5,
+      "source_end": 41.6,
+      "stage": "GENUICRAFT",
+      "title": "Flights become\nvisual cards",
+      "body": "Logo, fare, duration\nand times together.",
+      "accent": "#198E44",
+      "arrow_y_source": 1670.0,
+      "output_start": 25.120000000000005,
+      "output_end": 33.220000000000006
+    },
+    {
+      "source_start": 45.6,
+      "source_end": 48.4,
+      "stage": "BIXBY VIEW",
+      "title": "A wide table",
+      "body": "More fields sit beyond\nthe screen edge.",
+      "accent": "#1967C8",
+      "arrow_y_source": 1515.0,
+      "output_start": 33.82000000000001,
+      "output_end": 36.620000000000005
+    },
+    {
+      "source_start": 48.4,
+      "source_end": 62.0,
+      "stage": "SAME ANSWER",
+      "title": "Switch views",
+      "body": "The same answer stays\nin the conversation.",
+      "accent": "#1967C8",
+      "arrow_y_source": 817.0,
+      "output_start": 36.620000000000005,
+      "output_end": 50.220000000000006
+    },
+    {
+      "source_start": 62.0,
+      "source_end": 65.15,
+      "stage": "CLEARER COMPARISON",
+      "title": "Three flights\nat a glance",
+      "body": "Read every option\nwithout sideways scrolling.",
+      "accent": "#198E44",
+      "arrow_y_source": 1150.0,
+      "output_start": 50.220000000000006,
+      "output_end": 53.37000000000001
+    }
+  ],
+  "contact_sheet": {
+    "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\demos\\20261007_bixby_five_live\\Bixby_GenUICraft_Flights.contact_sheet.jpg",
+    "samples": [
+      {
+        "output_seconds": 0.0,
+        "source_seconds": 3.4
+      },
+      {
+        "output_seconds": 6.9,
+        "source_seconds": 10.3
+      },
+      {
+        "output_seconds": 17.7,
+        "source_seconds": 21.1
+      },
+      {
+        "output_seconds": 21.85,
+        "source_seconds": 25.625
+      },
+      {
+        "output_seconds": 23.36,
+        "source_seconds": 29.4
+      },
+      {
+        "output_seconds": 24.67,
+        "source_seconds": 32.675
+      },
+      {
+        "output_seconds": 29.17,
+        "source_seconds": 37.55
+      },
+      {
+        "output_seconds": 35.22,
+        "source_seconds": 47.0
+      },
+      {
+        "output_seconds": 43.42,
+        "source_seconds": 55.2
+      },
+      {
+        "output_seconds": 51.795,
+        "source_seconds": 63.575
+      },
+      {
+        "output_seconds": 53.217,
+        "source_seconds": 64.997
+      }
+    ]
+  },
+  "continuous_source": false,
+  "one_source_recording": true,
+  "retained_source_contiguous": false,
+  "static_phone_holds": false,
+  "mock_phone_ui": false,
+  "timer_visible": false,
+  "source_time_text_visible": false,
+  "speed_label_in_video": false,
+  "frame_sampling": "30 fps resampling of raw capture timing; existing source frames cover natural VFR intervals",
+  "time_mapping_tolerance_seconds": 0.233333,
+  "ffmpeg_version": "ffmpeg version 7.1-essentials_build-www.gyan.dev Copyright (c) 2000-2024 the FFmpeg developers",
+  "filter_graph": "[0:v:0]setpts=PTS-STARTPTS,fps=30,split=5[v0][v1][v2][v3][s0];\n[v0]trim=start=3.400000000:end=25.000000000,setpts=(PTS-STARTPTS)/1.000000000,fps=30,trim=duration=21.600000000,setpts=PTS-STARTPTS[part0];\n[v1]trim=start=25.000000000:end=33.300000000,setpts=(PTS-STARTPTS)/2.500000000,fps=30,trim=duration=3.320000000,setpts=PTS-STARTPTS[part1];\n[v2]trim=start=33.300000000:end=41.900000000,setpts=(PTS-STARTPTS)/1.000000000,fps=30,trim=duration=8.600000000,setpts=PTS-STARTPTS[part2];\n[v3]trim=start=45.300000000:end=65.150000000,setpts=(PTS-STARTPTS)/1.000000000,fps=30,trim=duration=19.850000000,setpts=PTS-STARTPTS[part3];\n[part0][part1][part2][part3]concat=n=4:v=1:a=0[timeline];\n[s0]trim=start=25.000000000:end=28.320000000,setpts=PTS-STARTPTS+21.600000000/TB,format=rgb24,crop=44:44:106:795,fps=30[spinner0];\n[timeline][spinner0]overlay=x=106:y=795:format=rgb:eof_action=pass:repeatlast=0:enable='gte(t,21.600000000)*lt(t,24.920000000)'[patched0];\n[patched0]crop=1080:2292:0:108,scale=452:960:flags=lanczos,setsar=1,pad=1080:1080:40:60:color=#F7F8FA[canvas];\n[canvas][1:v]overlay=eof_action=repeat:repeatlast=1[common];\n[common][2:v]overlay=eof_action=repeat:repeatlast=1:enable='gte(t,0.000000000)*lt(t,13.800000000)'[caption0];\n[caption0][3:v]overlay=eof_action=repeat:repeatlast=1:enable='gte(t,13.800000000)*lt(t,21.600000000)'[caption1];\n[caption1][4:v]overlay=eof_action=repeat:repeatlast=1:enable='gte(t,21.600000000)*lt(t,25.120000000)'[caption2];\n[caption2][5:v]overlay=eof_action=repeat:repeatlast=1:enable='gte(t,25.120000000)*lt(t,33.220000000)'[caption3];\n[caption3][6:v]overlay=eof_action=repeat:repeatlast=1:enable='gte(t,33.820000000)*lt(t,36.620000000)'[caption4];\n[caption4][7:v]overlay=eof_action=repeat:repeatlast=1:enable='gte(t,36.620000000)*lt(t,50.220000000)'[caption5];\n[caption5][8:v]overlay=eof_action=repeat:repeatlast=1:enable='gte(t,50.220000000)*lt(t,53.370000000)'[caption6];\n[caption6]format=yuv420p[out]\n"
+}

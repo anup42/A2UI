@@ -1,0 +1,82 @@
+{
+  "trim": [
+    3.4,
+    65.15
+  ],
+  "speed": [
+    25.0,
+    33.3,
+    2.5
+  ],
+  "spinner": [
+    106,
+    795,
+    44,
+    44
+  ],
+  "annotations": [
+    {
+      "start": 3.4,
+      "end": 17.2,
+      "stage": "LIVE BIXBY",
+      "title": "Morning flights",
+      "body": "A real Bengaluru to\nVaranasi request."
+    },
+    {
+      "start": 17.2,
+      "end": 25,
+      "stage": "ON-DEVICE MODEL",
+      "title": "Answer to UI",
+      "body": "The E2B model converts\nthe answer into\nA2UI Express.",
+      "arrow_y_source": 815
+    },
+    {
+      "start": 25,
+      "end": 33.5,
+      "stage": "LIVE GENERATION",
+      "title": "Watch Express\nstream",
+      "body": "Generated structure\nappears as it is written.",
+      "arrow_y_source": 1190
+    },
+    {
+      "start": 33.5,
+      "end": 41.6,
+      "stage": "GENUICRAFT",
+      "title": "Flights become\nvisual cards",
+      "body": "Logo, fare, duration\nand times together.",
+      "accent": "green",
+      "arrow_y_source": 1670
+    },
+    {
+      "start": 45.6,
+      "end": 48.4,
+      "stage": "BIXBY VIEW",
+      "title": "A wide table",
+      "body": "More fields sit beyond\nthe screen edge.",
+      "arrow_y_source": 1515
+    },
+    {
+      "start": 48.4,
+      "end": 62,
+      "stage": "SAME ANSWER",
+      "title": "Switch views",
+      "body": "The same answer stays\nin the conversation.",
+      "arrow_y_source": 817
+    },
+    {
+      "start": 62,
+      "end": 65.15,
+      "stage": "CLEARER COMPARISON",
+      "title": "Three flights\nat a glance",
+      "body": "Read every option\nwithout sideways scrolling.",
+      "accent": "green",
+      "arrow_y_source": 1150
+    }
+  ],
+  "cuts": [
+    [
+      41.9,
+      45.3
+    ]
+  ]
+}
