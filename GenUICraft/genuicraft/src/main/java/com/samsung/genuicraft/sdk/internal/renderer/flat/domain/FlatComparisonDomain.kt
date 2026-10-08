@@ -196,7 +196,8 @@ internal fun entityCardRowContent(
     row: List<String>,
     rowIndex: Int,
     primaryIndex: Int,
-    highlightIndexes: List<Int>
+    highlightIndexes: List<Int>,
+    compactBodyIndexes: Set<Int>? = null,
 ): EntityCardRowContent {
     val cells = responsiveTableCardCells(headers, row)
     val primaryCell = cells.firstOrNull { cell -> cell.index == primaryIndex }
@@ -219,7 +220,8 @@ internal fun entityCardRowContent(
             cell.index !in highlightIndexes
     }
     val (compactBodyCells, detailBodyCells) = bodyCells.partition { cell ->
-        isCompactEntityBadgeCell(cell) && !looksLikeLongDetailHeader(cell.label)
+        (compactBodyIndexes?.contains(cell.index) ?: isCompactEntityBadgeCell(cell)) &&
+            !looksLikeLongDetailHeader(cell.label)
     }
     val metadataCells = cells.filter { cell -> cell.index in metadataIndexes }
 
@@ -256,6 +258,22 @@ private fun entityActionColumnStem(label: String): String =
 
 internal fun isCompactEntityBadgeCell(cell: ResponsiveTableCardCell): Boolean =
     isCompactTableBadgeValue(cell.value) && "${cell.label}: ${cell.value}".length <= 30
+
+/** All present values in a body column must fit before any row uses a chip for that column. */
+internal fun selectEntityCompactBodyIndexes(
+    headers: List<String>,
+    rows: List<List<String?>>,
+    primaryIndex: Int,
+    highlightIndexes: List<Int>,
+): Set<Int> = headers.indices.filterTo(linkedSetOf()) { index ->
+    val label = tableHeaderLabel(headers, index)
+    if (index == primaryIndex || index in highlightIndexes || looksLikeLongDetailHeader(label) ||
+        isUrlColumnLabel(label) || isActionLabelColumn(label)) return@filterTo false
+    val values = rows.mapNotNull { row -> row.getOrNull(index)?.trim()?.takeIf { it.isNotBlank() } }
+    values.isNotEmpty() && values.all { value ->
+        isCompactEntityBadgeCell(ResponsiveTableCardCell(index, label, value))
+    }
+}
 
 internal fun selectEntityHighlightIndexes(
     headers: List<String>,
@@ -300,6 +318,7 @@ internal fun RenderEntityTableCards(
     if (rows.isEmpty()) return
     val primaryIndex = inferEntityPrimaryColumnIndex(headers, primaryColumn)
     val inferredHighlightIndexes = selectEntityHighlightIndexes(headers, rows, primaryIndex, highlightColumns)
+    val compactBodyIndexes = selectEntityCompactBodyIndexes(headers, rows, primaryIndex, inferredHighlightIndexes)
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -321,7 +340,8 @@ internal fun RenderEntityTableCards(
                 row = row,
                 rowIndex = rowIndex,
                 primaryIndex = primaryIndex,
-                highlightIndexes = inferredHighlightIndexes
+                highlightIndexes = inferredHighlightIndexes,
+                compactBodyIndexes = compactBodyIndexes,
             )
             val showProviderBadge = shouldShowEntityProviderBadge(
                 content.title,
@@ -406,21 +426,23 @@ internal fun RenderEntityTableCards(
                             }
                         }
                     }
-                    RendererFlowRow(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        content.compactBodyCells.forEach { cell ->
-                            Surface(
-                                shape = RoundedCornerShape(GenUiTokens.RadiusPill),
-                                color = MaterialTheme.colorScheme.surfaceContainerHighest
-                            ) {
-                                Text(
-                                    text = parseBoldMarkdown("${cell.label}: ${cell.value}"),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 5.dp)
-                                )
+                    if (content.compactBodyCells.isNotEmpty()) {
+                        RendererFlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            content.compactBodyCells.forEach { cell ->
+                                Surface(
+                                    shape = RoundedCornerShape(GenUiTokens.RadiusPill),
+                                    color = MaterialTheme.colorScheme.surfaceContainerHighest
+                                ) {
+                                    Text(
+                                        text = parseBoldMarkdown("${cell.label}: ${cell.value}"),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 5.dp)
+                                    )
+                                }
                             }
                         }
                     }

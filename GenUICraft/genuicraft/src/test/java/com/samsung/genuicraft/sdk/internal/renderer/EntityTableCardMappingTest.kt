@@ -3,12 +3,69 @@ package com.samsung.genuicraft.sdk.internal.renderer
 import com.samsung.genuicraft.sdk.internal.renderer.flat.domain.entityCardRowContent
 import com.samsung.genuicraft.sdk.internal.renderer.flat.domain.isCompactEntityBadgeCell
 import com.samsung.genuicraft.sdk.internal.renderer.flat.domain.selectEntityHighlightIndexes
+import com.samsung.genuicraft.sdk.internal.renderer.flat.domain.selectEntityCompactBodyIndexes
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class EntityTableCardMappingTest {
+    @Test fun `accepted phone comparison keeps all battery fields below display without changing price highlights`() {
+        val headers = listOf("Model", "Indicative price", "Display", "Battery", "Software support", "Best for")
+        val rows = listOf(
+            listOf("OnePlus Nord CE 5", "From ₹24,999", "6.77-inch AMOLED, 120Hz [9][16]",
+                "7,100mAh, 80W charging", "6 years of software support",
+                "Buyers wanting a big battery and smooth everyday performance"),
+            listOf("Samsung Galaxy A36 5G", "Around ₹28,999 online; official India pricing is higher [10][21][36]",
+                "6.7-inch Super AMOLED, 120Hz [22][31]", "5,000mAh[38]",
+                "6 OS upgrades and 6 years of security updates", "Buyers who want the longest support and a balanced all-rounder"),
+            listOf("iQOO Z10", "From about ₹20,255–₹22,999 [37][40]", "6.77-inch AMOLED, 120Hz [29]",
+                "7,300mAh, 90W charging [23]", "2 Android upgrades and 3 years of security patches",
+                "Buyers prioritizing battery life and fast charging"),
+        )
+        val highlights = selectEntityHighlightIndexes(headers, rows, 0, emptySet())
+        val compact = selectEntityCompactBodyIndexes(headers, rows, 0, highlights)
+
+        assertEquals(listOf(1), highlights)
+        assertTrue(compact.isEmpty())
+        rows.forEachIndexed { index, row ->
+            val content = entityCardRowContent(headers, row, index, 0, highlights, compact)
+            assertTrue(content.compactBodyCells.isEmpty())
+            assertEquals(listOf(2, 3, 4, 5), content.detailBodyCells.map { it.index })
+            assertEquals(row[1], content.highlightCells.single().value)
+            assertEquals(headers.zip(row), content.representedSourceCells.map { it.label to it.value })
+        }
+    }
+
+    @Test fun `compact column eligibility ignores absent values but rejects a single long value and long detail labels`() {
+        val headers = listOf("Model", "Tag", "Notes", "Absent")
+        val rows = listOf<List<String?>>(
+            listOf("A", "OK", "Short", null),
+            listOf("B", "", null),
+            listOf("C"),
+        )
+        assertEquals(setOf(1), selectEntityCompactBodyIndexes(headers, rows, 0, emptyList()))
+        val mixed = rows + listOf(listOf("D", "A complete qualifier long enough to require full-width wrapping [7]", "Short"))
+        assertTrue(selectEntityCompactBodyIndexes(headers, mixed, 0, emptyList()).isEmpty())
+    }
+
+    @Test fun `table-wide body policy preserves unknown metadata and authored actions`() {
+        val headers = listOf("Model", "Tag", "Source note", "Website URL", "Website Action Label")
+        val rows = listOf(
+            listOf("A", "OK", "Unknown [2]", "https://www.who.int/a", "Read source"),
+            listOf("B", "Long qualified body text remains complete [9]", "Not verified [5]", "https://www.who.int/b", "Read second source"),
+        )
+        val compact = selectEntityCompactBodyIndexes(headers, rows, 0, emptyList())
+        assertTrue(compact.isEmpty())
+        rows.forEachIndexed { index, row ->
+            val content = entityCardRowContent(headers, row, index, 0, emptyList(), compact)
+            assertEquals(headers.zip(row), content.representedSourceCells.map { it.label to it.value })
+            assertEquals(listOf(row[3]), content.actions.map { it.safeUrl })
+            assertEquals(listOf(row[4]), content.actions.map { it.buttonLabel })
+            assertEquals(listOf("Website URL", "Website Action Label"), content.metadataCells.map { it.label })
+        }
+    }
+
     @Test fun `qualified phone price leads while long specifications stay labeled and complete`() {
         val headers = listOf("Model", "Indicative price", "Display", "Battery", "Software support", "Best for")
         val row = listOf(
