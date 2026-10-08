@@ -81,7 +81,7 @@ class GenUiTrainedConverter internal constructor(
                     add("Runtime: ${output.runtime}")
                     if (output.finishReason == GenUiGenerationFinishReason.REPETITION_LIMIT) {
                         add(
-                            "Stopped native generation at the 20-reference repetition limit; " +
+                            "Stopped native generation at the 20-occurrence repetition limit; " +
                                 "repairing the accumulated partial A2UI output. " +
                                 output.finishDetail.orEmpty(),
                         )

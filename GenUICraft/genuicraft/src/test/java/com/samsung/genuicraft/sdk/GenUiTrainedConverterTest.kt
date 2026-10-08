@@ -128,7 +128,7 @@ class GenUiTrainedConverterTest {
         assertTrue(result.toString(), result is GenUiConversionResult.Success)
         result as GenUiConversionResult.Success
         assertEquals(GenUiRepairKind.GENERATED_DSL_REPAIR, result.repairKind)
-        assertTrue(result.warnings.any { it.contains("20-reference repetition limit") })
+        assertTrue(result.warnings.any { it.contains("20-occurrence repetition limit") })
         assertTrue(result.document.express.contains("domain=\"flight\""))
     }
 

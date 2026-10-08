@@ -113,4 +113,28 @@ class Gemma4StreamingTest {
             worker.join(2_000)
         }
     }
+
+    @Test fun `unique child lists longer than twenty complete without native cancellation`() {
+        val ids = ('a'..'z').map(Char::toString)
+        var cancelled = false
+        val parts = mutableListOf("<a2ui>\nroot=Column([").apply {
+            ids.forEachIndexed { index, id -> add((if (index == 0) "" else ",") + id) }
+            add("])\n")
+            ids.forEach { add("$it=Text(\"Item $it\")\n") }
+            add("</a2ui>")
+        }
+        val result = awaitGemma4Stream(
+            start = { callback ->
+                parts.forEach { callback.onMessage(Message.model(it)) }
+                callback.onDone()
+            },
+            cancel = { cancelled = true },
+            onPartialText = {},
+            isCancelled = { false },
+        )
+        assertFalse(cancelled)
+        assertNull(result.repetitionStop)
+        assertEquals(parts.joinToString(""), result.text)
+        assertTrue(com.samsung.genuicraft.sdk.GenUiCompiler.compile(result.text).a2uiJson.isNotBlank())
+    }
 }
