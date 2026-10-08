@@ -30,12 +30,15 @@ class BeforeRenderFailureGateTest(unittest.TestCase):
             repeat_table_sweeps_per_viewport=False, timeout=30)
         self.write_before()
 
-    def write_before(self, failed=()):
+    def write_before(self, failed=(), repeat_sweeps=None):
+        checks = review.LEGACY_REPLAY_CHECK_NAMES if repeat_sweeps is None else review.REPLAY_CHECK_NAMES
         self.before = {"case": "BXP-018", "phase": "before", "attempt": "r01", "startedAtUtc": "2026-10-09",
             "status": "failed" if failed else "collected", "automatedChecksSatisfied": not bool(failed),
-            "checks": {key: key not in failed for key in review.REPLAY_CHECK_NAMES},
+            "checks": {key: key not in failed for key in checks},
             "source": {"archivedPath": self.source.relative_to(self.root).as_posix(),
                 "sha256": review.digest(self.source), "replayMode": "json"}}
+        if repeat_sweeps is not None:
+            self.before["repeatTableSweepsPerViewport"] = repeat_sweeps
         self.save_before()
 
     def save_before(self):
@@ -44,6 +47,7 @@ class BeforeRenderFailureGateTest(unittest.TestCase):
     def after(self):
         _, source = review.choose_source(self.root, self.args)
         return {"status": "collected", "automatedChecksSatisfied": True, "source": source,
+            "repeatTableSweepsPerViewport": self.args.repeat_table_sweeps_per_viewport,
             "checks": {key: True for key in review.REPLAY_CHECK_NAMES}}
 
     def test_passing_baseline_needs_no_flag_and_pins_exact_receipt(self):
@@ -68,7 +72,7 @@ class BeforeRenderFailureGateTest(unittest.TestCase):
 
     def test_other_false_missing_unknown_and_nonboolean_checks_are_rejected(self):
         self.args.allow_before_render_failures = True
-        for key in review.REPLAY_CHECK_NAMES - review.BEFORE_RENDER_FAILURE_CHECKS:
+        for key in review.LEGACY_REPLAY_CHECK_NAMES - review.BEFORE_RENDER_FAILURE_CHECKS:
             with self.subTest(failed=key):
                 self.write_before({"renderedWithoutIssues", key})
                 with self.assertRaises(ValueError): review.choose_source(self.root, self.args)
@@ -153,6 +157,66 @@ class BeforeRenderFailureGateTest(unittest.TestCase):
         self.assertFalse(failed["checks"]["renderedWithoutIssues"])
         self.assertFalse(failed["checks"]["allTableColumnsObserved"])
         self.assertFalse(review.pinned_before_evidence(self.root, failed, self.before_path, self.before))
+
+    def test_legacy_and_extended_receipts_compare_without_mutating_the_baseline(self):
+        for before_flag in (None, False, True):
+            with self.subTest(before_flag=before_flag):
+                self.write_before(repeat_sweeps=before_flag)
+                original = self.before_path.read_bytes()
+                for after_flag in (None, False, True):
+                    with self.subTest(after_flag=after_flag):
+                        self.args.repeat_table_sweeps_per_viewport = after_flag is True
+                        after = self.after()
+                        if after_flag is None:
+                            del after["repeatTableSweepsPerViewport"]
+                            del after["checks"]["requestedViewportTableSweeps"]
+                        self.assertTrue(review.pinned_before_evidence(self.root, after, self.before_path, self.before))
+                        self.assertEqual(original, self.before_path.read_bytes())
+
+    def test_viewport_sweep_request_requires_exact_schema_and_boolean_flag(self):
+        self.args.allow_before_render_failures = True
+        for flag in (False, True):
+            for mutation in ("missing_check", "unknown_check"):
+                with self.subTest(flag=flag, mutation=mutation):
+                    self.write_before(repeat_sweeps=flag)
+                    if mutation == "missing_check": del self.before["checks"]["requestedViewportTableSweeps"]
+                    else: self.before["checks"]["unknownCheck"] = True
+                    self.save_before()
+                    with self.assertRaises(ValueError): review.choose_source(self.root, self.args)
+        for flag in (None, 0, 1, "false", "true"):
+            with self.subTest(nonboolean_flag=flag):
+                self.write_before(repeat_sweeps=False)
+                self.before["repeatTableSweepsPerViewport"] = flag
+                self.save_before()
+                with self.assertRaises(ValueError): review.choose_source(self.root, self.args)
+        for check in (False, True):
+            with self.subTest(legacy_extra_check=check):
+                self.write_before()
+                self.before["checks"]["requestedViewportTableSweeps"] = check
+                self.save_before()
+                with self.assertRaises(ValueError): review.choose_source(self.root, self.args)
+
+    def test_extended_schema_keeps_every_after_check_mandatory(self):
+        for flag in (False, True):
+            with self.subTest(flag=flag):
+                self.write_before({"requestedViewportTableSweeps"}, repeat_sweeps=flag)
+                self.args.allow_before_render_failures = True
+                with self.assertRaises(ValueError): review.choose_source(self.root, self.args)
+                self.write_before(review.BEFORE_RENDER_FAILURE_CHECKS, repeat_sweeps=flag)
+                self.args.repeat_table_sweeps_per_viewport = flag
+                valid = self.after()
+                self.assertTrue(review.pinned_before_evidence(self.root, valid, self.before_path, self.before))
+                for key in review.REPLAY_CHECK_NAMES:
+                    for mutation in ("false", "missing", "nonboolean"):
+                        with self.subTest(key=key, mutation=mutation):
+                            after = json.loads(json.dumps(valid))
+                            if mutation == "missing": del after["checks"][key]
+                            else: after["checks"][key] = False if mutation == "false" else 1
+                            self.assertFalse(review.pinned_before_evidence(self.root, after, self.before_path, self.before))
+                after = json.loads(json.dumps(valid)); after["checks"]["unknownCheck"] = True
+                self.assertFalse(review.pinned_before_evidence(self.root, after, self.before_path, self.before))
+                after = json.loads(json.dumps(valid)); del after["repeatTableSweepsPerViewport"]
+                self.assertFalse(review.pinned_before_evidence(self.root, after, self.before_path, self.before))
 
 
 if __name__ == "__main__":

@@ -42,8 +42,9 @@ RUNNER = f"{PACKAGE}.test/androidx.test.runner.AndroidJUnitRunner"
 BENCHMARK = f"/sdcard/Android/data/{PACKAGE}/files/sdk_benchmark"
 MODEL = f"/sdcard/Android/data/{PACKAGE}/files/sdk_models/model-fp16-corrected.litertlm"
 MODEL_SHA256 = "7f01bdf1c6ba9bdf658e57c75001fc35a42edad88238bc5dab0a5f7dcf3de373"
-REPLAY_CHECK_NAMES = frozenset({"instrumentationPassed", "singleSelectedCase", "frozenCorpus", "noInference",
+LEGACY_REPLAY_CHECK_NAMES = frozenset({"instrumentationPassed", "singleSelectedCase", "frozenCorpus", "noInference",
     "sameAcceptedInput", "renderedWithoutIssues", "capturesComplete", "verticalEndObserved", "allTableColumnsObserved"})
+REPLAY_CHECK_NAMES = LEGACY_REPLAY_CHECK_NAMES | {"requestedViewportTableSweeps"}
 BEFORE_RENDER_FAILURE_CHECKS = frozenset({"renderedWithoutIssues", "allTableColumnsObserved"})
 
 
@@ -211,8 +212,14 @@ def latest_receipt(root, selected, phase):
 
 def before_replay_overrides(receipt, allow_render_failures=False):
     checks = receipt.get("checks", {})
-    require(isinstance(checks, dict) and set(checks) == REPLAY_CHECK_NAMES,
-            "Before receipt must contain exactly the expected replay check names")
+    # Immutable older receipts predate the viewport-sweep request and its check.
+    has_viewport_sweep_request = "repeatTableSweepsPerViewport" in receipt
+    if has_viewport_sweep_request:
+        require(type(receipt["repeatTableSweepsPerViewport"]) is bool,
+                "Viewport sweep request must be an explicit boolean")
+    expected = REPLAY_CHECK_NAMES if has_viewport_sweep_request else LEGACY_REPLAY_CHECK_NAMES
+    require(isinstance(checks, dict) and set(checks) == expected,
+            "Replay receipt must contain exactly the expected check names for its recorded request schema")
     require(all(value is True or value is False for value in checks.values()), "Before checks must be explicit booleans")
     failed = sorted(key for key, value in checks.items() if value is False)
     if not failed:
