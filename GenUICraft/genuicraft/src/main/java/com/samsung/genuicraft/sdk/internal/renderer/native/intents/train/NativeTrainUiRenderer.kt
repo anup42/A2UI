@@ -119,28 +119,90 @@ internal object NativeTrainUiRenderer {
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
                     color = colors.onSurface,
-                    modifier = Modifier.weight(1f).semantics { heading() },
+                    modifier = Modifier.weight(1f).semantics {
+                        heading()
+                        contentDescription = "${row.service.label}: ${row.service.value}"
+                    },
                 )
             }
-            // Natural-width fields share a line where space permits; long values wrap intact.
+            row.station?.let { station -> CompactField(station, muted = true) }
+
+            // A departure range is one field, never a departure/arrival route.
+            if (row.departure != null || row.duration != null) {
+                val fontScale = LocalDensity.current.fontScale.coerceAtLeast(1f)
+                BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+                    if (row.departure != null && row.duration != null && maxWidth >= 300.dp * fontScale) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(14.dp),
+                            verticalAlignment = Alignment.Top,
+                        ) {
+                            TimingField(row.departure, prominent = true, modifier = Modifier.weight(1f))
+                            TimingField(row.duration, prominent = false, modifier = Modifier.weight(1.25f))
+                        }
+                    } else {
+                        Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                            row.departure?.let { TimingField(it, prominent = true) }
+                            row.duration?.let { TimingField(it, prominent = false) }
+                        }
+                    }
+                }
+            }
+
+            // Class stays a single source string; additional columns remain labeled and complete.
             RendererFlowRow(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalArrangement = Arrangement.spacedBy(3.dp),
             ) {
-                (row.extraFields + listOfNotNull(row.station, row.departure, row.duration, row.seating))
-                    .forEach { field -> CompactField(field) }
+                row.seating?.let { seating ->
+                    Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = colors.surfaceContainerLow,
+                        border = BorderStroke(1.dp, colors.outlineVariant.copy(alpha = 0.35f)),
+                    ) {
+                        Column(modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)) {
+                            CompactField(seating)
+                        }
+                    }
+                }
+                row.extraFields.forEach { field -> CompactField(field) }
             }
         }
     }
 
     @Composable
-    private fun CompactField(field: NativeTrainField) {
+    private fun TimingField(
+        field: NativeTrainField,
+        prominent: Boolean,
+        modifier: Modifier = Modifier,
+    ) {
+        val colors = MaterialTheme.colorScheme
+        Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Text(
+                field.label,
+                style = MaterialTheme.typography.labelSmall,
+                color = colors.onSurfaceVariant,
+            )
+            Text(
+                field.value,
+                style = if (prominent) MaterialTheme.typography.titleLarge.copy(fontFeatureSettings = "tnum")
+                    else MaterialTheme.typography.bodyMedium,
+                fontWeight = if (prominent) FontWeight.Bold else FontWeight.Medium,
+                color = if (prominent) colors.primary else colors.onSurface,
+            )
+        }
+    }
+
+    @Composable
+    private fun CompactField(field: NativeTrainField, muted: Boolean = false) {
         val colors = MaterialTheme.colorScheme
         Text(
             text = buildAnnotatedString {
                 withStyle(SpanStyle(color = colors.onSurfaceVariant)) { append(field.label); append(": ") }
-                withStyle(SpanStyle(color = colors.onSurface, fontWeight = FontWeight.Medium)) { append(field.value) }
+                withStyle(SpanStyle(color = if (muted) colors.onSurfaceVariant else colors.onSurface, fontWeight = FontWeight.Medium)) {
+                    append(field.value)
+                }
             },
             style = MaterialTheme.typography.bodySmall.copy(fontFeatureSettings = "tnum"),
         )

@@ -123,6 +123,8 @@ import com.samsung.genuicraft.sdk.internal.renderer.native.intents.train.NativeT
 import com.samsung.genuicraft.sdk.internal.renderer.native.intents.train.NativeTrainUiRenderer
 import com.samsung.genuicraft.sdk.internal.renderer.native.intents.weather.NativeWeatherSemantics
 import com.samsung.genuicraft.sdk.internal.renderer.native.intents.weather.NativeWeatherUiRenderer
+import com.samsung.genuicraft.sdk.internal.renderer.native.intents.airquality.NativeAirQualitySemantics
+import com.samsung.genuicraft.sdk.internal.renderer.native.intents.airquality.NativeAirQualityUiRenderer
 import com.samsung.genuicraft.sdk.internal.renderer.native.media.NativeMediaVisualUtils
 import com.samsung.genuicraft.sdk.internal.renderer.native.parser.NativeSourceParsing
 import com.samsung.genuicraft.sdk.internal.renderer.native.parser.NativeStructureParsing
@@ -302,6 +304,13 @@ internal fun RenderDirectTable(
                 numericColumns = numericColumnIndexes(table.columns, table.rows, table.numericColumns)
             )
         }
+        return
+    }
+    val airQuality = NativeAirQualitySemantics.buildSummary(
+        headers, table.rows, props["preferredPresentation"]?.toString(),
+    )
+    if (airQuality != null) {
+        NativeAirQualityUiRenderer.RenderSummary(airQuality, props["title"]?.toString(), tableModifier)
         return
     }
     val trainRows = NativeTrainSemantics.buildTrainRows(headers, table.rows, props["title"]?.toString())

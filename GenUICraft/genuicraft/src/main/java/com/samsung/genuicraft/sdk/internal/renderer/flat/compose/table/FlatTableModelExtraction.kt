@@ -187,6 +187,11 @@ internal fun detectTableShape(
         domain == "formula" && isFormulaVariableHeaderSet(headers) -> FlatTableShape.KEY_VALUE
         domain == "formula" && columnCount == 2 && firstHeaderToken == "input" -> FlatTableShape.KEY_VALUE
         domain == "formula" && isCalculationBreakdownHeaderSet(headers) -> FlatTableShape.NUMERIC_METRICS
+        // A labelled detail/value list is a summary, including when the model tags it as status.
+        // Keep actual two-column schedules (for example Detail/Time) on the timeline route.
+        columnCount == 2 && firstHeaderToken in setOf("detail", "details") &&
+            normalizeTableHeaderForMatch(headers.getOrNull(1).orEmpty()) in setOf("value", "values") ->
+            FlatTableShape.KEY_VALUE
         columnCount <= 2 &&
             firstHeaderToken in setOf("metric", "feature", "field", "label", "item", "name", "attribute", "key") ->
             FlatTableShape.KEY_VALUE

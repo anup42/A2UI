@@ -25,6 +25,7 @@ import java.util.concurrent.atomic.AtomicReference
 import kotlinx.coroutines.*
 import org.junit.Assert.assertTrue
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.xmlpull.v1.XmlPullParser
@@ -235,7 +236,7 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
             "maxHorizontalSwipesPerTable" to maxHorizontal,
             "corpusSha256" to replaySha256(corpusBytes),
             "hierarchyPolicy" to "Clear UiAutomation cache on API 34+, refresh nodes, then dump.",
-            "columnCheck" to "Visible text header or representative cell; content descriptions are excluded.",
+            "columnCheck" to "Every nonempty supplied cell is checked against displayed text as complete tokens. Accessibility evidence is reported separately and never satisfies displayed coverage; cell placement requires visual review.",
             "renderFontScale" to renderFontScale, "renderDark" to renderDark,
         )))
         val device = UiDevice.getInstance(instrumentation)
@@ -381,6 +382,7 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
                     val tables = replayTableTargets(document.a2uiJson)
                     val seenHeaders = tables.map { mutableSetOf<Int>() }
                     val seenCells = tables.map { mutableSetOf<Int>() }
+                    val describedCells = tables.map { mutableSetOf<Int>() }
                     val sweptTables = mutableSetOf<Int>()
                     val horizontalTables = mutableSetOf<Int>()
                     val captures = mutableListOf<Map<String, Any>>()
@@ -426,6 +428,7 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
                     require(viewport.get().width() > 100 && viewport.get().height() > 100) { "Replay view has no usable viewport." }
                     fun capture(label: String): List<ReplayNode> {
                         instrumentation.waitForIdleSync()
+                        require(device.currentPackageName == context.packageName) { "Replay activity is not foreground at $label." }
                         val screenshot = device.takeScreenshot(File(caseDir, "$label.png"))
                         val xml = File(caseDir, "$label.xml")
                         dumpFreshHierarchy(device, xml)
@@ -433,13 +436,21 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
                         if (!screenshot) issues += "Screenshot failed: $label"
                         if (nodes.any { it.text.contains("Unable to render GenUI") }) issues += "Renderer reported an error at $label."
                         val texts = nodes.map { replayComparable(it.text) }.filter(String::isNotBlank)
+                        // A row/table summary can name clipped or horizontally hidden values.
+                        // Preserve that evidence without crediting it as displayed text.
+                        val descriptions = nodes.filter { it.fullyVisible }
+                            .map { replayComparable(it.description) }.filter(String::isNotBlank)
                         tables.forEachIndexed { tableIndex, table ->
                             table.columns.indices.forEach { column ->
                                 if (texts.any { replayContains(it, table.columns[column]) }) seenHeaders[tableIndex] += column
-                                if (texts.any { replayContains(it, table.probes[column]) }) seenCells[tableIndex] += column
+                            }
+                            table.cells.forEachIndexed { cellIndex, cell ->
+                                if (texts.any { replayContains(it, cell.value) }) seenCells[tableIndex] += cellIndex
+                                if (descriptions.any { replayContains(it, cell.value) }) describedCells[tableIndex] += cellIndex
                             }
                         }
-                        captures += mapOf("name" to label, "screenshot" to screenshot, "visibleTextNodes" to texts.size)
+                        captures += mapOf("name" to label, "screenshot" to screenshot,
+                            "visibleTextNodes" to texts.size, "fullyVisibleDescriptionNodes" to descriptions.size)
                         return nodes
                     }
                     fun fingerprint(nodes: List<ReplayNode>) = nodes.filter { it.text.isNotBlank() }
@@ -466,7 +477,7 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
                         tables.forEachIndexed { tableIndex, table ->
                             if (tableIndex in sweptTables) return@forEachIndexed
                             // Use a rendered label/cell to locate the table, never a fixed screen y.
-                            val anchors = (table.columns + table.probes).filter(String::isNotBlank)
+                            val anchors = (table.columns + table.cells.map { it.value }).filter(String::isNotBlank).distinct()
                             val anchoredScroller = anchors.asSequence().flatMap { anchor ->
                                 current.asSequence().filter { replayContains(replayComparable(it.text), anchor) }
                             }.mapNotNull { anchor ->
@@ -488,8 +499,7 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
                                 }
                                 performed++
                                 current = capture("table_${tableIndex + 1}_horizontal_$step")
-                                val covered = seenHeaders[tableIndex] + seenCells[tableIndex]
-                                if (covered.size == table.columns.size || fingerprint(current) == before) break
+                                if (table.cells.indices.all { it in seenCells[tableIndex] } || fingerprint(current) == before) break
                             }
                             repeat(performed) { swipeHorizontal(bounds, y, towardsEnd = false) }
                             if (performed > 0) current = capture("table_${tableIndex + 1}_reset")
@@ -514,12 +524,32 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
                         if (fingerprint(current) == before) { endObserved = true; break }
                     }
                     val tableReports = tables.mapIndexed { index, table ->
-                        val missing = table.columns.indices.filter { it !in seenHeaders[index] && it !in seenCells[index] }
+                        val observedCellColumns = seenCells[index].map { table.cells[it].column }.toSet()
+                        val missing = table.columns.indices.filter { it !in seenHeaders[index] && it !in observedCellColumns }
+                        val missingCells = table.cells.indices.filter { it !in seenCells[index] }
+                        val repeatedValues = table.cells.groupingBy { replayTokens(it.value) }.eachCount()
+                        val ambiguousCells = table.cells.indices.filter { repeatedValues[replayTokens(table.cells[it].value)]!! > 1 }
+                        fun cellReport(cellIndex: Int) = table.cells[cellIndex].let { cell -> mapOf(
+                            "row" to cell.row + 1, "column" to table.columns[cell.column], "value" to cell.value,
+                            "displayedTextObserved" to (cellIndex in seenCells[index]),
+                            "accessibilityObserved" to (cellIndex in describedCells[index]),
+                            "repeatedSourceValue" to (cellIndex in ambiguousCells),
+                        ) }
+                        table.dataIssue?.let { issues += "Table data coverage (${table.id}): $it" }
                         if (missing.isNotEmpty()) issues += "Unobserved table columns (${table.id}): ${missing.map { table.columns[it] }}"
+                        if (missingCells.isNotEmpty()) issues += "Unobserved table cells (${table.id}): ${missingCells.map { cellReport(it) }}"
                         mapOf(
                             "id" to table.id, "columns" to table.columns,
+                            "rowSource" to table.rowSource, "sourceRows" to table.rowCount,
+                            "sourceCells" to table.cells.size, "dataResolutionIssue" to table.dataIssue,
                             "observedHeaders" to seenHeaders[index].sorted().map { table.columns[it] },
-                            "observedRepresentativeCells" to seenCells[index].sorted().map { table.probes[it] },
+                            "observedRepresentativeCells" to seenCells[index].sorted().map { table.cells[it].value }.distinct(),
+                            "cells" to table.cells.indices.map(::cellReport),
+                            "missingCells" to missingCells.map(::cellReport),
+                            "accessibilityOnlyCells" to table.cells.indices.filter { it !in seenCells[index] && it in describedCells[index] }.map(::cellReport),
+                            "ambiguousRepeatedCells" to ambiguousCells.map(::cellReport),
+                            "displayedCellCoverageComplete" to (missingCells.isEmpty() && table.dataIssue == null),
+                            "cellPlacementEvaluated" to false,
                             "missingColumns" to missing.map { table.columns[it] },
                             "horizontalScrollObserved" to (index in horizontalTables),
                         )
@@ -528,12 +558,17 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
                     report.addProperty("verticalSwipes", verticalCount); report.addProperty("verticalEndObserved", endObserved)
                     report.addProperty("verticalLimitReached", !endObserved && verticalCount == maxVertical)
                     report.add("issues", gson.toJsonTree(issues.distinct()))
+                    report.addProperty("coverageStatus", if (tables.indices.all { index ->
+                        tables[index].dataIssue == null && tables[index].cells.indices.all { it in seenCells[index] }
+                    }) "all_cell_values_observed" else "incomplete")
+                    report.addProperty("coverageDiagnosticsAffectRenderStatus", false)
+                    report.addProperty("visualReviewRequired", true)
                     val fatalRenderIssue = issues.any {
                         it.startsWith("Screenshot failed:") || it.startsWith("Renderer reported an error")
                     }
                     report.addProperty(
                         "status",
-                        if (issues.isEmpty() || (mode == "express_repair_only" && !fatalRenderIssue)) "rendered" else "render_failure",
+                        if (fatalRenderIssue) "render_failure" else "rendered",
                     )
                 } catch (failure: Exception) {
                     val rejected = failure is GeneratedDslRepairRejected
@@ -564,6 +599,12 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
             "total" to rows.size, "rendered" to rows.size - failures, "failed" to failures,
             "repairRejected" to repairRejected, "renderFailures" to renderFailures,
             "renderedWithCoverageIssues" to renderedWithCoverageIssues,
+            "casesWithIncompleteCellCoverage" to reports.count { it.get("coverageStatus")?.asString == "incomplete" },
+            "casesWithAmbiguousRepeatedCells" to reports.count { report ->
+                report.getAsJsonArray("tables")?.any { it.asJsonObject.getAsJsonArray("ambiguousRepeatedCells")?.size()?.let { count -> count > 0 } == true } == true
+            },
+            "coverageDiagnosticsAffectRenderStatus" to false,
+            "visualReviewRequired" to true,
             "modelCalls" to 0, "inferenceEvaluated" to false, "repairCounts" to repairCounts.toSortedMap(),
             "sourceIntegrityAccepted" to sourceIntegrityAccepted,
             "sourceIntegrityRejected" to sourceIntegrityRejected,
@@ -574,14 +615,17 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
             assertEquals("No source-text fallback is allowed in generated-DSL replay.", 0,
                 repairCounts[GenUiRepairKind.SOURCE_TEXT_FALLBACK.name] ?: 0)
             assertEquals("Accepted generated-DSL documents must render without renderer failures.", 0, renderFailures)
-        } else {
-            assertTrue("$failures/${rows.size} replay checks failed; no inference performed; artifacts: ${output.absolutePath}", failures == 0)
+            assertEquals("Generated-DSL repair must accept every selected replay case.", 0, repairRejected)
         }
+        assertTrue("$failures/${rows.size} replay checks failed; coverage diagnostics require visual review; no inference performed; artifacts: ${output.absolutePath}", failures == 0)
     }
 
     private class GeneratedDslRepairRejected(message: String) : IllegalArgumentException(message)
-    private data class ReplayNode(val text: String, val className: String, val bounds: Rect)
-    private data class ReplayTable(val id: String, val columns: List<String>, val probes: List<String>)
+    private data class ReplayNode(val text: String, val className: String, val bounds: Rect,
+        val description: String, val fullyVisible: Boolean)
+    private data class ReplayCell(val row: Int, val column: Int, val value: String)
+    private data class ReplayTable(val id: String, val columns: List<String>, val cells: List<ReplayCell>,
+        val rowSource: String, val rowCount: Int, val dataIssue: String?)
 
     /** Screenshots are fresh independently; accessibility caches can retain a previous case. */
     private fun dumpFreshHierarchy(device: UiDevice, file: File) {
@@ -619,8 +663,20 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
         .replace(Regex("[\\s\\p{Z}]+"), " ").trim().lowercase(Locale.ROOT)
 
     private fun replayContains(normalizedText: String, expected: String): Boolean {
-        val comparable = replayComparable(expected)
-        return comparable.isNotBlank() && normalizedText.contains(comparable)
+        val wanted = replayTokens(expected)
+        if (wanted.isEmpty()) return false
+        return replayTokens(normalizedText).windowed(wanted.size).any { it == wanted }
+    }
+
+    /** Ignore layout punctuation, but retain whole signed numbers, decimals, identifiers and units. */
+    private fun replayTokens(value: String): List<String> {
+        val normalized = replayComparable(value)
+            .replace("℃", "°c").replace("℉", "°f")
+            .replace(Regex("(?<=\\d)\\s*(?:°\\s*)?([cf])\\b"), "°$1")
+            .replace(Regex("\\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)(?=\\d)"), "$1 ")
+            .replace(Regex("\\bpercent\\b"), "%")
+        return Regex("[\\p{L}_][\\p{L}\\p{N}_]*|[+-]?(?:\\d+(?:[.,]\\d+)*|[.,]\\d+)(?:[\\p{L}_][\\p{L}\\p{N}_]*)?|[%°]")
+            .findAll(normalized).map { it.value }.toList()
     }
 
     private fun replayNodes(xml: String, packageName: String, viewport: Rect): List<ReplayNode> {
@@ -635,10 +691,11 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
                 if (match != null) {
                     val numbers = match.groupValues.drop(1).map(String::toInt)
                     val bounds = Rect(numbers[0], numbers[1], numbers[2], numbers[3])
+                    val fullyVisible = viewport.contains(bounds)
                     if (bounds.intersect(viewport) && bounds.width() > 8 && bounds.height() > 8) {
-                        // Row/table content-descriptions can contain offscreen values: never count them.
                         nodes += ReplayNode(parser.getAttributeValue(null, "text").orEmpty(),
-                            parser.getAttributeValue(null, "class").orEmpty(), bounds)
+                            parser.getAttributeValue(null, "class").orEmpty(), bounds,
+                            parser.getAttributeValue(null, "content-desc").orEmpty(), fullyVisible)
                     }
                 }
             }
@@ -650,6 +707,29 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
     private fun replayTableTargets(json: String): List<ReplayTable> {
         val result = mutableListOf<ReplayTable>()
         fun string(value: JsonElement?): String = value?.takeIf { it.isJsonPrimitive }?.asString.orEmpty()
+        val payload = JsonParser.parseString(json)
+        val messages = if (payload.isJsonArray) payload.asJsonArray.toList() else listOf(payload)
+        // GenUiCompiler emits a canonical v0.9 update containing the complete root state.
+        val state = messages.mapNotNull { message ->
+            message.takeIf { it.isJsonObject }?.asJsonObject?.get("updateDataModel")
+                ?.takeIf { it.isJsonObject }?.asJsonObject
+                ?.takeIf { string(it.get("path")) == "/" }?.get("value")
+        }.lastOrNull()
+        fun stateValue(path: String): JsonElement? {
+            if (!path.startsWith('/')) return null
+            var current = state ?: return null
+            if (path == "/") return current
+            for (encoded in path.removePrefix("/").split('/')) {
+                val segment = encoded.replace("~1", "/").replace("~0", "~")
+                current = when {
+                    current.isJsonObject -> current.asJsonObject.get(segment)
+                    current.isJsonArray -> segment.toIntOrNull()?.takeIf { it in 0 until current.asJsonArray.size() }
+                        ?.let { current.asJsonArray[it] }
+                    else -> null
+                } ?: return null
+            }
+            return current
+        }
         fun visit(value: JsonElement) {
             when {
                 value.isJsonArray -> value.asJsonArray.forEach(::visit)
@@ -665,25 +745,55 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
                         val keys = node.getAsJsonArray("columns")?.map { column ->
                             if (column.isJsonObject) string(column.asJsonObject.get("key")) else string(column)
                         }.orEmpty()
-                        val rows = node.getAsJsonArray("rows")?.toList().orEmpty()
-                        val probes = columns.indices.map { index ->
-                            rows.firstNotNullOfOrNull { row ->
+                        val statePath = string(node.get("statePath"))
+                        val rawRows = if (statePath.isNotBlank()) stateValue(statePath) else node.get("rows")
+                        val rows = rawRows?.takeIf { it.isJsonArray }?.asJsonArray?.toList().orEmpty()
+                        var nonScalarCells = 0
+                        val cells = rows.flatMapIndexed { rowIndex, row ->
+                            columns.indices.mapNotNull { index ->
                                 val cell = when {
                                     row.isJsonArray -> row.asJsonArray.takeIf { index < it.size() }?.get(index)
                                     row.isJsonObject -> row.asJsonObject.get(keys[index])
                                     else -> null
                                 }
-                                string(cell).takeIf(String::isNotBlank)
-                            }.orEmpty()
+                                if (cell != null && !cell.isJsonNull && !cell.isJsonPrimitive) nonScalarCells++
+                                string(cell).takeIf(String::isNotBlank)?.let { ReplayCell(rowIndex, index, it) }
+                            }
                         }
-                        result += ReplayTable(string(node.get("id")), columns, probes)
+                        result += ReplayTable(string(node.get("id")), columns, cells,
+                            if (statePath.isBlank()) "inline_rows" else "statePath:$statePath", rows.size,
+                            when {
+                                rawRows?.isJsonArray != true -> "Table rows did not resolve to an array; coverage is not established."
+                                nonScalarCells > 0 -> "$nonScalarCells non-scalar supplied cells require manual coverage review."
+                                else -> null
+                            })
                     }
                     node.entrySet().forEach { visit(it.value) }
                 }
             }
         }
-        visit(JsonParser.parseString(json))
+        visit(payload)
         return result
+    }
+
+    @Test fun replayCoverageResolvesEveryStateBackedCellAndMatchesFormattedValues() {
+        val document = GenUiCompiler.compile("""<a2ui>
+${'$'}/={"data":{"forecast":[{"date":"Wed, Sep 9","high":"31","low":"20","rain":"57%"},{"date":"Thu, Sep 10","high":"30","low":"21","rain":"55%"}]}}
+root=Table(columns=[{key:"date",label:"Date"},{key:"high",label:"High (°C)"},{key:"low",label:"Low (°C)"},{key:"rain",label:"Rain probability"}],statePath="/data/forecast")
+</a2ui>""")
+        val table = replayTableTargets(document.a2uiJson).single()
+        assertEquals(2, table.rowCount)
+        assertEquals(8, table.cells.size)
+        assertEquals(listOf("Wed, Sep 9", "31", "20", "57%", "Thu, Sep 10", "30", "21", "55%"), table.cells.map { it.value })
+        assertEquals(null, table.dataIssue)
+        listOf("Wed,Sep9" to "Wed, Sep 9", "31 ° C / 20℃" to "31", "31°C / 20 °C" to "20",
+            "Rain: 57 percent" to "57%", "Low: -20.5 °C" to "-20.5°C").forEach { (actual, expected) ->
+            assertTrue("Formatted value did not match: $actual / $expected", replayContains(actual, expected))
+        }
+        listOf("2019" to "20", "120°C" to "20", "20.5°C" to "20", ".20°C" to "20", "-20°C" to "20",
+            "SKU20" to "20", "20AB" to "20", "20°F" to "20°C", "57%" to "").forEach { (actual, expected) ->
+            assertFalse("Different value was incorrectly credited: $actual / $expected", replayContains(actual, expected))
+        }
     }
 
     /** Experimental input-only scaffold; acceptance still uses the AAR's unchanged validators. */

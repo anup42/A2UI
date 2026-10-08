@@ -106,6 +106,10 @@ internal object NativeWeatherUiRenderer {
             return
         }
         val orderedRows = remember(rows) { orderWeatherRows(rows) }
+        if (NativeWeatherPresentationPolicy.shouldUseForecastPanel(orderedRows)) {
+            WeatherForecastPanel(orderedRows, sanitizeDisplayText, weatherTemperatureText)
+            return
+        }
         val todayRow = orderedRows.first()
         val laterRows = orderedRows.drop(1)
         val todayTemperature = weatherTemperatureText(todayRow)
@@ -194,6 +198,129 @@ internal object NativeWeatherUiRenderer {
         }
     }
 
+    @Composable
+    private fun WeatherForecastPanel(
+        rows: List<WeatherRow>,
+        sanitizeDisplayText: (String) -> String,
+        weatherTemperatureText: (WeatherRow) -> String,
+    ) {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(GenUiTokens.RadiusXl),
+            colors = genUiCardColors(GenUiCardTone.Neutral),
+            border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor()),
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                MarkdownText(
+                    text = "Forecast",
+                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                rows.forEachIndexed { index, row ->
+                    val precipitationIndex = NativeWeatherPresentationPolicy.precipitationIndex(row.metrics)
+                    val precipitation = row.metrics.getOrNull(precipitationIndex)
+                    Column(
+                        modifier = Modifier.fillMaxWidth().semantics(mergeDescendants = true) {
+                            contentDescription = NativeWeatherPresentationPolicy.accessibilityDescription(row)
+                        },
+                        verticalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Column(
+                                modifier = Modifier.weight(1.1f),
+                                verticalArrangement = Arrangement.spacedBy(2.dp),
+                            ) {
+                                MarkdownText(
+                                    text = sanitizeDisplayText(row.period),
+                                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                )
+                                row.date?.takeIf { it.isNotBlank() && it != row.period }?.let { date ->
+                                    MarkdownText(
+                                        text = sanitizeDisplayText(date),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                }
+                            }
+                            row.high?.takeIf { it.isNotBlank() }?.let { high ->
+                                WeatherForecastMetric("High", sanitizeDisplayText(high), Modifier.weight(0.8f))
+                            }
+                            row.low?.takeIf { it.isNotBlank() }?.let { low ->
+                                WeatherForecastMetric("Low", sanitizeDisplayText(low), Modifier.weight(0.8f))
+                            }
+                            if (row.high.isNullOrBlank() && row.low.isNullOrBlank()) {
+                                WeatherForecastMetric(
+                                    "Temperature", sanitizeDisplayText(weatherTemperatureText(row)), Modifier.weight(0.8f),
+                                )
+                            }
+                            precipitation?.let { (label, value) ->
+                                WeatherForecastMetric(
+                                    sanitizeDisplayText(label), sanitizeDisplayText(value), Modifier.weight(1f),
+                                    prominent = false,
+                                )
+                            }
+                        }
+                        row.condition?.takeIf { it.isNotBlank() }?.let { condition ->
+                            MarkdownText(
+                                text = sanitizeDisplayText(condition),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                        val extraMetrics = row.metrics.filterIndexed { metricIndex, _ -> metricIndex != precipitationIndex }
+                        val additionalTemperature = row.temp?.takeIf {
+                            it.isNotBlank() && (!row.high.isNullOrBlank() || !row.low.isNullOrBlank())
+                        }
+                        val details = listOfNotNull(additionalTemperature?.let { "Temperature" to it }) + extraMetrics
+                        details.forEach { (label, value) ->
+                            MarkdownText(
+                                text = listOf(label, value).filter { it.isNotBlank() }.joinToString(": "),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                    if (index < rows.lastIndex) {
+                        Spacer(
+                            Modifier.fillMaxWidth().height(1.dp)
+                                .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f)),
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    @Composable
+    private fun WeatherForecastMetric(
+        label: String,
+        value: String,
+        modifier: Modifier = Modifier,
+        prominent: Boolean = true,
+    ) {
+        Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            MarkdownText(
+                text = label,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            MarkdownText(
+                text = value,
+                style = if (prominent) MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                    else MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                color = if (prominent) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.primary,
+            )
+        }
+    }
+
     @OptIn(ExperimentalLayoutApi::class)
     @Composable
     private fun WeatherHeroSummaryCard(
@@ -212,14 +339,7 @@ internal object NativeWeatherUiRenderer {
             modifier = Modifier
                 .fillMaxWidth()
                 .semantics(mergeDescendants = true) {
-                    contentDescription = weatherRowAccessibilityLabel(
-                        period = label,
-                        date = date,
-                        temperature = temperature,
-                        condition = condition,
-                        metrics = row.metrics,
-                        sanitizeDisplayText = sanitizeDisplayText
-                    )
+                    contentDescription = NativeWeatherPresentationPolicy.accessibilityDescription(row)
                 },
             shape = heroShape,
             colors = CardDefaults.cardColors(containerColor = Color.Transparent),
@@ -265,25 +385,28 @@ internal object NativeWeatherUiRenderer {
                                 )
                             }
                         }
-                        Box(
-                            modifier = Modifier.size(64.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            weatherConditionIcon(row.condition, 56.dp)
+                        if (NativeWeatherPresentationPolicy.hasExplicitCondition(row.condition)) {
+                            Box(
+                                modifier = Modifier.size(64.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                weatherConditionIcon(row.condition, 56.dp)
+                            }
                         }
                     }
 
                     if (heroMetrics.isNotEmpty()) {
-                        Row(
+                        RendererFlowRow(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
-                            heroMetrics.take(3).forEach { (metricLabel, metricValue) ->
+                            heroMetrics.forEach { (metricLabel, metricValue) ->
                                 WeatherHeroMetricTile(
                                     label = sanitizeDisplayText(metricLabel),
                                     value = sanitizeDisplayText(metricValue),
                                     palette = heroPalette,
-                                    modifier = Modifier.weight(1f)
+                                    modifier = Modifier.width(148.dp)
                                 )
                             }
                         }
@@ -300,7 +423,7 @@ internal object NativeWeatherUiRenderer {
         palette: WeatherHeroPalette,
         modifier: Modifier = Modifier
     ) {
-        if (label.isBlank() || value.isBlank()) {
+        if (label.isBlank() && value.isBlank()) {
             return
         }
         Column(
@@ -319,15 +442,11 @@ internal object NativeWeatherUiRenderer {
                 text = label,
                 style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
                 color = palette.mutedContent,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
             )
             MarkdownText(
                 text = value,
                 style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
                 color = palette.content,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
             )
         }
     }
@@ -759,24 +878,7 @@ internal object NativeWeatherUiRenderer {
     private fun buildHeroWeatherMetrics(
         row: WeatherRow,
         temperature: String
-    ): List<Pair<String, String>> {
-        val metrics = mutableListOf<Pair<String, String>>()
-        val highLow = when {
-            !row.high.isNullOrBlank() && !row.low.isNullOrBlank() -> "${row.high} / ${row.low}"
-            temperature.contains("/") -> temperature
-            else -> null
-        }
-        if (!highLow.isNullOrBlank()) {
-            metrics += "High / Low" to highLow
-        } else if (temperature.isNotBlank()) {
-            metrics += "Temp" to temperature
-        }
-        findRainMetric(row.metrics)?.let { metrics += it }
-        findFirstMetric(row.metrics, "wind")?.let { metrics += it }
-        findFirstMetric(row.metrics, "humidity")?.let { metrics += it }
-        findFirstMetric(row.metrics, "uv")?.let { metrics += it }
-        return metrics.distinctBy { metric -> NativeWeatherSemantics.normalizeWeatherText(metric.first) }
-    }
+    ): List<Pair<String, String>> = NativeWeatherPresentationPolicy.heroMetrics(row, temperature)
 
     private fun findWeatherAdvice(metrics: List<Pair<String, String>>): Pair<String, String>? =
         metrics.firstOrNull { (label, value) ->
