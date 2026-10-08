@@ -272,6 +272,54 @@ internal fun RenderDirectTable(
     val table = previewRoute.model(incomingTable, isFinal)
     val headers = table.columns.map { column -> column.label }
     val tableModifier = applyStackModifier(modifier, props, "vertical")
+    // Narrow sightseeing comparisons retain every source cell in cards and expose the authored grid.
+    val sightseeing = if (screenWidthDp < 600) sightseeingTableProfile(headers, table.rows) else null
+    if (sightseeing != null) {
+        var showTable by remember { mutableStateOf(false) }
+        Column(modifier = tableModifier, verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                TextButton(onClick = { showTable = !showTable }, enabled = isFinal) {
+                    Text(
+                        if (showTable) "Card view" else "Table view",
+                        style = MaterialTheme.typography.labelMedium,
+                    )
+                }
+            }
+            if (showTable) {
+                props["title"]?.toString()?.takeIf { it.isNotBlank() }?.let { title ->
+                    Text(
+                        parseBoldMarkdown(title),
+                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                        modifier = Modifier.semantics { heading() },
+                    )
+                }
+                val horizontalScrollEnabled = nativeTableShouldScroll(
+                    compactScreen = compactPortrait,
+                    screenWidthDp = screenWidthDp,
+                    headers = headers,
+                    rows = table.rows,
+                )
+                RenderAdaptiveTableGrid(
+                    headers = headers,
+                    rows = table.rows,
+                    horizontalScrollEnabled = horizontalScrollEnabled,
+                    stickyFirstColumn = nativeTableStickyFirstColumn(headers, horizontalScrollEnabled),
+                    numericColumns = numericColumnIndexes(table.columns, table.rows, table.numericColumns),
+                )
+            } else {
+                RenderEntityTableCards(
+                    headers = headers,
+                    rows = table.rows,
+                    primaryColumn = headers[sightseeing.primaryIndex],
+                    highlightColumns = table.highlightColumns,
+                    onOpenUrl = onOpenUrl,
+                    tableTitle = props["title"]?.toString(),
+                    spacing = 8.dp,
+                )
+            }
+        }
+        return
+    }
     if (table.columns.size == 1 && !hasExplicitTablePresentation(props)) {
         RenderSingleColumnTable(
             content = singleColumnTableContent(props["title"]?.toString(), headers.first(), table.rows),
@@ -279,7 +327,7 @@ internal fun RenderDirectTable(
         )
         return
     }
-    // An explicit table request preserves header meaning and units. Heuristic card routes may
+    // Apart from the guarded sightseeing view above, an explicit table preserves header meaning and units. Heuristic card routes may
     // omit column labels or suppress summary rows, so they must not override this request.
     if (hasExplicitTablePresentation(props)) {
         val horizontalScrollEnabled = nativeTableShouldScroll(

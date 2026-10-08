@@ -213,6 +213,7 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
             require(it in 0.8f..2.0f) { "renderFontScale must be between 0.8 and 2.0." }
         }
         val renderDark = args.getString("renderDark")?.toBooleanStrict()
+        val verifyTableViewToggle = args.getString("verifyTableViewToggle", "false")!!.toBooleanStrict()
         val selected = args.getString("cases", "")!!.split(',').map(String::trim).filter(String::isNotBlank).toSet()
         val corpusBytes = context.assets.open("genuicraft_bixby50.jsonl").use { it.readBytes() }
         val allRows = corpusBytes.toString(Charsets.UTF_8).lineSequence().filter(String::isNotBlank)
@@ -238,6 +239,7 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
             "hierarchyPolicy" to "Clear UiAutomation cache on API 34+, refresh nodes, then dump.",
             "columnCheck" to "Every nonempty supplied cell is checked against displayed text as complete tokens. Accessibility evidence is reported separately and never satisfies displayed coverage; cell placement requires visual review.",
             "renderFontScale" to renderFontScale, "renderDark" to renderDark,
+            "verifyTableViewToggle" to verifyTableViewToggle,
         )))
         val device = UiDevice.getInstance(instrumentation)
         val reports = mutableListOf<JsonObject>()
@@ -508,6 +510,56 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
                     }
                     var current = capture("initial")
                     require(current.any { it.text.isNotBlank() }) { "Replay produced no visible text." }
+                    if (verifyTableViewToggle) {
+                        report.addProperty("tableViewToggleVerified", false)
+                        val checkedCells = tables.flatMap { table -> table.cells.filter { it.row == 0 }.map { it.value } }.distinct()
+                        require(checkedCells.isNotEmpty()) { "Toggle verification requires nonempty source table cells." }
+                        val initialTexts = current.map { it.text }.filter(String::isNotBlank)
+                        require(checkedCells.all { value -> initialTexts.any { replayContains(it, value) } }) {
+                            "Initial cards are missing a first-row source cell required for toggle verification."
+                        }
+                        // Keep ordinary card-mode coverage independent from the optional grid captures.
+                        val savedHeaders = seenHeaders.map { it.toSet() }
+                        val savedCells = seenCells.map { it.toSet() }
+                        val savedDescriptions = describedCells.map { it.toSet() }
+                        val tableButton = device.wait(Until.findObject(By.text("Table view")), 5_000)
+                            ?: error("Table view control was not found.")
+                        tableButton.click()
+                        require(device.wait(Until.hasObject(By.text("Card view")), 5_000)) { "Table view did not expose the Card view control." }
+                        var grid = capture("toggle_table_view")
+                        val gridTexts = grid.map { it.text }.filter(String::isNotBlank).toMutableList()
+                        val gridLabels = mutableListOf("toggle_table_view")
+                        for (step in 1..maxHorizontal.coerceAtMost(8)) {
+                            if (checkedCells.all { value -> gridTexts.any { replayContains(it, value) } }) break
+                            val scroller = grid.firstOrNull { it.className == "android.widget.HorizontalScrollView" } ?: break
+                            require(swipeHorizontal(scroller.bounds, scroller.bounds.centerY(), towardsEnd = true)) { "Toggle grid horizontal gesture failed." }
+                            val label = "toggle_table_horizontal_$step"
+                            grid = capture(label)
+                            gridTexts += grid.map { it.text }.filter(String::isNotBlank)
+                            gridLabels += label
+                        }
+                        require(tables.all { table -> gridTexts.any { replayContains(it, table.columns.first()) } }) {
+                            "Table view did not display the source table header."
+                        }
+                        require(checkedCells.all { value -> gridTexts.any { replayContains(it, value) } }) { "Table view lost a first-row source cell." }
+                        val cardButton = device.wait(Until.findObject(By.text("Card view")), 5_000)
+                            ?: error("Card view control was not found for restoration.")
+                        cardButton.click()
+                        require(device.wait(Until.hasObject(By.text("Table view")), 5_000)) { "Card view did not restore the Table view control." }
+                        tables.indices.forEach { index ->
+                            seenHeaders[index].apply { clear(); addAll(savedHeaders[index]) }
+                            seenCells[index].apply { clear(); addAll(savedCells[index]) }
+                            describedCells[index].apply { clear(); addAll(savedDescriptions[index]) }
+                        }
+                        current = capture("toggle_cards_restored")
+                        require(checkedCells.all { value -> current.any { replayContains(it.text, value) } }) { "Restored cards lost a first-row source cell." }
+                        report.addProperty("tableViewToggleVerified", true)
+                        report.add("tableViewToggleEvidence", gson.toJsonTree(mapOf(
+                            "checkedCellTexts" to checkedCells, "gridCaptures" to gridLabels,
+                            "restoredCapture" to "toggle_cards_restored",
+                            "scope" to "Mode switch and first-row text-node retention; screenshot pixel legibility still requires visual review.",
+                        )))
+                    }
                     var verticalCount = 0
                     var endObserved = false
                     for (step in 0..maxVertical) {
