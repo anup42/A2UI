@@ -486,10 +486,12 @@ internal fun RenderStack(
         direction = direction,
         isRepeated = repeatScope != null || repeatedChildScopes != null,
     )
-    val matchSummary = if (textSections == null && activePath == setOf(elementId) &&
+    val passiveSummaryRoot = textSections == null && activePath == setOf(elementId) &&
         direction == "vertical" && repeatScope == null && repeatedChildScopes == null &&
-        elements[elementId]?.let { it.repeat == null && it.visible == null && it.on.isNullOrEmpty() && it.watch.isNullOrEmpty() } == true
-    ) planFlatMatchSummary(children, elements) else null
+        elements[elementId]?.let { it.repeat == null && it.visible == null && it.on.isNullOrEmpty() && it.watch.isNullOrEmpty() &&
+            listOf("action", "actions", "onClick", "onTap", "href").all { key -> it.props[key] == null } } == true
+    val matchSummary = if (passiveSummaryRoot) planFlatMatchSummary(children, elements) else null
+    val labeledFacts = if (passiveSummaryRoot && matchSummary == null) planFlatLabeledFacts(children, elements) else null
     CompositionLocalProvider(LocalFlatSpecTextHorizontalPadding provides childTextHorizontalPadding) {
         Column(
             modifier = stackModifier,
@@ -501,6 +503,16 @@ internal fun RenderStack(
                     key(childId) {
                         if (childId == matchSummary.rootIds.first()) RenderFlatMatchSummary(matchSummary)
                         else if (childId !in matchSummary.rootIds) RenderElement(
+                            childId, elements, state, repeatScope, onOpenUrl, onSetState, onAction, activePath,
+                        )
+                    }
+                }
+            } else if (labeledFacts != null) {
+                val factIds = labeledFacts.map { it.id }.toSet()
+                children.forEach { childId ->
+                    key(childId) {
+                        if (childId == labeledFacts.first().id) RenderFlatLabeledFacts(labeledFacts)
+                        else if (childId !in factIds) RenderElement(
                             childId, elements, state, repeatScope, onOpenUrl, onSetState, onAction, activePath,
                         )
                     }
