@@ -40,6 +40,7 @@ from ir_training.eval.generate import build_prediction_record
 from ir_training.data.url_preprocess import restore_url_placeholders
 from ir_training.models.hf_loading import load_hf_model
 from ir_training.train.lora_config import resolve_lora_config_targets
+from ir_training.train.grpo_audit import build_audited_grpo_trainer
 from ir_training.train.grpo_runtime import (
     HealthThresholds, audited_reward, dependency_report, make_express_rollout, make_health_callback,
     prepared_prompt_messages, prompt_fingerprint, render_chat_prompt, validate_runtime_features,
@@ -686,6 +687,7 @@ def main() -> None:
 
     grpo_args = make_grpo_config(
         output_dir=args.output_dir,
+        seed=args.seed,
         learning_rate=args.learning_rate,
         num_train_epochs=args.epochs,
         max_steps=args.max_steps,
@@ -710,6 +712,11 @@ def main() -> None:
         max_completion_length=max_completion_length,
         steps_per_generation=args.gradient_accumulation_steps,
         num_iterations=1,
+        disable_dropout=True,
+        temperature=1.0,
+        top_p=1.0,
+        top_k=0,
+        repetition_penalty=1.0,
         generation_kwargs={"eos_token_id": native_eos_ids},
         scale_rewards=scale_rewards,
         loss_type=args.loss_type,
@@ -728,7 +735,7 @@ def main() -> None:
     )
     model, loading_config, resolved_lora_targets = load_grpo_model(args, peft_config)
     native_eos_ids = preserve_generation_eos(model, tokenizer, extra_eos_ids=native_eos_ids)
-    trainer = GRPOTrainer(
+    trainer = build_audited_grpo_trainer(GRPOTrainer)(
         model=model,
         args=grpo_args,
         reward_funcs=[reward_fn],

@@ -266,7 +266,9 @@ def run_qat_grpo_preflight(bundle: QATGRPOModel, rows: Sequence[Mapping[str, Any
 
 def build_qat_grpo_trainer(base_trainer: Any, bundle: QATGRPOModel) -> Any:
     """Keep the single QAT policy bound through TRL rollout and loss paths."""
-    class QATGRPOTrainer(base_trainer):
+    from ir_training.train.grpo_audit import build_audited_grpo_trainer
+
+    class QATGRPOTrainer(build_audited_grpo_trainer(base_trainer)):
         def _get_per_token_logps_and_entropies(self, model: Any, *args: Any, **kwargs: Any) -> Any:
             assert_qat_policy_active(model, bundle.controller)
             with self.accelerator.autocast():

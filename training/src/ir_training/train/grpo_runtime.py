@@ -16,6 +16,7 @@ import inspect
 import json
 import math
 from pathlib import Path
+from numbers import Real
 from typing import Any, Mapping, Sequence
 
 from ir_training.generation_policy import closing_sentinel_end, sha256_text, stop_express_completion
@@ -184,14 +185,16 @@ class HealthThresholds:
     zero_tolerance: float = 0.0
 
     def __post_init__(self) -> None:
-        if self.window_steps < 1:
-            raise ValueError("health window_steps must be positive")
+        if type(self.window_steps) is not int or self.window_steps < 1:
+            raise ValueError("health window_steps must be a positive integer")
         for name in ("min_diverse_group_fraction", "max_clipped_fraction",
                      "min_nonzero_gradient_fraction", "min_nonzero_update_fraction"):
-            if not 0 <= getattr(self, name) <= 1:
-                raise ValueError(f"{name} must be between 0 and 1")
-        if self.zero_tolerance < 0:
-            raise ValueError("zero_tolerance must be nonnegative")
+            value = getattr(self, name)
+            if isinstance(value, bool) or not isinstance(value, Real) or not math.isfinite(value) or not 0 <= value <= 1:
+                raise ValueError(f"{name} must be finite and between 0 and 1")
+        if (isinstance(self.zero_tolerance, bool) or not isinstance(self.zero_tolerance, Real)
+                or not math.isfinite(self.zero_tolerance) or self.zero_tolerance < 0):
+            raise ValueError("zero_tolerance must be finite and nonnegative")
 
 
 class GRPOHealthMonitor:
@@ -231,13 +234,13 @@ class GRPOHealthMonitor:
                     "nonzero_gradient_fraction": sum(item["grad_norm"] > self.thresholds.zero_tolerance for item in self.rows) / count,
                     "nonzero_update_fraction": sum(item["sampled_parameter_max_delta"] > self.thresholds.zero_tolerance for item in self.rows) / count,
                 }
-                if aggregates["diverse_group_fraction"] <= self.thresholds.min_diverse_group_fraction:
+                if aggregates["diverse_group_fraction"] < self.thresholds.min_diverse_group_fraction:
                     issues.append("insufficient_reward_variance")
                 if aggregates["clipped_fraction"] > self.thresholds.max_clipped_fraction:
                     issues.append("excessive_completion_clipping")
-                if aggregates["nonzero_gradient_fraction"] <= self.thresholds.min_nonzero_gradient_fraction:
+                if aggregates["nonzero_gradient_fraction"] < self.thresholds.min_nonzero_gradient_fraction:
                     issues.append("insufficient_nonzero_gradients")
-                if aggregates["nonzero_update_fraction"] <= self.thresholds.min_nonzero_update_fraction:
+                if aggregates["nonzero_update_fraction"] < self.thresholds.min_nonzero_update_fraction:
                     issues.append("insufficient_sampled_parameter_updates")
         return {"step": step, "status": "failed" if issues else "passed_window" if ready else "warming_up",
                 "issues": issues, "window_updates": len(self.rows), "thresholds": asdict(self.thresholds),
@@ -261,7 +264,8 @@ def write_json_record(path: Path, record: Mapping[str, Any]) -> None:
 
 def make_express_rollout(output_dir: str, eos_token_ids: Sequence[int], *, audit_limit: int = 256):
     """Build the supported HF-only text rollout; no model is loaded here."""
-    from ir_training.generation_policy import build_stopping_criteria, generation_diagnostics
+    from ir_training.generation_policy import build_stopping_criteria, generation_cache_scope, generation_diagnostics
+    from ir_training.train.grpo_audit import isolated_generation_config, rollout_generation_config
     audit_count = 0
 
     def rollout(prompts: list[str], trainer: Any) -> dict[str, Any]:
@@ -278,17 +282,17 @@ def make_express_rollout(output_dir: str, eos_token_ids: Sequence[int], *, audit
         encoded = {key: value.to(trainer.accelerator.device) for key, value in encoded.items()
                    if key in {"input_ids", "attention_mask"}}
         width = encoded["input_ids"].shape[1]
-        kwargs = dict(trainer.generation_kwargs)
-        kwargs.update(eos_token_id=list(eos_token_ids), pad_token_id=tokenizer.pad_token_id,
-                      max_new_tokens=trainer.max_completion_length, stop_strings=None)
+        generation_config = rollout_generation_config(trainer, eos_token_ids)
         was_checkpointing = bool(getattr(trainer.model, "is_gradient_checkpointing", False))
         try:
             with unwrap_model_for_generation(trainer.model_wrapped, trainer.accelerator,
-                                              generation_kwargs=kwargs) as model, torch.no_grad():
-                generated = model.generate(
-                    **encoded, **kwargs, disable_compile=True, synced_gpus=False,
-                    stopping_criteria=build_stopping_criteria(tokenizer, width),
-                )
+                                              generation_kwargs=None) as model, torch.no_grad():
+                with isolated_generation_config(model, generation_config), generation_cache_scope(model):
+                    generated = model.generate(
+                        **encoded, generation_config=generation_config,
+                        disable_compile=True, synced_gpus=False,
+                        stopping_criteria=build_stopping_criteria(tokenizer, width),
+                    )
         finally:
             # TRL 0.29.1 restores checkpointing without passing kwargs. Older
             # Transformers defaults can silently restore use_reentrant=True.
@@ -352,6 +356,9 @@ def audited_reward(reward_fn: Any, output_dir: str, rank: int, *, audit_limit: i
         elif args:
             effective_args = (completions, *args[1:])
         values = reward_fn(*effective_args, **effective_kwargs)
+        from ir_training.train.grpo_audit import validate_reward_values
+        # Safety checks remain active after the bounded audit log fills up.
+        validate_reward_values(values, len(completions))
         prompts = kwargs.get("prompts") or [""] * len(values)
         sources = kwargs.get("source_id") or [None] * len(values)
         trainer_state = kwargs.get("trainer_state")

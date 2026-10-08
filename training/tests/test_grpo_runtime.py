@@ -239,8 +239,8 @@ def test_custom_rollout_is_one_batched_call_with_no_added_bos(monkeypatch, tmp_p
     def generate(**kwargs):
         calls.append(kwargs)
         assert kwargs["synced_gpus"] is False
-        assert kwargs["eos_token_id"] == [1, 3]
-        assert kwargs["stop_strings"] is None
+        assert kwargs["generation_config"].eos_token_id == [1, 3]
+        assert kwargs["generation_config"].stop_strings is None
         if generation_fails:
             raise RuntimeError("mock generation failure")
         tails = [_ids('<a2ui>root=Text("a")</a2ui>'), _ids("clipped without envelope")]
