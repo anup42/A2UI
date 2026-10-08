@@ -1,0 +1,420 @@
+{
+  "schemaVersion": 1,
+  "case": "BXP-003",
+  "phase": "after",
+  "attempt": "r01",
+  "startedAtUtc": "2026-10-08T19:20:52.708628+00:00",
+  "runId": "visual_BXP-003_after_r01_8d3fcdff",
+  "status": "collected",
+  "automatedChecksSatisfied": true,
+  "visualReviewStatus": "pending",
+  "inferenceAttempted": false,
+  "provenance": {
+    "serial": "R3CY30QFWLP",
+    "deviceModel": "SM-F966B",
+    "fingerprint": "samsung/q7qxeea/q7q:16/BP4A.251205.006/F966BXXS9BZE2_OXM9BZE2:userdebug/test-keys",
+    "corpusSha256": "fc46aa381957bed206f9e0f53e28edbb21b5096ca093985ad184fda73faaea0a",
+    "apks": {
+      "com.samsung.genuicraft": [
+        {
+          "path": "/data/app/~~RPVOXH2NaEfmdNe632iVMw==/com.samsung.genuicraft-wjDoY430ZHPCX_NDxYIFiA==/base.apk",
+          "sha256": "b6bd13f2b392da66c8b1c7f97388e1ee6c38cece0ab20cfc51324326e414cc2f"
+        }
+      ],
+      "com.samsung.genuicraft.test": [
+        {
+          "path": "/data/app/~~IOcLfsneWRTni7DJOOnhHw==/com.samsung.genuicraft.test-T0J-8n_HsOQJ9elr0G8SfQ==/base.apk",
+          "sha256": "f98049546fd93086d7fa31eb090b041a16a3d9ee568780c1477a50f15e653638"
+        }
+      ]
+    },
+    "hostRendererSource": {
+      "files": 79,
+      "sha256": "35c70104b86103332014fd221bc550ce77d133095b7480e8367b2f7488c14e7f",
+      "note": "Host source fingerprint; installed APK hashes are recorded separately."
+    }
+  },
+  "source": {
+    "originalPath": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20261009_fold7_visual_review\\BXP-003\\before\\r01\\input\\BXP-003\\output.express",
+    "sha256": "b4db521ab2e7a31552761b6b0f03a8b8eb2a3e08e4eff381938b0da7257c6639",
+    "replayMode": "express",
+    "pinnedBeforeReceipt": "BXP-003/before/r01/receipt.json",
+    "pinnedBeforeReceiptSha256": "2f4b83c779e0b3280964d40d58ca2f7d7897866ac718218cd17e2c8bdfc72c3f",
+    "documentOrigin": "Caller-selected saved final output; model provenance is not inferred from its filename.",
+    "archivedPath": "BXP-003/after/r01/input/BXP-003/output.express",
+    "remotePath": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_benchmark/visual_BXP-003_after_r01_8d3fcdff_input/BXP-003/output.express",
+    "remoteSha256": "b4db521ab2e7a31552761b6b0f03a8b8eb2a3e08e4eff381938b0da7257c6639"
+  },
+  "command": [
+    "C:\\Users\\anupk\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.EXE",
+    "-s",
+    "R3CY30QFWLP",
+    "shell",
+    "am",
+    "instrument",
+    "-w",
+    "-r",
+    "-e",
+    "class",
+    "com.samsung.genuicraft.GenUiSdkBixby50Test#replaySavedBixbyCorpus",
+    "-e",
+    "sourceRunId",
+    "visual_BXP-003_after_r01_8d3fcdff_input",
+    "-e",
+    "runId",
+    "visual_BXP-003_after_r01_8d3fcdff",
+    "-e",
+    "cases",
+    "BXP-003",
+    "-e",
+    "replayMode",
+    "express",
+    "-e",
+    "maxVerticalSwipes",
+    "30",
+    "-e",
+    "maxHorizontalSwipes",
+    "8",
+    "-e",
+    "renderFontScale",
+    "1.0",
+    "-e",
+    "renderDark",
+    "false",
+    "com.samsung.genuicraft.test/androidx.test.runner.AndroidJUnitRunner"
+  ],
+  "remoteOutput": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_benchmark/visual_BXP-003_after_r01_8d3fcdff",
+  "adbExitCode": 0,
+  "hostElapsedSeconds": 6.75,
+  "instrumentationPassed": true,
+  "result": {
+    "id": "BXP-003",
+    "kind": "renderer_replay",
+    "replayMode": "express",
+    "sourceRunId": "visual_BXP-003_after_r01_8d3fcdff_input",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "visual_BXP-003_after_r01_8d3fcdff_input/BXP-003/output.express",
+    "sourceExpressSha256": "b4db521ab2e7a31552761b6b0f03a8b8eb2a3e08e4eff381938b0da7257c6639",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Train service",
+          "Departure station",
+          "Typical departure time",
+          "Journey duration",
+          "Seating class"
+        ],
+        "rowSource": "statePath:/trains",
+        "sourceRows": 3,
+        "sourceCells": 15,
+        "observedHeaders": [
+          "Departure station",
+          "Typical departure time",
+          "Journey duration",
+          "Seating class"
+        ],
+        "observedRepresentativeCells": [
+          "Shatabdi Express (12007)",
+          "KSR Bengaluru (SBC)",
+          "10:35–10:45",
+          "About 2 h 15 m to 2 h 25 m",
+          "CC, EC",
+          "Rajya Rani Express (20660)",
+          "11:30",
+          "About 2 h 30 m",
+          "CC, 2S, GN",
+          "Wodeyar Express (12614)",
+          "15:15"
+        ],
+        "cells": [
+          {
+            "row": 1,
+            "column": "Train service",
+            "value": "Shatabdi Express (12007)",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 1,
+            "column": "Departure station",
+            "value": "KSR Bengaluru (SBC)",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 1,
+            "column": "Typical departure time",
+            "value": "10:35–10:45",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 1,
+            "column": "Journey duration",
+            "value": "About 2 h 15 m to 2 h 25 m",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 1,
+            "column": "Seating class",
+            "value": "CC, EC",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Train service",
+            "value": "Rajya Rani Express (20660)",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Departure station",
+            "value": "KSR Bengaluru (SBC)",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 2,
+            "column": "Typical departure time",
+            "value": "11:30",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Journey duration",
+            "value": "About 2 h 30 m",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 2,
+            "column": "Seating class",
+            "value": "CC, 2S, GN",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 3,
+            "column": "Train service",
+            "value": "Wodeyar Express (12614)",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 3,
+            "column": "Departure station",
+            "value": "KSR Bengaluru (SBC)",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 3,
+            "column": "Typical departure time",
+            "value": "15:15",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 3,
+            "column": "Journey duration",
+            "value": "About 2 h 30 m",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 3,
+            "column": "Seating class",
+            "value": "CC, 2S, GN",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          }
+        ],
+        "missingCells": [],
+        "accessibilityOnlyCells": [],
+        "ambiguousRepeatedCells": [
+          {
+            "row": 1,
+            "column": "Departure station",
+            "value": "KSR Bengaluru (SBC)",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 2,
+            "column": "Departure station",
+            "value": "KSR Bengaluru (SBC)",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 2,
+            "column": "Journey duration",
+            "value": "About 2 h 30 m",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 2,
+            "column": "Seating class",
+            "value": "CC, 2S, GN",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 3,
+            "column": "Departure station",
+            "value": "KSR Bengaluru (SBC)",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 3,
+            "column": "Journey duration",
+            "value": "About 2 h 30 m",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 3,
+            "column": "Seating class",
+            "value": "CC, 2S, GN",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          }
+        ],
+        "displayedCellCoverageComplete": true,
+        "cellPlacementEvaluated": false,
+        "missingColumns": [],
+        "horizontalScrollObserved": false
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 28,
+        "fullyVisibleDescriptionNodes": 7
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 28,
+        "fullyVisibleDescriptionNodes": 7
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 28,
+        "fullyVisibleDescriptionNodes": 7
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "coverageStatus": "all_cell_values_observed",
+    "coverageDiagnosticsAffectRenderStatus": false,
+    "visualReviewRequired": true,
+    "status": "rendered",
+    "replayElapsedMs": 4701
+  },
+  "summary": {
+    "kind": "renderer_replay",
+    "replayMode": "express",
+    "runId": "visual_BXP-003_after_r01_8d3fcdff",
+    "sourceRunId": "visual_BXP-003_after_r01_8d3fcdff_input",
+    "total": 1,
+    "rendered": 1,
+    "failed": 0,
+    "repairRejected": 0,
+    "renderFailures": 0,
+    "renderedWithCoverageIssues": 0,
+    "casesWithIncompleteCellCoverage": 0,
+    "casesWithAmbiguousRepeatedCells": 1,
+    "coverageDiagnosticsAffectRenderStatus": false,
+    "visualReviewRequired": true,
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "repairCounts": {},
+    "sourceIntegrityAccepted": 0,
+    "sourceIntegrityRejected": 0,
+    "sourceIntegrityNotEvaluated": 0,
+    "sourceTextFallbacks": 0
+  },
+  "checks": {
+    "instrumentationPassed": true,
+    "singleSelectedCase": true,
+    "frozenCorpus": true,
+    "noInference": true,
+    "sameAcceptedInput": true,
+    "renderedWithoutIssues": true,
+    "capturesComplete": true,
+    "verticalEndObserved": true,
+    "allTableColumnsObserved": true
+  },
+  "documentHashes": {
+    "BXP-003/after/r01/artifacts/BXP-003/replay_result.json": "e20138b2411bd0a567f3aa9fd733e5e73957ea0a8a775f1e1eeb63388545e407",
+    "BXP-003/after/r01/artifacts/BXP-003/source.output.express": "b4db521ab2e7a31552761b6b0f03a8b8eb2a3e08e4eff381938b0da7257c6639",
+    "BXP-003/after/r01/artifacts/replay_config.json": "1369dc56d4d0013adef3e139bdf05b76b456ad394aa62a2fcf568d2ca31a523b",
+    "BXP-003/after/r01/artifacts/replay_results.json": "eafee9d1dbb18cb55d6ed2692db721af0b532c08e57828ef6c44041df56378bc",
+    "BXP-003/after/r01/artifacts/replay_summary.json": "87189419193051ec2eaf750446ebca3a14c54060cfa5d7b8c20418174e752689"
+  },
+  "capturedFiles": [
+    {
+      "path": "BXP-003/after/r01/artifacts/BXP-003/initial.png",
+      "sha256": "0c56876a531abb1096d7db9f68584ff0521f801a23f5d06a1dd758886a5df6f1"
+    },
+    {
+      "path": "BXP-003/after/r01/artifacts/BXP-003/initial.xml",
+      "sha256": "c7defc668836b1bdc9816134655329144bfd579d2ccaaac66d2c1286345e55f8"
+    },
+    {
+      "path": "BXP-003/after/r01/artifacts/BXP-003/vertical_1.png",
+      "sha256": "1867f14f3b10a17badbd1b55d19a277ab48198a7daea45fc1b2a5c93bca667d9"
+    },
+    {
+      "path": "BXP-003/after/r01/artifacts/BXP-003/vertical_1.xml",
+      "sha256": "eab8076c3b30b543ca3507002ba6fce0ff243501e863a9aae5a2523971fb07f0"
+    },
+    {
+      "path": "BXP-003/after/r01/artifacts/BXP-003/vertical_2.png",
+      "sha256": "08a9c789c7781ba78cca17d755155799ec622f76963b56792e15043930834ec9"
+    },
+    {
+      "path": "BXP-003/after/r01/artifacts/BXP-003/vertical_2.xml",
+      "sha256": "eab8076c3b30b543ca3507002ba6fce0ff243501e863a9aae5a2523971fb07f0"
+    }
+  ],
+  "finishedAtUtc": "2026-10-08T19:21:00.490184+00:00"
+}

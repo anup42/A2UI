@@ -1,0 +1,12 @@
+{
+  "status": "accepted",
+  "notes": [
+    "All three train services, exact station/time ranges/duration qualifiers/classes and every note are readable. SDK0.6.4 gives departure time the primary emphasis and pairs the complete duration without orphan units. All pages inspected; dark mode at1.3 font scale stacks metrics without clipping. Byte-identical output before/after. Separate historical train fixture test stopped on its hash guard before rendering and is being investigated."
+  ],
+  "reviewer": "codex",
+  "updatedAtUtc": "2026-10-08T19:32:18.200234+00:00",
+  "reviewedAfterReceipt": "BXP-003/after/r02/receipt.json",
+  "reviewedAfterReceiptSha256": "cb528840283b95f41e2462c7e8ed82319f18bca2987cbd802c63f3e0d959df70",
+  "sourceSha256": "b4db521ab2e7a31552761b6b0f03a8b8eb2a3e08e4eff381938b0da7257c6639",
+  "scope": "Explicit visual review of the referenced after captures; source fidelity is not certified."
+}

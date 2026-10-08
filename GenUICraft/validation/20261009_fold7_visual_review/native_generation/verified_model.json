@@ -1,0 +1,9 @@
+{
+  "scope": "Model file identity; runtime per case is recorded in each native result.",
+  "device": "SM-F966B",
+  "hashCommandOutput": "7f01bdf1c6ba9bdf658e57c75001fc35a42edad88238bc5dab0a5f7dcf3de373  /sdcard/Android/data/com.samsung.genuicraft/files/sdk_models/model-fp16-corrected.litertlm",
+  "sha256": "7f01bdf1c6ba9bdf658e57c75001fc35a42edad88238bc5dab0a5f7dcf3de373",
+  "serial": "R3CY30QFWLP",
+  "checkedAtUtc": "2026-10-08T19:01:52.9734640Z",
+  "modelPath": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_models/model-fp16-corrected.litertlm"
+}

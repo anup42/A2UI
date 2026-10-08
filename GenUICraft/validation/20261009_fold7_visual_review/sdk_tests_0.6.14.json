@@ -1,0 +1,47 @@
+{
+  "sdkVersion": "0.6.14",
+  "variant": "release",
+  "scope": "Ranked chart original-value preservation and routing guards",
+  "suites": [
+    {
+      "suite": {
+        "name": "com.samsung.genuicraft.sdk.internal.renderer.FlatChartRankingSummaryTest",
+        "tests": "4",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-10-08T21:34:32",
+        "hostname": "NOTEBOOK-PC",
+        "time": "0.089"
+      },
+      "tests": [
+        {
+          "name": "permuted roles retain arbitrary supplied ranks differing dates and every qualified extra field",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.FlatChartRankingSummaryTest",
+          "time": "0.075"
+        },
+        {
+          "name": "empty ragged missing identity and authored URL media or action content retain the existing route",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.FlatChartRankingSummaryTest",
+          "time": "0.008"
+        },
+        {
+          "name": "accepted chart keeps every authored rank raw title and date including the repeated track at rank four",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.FlatChartRankingSummaryTest",
+          "time": "0.001"
+        },
+        {
+          "name": "chart aliases require ranking identity title and chart-specific date rather than ordinary playlist dates",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.FlatChartRankingSummaryTest",
+          "time": "0.004"
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "tests": 4,
+    "skipped": 0,
+    "failures": 0,
+    "errors": 0
+  }
+}

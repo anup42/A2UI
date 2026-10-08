@@ -1,0 +1,239 @@
+{
+  "id": "BXP-007",
+  "kind": "renderer_replay",
+  "replayMode": "json",
+  "sourceRunId": "visual_BXP-007_before_r01_341693c0_input",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceJsonSha256": "b56303379b539a0bd7c7930ca57b07467abb33f5994ebac3c47fd035e5ee592a",
+  "sourceArtifact": "visual_BXP-007_before_r01_341693c0_input/BXP-007/output.a2ui.json",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tableViewToggleVerified": true,
+  "tableViewToggleEvidence": {
+    "checkedCellTexts": [
+      "Chamundi Hill Lookout View Point",
+      "5:00 am–11:00 pm",
+      "30–45 min",
+      "Not available in the provided reliable sources[6]"
+    ],
+    "gridCaptures": [
+      "toggle_table_view",
+      "toggle_table_horizontal_1"
+    ],
+    "restoredCapture": "toggle_cards_restored",
+    "scope": "Mode switch and first-row text-node retention; screenshot pixel legibility still requires visual review."
+  },
+  "tables": [
+    {
+      "id": "b",
+      "columns": [
+        "Sight",
+        "Opening hours",
+        "Usual visit duration",
+        "Published adult entry fee"
+      ],
+      "rowSource": "statePath:/sights",
+      "sourceRows": 3,
+      "sourceCells": 12,
+      "observedHeaders": [
+        "Sight",
+        "Opening hours",
+        "Usual visit duration",
+        "Published adult entry fee"
+      ],
+      "observedRepresentativeCells": [
+        "Chamundi Hill Lookout View Point",
+        "5:00 am–11:00 pm",
+        "30–45 min",
+        "Not available in the provided reliable sources[6]",
+        "Mysuru Railway Museum",
+        "10:00 am–6:00 pm; closed Tuesday",
+        "1.5–2 hours",
+        "Not available in the provided reliable sources[2]",
+        "Chikka Gadiyara",
+        "Open 24 hours",
+        "20–30 min",
+        "Not available in the provided reliable sources[1]"
+      ],
+      "cells": [
+        {
+          "row": 1,
+          "column": "Sight",
+          "value": "Chamundi Hill Lookout View Point",
+          "displayedTextObserved": true,
+          "accessibilityObserved": true,
+          "repeatedSourceValue": false
+        },
+        {
+          "row": 1,
+          "column": "Opening hours",
+          "value": "5:00 am–11:00 pm",
+          "displayedTextObserved": true,
+          "accessibilityObserved": true,
+          "repeatedSourceValue": false
+        },
+        {
+          "row": 1,
+          "column": "Usual visit duration",
+          "value": "30–45 min",
+          "displayedTextObserved": true,
+          "accessibilityObserved": true,
+          "repeatedSourceValue": false
+        },
+        {
+          "row": 1,
+          "column": "Published adult entry fee",
+          "value": "Not available in the provided reliable sources[6]",
+          "displayedTextObserved": true,
+          "accessibilityObserved": true,
+          "repeatedSourceValue": true
+        },
+        {
+          "row": 2,
+          "column": "Sight",
+          "value": "Mysuru Railway Museum",
+          "displayedTextObserved": true,
+          "accessibilityObserved": true,
+          "repeatedSourceValue": false
+        },
+        {
+          "row": 2,
+          "column": "Opening hours",
+          "value": "10:00 am–6:00 pm; closed Tuesday",
+          "displayedTextObserved": true,
+          "accessibilityObserved": true,
+          "repeatedSourceValue": false
+        },
+        {
+          "row": 2,
+          "column": "Usual visit duration",
+          "value": "1.5–2 hours",
+          "displayedTextObserved": true,
+          "accessibilityObserved": true,
+          "repeatedSourceValue": false
+        },
+        {
+          "row": 2,
+          "column": "Published adult entry fee",
+          "value": "Not available in the provided reliable sources[2]",
+          "displayedTextObserved": true,
+          "accessibilityObserved": true,
+          "repeatedSourceValue": true
+        },
+        {
+          "row": 3,
+          "column": "Sight",
+          "value": "Chikka Gadiyara",
+          "displayedTextObserved": true,
+          "accessibilityObserved": true,
+          "repeatedSourceValue": false
+        },
+        {
+          "row": 3,
+          "column": "Opening hours",
+          "value": "Open 24 hours",
+          "displayedTextObserved": true,
+          "accessibilityObserved": true,
+          "repeatedSourceValue": false
+        },
+        {
+          "row": 3,
+          "column": "Usual visit duration",
+          "value": "20–30 min",
+          "displayedTextObserved": true,
+          "accessibilityObserved": true,
+          "repeatedSourceValue": false
+        },
+        {
+          "row": 3,
+          "column": "Published adult entry fee",
+          "value": "Not available in the provided reliable sources[1]",
+          "displayedTextObserved": true,
+          "accessibilityObserved": true,
+          "repeatedSourceValue": true
+        }
+      ],
+      "missingCells": [],
+      "accessibilityOnlyCells": [],
+      "ambiguousRepeatedCells": [
+        {
+          "row": 1,
+          "column": "Published adult entry fee",
+          "value": "Not available in the provided reliable sources[6]",
+          "displayedTextObserved": true,
+          "accessibilityObserved": true,
+          "repeatedSourceValue": true
+        },
+        {
+          "row": 2,
+          "column": "Published adult entry fee",
+          "value": "Not available in the provided reliable sources[2]",
+          "displayedTextObserved": true,
+          "accessibilityObserved": true,
+          "repeatedSourceValue": true
+        },
+        {
+          "row": 3,
+          "column": "Published adult entry fee",
+          "value": "Not available in the provided reliable sources[1]",
+          "displayedTextObserved": true,
+          "accessibilityObserved": true,
+          "repeatedSourceValue": true
+        }
+      ],
+      "displayedCellCoverageComplete": true,
+      "cellPlacementEvaluated": false,
+      "missingColumns": [],
+      "horizontalScrollObserved": false
+    }
+  ],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 27,
+      "fullyVisibleDescriptionNodes": 4
+    },
+    {
+      "name": "toggle_table_view",
+      "screenshot": true,
+      "visibleTextNodes": 20,
+      "fullyVisibleDescriptionNodes": 7
+    },
+    {
+      "name": "toggle_table_horizontal_1",
+      "screenshot": true,
+      "visibleTextNodes": 20,
+      "fullyVisibleDescriptionNodes": 7
+    },
+    {
+      "name": "toggle_cards_restored",
+      "screenshot": true,
+      "visibleTextNodes": 27,
+      "fullyVisibleDescriptionNodes": 4
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 21,
+      "fullyVisibleDescriptionNodes": 3
+    },
+    {
+      "name": "vertical_2",
+      "screenshot": true,
+      "visibleTextNodes": 21,
+      "fullyVisibleDescriptionNodes": 3
+    }
+  ],
+  "verticalSwipes": 2,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "coverageStatus": "all_cell_values_observed",
+  "coverageDiagnosticsAffectRenderStatus": false,
+  "visualReviewRequired": true,
+  "status": "rendered",
+  "replayElapsedMs": 8468
+}

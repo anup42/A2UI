@@ -1,0 +1,13 @@
+{
+  "status": "accepted",
+  "notes": [
+    "SDK0.6.6 replaces the narrow sightseeing grid with labeled place cards: all three names, opening hours including Tuesday closure, visit durations, and explicit unavailable-fee strings/citations are readable without horizontal scrolling. Full visit order and caveat retained. Table view/Card view switch passed on Fold7 with capture evidence in visual_007_toggle_20261009; table remains available. Same A2UI bytes before/after. Model-generated View all attractions has no action and remains disabled; no navigation/fees were invented.",
+    "SDK 0.6.9 targeted regression on Fold7 R3CY30QFWLP, after/r02: inspected all three PNG pages. All three place cards retain the 12 supplied cell values, including Tuesday closure, visit durations and exact unavailable-fee strings/citations; all four source prose/List values and the complete visit order/caveat remain readable. Same saved source bytes as before. This regression replay covered the default cards; the earlier Table view/Card view toggle evidence was not rerun in r02."
+  ],
+  "reviewer": "codex",
+  "updatedAtUtc": "2026-10-08T21:00:23.208145+00:00",
+  "reviewedAfterReceipt": "BXP-007/after/r02/receipt.json",
+  "reviewedAfterReceiptSha256": "83ba6cd3a7cc4a75dc6f1c9952acf6f9e34782ef4650dd37c00634f5153d5c26",
+  "sourceSha256": "b56303379b539a0bd7c7930ca57b07467abb33f5994ebac3c47fd035e5ee592a",
+  "scope": "Explicit visual review of the referenced after captures; source fidelity is not certified."
+}

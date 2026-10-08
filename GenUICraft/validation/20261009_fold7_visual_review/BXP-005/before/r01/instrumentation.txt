@@ -1,0 +1,71 @@
+INSTRUMENTATION_STATUS: class=com.samsung.genuicraft.GenUiSdkBixby50Test
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+com.samsung.genuicraft.GenUiSdkBixby50Test:
+INSTRUMENTATION_STATUS: test=replaySavedBixbyCorpus
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: stream=BXP-005 renderer_replay replay_failure (1/1); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.samsung.genuicraft.GenUiSdkBixby50Test
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: 1/1 replay checks failed; coverage diagnostics require visual review; no inference performed; artifacts: /storage/emulated/0/Android/data/com.samsung.genuicraft/files/sdk_benchmark/visual_BXP-005_before_r01_e79f0d8c
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.samsung.genuicraft.GenUiSdkBixby50Test$replaySavedBixbyCorpus$1.invokeSuspend(GenUiSdkBixby50Test.kt:620)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:101)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:263)
+	at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:95)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:69)
+	at kotlinx.coroutines.BuildersKt.runBlocking(dex-id-8e21d56bad5552dba0a50d80dbb6cb171817e925:1)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking$default(Builders.kt:47)
+	at kotlinx.coroutines.BuildersKt.runBlocking$default(dex-id-8e21d56bad5552dba0a50d80dbb6cb171817e925:1)
+	at com.samsung.genuicraft.GenUiSdkBixby50Test.replaySavedBixbyCorpus(GenUiSdkBixby50Test.kt:178)
+
+INSTRUMENTATION_STATUS: stream=
+Error in replaySavedBixbyCorpus(com.samsung.genuicraft.GenUiSdkBixby50Test):
+java.lang.AssertionError: 1/1 replay checks failed; coverage diagnostics require visual review; no inference performed; artifacts: /storage/emulated/0/Android/data/com.samsung.genuicraft/files/sdk_benchmark/visual_BXP-005_before_r01_e79f0d8c
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.samsung.genuicraft.GenUiSdkBixby50Test$replaySavedBixbyCorpus$1.invokeSuspend(GenUiSdkBixby50Test.kt:620)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:101)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:263)
+	at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:95)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:69)
+	at kotlinx.coroutines.BuildersKt.runBlocking(dex-id-8e21d56bad5552dba0a50d80dbb6cb171817e925:1)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking$default(Builders.kt:47)
+	at kotlinx.coroutines.BuildersKt.runBlocking$default(dex-id-8e21d56bad5552dba0a50d80dbb6cb171817e925:1)
+	at com.samsung.genuicraft.GenUiSdkBixby50Test.replaySavedBixbyCorpus(GenUiSdkBixby50Test.kt:178)
+
+INSTRUMENTATION_STATUS: test=replaySavedBixbyCorpus
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 1.554
+There was 1 failure:
+1) replaySavedBixbyCorpus(com.samsung.genuicraft.GenUiSdkBixby50Test)
+java.lang.AssertionError: 1/1 replay checks failed; coverage diagnostics require visual review; no inference performed; artifacts: /storage/emulated/0/Android/data/com.samsung.genuicraft/files/sdk_benchmark/visual_BXP-005_before_r01_e79f0d8c
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.samsung.genuicraft.GenUiSdkBixby50Test$replaySavedBixbyCorpus$1.invokeSuspend(GenUiSdkBixby50Test.kt:620)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:101)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:263)
+	at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:95)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:69)
+	at kotlinx.coroutines.BuildersKt.runBlocking(dex-id-8e21d56bad5552dba0a50d80dbb6cb171817e925:1)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking$default(Builders.kt:47)
+	at kotlinx.coroutines.BuildersKt.runBlocking$default(dex-id-8e21d56bad5552dba0a50d80dbb6cb171817e925:1)
+	at com.samsung.genuicraft.GenUiSdkBixby50Test.replaySavedBixbyCorpus(GenUiSdkBixby50Test.kt:178)
+
+FAILURES!!!
+Tests run: 1,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1

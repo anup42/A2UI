@@ -1,0 +1,175 @@
+{
+  "sdkVersion": "0.6.13",
+  "variant": "release",
+  "scope": "Declared entity card presentation and explicit-grid/value-mapping regressions",
+  "suites": [
+    {
+      "suite": {
+        "name": "com.samsung.genuicraft.sdk.internal.renderer.DeclaredEntityCardPresentationTest",
+        "tests": "4",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-10-08T21:25:59",
+        "hostname": "NOTEBOOK-PC",
+        "time": "0.142"
+      },
+      "tests": [
+        {
+          "name": "accepted film rows use declared entity cards on compact and wide portrait screens without losing any declared cell",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.DeclaredEntityCardPresentationTest",
+          "time": "0.114"
+        },
+        {
+          "name": "declared key and label aliases map to the same actual primary label and row value",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.DeclaredEntityCardPresentationTest",
+          "time": "0.008"
+        },
+        {
+          "name": "unknown undeclared or blank primary values and no row data remain generic",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.DeclaredEntityCardPresentationTest",
+          "time": "0.013"
+        },
+        {
+          "name": "explicit grids feature matrices and feature identities keep their existing shape and presentation",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.DeclaredEntityCardPresentationTest",
+          "time": "0.006"
+        }
+      ]
+    },
+    {
+      "suite": {
+        "name": "com.samsung.genuicraft.sdk.internal.renderer.EntityTableCardMappingTest",
+        "tests": "7",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-10-08T21:25:59",
+        "hostname": "NOTEBOOK-PC",
+        "time": "0.028"
+      },
+      "tests": [
+        {
+          "name": "entity cards retain every field and every safe link without caps or truncation",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.EntityTableCardMappingTest",
+          "time": "0.022"
+        },
+        {
+          "name": "accepted phone comparison keeps all battery fields below display without changing price highlights",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.EntityTableCardMappingTest",
+          "time": "0.001"
+        },
+        {
+          "name": "compact column eligibility ignores absent values but rejects a single long value and long detail labels",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.EntityTableCardMappingTest",
+          "time": "0.001"
+        },
+        {
+          "name": "qualified phone price leads while long specifications stay labeled and complete",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.EntityTableCardMappingTest",
+          "time": "0.001"
+        },
+        {
+          "name": "long battery specification is a full width field",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.EntityTableCardMappingTest",
+          "time": "0.001"
+        },
+        {
+          "name": "short earbud price is a compact highlight and the full tradeoff remains a detail",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.EntityTableCardMappingTest",
+          "time": "0.0"
+        },
+        {
+          "name": "table-wide body policy preserves unknown metadata and authored actions",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.EntityTableCardMappingTest",
+          "time": "0.001"
+        }
+      ]
+    },
+    {
+      "suite": {
+        "name": "com.samsung.genuicraft.sdk.internal.renderer.ExplicitTablePresentationTest",
+        "tests": "13",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-10-08T21:25:59",
+        "hostname": "NOTEBOOK-PC",
+        "time": "0.064"
+      },
+      "tests": [
+        {
+          "name": "ranked text entities keep every cell when two other columns look numeric",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.ExplicitTablePresentationTest",
+          "time": "0.002"
+        },
+        {
+          "name": "component schedule card mode bypasses grid while explicit direct table still uses it",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.ExplicitTablePresentationTest",
+          "time": "0.04"
+        },
+        {
+          "name": "genuine multi-column metrics retain labels and all numeric fields",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.ExplicitTablePresentationTest",
+          "time": "0.002"
+        },
+        {
+          "name": "generic repaired restaurant and bank tables honor requested entity cards",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.ExplicitTablePresentationTest",
+          "time": "0.006"
+        },
+        {
+          "name": "explicit two-column table retains meaning and units instead of key-value cards",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.ExplicitTablePresentationTest",
+          "time": "0.001"
+        },
+        {
+          "name": "direct schedule card request bypasses grid and retains every labeled field",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.ExplicitTablePresentationTest",
+          "time": "0.003"
+        },
+        {
+          "name": "explicit summary table keeps rows even when legacy itinerary suppression would match",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.ExplicitTablePresentationTest",
+          "time": "0.001"
+        },
+        {
+          "name": "wide displays use a grid and explicit value normalization is consistent",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.ExplicitTablePresentationTest",
+          "time": "0.001"
+        },
+        {
+          "name": "single column generated fragments retain title label and every row value",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.ExplicitTablePresentationTest",
+          "time": "0.002"
+        },
+        {
+          "name": "process cards remain available when table is not explicitly requested",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.ExplicitTablePresentationTest",
+          "time": "0.001"
+        },
+        {
+          "name": "explicit weather table wins while requested and default weather cards remain cards",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.ExplicitTablePresentationTest",
+          "time": "0.003"
+        },
+        {
+          "name": "implicit generic key-value presentation remains unchanged",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.ExplicitTablePresentationTest",
+          "time": "0.001"
+        },
+        {
+          "name": "explicit one column table retains the grid request",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.ExplicitTablePresentationTest",
+          "time": "0.0"
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "tests": 24,
+    "skipped": 0,
+    "failures": 0,
+    "errors": 0
+  }
+}

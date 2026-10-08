@@ -1,0 +1,264 @@
+[
+  {
+    "id": "BXP-003",
+    "kind": "renderer_replay",
+    "replayMode": "express",
+    "sourceRunId": "visual_BXP-003_before_r01_4389355f_input",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "visual_BXP-003_before_r01_4389355f_input/BXP-003/output.express",
+    "sourceExpressSha256": "b4db521ab2e7a31552761b6b0f03a8b8eb2a3e08e4eff381938b0da7257c6639",
+    "renderFontScale": 1.3,
+    "renderDark": true,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Train service",
+          "Departure station",
+          "Typical departure time",
+          "Journey duration",
+          "Seating class"
+        ],
+        "rowSource": "statePath:/trains",
+        "sourceRows": 3,
+        "sourceCells": 15,
+        "observedHeaders": [
+          "Departure station",
+          "Typical departure time",
+          "Journey duration",
+          "Seating class"
+        ],
+        "observedRepresentativeCells": [
+          "Shatabdi Express (12007)",
+          "KSR Bengaluru (SBC)",
+          "10:35–10:45",
+          "About 2 h 15 m to 2 h 25 m",
+          "CC, EC",
+          "Rajya Rani Express (20660)",
+          "11:30",
+          "About 2 h 30 m",
+          "CC, 2S, GN",
+          "Wodeyar Express (12614)",
+          "15:15"
+        ],
+        "cells": [
+          {
+            "row": 1,
+            "column": "Train service",
+            "value": "Shatabdi Express (12007)",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 1,
+            "column": "Departure station",
+            "value": "KSR Bengaluru (SBC)",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 1,
+            "column": "Typical departure time",
+            "value": "10:35–10:45",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 1,
+            "column": "Journey duration",
+            "value": "About 2 h 15 m to 2 h 25 m",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 1,
+            "column": "Seating class",
+            "value": "CC, EC",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Train service",
+            "value": "Rajya Rani Express (20660)",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Departure station",
+            "value": "KSR Bengaluru (SBC)",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 2,
+            "column": "Typical departure time",
+            "value": "11:30",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Journey duration",
+            "value": "About 2 h 30 m",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 2,
+            "column": "Seating class",
+            "value": "CC, 2S, GN",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 3,
+            "column": "Train service",
+            "value": "Wodeyar Express (12614)",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 3,
+            "column": "Departure station",
+            "value": "KSR Bengaluru (SBC)",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 3,
+            "column": "Typical departure time",
+            "value": "15:15",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 3,
+            "column": "Journey duration",
+            "value": "About 2 h 30 m",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 3,
+            "column": "Seating class",
+            "value": "CC, 2S, GN",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          }
+        ],
+        "missingCells": [],
+        "accessibilityOnlyCells": [],
+        "ambiguousRepeatedCells": [
+          {
+            "row": 1,
+            "column": "Departure station",
+            "value": "KSR Bengaluru (SBC)",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 2,
+            "column": "Departure station",
+            "value": "KSR Bengaluru (SBC)",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 2,
+            "column": "Journey duration",
+            "value": "About 2 h 30 m",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 2,
+            "column": "Seating class",
+            "value": "CC, 2S, GN",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 3,
+            "column": "Departure station",
+            "value": "KSR Bengaluru (SBC)",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 3,
+            "column": "Journey duration",
+            "value": "About 2 h 30 m",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 3,
+            "column": "Seating class",
+            "value": "CC, 2S, GN",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          }
+        ],
+        "displayedCellCoverageComplete": true,
+        "cellPlacementEvaluated": false,
+        "missingColumns": [],
+        "horizontalScrollObserved": false
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 24,
+        "fullyVisibleDescriptionNodes": 7
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 19,
+        "fullyVisibleDescriptionNodes": 2
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 19,
+        "fullyVisibleDescriptionNodes": 2
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "coverageStatus": "all_cell_values_observed",
+    "coverageDiagnosticsAffectRenderStatus": false,
+    "visualReviewRequired": true,
+    "status": "rendered",
+    "replayElapsedMs": 4954
+  }
+]

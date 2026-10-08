@@ -1,0 +1,37 @@
+{
+  "sdkVersion": "0.6.11",
+  "variant": "release",
+  "scope": "Targeted currency quote summary profile tests",
+  "suite": {
+    "name": "com.samsung.genuicraft.sdk.internal.renderer.FlatCurrencyQuoteSummaryTest",
+    "tests": "4",
+    "skipped": "0",
+    "failures": "0",
+    "errors": "0",
+    "timestamp": "2026-10-08T21:09:41",
+    "hostname": "NOTEBOOK-PC",
+    "time": "0.049"
+  },
+  "tests": [
+    {
+      "name": "accepted currency quotes retain every exact pair rate and shared timestamp cell",
+      "classname": "com.samsung.genuicraft.sdk.internal.renderer.FlatCurrencyQuoteSummaryTest",
+      "time": "0.038"
+    },
+    {
+      "name": "unknown columns blank cells ragged rows and URLs keep all authored content on the existing route",
+      "classname": "com.samsung.genuicraft.sdk.internal.renderer.FlatCurrencyQuoteSummaryTest",
+      "time": "0.006"
+    },
+    {
+      "name": "weak bank deposit equity and malformed pair schemas keep the existing route",
+      "classname": "com.samsung.genuicraft.sdk.internal.renderer.FlatCurrencyQuoteSummaryTest",
+      "time": "0.001"
+    },
+    {
+      "name": "permuted quote roles preserve pair citations and differing timestamps per row",
+      "classname": "com.samsung.genuicraft.sdk.internal.renderer.FlatCurrencyQuoteSummaryTest",
+      "time": "0.002"
+    }
+  ]
+}

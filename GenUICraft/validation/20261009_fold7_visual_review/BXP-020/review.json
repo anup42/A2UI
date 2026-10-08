@@ -1,0 +1,12 @@
+{
+  "status": "accepted",
+  "notes": [
+    "Reviewed both normal after pages and both dark/font1.3 pages on Fold7. Mission identity is prominent; date and vehicle pair at normal width and stack at large font; complete purpose, provisional-schedule uncertainty and official-versus-third-party qualification remain readable. All replay checks pass on unchanged model JSON. Model omitted source citations [2][10][1][5]; visual acceptance is not factual recency or fidelity certification."
+  ],
+  "reviewer": "codex",
+  "updatedAtUtc": "2026-10-08T21:55:19.425039+00:00",
+  "reviewedAfterReceipt": "BXP-020/after/r01/receipt.json",
+  "reviewedAfterReceiptSha256": "f24538c1c6aabe778ba15eba9a2fbc9d7f5128b0c78f58c7e4bdeca6cb667af1",
+  "sourceSha256": "341c30fe92367f05a4b2f28568ec0a0836ee3a9f56c252aca5fddb7335c52de2",
+  "scope": "Explicit visual review of the referenced after captures; source fidelity is not certified."
+}

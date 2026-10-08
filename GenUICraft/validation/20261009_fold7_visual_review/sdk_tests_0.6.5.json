@@ -1,0 +1,8 @@
+{
+  "tests": 492,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 1,
+  "sdk": "0.6.5",
+  "note": "Full suite after freeing regenerable Android build files; initial storage failure retained in logs."
+}

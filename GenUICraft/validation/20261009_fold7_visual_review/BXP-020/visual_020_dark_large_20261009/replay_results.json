@@ -1,0 +1,39 @@
+[
+  {
+    "id": "BXP-020",
+    "kind": "renderer_replay",
+    "replayMode": "json",
+    "sourceRunId": "visual_BXP-020_before_r01_7d6a40bb_input",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceJsonSha256": "341c30fe92367f05a4b2f28568ec0a0836ee3a9f56c252aca5fddb7335c52de2",
+    "sourceArtifact": "visual_BXP-020_before_r01_7d6a40bb_input/BXP-020/output.a2ui.json",
+    "renderFontScale": 1.3,
+    "renderDark": true,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 12,
+        "fullyVisibleDescriptionNodes": 0
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 12,
+        "fullyVisibleDescriptionNodes": 0
+      }
+    ],
+    "verticalSwipes": 1,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "coverageStatus": "all_cell_values_observed",
+    "coverageDiagnosticsAffectRenderStatus": false,
+    "visualReviewRequired": true,
+    "status": "rendered",
+    "replayElapsedMs": 2421
+  }
+]

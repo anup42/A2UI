@@ -1,0 +1,19 @@
+{
+  "kind": "renderer_replay",
+  "replayMode": "json",
+  "sourceRunId": "visual_BXP-020_before_r01_7d6a40bb_input",
+  "runId": "visual_020_dark_large_20261009",
+  "cases": [
+    "BXP-020"
+  ],
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "maxVerticalSwipes": 12,
+  "maxHorizontalSwipesPerTable": 8,
+  "corpusSha256": "fc46aa381957bed206f9e0f53e28edbb21b5096ca093985ad184fda73faaea0a",
+  "hierarchyPolicy": "Clear UiAutomation cache on API 34+, refresh nodes, then dump.",
+  "columnCheck": "Every nonempty supplied cell is checked against displayed text as complete tokens. Accessibility evidence is reported separately and never satisfies displayed coverage; cell placement requires visual review.",
+  "renderFontScale": 1.3,
+  "renderDark": true,
+  "verifyTableViewToggle": false
+}

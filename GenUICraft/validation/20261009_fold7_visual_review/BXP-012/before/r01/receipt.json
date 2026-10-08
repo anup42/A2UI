@@ -1,0 +1,371 @@
+{
+  "schemaVersion": 1,
+  "case": "BXP-012",
+  "phase": "before",
+  "attempt": "r01",
+  "startedAtUtc": "2026-10-08T20:46:59.490649+00:00",
+  "runId": "visual_BXP-012_before_r01_5b616664",
+  "status": "collected",
+  "automatedChecksSatisfied": true,
+  "visualReviewStatus": "pending",
+  "inferenceAttempted": false,
+  "provenance": {
+    "serial": "R3CY30QFWLP",
+    "deviceModel": "SM-F966B",
+    "fingerprint": "samsung/q7qxeea/q7q:16/BP4A.251205.006/F966BXXS9BZE2_OXM9BZE2:userdebug/test-keys",
+    "corpusSha256": "fc46aa381957bed206f9e0f53e28edbb21b5096ca093985ad184fda73faaea0a",
+    "apks": {
+      "com.samsung.genuicraft": [
+        {
+          "path": "/data/app/~~6m8FVSLyONv0kR00Cld_qQ==/com.samsung.genuicraft-0w_M_vqnCKjPIjvn4lLIfQ==/base.apk",
+          "sha256": "ab76bf514ca123b0f19c110285ceeb873464f70948f761a1f4e01771a9f4aa88"
+        }
+      ],
+      "com.samsung.genuicraft.test": [
+        {
+          "path": "/data/app/~~fFo8qAHcHZfzoEqWUwsTEw==/com.samsung.genuicraft.test-o8hY2YMtvYlCMVD5uNk0Eg==/base.apk",
+          "sha256": "8f5d6bb5312b2a7bc8e5d0771f455c12f8a4abeef9886fda42c561b2b4823d2e"
+        }
+      ]
+    },
+    "hostRendererSource": {
+      "files": 82,
+      "sha256": "3caa4818c6bdcab5f688e988ba8cb9fb761a7fd0028477f40fc90fb2e741e3e4",
+      "note": "Host source fingerprint; installed APK hashes are recorded separately."
+    }
+  },
+  "source": {
+    "originalPath": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20261009_fold7_visual_review\\native_generation\\visual_prep_012_015_20261009\\BXP-012\\a2ui.json",
+    "sha256": "dd8074da0812f60a118180f3df60c33b2f2a626fe603ee98531fa6a84c35a9c3",
+    "replayMode": "json",
+    "sourceMetadata": {
+      "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20261009_fold7_visual_review\\native_generation\\visual_prep_012_015_20261009\\BXP-012\\source.json",
+      "sha256": "459304bf73eb0314c98a88f84cb29769f256ecae5f54f6f587559221e626fefc",
+      "matchesFrozenCase": true
+    },
+    "documentOrigin": "Caller-selected saved final output; model provenance is not inferred from its filename.",
+    "archivedPath": "BXP-012/before/r01/input/BXP-012/output.a2ui.json",
+    "remotePath": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_benchmark/visual_BXP-012_before_r01_5b616664_input/BXP-012/output.a2ui.json",
+    "remoteSha256": "dd8074da0812f60a118180f3df60c33b2f2a626fe603ee98531fa6a84c35a9c3"
+  },
+  "command": [
+    "C:\\Users\\anupk\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe",
+    "-s",
+    "R3CY30QFWLP",
+    "shell",
+    "am",
+    "instrument",
+    "-w",
+    "-r",
+    "-e",
+    "class",
+    "com.samsung.genuicraft.GenUiSdkBixby50Test#replaySavedBixbyCorpus",
+    "-e",
+    "sourceRunId",
+    "visual_BXP-012_before_r01_5b616664_input",
+    "-e",
+    "runId",
+    "visual_BXP-012_before_r01_5b616664",
+    "-e",
+    "cases",
+    "BXP-012",
+    "-e",
+    "replayMode",
+    "json",
+    "-e",
+    "maxVerticalSwipes",
+    "30",
+    "-e",
+    "maxHorizontalSwipes",
+    "8",
+    "-e",
+    "renderFontScale",
+    "1.0",
+    "-e",
+    "renderDark",
+    "false",
+    "com.samsung.genuicraft.test/androidx.test.runner.AndroidJUnitRunner"
+  ],
+  "remoteOutput": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_benchmark/visual_BXP-012_before_r01_5b616664",
+  "adbExitCode": 0,
+  "hostElapsedSeconds": 7.218,
+  "instrumentationPassed": true,
+  "result": {
+    "id": "BXP-012",
+    "kind": "renderer_replay",
+    "replayMode": "json",
+    "sourceRunId": "visual_BXP-012_before_r01_5b616664_input",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceJsonSha256": "dd8074da0812f60a118180f3df60c33b2f2a626fe603ee98531fa6a84c35a9c3",
+    "sourceArtifact": "visual_BXP-012_before_r01_5b616664_input/BXP-012/output.a2ui.json",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "App",
+          "Offline use",
+          "Synchronization",
+          "Export options",
+          "Biggest free-plan restriction"
+        ],
+        "rowSource": "statePath:/comparison_data",
+        "sourceRows": 3,
+        "sourceCells": 15,
+        "observedHeaders": [
+          "App",
+          "Offline use",
+          "Synchronization",
+          "Export options",
+          "Biggest free-plan restriction"
+        ],
+        "observedRepresentativeCells": [
+          "Microsoft OneNote",
+          "Works offline on Android and web-backed notebooks sync when you reconnect[2][12]",
+          "Free cross-device sync through OneDrive",
+          "Export support is available, but the free plan is mainly limited by storage rather than format[1]",
+          "About 5 GB of notes on the free plan",
+          "Simplenote",
+          "Supports offline editing, with changes syncing later across devices[7]",
+          "Syncs across Android and browser-based access",
+          "Exports are supported through account data export tools, though not highlighted as a major free-tier feature in the sources",
+          "No major paid wall is emphasized in the source; the practical limitation is its very minimal feature set",
+          "Joplin",
+          "Designed for offline-first use with local note storage[4][5]",
+          "Sync is available, but setup depends on the sync method you choose",
+          "Strong portability: notes are stored locally and can be exported as files you control",
+          "The main free-plan limitation is that advanced sync convenience is not bundled as a paid-less, turnkey service"
+        ],
+        "cells": [
+          {
+            "row": 1,
+            "column": "App",
+            "value": "Microsoft OneNote",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 1,
+            "column": "Offline use",
+            "value": "Works offline on Android and web-backed notebooks sync when you reconnect[2][12]",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 1,
+            "column": "Synchronization",
+            "value": "Free cross-device sync through OneDrive",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 1,
+            "column": "Export options",
+            "value": "Export support is available, but the free plan is mainly limited by storage rather than format[1]",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 1,
+            "column": "Biggest free-plan restriction",
+            "value": "About 5 GB of notes on the free plan",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "App",
+            "value": "Simplenote",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Offline use",
+            "value": "Supports offline editing, with changes syncing later across devices[7]",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Synchronization",
+            "value": "Syncs across Android and browser-based access",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Export options",
+            "value": "Exports are supported through account data export tools, though not highlighted as a major free-tier feature in the sources",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Biggest free-plan restriction",
+            "value": "No major paid wall is emphasized in the source; the practical limitation is its very minimal feature set",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 3,
+            "column": "App",
+            "value": "Joplin",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 3,
+            "column": "Offline use",
+            "value": "Designed for offline-first use with local note storage[4][5]",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 3,
+            "column": "Synchronization",
+            "value": "Sync is available, but setup depends on the sync method you choose",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 3,
+            "column": "Export options",
+            "value": "Strong portability: notes are stored locally and can be exported as files you control",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 3,
+            "column": "Biggest free-plan restriction",
+            "value": "The main free-plan limitation is that advanced sync convenience is not bundled as a paid-less, turnkey service",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          }
+        ],
+        "missingCells": [],
+        "accessibilityOnlyCells": [],
+        "ambiguousRepeatedCells": [],
+        "displayedCellCoverageComplete": true,
+        "cellPlacementEvaluated": false,
+        "missingColumns": [],
+        "horizontalScrollObserved": false
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 31,
+        "fullyVisibleDescriptionNodes": 2
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 22,
+        "fullyVisibleDescriptionNodes": 1
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 22,
+        "fullyVisibleDescriptionNodes": 1
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "coverageStatus": "all_cell_values_observed",
+    "coverageDiagnosticsAffectRenderStatus": false,
+    "visualReviewRequired": true,
+    "status": "rendered",
+    "replayElapsedMs": 5229
+  },
+  "summary": {
+    "kind": "renderer_replay",
+    "replayMode": "json",
+    "runId": "visual_BXP-012_before_r01_5b616664",
+    "sourceRunId": "visual_BXP-012_before_r01_5b616664_input",
+    "total": 1,
+    "rendered": 1,
+    "failed": 0,
+    "repairRejected": 0,
+    "renderFailures": 0,
+    "renderedWithCoverageIssues": 0,
+    "casesWithIncompleteCellCoverage": 0,
+    "casesWithAmbiguousRepeatedCells": 0,
+    "coverageDiagnosticsAffectRenderStatus": false,
+    "visualReviewRequired": true,
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "repairCounts": {},
+    "sourceIntegrityAccepted": 0,
+    "sourceIntegrityRejected": 0,
+    "sourceIntegrityNotEvaluated": 0,
+    "sourceTextFallbacks": 0
+  },
+  "checks": {
+    "instrumentationPassed": true,
+    "singleSelectedCase": true,
+    "frozenCorpus": true,
+    "noInference": true,
+    "sameAcceptedInput": true,
+    "renderedWithoutIssues": true,
+    "capturesComplete": true,
+    "verticalEndObserved": true,
+    "allTableColumnsObserved": true
+  },
+  "documentHashes": {
+    "BXP-012/before/r01/artifacts/BXP-012/replay_result.json": "d663d937e8291b07f329e112ecf5def1c97487995e0a539ccbd40e08f47bb6f0",
+    "BXP-012/before/r01/artifacts/BXP-012/source.output.a2ui.json": "dd8074da0812f60a118180f3df60c33b2f2a626fe603ee98531fa6a84c35a9c3",
+    "BXP-012/before/r01/artifacts/replay_config.json": "0185b540959e3ef7979bfa5d7fab663ac7f417531e1aff12100d84454eb67633",
+    "BXP-012/before/r01/artifacts/replay_results.json": "6e16ec3bda9746685be5a60fc09a5020a0af80c8f4927a773feea370f56bed4a",
+    "BXP-012/before/r01/artifacts/replay_summary.json": "a2b69a5ea9c92f2908146b4ebd9b84eadbda5427e953c1a7b0e1f08d390b4d3e"
+  },
+  "capturedFiles": [
+    {
+      "path": "BXP-012/before/r01/artifacts/BXP-012/initial.png",
+      "sha256": "7fa51cdb2ac2c6cf3eb87c77351239fe3808a75377d833d0a59938f56e5edabe"
+    },
+    {
+      "path": "BXP-012/before/r01/artifacts/BXP-012/initial.xml",
+      "sha256": "3b062af64985634c15b9f6f6c42f3d1de72418cd03151e0376f18886245cf18d"
+    },
+    {
+      "path": "BXP-012/before/r01/artifacts/BXP-012/vertical_1.png",
+      "sha256": "1dc2f89249808c07037c6ea2d3fb4e5707371c730402858c7dac20fc8b739ef3"
+    },
+    {
+      "path": "BXP-012/before/r01/artifacts/BXP-012/vertical_1.xml",
+      "sha256": "5ef0ca7b5d5d7e0d5d7d8a1138b9fafde33b2a5fb95c3a681075e7f3c7e356f3"
+    },
+    {
+      "path": "BXP-012/before/r01/artifacts/BXP-012/vertical_2.png",
+      "sha256": "16aa3643ad9286dea2ab9f10e2b28c1745374a8921b9583c50493e7a2951393c"
+    },
+    {
+      "path": "BXP-012/before/r01/artifacts/BXP-012/vertical_2.xml",
+      "sha256": "5ef0ca7b5d5d7e0d5d7d8a1138b9fafde33b2a5fb95c3a681075e7f3c7e356f3"
+    }
+  ],
+  "finishedAtUtc": "2026-10-08T20:47:07.691249+00:00"
+}

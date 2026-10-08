@@ -1,0 +1,21 @@
+{
+  "runId": "visual_prep_040_044_20261009",
+  "profile": "trained_e2b_v10_w4",
+  "total": 5,
+  "completed": 5,
+  "strictValid": 3,
+  "strictInvalid": 2,
+  "renderValid": 3,
+  "renderInvalid": 0,
+  "renderNotAttempted": 2,
+  "valid": 3,
+  "invalid": 2,
+  "timeouts": 0,
+  "runtimeErrors": 0,
+  "caseErrors": 0,
+  "providerCalls": 5,
+  "providerCloseError": null,
+  "runComplete": true,
+  "allValid": false,
+  "finishedAtEpochMs": 1791487487453
+}

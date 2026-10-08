@@ -1,0 +1,12 @@
+{
+  "status": "accepted",
+  "notes": [
+    "All three before and after captures inspected: four care sections and all paragraphs, interval/risk/veterinarian qualifiers and citations remain readable. Existing separated guide sections are usable; no imagery, completed checkmarks, vaccine dates or reminder actions were invented. No additional renderer change. Model adds Checklist complete and a veterinarian footer absent from source; these remain plain generated text, not evidence of completed care, and are recorded as a model fidelity issue. Clinical accuracy is not evaluated by this renderer review."
+  ],
+  "reviewer": "codex",
+  "updatedAtUtc": "2026-10-08T22:16:58.946678+00:00",
+  "reviewedAfterReceipt": "BXP-023/after/r01/receipt.json",
+  "reviewedAfterReceiptSha256": "5c4838554114fb04100215e6ba88fceb902e6603ffb06bf10a8cdb2db54edb9b",
+  "sourceSha256": "ccd8f2fd3b8a36ceb5d9328f97e370610268e668577a6a8d8b7bda877290cb5f",
+  "scope": "Explicit visual review of the referenced after captures; source fidelity is not certified."
+}

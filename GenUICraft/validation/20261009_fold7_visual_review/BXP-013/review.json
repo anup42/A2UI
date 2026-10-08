@@ -1,0 +1,12 @@
+{
+  "status": "accepted",
+  "notes": [
+    "SDK 0.6.10 rate-first FD cards retain strong bank/rate/deposit semantics without deriving new financial facts. Root inspected all default after/r01 pages; the independent dark review inspected all five saved PNGs at font scale 1.3 in visual_013_dark_large_20261009, including the repeated scroll-end capture. Each bank keeps its exact supplied 6.25% rate and Below ₹3 crore bucket; HDFC’s explicit 19 August 2026 effective date and the complete SBI/ICICI source-date wording remain readable. All 12 table cells and all source narrative/List values, citations, tenure qualifiers and premature-withdrawal qualifications/exceptions are preserved across the pages. No clipping, new dates, ranking or penalty facts were introduced. Dark configuration is confirmed by replay_config.json and input JSON bytes match before/default after exactly. Visual acceptance preserves the generated source; it does not certify current rates or source fidelity."
+  ],
+  "reviewer": "codex",
+  "updatedAtUtc": "2026-10-08T21:06:54.837561+00:00",
+  "reviewedAfterReceipt": "BXP-013/after/r01/receipt.json",
+  "reviewedAfterReceiptSha256": "f70c25705577947071ed958725e2833edc6d35f37ec80a7d60ff7961706cce65",
+  "sourceSha256": "5800137e683e596bab366ec786f3430cdef5dfc2c31e5a6d09c9db8e6785e609",
+  "scope": "Explicit visual review of the referenced after captures; source fidelity is not certified."
+}

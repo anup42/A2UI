@@ -1,0 +1,420 @@
+{
+  "schemaVersion": 1,
+  "case": "BXP-001",
+  "phase": "before",
+  "attempt": "r01",
+  "startedAtUtc": "2026-10-08T18:50:52.272622+00:00",
+  "runId": "visual_BXP-001_before_r01_f63dabac",
+  "status": "collected",
+  "automatedChecksSatisfied": true,
+  "visualReviewStatus": "pending",
+  "inferenceAttempted": false,
+  "provenance": {
+    "serial": "R3CY30QFWLP",
+    "deviceModel": "SM-F966B",
+    "fingerprint": "samsung/q7qxeea/q7q:16/BP4A.251205.006/F966BXXS9BZE2_OXM9BZE2:userdebug/test-keys",
+    "corpusSha256": "fc46aa381957bed206f9e0f53e28edbb21b5096ca093985ad184fda73faaea0a",
+    "apks": {
+      "com.samsung.genuicraft": [
+        {
+          "path": "/data/app/~~uiEQLwYswAD3tDqSNbhTKQ==/com.samsung.genuicraft-uZQHsPCZohv6DhcP1GCALQ==/base.apk",
+          "sha256": "82b7cc40f2e67f682938f4dc25aefb9c32020c2724f71de171c56b9b5b6a1091"
+        }
+      ],
+      "com.samsung.genuicraft.test": [
+        {
+          "path": "/data/app/~~IOcLfsneWRTni7DJOOnhHw==/com.samsung.genuicraft.test-T0J-8n_HsOQJ9elr0G8SfQ==/base.apk",
+          "sha256": "f98049546fd93086d7fa31eb090b041a16a3d9ee568780c1477a50f15e653638"
+        }
+      ]
+    },
+    "hostRendererSource": {
+      "files": 77,
+      "sha256": "c5dec7aa1488c91c1f02a7b9f9ecb0aa6465a039d065b8ba1715ce2f32403cac",
+      "note": "Host source fingerprint; installed APK hashes are recorded separately."
+    }
+  },
+  "source": {
+    "originalPath": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20261008_streaming_rendering\\native\\fold7_fp16_mtp_20261008\\BXP-001_on\\final.express",
+    "sha256": "59671e3b384c5410c8dfe6883c1d6b18a51009c8c69b54737c9b4c5a4af4b5db",
+    "replayMode": "express",
+    "sourceMetadata": {
+      "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20261008_streaming_rendering\\native\\fold7_fp16_mtp_20261008\\BXP-001_on\\source.json",
+      "sha256": "d58b3d9e5e1006e2affff6be702167e048b227ed29318fb49241cefc7269ad3a",
+      "matchesFrozenCase": true
+    },
+    "callerSuppliedProvenance": {
+      "date": "2026-10-08",
+      "sdkVersion": "0.6.0",
+      "sdkUnitTests": {
+        "tests": 478,
+        "suites": 54,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "source": "sdk_build_tests.txt",
+        "countEvidence": "Full-suite XML aggregate captured before targeted replay runs overwrote generated test reports."
+      },
+      "pipelineBridgeTests": {
+        "passed": 9,
+        "source": "pipeline_bridge_tests.txt",
+        "scope": "Host bridge unit tests; not a Pipeline/IR native preview device run."
+      },
+      "deviceStateTests": {
+        "tests": 3,
+        "passed": 3,
+        "source": "device_state_tests.txt",
+        "class": "SdkProgressiveRenderingStateTest"
+      },
+      "modelSha256": "7f01bdf1c6ba9bdf658e57c75001fc35a42edad88238bc5dab0a5f7dcf3de373",
+      "modelHashEvidence": "Root-controlled staging verified the corrected FP16 package SHA-256 on Fold7.",
+      "bixbySourceChecks": {
+        "javascriptPassed": 14,
+        "hostPassed": 18,
+        "managerPassed": 5,
+        "archiveEntries": 22,
+        "archive": "../../artifacts/Bixby_GenUICraft_0.6.0_Streaming_ChangedFiles.zip",
+        "evidence": "Root-controlled source checks and changed-file archive verification; not a Bixby application build or device run."
+      }
+    },
+    "callerSuppliedProvenanceSha256": "ca275e73805823c8c4aa350612d0303a0c3d7468f602dee448558facbeaba517",
+    "documentOrigin": "Caller-selected saved final output; model provenance is not inferred from its filename.",
+    "archivedPath": "BXP-001/before/r01/input/BXP-001/output.express",
+    "remotePath": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_benchmark/visual_BXP-001_before_r01_f63dabac_input/BXP-001/output.express",
+    "remoteSha256": "59671e3b384c5410c8dfe6883c1d6b18a51009c8c69b54737c9b4c5a4af4b5db"
+  },
+  "command": [
+    "C:\\Users\\anupk\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.EXE",
+    "-s",
+    "R3CY30QFWLP",
+    "shell",
+    "am",
+    "instrument",
+    "-w",
+    "-r",
+    "-e",
+    "class",
+    "com.samsung.genuicraft.GenUiSdkBixby50Test#replaySavedBixbyCorpus",
+    "-e",
+    "sourceRunId",
+    "visual_BXP-001_before_r01_f63dabac_input",
+    "-e",
+    "runId",
+    "visual_BXP-001_before_r01_f63dabac",
+    "-e",
+    "cases",
+    "BXP-001",
+    "-e",
+    "replayMode",
+    "express",
+    "-e",
+    "maxVerticalSwipes",
+    "30",
+    "-e",
+    "maxHorizontalSwipes",
+    "8",
+    "-e",
+    "renderFontScale",
+    "1.0",
+    "-e",
+    "renderDark",
+    "false",
+    "com.samsung.genuicraft.test/androidx.test.runner.AndroidJUnitRunner"
+  ],
+  "remoteOutput": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_benchmark/visual_BXP-001_before_r01_f63dabac",
+  "adbExitCode": 0,
+  "hostElapsedSeconds": 6.64,
+  "instrumentationPassed": true,
+  "result": {
+    "id": "BXP-001",
+    "kind": "renderer_replay",
+    "replayMode": "express",
+    "sourceRunId": "visual_BXP-001_before_r01_f63dabac_input",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceArtifact": "visual_BXP-001_before_r01_f63dabac_input/BXP-001/output.express",
+    "sourceExpressSha256": "59671e3b384c5410c8dfe6883c1d6b18a51009c8c69b54737c9b4c5a4af4b5db",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Date",
+          "High (°C)",
+          "Low (°C)",
+          "Rain probability"
+        ],
+        "rowSource": "statePath:/forecast_data",
+        "sourceRows": 3,
+        "sourceCells": 12,
+        "observedHeaders": [
+          "Rain probability"
+        ],
+        "observedRepresentativeCells": [
+          "Wed, Sep 9",
+          "31",
+          "20",
+          "57%",
+          "Thu, Sep 10",
+          "30",
+          "21",
+          "55%",
+          "Fri, Sep 11"
+        ],
+        "cells": [
+          {
+            "row": 1,
+            "column": "Date",
+            "value": "Wed, Sep 9",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 1,
+            "column": "High (°C)",
+            "value": "31",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 1,
+            "column": "Low (°C)",
+            "value": "20",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 1,
+            "column": "Rain probability",
+            "value": "57%",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Date",
+            "value": "Thu, Sep 10",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "High (°C)",
+            "value": "30",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 2,
+            "column": "Low (°C)",
+            "value": "21",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 2,
+            "column": "Rain probability",
+            "value": "55%",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 3,
+            "column": "Date",
+            "value": "Fri, Sep 11",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 3,
+            "column": "High (°C)",
+            "value": "30",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 3,
+            "column": "Low (°C)",
+            "value": "21",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 3,
+            "column": "Rain probability",
+            "value": "55%",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          }
+        ],
+        "missingCells": [],
+        "accessibilityOnlyCells": [],
+        "ambiguousRepeatedCells": [
+          {
+            "row": 2,
+            "column": "High (°C)",
+            "value": "30",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 2,
+            "column": "Low (°C)",
+            "value": "21",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 2,
+            "column": "Rain probability",
+            "value": "55%",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 3,
+            "column": "High (°C)",
+            "value": "30",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 3,
+            "column": "Low (°C)",
+            "value": "21",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 3,
+            "column": "Rain probability",
+            "value": "55%",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          }
+        ],
+        "displayedCellCoverageComplete": true,
+        "cellPlacementEvaluated": false,
+        "missingColumns": [],
+        "horizontalScrollObserved": false
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 26,
+        "fullyVisibleDescriptionNodes": 7
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 26,
+        "fullyVisibleDescriptionNodes": 8
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 26,
+        "fullyVisibleDescriptionNodes": 8
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "coverageStatus": "all_cell_values_observed",
+    "coverageDiagnosticsAffectRenderStatus": false,
+    "visualReviewRequired": true,
+    "status": "rendered",
+    "replayElapsedMs": 4762
+  },
+  "summary": {
+    "kind": "renderer_replay",
+    "replayMode": "express",
+    "runId": "visual_BXP-001_before_r01_f63dabac",
+    "sourceRunId": "visual_BXP-001_before_r01_f63dabac_input",
+    "total": 1,
+    "rendered": 1,
+    "failed": 0,
+    "repairRejected": 0,
+    "renderFailures": 0,
+    "renderedWithCoverageIssues": 0,
+    "casesWithIncompleteCellCoverage": 0,
+    "casesWithAmbiguousRepeatedCells": 1,
+    "coverageDiagnosticsAffectRenderStatus": false,
+    "visualReviewRequired": true,
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "repairCounts": {},
+    "sourceIntegrityAccepted": 0,
+    "sourceIntegrityRejected": 0,
+    "sourceIntegrityNotEvaluated": 0,
+    "sourceTextFallbacks": 0
+  },
+  "checks": {
+    "instrumentationPassed": true,
+    "singleSelectedCase": true,
+    "frozenCorpus": true,
+    "noInference": true,
+    "sameAcceptedInput": true,
+    "renderedWithoutIssues": true,
+    "capturesComplete": true,
+    "verticalEndObserved": true,
+    "allTableColumnsObserved": true
+  },
+  "documentHashes": {
+    "BXP-001/before/r01/artifacts/BXP-001/replay_result.json": "deeeb7387cfe2b3459abe8eb3301997d3d74e9f047b5ff1c9b310e9bd5b9b444",
+    "BXP-001/before/r01/artifacts/BXP-001/source.output.express": "59671e3b384c5410c8dfe6883c1d6b18a51009c8c69b54737c9b4c5a4af4b5db",
+    "BXP-001/before/r01/artifacts/replay_config.json": "73e80f4902235797fda31e97d61c5fda31a25f5a450bb86cbd54c25dd8a781da",
+    "BXP-001/before/r01/artifacts/replay_results.json": "6033a607351188f99ad4e7a6029da549a0f4a06c0f52ddf5f8ce86270c2f7d06",
+    "BXP-001/before/r01/artifacts/replay_summary.json": "348ad77be172f4c733acab486bb79a2ebeaa231fd6485313ea505ba8086bb8ab"
+  },
+  "capturedFiles": [
+    {
+      "path": "BXP-001/before/r01/artifacts/BXP-001/initial.png",
+      "sha256": "3e389ae50e86814689b3997ee5c032eee426072a6c9d1c7cd9997a7872134eb2"
+    },
+    {
+      "path": "BXP-001/before/r01/artifacts/BXP-001/initial.xml",
+      "sha256": "09cdb4cc5829510b6094007823d8f7fd3d944f8df383c4671bcc779dcd701a7d"
+    },
+    {
+      "path": "BXP-001/before/r01/artifacts/BXP-001/vertical_1.png",
+      "sha256": "5e2d56837cf063e60115b9bad89071cd19d155bc86c09c154f341fcc4e1acb58"
+    },
+    {
+      "path": "BXP-001/before/r01/artifacts/BXP-001/vertical_1.xml",
+      "sha256": "1ab3c7719d56f626affc4b08a5a2816d838314106a96c6296b5fff36d3e5652d"
+    },
+    {
+      "path": "BXP-001/before/r01/artifacts/BXP-001/vertical_2.png",
+      "sha256": "afe4e76ac4fc432a914d01e4229fdff32015fe4b0494258ce402a3e7163f048e"
+    },
+    {
+      "path": "BXP-001/before/r01/artifacts/BXP-001/vertical_2.xml",
+      "sha256": "5ac5785daf7f19fc65c738e302f002b26c74b2c8114f892f0c5da08992e2eddb"
+    }
+  ],
+  "finishedAtUtc": "2026-10-08T18:51:01.428140+00:00"
+}

@@ -1,0 +1,31 @@
+{
+  "sdkVersion": "0.6.7",
+  "scope": "Targeted restaurant profile tests",
+  "suite": {
+    "name": "com.samsung.genuicraft.sdk.internal.renderer.FlatRestaurantSummaryTest",
+    "tests": "3",
+    "skipped": "0",
+    "failures": "0",
+    "errors": "0",
+    "timestamp": "2026-10-08T20:17:13",
+    "hostname": "NOTEBOOK-PC",
+    "time": "0.055"
+  },
+  "tests": [
+    {
+      "name": "breakfast schema preserves every source column split hours closures cost and citations",
+      "classname": "com.samsung.genuicraft.sdk.internal.renderer.FlatRestaurantSummaryTest",
+      "time": "0.049"
+    },
+    {
+      "name": "permuted roles retain unknown details in their original order",
+      "classname": "com.samsung.genuicraft.sdk.internal.renderer.FlatRestaurantSummaryTest",
+      "time": "0.001"
+    },
+    {
+      "name": "weak mixed or authored media action schemas keep the existing route",
+      "classname": "com.samsung.genuicraft.sdk.internal.renderer.FlatRestaurantSummaryTest",
+      "time": "0.003"
+    }
+  ]
+}

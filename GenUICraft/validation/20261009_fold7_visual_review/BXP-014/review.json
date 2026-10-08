@@ -1,0 +1,15 @@
+{
+  "status": "accepted",
+  "notes": [
+    "Root visually inspected after/r01 initial and identical end-page captures on Fold7: the compact quote panel aligns USD/INR, EUR/INR and GBP/INR with their exact four-decimal rates 95.5614, 111.2956 and 129.8867. The shared exact Quoted As Of timestamp 28-Aug-2026 14:23:47 IST clearly applies to all three rows; the full reference-versus-traveler explanation remains unchanged and readable. No new facts were added.",
+    "Mechanical replay evidence records all nine supplied table-cell values as displayed text, with zero missing or accessibility-only cells, zero render failures and zero repair rejections. Before/after saved source SHA-256 is identical: bbc5e5520df3270e7d8a604251bfaa71d54cf6575d7ef55c3ebe283106eb3e76. Three repeated timestamp cells remain explicitly flagged as ambiguous by node coverage; manual visual review established the shared timestamp scope. Node coverage alone does not certify placement or pixel legibility.",
+    "The generated document omits original model-source citation markers [18], [12] and [3]. This is a model citation omission separate from renderer acceptance; the source bytes were preserved. This review does not certify current financial rates or full source fidelity. Four targeted CurrencyQuoteSummary release tests passed in SDK 0.6.11. No later conditional-action guard tests or rollout are claimed here.",
+    "SDK 0.6.12 guarded-route regression: independently inspected both after/r02 screenshots. Source SHA remains identical and all nine table cells remain observed. The complete UI content body at pixels y120 through2399 is pixel-identical to after/r01 in both capture pages; system bars are excluded. All prior visual and model-citation notes remain applicable. This replay does not claim later host guard-unit-test results."
+  ],
+  "reviewer": "codex; root original visual review plus independent SDK0.6.12 regression",
+  "updatedAtUtc": "2026-10-08T21:21:56.893459+00:00",
+  "reviewedAfterReceipt": "BXP-014/after/r02/receipt.json",
+  "reviewedAfterReceiptSha256": "945fa964d157ccf8bbcdab9b8e07f6e53d2bb29252301cade2a79200796fac2b",
+  "sourceSha256": "bbc5e5520df3270e7d8a604251bfaa71d54cf6575d7ef55c3ebe283106eb3e76",
+  "scope": "Explicit visual review of the referenced after captures; source fidelity is not certified."
+}

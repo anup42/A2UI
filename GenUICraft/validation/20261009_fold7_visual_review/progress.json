@@ -1,0 +1,2331 @@
+{
+  "schemaVersion": 1,
+  "generatedAtUtc": "2026-10-08T22:24:04.851521+00:00",
+  "denominator": 50,
+  "counts": {
+    "visually_accepted": 23,
+    "renderable_needs_work": 0,
+    "renderable_unreviewed": 22,
+    "no_renderable_output": 5,
+    "generation_pending": 0
+  },
+  "availableCurrentModelDocuments": 45,
+  "reviewedCasesWithExplicitModelFindings": 5,
+  "noRenderableOutputCaseIds": [
+    "BXP-027",
+    "BXP-028",
+    "BXP-033",
+    "BXP-042",
+    "BXP-043"
+  ],
+  "evidenceIssues": [],
+  "cases": [
+    {
+      "id": "BXP-001",
+      "domain": "Weather",
+      "bucket": "visually_accepted",
+      "generationAvailability": "prepared_final",
+      "visualStatus": "accepted",
+      "declaredVisualStatus": "accepted",
+      "review": "BXP-001/review.json",
+      "reviewFileExists": true,
+      "reviewNotes": [
+        "Reviewed complete before and after captures on Fold7. Compact aligned forecast panel retains all 12 date/high/low/rain values, summary and both tips in the first viewport; removed duplicate hero/chart and unsupported condition icons. Dark mode at 1.3 font scale also fits without clipping. Baseline/final Express SHA identical. Existing model citation omission remains separate from rendering. Shared SDK tests: 483 passed."
+      ],
+      "acceptanceChecks": {
+        "nonemptyExplicitNotes": true,
+        "latestAfterReceiptReferenced": true,
+        "reviewReceiptHashMatches": true,
+        "afterCollectionComplete": true,
+        "reviewSourceHashMatches": true,
+        "sameBeforeAfterInput": true,
+        "archivedInputHashMatches": true,
+        "sourceMatchesPreparedCurrentModelArtifact": true,
+        "captureFilesAndHashesMatch": true
+      },
+      "beforeReceipt": "BXP-001/before/r01/receipt.json",
+      "afterReceipt": "BXP-001/after/r01/receipt.json",
+      "selectedSource": {
+        "path": "../20261008_streaming_rendering/native/fold7_fp16_mtp_20261008/BXP-001_on/final.express",
+        "sha256": "59671e3b384c5410c8dfe6883c1d6b18a51009c8c69b54737c9b4c5a4af4b5db",
+        "format": "express",
+        "origin": "October 8 selected streaming-on document"
+      },
+      "preparedInputs": [
+        {
+          "path": "../20261008_streaming_rendering/native/fold7_fp16_mtp_20261008/BXP-001_on/final.a2ui.json",
+          "sha256": "9bcf92af1dbff4e8cfd30cbe17c3c156895e0f0572d485df0b32ba93677fb3a0",
+          "format": "json",
+          "origin": "October 8 selected streaming-on document"
+        },
+        {
+          "path": "../20261008_streaming_rendering/native/fold7_fp16_mtp_20261008/BXP-001_on/final.express",
+          "sha256": "59671e3b384c5410c8dfe6883c1d6b18a51009c8c69b54737c9b4c5a4af4b5db",
+          "format": "express",
+          "origin": "October 8 selected streaming-on document"
+        }
+      ],
+      "generationAttempts": [],
+      "findings": {
+        "modelFindings": [
+          {
+            "kind": "citation_omission",
+            "detail": "Generated document omits source citations; visual acceptance covers rendering.",
+            "evidence": "BXP-001/review.json"
+          }
+        ]
+      },
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-002",
+      "domain": "Air quality",
+      "bucket": "visually_accepted",
+      "generationAvailability": "prepared_final",
+      "visualStatus": "accepted",
+      "declaredVisualStatus": "accepted",
+      "review": "BXP-002/review.json",
+      "reviewFileExists": true,
+      "reviewNotes": [
+        "Reviewed complete before/after Fold7 captures. Four oversized Detail/Value cards become one AQI panel with the exact reading AQI-IN 197 and unchanged observation time, explicit Poor category, pollutant PM2.5, and complete guidance. All 8 table cells are displayed; no numeric threshold color or inferred category. Exact before/after document bytes match. Shared SDK 0.6.2, 487 unit tests passed."
+      ],
+      "acceptanceChecks": {
+        "nonemptyExplicitNotes": true,
+        "latestAfterReceiptReferenced": true,
+        "reviewReceiptHashMatches": true,
+        "afterCollectionComplete": true,
+        "reviewSourceHashMatches": true,
+        "sameBeforeAfterInput": true,
+        "archivedInputHashMatches": true,
+        "sourceMatchesPreparedCurrentModelArtifact": true,
+        "captureFilesAndHashesMatch": true
+      },
+      "beforeReceipt": "BXP-002/before/r01/receipt.json",
+      "afterReceipt": "BXP-002/after/r01/receipt.json",
+      "selectedSource": {
+        "path": "native_generation/visual_002_current_20261009/BXP-002/a2ui.json",
+        "sha256": "410b6ee0be34f153756125c996a6c7aa4695d34f84acda13c8b71fdf72308a82",
+        "format": "json",
+        "origin": "visual_002_current_20261009"
+      },
+      "preparedInputs": [
+        {
+          "path": "native_generation/visual_002_current_20261009/BXP-002/a2ui.json",
+          "sha256": "410b6ee0be34f153756125c996a6c7aa4695d34f84acda13c8b71fdf72308a82",
+          "format": "json",
+          "origin": "visual_002_current_20261009"
+        },
+        {
+          "path": "native_generation/visual_002_current_20261009/BXP-002/output.express",
+          "sha256": "5ded67dd2709cb2f17c877f970feaf1fa051247e7224ef5749ff16c4615c08ef",
+          "format": "express",
+          "origin": "visual_002_current_20261009"
+        }
+      ],
+      "generationAttempts": [
+        {
+          "runId": "visual_002_current_20261009",
+          "status": "valid",
+          "cause": null,
+          "result": "native_generation/visual_002_current_20261009/BXP-002/result.json"
+        }
+      ],
+      "findings": {},
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-003",
+      "domain": "Rail travel",
+      "bucket": "visually_accepted",
+      "generationAvailability": "prepared_final",
+      "visualStatus": "accepted",
+      "declaredVisualStatus": "accepted",
+      "review": "BXP-003/review.json",
+      "reviewFileExists": true,
+      "reviewNotes": [
+        "All three train services, exact station/time ranges/duration qualifiers/classes and every note are readable. SDK0.6.4 gives departure time the primary emphasis and pairs the complete duration without orphan units. All pages inspected; dark mode at1.3 font scale stacks metrics without clipping. Byte-identical output before/after. Separate historical train fixture test stopped on its hash guard before rendering and is being investigated."
+      ],
+      "acceptanceChecks": {
+        "nonemptyExplicitNotes": true,
+        "latestAfterReceiptReferenced": true,
+        "reviewReceiptHashMatches": true,
+        "afterCollectionComplete": true,
+        "reviewSourceHashMatches": true,
+        "sameBeforeAfterInput": true,
+        "archivedInputHashMatches": true,
+        "sourceMatchesPreparedCurrentModelArtifact": true,
+        "captureFilesAndHashesMatch": true
+      },
+      "beforeReceipt": "BXP-003/before/r01/receipt.json",
+      "afterReceipt": "BXP-003/after/r02/receipt.json",
+      "selectedSource": {
+        "path": "../20261008_streaming_rendering/native/fold7_fp16_mtp_20261008/BXP-003_on/final.express",
+        "sha256": "b4db521ab2e7a31552761b6b0f03a8b8eb2a3e08e4eff381938b0da7257c6639",
+        "format": "express",
+        "origin": "October 8 selected streaming-on document"
+      },
+      "preparedInputs": [
+        {
+          "path": "../20261008_streaming_rendering/native/fold7_fp16_mtp_20261008/BXP-003_on/final.a2ui.json",
+          "sha256": "5529dd182e7530e119913802888fd1bb8807641f59740a9b01a50c8a5357b01c",
+          "format": "json",
+          "origin": "October 8 selected streaming-on document"
+        },
+        {
+          "path": "../20261008_streaming_rendering/native/fold7_fp16_mtp_20261008/BXP-003_on/final.express",
+          "sha256": "b4db521ab2e7a31552761b6b0f03a8b8eb2a3e08e4eff381938b0da7257c6639",
+          "format": "express",
+          "origin": "October 8 selected streaming-on document"
+        }
+      ],
+      "generationAttempts": [],
+      "findings": {
+        "validationFindings": [
+          {
+            "kind": "known_historical_fixture_failure",
+            "detail": "Historical malformed-fixture hash changed under the intentional no-additional-recovered-text policy. Original fixture test remains unchanged; current same-output replay preserves notes and passed.",
+            "evidence": "README.md"
+          }
+        ]
+      },
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-004",
+      "domain": "Airline baggage",
+      "bucket": "visually_accepted",
+      "generationAvailability": "prepared_final",
+      "visualStatus": "accepted",
+      "declaredVisualStatus": "accepted",
+      "review": "BXP-004/review.json",
+      "reviewFileExists": true,
+      "reviewNotes": [
+        "SDK0.6.5 groups the existing cabin allowance, checked allowance, charges and exceptions into four compact information panels with smaller headings. Every original paragraph, dimension, amount, per-kg qualifier and fare exception remains readable across captured pages. Exact Express bytes unchanged. This source contains prose, so no invented weight badges, bag counts or fare actions were added."
+      ],
+      "acceptanceChecks": {
+        "nonemptyExplicitNotes": true,
+        "latestAfterReceiptReferenced": true,
+        "reviewReceiptHashMatches": true,
+        "afterCollectionComplete": true,
+        "reviewSourceHashMatches": true,
+        "sameBeforeAfterInput": true,
+        "archivedInputHashMatches": true,
+        "sourceMatchesPreparedCurrentModelArtifact": true,
+        "captureFilesAndHashesMatch": true
+      },
+      "beforeReceipt": "BXP-004/before/r01/receipt.json",
+      "afterReceipt": "BXP-004/after/r01/receipt.json",
+      "selectedSource": {
+        "path": "../20261008_streaming_rendering/native/fold7_fp16_mtp_20261008/BXP-004_on/final.express",
+        "sha256": "2c00b9414017a7400a66c2c9061057cbefcde3d454956375bb2c8c4863fe584a",
+        "format": "express",
+        "origin": "October 8 selected streaming-on document"
+      },
+      "preparedInputs": [
+        {
+          "path": "../20261008_streaming_rendering/native/fold7_fp16_mtp_20261008/BXP-004_on/final.a2ui.json",
+          "sha256": "5d5ebd3fe6da944ecd16bce935d5a4621415790aa3e6cc0e4c0a72d0dfab1e59",
+          "format": "json",
+          "origin": "October 8 selected streaming-on document"
+        },
+        {
+          "path": "../20261008_streaming_rendering/native/fold7_fp16_mtp_20261008/BXP-004_on/final.express",
+          "sha256": "2c00b9414017a7400a66c2c9061057cbefcde3d454956375bb2c8c4863fe584a",
+          "format": "express",
+          "origin": "October 8 selected streaming-on document"
+        }
+      ],
+      "generationAttempts": [],
+      "findings": {},
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-005",
+      "domain": "Urban transport",
+      "bucket": "visually_accepted",
+      "generationAvailability": "prepared_final",
+      "visualStatus": "accepted",
+      "declaredVisualStatus": "accepted",
+      "review": "BXP-005/review.json",
+      "reviewFileExists": true,
+      "reviewNotes": [
+        "The section-panel improvement from004 also organizes this metro guide into operating hours, ticket options, interchanges and rider guidance. Full text is readable across both viewport positions; no map/live service status or ticket actions were invented. No further renderer change needed. MODEL LIMITATION: generated Source: A2UI Express v1 generated model contract is false provenance present in the accepted document; missing citations remain. Visual acceptance is not answer/source-fidelity approval. The first raw replay attempt was a harness-input error (unrepaired raw DSL);r02 and after use the actual accepted A2UI document."
+      ],
+      "acceptanceChecks": {
+        "nonemptyExplicitNotes": true,
+        "latestAfterReceiptReferenced": true,
+        "reviewReceiptHashMatches": true,
+        "afterCollectionComplete": true,
+        "reviewSourceHashMatches": true,
+        "sameBeforeAfterInput": true,
+        "archivedInputHashMatches": true,
+        "sourceMatchesPreparedCurrentModelArtifact": true,
+        "captureFilesAndHashesMatch": true
+      },
+      "beforeReceipt": "BXP-005/before/r02/receipt.json",
+      "afterReceipt": "BXP-005/after/r01/receipt.json",
+      "selectedSource": {
+        "path": "native_generation/visual_prep_005_010_20261009/BXP-005/a2ui.json",
+        "sha256": "acb38af000e4880075bbca34e71944fdd08a6c3bd8d32e3cd146a0c564984241",
+        "format": "json",
+        "origin": "visual_prep_005_010_20261009"
+      },
+      "preparedInputs": [
+        {
+          "path": "native_generation/visual_prep_005_010_20261009/BXP-005/a2ui.json",
+          "sha256": "acb38af000e4880075bbca34e71944fdd08a6c3bd8d32e3cd146a0c564984241",
+          "format": "json",
+          "origin": "visual_prep_005_010_20261009"
+        }
+      ],
+      "generationAttempts": [
+        {
+          "runId": "visual_prep_005_010_20261009",
+          "status": "valid",
+          "cause": null,
+          "result": "native_generation/visual_prep_005_010_20261009/BXP-005/result.json"
+        }
+      ],
+      "findings": {
+        "modelFindings": [
+          {
+            "kind": "false_source_provenance",
+            "detail": "Generated Source: A2UI Express v1 generated model contract is false provenance present in the accepted document.",
+            "evidence": "BXP-005/review.json"
+          },
+          {
+            "kind": "citation_omission",
+            "detail": "Missing source citations are recorded separately from rendering.",
+            "evidence": "BXP-005/review.json"
+          }
+        ]
+      },
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-006",
+      "domain": "Road trips",
+      "bucket": "visually_accepted",
+      "generationAvailability": "prepared_final",
+      "visualStatus": "accepted",
+      "declaredVisualStatus": "accepted",
+      "review": "BXP-006/review.json",
+      "reviewFileExists": true,
+      "reviewNotes": [
+        "Existing route option cards are appropriate: complete waypoint names, blue travel-time emphasis, labeled distance, road conditions and useful stop. Reviewed every scroll page and notes; no need to invent map geometry, live traffic or route selection controls. Source qualifiers and numbered citations retained in model document. No new renderer changes for this sample. The model generated a Continue button without an action; renderer correctly leaves it disabled, which remains a model-output usability limitation.",
+        "SDK 0.6.9 targeted regression on Fold7 R3CY30QFWLP, after/r02: inspected all three PNG pages. Both route cards retain complete waypoint names, travel-time ranges, distance qualifiers, road conditions and stops; all 10 table cells and 10 source prose/List values are present. The complete guidance remains readable and the existing actionless Continue button remains disabled. Same saved source bytes as before; no new clipping or blank chip row was observed."
+      ],
+      "acceptanceChecks": {
+        "nonemptyExplicitNotes": true,
+        "latestAfterReceiptReferenced": true,
+        "reviewReceiptHashMatches": true,
+        "afterCollectionComplete": true,
+        "reviewSourceHashMatches": true,
+        "sameBeforeAfterInput": true,
+        "archivedInputHashMatches": true,
+        "sourceMatchesPreparedCurrentModelArtifact": true,
+        "captureFilesAndHashesMatch": true
+      },
+      "beforeReceipt": "BXP-006/before/r01/receipt.json",
+      "afterReceipt": "BXP-006/after/r02/receipt.json",
+      "selectedSource": {
+        "path": "native_generation/visual_prep_005_010_20261009/BXP-006/a2ui.json",
+        "sha256": "16cb1db09811207ac690fda6ebbd72526994fb3c36fc7974d1d3ef1d8d7997f0",
+        "format": "json",
+        "origin": "visual_prep_005_010_20261009"
+      },
+      "preparedInputs": [
+        {
+          "path": "native_generation/visual_prep_005_010_20261009/BXP-006/a2ui.json",
+          "sha256": "16cb1db09811207ac690fda6ebbd72526994fb3c36fc7974d1d3ef1d8d7997f0",
+          "format": "json",
+          "origin": "visual_prep_005_010_20261009"
+        },
+        {
+          "path": "native_generation/visual_prep_005_010_20261009/BXP-006/output.express",
+          "sha256": "84e71393fe369a5566bbf32046b0b42341bbd0a9e42b43c9cdef90eb962a00aa",
+          "format": "express",
+          "origin": "visual_prep_005_010_20261009"
+        }
+      ],
+      "generationAttempts": [
+        {
+          "runId": "visual_prep_005_010_20261009",
+          "status": "valid",
+          "cause": null,
+          "result": "native_generation/visual_prep_005_010_20261009/BXP-006/result.json"
+        }
+      ],
+      "findings": {
+        "modelFindings": [
+          {
+            "kind": "nonfunctional_generated_control",
+            "detail": "Model generated Continue without an action; renderer leaves it disabled.",
+            "evidence": "BXP-006/review.json"
+          }
+        ]
+      },
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-007",
+      "domain": "Sightseeing",
+      "bucket": "visually_accepted",
+      "generationAvailability": "prepared_final",
+      "visualStatus": "accepted",
+      "declaredVisualStatus": "accepted",
+      "review": "BXP-007/review.json",
+      "reviewFileExists": true,
+      "reviewNotes": [
+        "SDK0.6.6 replaces the narrow sightseeing grid with labeled place cards: all three names, opening hours including Tuesday closure, visit durations, and explicit unavailable-fee strings/citations are readable without horizontal scrolling. Full visit order and caveat retained. Table view/Card view switch passed on Fold7 with capture evidence in visual_007_toggle_20261009; table remains available. Same A2UI bytes before/after. Model-generated View all attractions has no action and remains disabled; no navigation/fees were invented.",
+        "SDK 0.6.9 targeted regression on Fold7 R3CY30QFWLP, after/r02: inspected all three PNG pages. All three place cards retain the 12 supplied cell values, including Tuesday closure, visit durations and exact unavailable-fee strings/citations; all four source prose/List values and the complete visit order/caveat remain readable. Same saved source bytes as before. This regression replay covered the default cards; the earlier Table view/Card view toggle evidence was not rerun in r02."
+      ],
+      "acceptanceChecks": {
+        "nonemptyExplicitNotes": true,
+        "latestAfterReceiptReferenced": true,
+        "reviewReceiptHashMatches": true,
+        "afterCollectionComplete": true,
+        "reviewSourceHashMatches": true,
+        "sameBeforeAfterInput": true,
+        "archivedInputHashMatches": true,
+        "sourceMatchesPreparedCurrentModelArtifact": true,
+        "captureFilesAndHashesMatch": true
+      },
+      "beforeReceipt": "BXP-007/before/r01/receipt.json",
+      "afterReceipt": "BXP-007/after/r02/receipt.json",
+      "selectedSource": {
+        "path": "native_generation/visual_prep_005_010_20261009/BXP-007/a2ui.json",
+        "sha256": "b56303379b539a0bd7c7930ca57b07467abb33f5994ebac3c47fd035e5ee592a",
+        "format": "json",
+        "origin": "visual_prep_005_010_20261009"
+      },
+      "preparedInputs": [
+        {
+          "path": "native_generation/visual_prep_005_010_20261009/BXP-007/a2ui.json",
+          "sha256": "b56303379b539a0bd7c7930ca57b07467abb33f5994ebac3c47fd035e5ee592a",
+          "format": "json",
+          "origin": "visual_prep_005_010_20261009"
+        }
+      ],
+      "generationAttempts": [
+        {
+          "runId": "visual_prep_005_010_20261009",
+          "status": "valid",
+          "cause": null,
+          "result": "native_generation/visual_prep_005_010_20261009/BXP-007/result.json"
+        }
+      ],
+      "findings": {
+        "modelFindings": [
+          {
+            "kind": "nonfunctional_generated_control",
+            "detail": "Model-generated View all attractions has no action and remains disabled.",
+            "evidence": "BXP-007/review.json"
+          }
+        ]
+      },
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-008",
+      "domain": "Restaurants",
+      "bucket": "visually_accepted",
+      "generationAvailability": "prepared_final",
+      "visualStatus": "accepted",
+      "declaredVisualStatus": "accepted",
+      "review": "BXP-008/review.json",
+      "reviewFileExists": true,
+      "reviewNotes": [
+        "SDK0.6.7: visually inspected initial and both scroll captures on Fold7. Restaurant name and neighborhood form one header; signature dish now has a restrained highlighted panel; exact cost and full split opening hours/Friday and Sunday closures remain readable, including citations. All three restaurants and final recommendation retained with unchanged A2UI bytes. No photo, rating, open-now state or booking action invented. The source-generated unusual price range is preserved; visual acceptance does not certify its factual accuracy."
+      ],
+      "acceptanceChecks": {
+        "nonemptyExplicitNotes": true,
+        "latestAfterReceiptReferenced": true,
+        "reviewReceiptHashMatches": true,
+        "afterCollectionComplete": true,
+        "reviewSourceHashMatches": true,
+        "sameBeforeAfterInput": true,
+        "archivedInputHashMatches": true,
+        "sourceMatchesPreparedCurrentModelArtifact": true,
+        "captureFilesAndHashesMatch": true
+      },
+      "beforeReceipt": "BXP-008/before/r01/receipt.json",
+      "afterReceipt": "BXP-008/after/r01/receipt.json",
+      "selectedSource": {
+        "path": "../20261008_streaming_rendering/native/fold7_fp16_mtp_20261008/BXP-008_on/final.a2ui.json",
+        "sha256": "6df258117b1c4d3d4232888621c5d03b0fb250c1f2693f9f82af39184d320879",
+        "format": "json",
+        "origin": "October 8 selected streaming-on document"
+      },
+      "preparedInputs": [
+        {
+          "path": "../20261008_streaming_rendering/native/fold7_fp16_mtp_20261008/BXP-008_on/final.a2ui.json",
+          "sha256": "6df258117b1c4d3d4232888621c5d03b0fb250c1f2693f9f82af39184d320879",
+          "format": "json",
+          "origin": "October 8 selected streaming-on document"
+        },
+        {
+          "path": "../20261008_streaming_rendering/native/fold7_fp16_mtp_20261008/BXP-008_on/final.express",
+          "sha256": "ff130ddcd47ff55e2ed6612d1aed68e7f7a3067bcaa98daefa8aa8da369ee6a2",
+          "format": "express",
+          "origin": "October 8 selected streaming-on document"
+        }
+      ],
+      "generationAttempts": [],
+      "findings": {
+        "limitations": [
+          {
+            "kind": "factual_accuracy_not_verified",
+            "detail": "Unusual generated price range is preserved; visual acceptance does not certify its factual accuracy.",
+            "evidence": "BXP-008/review.json"
+          }
+        ]
+      },
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-009",
+      "domain": "Accommodation",
+      "bucket": "visually_accepted",
+      "generationAvailability": "prepared_final",
+      "visualStatus": "accepted",
+      "declaredVisualStatus": "accepted",
+      "review": "BXP-009/review.json",
+      "reviewFileExists": true,
+      "reviewNotes": [
+        "SDK0.6.8: inspected initial and both scroll pages on Fold7. Three neighborhood cards now group each full access, transport, atmosphere and drawback paragraph under its area heading; plain divider whitespace is replaced by card boundaries. All original text and ordering retained with identical model document bytes. Seven section-policy tests passed. The model omitted source citations [3], [6], [4]; this renderer-only change does not restore or certify those."
+      ],
+      "acceptanceChecks": {
+        "nonemptyExplicitNotes": true,
+        "latestAfterReceiptReferenced": true,
+        "reviewReceiptHashMatches": true,
+        "afterCollectionComplete": true,
+        "reviewSourceHashMatches": true,
+        "sameBeforeAfterInput": true,
+        "archivedInputHashMatches": true,
+        "sourceMatchesPreparedCurrentModelArtifact": true,
+        "captureFilesAndHashesMatch": true
+      },
+      "beforeReceipt": "BXP-009/before/r01/receipt.json",
+      "afterReceipt": "BXP-009/after/r01/receipt.json",
+      "selectedSource": {
+        "path": "native_generation/visual_prep_005_010_20261009/BXP-009/a2ui.json",
+        "sha256": "29a1cc9325ebd2373c4253efaa4508e27c2cabb84ef3e09b1c51b030b29be570",
+        "format": "json",
+        "origin": "visual_prep_005_010_20261009"
+      },
+      "preparedInputs": [
+        {
+          "path": "native_generation/visual_prep_005_010_20261009/BXP-009/a2ui.json",
+          "sha256": "29a1cc9325ebd2373c4253efaa4508e27c2cabb84ef3e09b1c51b030b29be570",
+          "format": "json",
+          "origin": "visual_prep_005_010_20261009"
+        }
+      ],
+      "generationAttempts": [
+        {
+          "runId": "visual_prep_005_010_20261009",
+          "status": "valid",
+          "cause": null,
+          "result": "native_generation/visual_prep_005_010_20261009/BXP-009/result.json"
+        }
+      ],
+      "findings": {},
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-010",
+      "domain": "Consumer audio",
+      "bucket": "visually_accepted",
+      "generationAvailability": "prepared_final",
+      "visualStatus": "accepted",
+      "declaredVisualStatus": "accepted",
+      "review": "BXP-010/review.json",
+      "reviewFileExists": true,
+      "reviewNotes": [
+        "Existing SDK0.6.8 product cards are appropriate: all three model names with clearly associated price pills and complete features/trade-offs; live-pricing caveat and best-fit recommendation preserved. Before initial and both scroll pages inspected; after initial content pixels matched exactly and both after scroll pages visually checked. No renderer change needed for this case. No inferred ANC/battery fields, invented photos, ratings or purchase actions.",
+        "SDK 0.6.9 targeted regression on Fold7 R3CY30QFWLP, after/r02: inspected all three PNG pages. All three model names retain their associated price pills and complete features/trade-offs; all nine table cells and five source prose values are present. The live-pricing caveat and complete best-fit recommendation remain readable. Same saved source bytes as before; no clipping or blank chip row was observed."
+      ],
+      "acceptanceChecks": {
+        "nonemptyExplicitNotes": true,
+        "latestAfterReceiptReferenced": true,
+        "reviewReceiptHashMatches": true,
+        "afterCollectionComplete": true,
+        "reviewSourceHashMatches": true,
+        "sameBeforeAfterInput": true,
+        "archivedInputHashMatches": true,
+        "sourceMatchesPreparedCurrentModelArtifact": true,
+        "captureFilesAndHashesMatch": true
+      },
+      "beforeReceipt": "BXP-010/before/r01/receipt.json",
+      "afterReceipt": "BXP-010/after/r02/receipt.json",
+      "selectedSource": {
+        "path": "native_generation/visual_prep_005_010_20261009/BXP-010/a2ui.json",
+        "sha256": "e54a9d7e8f4a8fa3f714d0befce8383383b04461c06b9acfc77478abc3d11935",
+        "format": "json",
+        "origin": "visual_prep_005_010_20261009"
+      },
+      "preparedInputs": [
+        {
+          "path": "native_generation/visual_prep_005_010_20261009/BXP-010/a2ui.json",
+          "sha256": "e54a9d7e8f4a8fa3f714d0befce8383383b04461c06b9acfc77478abc3d11935",
+          "format": "json",
+          "origin": "visual_prep_005_010_20261009"
+        },
+        {
+          "path": "native_generation/visual_prep_005_010_20261009/BXP-010/output.express",
+          "sha256": "3c216d3876136b26e0352feba3f9775f502684e6d37e2850779eeaa0732f4bd0",
+          "format": "express",
+          "origin": "visual_prep_005_010_20261009"
+        }
+      ],
+      "generationAttempts": [
+        {
+          "runId": "visual_prep_005_010_20261009",
+          "status": "valid",
+          "cause": null,
+          "result": "native_generation/visual_prep_005_010_20261009/BXP-010/result.json"
+        }
+      ],
+      "findings": {},
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-011",
+      "domain": "Smartphones",
+      "bucket": "visually_accepted",
+      "generationAvailability": "prepared_final",
+      "visualStatus": "accepted",
+      "declaredVisualStatus": "accepted",
+      "review": "BXP-011/review.json",
+      "reviewFileExists": true,
+      "reviewNotes": [
+        "SDK0.6.9: inspected initial and both scroll captures on Fold7. Display, Battery, Software support and Best for now stay in the same field order across all three phones; a short Samsung battery no longer jumps into a chip above Display. Empty chip-row space removed. All 18 table values, long price qualifiers, citations and three quick-pick paragraphs remain readable. Identical accepted model document before/after; 23 mapping/presentation tests passed."
+      ],
+      "acceptanceChecks": {
+        "nonemptyExplicitNotes": true,
+        "latestAfterReceiptReferenced": true,
+        "reviewReceiptHashMatches": true,
+        "afterCollectionComplete": true,
+        "reviewSourceHashMatches": true,
+        "sameBeforeAfterInput": true,
+        "archivedInputHashMatches": true,
+        "sourceMatchesPreparedCurrentModelArtifact": true,
+        "captureFilesAndHashesMatch": true
+      },
+      "beforeReceipt": "BXP-011/before/r01/receipt.json",
+      "afterReceipt": "BXP-011/after/r01/receipt.json",
+      "selectedSource": {
+        "path": "../20261008_streaming_rendering/native/fold7_fp16_mtp_20261008/BXP-011_on/final.a2ui.json",
+        "sha256": "7f84fdbb4a88877262268312d14c088a8abffd56dcd195b2af7881783a09a05d",
+        "format": "json",
+        "origin": "October 8 selected streaming-on document"
+      },
+      "preparedInputs": [
+        {
+          "path": "../20261008_streaming_rendering/native/fold7_fp16_mtp_20261008/BXP-011_on/final.a2ui.json",
+          "sha256": "7f84fdbb4a88877262268312d14c088a8abffd56dcd195b2af7881783a09a05d",
+          "format": "json",
+          "origin": "October 8 selected streaming-on document"
+        },
+        {
+          "path": "../20261008_streaming_rendering/native/fold7_fp16_mtp_20261008/BXP-011_on/final.express",
+          "sha256": "9025cf6900373a64d5e567d08b73fc4d4d7d9c87eed99660cc7829503a48199c",
+          "format": "express",
+          "origin": "October 8 selected streaming-on document"
+        }
+      ],
+      "generationAttempts": [],
+      "findings": {},
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-012",
+      "domain": "Productivity software",
+      "bucket": "visually_accepted",
+      "generationAvailability": "prepared_final",
+      "visualStatus": "accepted",
+      "declaredVisualStatus": "accepted",
+      "review": "BXP-012/review.json",
+      "reviewFileExists": true,
+      "reviewNotes": [
+        "SDK0.6.9 existing comparison cards keep all three apps and all offline, synchronization, export and restriction fields readable in consistent order. Initial and both before scroll pages inspected; after initial/first-scroll content pixels match, final scroll visually checked. All three recommendations and final export-coverage caveat remain visible. Model-authored grouping puts the Joplin recommendation outside the Best fit card; preserved rather than guessing a new content hierarchy. No renderer change needed for the main comparison; this remaining grouping limitation is recorded."
+      ],
+      "acceptanceChecks": {
+        "nonemptyExplicitNotes": true,
+        "latestAfterReceiptReferenced": true,
+        "reviewReceiptHashMatches": true,
+        "afterCollectionComplete": true,
+        "reviewSourceHashMatches": true,
+        "sameBeforeAfterInput": true,
+        "archivedInputHashMatches": true,
+        "sourceMatchesPreparedCurrentModelArtifact": true,
+        "captureFilesAndHashesMatch": true
+      },
+      "beforeReceipt": "BXP-012/before/r01/receipt.json",
+      "afterReceipt": "BXP-012/after/r01/receipt.json",
+      "selectedSource": {
+        "path": "native_generation/visual_prep_012_015_20261009/BXP-012/a2ui.json",
+        "sha256": "dd8074da0812f60a118180f3df60c33b2f2a626fe603ee98531fa6a84c35a9c3",
+        "format": "json",
+        "origin": "visual_prep_012_015_20261009"
+      },
+      "preparedInputs": [
+        {
+          "path": "native_generation/visual_prep_012_015_20261009/BXP-012/a2ui.json",
+          "sha256": "dd8074da0812f60a118180f3df60c33b2f2a626fe603ee98531fa6a84c35a9c3",
+          "format": "json",
+          "origin": "visual_prep_012_015_20261009"
+        }
+      ],
+      "generationAttempts": [
+        {
+          "runId": "visual_prep_012_015_20261009",
+          "status": "valid",
+          "cause": null,
+          "result": "native_generation/visual_prep_012_015_20261009/BXP-012/result.json"
+        }
+      ],
+      "findings": {},
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-013",
+      "domain": "Bank deposits",
+      "bucket": "visually_accepted",
+      "generationAvailability": "prepared_final",
+      "visualStatus": "accepted",
+      "declaredVisualStatus": "accepted",
+      "review": "BXP-013/review.json",
+      "reviewFileExists": true,
+      "reviewNotes": [
+        "SDK 0.6.10 rate-first FD cards retain strong bank/rate/deposit semantics without deriving new financial facts. Root inspected all default after/r01 pages; the independent dark review inspected all five saved PNGs at font scale 1.3 in visual_013_dark_large_20261009, including the repeated scroll-end capture. Each bank keeps its exact supplied 6.25% rate and Below ₹3 crore bucket; HDFC’s explicit 19 August 2026 effective date and the complete SBI/ICICI source-date wording remain readable. All 12 table cells and all source narrative/List values, citations, tenure qualifiers and premature-withdrawal qualifications/exceptions are preserved across the pages. No clipping, new dates, ranking or penalty facts were introduced. Dark configuration is confirmed by replay_config.json and input JSON bytes match before/default after exactly. Visual acceptance preserves the generated source; it does not certify current rates or source fidelity."
+      ],
+      "acceptanceChecks": {
+        "nonemptyExplicitNotes": true,
+        "latestAfterReceiptReferenced": true,
+        "reviewReceiptHashMatches": true,
+        "afterCollectionComplete": true,
+        "reviewSourceHashMatches": true,
+        "sameBeforeAfterInput": true,
+        "archivedInputHashMatches": true,
+        "sourceMatchesPreparedCurrentModelArtifact": true,
+        "captureFilesAndHashesMatch": true
+      },
+      "beforeReceipt": "BXP-013/before/r01/receipt.json",
+      "afterReceipt": "BXP-013/after/r01/receipt.json",
+      "selectedSource": {
+        "path": "native_generation/visual_prep_012_015_20261009/BXP-013/a2ui.json",
+        "sha256": "5800137e683e596bab366ec786f3430cdef5dfc2c31e5a6d09c9db8e6785e609",
+        "format": "json",
+        "origin": "visual_prep_012_015_20261009"
+      },
+      "preparedInputs": [
+        {
+          "path": "native_generation/visual_prep_012_015_20261009/BXP-013/a2ui.json",
+          "sha256": "5800137e683e596bab366ec786f3430cdef5dfc2c31e5a6d09c9db8e6785e609",
+          "format": "json",
+          "origin": "visual_prep_012_015_20261009"
+        }
+      ],
+      "generationAttempts": [
+        {
+          "runId": "visual_prep_012_015_20261009",
+          "status": "valid",
+          "cause": null,
+          "result": "native_generation/visual_prep_012_015_20261009/BXP-013/result.json"
+        }
+      ],
+      "findings": {},
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-014",
+      "domain": "Foreign exchange",
+      "bucket": "visually_accepted",
+      "generationAvailability": "prepared_final",
+      "visualStatus": "accepted",
+      "declaredVisualStatus": "accepted",
+      "review": "BXP-014/review.json",
+      "reviewFileExists": true,
+      "reviewNotes": [
+        "Root visually inspected after/r01 initial and identical end-page captures on Fold7: the compact quote panel aligns USD/INR, EUR/INR and GBP/INR with their exact four-decimal rates 95.5614, 111.2956 and 129.8867. The shared exact Quoted As Of timestamp 28-Aug-2026 14:23:47 IST clearly applies to all three rows; the full reference-versus-traveler explanation remains unchanged and readable. No new facts were added.",
+        "Mechanical replay evidence records all nine supplied table-cell values as displayed text, with zero missing or accessibility-only cells, zero render failures and zero repair rejections. Before/after saved source SHA-256 is identical: bbc5e5520df3270e7d8a604251bfaa71d54cf6575d7ef55c3ebe283106eb3e76. Three repeated timestamp cells remain explicitly flagged as ambiguous by node coverage; manual visual review established the shared timestamp scope. Node coverage alone does not certify placement or pixel legibility.",
+        "The generated document omits original model-source citation markers [18], [12] and [3]. This is a model citation omission separate from renderer acceptance; the source bytes were preserved. This review does not certify current financial rates or full source fidelity. Four targeted CurrencyQuoteSummary release tests passed in SDK 0.6.11. No later conditional-action guard tests or rollout are claimed here.",
+        "SDK 0.6.12 guarded-route regression: independently inspected both after/r02 screenshots. Source SHA remains identical and all nine table cells remain observed. The complete UI content body at pixels y120 through2399 is pixel-identical to after/r01 in both capture pages; system bars are excluded. All prior visual and model-citation notes remain applicable. This replay does not claim later host guard-unit-test results."
+      ],
+      "acceptanceChecks": {
+        "nonemptyExplicitNotes": true,
+        "latestAfterReceiptReferenced": true,
+        "reviewReceiptHashMatches": true,
+        "afterCollectionComplete": true,
+        "reviewSourceHashMatches": true,
+        "sameBeforeAfterInput": true,
+        "archivedInputHashMatches": true,
+        "sourceMatchesPreparedCurrentModelArtifact": true,
+        "captureFilesAndHashesMatch": true
+      },
+      "beforeReceipt": "BXP-014/before/r01/receipt.json",
+      "afterReceipt": "BXP-014/after/r02/receipt.json",
+      "selectedSource": {
+        "path": "native_generation/visual_prep_012_015_20261009/BXP-014/a2ui.json",
+        "sha256": "bbc5e5520df3270e7d8a604251bfaa71d54cf6575d7ef55c3ebe283106eb3e76",
+        "format": "json",
+        "origin": "visual_prep_012_015_20261009"
+      },
+      "preparedInputs": [
+        {
+          "path": "native_generation/visual_prep_012_015_20261009/BXP-014/a2ui.json",
+          "sha256": "bbc5e5520df3270e7d8a604251bfaa71d54cf6575d7ef55c3ebe283106eb3e76",
+          "format": "json",
+          "origin": "visual_prep_012_015_20261009"
+        },
+        {
+          "path": "native_generation/visual_prep_012_015_20261009/BXP-014/output.express",
+          "sha256": "a826fa395fbfbd7000c9eb75c51c11c7a09addea3e952c5455af3262ee4a8272",
+          "format": "express",
+          "origin": "visual_prep_012_015_20261009"
+        }
+      ],
+      "generationAttempts": [
+        {
+          "runId": "visual_prep_012_015_20261009",
+          "status": "valid",
+          "cause": null,
+          "result": "native_generation/visual_prep_012_015_20261009/BXP-014/result.json"
+        }
+      ],
+      "findings": {
+        "modelFindings": [
+          {
+            "kind": "citation_omission",
+            "detail": "Generated document omits original source citation markers [18], [12] and [3]. All three exact rates and quote timestamps are retained; visual acceptance covers rendering, not current financial rates or full source fidelity.",
+            "evidence": "BXP-014/review.json"
+          }
+        ]
+      },
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-015",
+      "domain": "Cricket",
+      "bucket": "visually_accepted",
+      "generationAvailability": "prepared_final",
+      "visualStatus": "accepted",
+      "declaredVisualStatus": "accepted",
+      "review": "BXP-015/review.json",
+      "reviewFileExists": true,
+      "reviewNotes": [
+        "Root visually inspected both SDK 0.6.12 default after/r01 captures: compact match metadata groups the supplied date/venue, opponent and format; both exact score strings and result are prominent; both full standout paragraphs remain readable. No new sporting facts were added.",
+        "Independent Fold7 dark-mode/font1.3 JSON replay visual_015_dark_large_20261009 passed, and both saved PNGs were visually inspected without clipping. All ten supplied literal Text values were separately checked across displayed text nodes, including Galle[13], 462 and 193/48.5, 284 and 206, India won by 165 runs, and the two full standout paragraphs. Evidence: BXP-015/visual_015_dark_large_20261009/visual_review.json. Before/default-after/dark saved source SHA-256 is identical: 741fb60af79c62a1efde0572ff1eafad6642cc0718432cbf89e8dd21d410cbcc.",
+        "Rendering acceptance preserves the supplied unusual 193/48.5 score wording and does not certify the sporting facts, match recency or full model/source fidelity. The replay contains no tables, so table coverage status is supplemented by explicit prose checks and visual inspection. No host tests or builds were run for these delegated checks."
+      ],
+      "acceptanceChecks": {
+        "nonemptyExplicitNotes": true,
+        "latestAfterReceiptReferenced": true,
+        "reviewReceiptHashMatches": true,
+        "afterCollectionComplete": true,
+        "reviewSourceHashMatches": true,
+        "sameBeforeAfterInput": true,
+        "archivedInputHashMatches": true,
+        "sourceMatchesPreparedCurrentModelArtifact": true,
+        "captureFilesAndHashesMatch": true
+      },
+      "beforeReceipt": "BXP-015/before/r01/receipt.json",
+      "afterReceipt": "BXP-015/after/r01/receipt.json",
+      "selectedSource": {
+        "path": "native_generation/visual_prep_012_015_20261009/BXP-015/a2ui.json",
+        "sha256": "741fb60af79c62a1efde0572ff1eafad6642cc0718432cbf89e8dd21d410cbcc",
+        "format": "json",
+        "origin": "visual_prep_012_015_20261009"
+      },
+      "preparedInputs": [
+        {
+          "path": "native_generation/visual_prep_012_015_20261009/BXP-015/a2ui.json",
+          "sha256": "741fb60af79c62a1efde0572ff1eafad6642cc0718432cbf89e8dd21d410cbcc",
+          "format": "json",
+          "origin": "visual_prep_012_015_20261009"
+        }
+      ],
+      "generationAttempts": [
+        {
+          "runId": "visual_prep_012_015_20261009",
+          "status": "valid",
+          "cause": null,
+          "result": "native_generation/visual_prep_012_015_20261009/BXP-015/result.json"
+        }
+      ],
+      "findings": {
+        "limitations": [
+          {
+            "kind": "factual_accuracy_not_verified",
+            "detail": "The frozen source gives only July 2026 as the match date and the unusual score 193/48.5. Generated output retains these values exactly. Their source accuracy is unverified; this is not classified as a model conversion defect or renderer error.",
+            "evidence": "native_generation/visual_prep_012_015_20261009/BXP-015/source.json"
+          }
+        ]
+      },
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-016",
+      "domain": "Streaming entertainment",
+      "bucket": "visually_accepted",
+      "generationAvailability": "prepared_final",
+      "visualStatus": "accepted",
+      "declaredVisualStatus": "accepted",
+      "review": "BXP-016/review.json",
+      "reviewFileExists": true,
+      "reviewNotes": [
+        "Inspected every before capture and both after captures on Fold7. The before view ignored the declared cards/primary-column intent and hid synopses in a horizontally scrolling grid. SDK0.6.13 now uses complete film cards: all three titles, platforms, exact streaming dates, full synopses with [33]/[21]/[22], and the provenance paragraph with [1] are visible together without horizontal scrolling. Accepted JSON bytes are unchanged. No artwork, ratings or playback actions were invented. This verifies presentation and retained generated content, not factual recency; the unused platformReleaseDate state only duplicates declared dates."
+      ],
+      "acceptanceChecks": {
+        "nonemptyExplicitNotes": true,
+        "latestAfterReceiptReferenced": true,
+        "reviewReceiptHashMatches": true,
+        "afterCollectionComplete": true,
+        "reviewSourceHashMatches": true,
+        "sameBeforeAfterInput": true,
+        "archivedInputHashMatches": true,
+        "sourceMatchesPreparedCurrentModelArtifact": true,
+        "captureFilesAndHashesMatch": true
+      },
+      "beforeReceipt": "BXP-016/before/r01/receipt.json",
+      "afterReceipt": "BXP-016/after/r01/receipt.json",
+      "selectedSource": {
+        "path": "native_generation/visual_prep_016_022_20261009/BXP-016/a2ui.json",
+        "sha256": "4acf224cd36033df0d3f01186a2fbdbcb141b91eb0204152b4124163e401a7c3",
+        "format": "json",
+        "origin": "visual_prep_016_022_20261009"
+      },
+      "preparedInputs": [
+        {
+          "path": "native_generation/visual_prep_016_022_20261009/BXP-016/a2ui.json",
+          "sha256": "4acf224cd36033df0d3f01186a2fbdbcb141b91eb0204152b4124163e401a7c3",
+          "format": "json",
+          "origin": "visual_prep_016_022_20261009"
+        }
+      ],
+      "generationAttempts": [
+        {
+          "runId": "visual_prep_016_022_20261009",
+          "status": "valid",
+          "cause": null,
+          "result": "native_generation/visual_prep_016_022_20261009/BXP-016/result.json"
+        }
+      ],
+      "findings": {},
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-017",
+      "domain": "Books",
+      "bucket": "visually_accepted",
+      "generationAvailability": "prepared_final",
+      "visualStatus": "accepted",
+      "declaredVisualStatus": "accepted",
+      "review": "BXP-017/review.json",
+      "reviewFileExists": true,
+      "reviewNotes": [
+        "Inspected the complete Fold7 response; both after captures are pixel-identical below the system status strip to the inspected before image. The limitation heading and all three explanatory paragraphs are readable without clipping or scrolling. No renderer change was needed: the original source itself declined to provide a verified book list, and the generated graph contains no books, covers, authors or actions to support book cards. Presentation acceptance does not mean the source answered the recommendation query."
+      ],
+      "acceptanceChecks": {
+        "nonemptyExplicitNotes": true,
+        "latestAfterReceiptReferenced": true,
+        "reviewReceiptHashMatches": true,
+        "afterCollectionComplete": true,
+        "reviewSourceHashMatches": true,
+        "sameBeforeAfterInput": true,
+        "archivedInputHashMatches": true,
+        "sourceMatchesPreparedCurrentModelArtifact": true,
+        "captureFilesAndHashesMatch": true
+      },
+      "beforeReceipt": "BXP-017/before/r01/receipt.json",
+      "afterReceipt": "BXP-017/after/r01/receipt.json",
+      "selectedSource": {
+        "path": "native_generation/visual_prep_016_022_20261009/BXP-017/a2ui.json",
+        "sha256": "e11673a0cc052f320bf400af394475bfa0a9e4696dfafb1d6f0e90b45a18e80d",
+        "format": "json",
+        "origin": "visual_prep_016_022_20261009"
+      },
+      "preparedInputs": [
+        {
+          "path": "native_generation/visual_prep_016_022_20261009/BXP-017/a2ui.json",
+          "sha256": "e11673a0cc052f320bf400af394475bfa0a9e4696dfafb1d6f0e90b45a18e80d",
+          "format": "json",
+          "origin": "visual_prep_016_022_20261009"
+        },
+        {
+          "path": "native_generation/visual_prep_016_022_20261009/BXP-017/output.express",
+          "sha256": "c1bd40fbdd67d76d6f53b1e98a712d39c1b2402def8b9b5d3aa3900fdb2b461f",
+          "format": "express",
+          "origin": "visual_prep_016_022_20261009"
+        }
+      ],
+      "generationAttempts": [
+        {
+          "runId": "visual_prep_016_022_20261009",
+          "status": "valid",
+          "cause": null,
+          "result": "native_generation/visual_prep_016_022_20261009/BXP-017/result.json"
+        }
+      ],
+      "findings": {},
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-018",
+      "domain": "Music charts",
+      "bucket": "visually_accepted",
+      "generationAvailability": "prepared_final",
+      "visualStatus": "accepted",
+      "declaredVisualStatus": "accepted",
+      "review": "BXP-018/review.json",
+      "reviewFileExists": true,
+      "reviewNotes": [
+        "Inspected both before and both after Fold7 captures. Before failed because the playlist presentation dropped chart dates and split the combined song/artist text in the wrong direction; that failed baseline is preserved. After SDK0.6.14 shows a compact ranked chart with every original rank and full unsplit Song Title, plus the exact shared Chart Week Date. Both observation paragraphs remain visible. Every after check passed against identical generated JSON; the explicit baseline waiver applies only to its two renderer failures. Remaining model fidelity issue: the generated rank-4 entry loses the original source uncertainty, repeats rank 1 and supplies a date; citations [4]/[13]/[1] are absent. Rendering preserves that generated data and does not certify chart accuracy."
+      ],
+      "acceptanceChecks": {
+        "nonemptyExplicitNotes": true,
+        "latestAfterReceiptReferenced": true,
+        "reviewReceiptHashMatches": true,
+        "afterCollectionComplete": true,
+        "reviewSourceHashMatches": true,
+        "sameBeforeAfterInput": true,
+        "archivedInputHashMatches": true,
+        "sourceMatchesPreparedCurrentModelArtifact": true,
+        "captureFilesAndHashesMatch": true
+      },
+      "beforeReceipt": "BXP-018/before/r01/receipt.json",
+      "afterReceipt": "BXP-018/after/r01/receipt.json",
+      "selectedSource": {
+        "path": "native_generation/visual_prep_016_022_20261009/BXP-018/a2ui.json",
+        "sha256": "3e36975625252d2f1bdff8e9450832e6367dd447f934c03b03d2397b0969e0f5",
+        "format": "json",
+        "origin": "visual_prep_016_022_20261009"
+      },
+      "preparedInputs": [
+        {
+          "path": "native_generation/visual_prep_016_022_20261009/BXP-018/a2ui.json",
+          "sha256": "3e36975625252d2f1bdff8e9450832e6367dd447f934c03b03d2397b0969e0f5",
+          "format": "json",
+          "origin": "visual_prep_016_022_20261009"
+        }
+      ],
+      "generationAttempts": [
+        {
+          "runId": "visual_prep_016_022_20261009",
+          "status": "valid",
+          "cause": null,
+          "result": "native_generation/visual_prep_016_022_20261009/BXP-018/result.json"
+        }
+      ],
+      "findings": {},
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": {
+        "enabled": true,
+        "overriddenChecks": [
+          "allTableColumnsObserved",
+          "renderedWithoutIssues"
+        ],
+        "beforeStatus": "failed",
+        "beforeAutomatedChecksSatisfied": false,
+        "scope": "Explicit comparison-only baseline waiver. Before remains failed; all after checks are required."
+      }
+    },
+    {
+      "id": "BXP-019",
+      "domain": "Video games",
+      "bucket": "visually_accepted",
+      "generationAvailability": "prepared_final",
+      "visualStatus": "accepted",
+      "declaredVisualStatus": "accepted",
+      "review": "BXP-019/review.json",
+      "reviewFileExists": true,
+      "reviewNotes": [
+        "Independently inspected all three before/r01 and all three after/r01 Fold7 SDK 0.6.14 screenshots. Existing game cards are readable and require no renderer change. All three exact names, full online/account age caveats including regional wording, local/online/solo co-op details and player counts remain correctly associated with their games.",
+        "All exact indicative Indian prices, past-promotion prices, the authored US-dollar quote and every qualifier/citation remain visible without clipping. All fifteen original Markdown table values match the saved data model after removing Markdown bold delimiters; all ten original citation markers are retained. All fifteen table-cell values and six literal Text values were independently checked in both before and after XML captures. Two repeated Players=2 cells remain explicitly ambiguous in automated coverage and were manually checked within their respective cards.",
+        "The complete three Best fit recommendations and price-sales/regional-update disclaimer remain readable. Both replays passed all checks using identical source SHA-256 8678392b11be8429ba873a6578a9f3e45979003f0daa3e1254e4edae2ac221b1. Audit: BXP-019/visual_review.json. Existing runtime source-fidelity warnings remain recorded; this visual/content review does not verify current prices, authoritative age ratings or full model/source correctness. No inferred ratings, prices or actions were added."
+      ],
+      "acceptanceChecks": {
+        "nonemptyExplicitNotes": true,
+        "latestAfterReceiptReferenced": true,
+        "reviewReceiptHashMatches": true,
+        "afterCollectionComplete": true,
+        "reviewSourceHashMatches": true,
+        "sameBeforeAfterInput": true,
+        "archivedInputHashMatches": true,
+        "sourceMatchesPreparedCurrentModelArtifact": true,
+        "captureFilesAndHashesMatch": true
+      },
+      "beforeReceipt": "BXP-019/before/r01/receipt.json",
+      "afterReceipt": "BXP-019/after/r01/receipt.json",
+      "selectedSource": {
+        "path": "native_generation/visual_prep_016_022_20261009/BXP-019/a2ui.json",
+        "sha256": "8678392b11be8429ba873a6578a9f3e45979003f0daa3e1254e4edae2ac221b1",
+        "format": "json",
+        "origin": "visual_prep_016_022_20261009"
+      },
+      "preparedInputs": [
+        {
+          "path": "native_generation/visual_prep_016_022_20261009/BXP-019/a2ui.json",
+          "sha256": "8678392b11be8429ba873a6578a9f3e45979003f0daa3e1254e4edae2ac221b1",
+          "format": "json",
+          "origin": "visual_prep_016_022_20261009"
+        }
+      ],
+      "generationAttempts": [
+        {
+          "runId": "visual_prep_016_022_20261009",
+          "status": "valid",
+          "cause": null,
+          "result": "native_generation/visual_prep_016_022_20261009/BXP-019/result.json"
+        }
+      ],
+      "findings": {},
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-020",
+      "domain": "Space missions",
+      "bucket": "visually_accepted",
+      "generationAvailability": "prepared_final",
+      "visualStatus": "accepted",
+      "declaredVisualStatus": "accepted",
+      "review": "BXP-020/review.json",
+      "reviewFileExists": true,
+      "reviewNotes": [
+        "Reviewed both normal after pages and both dark/font1.3 pages on Fold7. Mission identity is prominent; date and vehicle pair at normal width and stack at large font; complete purpose, provisional-schedule uncertainty and official-versus-third-party qualification remain readable. All replay checks pass on unchanged model JSON. Model omitted source citations [2][10][1][5]; visual acceptance is not factual recency or fidelity certification."
+      ],
+      "acceptanceChecks": {
+        "nonemptyExplicitNotes": true,
+        "latestAfterReceiptReferenced": true,
+        "reviewReceiptHashMatches": true,
+        "afterCollectionComplete": true,
+        "reviewSourceHashMatches": true,
+        "sameBeforeAfterInput": true,
+        "archivedInputHashMatches": true,
+        "sourceMatchesPreparedCurrentModelArtifact": true,
+        "captureFilesAndHashesMatch": true
+      },
+      "beforeReceipt": "BXP-020/before/r01/receipt.json",
+      "afterReceipt": "BXP-020/after/r01/receipt.json",
+      "selectedSource": {
+        "path": "native_generation/visual_prep_016_022_20261009/BXP-020/a2ui.json",
+        "sha256": "341c30fe92367f05a4b2f28568ec0a0836ee3a9f56c252aca5fddb7335c52de2",
+        "format": "json",
+        "origin": "visual_prep_016_022_20261009"
+      },
+      "preparedInputs": [
+        {
+          "path": "native_generation/visual_prep_016_022_20261009/BXP-020/a2ui.json",
+          "sha256": "341c30fe92367f05a4b2f28568ec0a0836ee3a9f56c252aca5fddb7335c52de2",
+          "format": "json",
+          "origin": "visual_prep_016_022_20261009"
+        }
+      ],
+      "generationAttempts": [
+        {
+          "runId": "visual_prep_016_022_20261009",
+          "status": "valid",
+          "cause": null,
+          "result": "native_generation/visual_prep_016_022_20261009/BXP-020/result.json"
+        }
+      ],
+      "findings": {},
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-021",
+      "domain": "Archaeology",
+      "bucket": "visually_accepted",
+      "generationAvailability": "prepared_final",
+      "visualStatus": "accepted",
+      "declaredVisualStatus": "accepted",
+      "review": "BXP-021/review.json",
+      "reviewFileExists": true,
+      "reviewNotes": [
+        "Reviewed all three before and after captures. Existing shared section panels provide clear discovery, dating evidence, significance, and established-versus-speculative hierarchy; every paragraph and uncertainty sentence remains readable through the end. No structured dates or images were invented from prose. Current renderer needs no additional change for this sample. All replay checks pass; source factual recency was not evaluated."
+      ],
+      "acceptanceChecks": {
+        "nonemptyExplicitNotes": true,
+        "latestAfterReceiptReferenced": true,
+        "reviewReceiptHashMatches": true,
+        "afterCollectionComplete": true,
+        "reviewSourceHashMatches": true,
+        "sameBeforeAfterInput": true,
+        "archivedInputHashMatches": true,
+        "sourceMatchesPreparedCurrentModelArtifact": true,
+        "captureFilesAndHashesMatch": true
+      },
+      "beforeReceipt": "BXP-021/before/r01/receipt.json",
+      "afterReceipt": "BXP-021/after/r01/receipt.json",
+      "selectedSource": {
+        "path": "native_generation/visual_prep_016_022_20261009/BXP-021/a2ui.json",
+        "sha256": "61ec663cfd5f05a39835d397a277b9406a5ab48edf2b81e392b4b4427b9b9333",
+        "format": "json",
+        "origin": "visual_prep_016_022_20261009"
+      },
+      "preparedInputs": [
+        {
+          "path": "native_generation/visual_prep_016_022_20261009/BXP-021/a2ui.json",
+          "sha256": "61ec663cfd5f05a39835d397a277b9406a5ab48edf2b81e392b4b4427b9b9333",
+          "format": "json",
+          "origin": "visual_prep_016_022_20261009"
+        }
+      ],
+      "generationAttempts": [
+        {
+          "runId": "visual_prep_016_022_20261009",
+          "status": "valid",
+          "cause": null,
+          "result": "native_generation/visual_prep_016_022_20261009/BXP-021/result.json"
+        }
+      ],
+      "findings": {},
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-022",
+      "domain": "Gardening",
+      "bucket": "visually_accepted",
+      "generationAvailability": "prepared_final",
+      "visualStatus": "accepted",
+      "declaredVisualStatus": "accepted",
+      "review": "BXP-022/review.json",
+      "reviewFileExists": true,
+      "reviewNotes": [
+        "Reviewed all three r02 captures on SDK0.6.17. Five care sections now use consistent compact cards: container size and common problems no longer appear as detached blocks; redundant heading and wrapper padding is removed. All15 original Text values, inch/litre/hour ranges, qualifications and citations are readable. Original wire bytes unchanged; unreachable x/y/z remain untouched. First unchanged visual attempt r01 is preserved.14 SDK tests passed including exact saved wire through production host-gutter normalization."
+      ],
+      "acceptanceChecks": {
+        "nonemptyExplicitNotes": true,
+        "latestAfterReceiptReferenced": true,
+        "reviewReceiptHashMatches": true,
+        "afterCollectionComplete": true,
+        "reviewSourceHashMatches": true,
+        "sameBeforeAfterInput": true,
+        "archivedInputHashMatches": true,
+        "sourceMatchesPreparedCurrentModelArtifact": true,
+        "captureFilesAndHashesMatch": true
+      },
+      "beforeReceipt": "BXP-022/before/r01/receipt.json",
+      "afterReceipt": "BXP-022/after/r02/receipt.json",
+      "selectedSource": {
+        "path": "native_generation/visual_prep_016_022_20261009/BXP-022/a2ui.json",
+        "sha256": "c092340f4d4c8467d8b6683126f4761be782becbbe807f4793b717da9e8f3ce2",
+        "format": "json",
+        "origin": "visual_prep_016_022_20261009"
+      },
+      "preparedInputs": [
+        {
+          "path": "native_generation/visual_prep_016_022_20261009/BXP-022/a2ui.json",
+          "sha256": "c092340f4d4c8467d8b6683126f4761be782becbbe807f4793b717da9e8f3ce2",
+          "format": "json",
+          "origin": "visual_prep_016_022_20261009"
+        }
+      ],
+      "generationAttempts": [
+        {
+          "runId": "visual_prep_016_022_20261009",
+          "status": "valid",
+          "cause": null,
+          "result": "native_generation/visual_prep_016_022_20261009/BXP-022/result.json"
+        }
+      ],
+      "findings": {},
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-023",
+      "domain": "Pet care",
+      "bucket": "visually_accepted",
+      "generationAvailability": "prepared_final",
+      "visualStatus": "accepted",
+      "declaredVisualStatus": "accepted",
+      "review": "BXP-023/review.json",
+      "reviewFileExists": true,
+      "reviewNotes": [
+        "All three before and after captures inspected: four care sections and all paragraphs, interval/risk/veterinarian qualifiers and citations remain readable. Existing separated guide sections are usable; no imagery, completed checkmarks, vaccine dates or reminder actions were invented. No additional renderer change. Model adds Checklist complete and a veterinarian footer absent from source; these remain plain generated text, not evidence of completed care, and are recorded as a model fidelity issue. Clinical accuracy is not evaluated by this renderer review."
+      ],
+      "acceptanceChecks": {
+        "nonemptyExplicitNotes": true,
+        "latestAfterReceiptReferenced": true,
+        "reviewReceiptHashMatches": true,
+        "afterCollectionComplete": true,
+        "reviewSourceHashMatches": true,
+        "sameBeforeAfterInput": true,
+        "archivedInputHashMatches": true,
+        "sourceMatchesPreparedCurrentModelArtifact": true,
+        "captureFilesAndHashesMatch": true
+      },
+      "beforeReceipt": "BXP-023/before/r01/receipt.json",
+      "afterReceipt": "BXP-023/after/r01/receipt.json",
+      "selectedSource": {
+        "path": "native_generation/visual_prep_023_027_20261009/BXP-023/a2ui.json",
+        "sha256": "ccd8f2fd3b8a36ceb5d9328f97e370610268e668577a6a8d8b7bda877290cb5f",
+        "format": "json",
+        "origin": "visual_prep_023_027_20261009"
+      },
+      "preparedInputs": [
+        {
+          "path": "native_generation/visual_prep_023_027_20261009/BXP-023/a2ui.json",
+          "sha256": "ccd8f2fd3b8a36ceb5d9328f97e370610268e668577a6a8d8b7bda877290cb5f",
+          "format": "json",
+          "origin": "visual_prep_023_027_20261009"
+        }
+      ],
+      "generationAttempts": [
+        {
+          "runId": "visual_prep_023_027_20261009",
+          "status": "valid",
+          "cause": null,
+          "result": "native_generation/visual_prep_023_027_20261009/BXP-023/result.json"
+        }
+      ],
+      "findings": {},
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-024",
+      "domain": "Waste management",
+      "bucket": "renderable_unreviewed",
+      "generationAvailability": "prepared_final",
+      "visualStatus": "pending",
+      "declaredVisualStatus": "pending",
+      "review": "BXP-024/review.json",
+      "reviewFileExists": false,
+      "reviewNotes": [],
+      "acceptanceChecks": {},
+      "beforeReceipt": "BXP-024/before/r01/receipt.json",
+      "afterReceipt": "BXP-024/after/r01/receipt.json",
+      "selectedSource": {
+        "path": "native_generation/visual_prep_023_027_20261009/BXP-024/a2ui.json",
+        "sha256": "9e56c3f0528ae168ca878ae45503e10111ea5aaf4ec9e4ec6baedc00b5d73022",
+        "format": "json",
+        "origin": "visual_prep_023_027_20261009"
+      },
+      "preparedInputs": [
+        {
+          "path": "native_generation/visual_prep_023_027_20261009/BXP-024/a2ui.json",
+          "sha256": "9e56c3f0528ae168ca878ae45503e10111ea5aaf4ec9e4ec6baedc00b5d73022",
+          "format": "json",
+          "origin": "visual_prep_023_027_20261009"
+        }
+      ],
+      "generationAttempts": [
+        {
+          "runId": "visual_prep_023_027_20261009",
+          "status": "valid",
+          "cause": null,
+          "result": "native_generation/visual_prep_023_027_20261009/BXP-024/result.json"
+        }
+      ],
+      "findings": {},
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-025",
+      "domain": "Language learning",
+      "bucket": "renderable_unreviewed",
+      "generationAvailability": "prepared_final",
+      "visualStatus": "pending",
+      "declaredVisualStatus": "pending",
+      "review": "BXP-025/review.json",
+      "reviewFileExists": false,
+      "reviewNotes": [],
+      "acceptanceChecks": {},
+      "beforeReceipt": null,
+      "afterReceipt": null,
+      "selectedSource": {
+        "path": "native_generation/visual_prep_023_027_20261009/BXP-025/a2ui.json",
+        "sha256": "e775dc6659e84711725ac2b970c2d43fd3ca4f4e7fcd9d4c963f561a5b9020fc",
+        "format": "json",
+        "origin": "visual_prep_023_027_20261009"
+      },
+      "preparedInputs": [
+        {
+          "path": "native_generation/visual_prep_023_027_20261009/BXP-025/a2ui.json",
+          "sha256": "e775dc6659e84711725ac2b970c2d43fd3ca4f4e7fcd9d4c963f561a5b9020fc",
+          "format": "json",
+          "origin": "visual_prep_023_027_20261009"
+        }
+      ],
+      "generationAttempts": [
+        {
+          "runId": "visual_prep_023_027_20261009",
+          "status": "valid",
+          "cause": null,
+          "result": "native_generation/visual_prep_023_027_20261009/BXP-025/result.json"
+        }
+      ],
+      "findings": {},
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-026",
+      "domain": "Artificial intelligence",
+      "bucket": "renderable_unreviewed",
+      "generationAvailability": "prepared_final",
+      "visualStatus": "pending",
+      "declaredVisualStatus": "pending",
+      "review": "BXP-026/review.json",
+      "reviewFileExists": false,
+      "reviewNotes": [],
+      "acceptanceChecks": {},
+      "beforeReceipt": null,
+      "afterReceipt": null,
+      "selectedSource": {
+        "path": "native_generation/visual_prep_023_027_20261009/BXP-026/a2ui.json",
+        "sha256": "032780034a83815ee5945a9824eba5389d3985ed8cf8384c1ea140523ca2aac0",
+        "format": "json",
+        "origin": "visual_prep_023_027_20261009"
+      },
+      "preparedInputs": [
+        {
+          "path": "native_generation/visual_prep_023_027_20261009/BXP-026/a2ui.json",
+          "sha256": "032780034a83815ee5945a9824eba5389d3985ed8cf8384c1ea140523ca2aac0",
+          "format": "json",
+          "origin": "visual_prep_023_027_20261009"
+        },
+        {
+          "path": "native_generation/visual_prep_023_027_20261009/BXP-026/output.express",
+          "sha256": "6a0f15a6f68fcb9983ebef0a549c81e8efdb1036de87935983d8ed87515a46a4",
+          "format": "express",
+          "origin": "visual_prep_023_027_20261009"
+        }
+      ],
+      "generationAttempts": [
+        {
+          "runId": "visual_prep_023_027_20261009",
+          "status": "valid",
+          "cause": null,
+          "result": "native_generation/visual_prep_023_027_20261009/BXP-026/result.json"
+        }
+      ],
+      "findings": {},
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-027",
+      "domain": "Cybersecurity",
+      "bucket": "no_renderable_output",
+      "generationAvailability": "no_renderable_output",
+      "visualStatus": "not_reviewable",
+      "declaredVisualStatus": "pending",
+      "review": "BXP-027/review.json",
+      "reviewFileExists": false,
+      "reviewNotes": [],
+      "acceptanceChecks": {},
+      "beforeReceipt": null,
+      "afterReceipt": null,
+      "selectedSource": null,
+      "preparedInputs": [],
+      "generationAttempts": [
+        {
+          "runId": "visual_prep_023_027_20261009",
+          "status": "strict_invalid",
+          "cause": "app_guard_cutoff_no_renderer_input",
+          "result": "native_generation/visual_prep_023_027_20261009/BXP-027/result.json"
+        }
+      ],
+      "findings": {},
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-028",
+      "domain": "Digital privacy",
+      "bucket": "no_renderable_output",
+      "generationAvailability": "no_renderable_output",
+      "visualStatus": "not_reviewable",
+      "declaredVisualStatus": "pending",
+      "review": "BXP-028/review.json",
+      "reviewFileExists": false,
+      "reviewNotes": [],
+      "acceptanceChecks": {},
+      "beforeReceipt": null,
+      "afterReceipt": null,
+      "selectedSource": null,
+      "preparedInputs": [],
+      "generationAttempts": [
+        {
+          "runId": "visual_prep_028_034_20261009",
+          "status": "strict_invalid",
+          "cause": "app_guard_cutoff_no_renderer_input",
+          "result": "native_generation/visual_prep_028_034_20261009/BXP-028/result.json"
+        }
+      ],
+      "findings": {},
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-029",
+      "domain": "Income tax",
+      "bucket": "renderable_unreviewed",
+      "generationAvailability": "prepared_final",
+      "visualStatus": "pending",
+      "declaredVisualStatus": "pending",
+      "review": "BXP-029/review.json",
+      "reviewFileExists": false,
+      "reviewNotes": [],
+      "acceptanceChecks": {},
+      "beforeReceipt": null,
+      "afterReceipt": null,
+      "selectedSource": {
+        "path": "native_generation/visual_prep_028_034_20261009/BXP-029/a2ui.json",
+        "sha256": "9f2f2b298a9e5da2a0aa1ba7410d1cd73db8ec764026a5f2be3343013770d13f",
+        "format": "json",
+        "origin": "visual_prep_028_034_20261009"
+      },
+      "preparedInputs": [
+        {
+          "path": "native_generation/visual_prep_028_034_20261009/BXP-029/a2ui.json",
+          "sha256": "9f2f2b298a9e5da2a0aa1ba7410d1cd73db8ec764026a5f2be3343013770d13f",
+          "format": "json",
+          "origin": "visual_prep_028_034_20261009"
+        }
+      ],
+      "generationAttempts": [
+        {
+          "runId": "visual_prep_028_034_20261009",
+          "status": "valid",
+          "cause": null,
+          "result": "native_generation/visual_prep_028_034_20261009/BXP-029/result.json"
+        }
+      ],
+      "findings": {},
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-030",
+      "domain": "Retirement savings",
+      "bucket": "renderable_unreviewed",
+      "generationAvailability": "prepared_final",
+      "visualStatus": "pending",
+      "declaredVisualStatus": "pending",
+      "review": "BXP-030/review.json",
+      "reviewFileExists": false,
+      "reviewNotes": [],
+      "acceptanceChecks": {},
+      "beforeReceipt": null,
+      "afterReceipt": null,
+      "selectedSource": {
+        "path": "native_generation/visual_prep_028_034_20261009/BXP-030/a2ui.json",
+        "sha256": "682cd9ba07d98af45d69c10bea8eaaf562b25ef04af7b048a044efcb87b7471f",
+        "format": "json",
+        "origin": "visual_prep_028_034_20261009"
+      },
+      "preparedInputs": [
+        {
+          "path": "native_generation/visual_prep_028_034_20261009/BXP-030/a2ui.json",
+          "sha256": "682cd9ba07d98af45d69c10bea8eaaf562b25ef04af7b048a044efcb87b7471f",
+          "format": "json",
+          "origin": "visual_prep_028_034_20261009"
+        }
+      ],
+      "generationAttempts": [
+        {
+          "runId": "visual_prep_028_034_20261009",
+          "status": "valid",
+          "cause": null,
+          "result": "native_generation/visual_prep_028_034_20261009/BXP-030/result.json"
+        }
+      ],
+      "findings": {},
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-031",
+      "domain": "Property due diligence",
+      "bucket": "renderable_unreviewed",
+      "generationAvailability": "prepared_final",
+      "visualStatus": "pending",
+      "declaredVisualStatus": "pending",
+      "review": "BXP-031/review.json",
+      "reviewFileExists": false,
+      "reviewNotes": [],
+      "acceptanceChecks": {},
+      "beforeReceipt": null,
+      "afterReceipt": null,
+      "selectedSource": {
+        "path": "native_generation/visual_prep_028_034_20261009/BXP-031/a2ui.json",
+        "sha256": "99fbd51bb0629648998460250a6cffc82d30b141870dbba9814f8a60f894d9d3",
+        "format": "json",
+        "origin": "visual_prep_028_034_20261009"
+      },
+      "preparedInputs": [
+        {
+          "path": "native_generation/visual_prep_028_034_20261009/BXP-031/a2ui.json",
+          "sha256": "99fbd51bb0629648998460250a6cffc82d30b141870dbba9814f8a60f894d9d3",
+          "format": "json",
+          "origin": "visual_prep_028_034_20261009"
+        }
+      ],
+      "generationAttempts": [
+        {
+          "runId": "visual_prep_028_034_20261009",
+          "status": "valid",
+          "cause": null,
+          "result": "native_generation/visual_prep_028_034_20261009/BXP-031/result.json"
+        }
+      ],
+      "findings": {},
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-032",
+      "domain": "Health insurance",
+      "bucket": "renderable_unreviewed",
+      "generationAvailability": "prepared_final",
+      "visualStatus": "pending",
+      "declaredVisualStatus": "pending",
+      "review": "BXP-032/review.json",
+      "reviewFileExists": false,
+      "reviewNotes": [],
+      "acceptanceChecks": {},
+      "beforeReceipt": null,
+      "afterReceipt": null,
+      "selectedSource": {
+        "path": "native_generation/visual_prep_028_034_20261009/BXP-032/a2ui.json",
+        "sha256": "8d9cb97036dde6dc1b4837e14f7a3175dc0bf99957d797b6a5d1d64c345c239d",
+        "format": "json",
+        "origin": "visual_prep_028_034_20261009"
+      },
+      "preparedInputs": [
+        {
+          "path": "native_generation/visual_prep_028_034_20261009/BXP-032/a2ui.json",
+          "sha256": "8d9cb97036dde6dc1b4837e14f7a3175dc0bf99957d797b6a5d1d64c345c239d",
+          "format": "json",
+          "origin": "visual_prep_028_034_20261009"
+        }
+      ],
+      "generationAttempts": [
+        {
+          "runId": "visual_prep_028_034_20261009",
+          "status": "valid",
+          "cause": null,
+          "result": "native_generation/visual_prep_028_034_20261009/BXP-032/result.json"
+        }
+      ],
+      "findings": {},
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-033",
+      "domain": "Public health",
+      "bucket": "no_renderable_output",
+      "generationAvailability": "no_renderable_output",
+      "visualStatus": "not_reviewable",
+      "declaredVisualStatus": "pending",
+      "review": "BXP-033/review.json",
+      "reviewFileExists": false,
+      "reviewNotes": [],
+      "acceptanceChecks": {},
+      "beforeReceipt": null,
+      "afterReceipt": null,
+      "selectedSource": null,
+      "preparedInputs": [],
+      "generationAttempts": [
+        {
+          "runId": "visual_prep_028_034_20261009",
+          "status": "strict_invalid",
+          "cause": "app_guard_cutoff_no_renderer_input",
+          "result": "native_generation/visual_prep_028_034_20261009/BXP-033/result.json"
+        }
+      ],
+      "findings": {},
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-034",
+      "domain": "Nutrition",
+      "bucket": "renderable_unreviewed",
+      "generationAvailability": "prepared_final",
+      "visualStatus": "pending",
+      "declaredVisualStatus": "pending",
+      "review": "BXP-034/review.json",
+      "reviewFileExists": false,
+      "reviewNotes": [],
+      "acceptanceChecks": {},
+      "beforeReceipt": null,
+      "afterReceipt": null,
+      "selectedSource": {
+        "path": "native_generation/visual_prep_028_034_20261009/BXP-034/a2ui.json",
+        "sha256": "5f138455208af0acf64a86db805aa94c7a10613ab707a55e29d60985159b6ce4",
+        "format": "json",
+        "origin": "visual_prep_028_034_20261009"
+      },
+      "preparedInputs": [
+        {
+          "path": "native_generation/visual_prep_028_034_20261009/BXP-034/a2ui.json",
+          "sha256": "5f138455208af0acf64a86db805aa94c7a10613ab707a55e29d60985159b6ce4",
+          "format": "json",
+          "origin": "visual_prep_028_034_20261009"
+        }
+      ],
+      "generationAttempts": [
+        {
+          "runId": "visual_prep_028_034_20261009",
+          "status": "valid",
+          "cause": null,
+          "result": "native_generation/visual_prep_028_034_20261009/BXP-034/result.json"
+        }
+      ],
+      "findings": {},
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-035",
+      "domain": "Fitness",
+      "bucket": "renderable_unreviewed",
+      "generationAvailability": "prepared_final",
+      "visualStatus": "pending",
+      "declaredVisualStatus": "pending",
+      "review": "BXP-035/review.json",
+      "reviewFileExists": false,
+      "reviewNotes": [],
+      "acceptanceChecks": {},
+      "beforeReceipt": null,
+      "afterReceipt": null,
+      "selectedSource": {
+        "path": "native_generation/visual_prep_035_039_20261009/BXP-035/a2ui.json",
+        "sha256": "494c0f27430f479adc66a9b5564f6c9f1eeeabb99a63c73afd57d6e13603bcc6",
+        "format": "json",
+        "origin": "visual_prep_035_039_20261009"
+      },
+      "preparedInputs": [
+        {
+          "path": "native_generation/visual_prep_035_039_20261009/BXP-035/a2ui.json",
+          "sha256": "494c0f27430f479adc66a9b5564f6c9f1eeeabb99a63c73afd57d6e13603bcc6",
+          "format": "json",
+          "origin": "visual_prep_035_039_20261009"
+        }
+      ],
+      "generationAttempts": [
+        {
+          "runId": "visual_prep_035_039_20261009",
+          "status": "valid",
+          "cause": null,
+          "result": "native_generation/visual_prep_035_039_20261009/BXP-035/result.json"
+        }
+      ],
+      "findings": {},
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-036",
+      "domain": "Mental wellbeing",
+      "bucket": "renderable_unreviewed",
+      "generationAvailability": "prepared_final",
+      "visualStatus": "pending",
+      "declaredVisualStatus": "pending",
+      "review": "BXP-036/review.json",
+      "reviewFileExists": false,
+      "reviewNotes": [],
+      "acceptanceChecks": {},
+      "beforeReceipt": null,
+      "afterReceipt": null,
+      "selectedSource": {
+        "path": "native_generation/visual_prep_035_039_20261009/BXP-036/a2ui.json",
+        "sha256": "03bc7f8a38e3c5f46eddcf7b1bc64dcade0785427e05e94c09ad49c0dbaae056",
+        "format": "json",
+        "origin": "visual_prep_035_039_20261009"
+      },
+      "preparedInputs": [
+        {
+          "path": "native_generation/visual_prep_035_039_20261009/BXP-036/a2ui.json",
+          "sha256": "03bc7f8a38e3c5f46eddcf7b1bc64dcade0785427e05e94c09ad49c0dbaae056",
+          "format": "json",
+          "origin": "visual_prep_035_039_20261009"
+        },
+        {
+          "path": "native_generation/visual_prep_035_039_20261009/BXP-036/output.express",
+          "sha256": "0b12225e96f7fe0f3818b87f9b43d65b8d4240007a6dfef2b1a1314c941e6f5f",
+          "format": "express",
+          "origin": "visual_prep_035_039_20261009"
+        }
+      ],
+      "generationAttempts": [
+        {
+          "runId": "visual_prep_035_039_20261009",
+          "status": "valid",
+          "cause": null,
+          "result": "native_generation/visual_prep_035_039_20261009/BXP-036/result.json"
+        }
+      ],
+      "findings": {},
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-037",
+      "domain": "School education",
+      "bucket": "renderable_unreviewed",
+      "generationAvailability": "prepared_final",
+      "visualStatus": "pending",
+      "declaredVisualStatus": "pending",
+      "review": "BXP-037/review.json",
+      "reviewFileExists": false,
+      "reviewNotes": [],
+      "acceptanceChecks": {},
+      "beforeReceipt": null,
+      "afterReceipt": null,
+      "selectedSource": {
+        "path": "native_generation/visual_prep_035_039_20261009/BXP-037/a2ui.json",
+        "sha256": "45c7e02c58bd719b67cdd112184b1a2979c272728f0d7e42f410ce37d15930ea",
+        "format": "json",
+        "origin": "visual_prep_035_039_20261009"
+      },
+      "preparedInputs": [
+        {
+          "path": "native_generation/visual_prep_035_039_20261009/BXP-037/a2ui.json",
+          "sha256": "45c7e02c58bd719b67cdd112184b1a2979c272728f0d7e42f410ce37d15930ea",
+          "format": "json",
+          "origin": "visual_prep_035_039_20261009"
+        }
+      ],
+      "generationAttempts": [
+        {
+          "runId": "visual_prep_035_039_20261009",
+          "status": "valid",
+          "cause": null,
+          "result": "native_generation/visual_prep_035_039_20261009/BXP-037/result.json"
+        }
+      ],
+      "findings": {},
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-038",
+      "domain": "Careers",
+      "bucket": "renderable_unreviewed",
+      "generationAvailability": "prepared_final",
+      "visualStatus": "pending",
+      "declaredVisualStatus": "pending",
+      "review": "BXP-038/review.json",
+      "reviewFileExists": false,
+      "reviewNotes": [],
+      "acceptanceChecks": {},
+      "beforeReceipt": null,
+      "afterReceipt": null,
+      "selectedSource": {
+        "path": "native_generation/visual_prep_035_039_20261009/BXP-038/a2ui.json",
+        "sha256": "e10e67c42571247bd721ee847ecd2447b8a6ae16f24edd8f5f93deb18ce560b2",
+        "format": "json",
+        "origin": "visual_prep_035_039_20261009"
+      },
+      "preparedInputs": [
+        {
+          "path": "native_generation/visual_prep_035_039_20261009/BXP-038/a2ui.json",
+          "sha256": "e10e67c42571247bd721ee847ecd2447b8a6ae16f24edd8f5f93deb18ce560b2",
+          "format": "json",
+          "origin": "visual_prep_035_039_20261009"
+        },
+        {
+          "path": "native_generation/visual_prep_035_039_20261009/BXP-038/output.express",
+          "sha256": "1552a5eb185790c8e25bbad45ba24db0fda8ccb811f215e29415bade0b8cddba",
+          "format": "express",
+          "origin": "visual_prep_035_039_20261009"
+        }
+      ],
+      "generationAttempts": [
+        {
+          "runId": "visual_prep_035_039_20261009",
+          "status": "valid",
+          "cause": null,
+          "result": "native_generation/visual_prep_035_039_20261009/BXP-038/result.json"
+        }
+      ],
+      "findings": {},
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-039",
+      "domain": "Small-business compliance",
+      "bucket": "renderable_unreviewed",
+      "generationAvailability": "prepared_final",
+      "visualStatus": "pending",
+      "declaredVisualStatus": "pending",
+      "review": "BXP-039/review.json",
+      "reviewFileExists": false,
+      "reviewNotes": [],
+      "acceptanceChecks": {},
+      "beforeReceipt": null,
+      "afterReceipt": null,
+      "selectedSource": {
+        "path": "native_generation/visual_prep_035_039_20261009/BXP-039/a2ui.json",
+        "sha256": "b8b4f1d17fe830891fa6b91cfe8e74ebdfd42ec6457f414787d0083d4705555d",
+        "format": "json",
+        "origin": "visual_prep_035_039_20261009"
+      },
+      "preparedInputs": [
+        {
+          "path": "native_generation/visual_prep_035_039_20261009/BXP-039/a2ui.json",
+          "sha256": "b8b4f1d17fe830891fa6b91cfe8e74ebdfd42ec6457f414787d0083d4705555d",
+          "format": "json",
+          "origin": "visual_prep_035_039_20261009"
+        }
+      ],
+      "generationAttempts": [
+        {
+          "runId": "visual_prep_035_039_20261009",
+          "status": "valid",
+          "cause": null,
+          "result": "native_generation/visual_prep_035_039_20261009/BXP-039/result.json"
+        }
+      ],
+      "findings": {},
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-040",
+      "domain": "Consumer rights",
+      "bucket": "renderable_unreviewed",
+      "generationAvailability": "prepared_final",
+      "visualStatus": "pending",
+      "declaredVisualStatus": "pending",
+      "review": "BXP-040/review.json",
+      "reviewFileExists": false,
+      "reviewNotes": [],
+      "acceptanceChecks": {},
+      "beforeReceipt": null,
+      "afterReceipt": null,
+      "selectedSource": {
+        "path": "native_generation/visual_prep_040_044_20261009/BXP-040/a2ui.json",
+        "sha256": "f0a860499f1e58b73bae375d88f10349d1a9892616954fcf5f81f4a4e4da2436",
+        "format": "json",
+        "origin": "visual_prep_040_044_20261009"
+      },
+      "preparedInputs": [
+        {
+          "path": "native_generation/visual_prep_040_044_20261009/BXP-040/a2ui.json",
+          "sha256": "f0a860499f1e58b73bae375d88f10349d1a9892616954fcf5f81f4a4e4da2436",
+          "format": "json",
+          "origin": "visual_prep_040_044_20261009"
+        }
+      ],
+      "generationAttempts": [
+        {
+          "runId": "visual_prep_040_044_20261009",
+          "status": "valid",
+          "cause": null,
+          "result": "native_generation/visual_prep_040_044_20261009/BXP-040/result.json"
+        }
+      ],
+      "findings": {},
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-041",
+      "domain": "International travel rules",
+      "bucket": "renderable_unreviewed",
+      "generationAvailability": "prepared_final",
+      "visualStatus": "pending",
+      "declaredVisualStatus": "pending",
+      "review": "BXP-041/review.json",
+      "reviewFileExists": false,
+      "reviewNotes": [],
+      "acceptanceChecks": {},
+      "beforeReceipt": null,
+      "afterReceipt": null,
+      "selectedSource": {
+        "path": "native_generation/visual_prep_040_044_20261009/BXP-041/a2ui.json",
+        "sha256": "0f6c316cc68d9f13905735131ec172e2576b3315b7cda0fa93340db8a1ce7051",
+        "format": "json",
+        "origin": "visual_prep_040_044_20261009"
+      },
+      "preparedInputs": [
+        {
+          "path": "native_generation/visual_prep_040_044_20261009/BXP-041/a2ui.json",
+          "sha256": "0f6c316cc68d9f13905735131ec172e2576b3315b7cda0fa93340db8a1ce7051",
+          "format": "json",
+          "origin": "visual_prep_040_044_20261009"
+        }
+      ],
+      "generationAttempts": [
+        {
+          "runId": "visual_prep_040_044_20261009",
+          "status": "valid",
+          "cause": null,
+          "result": "native_generation/visual_prep_040_044_20261009/BXP-041/result.json"
+        }
+      ],
+      "findings": {},
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-042",
+      "domain": "Electric vehicles",
+      "bucket": "no_renderable_output",
+      "generationAvailability": "no_renderable_output",
+      "visualStatus": "not_reviewable",
+      "declaredVisualStatus": "pending",
+      "review": "BXP-042/review.json",
+      "reviewFileExists": false,
+      "reviewNotes": [],
+      "acceptanceChecks": {},
+      "beforeReceipt": null,
+      "afterReceipt": null,
+      "selectedSource": null,
+      "preparedInputs": [],
+      "generationAttempts": [
+        {
+          "runId": "visual_prep_040_044_20261009",
+          "status": "strict_invalid",
+          "cause": "app_guard_cutoff_no_renderer_input",
+          "result": "native_generation/visual_prep_040_044_20261009/BXP-042/result.json"
+        }
+      ],
+      "findings": {},
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-043",
+      "domain": "Home solar energy",
+      "bucket": "no_renderable_output",
+      "generationAvailability": "no_renderable_output",
+      "visualStatus": "not_reviewable",
+      "declaredVisualStatus": "pending",
+      "review": "BXP-043/review.json",
+      "reviewFileExists": false,
+      "reviewNotes": [],
+      "acceptanceChecks": {},
+      "beforeReceipt": null,
+      "afterReceipt": null,
+      "selectedSource": null,
+      "preparedInputs": [],
+      "generationAttempts": [
+        {
+          "runId": "visual_prep_040_044_20261009",
+          "status": "strict_invalid",
+          "cause": "app_guard_cutoff_no_renderer_input",
+          "result": "native_generation/visual_prep_040_044_20261009/BXP-043/result.json"
+        }
+      ],
+      "findings": {},
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-044",
+      "domain": "Home appliances",
+      "bucket": "renderable_unreviewed",
+      "generationAvailability": "prepared_final",
+      "visualStatus": "pending",
+      "declaredVisualStatus": "pending",
+      "review": "BXP-044/review.json",
+      "reviewFileExists": false,
+      "reviewNotes": [],
+      "acceptanceChecks": {},
+      "beforeReceipt": null,
+      "afterReceipt": null,
+      "selectedSource": {
+        "path": "native_generation/visual_prep_040_044_20261009/BXP-044/a2ui.json",
+        "sha256": "6576fb4eff4ecf596bcb24e6746f5b17c165b7f5e14527c6497d08ca9a6d8c88",
+        "format": "json",
+        "origin": "visual_prep_040_044_20261009"
+      },
+      "preparedInputs": [
+        {
+          "path": "native_generation/visual_prep_040_044_20261009/BXP-044/a2ui.json",
+          "sha256": "6576fb4eff4ecf596bcb24e6746f5b17c165b7f5e14527c6497d08ca9a6d8c88",
+          "format": "json",
+          "origin": "visual_prep_040_044_20261009"
+        }
+      ],
+      "generationAttempts": [
+        {
+          "runId": "visual_prep_040_044_20261009",
+          "status": "valid",
+          "cause": null,
+          "result": "native_generation/visual_prep_040_044_20261009/BXP-044/result.json"
+        }
+      ],
+      "findings": {},
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-045",
+      "domain": "Urban climate",
+      "bucket": "renderable_unreviewed",
+      "generationAvailability": "prepared_final",
+      "visualStatus": "pending",
+      "declaredVisualStatus": "pending",
+      "review": "BXP-045/review.json",
+      "reviewFileExists": false,
+      "reviewNotes": [],
+      "acceptanceChecks": {},
+      "beforeReceipt": null,
+      "afterReceipt": null,
+      "selectedSource": {
+        "path": "native_generation/visual_prep_045_050_20261009/BXP-045/a2ui.json",
+        "sha256": "8fb0851e4b6bb5d0e0f6561929d37c0e21a6abd9f38aae49e1f418a7f37868e1",
+        "format": "json",
+        "origin": "visual_prep_045_050_20261009"
+      },
+      "preparedInputs": [
+        {
+          "path": "native_generation/visual_prep_045_050_20261009/BXP-045/a2ui.json",
+          "sha256": "8fb0851e4b6bb5d0e0f6561929d37c0e21a6abd9f38aae49e1f418a7f37868e1",
+          "format": "json",
+          "origin": "visual_prep_045_050_20261009"
+        }
+      ],
+      "generationAttempts": [
+        {
+          "runId": "visual_prep_045_050_20261009",
+          "status": "valid",
+          "cause": null,
+          "result": "native_generation/visual_prep_045_050_20261009/BXP-045/result.json"
+        }
+      ],
+      "findings": {},
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-046",
+      "domain": "Biotechnology",
+      "bucket": "renderable_unreviewed",
+      "generationAvailability": "prepared_final",
+      "visualStatus": "pending",
+      "declaredVisualStatus": "pending",
+      "review": "BXP-046/review.json",
+      "reviewFileExists": false,
+      "reviewNotes": [],
+      "acceptanceChecks": {},
+      "beforeReceipt": null,
+      "afterReceipt": null,
+      "selectedSource": {
+        "path": "native_generation/visual_prep_045_050_20261009/BXP-046/a2ui.json",
+        "sha256": "486f24dd6459c479546cfc56dfc08f2e85916ad50582a013ea29e05817c5c55a",
+        "format": "json",
+        "origin": "visual_prep_045_050_20261009"
+      },
+      "preparedInputs": [
+        {
+          "path": "native_generation/visual_prep_045_050_20261009/BXP-046/a2ui.json",
+          "sha256": "486f24dd6459c479546cfc56dfc08f2e85916ad50582a013ea29e05817c5c55a",
+          "format": "json",
+          "origin": "visual_prep_045_050_20261009"
+        }
+      ],
+      "generationAttempts": [
+        {
+          "runId": "visual_prep_045_050_20261009",
+          "status": "valid",
+          "cause": null,
+          "result": "native_generation/visual_prep_045_050_20261009/BXP-046/result.json"
+        }
+      ],
+      "findings": {},
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-047",
+      "domain": "Battery technology",
+      "bucket": "renderable_unreviewed",
+      "generationAvailability": "prepared_final",
+      "visualStatus": "pending",
+      "declaredVisualStatus": "pending",
+      "review": "BXP-047/review.json",
+      "reviewFileExists": false,
+      "reviewNotes": [],
+      "acceptanceChecks": {},
+      "beforeReceipt": null,
+      "afterReceipt": null,
+      "selectedSource": {
+        "path": "native_generation/visual_prep_045_050_20261009/BXP-047/a2ui.json",
+        "sha256": "a739d5e07a35f9d9e1edba0d892747f78040cf2e42abf153d63ce841cb7a4e5a",
+        "format": "json",
+        "origin": "visual_prep_045_050_20261009"
+      },
+      "preparedInputs": [
+        {
+          "path": "native_generation/visual_prep_045_050_20261009/BXP-047/a2ui.json",
+          "sha256": "a739d5e07a35f9d9e1edba0d892747f78040cf2e42abf153d63ce841cb7a4e5a",
+          "format": "json",
+          "origin": "visual_prep_045_050_20261009"
+        }
+      ],
+      "generationAttempts": [
+        {
+          "runId": "visual_prep_045_050_20261009",
+          "status": "valid",
+          "cause": null,
+          "result": "native_generation/visual_prep_045_050_20261009/BXP-047/result.json"
+        }
+      ],
+      "findings": {},
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-048",
+      "domain": "History and heritage",
+      "bucket": "renderable_unreviewed",
+      "generationAvailability": "prepared_final",
+      "visualStatus": "pending",
+      "declaredVisualStatus": "pending",
+      "review": "BXP-048/review.json",
+      "reviewFileExists": false,
+      "reviewNotes": [],
+      "acceptanceChecks": {},
+      "beforeReceipt": null,
+      "afterReceipt": null,
+      "selectedSource": {
+        "path": "native_generation/visual_prep_045_050_20261009/BXP-048/a2ui.json",
+        "sha256": "d103501d60a8b1d19ecdaf567ca901aff2ce78b6cf3f1c89eee56bd6ac5b97bd",
+        "format": "json",
+        "origin": "visual_prep_045_050_20261009"
+      },
+      "preparedInputs": [
+        {
+          "path": "native_generation/visual_prep_045_050_20261009/BXP-048/a2ui.json",
+          "sha256": "d103501d60a8b1d19ecdaf567ca901aff2ce78b6cf3f1c89eee56bd6ac5b97bd",
+          "format": "json",
+          "origin": "visual_prep_045_050_20261009"
+        }
+      ],
+      "generationAttempts": [
+        {
+          "runId": "visual_prep_045_050_20261009",
+          "status": "valid",
+          "cause": null,
+          "result": "native_generation/visual_prep_045_050_20261009/BXP-048/result.json"
+        }
+      ],
+      "findings": {},
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-049",
+      "domain": "Traditional arts",
+      "bucket": "renderable_unreviewed",
+      "generationAvailability": "prepared_final",
+      "visualStatus": "pending",
+      "declaredVisualStatus": "pending",
+      "review": "BXP-049/review.json",
+      "reviewFileExists": false,
+      "reviewNotes": [],
+      "acceptanceChecks": {},
+      "beforeReceipt": null,
+      "afterReceipt": null,
+      "selectedSource": {
+        "path": "native_generation/visual_prep_045_050_20261009/BXP-049/a2ui.json",
+        "sha256": "49447160797762740f4a24474ab4fd116a3d55c378f8552b5478ef5872f00bc7",
+        "format": "json",
+        "origin": "visual_prep_045_050_20261009"
+      },
+      "preparedInputs": [
+        {
+          "path": "native_generation/visual_prep_045_050_20261009/BXP-049/a2ui.json",
+          "sha256": "49447160797762740f4a24474ab4fd116a3d55c378f8552b5478ef5872f00bc7",
+          "format": "json",
+          "origin": "visual_prep_045_050_20261009"
+        }
+      ],
+      "generationAttempts": [
+        {
+          "runId": "visual_prep_045_050_20261009",
+          "status": "valid",
+          "cause": null,
+          "result": "native_generation/visual_prep_045_050_20261009/BXP-049/result.json"
+        }
+      ],
+      "findings": {},
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    },
+    {
+      "id": "BXP-050",
+      "domain": "Ocean and monsoon science",
+      "bucket": "renderable_unreviewed",
+      "generationAvailability": "prepared_final",
+      "visualStatus": "pending",
+      "declaredVisualStatus": "pending",
+      "review": "BXP-050/review.json",
+      "reviewFileExists": false,
+      "reviewNotes": [],
+      "acceptanceChecks": {},
+      "beforeReceipt": null,
+      "afterReceipt": null,
+      "selectedSource": {
+        "path": "native_generation/visual_prep_045_050_20261009/BXP-050/a2ui.json",
+        "sha256": "8aedba272c53ea448847337d4114919b6bd5c013c2d677ab7fd7846f467e2576",
+        "format": "json",
+        "origin": "visual_prep_045_050_20261009"
+      },
+      "preparedInputs": [
+        {
+          "path": "native_generation/visual_prep_045_050_20261009/BXP-050/a2ui.json",
+          "sha256": "8aedba272c53ea448847337d4114919b6bd5c013c2d677ab7fd7846f467e2576",
+          "format": "json",
+          "origin": "visual_prep_045_050_20261009"
+        }
+      ],
+      "generationAttempts": [
+        {
+          "runId": "visual_prep_045_050_20261009",
+          "status": "valid",
+          "cause": null,
+          "result": "native_generation/visual_prep_045_050_20261009/BXP-050/result.json"
+        }
+      ],
+      "findings": {},
+      "sourceFidelityCertified": false,
+      "beforeRenderFailureBaseline": null
+    }
+  ],
+  "expectedBeforeRenderFailureCases": [
+    "BXP-018"
+  ],
+  "scope": "Fixed-50 rendering progress. Explicit notes and matching capture evidence are required for acceptance. Prepared/native-render-valid outputs and fidelity warning counts do not certify visual quality or model/source correctness.",
+  "refresh": "GenUICraft/validation/20261009_fold7_visual_review/refresh_progress.py",
+  "inputs": {
+    "generationManifest": "native_generation/manifest.json",
+    "explicitFindings": "review_findings.json",
+    "reviewPaths": "BXP-xxx/review.json"
+  }
+}

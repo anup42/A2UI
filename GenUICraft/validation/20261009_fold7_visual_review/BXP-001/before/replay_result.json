@@ -1,0 +1,59 @@
+{
+  "id": "BXP-001",
+  "kind": "renderer_replay",
+  "replayMode": "express",
+  "sourceRunId": "visual_review_20261009_source",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "visual_review_20261009_source/BXP-001/output.express",
+  "sourceExpressSha256": "59671e3b384c5410c8dfe6883c1d6b18a51009c8c69b54737c9b4c5a4af4b5db",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [
+    {
+      "id": "b",
+      "columns": [
+        "Date",
+        "High (°C)",
+        "Low (°C)",
+        "Rain probability"
+      ],
+      "observedHeaders": [
+        "Rain probability"
+      ],
+      "observedRepresentativeCells": [],
+      "missingColumns": [
+        "Date",
+        "High (°C)",
+        "Low (°C)"
+      ],
+      "horizontalScrollObserved": false
+    }
+  ],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 26
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 26
+    },
+    {
+      "name": "vertical_2",
+      "screenshot": true,
+      "visibleTextNodes": 26
+    }
+  ],
+  "verticalSwipes": 2,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [
+    "Unobserved table columns (b): [Date, High (°C), Low (°C)]"
+  ],
+  "status": "render_failure",
+  "replayElapsedMs": 2969
+}

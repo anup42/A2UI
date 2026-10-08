@@ -1,0 +1,10 @@
+<a2ui>
+$/={aqi_details:[{label:"Observation time",value:"8:30 AM IST"},{label:"Reported AQI scale",value:"AQI-IN 197"},{label:"Pollution category",value:"Poor"},{label:"Main pollutant",value:"PM2.5"}]}
+root=Column([a,b,c],gap="md",padding=16)
+a=Text("Delhi AQI","h2")
+b=Table(columns=[{key:"label",label:"Detail"},{key:"value",label:"Value"}],statePath="/aqi_details",domain="status",preferredPresentation="cards")
+c=Card([d])
+d=Column([e,f],"sm",padding=16)
+e=Text("Outdoor-activity guidance","h2")
+f=Text("For the Poor category, air pollution can cause breathing discomfort, so children, older adults, and people with respiratory issues should limit outdoor activities and wear a mask if they must go out.",variant="body")
+</a2ui>

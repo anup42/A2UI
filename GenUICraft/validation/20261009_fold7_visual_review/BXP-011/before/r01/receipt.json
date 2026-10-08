@@ -1,0 +1,417 @@
+{
+  "schemaVersion": 1,
+  "case": "BXP-011",
+  "phase": "before",
+  "attempt": "r01",
+  "startedAtUtc": "2026-10-08T20:32:46.873471+00:00",
+  "runId": "visual_BXP-011_before_r01_8e78ec95",
+  "status": "collected",
+  "automatedChecksSatisfied": true,
+  "visualReviewStatus": "pending",
+  "inferenceAttempted": false,
+  "provenance": {
+    "serial": "R3CY30QFWLP",
+    "deviceModel": "SM-F966B",
+    "fingerprint": "samsung/q7qxeea/q7q:16/BP4A.251205.006/F966BXXS9BZE2_OXM9BZE2:userdebug/test-keys",
+    "corpusSha256": "fc46aa381957bed206f9e0f53e28edbb21b5096ca093985ad184fda73faaea0a",
+    "apks": {
+      "com.samsung.genuicraft": [
+        {
+          "path": "/data/app/~~wR-r2WrCzM4Tbbf6U7nraw==/com.samsung.genuicraft-ievZkAc_YqB019m8v4Mcnw==/base.apk",
+          "sha256": "c3e924e6b30e871eb36f3cd1c6e58e7fa4b58e9ac88f8feb214f7fea7dc34b96"
+        }
+      ],
+      "com.samsung.genuicraft.test": [
+        {
+          "path": "/data/app/~~fFo8qAHcHZfzoEqWUwsTEw==/com.samsung.genuicraft.test-o8hY2YMtvYlCMVD5uNk0Eg==/base.apk",
+          "sha256": "8f5d6bb5312b2a7bc8e5d0771f455c12f8a4abeef9886fda42c561b2b4823d2e"
+        }
+      ]
+    },
+    "hostRendererSource": {
+      "files": 82,
+      "sha256": "472aae383773c51636a804a49e32cd9f966a7f057c9f935c997a75e7898f0ebb",
+      "note": "Host source fingerprint; installed APK hashes are recorded separately."
+    }
+  },
+  "source": {
+    "originalPath": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20261008_streaming_rendering\\native\\fold7_fp16_mtp_20261008\\BXP-011_on\\final.a2ui.json",
+    "sha256": "7f84fdbb4a88877262268312d14c088a8abffd56dcd195b2af7881783a09a05d",
+    "replayMode": "json",
+    "sourceMetadata": {
+      "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20261008_streaming_rendering\\native\\fold7_fp16_mtp_20261008\\BXP-011_on\\source.json",
+      "sha256": "4709102674081a74596ce14c14edb8cc5b3926bfa6c49f37a841d0c98b3e19cc",
+      "matchesFrozenCase": true
+    },
+    "documentOrigin": "Caller-selected saved final output; model provenance is not inferred from its filename.",
+    "archivedPath": "BXP-011/before/r01/input/BXP-011/output.a2ui.json",
+    "remotePath": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_benchmark/visual_BXP-011_before_r01_8e78ec95_input/BXP-011/output.a2ui.json",
+    "remoteSha256": "7f84fdbb4a88877262268312d14c088a8abffd56dcd195b2af7881783a09a05d"
+  },
+  "command": [
+    "C:\\Users\\anupk\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe",
+    "-s",
+    "R3CY30QFWLP",
+    "shell",
+    "am",
+    "instrument",
+    "-w",
+    "-r",
+    "-e",
+    "class",
+    "com.samsung.genuicraft.GenUiSdkBixby50Test#replaySavedBixbyCorpus",
+    "-e",
+    "sourceRunId",
+    "visual_BXP-011_before_r01_8e78ec95_input",
+    "-e",
+    "runId",
+    "visual_BXP-011_before_r01_8e78ec95",
+    "-e",
+    "cases",
+    "BXP-011",
+    "-e",
+    "replayMode",
+    "json",
+    "-e",
+    "maxVerticalSwipes",
+    "30",
+    "-e",
+    "maxHorizontalSwipes",
+    "8",
+    "-e",
+    "renderFontScale",
+    "1.0",
+    "-e",
+    "renderDark",
+    "false",
+    "com.samsung.genuicraft.test/androidx.test.runner.AndroidJUnitRunner"
+  ],
+  "remoteOutput": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_benchmark/visual_BXP-011_before_r01_8e78ec95",
+  "adbExitCode": 0,
+  "hostElapsedSeconds": 7.61,
+  "instrumentationPassed": true,
+  "result": {
+    "id": "BXP-011",
+    "kind": "renderer_replay",
+    "replayMode": "json",
+    "sourceRunId": "visual_BXP-011_before_r01_8e78ec95_input",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceJsonSha256": "7f84fdbb4a88877262268312d14c088a8abffd56dcd195b2af7881783a09a05d",
+    "sourceArtifact": "visual_BXP-011_before_r01_8e78ec95_input/BXP-011/output.a2ui.json",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Model",
+          "Indicative price",
+          "Display",
+          "Battery",
+          "Software support",
+          "Best for"
+        ],
+        "rowSource": "statePath:/phones",
+        "sourceRows": 3,
+        "sourceCells": 18,
+        "observedHeaders": [
+          "Model",
+          "Indicative price",
+          "Display",
+          "Battery",
+          "Software support",
+          "Best for"
+        ],
+        "observedRepresentativeCells": [
+          "OnePlus Nord CE 5",
+          "From ₹24,999",
+          "6.77-inch AMOLED, 120Hz [9][16]",
+          "7,100mAh, 80W charging",
+          "6 years of software support",
+          "Buyers wanting a big battery and smooth everyday performance",
+          "Samsung Galaxy A36 5G",
+          "Around ₹28,999 online; official India pricing is higher [10][21][36]",
+          "6.7-inch Super AMOLED, 120Hz [22][31]",
+          "5,000mAh[38]",
+          "6 OS upgrades and 6 years of security updates",
+          "Buyers who want the longest support and a balanced all-rounder",
+          "iQOO Z10",
+          "From about ₹20,255–₹22,999 [37][40]",
+          "6.77-inch AMOLED, 120Hz [29]",
+          "7,300mAh, 90W charging [23]",
+          "2 Android upgrades and 3 years of security patches",
+          "Buyers prioritizing battery life and fast charging"
+        ],
+        "cells": [
+          {
+            "row": 1,
+            "column": "Model",
+            "value": "OnePlus Nord CE 5",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 1,
+            "column": "Indicative price",
+            "value": "From ₹24,999",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 1,
+            "column": "Display",
+            "value": "6.77-inch AMOLED, 120Hz [9][16]",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 1,
+            "column": "Battery",
+            "value": "7,100mAh, 80W charging",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 1,
+            "column": "Software support",
+            "value": "6 years of software support",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 1,
+            "column": "Best for",
+            "value": "Buyers wanting a big battery and smooth everyday performance",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Model",
+            "value": "Samsung Galaxy A36 5G",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Indicative price",
+            "value": "Around ₹28,999 online; official India pricing is higher [10][21][36]",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Display",
+            "value": "6.7-inch Super AMOLED, 120Hz [22][31]",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Battery",
+            "value": "5,000mAh[38]",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Software support",
+            "value": "6 OS upgrades and 6 years of security updates",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Best for",
+            "value": "Buyers who want the longest support and a balanced all-rounder",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 3,
+            "column": "Model",
+            "value": "iQOO Z10",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 3,
+            "column": "Indicative price",
+            "value": "From about ₹20,255–₹22,999 [37][40]",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 3,
+            "column": "Display",
+            "value": "6.77-inch AMOLED, 120Hz [29]",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 3,
+            "column": "Battery",
+            "value": "7,300mAh, 90W charging [23]",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 3,
+            "column": "Software support",
+            "value": "2 Android upgrades and 3 years of security patches",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 3,
+            "column": "Best for",
+            "value": "Buyers prioritizing battery life and fast charging",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          }
+        ],
+        "missingCells": [],
+        "accessibilityOnlyCells": [],
+        "ambiguousRepeatedCells": [
+          {
+            "row": 1,
+            "column": "Display",
+            "value": "6.77-inch AMOLED, 120Hz [9][16]",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 3,
+            "column": "Display",
+            "value": "6.77-inch AMOLED, 120Hz [29]",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          }
+        ],
+        "displayedCellCoverageComplete": true,
+        "cellPlacementEvaluated": false,
+        "missingColumns": [],
+        "horizontalScrollObserved": false
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 33,
+        "fullyVisibleDescriptionNodes": 2
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 29,
+        "fullyVisibleDescriptionNodes": 2
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 29,
+        "fullyVisibleDescriptionNodes": 2
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "coverageStatus": "all_cell_values_observed",
+    "coverageDiagnosticsAffectRenderStatus": false,
+    "visualReviewRequired": true,
+    "status": "rendered",
+    "replayElapsedMs": 5821
+  },
+  "summary": {
+    "kind": "renderer_replay",
+    "replayMode": "json",
+    "runId": "visual_BXP-011_before_r01_8e78ec95",
+    "sourceRunId": "visual_BXP-011_before_r01_8e78ec95_input",
+    "total": 1,
+    "rendered": 1,
+    "failed": 0,
+    "repairRejected": 0,
+    "renderFailures": 0,
+    "renderedWithCoverageIssues": 0,
+    "casesWithIncompleteCellCoverage": 0,
+    "casesWithAmbiguousRepeatedCells": 1,
+    "coverageDiagnosticsAffectRenderStatus": false,
+    "visualReviewRequired": true,
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "repairCounts": {},
+    "sourceIntegrityAccepted": 0,
+    "sourceIntegrityRejected": 0,
+    "sourceIntegrityNotEvaluated": 0,
+    "sourceTextFallbacks": 0
+  },
+  "checks": {
+    "instrumentationPassed": true,
+    "singleSelectedCase": true,
+    "frozenCorpus": true,
+    "noInference": true,
+    "sameAcceptedInput": true,
+    "renderedWithoutIssues": true,
+    "capturesComplete": true,
+    "verticalEndObserved": true,
+    "allTableColumnsObserved": true
+  },
+  "documentHashes": {
+    "BXP-011/before/r01/artifacts/BXP-011/replay_result.json": "924dd3b73912326413e945008928f996cf701577e128f342bf00a30871b356c9",
+    "BXP-011/before/r01/artifacts/BXP-011/source.output.a2ui.json": "7f84fdbb4a88877262268312d14c088a8abffd56dcd195b2af7881783a09a05d",
+    "BXP-011/before/r01/artifacts/replay_config.json": "ef53f7706c43edd76fa9b9ec251a8fc8d06639d93496dffd32db5e1bbf9e68a2",
+    "BXP-011/before/r01/artifacts/replay_results.json": "73fe290b1115d82ab99b96c0e7743b7d1a79c088b27474cbc5db2d8a6a029149",
+    "BXP-011/before/r01/artifacts/replay_summary.json": "ec8fa73024b58fe99af5cc12dfe9bfee63971d2de036a969a0b0d59374201aa9"
+  },
+  "capturedFiles": [
+    {
+      "path": "BXP-011/before/r01/artifacts/BXP-011/initial.png",
+      "sha256": "ce027c441554c5a11dd7d315305356c90d367322d37e6fdcc32f4177239c9edb"
+    },
+    {
+      "path": "BXP-011/before/r01/artifacts/BXP-011/initial.xml",
+      "sha256": "bac88f3c0def0ee2ea68319ad681ddbce87cd4a05863eb2f369eb4c8a1179251"
+    },
+    {
+      "path": "BXP-011/before/r01/artifacts/BXP-011/vertical_1.png",
+      "sha256": "a3d69f84dad0b69bf3bd8cca799b51f513e721c51fd49068d0285cdea74417e6"
+    },
+    {
+      "path": "BXP-011/before/r01/artifacts/BXP-011/vertical_1.xml",
+      "sha256": "23a5189f077df9316c7a2a8068f1fca8ad74fa2680662b9060bf75a90da30a17"
+    },
+    {
+      "path": "BXP-011/before/r01/artifacts/BXP-011/vertical_2.png",
+      "sha256": "1158426dbcb9ee10c0b57d56d9c70750661c861921e6e3892bc1d4bb689ba258"
+    },
+    {
+      "path": "BXP-011/before/r01/artifacts/BXP-011/vertical_2.xml",
+      "sha256": "23a5189f077df9316c7a2a8068f1fca8ad74fa2680662b9060bf75a90da30a17"
+    }
+  ],
+  "finishedAtUtc": "2026-10-08T20:32:55.419729+00:00"
+}

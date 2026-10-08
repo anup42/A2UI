@@ -1,0 +1,387 @@
+{
+  "schemaVersion": 1,
+  "case": "BXP-019",
+  "phase": "before",
+  "attempt": "r01",
+  "startedAtUtc": "2026-10-08T21:38:55.990300+00:00",
+  "runId": "visual_BXP-019_before_r01_c456b6af",
+  "status": "collected",
+  "automatedChecksSatisfied": true,
+  "visualReviewStatus": "pending",
+  "inferenceAttempted": false,
+  "provenance": {
+    "serial": "R3CY30QFWLP",
+    "deviceModel": "SM-F966B",
+    "fingerprint": "samsung/q7qxeea/q7q:16/BP4A.251205.006/F966BXXS9BZE2_OXM9BZE2:userdebug/test-keys",
+    "corpusSha256": "fc46aa381957bed206f9e0f53e28edbb21b5096ca093985ad184fda73faaea0a",
+    "apks": {
+      "com.samsung.genuicraft": [
+        {
+          "path": "/data/app/~~1y8oWTv6vvgCHhhFkgtseA==/com.samsung.genuicraft-RF8VtkIzk22Jqk_gA8Gpbw==/base.apk",
+          "sha256": "a0b65c4416901f1412cac70340fc8d74639064f272fd36aba69f5b943206290c"
+        }
+      ],
+      "com.samsung.genuicraft.test": [
+        {
+          "path": "/data/app/~~fFo8qAHcHZfzoEqWUwsTEw==/com.samsung.genuicraft.test-o8hY2YMtvYlCMVD5uNk0Eg==/base.apk",
+          "sha256": "8f5d6bb5312b2a7bc8e5d0771f455c12f8a4abeef9886fda42c561b2b4823d2e"
+        }
+      ]
+    },
+    "hostRendererSource": {
+      "files": 86,
+      "sha256": "f0606aa0e6ae91beceb40266163d83ecd391efa2497e972ed32c65477c16a13d",
+      "note": "Host source fingerprint; installed APK hashes are recorded separately."
+    }
+  },
+  "source": {
+    "originalPath": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20261009_fold7_visual_review\\native_generation\\visual_prep_016_022_20261009\\BXP-019\\a2ui.json",
+    "sha256": "8678392b11be8429ba873a6578a9f3e45979003f0daa3e1254e4edae2ac221b1",
+    "replayMode": "json",
+    "sourceMetadata": {
+      "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20261009_fold7_visual_review\\native_generation\\visual_prep_016_022_20261009\\BXP-019\\source.json",
+      "sha256": "78971ff74949a1c7fca63b06dac7f72a0ee9b220aecfce7e20e49238892cca88",
+      "matchesFrozenCase": true
+    },
+    "documentOrigin": "Caller-selected saved final output; model provenance is not inferred from its filename.",
+    "archivedPath": "BXP-019/before/r01/input/BXP-019/output.a2ui.json",
+    "remotePath": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_benchmark/visual_BXP-019_before_r01_c456b6af_input/BXP-019/output.a2ui.json",
+    "remoteSha256": "8678392b11be8429ba873a6578a9f3e45979003f0daa3e1254e4edae2ac221b1"
+  },
+  "command": [
+    "C:\\Users\\anupk\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe",
+    "-s",
+    "R3CY30QFWLP",
+    "shell",
+    "am",
+    "instrument",
+    "-w",
+    "-r",
+    "-e",
+    "class",
+    "com.samsung.genuicraft.GenUiSdkBixby50Test#replaySavedBixbyCorpus",
+    "-e",
+    "sourceRunId",
+    "visual_BXP-019_before_r01_c456b6af_input",
+    "-e",
+    "runId",
+    "visual_BXP-019_before_r01_c456b6af",
+    "-e",
+    "cases",
+    "BXP-019",
+    "-e",
+    "replayMode",
+    "json",
+    "-e",
+    "maxVerticalSwipes",
+    "30",
+    "-e",
+    "maxHorizontalSwipes",
+    "8",
+    "-e",
+    "renderFontScale",
+    "1.0",
+    "-e",
+    "renderDark",
+    "false",
+    "com.samsung.genuicraft.test/androidx.test.runner.AndroidJUnitRunner"
+  ],
+  "remoteOutput": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_benchmark/visual_BXP-019_before_r01_c456b6af",
+  "adbExitCode": 0,
+  "hostElapsedSeconds": 7.312,
+  "instrumentationPassed": true,
+  "result": {
+    "id": "BXP-019",
+    "kind": "renderer_replay",
+    "replayMode": "json",
+    "sourceRunId": "visual_BXP-019_before_r01_c456b6af_input",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceJsonSha256": "8678392b11be8429ba873a6578a9f3e45979003f0daa3e1254e4edae2ac221b1",
+    "sourceArtifact": "visual_BXP-019_before_r01_c456b6af_input/BXP-019/output.a2ui.json",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Game",
+          "Age rating",
+          "Co-op support",
+          "Players",
+          "Indicative India price"
+        ],
+        "rowSource": "statePath:/games_data",
+        "sourceRows": 3,
+        "sourceCells": 15,
+        "observedHeaders": [
+          "Game",
+          "Age rating",
+          "Co-op support",
+          "Players",
+          "Indicative India price"
+        ],
+        "observedRepresentativeCells": [
+          "It Takes Two",
+          "13+ for online features",
+          "Online co-op; Friend’s Pass supports inviting a friend",
+          "2",
+          "₹2,199; SteamDB shows ₹659 on a past promotion [1][21][40]",
+          "Unravel Two",
+          "13+ or 16+ to register an EA account, depending on region",
+          "Local co-op; also playable solo",
+          "₹1,199; SteamDB shows ₹299 on a past promotion [2][29][31]",
+          "Overcooked! 2",
+          "No formal age rating listed on the store page",
+          "Local couch co-op and online play",
+          "1-4",
+          "₹1,920 on Steam; Steam page shows $24.99 and supports up to four players [4][17]"
+        ],
+        "cells": [
+          {
+            "row": 1,
+            "column": "Game",
+            "value": "It Takes Two",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 1,
+            "column": "Age rating",
+            "value": "13+ for online features",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 1,
+            "column": "Co-op support",
+            "value": "Online co-op; Friend’s Pass supports inviting a friend",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 1,
+            "column": "Players",
+            "value": "2",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 1,
+            "column": "Indicative India price",
+            "value": "₹2,199; SteamDB shows ₹659 on a past promotion [1][21][40]",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Game",
+            "value": "Unravel Two",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Age rating",
+            "value": "13+ or 16+ to register an EA account, depending on region",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Co-op support",
+            "value": "Local co-op; also playable solo",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Players",
+            "value": "2",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 2,
+            "column": "Indicative India price",
+            "value": "₹1,199; SteamDB shows ₹299 on a past promotion [2][29][31]",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 3,
+            "column": "Game",
+            "value": "Overcooked! 2",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 3,
+            "column": "Age rating",
+            "value": "No formal age rating listed on the store page",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 3,
+            "column": "Co-op support",
+            "value": "Local couch co-op and online play",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 3,
+            "column": "Players",
+            "value": "1-4",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 3,
+            "column": "Indicative India price",
+            "value": "₹1,920 on Steam; Steam page shows $24.99 and supports up to four players [4][17]",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          }
+        ],
+        "missingCells": [],
+        "accessibilityOnlyCells": [],
+        "ambiguousRepeatedCells": [
+          {
+            "row": 1,
+            "column": "Players",
+            "value": "2",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 2,
+            "column": "Players",
+            "value": "2",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          }
+        ],
+        "displayedCellCoverageComplete": true,
+        "cellPlacementEvaluated": false,
+        "missingColumns": [],
+        "horizontalScrollObserved": false
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 28,
+        "fullyVisibleDescriptionNodes": 4
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 21,
+        "fullyVisibleDescriptionNodes": 1
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 21,
+        "fullyVisibleDescriptionNodes": 1
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "coverageStatus": "all_cell_values_observed",
+    "coverageDiagnosticsAffectRenderStatus": false,
+    "visualReviewRequired": true,
+    "status": "rendered",
+    "replayElapsedMs": 5408
+  },
+  "summary": {
+    "kind": "renderer_replay",
+    "replayMode": "json",
+    "runId": "visual_BXP-019_before_r01_c456b6af",
+    "sourceRunId": "visual_BXP-019_before_r01_c456b6af_input",
+    "total": 1,
+    "rendered": 1,
+    "failed": 0,
+    "repairRejected": 0,
+    "renderFailures": 0,
+    "renderedWithCoverageIssues": 0,
+    "casesWithIncompleteCellCoverage": 0,
+    "casesWithAmbiguousRepeatedCells": 1,
+    "coverageDiagnosticsAffectRenderStatus": false,
+    "visualReviewRequired": true,
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "repairCounts": {},
+    "sourceIntegrityAccepted": 0,
+    "sourceIntegrityRejected": 0,
+    "sourceIntegrityNotEvaluated": 0,
+    "sourceTextFallbacks": 0
+  },
+  "checks": {
+    "instrumentationPassed": true,
+    "singleSelectedCase": true,
+    "frozenCorpus": true,
+    "noInference": true,
+    "sameAcceptedInput": true,
+    "renderedWithoutIssues": true,
+    "capturesComplete": true,
+    "verticalEndObserved": true,
+    "allTableColumnsObserved": true
+  },
+  "documentHashes": {
+    "BXP-019/before/r01/artifacts/BXP-019/replay_result.json": "e5e06ec6b29eb806bb8ea6f62550b28f7fdb534da797b989edbb2e7f1d3c5d33",
+    "BXP-019/before/r01/artifacts/BXP-019/source.output.a2ui.json": "8678392b11be8429ba873a6578a9f3e45979003f0daa3e1254e4edae2ac221b1",
+    "BXP-019/before/r01/artifacts/replay_config.json": "cf50e4cf697152e7a19de8958c28f444d560c09d628cc6e000df5d8a1c87d5b3",
+    "BXP-019/before/r01/artifacts/replay_results.json": "2e559eeafabc2c472c7e0e93c8401f4593249b5d14540154265123d4944688be",
+    "BXP-019/before/r01/artifacts/replay_summary.json": "dc8a176e33efdc4db7f1a2f665dd963bc02364d43c91aa1837cf466ce9f40f95"
+  },
+  "capturedFiles": [
+    {
+      "path": "BXP-019/before/r01/artifacts/BXP-019/initial.png",
+      "sha256": "cb0e6f9ba41a8971025d86c9c9550ddf61986f006c902a6222a99c786f9f4b98"
+    },
+    {
+      "path": "BXP-019/before/r01/artifacts/BXP-019/initial.xml",
+      "sha256": "7a1a2256e38c62448085f7eb59c39c4ae53c16eec6408efe239921a7c2a6b55d"
+    },
+    {
+      "path": "BXP-019/before/r01/artifacts/BXP-019/vertical_1.png",
+      "sha256": "4fb3f40557771f54e8afe8ae7fde0e918ef0139c6cd5e822a48fe874e5d915a3"
+    },
+    {
+      "path": "BXP-019/before/r01/artifacts/BXP-019/vertical_1.xml",
+      "sha256": "03afae8988922fbb70d0bfd75e2d5db2c1006fdd5349efcf409b43585125fbbf"
+    },
+    {
+      "path": "BXP-019/before/r01/artifacts/BXP-019/vertical_2.png",
+      "sha256": "d41d48cbc66c3c0abdd27e02a6ccdd15733e891cdc271174cdbceaabb1d18f05"
+    },
+    {
+      "path": "BXP-019/before/r01/artifacts/BXP-019/vertical_2.xml",
+      "sha256": "03afae8988922fbb70d0bfd75e2d5db2c1006fdd5349efcf409b43585125fbbf"
+    }
+  ],
+  "finishedAtUtc": "2026-10-08T21:39:04.286944+00:00"
+}

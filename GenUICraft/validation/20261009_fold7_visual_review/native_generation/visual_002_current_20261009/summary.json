@@ -1,0 +1,21 @@
+{
+  "runId": "visual_002_current_20261009",
+  "profile": "trained_e2b_v10_w4",
+  "total": 1,
+  "completed": 1,
+  "strictValid": 1,
+  "strictInvalid": 0,
+  "renderValid": 1,
+  "renderInvalid": 0,
+  "renderNotAttempted": 0,
+  "valid": 1,
+  "invalid": 0,
+  "timeouts": 0,
+  "runtimeErrors": 0,
+  "caseErrors": 0,
+  "providerCalls": 1,
+  "providerCloseError": null,
+  "runComplete": true,
+  "allValid": true,
+  "finishedAtEpochMs": 1791484891312
+}

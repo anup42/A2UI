@@ -1,0 +1,12 @@
+{
+  "status": "accepted",
+  "notes": [
+    "SDK0.6.5 groups the existing cabin allowance, checked allowance, charges and exceptions into four compact information panels with smaller headings. Every original paragraph, dimension, amount, per-kg qualifier and fare exception remains readable across captured pages. Exact Express bytes unchanged. This source contains prose, so no invented weight badges, bag counts or fare actions were added."
+  ],
+  "reviewer": "codex",
+  "updatedAtUtc": "2026-10-08T19:47:05.622400+00:00",
+  "reviewedAfterReceipt": "BXP-004/after/r01/receipt.json",
+  "reviewedAfterReceiptSha256": "2bbde219fc9f09fb56a658f9b5312cabeaebeaede2dfa5edd35b633df239c779",
+  "sourceSha256": "2c00b9414017a7400a66c2c9061057cbefcde3d454956375bb2c8c4863fe584a",
+  "scope": "Explicit visual review of the referenced after captures; source fidelity is not certified."
+}

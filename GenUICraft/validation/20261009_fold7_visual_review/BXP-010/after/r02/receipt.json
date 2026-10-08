@@ -1,0 +1,310 @@
+{
+  "schemaVersion": 1,
+  "case": "BXP-010",
+  "phase": "after",
+  "attempt": "r02",
+  "startedAtUtc": "2026-10-08T20:56:17.996840+00:00",
+  "runId": "visual_BXP-010_after_r02_e7210bf2",
+  "status": "collected",
+  "automatedChecksSatisfied": true,
+  "visualReviewStatus": "pending",
+  "inferenceAttempted": false,
+  "provenance": {
+    "serial": "R3CY30QFWLP",
+    "deviceModel": "SM-F966B",
+    "fingerprint": "samsung/q7qxeea/q7q:16/BP4A.251205.006/F966BXXS9BZE2_OXM9BZE2:userdebug/test-keys",
+    "corpusSha256": "fc46aa381957bed206f9e0f53e28edbb21b5096ca093985ad184fda73faaea0a",
+    "apks": {
+      "com.samsung.genuicraft": [
+        {
+          "path": "/data/app/~~6m8FVSLyONv0kR00Cld_qQ==/com.samsung.genuicraft-0w_M_vqnCKjPIjvn4lLIfQ==/base.apk",
+          "sha256": "ab76bf514ca123b0f19c110285ceeb873464f70948f761a1f4e01771a9f4aa88"
+        }
+      ],
+      "com.samsung.genuicraft.test": [
+        {
+          "path": "/data/app/~~fFo8qAHcHZfzoEqWUwsTEw==/com.samsung.genuicraft.test-o8hY2YMtvYlCMVD5uNk0Eg==/base.apk",
+          "sha256": "8f5d6bb5312b2a7bc8e5d0771f455c12f8a4abeef9886fda42c561b2b4823d2e"
+        }
+      ]
+    },
+    "hostRendererSource": {
+      "files": 83,
+      "sha256": "e21aa8334795ad12848c9babe23092e606fbae38712e5a6f76400625ce7d3d6f",
+      "note": "Host source fingerprint; installed APK hashes are recorded separately."
+    }
+  },
+  "source": {
+    "originalPath": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20261009_fold7_visual_review\\BXP-010\\before\\r01\\input\\BXP-010\\output.a2ui.json",
+    "sha256": "e54a9d7e8f4a8fa3f714d0befce8383383b04461c06b9acfc77478abc3d11935",
+    "replayMode": "json",
+    "pinnedBeforeReceipt": "BXP-010/before/r01/receipt.json",
+    "pinnedBeforeReceiptSha256": "e26ec73999afcefb382b2da917b89de58299e01af7dc8bf209c18c04b8149f74",
+    "documentOrigin": "Caller-selected saved final output; model provenance is not inferred from its filename.",
+    "archivedPath": "BXP-010/after/r02/input/BXP-010/output.a2ui.json",
+    "remotePath": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_benchmark/visual_BXP-010_after_r02_e7210bf2_input/BXP-010/output.a2ui.json",
+    "remoteSha256": "e54a9d7e8f4a8fa3f714d0befce8383383b04461c06b9acfc77478abc3d11935"
+  },
+  "command": [
+    "C:\\Users\\anupk\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe",
+    "-s",
+    "R3CY30QFWLP",
+    "shell",
+    "am",
+    "instrument",
+    "-w",
+    "-r",
+    "-e",
+    "class",
+    "com.samsung.genuicraft.GenUiSdkBixby50Test#replaySavedBixbyCorpus",
+    "-e",
+    "sourceRunId",
+    "visual_BXP-010_after_r02_e7210bf2_input",
+    "-e",
+    "runId",
+    "visual_BXP-010_after_r02_e7210bf2",
+    "-e",
+    "cases",
+    "BXP-010",
+    "-e",
+    "replayMode",
+    "json",
+    "-e",
+    "maxVerticalSwipes",
+    "30",
+    "-e",
+    "maxHorizontalSwipes",
+    "8",
+    "-e",
+    "renderFontScale",
+    "1.0",
+    "-e",
+    "renderDark",
+    "false",
+    "com.samsung.genuicraft.test/androidx.test.runner.AndroidJUnitRunner"
+  ],
+  "remoteOutput": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_benchmark/visual_BXP-010_after_r02_e7210bf2",
+  "adbExitCode": 0,
+  "hostElapsedSeconds": 6.437,
+  "instrumentationPassed": true,
+  "result": {
+    "id": "BXP-010",
+    "kind": "renderer_replay",
+    "replayMode": "json",
+    "sourceRunId": "visual_BXP-010_after_r02_e7210bf2_input",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceJsonSha256": "e54a9d7e8f4a8fa3f714d0befce8383383b04461c06b9acfc77478abc3d11935",
+    "sourceArtifact": "visual_BXP-010_after_r02_e7210bf2_input/BXP-010/output.a2ui.json",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "d",
+        "columns": [
+          "Model",
+          "Price",
+          "Features/Trade-offs"
+        ],
+        "rowSource": "statePath:/options",
+        "sourceRows": 3,
+        "sourceCells": 9,
+        "observedHeaders": [
+          "Model",
+          "Price",
+          "Features/Trade-offs"
+        ],
+        "observedRepresentativeCells": [
+          "OnePlus Nord Buds 4 Pro",
+          "₹3,999",
+          "up to 55dB ANC, up to 54 hours total playback; main trade-off: strong feature set, but the review notes some connectivity and low-end clarity issues [6][2]",
+          "Realme Buds Air 8",
+          "₹3,799",
+          "up to 55dB ANC, up to 58 hours total playback; main trade-off: feature-rich, but users may need to accept a more compromised tuning/controls experience.",
+          "Oppo Enco Buds 3 Pro+",
+          "₹2,999",
+          "up to 32dB ANC, up to 43 hours total playback; main trade-off: cheaper and comfortable, but ANC is weaker than the two above [7]"
+        ],
+        "cells": [
+          {
+            "row": 1,
+            "column": "Model",
+            "value": "OnePlus Nord Buds 4 Pro",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 1,
+            "column": "Price",
+            "value": "₹3,999",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 1,
+            "column": "Features/Trade-offs",
+            "value": "up to 55dB ANC, up to 54 hours total playback; main trade-off: strong feature set, but the review notes some connectivity and low-end clarity issues [6][2]",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Model",
+            "value": "Realme Buds Air 8",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Price",
+            "value": "₹3,799",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Features/Trade-offs",
+            "value": "up to 55dB ANC, up to 58 hours total playback; main trade-off: feature-rich, but users may need to accept a more compromised tuning/controls experience.",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 3,
+            "column": "Model",
+            "value": "Oppo Enco Buds 3 Pro+",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 3,
+            "column": "Price",
+            "value": "₹2,999",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 3,
+            "column": "Features/Trade-offs",
+            "value": "up to 32dB ANC, up to 43 hours total playback; main trade-off: cheaper and comfortable, but ANC is weaker than the two above [7]",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          }
+        ],
+        "missingCells": [],
+        "accessibilityOnlyCells": [],
+        "ambiguousRepeatedCells": [],
+        "displayedCellCoverageComplete": true,
+        "cellPlacementEvaluated": false,
+        "missingColumns": [],
+        "horizontalScrollObserved": false
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 20,
+        "fullyVisibleDescriptionNodes": 4
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 20,
+        "fullyVisibleDescriptionNodes": 4
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 20,
+        "fullyVisibleDescriptionNodes": 4
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "coverageStatus": "all_cell_values_observed",
+    "coverageDiagnosticsAffectRenderStatus": false,
+    "visualReviewRequired": true,
+    "status": "rendered",
+    "replayElapsedMs": 4507
+  },
+  "summary": {
+    "kind": "renderer_replay",
+    "replayMode": "json",
+    "runId": "visual_BXP-010_after_r02_e7210bf2",
+    "sourceRunId": "visual_BXP-010_after_r02_e7210bf2_input",
+    "total": 1,
+    "rendered": 1,
+    "failed": 0,
+    "repairRejected": 0,
+    "renderFailures": 0,
+    "renderedWithCoverageIssues": 0,
+    "casesWithIncompleteCellCoverage": 0,
+    "casesWithAmbiguousRepeatedCells": 0,
+    "coverageDiagnosticsAffectRenderStatus": false,
+    "visualReviewRequired": true,
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "repairCounts": {},
+    "sourceIntegrityAccepted": 0,
+    "sourceIntegrityRejected": 0,
+    "sourceIntegrityNotEvaluated": 0,
+    "sourceTextFallbacks": 0
+  },
+  "checks": {
+    "instrumentationPassed": true,
+    "singleSelectedCase": true,
+    "frozenCorpus": true,
+    "noInference": true,
+    "sameAcceptedInput": true,
+    "renderedWithoutIssues": true,
+    "capturesComplete": true,
+    "verticalEndObserved": true,
+    "allTableColumnsObserved": true
+  },
+  "documentHashes": {
+    "BXP-010/after/r02/artifacts/BXP-010/replay_result.json": "a3bde3d552c67decc0db7f928c6747a7425c260c272c665bc3abe61331897c3a",
+    "BXP-010/after/r02/artifacts/BXP-010/source.output.a2ui.json": "e54a9d7e8f4a8fa3f714d0befce8383383b04461c06b9acfc77478abc3d11935",
+    "BXP-010/after/r02/artifacts/replay_config.json": "941f1cffc124423c695b1d9c5304fbb95790bd76ce45f9f032e551599ea6fc12",
+    "BXP-010/after/r02/artifacts/replay_results.json": "f6110d73840537ce3f550c0e7cd744b93d1dfb6c946f5aa4b82510092b5c18fd",
+    "BXP-010/after/r02/artifacts/replay_summary.json": "0bef4058793d3b034d2aba942db25efbb1b4f7ed09ab8d021fd51d89083511ec"
+  },
+  "capturedFiles": [
+    {
+      "path": "BXP-010/after/r02/artifacts/BXP-010/initial.png",
+      "sha256": "1047e9c7e51bd102226132ebd734f05d63aecd34c64ddc40b453a86d572b6209"
+    },
+    {
+      "path": "BXP-010/after/r02/artifacts/BXP-010/initial.xml",
+      "sha256": "7d947ada2df4c9b36fef0a75fef938ddcd8acb0c6731346e8b5dd7a590dfdca1"
+    },
+    {
+      "path": "BXP-010/after/r02/artifacts/BXP-010/vertical_1.png",
+      "sha256": "e0bda5128e97e9bebc60abe970f89765f7e0ded1addc1d12ed3a35e4c14fb334"
+    },
+    {
+      "path": "BXP-010/after/r02/artifacts/BXP-010/vertical_1.xml",
+      "sha256": "540b5c10182371153cf71011653ceca2dd0ef5a724a1cf0fd92bd04e9fbccaf3"
+    },
+    {
+      "path": "BXP-010/after/r02/artifacts/BXP-010/vertical_2.png",
+      "sha256": "b7965d1eeda42f1866b2a25dae4ba974f41f22ac19d71fbafd77aa7ce3decb4e"
+    },
+    {
+      "path": "BXP-010/after/r02/artifacts/BXP-010/vertical_2.xml",
+      "sha256": "540b5c10182371153cf71011653ceca2dd0ef5a724a1cf0fd92bd04e9fbccaf3"
+    }
+  ],
+  "finishedAtUtc": "2026-10-08T20:56:25.476724+00:00"
+}

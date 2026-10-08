@@ -1,0 +1,11 @@
+<a2ui>
+$/={billboard_chart:[{rank:"1",title:"“Hate That I Made You Love Me” — Ariana Grande",date:"September 5, 2026"},{rank:"2",title:"“Choosin' Texas” — Ella Langley",date:"September 5, 2026"},{rank:"3",title:"“Loser” — Tame Impala",date:"September 5, 2026"},{rank:"4",title:"“Hate That I Made You Love Me” — Ariana Grande",date:"September 5, 2026"},{rank:"5",title:"“BbY WOW” — Karol G With Judeline & rusowsky",date:"September 5, 2026"}]}
+root=Column([a,b,c,f],"lg")
+a=Text("Top 5 on the latest published Billboard Global 200","h2")
+b=Table(columns=[{key:"rank",label:"Rank"},{key:"title",label:"Song Title"},{key:"date",label:"Chart Week Date"}],statePath="/billboard_chart",domain="playlist",preferredPresentation="cards",primaryColumn="title")
+c=Column([d,e],"sm")
+d=Text("Two observations","h2")
+e=Column([f,g],"sm")
+f=Text("The chart is currently led by Ariana Grande, who also appears multiple times in the top tier, indicating strong streaming and sales momentum.","caption")
+g=Text("The top five mix global pop, Latin, and country-leaning acts, showing the chart’s broad international range rather than a single-genre dominance.","caption")
+</a2ui>

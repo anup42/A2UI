@@ -1,0 +1,3 @@
+<a2ui>
+$/={household_vs_city:[{level:"Household",measures:"Clear local inlets, secure valuables, harvest rainwater, avoid waste dumping",impact:"Lowers damage at one property"},{level:"City",measures:"Restore drains and lakes, enforce no-build buffers, remove encroachments, improve SWD maintenance and solid-waste control",impact:"Reduces flooding across neighborhoods"}]}
+root=Column([a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t

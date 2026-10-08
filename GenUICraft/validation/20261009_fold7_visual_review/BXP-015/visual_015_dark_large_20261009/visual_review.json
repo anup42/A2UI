@@ -1,0 +1,70 @@
+{
+  "kind": "saved_capture_visual_review",
+  "case": "BXP-015",
+  "runId": "visual_015_dark_large_20261009",
+  "scope": "Independent visual inspection of every saved dark/font1.3 screenshot; exact literal source text checked across text nodes with only whitespace and label-colon normalization. No generation or source factual accuracy evaluated.",
+  "sourceSha256": "741fb60af79c62a1efde0572ff1eafad6642cc0718432cbf89e8dd21d410cbcc",
+  "renderDark": true,
+  "renderFontScale": 1.3,
+  "allCapturesVisuallyInspected": true,
+  "visualVerdict": "accepted",
+  "captures": [
+    {
+      "name": "initial",
+      "pngSha256": "3aa061b96c5689a3722c28a49ffb08e5c8610a4ae0e3d5ae7dbff2a982d0e054",
+      "xmlSha256": "e36b07f9f4cb569cf53c5ac4714702bc3c9d8a0bf6891660b0da10f610ddb5a0"
+    },
+    {
+      "name": "vertical_1",
+      "pngSha256": "3aa061b96c5689a3722c28a49ffb08e5c8610a4ae0e3d5ae7dbff2a982d0e054",
+      "xmlSha256": "e36b07f9f4cb569cf53c5ac4714702bc3c9d8a0bf6891660b0da10f610ddb5a0"
+    }
+  ],
+  "sourceTextChecks": [
+    {
+      "sourceText": "Latest completed India men’s international match",
+      "observedAcrossDisplayedText": true
+    },
+    {
+      "sourceText": "Date: July 2026, at Galle International Stadium, Galle[13]",
+      "observedAcrossDisplayedText": true
+    },
+    {
+      "sourceText": "Opponent: Sri Lanka",
+      "observedAcrossDisplayedText": true
+    },
+    {
+      "sourceText": "Format: Test match",
+      "observedAcrossDisplayedText": true
+    },
+    {
+      "sourceText": "India scores: 462 and 193/48.5",
+      "observedAcrossDisplayedText": true
+    },
+    {
+      "sourceText": "Sri Lanka scores: 284 and 206",
+      "observedAcrossDisplayedText": true
+    },
+    {
+      "sourceText": "Result: India won by 165 runs",
+      "observedAcrossDisplayedText": true
+    },
+    {
+      "sourceText": "Standout performances",
+      "observedAcrossDisplayedText": true
+    },
+    {
+      "sourceText": "India’s first-innings 462 set the match in control and created a large lead that Sri Lanka could not overcome.",
+      "observedAcrossDisplayedText": true
+    },
+    {
+      "sourceText": "India’s all-round bowling effort restricted Sri Lanka to 284 in the first innings and 206 in the chase, sealing the win by a substantial margin.",
+      "observedAcrossDisplayedText": true
+    }
+  ],
+  "notes": [
+    "Both saved PNGs show the same complete viewport with no clipping. Date/venue/citation, opponent, format, both exact score strings, result and both full standout paragraphs retained.",
+    "Supplied score wording 193/48.5 is preserved. Factual correctness and whether this is the latest real match were not evaluated.",
+    "Replay has no tables; its all_cell_values_observed status does not establish prose coverage. The independent literal-text checks above and screenshot inspection provide that evidence."
+  ]
+}

@@ -1,0 +1,453 @@
+{
+  "schemaVersion": 1,
+  "case": "BXP-007",
+  "phase": "before",
+  "attempt": "r01",
+  "startedAtUtc": "2026-10-08T19:50:30.666553+00:00",
+  "runId": "visual_BXP-007_before_r01_341693c0",
+  "status": "collected",
+  "automatedChecksSatisfied": true,
+  "visualReviewStatus": "pending",
+  "inferenceAttempted": false,
+  "provenance": {
+    "serial": "R3CY30QFWLP",
+    "deviceModel": "SM-F966B",
+    "fingerprint": "samsung/q7qxeea/q7q:16/BP4A.251205.006/F966BXXS9BZE2_OXM9BZE2:userdebug/test-keys",
+    "corpusSha256": "fc46aa381957bed206f9e0f53e28edbb21b5096ca093985ad184fda73faaea0a",
+    "apks": {
+      "com.samsung.genuicraft": [
+        {
+          "path": "/data/app/~~b6P3d9nanx03T9xqMRucDw==/com.samsung.genuicraft-AGQ7s_JK1nu0AtuiKncDLw==/base.apk",
+          "sha256": "c201fb0173e4c28f7d0270ee00750a9f96d04e85b7381ab5e9e2d9d11598be9e"
+        }
+      ],
+      "com.samsung.genuicraft.test": [
+        {
+          "path": "/data/app/~~IOcLfsneWRTni7DJOOnhHw==/com.samsung.genuicraft.test-T0J-8n_HsOQJ9elr0G8SfQ==/base.apk",
+          "sha256": "f98049546fd93086d7fa31eb090b041a16a3d9ee568780c1477a50f15e653638"
+        }
+      ]
+    },
+    "hostRendererSource": {
+      "files": 80,
+      "sha256": "c1a02b9c18e8332ce8605728791642839dd9a78bbb664b1568d0c97a72a9eba6",
+      "note": "Host source fingerprint; installed APK hashes are recorded separately."
+    }
+  },
+  "source": {
+    "originalPath": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20261009_fold7_visual_review\\native_generation\\visual_prep_005_010_20261009\\BXP-007\\a2ui.json",
+    "sha256": "b56303379b539a0bd7c7930ca57b07467abb33f5994ebac3c47fd035e5ee592a",
+    "replayMode": "json",
+    "sourceMetadata": {
+      "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20261009_fold7_visual_review\\native_generation\\visual_prep_005_010_20261009\\BXP-007\\source.json",
+      "sha256": "69530508b6993b8541b694b80b6f06e8e5e91399068cbd97c26d299bca1de333",
+      "matchesFrozenCase": true
+    },
+    "callerSuppliedProvenance": {
+      "id": "BXP-007",
+      "status": "valid",
+      "strictValid": true,
+      "renderValid": true,
+      "elapsedMs": 13044,
+      "firstInRun": false,
+      "attempts": 1,
+      "startedAtEpochMs": 1791485068256,
+      "deviceBefore": {
+        "epochMs": 1791485068256,
+        "thermalStatus": 0,
+        "batteryTemperatureC": 31.4,
+        "batteryLevel": 100,
+        "plugged": 2
+      },
+      "metrics": {
+        "inputTokens": 3276,
+        "outputTokens": 430,
+        "decodeTokensPerSecond": 40.32880305348381,
+        "providerCallMs": 12931,
+        "prefillTokensPerSecond": 1452.2187193528544,
+        "timeToFirstTokenSeconds": 2.2806547135,
+        "engineInitializationSeconds": null,
+        "engineInitializedForRequest": false,
+        "nativeInitializationPhaseSeconds": null,
+        "finishReason": "COMPLETED",
+        "finishDetail": null
+      },
+      "provider": "gemma4_e2b",
+      "providerCalls": 1,
+      "rawStrictValid": true,
+      "runtime": "LiteRT-LM/Gemma4/GPU+FP16_CORRECTED+MTP",
+      "renderedPromptSha256": "415ad0f8d75a8a719b9432b3fc5d15a23592fc1408c6c753ec4c0e84e50a21ec",
+      "repairKind": "GENERATED_DSL_REPAIR",
+      "usedFallback": false,
+      "sourceFidelityWarnings": 7,
+      "warnings": [
+        "Runtime: LiteRT-LM/Gemma4/GPU+FP16_CORRECTED+MTP",
+        "Generated-output diagnostic mode: renders repaired model output; no source-text fallback.",
+        "Source fidelity warning: generated output may omit or change source details. It is not a faithful conversion.",
+        "Source fidelity: Conversion must use literal content, without generated state.",
+        "Source fidelity: Conversion must use literal source content.",
+        "Source fidelity: Missing citation markers: [[6], [2], [1]]",
+        "Source fidelity: Missing or changed numeric facts (including signs/units): [5:00, 11:00, 30, 45, 10:00, 6:00, 1.5, 2, 24, 20]",
+        "Source fidelity: Missing source wording: [mysuru, hours, chamundi, hill, lookout, point, 5, 00, am, 11, pm, 30, 45, min, not, available, in, the, provided, reliable, sources, railway, museum, 10, 6]",
+        "Source fidelity: Added or duplicated visible wording: [all, attractions]",
+        "Source fidelity: Visible source wording order or multiplicity changed.",
+        "Trained E2B output passed generated-output DSL repair only.",
+        "Generated static answer components were unreachable or repeated; repairing the rendered graph.",
+        "Generated repair candidate 1 (STRUCTURAL) applied: ",
+        "Candidate still had unreachable or repeated static answer components; continuing graph repair.",
+        "Removed repeated or cyclic child 'g' from 'root'.",
+        "Recovered a complete generated DSL graph without source fallback."
+      ],
+      "rendererContractValid": true,
+      "rendererWarnings": [],
+      "screenCaptured": true,
+      "scrolledScreenCaptured": true,
+      "currentCaseVisible": true,
+      "rendererErrorVisible": false,
+      "caseElapsedMs": 16450,
+      "finishedAtEpochMs": 1791485084707,
+      "deviceAfter": {
+        "epochMs": 1791485084707,
+        "thermalStatus": 0,
+        "batteryTemperatureC": 32.9,
+        "batteryLevel": 100,
+        "plugged": 2
+      }
+    },
+    "callerSuppliedProvenanceSha256": "994a5c21e07c766779ef17def915ec44b3dfed1ded0aa1edc3b9401e63ddfa3b",
+    "documentOrigin": "Caller-selected saved final output; model provenance is not inferred from its filename.",
+    "archivedPath": "BXP-007/before/r01/input/BXP-007/output.a2ui.json",
+    "remotePath": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_benchmark/visual_BXP-007_before_r01_341693c0_input/BXP-007/output.a2ui.json",
+    "remoteSha256": "b56303379b539a0bd7c7930ca57b07467abb33f5994ebac3c47fd035e5ee592a"
+  },
+  "command": [
+    "C:\\Users\\anupk\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe",
+    "-s",
+    "R3CY30QFWLP",
+    "shell",
+    "am",
+    "instrument",
+    "-w",
+    "-r",
+    "-e",
+    "class",
+    "com.samsung.genuicraft.GenUiSdkBixby50Test#replaySavedBixbyCorpus",
+    "-e",
+    "sourceRunId",
+    "visual_BXP-007_before_r01_341693c0_input",
+    "-e",
+    "runId",
+    "visual_BXP-007_before_r01_341693c0",
+    "-e",
+    "cases",
+    "BXP-007",
+    "-e",
+    "replayMode",
+    "json",
+    "-e",
+    "maxVerticalSwipes",
+    "30",
+    "-e",
+    "maxHorizontalSwipes",
+    "8",
+    "-e",
+    "renderFontScale",
+    "1.0",
+    "-e",
+    "renderDark",
+    "false",
+    "com.samsung.genuicraft.test/androidx.test.runner.AndroidJUnitRunner"
+  ],
+  "remoteOutput": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_benchmark/visual_BXP-007_before_r01_341693c0",
+  "adbExitCode": 0,
+  "hostElapsedSeconds": 7.063,
+  "instrumentationPassed": true,
+  "result": {
+    "id": "BXP-007",
+    "kind": "renderer_replay",
+    "replayMode": "json",
+    "sourceRunId": "visual_BXP-007_before_r01_341693c0_input",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceJsonSha256": "b56303379b539a0bd7c7930ca57b07467abb33f5994ebac3c47fd035e5ee592a",
+    "sourceArtifact": "visual_BXP-007_before_r01_341693c0_input/BXP-007/output.a2ui.json",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Sight",
+          "Opening hours",
+          "Usual visit duration",
+          "Published adult entry fee"
+        ],
+        "rowSource": "statePath:/sights",
+        "sourceRows": 3,
+        "sourceCells": 12,
+        "observedHeaders": [
+          "Sight",
+          "Opening hours",
+          "Usual visit duration",
+          "Published adult entry fee"
+        ],
+        "observedRepresentativeCells": [
+          "Chamundi Hill Lookout View Point",
+          "5:00 am–11:00 pm",
+          "30–45 min",
+          "Not available in the provided reliable sources[6]",
+          "Mysuru Railway Museum",
+          "10:00 am–6:00 pm; closed Tuesday",
+          "1.5–2 hours",
+          "Not available in the provided reliable sources[2]",
+          "Chikka Gadiyara",
+          "Open 24 hours",
+          "20–30 min",
+          "Not available in the provided reliable sources[1]"
+        ],
+        "cells": [
+          {
+            "row": 1,
+            "column": "Sight",
+            "value": "Chamundi Hill Lookout View Point",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 1,
+            "column": "Opening hours",
+            "value": "5:00 am–11:00 pm",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 1,
+            "column": "Usual visit duration",
+            "value": "30–45 min",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 1,
+            "column": "Published adult entry fee",
+            "value": "Not available in the provided reliable sources[6]",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 2,
+            "column": "Sight",
+            "value": "Mysuru Railway Museum",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Opening hours",
+            "value": "10:00 am–6:00 pm; closed Tuesday",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Usual visit duration",
+            "value": "1.5–2 hours",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Published adult entry fee",
+            "value": "Not available in the provided reliable sources[2]",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 3,
+            "column": "Sight",
+            "value": "Chikka Gadiyara",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 3,
+            "column": "Opening hours",
+            "value": "Open 24 hours",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 3,
+            "column": "Usual visit duration",
+            "value": "20–30 min",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 3,
+            "column": "Published adult entry fee",
+            "value": "Not available in the provided reliable sources[1]",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          }
+        ],
+        "missingCells": [],
+        "accessibilityOnlyCells": [],
+        "ambiguousRepeatedCells": [
+          {
+            "row": 1,
+            "column": "Published adult entry fee",
+            "value": "Not available in the provided reliable sources[6]",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 2,
+            "column": "Published adult entry fee",
+            "value": "Not available in the provided reliable sources[2]",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 3,
+            "column": "Published adult entry fee",
+            "value": "Not available in the provided reliable sources[1]",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          }
+        ],
+        "displayedCellCoverageComplete": true,
+        "cellPlacementEvaluated": false,
+        "missingColumns": [],
+        "horizontalScrollObserved": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 19,
+        "fullyVisibleDescriptionNodes": 7
+      },
+      {
+        "name": "table_1_horizontal_1",
+        "screenshot": true,
+        "visibleTextNodes": 19,
+        "fullyVisibleDescriptionNodes": 7
+      },
+      {
+        "name": "table_1_reset",
+        "screenshot": true,
+        "visibleTextNodes": 19,
+        "fullyVisibleDescriptionNodes": 7
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 19,
+        "fullyVisibleDescriptionNodes": 7
+      }
+    ],
+    "verticalSwipes": 1,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "coverageStatus": "all_cell_values_observed",
+    "coverageDiagnosticsAffectRenderStatus": false,
+    "visualReviewRequired": true,
+    "status": "rendered",
+    "replayElapsedMs": 5267
+  },
+  "summary": {
+    "kind": "renderer_replay",
+    "replayMode": "json",
+    "runId": "visual_BXP-007_before_r01_341693c0",
+    "sourceRunId": "visual_BXP-007_before_r01_341693c0_input",
+    "total": 1,
+    "rendered": 1,
+    "failed": 0,
+    "repairRejected": 0,
+    "renderFailures": 0,
+    "renderedWithCoverageIssues": 0,
+    "casesWithIncompleteCellCoverage": 0,
+    "casesWithAmbiguousRepeatedCells": 1,
+    "coverageDiagnosticsAffectRenderStatus": false,
+    "visualReviewRequired": true,
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "repairCounts": {},
+    "sourceIntegrityAccepted": 0,
+    "sourceIntegrityRejected": 0,
+    "sourceIntegrityNotEvaluated": 0,
+    "sourceTextFallbacks": 0
+  },
+  "checks": {
+    "instrumentationPassed": true,
+    "singleSelectedCase": true,
+    "frozenCorpus": true,
+    "noInference": true,
+    "sameAcceptedInput": true,
+    "renderedWithoutIssues": true,
+    "capturesComplete": true,
+    "verticalEndObserved": true,
+    "allTableColumnsObserved": true
+  },
+  "documentHashes": {
+    "BXP-007/before/r01/artifacts/BXP-007/replay_result.json": "fa097d610e7c5f933914a3f0ee59d999bf8a2590d034539b0d1f24491573d2e5",
+    "BXP-007/before/r01/artifacts/BXP-007/source.output.a2ui.json": "b56303379b539a0bd7c7930ca57b07467abb33f5994ebac3c47fd035e5ee592a",
+    "BXP-007/before/r01/artifacts/replay_config.json": "15bd09b71892c551861f2e9c041088fdbda02b870aa9cd300d237bd6a86b07ed",
+    "BXP-007/before/r01/artifacts/replay_results.json": "3f5fba88d9686bdd415118755d1457f7df0dc808186704c16888bbe858705767",
+    "BXP-007/before/r01/artifacts/replay_summary.json": "3e4713e8a57c36d591256f770580d8f1f60983003d000c5ce1461a7551c3a8ae"
+  },
+  "capturedFiles": [
+    {
+      "path": "BXP-007/before/r01/artifacts/BXP-007/initial.png",
+      "sha256": "7238500d383c47bdb854e24bcff86331437410374a52d2acddd32fa84b51f40b"
+    },
+    {
+      "path": "BXP-007/before/r01/artifacts/BXP-007/initial.xml",
+      "sha256": "6977dbace176147cfdb39e4d9dde3a83089b016c20203a0528d3dea72170dbe5"
+    },
+    {
+      "path": "BXP-007/before/r01/artifacts/BXP-007/table_1_horizontal_1.png",
+      "sha256": "a2a6526a909d0388371d0fb55fdb4b063d16ee9958ad964a4d727d36e2fe1196"
+    },
+    {
+      "path": "BXP-007/before/r01/artifacts/BXP-007/table_1_horizontal_1.xml",
+      "sha256": "d99b57fcd332b06691e038843420211c4c3741856536612c1f01f8669f60891f"
+    },
+    {
+      "path": "BXP-007/before/r01/artifacts/BXP-007/table_1_reset.png",
+      "sha256": "7238500d383c47bdb854e24bcff86331437410374a52d2acddd32fa84b51f40b"
+    },
+    {
+      "path": "BXP-007/before/r01/artifacts/BXP-007/table_1_reset.xml",
+      "sha256": "6977dbace176147cfdb39e4d9dde3a83089b016c20203a0528d3dea72170dbe5"
+    },
+    {
+      "path": "BXP-007/before/r01/artifacts/BXP-007/vertical_1.png",
+      "sha256": "7238500d383c47bdb854e24bcff86331437410374a52d2acddd32fa84b51f40b"
+    },
+    {
+      "path": "BXP-007/before/r01/artifacts/BXP-007/vertical_1.xml",
+      "sha256": "6977dbace176147cfdb39e4d9dde3a83089b016c20203a0528d3dea72170dbe5"
+    }
+  ],
+  "finishedAtUtc": "2026-10-08T19:50:38.718190+00:00"
+}

@@ -1,0 +1,14 @@
+{
+  "status": "accepted",
+  "notes": [
+    "Independently inspected all three before/r01 and all three after/r01 Fold7 SDK 0.6.14 screenshots. Existing game cards are readable and require no renderer change. All three exact names, full online/account age caveats including regional wording, local/online/solo co-op details and player counts remain correctly associated with their games.",
+    "All exact indicative Indian prices, past-promotion prices, the authored US-dollar quote and every qualifier/citation remain visible without clipping. All fifteen original Markdown table values match the saved data model after removing Markdown bold delimiters; all ten original citation markers are retained. All fifteen table-cell values and six literal Text values were independently checked in both before and after XML captures. Two repeated Players=2 cells remain explicitly ambiguous in automated coverage and were manually checked within their respective cards.",
+    "The complete three Best fit recommendations and price-sales/regional-update disclaimer remain readable. Both replays passed all checks using identical source SHA-256 8678392b11be8429ba873a6578a9f3e45979003f0daa3e1254e4edae2ac221b1. Audit: BXP-019/visual_review.json. Existing runtime source-fidelity warnings remain recorded; this visual/content review does not verify current prices, authoritative age ratings or full model/source correctness. No inferred ratings, prices or actions were added."
+  ],
+  "reviewer": "codex; independent before/after visual review",
+  "updatedAtUtc": "2026-10-08T21:41:34.031712+00:00",
+  "reviewedAfterReceipt": "BXP-019/after/r01/receipt.json",
+  "reviewedAfterReceiptSha256": "c177dc81319ab201047e4d09db2718f3a5e722a0b895c15ae965e5df303dfb05",
+  "sourceSha256": "8678392b11be8429ba873a6578a9f3e45979003f0daa3e1254e4edae2ac221b1",
+  "scope": "Explicit visual review of the referenced after captures; source fidelity is not certified."
+}

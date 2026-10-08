@@ -1,0 +1,12 @@
+{
+  "status": "accepted",
+  "notes": [
+    "The section-panel improvement from004 also organizes this metro guide into operating hours, ticket options, interchanges and rider guidance. Full text is readable across both viewport positions; no map/live service status or ticket actions were invented. No further renderer change needed. MODEL LIMITATION: generated Source: A2UI Express v1 generated model contract is false provenance present in the accepted document; missing citations remain. Visual acceptance is not answer/source-fidelity approval. The first raw replay attempt was a harness-input error (unrepaired raw DSL);r02 and after use the actual accepted A2UI document."
+  ],
+  "reviewer": "codex",
+  "updatedAtUtc": "2026-10-08T19:48:58.275033+00:00",
+  "reviewedAfterReceipt": "BXP-005/after/r01/receipt.json",
+  "reviewedAfterReceiptSha256": "9678f09452008178736727b896918b7ec86d56573ba141db5f9e6e9cdbf8d197",
+  "sourceSha256": "acb38af000e4880075bbca34e71944fdd08a6c3bd8d32e3cd146a0c564984241",
+  "scope": "Explicit visual review of the referenced after captures; source fidelity is not certified."
+}

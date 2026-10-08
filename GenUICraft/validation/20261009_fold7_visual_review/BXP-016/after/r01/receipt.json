@@ -1,0 +1,356 @@
+{
+  "schemaVersion": 1,
+  "case": "BXP-016",
+  "phase": "after",
+  "attempt": "r01",
+  "startedAtUtc": "2026-10-08T21:27:53.200877+00:00",
+  "runId": "visual_BXP-016_after_r01_8c767149",
+  "status": "collected",
+  "automatedChecksSatisfied": true,
+  "visualReviewStatus": "pending",
+  "inferenceAttempted": false,
+  "provenance": {
+    "serial": "R3CY30QFWLP",
+    "deviceModel": "SM-F966B",
+    "fingerprint": "samsung/q7qxeea/q7q:16/BP4A.251205.006/F966BXXS9BZE2_OXM9BZE2:userdebug/test-keys",
+    "corpusSha256": "fc46aa381957bed206f9e0f53e28edbb21b5096ca093985ad184fda73faaea0a",
+    "apks": {
+      "com.samsung.genuicraft": [
+        {
+          "path": "/data/app/~~43UzbLarMXlI_1iLIRHKDg==/com.samsung.genuicraft-vlN3tEMyd4s_hPNh4SIW_A==/base.apk",
+          "sha256": "8732c837ca59f14e1626c0c58f6a4f2a22743d34d48437d354ca8404a183df64"
+        }
+      ],
+      "com.samsung.genuicraft.test": [
+        {
+          "path": "/data/app/~~fFo8qAHcHZfzoEqWUwsTEw==/com.samsung.genuicraft.test-o8hY2YMtvYlCMVD5uNk0Eg==/base.apk",
+          "sha256": "8f5d6bb5312b2a7bc8e5d0771f455c12f8a4abeef9886fda42c561b2b4823d2e"
+        }
+      ]
+    },
+    "hostRendererSource": {
+      "files": 85,
+      "sha256": "962c287d1ec47f4ad86312f7b70154bacbc0dff96488fc2d4e1f0f9b84c7c063",
+      "note": "Host source fingerprint; installed APK hashes are recorded separately."
+    }
+  },
+  "source": {
+    "originalPath": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20261009_fold7_visual_review\\BXP-016\\before\\r01\\input\\BXP-016\\output.a2ui.json",
+    "sha256": "4acf224cd36033df0d3f01186a2fbdbcb141b91eb0204152b4124163e401a7c3",
+    "replayMode": "json",
+    "pinnedBeforeReceipt": "BXP-016/before/r01/receipt.json",
+    "pinnedBeforeReceiptSha256": "3e431468f6f4ad803d151375bf10f5dde0baee91e0de4bac11643e369ec3d9cd",
+    "documentOrigin": "Caller-selected saved final output; model provenance is not inferred from its filename.",
+    "archivedPath": "BXP-016/after/r01/input/BXP-016/output.a2ui.json",
+    "remotePath": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_benchmark/visual_BXP-016_after_r01_8c767149_input/BXP-016/output.a2ui.json",
+    "remoteSha256": "4acf224cd36033df0d3f01186a2fbdbcb141b91eb0204152b4124163e401a7c3"
+  },
+  "command": [
+    "C:\\Users\\anupk\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe",
+    "-s",
+    "R3CY30QFWLP",
+    "shell",
+    "am",
+    "instrument",
+    "-w",
+    "-r",
+    "-e",
+    "class",
+    "com.samsung.genuicraft.GenUiSdkBixby50Test#replaySavedBixbyCorpus",
+    "-e",
+    "sourceRunId",
+    "visual_BXP-016_after_r01_8c767149_input",
+    "-e",
+    "runId",
+    "visual_BXP-016_after_r01_8c767149",
+    "-e",
+    "cases",
+    "BXP-016",
+    "-e",
+    "replayMode",
+    "json",
+    "-e",
+    "maxVerticalSwipes",
+    "30",
+    "-e",
+    "maxHorizontalSwipes",
+    "8",
+    "-e",
+    "renderFontScale",
+    "1.0",
+    "-e",
+    "renderDark",
+    "false",
+    "com.samsung.genuicraft.test/androidx.test.runner.AndroidJUnitRunner"
+  ],
+  "remoteOutput": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_benchmark/visual_BXP-016_after_r01_8c767149",
+  "adbExitCode": 0,
+  "hostElapsedSeconds": 5.063,
+  "instrumentationPassed": true,
+  "result": {
+    "id": "BXP-016",
+    "kind": "renderer_replay",
+    "replayMode": "json",
+    "sourceRunId": "visual_BXP-016_after_r01_8c767149_input",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceJsonSha256": "4acf224cd36033df0d3f01186a2fbdbcb141b91eb0204152b4124163e401a7c3",
+    "sourceArtifact": "visual_BXP-016_after_r01_8c767149_input/BXP-016/output.a2ui.json",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Title",
+          "Platform",
+          "Streaming release date",
+          "Spoiler-free description"
+        ],
+        "rowSource": "statePath:/films",
+        "sourceRows": 3,
+        "sourceCells": 12,
+        "observedHeaders": [
+          "Title",
+          "Platform",
+          "Streaming release date",
+          "Spoiler-free description"
+        ],
+        "observedRepresentativeCells": [
+          "Bandar",
+          "ZEE5",
+          "28 August 2026",
+          "A tense drama centered on accusation, accountability, and justice, led by Bobby Deol. [33]",
+          "Gandhari",
+          "Netflix",
+          "3 September 2026",
+          "An emotionally charged action-thriller about a mother’s relentless fight to protect her child. [21]",
+          "Before Colours",
+          "A newly added Hindi film on ZEE5’s latest releases list, available from 28 August 2026. [22]"
+        ],
+        "cells": [
+          {
+            "row": 1,
+            "column": "Title",
+            "value": "Bandar",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 1,
+            "column": "Platform",
+            "value": "ZEE5",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 1,
+            "column": "Streaming release date",
+            "value": "28 August 2026",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 1,
+            "column": "Spoiler-free description",
+            "value": "A tense drama centered on accusation, accountability, and justice, led by Bobby Deol. [33]",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Title",
+            "value": "Gandhari",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Platform",
+            "value": "Netflix",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Streaming release date",
+            "value": "3 September 2026",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Spoiler-free description",
+            "value": "An emotionally charged action-thriller about a mother’s relentless fight to protect her child. [21]",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 3,
+            "column": "Title",
+            "value": "Before Colours",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 3,
+            "column": "Platform",
+            "value": "ZEE5",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 3,
+            "column": "Streaming release date",
+            "value": "28 August 2026",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 3,
+            "column": "Spoiler-free description",
+            "value": "A newly added Hindi film on ZEE5’s latest releases list, available from 28 August 2026. [22]",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          }
+        ],
+        "missingCells": [],
+        "accessibilityOnlyCells": [],
+        "ambiguousRepeatedCells": [
+          {
+            "row": 1,
+            "column": "Platform",
+            "value": "ZEE5",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 1,
+            "column": "Streaming release date",
+            "value": "28 August 2026",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 3,
+            "column": "Platform",
+            "value": "ZEE5",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 3,
+            "column": "Streaming release date",
+            "value": "28 August 2026",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          }
+        ],
+        "displayedCellCoverageComplete": true,
+        "cellPlacementEvaluated": false,
+        "missingColumns": [],
+        "horizontalScrollObserved": false
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 23,
+        "fullyVisibleDescriptionNodes": 4
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 23,
+        "fullyVisibleDescriptionNodes": 4
+      }
+    ],
+    "verticalSwipes": 1,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "coverageStatus": "all_cell_values_observed",
+    "coverageDiagnosticsAffectRenderStatus": false,
+    "visualReviewRequired": true,
+    "status": "rendered",
+    "replayElapsedMs": 2943
+  },
+  "summary": {
+    "kind": "renderer_replay",
+    "replayMode": "json",
+    "runId": "visual_BXP-016_after_r01_8c767149",
+    "sourceRunId": "visual_BXP-016_after_r01_8c767149_input",
+    "total": 1,
+    "rendered": 1,
+    "failed": 0,
+    "repairRejected": 0,
+    "renderFailures": 0,
+    "renderedWithCoverageIssues": 0,
+    "casesWithIncompleteCellCoverage": 0,
+    "casesWithAmbiguousRepeatedCells": 1,
+    "coverageDiagnosticsAffectRenderStatus": false,
+    "visualReviewRequired": true,
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "repairCounts": {},
+    "sourceIntegrityAccepted": 0,
+    "sourceIntegrityRejected": 0,
+    "sourceIntegrityNotEvaluated": 0,
+    "sourceTextFallbacks": 0
+  },
+  "checks": {
+    "instrumentationPassed": true,
+    "singleSelectedCase": true,
+    "frozenCorpus": true,
+    "noInference": true,
+    "sameAcceptedInput": true,
+    "renderedWithoutIssues": true,
+    "capturesComplete": true,
+    "verticalEndObserved": true,
+    "allTableColumnsObserved": true
+  },
+  "documentHashes": {
+    "BXP-016/after/r01/artifacts/BXP-016/replay_result.json": "97db0edc8839a1527886dc28238b460130cacd1e300ae5e1fe2439f903cc01fd",
+    "BXP-016/after/r01/artifacts/BXP-016/source.output.a2ui.json": "4acf224cd36033df0d3f01186a2fbdbcb141b91eb0204152b4124163e401a7c3",
+    "BXP-016/after/r01/artifacts/replay_config.json": "cc2f8f1d8b36cad42f6b152738209eaf85ee18db52cb84b67ad581ca40586bf1",
+    "BXP-016/after/r01/artifacts/replay_results.json": "1d016f7034c08ba322afc1811b8e55946da487ed2c3454d67e30e206677afa63",
+    "BXP-016/after/r01/artifacts/replay_summary.json": "a754cc20af914b881e7c247ee61dd0c2964303fd0ba16470b26b8f444c970d34"
+  },
+  "capturedFiles": [
+    {
+      "path": "BXP-016/after/r01/artifacts/BXP-016/initial.png",
+      "sha256": "b08c87f678ff7896a1e24e196fe0fc7bc7cb17193924e1d0a22f6f734a4326ee"
+    },
+    {
+      "path": "BXP-016/after/r01/artifacts/BXP-016/initial.xml",
+      "sha256": "9514b03ee71db9c99d1d7032f02618bd58752f5e8908f01d823e5a27cad86cb7"
+    },
+    {
+      "path": "BXP-016/after/r01/artifacts/BXP-016/vertical_1.png",
+      "sha256": "b08c87f678ff7896a1e24e196fe0fc7bc7cb17193924e1d0a22f6f734a4326ee"
+    },
+    {
+      "path": "BXP-016/after/r01/artifacts/BXP-016/vertical_1.xml",
+      "sha256": "9514b03ee71db9c99d1d7032f02618bd58752f5e8908f01d823e5a27cad86cb7"
+    }
+  ],
+  "finishedAtUtc": "2026-10-08T21:27:59.221076+00:00"
+}

@@ -1,0 +1,536 @@
+{
+  "schemaVersion": 1,
+  "case": "BXP-024",
+  "phase": "after",
+  "attempt": "r01",
+  "startedAtUtc": "2026-10-08T22:23:17.141577+00:00",
+  "runId": "visual_BXP-024_after_r01_70811a0a",
+  "status": "collected",
+  "automatedChecksSatisfied": true,
+  "visualReviewStatus": "pending",
+  "inferenceAttempted": false,
+  "provenance": {
+    "serial": "R3CY30QFWLP",
+    "deviceModel": "SM-F966B",
+    "fingerprint": "samsung/q7qxeea/q7q:16/BP4A.251205.006/F966BXXS9BZE2_OXM9BZE2:userdebug/test-keys",
+    "corpusSha256": "fc46aa381957bed206f9e0f53e28edbb21b5096ca093985ad184fda73faaea0a",
+    "apks": {
+      "com.samsung.genuicraft": [
+        {
+          "path": "/data/app/~~dfRZo288bYL679w0DeG1Ug==/com.samsung.genuicraft-br-y0xosRMqg9PU6EXx77Q==/base.apk",
+          "sha256": "cbd026e9614aa90a4fd029f759b87924681827620a94dd5be266f8f83b1df1b4"
+        }
+      ],
+      "com.samsung.genuicraft.test": [
+        {
+          "path": "/data/app/~~fFo8qAHcHZfzoEqWUwsTEw==/com.samsung.genuicraft.test-o8hY2YMtvYlCMVD5uNk0Eg==/base.apk",
+          "sha256": "8f5d6bb5312b2a7bc8e5d0771f455c12f8a4abeef9886fda42c561b2b4823d2e"
+        }
+      ]
+    },
+    "hostRendererSource": {
+      "files": 89,
+      "sha256": "894ab7e786439108568c2deaa96e0fe0ba3ac58e7805a7e7c2834ea0d951da3b",
+      "note": "Host source fingerprint; installed APK hashes are recorded separately."
+    }
+  },
+  "source": {
+    "originalPath": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20261009_fold7_visual_review\\BXP-024\\before\\r01\\input\\BXP-024\\output.a2ui.json",
+    "sha256": "9e56c3f0528ae168ca878ae45503e10111ea5aaf4ec9e4ec6baedc00b5d73022",
+    "replayMode": "json",
+    "pinnedBeforeReceipt": "BXP-024/before/r01/receipt.json",
+    "pinnedBeforeReceiptSha256": "56edbe2f4344c67efdca2b7012af157c8a8fb38af06b24d96ada4947554f5715",
+    "documentOrigin": "Caller-selected saved final output; model provenance is not inferred from its filename.",
+    "archivedPath": "BXP-024/after/r01/input/BXP-024/output.a2ui.json",
+    "remotePath": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_benchmark/visual_BXP-024_after_r01_70811a0a_input/BXP-024/output.a2ui.json",
+    "remoteSha256": "9e56c3f0528ae168ca878ae45503e10111ea5aaf4ec9e4ec6baedc00b5d73022"
+  },
+  "command": [
+    "C:\\Users\\anupk\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe",
+    "-s",
+    "R3CY30QFWLP",
+    "shell",
+    "am",
+    "instrument",
+    "-w",
+    "-r",
+    "-e",
+    "class",
+    "com.samsung.genuicraft.GenUiSdkBixby50Test#replaySavedBixbyCorpus",
+    "-e",
+    "sourceRunId",
+    "visual_BXP-024_after_r01_70811a0a_input",
+    "-e",
+    "runId",
+    "visual_BXP-024_after_r01_70811a0a",
+    "-e",
+    "cases",
+    "BXP-024",
+    "-e",
+    "replayMode",
+    "json",
+    "-e",
+    "maxVerticalSwipes",
+    "30",
+    "-e",
+    "maxHorizontalSwipes",
+    "8",
+    "-e",
+    "renderFontScale",
+    "1.0",
+    "-e",
+    "renderDark",
+    "false",
+    "com.samsung.genuicraft.test/androidx.test.runner.AndroidJUnitRunner"
+  ],
+  "remoteOutput": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_benchmark/visual_BXP-024_after_r01_70811a0a",
+  "adbExitCode": 0,
+  "hostElapsedSeconds": 11.5,
+  "instrumentationPassed": true,
+  "result": {
+    "id": "BXP-024",
+    "kind": "renderer_replay",
+    "replayMode": "json",
+    "sourceRunId": "visual_BXP-024_after_r01_70811a0a_input",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceJsonSha256": "9e56c3f0528ae168ca878ae45503e10111ea5aaf4ec9e4ec6baedc00b5d73022",
+    "sourceArtifact": "visual_BXP-024_after_r01_70811a0a_input/BXP-024/output.a2ui.json",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "c",
+        "columns": [
+          "Option",
+          "Details"
+        ],
+        "rowSource": "statePath:/collection_options",
+        "sourceRows": 3,
+        "sourceCells": 6,
+        "observedHeaders": [
+          "Option"
+        ],
+        "observedRepresentativeCells": [
+          "Drop-off at a certified recycler or collection centre",
+          "Bengaluru options listed in the search results include RecycleKaro’s Bengaluru facility, Saahas, Croma stores, and other listed recyclers/collection points that accept batteries.",
+          "Scheduled home pickup",
+          "RecycleKaro and EcoFlyp both describe pickup services, and Zolopik also offers pickup for battery/e-waste collection in Bengaluru.",
+          "Manufacturer or brand take-back",
+          "Some brands and authorised partners offer battery/e-waste return programs, including brand-linked collection or pickup arrangements."
+        ],
+        "cells": [
+          {
+            "row": 1,
+            "column": "Option",
+            "value": "Drop-off at a certified recycler or collection centre",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 1,
+            "column": "Details",
+            "value": "Bengaluru options listed in the search results include RecycleKaro’s Bengaluru facility, Saahas, Croma stores, and other listed recyclers/collection points that accept batteries.",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Option",
+            "value": "Scheduled home pickup",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Details",
+            "value": "RecycleKaro and EcoFlyp both describe pickup services, and Zolopik also offers pickup for battery/e-waste collection in Bengaluru.",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 3,
+            "column": "Option",
+            "value": "Manufacturer or brand take-back",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 3,
+            "column": "Details",
+            "value": "Some brands and authorised partners offer battery/e-waste return programs, including brand-linked collection or pickup arrangements.",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          }
+        ],
+        "missingCells": [],
+        "accessibilityOnlyCells": [],
+        "ambiguousRepeatedCells": [],
+        "displayedCellCoverageComplete": true,
+        "cellPlacementEvaluated": false,
+        "missingColumns": [],
+        "horizontalScrollObserved": false
+      },
+      {
+        "id": "e",
+        "columns": [
+          "Precaution",
+          "Detail"
+        ],
+        "rowSource": "statePath:/storage_precautions",
+        "sourceRows": 5,
+        "sourceCells": 10,
+        "observedHeaders": [],
+        "observedRepresentativeCells": [
+          "Keep the battery separate from regular waste",
+          "Do not put it in household garbage.",
+          "Store it in a cool, dry place",
+          "Away from heat, sunlight, and moisture; keep it out of reach of children and pets.",
+          "Do not puncture, crush, bend, or open it",
+          "If it is swollen or damaged, handle it especially carefully and do not force it.",
+          "Tape the terminals if it is loose",
+          "Place it in a non-conductive container or bag to reduce the risk of short-circuiting.",
+          "Do not keep it near metal objects",
+          "Such as coins, keys, or tools that could bridge the terminals."
+        ],
+        "cells": [
+          {
+            "row": 1,
+            "column": "Precaution",
+            "value": "Keep the battery separate from regular waste",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 1,
+            "column": "Detail",
+            "value": "Do not put it in household garbage.",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Precaution",
+            "value": "Store it in a cool, dry place",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Detail",
+            "value": "Away from heat, sunlight, and moisture; keep it out of reach of children and pets.",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 3,
+            "column": "Precaution",
+            "value": "Do not puncture, crush, bend, or open it",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 3,
+            "column": "Detail",
+            "value": "If it is swollen or damaged, handle it especially carefully and do not force it.",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 4,
+            "column": "Precaution",
+            "value": "Tape the terminals if it is loose",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 4,
+            "column": "Detail",
+            "value": "Place it in a non-conductive container or bag to reduce the risk of short-circuiting.",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 5,
+            "column": "Precaution",
+            "value": "Do not keep it near metal objects",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 5,
+            "column": "Detail",
+            "value": "Such as coins, keys, or tools that could bridge the terminals.",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          }
+        ],
+        "missingCells": [],
+        "accessibilityOnlyCells": [],
+        "ambiguousRepeatedCells": [],
+        "displayedCellCoverageComplete": true,
+        "cellPlacementEvaluated": false,
+        "missingColumns": [],
+        "horizontalScrollObserved": false
+      },
+      {
+        "id": "g",
+        "columns": [
+          "Verification Point",
+          "Detail"
+        ],
+        "rowSource": "statePath:/verification_points",
+        "sourceRows": 6,
+        "sourceCells": 12,
+        "observedHeaders": [],
+        "observedRepresentativeCells": [
+          "Authorization",
+          "Confirm that the recycler or pickup service is CPCB/KSPCB-authorized or otherwise clearly certified.",
+          "Battery acceptance",
+          "Verify that the centre accepts laptop batteries specifically, since some points accept only certain categories of e-waste.",
+          "Pickup/drop-off terms",
+          "Check whether it is a free drop-off, scheduled pickup, or paid service, and whether any minimum quantity applies.",
+          "Receipt or confirmation",
+          "Ask for written or digital proof that the battery was received for lawful recycling or disposal.",
+          "Data-related items",
+          "If you are also handing over the laptop, back up data, sign out of accounts, and factory reset the device first; this is less relevant for the battery alone but important if the laptop is included.",
+          "Condition reporting",
+          "Tell the handler whether the battery is swollen, leaking, or physically damaged so they can apply the right handling process."
+        ],
+        "cells": [
+          {
+            "row": 1,
+            "column": "Verification Point",
+            "value": "Authorization",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 1,
+            "column": "Detail",
+            "value": "Confirm that the recycler or pickup service is CPCB/KSPCB-authorized or otherwise clearly certified.",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Verification Point",
+            "value": "Battery acceptance",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Detail",
+            "value": "Verify that the centre accepts laptop batteries specifically, since some points accept only certain categories of e-waste.",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 3,
+            "column": "Verification Point",
+            "value": "Pickup/drop-off terms",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 3,
+            "column": "Detail",
+            "value": "Check whether it is a free drop-off, scheduled pickup, or paid service, and whether any minimum quantity applies.",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 4,
+            "column": "Verification Point",
+            "value": "Receipt or confirmation",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 4,
+            "column": "Detail",
+            "value": "Ask for written or digital proof that the battery was received for lawful recycling or disposal.",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 5,
+            "column": "Verification Point",
+            "value": "Data-related items",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 5,
+            "column": "Detail",
+            "value": "If you are also handing over the laptop, back up data, sign out of accounts, and factory reset the device first; this is less relevant for the battery alone but important if the laptop is included.",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 6,
+            "column": "Verification Point",
+            "value": "Condition reporting",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 6,
+            "column": "Detail",
+            "value": "Tell the handler whether the battery is swollen, leaking, or physically damaged so they can apply the right handling process.",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          }
+        ],
+        "missingCells": [],
+        "accessibilityOnlyCells": [],
+        "ambiguousRepeatedCells": [],
+        "displayedCellCoverageComplete": true,
+        "cellPlacementEvaluated": false,
+        "missingColumns": [],
+        "horizontalScrollObserved": false
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 12,
+        "fullyVisibleDescriptionNodes": 1
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 18,
+        "fullyVisibleDescriptionNodes": 0
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 15,
+        "fullyVisibleDescriptionNodes": 1
+      },
+      {
+        "name": "vertical_3",
+        "screenshot": true,
+        "visibleTextNodes": 15,
+        "fullyVisibleDescriptionNodes": 1
+      }
+    ],
+    "verticalSwipes": 3,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "coverageStatus": "all_cell_values_observed",
+    "coverageDiagnosticsAffectRenderStatus": false,
+    "visualReviewRequired": true,
+    "status": "rendered",
+    "replayElapsedMs": 9312
+  },
+  "summary": {
+    "kind": "renderer_replay",
+    "replayMode": "json",
+    "runId": "visual_BXP-024_after_r01_70811a0a",
+    "sourceRunId": "visual_BXP-024_after_r01_70811a0a_input",
+    "total": 1,
+    "rendered": 1,
+    "failed": 0,
+    "repairRejected": 0,
+    "renderFailures": 0,
+    "renderedWithCoverageIssues": 0,
+    "casesWithIncompleteCellCoverage": 0,
+    "casesWithAmbiguousRepeatedCells": 0,
+    "coverageDiagnosticsAffectRenderStatus": false,
+    "visualReviewRequired": true,
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "repairCounts": {},
+    "sourceIntegrityAccepted": 0,
+    "sourceIntegrityRejected": 0,
+    "sourceIntegrityNotEvaluated": 0,
+    "sourceTextFallbacks": 0
+  },
+  "checks": {
+    "instrumentationPassed": true,
+    "singleSelectedCase": true,
+    "frozenCorpus": true,
+    "noInference": true,
+    "sameAcceptedInput": true,
+    "renderedWithoutIssues": true,
+    "capturesComplete": true,
+    "verticalEndObserved": true,
+    "allTableColumnsObserved": true
+  },
+  "documentHashes": {
+    "BXP-024/after/r01/artifacts/BXP-024/replay_result.json": "b99d400c5768021a161ac621a67f7cea91be6e48d7ebc19a0dec239735301d71",
+    "BXP-024/after/r01/artifacts/BXP-024/source.output.a2ui.json": "9e56c3f0528ae168ca878ae45503e10111ea5aaf4ec9e4ec6baedc00b5d73022",
+    "BXP-024/after/r01/artifacts/replay_config.json": "748d98516edb50bea332b498118b186e585bf4e7d71b06baaa0c5fb3413ae15f",
+    "BXP-024/after/r01/artifacts/replay_results.json": "90fc0b08a566ea64a7cdbe82312dee9319b0b62f2c9f94d6cfd77a5cb16019da",
+    "BXP-024/after/r01/artifacts/replay_summary.json": "1eeaace52df40240f5bd72a1d9cecc2db53a94539512487fc9ef4f54c8600933"
+  },
+  "capturedFiles": [
+    {
+      "path": "BXP-024/after/r01/artifacts/BXP-024/initial.png",
+      "sha256": "bb5dc3af57312f6af57bb229cca3964e07e87f57cdf82f542de7e4c6462728ef"
+    },
+    {
+      "path": "BXP-024/after/r01/artifacts/BXP-024/initial.xml",
+      "sha256": "af45643813f28e2e17365dd3752fc453910b4562b011824fc930be3a51e30a60"
+    },
+    {
+      "path": "BXP-024/after/r01/artifacts/BXP-024/vertical_1.png",
+      "sha256": "a85b9054d973b77e9f9a6a0d42e1763c3fd2a1497a094c45b98b81d6c3bb342e"
+    },
+    {
+      "path": "BXP-024/after/r01/artifacts/BXP-024/vertical_1.xml",
+      "sha256": "1068082978736ce15bf358574eab5948b0d7d3507c36d42fe1da2e1cca3887ac"
+    },
+    {
+      "path": "BXP-024/after/r01/artifacts/BXP-024/vertical_2.png",
+      "sha256": "faa16cd9c217ebb2f66ff9aefad0cb6e590f58b29347a3df5738b9de83c17d48"
+    },
+    {
+      "path": "BXP-024/after/r01/artifacts/BXP-024/vertical_2.xml",
+      "sha256": "21bce781f9b1f5e685e0be94d18d51997c825d793ab4c0806e1d95c576c0e24c"
+    },
+    {
+      "path": "BXP-024/after/r01/artifacts/BXP-024/vertical_3.png",
+      "sha256": "c6ae97bf7651afedbf3d1e57da8460e0183b5cd40e8b57d559360b1502ce00cc"
+    },
+    {
+      "path": "BXP-024/after/r01/artifacts/BXP-024/vertical_3.xml",
+      "sha256": "21bce781f9b1f5e685e0be94d18d51997c825d793ab4c0806e1d95c576c0e24c"
+    }
+  ],
+  "finishedAtUtc": "2026-10-08T22:23:29.580841+00:00"
+}

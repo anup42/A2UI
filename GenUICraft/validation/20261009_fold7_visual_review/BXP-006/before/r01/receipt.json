@@ -1,0 +1,393 @@
+{
+  "schemaVersion": 1,
+  "case": "BXP-006",
+  "phase": "before",
+  "attempt": "r01",
+  "startedAtUtc": "2026-10-08T19:48:58.452802+00:00",
+  "runId": "visual_BXP-006_before_r01_ccdd209b",
+  "status": "collected",
+  "automatedChecksSatisfied": true,
+  "visualReviewStatus": "pending",
+  "inferenceAttempted": false,
+  "provenance": {
+    "serial": "R3CY30QFWLP",
+    "deviceModel": "SM-F966B",
+    "fingerprint": "samsung/q7qxeea/q7q:16/BP4A.251205.006/F966BXXS9BZE2_OXM9BZE2:userdebug/test-keys",
+    "corpusSha256": "fc46aa381957bed206f9e0f53e28edbb21b5096ca093985ad184fda73faaea0a",
+    "apks": {
+      "com.samsung.genuicraft": [
+        {
+          "path": "/data/app/~~b6P3d9nanx03T9xqMRucDw==/com.samsung.genuicraft-AGQ7s_JK1nu0AtuiKncDLw==/base.apk",
+          "sha256": "c201fb0173e4c28f7d0270ee00750a9f96d04e85b7381ab5e9e2d9d11598be9e"
+        }
+      ],
+      "com.samsung.genuicraft.test": [
+        {
+          "path": "/data/app/~~IOcLfsneWRTni7DJOOnhHw==/com.samsung.genuicraft.test-T0J-8n_HsOQJ9elr0G8SfQ==/base.apk",
+          "sha256": "f98049546fd93086d7fa31eb090b041a16a3d9ee568780c1477a50f15e653638"
+        }
+      ]
+    },
+    "hostRendererSource": {
+      "files": 80,
+      "sha256": "c1a02b9c18e8332ce8605728791642839dd9a78bbb664b1568d0c97a72a9eba6",
+      "note": "Host source fingerprint; installed APK hashes are recorded separately."
+    }
+  },
+  "source": {
+    "originalPath": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20261009_fold7_visual_review\\native_generation\\visual_prep_005_010_20261009\\BXP-006\\a2ui.json",
+    "sha256": "16cb1db09811207ac690fda6ebbd72526994fb3c36fc7974d1d3ef1d8d7997f0",
+    "replayMode": "json",
+    "sourceMetadata": {
+      "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20261009_fold7_visual_review\\native_generation\\visual_prep_005_010_20261009\\BXP-006\\source.json",
+      "sha256": "20b67a8e4f3953b12e7854dbbce17cac57295367120162a0eb5b2f6cba3cbb8f",
+      "matchesFrozenCase": true
+    },
+    "callerSuppliedProvenance": {
+      "id": "BXP-006",
+      "status": "valid",
+      "strictValid": true,
+      "renderValid": true,
+      "elapsedMs": 21404,
+      "firstInRun": false,
+      "attempts": 1,
+      "startedAtEpochMs": 1791485044233,
+      "deviceBefore": {
+        "epochMs": 1791485044233,
+        "thermalStatus": 0,
+        "batteryTemperatureC": 31.4,
+        "batteryLevel": 100,
+        "plugged": 2
+      },
+      "metrics": {
+        "inputTokens": 3564,
+        "outputTokens": 742,
+        "decodeTokensPerSecond": 40.46213896584765,
+        "providerCallMs": 21322,
+        "prefillTokensPerSecond": 1200.5664292624817,
+        "timeToFirstTokenSeconds": 2.993313211,
+        "engineInitializationSeconds": null,
+        "engineInitializedForRequest": false,
+        "nativeInitializationPhaseSeconds": null,
+        "finishReason": "COMPLETED",
+        "finishDetail": null
+      },
+      "provider": "gemma4_e2b",
+      "providerCalls": 1,
+      "rawStrictValid": true,
+      "runtime": "LiteRT-LM/Gemma4/GPU+FP16_CORRECTED+MTP",
+      "renderedPromptSha256": "29ec1cfded68cbd0b42d416b6ea0f2e118ec5315b927c72d746ca08509f86655",
+      "repairKind": "NONE",
+      "usedFallback": false,
+      "sourceFidelityWarnings": 7,
+      "warnings": [
+        "Runtime: LiteRT-LM/Gemma4/GPU+FP16_CORRECTED+MTP",
+        "Generated-output diagnostic mode: renders repaired model output; no source-text fallback.",
+        "Source fidelity warning: generated output may omit or change source details. It is not a faithful conversion.",
+        "Source fidelity: Conversion must use literal content, without generated state.",
+        "Source fidelity: Conversion must use literal source content.",
+        "Source fidelity: Missing citation markers: [[2], [4], [11], [10], [3], [8], [15], [7], [9], [13]]",
+        "Source fidelity: Missing or changed numeric facts (including signs/units): [250, 255km, 270km, 4.5, 6, 5.5, 265km]",
+        "Source fidelity: Missing source wording: [the, to, madikeri, mysuru, hunsur, kushalnagar, route, and, hassan, commonly, generally, for, a, corridor, road, stop, bengaluru, about, 250, 255, km, sometimes, cited, up, 270]",
+        "Source fidelity: Added or duplicated visible wording: [continue]",
+        "Source fidelity: Visible source wording order or multiplicity changed.",
+        "Trained E2B output passed strict compilation only."
+      ],
+      "rendererContractValid": true,
+      "rendererWarnings": [],
+      "screenCaptured": true,
+      "scrolledScreenCaptured": true,
+      "currentCaseVisible": true,
+      "rendererErrorVisible": false,
+      "caseElapsedMs": 24019,
+      "finishedAtEpochMs": 1791485068253,
+      "deviceAfter": {
+        "epochMs": 1791485068253,
+        "thermalStatus": 0,
+        "batteryTemperatureC": 31.4,
+        "batteryLevel": 100,
+        "plugged": 2
+      }
+    },
+    "callerSuppliedProvenanceSha256": "a70f32221305e096a3f56d2712c367384c3203e8b8866ceae8f7e481854ff6fb",
+    "documentOrigin": "Caller-selected saved final output; model provenance is not inferred from its filename.",
+    "archivedPath": "BXP-006/before/r01/input/BXP-006/output.a2ui.json",
+    "remotePath": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_benchmark/visual_BXP-006_before_r01_ccdd209b_input/BXP-006/output.a2ui.json",
+    "remoteSha256": "16cb1db09811207ac690fda6ebbd72526994fb3c36fc7974d1d3ef1d8d7997f0"
+  },
+  "command": [
+    "C:\\Users\\anupk\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe",
+    "-s",
+    "R3CY30QFWLP",
+    "shell",
+    "am",
+    "instrument",
+    "-w",
+    "-r",
+    "-e",
+    "class",
+    "com.samsung.genuicraft.GenUiSdkBixby50Test#replaySavedBixbyCorpus",
+    "-e",
+    "sourceRunId",
+    "visual_BXP-006_before_r01_ccdd209b_input",
+    "-e",
+    "runId",
+    "visual_BXP-006_before_r01_ccdd209b",
+    "-e",
+    "cases",
+    "BXP-006",
+    "-e",
+    "replayMode",
+    "json",
+    "-e",
+    "maxVerticalSwipes",
+    "30",
+    "-e",
+    "maxHorizontalSwipes",
+    "8",
+    "-e",
+    "renderFontScale",
+    "1.0",
+    "-e",
+    "renderDark",
+    "false",
+    "com.samsung.genuicraft.test/androidx.test.runner.AndroidJUnitRunner"
+  ],
+  "remoteOutput": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_benchmark/visual_BXP-006_before_r01_ccdd209b",
+  "adbExitCode": 0,
+  "hostElapsedSeconds": 7.016,
+  "instrumentationPassed": true,
+  "result": {
+    "id": "BXP-006",
+    "kind": "renderer_replay",
+    "replayMode": "json",
+    "sourceRunId": "visual_BXP-006_before_r01_ccdd209b_input",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceJsonSha256": "16cb1db09811207ac690fda6ebbd72526994fb3c36fc7974d1d3ef1d8d7997f0",
+    "sourceArtifact": "visual_BXP-006_before_r01_ccdd209b_input/BXP-006/output.a2ui.json",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "c",
+        "columns": [
+          "Route",
+          "Approx. distance",
+          "Usual travel time",
+          "Road conditions",
+          "Useful stop"
+        ],
+        "rowSource": "statePath:/routes",
+        "sourceRows": 2,
+        "sourceCells": 10,
+        "observedHeaders": [
+          "Route",
+          "Approx. distance",
+          "Usual travel time",
+          "Road conditions",
+          "Useful stop"
+        ],
+        "observedRepresentativeCells": [
+          "Bengaluru → Mysuru → Hunsur → Kushalnagar → Madikeri",
+          "About 250–255 km, sometimes cited up to 270 km depending on exact start point and detours[10]",
+          "About 4.5–6 hours, commonly around 5.5–6 hours",
+          "Mostly smooth and well-maintained, especially on the Bengaluru–Mysuru Expressway; traffic can build up on the Mysuru corridor, and the final stretch near Madikeri becomes hilly/ghat road[3][8][15]",
+          "Namdroling Monastery, Bylakuppe[7][9]",
+          "Bengaluru → Hassan → Kushalnagar → Madikeri",
+          "About 265 km",
+          "About 5.5–6 hours",
+          "Generally described as smoother and less traffic-heavy than the Mysuru-side route, with a more straightforward long-drive feel[13]",
+          "Hassan for a meal break or coffee stop"
+        ],
+        "cells": [
+          {
+            "row": 1,
+            "column": "Route",
+            "value": "Bengaluru → Mysuru → Hunsur → Kushalnagar → Madikeri",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 1,
+            "column": "Approx. distance",
+            "value": "About 250–255 km, sometimes cited up to 270 km depending on exact start point and detours[10]",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 1,
+            "column": "Usual travel time",
+            "value": "About 4.5–6 hours, commonly around 5.5–6 hours",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 1,
+            "column": "Road conditions",
+            "value": "Mostly smooth and well-maintained, especially on the Bengaluru–Mysuru Expressway; traffic can build up on the Mysuru corridor, and the final stretch near Madikeri becomes hilly/ghat road[3][8][15]",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 1,
+            "column": "Useful stop",
+            "value": "Namdroling Monastery, Bylakuppe[7][9]",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Route",
+            "value": "Bengaluru → Hassan → Kushalnagar → Madikeri",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Approx. distance",
+            "value": "About 265 km",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Usual travel time",
+            "value": "About 5.5–6 hours",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Road conditions",
+            "value": "Generally described as smoother and less traffic-heavy than the Mysuru-side route, with a more straightforward long-drive feel[13]",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Useful stop",
+            "value": "Hassan for a meal break or coffee stop",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          }
+        ],
+        "missingCells": [],
+        "accessibilityOnlyCells": [],
+        "ambiguousRepeatedCells": [],
+        "displayedCellCoverageComplete": true,
+        "cellPlacementEvaluated": false,
+        "missingColumns": [],
+        "horizontalScrollObserved": false
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 21,
+        "fullyVisibleDescriptionNodes": 1
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 14,
+        "fullyVisibleDescriptionNodes": 1
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 14,
+        "fullyVisibleDescriptionNodes": 1
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "coverageStatus": "all_cell_values_observed",
+    "coverageDiagnosticsAffectRenderStatus": false,
+    "visualReviewRequired": true,
+    "status": "rendered",
+    "replayElapsedMs": 5161
+  },
+  "summary": {
+    "kind": "renderer_replay",
+    "replayMode": "json",
+    "runId": "visual_BXP-006_before_r01_ccdd209b",
+    "sourceRunId": "visual_BXP-006_before_r01_ccdd209b_input",
+    "total": 1,
+    "rendered": 1,
+    "failed": 0,
+    "repairRejected": 0,
+    "renderFailures": 0,
+    "renderedWithCoverageIssues": 0,
+    "casesWithIncompleteCellCoverage": 0,
+    "casesWithAmbiguousRepeatedCells": 0,
+    "coverageDiagnosticsAffectRenderStatus": false,
+    "visualReviewRequired": true,
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "repairCounts": {},
+    "sourceIntegrityAccepted": 0,
+    "sourceIntegrityRejected": 0,
+    "sourceIntegrityNotEvaluated": 0,
+    "sourceTextFallbacks": 0
+  },
+  "checks": {
+    "instrumentationPassed": true,
+    "singleSelectedCase": true,
+    "frozenCorpus": true,
+    "noInference": true,
+    "sameAcceptedInput": true,
+    "renderedWithoutIssues": true,
+    "capturesComplete": true,
+    "verticalEndObserved": true,
+    "allTableColumnsObserved": true
+  },
+  "documentHashes": {
+    "BXP-006/before/r01/artifacts/BXP-006/replay_result.json": "2e0104d683daed050c5178d1962bcea4169e9f952640409701e8cc6f962d9139",
+    "BXP-006/before/r01/artifacts/BXP-006/source.output.a2ui.json": "16cb1db09811207ac690fda6ebbd72526994fb3c36fc7974d1d3ef1d8d7997f0",
+    "BXP-006/before/r01/artifacts/replay_config.json": "59efe0d2ef3a5c9844c4cca1b6a65fba62a8d2982d3c859f6b95f45dbb1a219e",
+    "BXP-006/before/r01/artifacts/replay_results.json": "56b737c7f44133242090f988fa9d2b24047aeafadde3e5996f101807836d28e0",
+    "BXP-006/before/r01/artifacts/replay_summary.json": "d53eb23069da85942a5dd7e7b9235980bbd23fcb04598e8a61090883a889f5aa"
+  },
+  "capturedFiles": [
+    {
+      "path": "BXP-006/before/r01/artifacts/BXP-006/initial.png",
+      "sha256": "b94c917dd9b3415470174e8cd32f07a02d2d1b3416118c392e27499402b6eef1"
+    },
+    {
+      "path": "BXP-006/before/r01/artifacts/BXP-006/initial.xml",
+      "sha256": "30ebd90ead392f649e3a6c4c894b9c0ed57ad59504787357c63f38b4aa7e28f8"
+    },
+    {
+      "path": "BXP-006/before/r01/artifacts/BXP-006/vertical_1.png",
+      "sha256": "f68b15130dc6fb148c70bfdcb1c20232fced2b2f3e07ea1f6df7631a7be87d9c"
+    },
+    {
+      "path": "BXP-006/before/r01/artifacts/BXP-006/vertical_1.xml",
+      "sha256": "276cfaeae64d4441c50dfa37992d6299b45bb11dc55ce7ef7dc104e3533d8b60"
+    },
+    {
+      "path": "BXP-006/before/r01/artifacts/BXP-006/vertical_2.png",
+      "sha256": "41cffa2a2fe5cc7f31084e5adeb26d5109b89cd97d438c3eefb077f6f82ed774"
+    },
+    {
+      "path": "BXP-006/before/r01/artifacts/BXP-006/vertical_2.xml",
+      "sha256": "276cfaeae64d4441c50dfa37992d6299b45bb11dc55ce7ef7dc104e3533d8b60"
+    }
+  ],
+  "finishedAtUtc": "2026-10-08T19:49:06.476300+00:00"
+}

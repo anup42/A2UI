@@ -1,0 +1,63 @@
+{
+  "id": "BXP-015",
+  "status": "valid",
+  "strictValid": true,
+  "renderValid": true,
+  "elapsedMs": 11048,
+  "firstInRun": false,
+  "attempts": 1,
+  "startedAtEpochMs": 1791485378209,
+  "deviceBefore": {
+    "epochMs": 1791485378209,
+    "thermalStatus": 0,
+    "batteryTemperatureC": 32.9,
+    "batteryLevel": 100,
+    "plugged": 2
+  },
+  "metrics": {
+    "inputTokens": 3180,
+    "outputTokens": 303,
+    "decodeTokensPerSecond": 35.43594485470331,
+    "providerCallMs": 10942,
+    "prefillTokensPerSecond": 1337.908348234484,
+    "timeToFirstTokenSeconds": 2.40506435925,
+    "engineInitializationSeconds": null,
+    "engineInitializedForRequest": false,
+    "nativeInitializationPhaseSeconds": null,
+    "finishReason": "COMPLETED",
+    "finishDetail": null
+  },
+  "provider": "gemma4_e2b",
+  "providerCalls": 1,
+  "rawStrictValid": true,
+  "runtime": "LiteRT-LM/Gemma4/GPU+FP16_CORRECTED+MTP",
+  "renderedPromptSha256": "7bd801e57ff40d93b7555c68d0fca7ee1f7fca5fd0c6e0ae4cd0a0f00b555345",
+  "repairKind": "GENERATED_DSL_REPAIR",
+  "usedFallback": false,
+  "sourceFidelityWarnings": 0,
+  "warnings": [
+    "Runtime: LiteRT-LM/Gemma4/GPU+FP16_CORRECTED+MTP",
+    "Generated-output diagnostic mode: renders repaired model output; no source-text fallback.",
+    "Trained E2B output passed generated-output DSL repair and mechanical source-integrity checks.",
+    "Generated static answer components were unreachable or repeated; repairing the rendered graph.",
+    "Generated repair candidate 1 (STRUCTURAL) applied: ",
+    "Candidate still had unreachable or repeated static answer components; continuing graph repair.",
+    "Removed repeated or cyclic child 'c' from 'root'.",
+    "Recovered a complete generated DSL graph without source fallback."
+  ],
+  "rendererContractValid": true,
+  "rendererWarnings": [],
+  "screenCaptured": true,
+  "scrolledScreenCaptured": true,
+  "currentCaseVisible": true,
+  "rendererErrorVisible": false,
+  "caseElapsedMs": 15577,
+  "finishedAtEpochMs": 1791485393787,
+  "deviceAfter": {
+    "epochMs": 1791485393787,
+    "thermalStatus": 0,
+    "batteryTemperatureC": 32.9,
+    "batteryLevel": 100,
+    "plugged": 2
+  }
+}

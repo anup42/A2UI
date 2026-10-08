@@ -1,0 +1,802 @@
+{
+  "schemaVersion": 1,
+  "generatedAtUtc": "2026-10-08T22:23:29.748338+00:00",
+  "cases": [
+    {
+      "case": "BXP-001",
+      "visualReview": {
+        "status": "accepted",
+        "notes": [
+          "Reviewed complete before and after captures on Fold7. Compact aligned forecast panel retains all 12 date/high/low/rain values, summary and both tips in the first viewport; removed duplicate hero/chart and unsupported condition icons. Dark mode at 1.3 font scale also fits without clipping. Baseline/final Express SHA identical. Existing model citation omission remains separate from rendering. Shared SDK tests: 483 passed."
+        ],
+        "reviewer": "codex",
+        "updatedAtUtc": "2026-10-08T18:53:40.506471+00:00",
+        "reviewedAfterReceipt": "BXP-001/after/r01/receipt.json",
+        "reviewedAfterReceiptSha256": "dce368f1ffb02283959f63b4ea3598658a67a284f585a632f1868a3e735f58ad",
+        "sourceSha256": "59671e3b384c5410c8dfe6883c1d6b18a51009c8c69b54737c9b4c5a4af4b5db",
+        "scope": "Explicit visual review of the referenced after captures; source fidelity is not certified."
+      },
+      "runs": [
+        {
+          "receipt": "BXP-001/before/r01/receipt.json",
+          "phase": "before",
+          "attempt": "r01",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        },
+        {
+          "receipt": "BXP-001/after/r01/receipt.json",
+          "phase": "after",
+          "attempt": "r01",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        }
+      ]
+    },
+    {
+      "case": "BXP-002",
+      "visualReview": {
+        "status": "accepted",
+        "notes": [
+          "Reviewed complete before/after Fold7 captures. Four oversized Detail/Value cards become one AQI panel with the exact reading AQI-IN 197 and unchanged observation time, explicit Poor category, pollutant PM2.5, and complete guidance. All 8 table cells are displayed; no numeric threshold color or inferred category. Exact before/after document bytes match. Shared SDK 0.6.2, 487 unit tests passed."
+        ],
+        "reviewer": "codex",
+        "updatedAtUtc": "2026-10-08T19:09:52.951151+00:00",
+        "reviewedAfterReceipt": "BXP-002/after/r01/receipt.json",
+        "reviewedAfterReceiptSha256": "555924aeff0e82322a17ff3657ed0504ff7cec61d19fa6518a4e7ca8c98bfa72",
+        "sourceSha256": "410b6ee0be34f153756125c996a6c7aa4695d34f84acda13c8b71fdf72308a82",
+        "scope": "Explicit visual review of the referenced after captures; source fidelity is not certified."
+      },
+      "runs": [
+        {
+          "receipt": "BXP-002/before/r01/receipt.json",
+          "phase": "before",
+          "attempt": "r01",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        },
+        {
+          "receipt": "BXP-002/after/r01/receipt.json",
+          "phase": "after",
+          "attempt": "r01",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        }
+      ]
+    },
+    {
+      "case": "BXP-003",
+      "visualReview": {
+        "status": "accepted",
+        "notes": [
+          "All three train services, exact station/time ranges/duration qualifiers/classes and every note are readable. SDK0.6.4 gives departure time the primary emphasis and pairs the complete duration without orphan units. All pages inspected; dark mode at1.3 font scale stacks metrics without clipping. Byte-identical output before/after. Separate historical train fixture test stopped on its hash guard before rendering and is being investigated."
+        ],
+        "reviewer": "codex",
+        "updatedAtUtc": "2026-10-08T19:32:18.200234+00:00",
+        "reviewedAfterReceipt": "BXP-003/after/r02/receipt.json",
+        "reviewedAfterReceiptSha256": "cb528840283b95f41e2462c7e8ed82319f18bca2987cbd802c63f3e0d959df70",
+        "sourceSha256": "b4db521ab2e7a31552761b6b0f03a8b8eb2a3e08e4eff381938b0da7257c6639",
+        "scope": "Explicit visual review of the referenced after captures; source fidelity is not certified."
+      },
+      "runs": [
+        {
+          "receipt": "BXP-003/before/r01/receipt.json",
+          "phase": "before",
+          "attempt": "r01",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        },
+        {
+          "receipt": "BXP-003/after/r01/receipt.json",
+          "phase": "after",
+          "attempt": "r01",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        },
+        {
+          "receipt": "BXP-003/after/r02/receipt.json",
+          "phase": "after",
+          "attempt": "r02",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        }
+      ]
+    },
+    {
+      "case": "BXP-004",
+      "visualReview": {
+        "status": "accepted",
+        "notes": [
+          "SDK0.6.5 groups the existing cabin allowance, checked allowance, charges and exceptions into four compact information panels with smaller headings. Every original paragraph, dimension, amount, per-kg qualifier and fare exception remains readable across captured pages. Exact Express bytes unchanged. This source contains prose, so no invented weight badges, bag counts or fare actions were added."
+        ],
+        "reviewer": "codex",
+        "updatedAtUtc": "2026-10-08T19:47:05.622400+00:00",
+        "reviewedAfterReceipt": "BXP-004/after/r01/receipt.json",
+        "reviewedAfterReceiptSha256": "2bbde219fc9f09fb56a658f9b5312cabeaebeaede2dfa5edd35b633df239c779",
+        "sourceSha256": "2c00b9414017a7400a66c2c9061057cbefcde3d454956375bb2c8c4863fe584a",
+        "scope": "Explicit visual review of the referenced after captures; source fidelity is not certified."
+      },
+      "runs": [
+        {
+          "receipt": "BXP-004/before/r01/receipt.json",
+          "phase": "before",
+          "attempt": "r01",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        },
+        {
+          "receipt": "BXP-004/after/r01/receipt.json",
+          "phase": "after",
+          "attempt": "r01",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        }
+      ]
+    },
+    {
+      "case": "BXP-005",
+      "visualReview": {
+        "status": "accepted",
+        "notes": [
+          "The section-panel improvement from004 also organizes this metro guide into operating hours, ticket options, interchanges and rider guidance. Full text is readable across both viewport positions; no map/live service status or ticket actions were invented. No further renderer change needed. MODEL LIMITATION: generated Source: A2UI Express v1 generated model contract is false provenance present in the accepted document; missing citations remain. Visual acceptance is not answer/source-fidelity approval. The first raw replay attempt was a harness-input error (unrepaired raw DSL);r02 and after use the actual accepted A2UI document."
+        ],
+        "reviewer": "codex",
+        "updatedAtUtc": "2026-10-08T19:48:58.275033+00:00",
+        "reviewedAfterReceipt": "BXP-005/after/r01/receipt.json",
+        "reviewedAfterReceiptSha256": "9678f09452008178736727b896918b7ec86d56573ba141db5f9e6e9cdbf8d197",
+        "sourceSha256": "acb38af000e4880075bbca34e71944fdd08a6c3bd8d32e3cd146a0c564984241",
+        "scope": "Explicit visual review of the referenced after captures; source fidelity is not certified."
+      },
+      "runs": [
+        {
+          "receipt": "BXP-005/before/r01/receipt.json",
+          "phase": "before",
+          "attempt": "r01",
+          "status": "failed",
+          "automatedChecksSatisfied": false
+        },
+        {
+          "receipt": "BXP-005/before/r02/receipt.json",
+          "phase": "before",
+          "attempt": "r02",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        },
+        {
+          "receipt": "BXP-005/after/r01/receipt.json",
+          "phase": "after",
+          "attempt": "r01",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        }
+      ]
+    },
+    {
+      "case": "BXP-006",
+      "visualReview": {
+        "status": "accepted",
+        "notes": [
+          "Existing route option cards are appropriate: complete waypoint names, blue travel-time emphasis, labeled distance, road conditions and useful stop. Reviewed every scroll page and notes; no need to invent map geometry, live traffic or route selection controls. Source qualifiers and numbered citations retained in model document. No new renderer changes for this sample. The model generated a Continue button without an action; renderer correctly leaves it disabled, which remains a model-output usability limitation.",
+          "SDK 0.6.9 targeted regression on Fold7 R3CY30QFWLP, after/r02: inspected all three PNG pages. Both route cards retain complete waypoint names, travel-time ranges, distance qualifiers, road conditions and stops; all 10 table cells and 10 source prose/List values are present. The complete guidance remains readable and the existing actionless Continue button remains disabled. Same saved source bytes as before; no new clipping or blank chip row was observed."
+        ],
+        "reviewer": "codex",
+        "updatedAtUtc": "2026-10-08T21:00:23.093246+00:00",
+        "reviewedAfterReceipt": "BXP-006/after/r02/receipt.json",
+        "reviewedAfterReceiptSha256": "507aa49c1b754f08e9ac7dcd568a8dfaaacc08434fbde6b1f11393d638249ecb",
+        "sourceSha256": "16cb1db09811207ac690fda6ebbd72526994fb3c36fc7974d1d3ef1d8d7997f0",
+        "scope": "Explicit visual review of the referenced after captures; source fidelity is not certified."
+      },
+      "runs": [
+        {
+          "receipt": "BXP-006/before/r01/receipt.json",
+          "phase": "before",
+          "attempt": "r01",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        },
+        {
+          "receipt": "BXP-006/after/r01/receipt.json",
+          "phase": "after",
+          "attempt": "r01",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        },
+        {
+          "receipt": "BXP-006/after/r02/receipt.json",
+          "phase": "after",
+          "attempt": "r02",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        }
+      ]
+    },
+    {
+      "case": "BXP-007",
+      "visualReview": {
+        "status": "accepted",
+        "notes": [
+          "SDK0.6.6 replaces the narrow sightseeing grid with labeled place cards: all three names, opening hours including Tuesday closure, visit durations, and explicit unavailable-fee strings/citations are readable without horizontal scrolling. Full visit order and caveat retained. Table view/Card view switch passed on Fold7 with capture evidence in visual_007_toggle_20261009; table remains available. Same A2UI bytes before/after. Model-generated View all attractions has no action and remains disabled; no navigation/fees were invented.",
+          "SDK 0.6.9 targeted regression on Fold7 R3CY30QFWLP, after/r02: inspected all three PNG pages. All three place cards retain the 12 supplied cell values, including Tuesday closure, visit durations and exact unavailable-fee strings/citations; all four source prose/List values and the complete visit order/caveat remain readable. Same saved source bytes as before. This regression replay covered the default cards; the earlier Table view/Card view toggle evidence was not rerun in r02."
+        ],
+        "reviewer": "codex",
+        "updatedAtUtc": "2026-10-08T21:00:23.208145+00:00",
+        "reviewedAfterReceipt": "BXP-007/after/r02/receipt.json",
+        "reviewedAfterReceiptSha256": "83ba6cd3a7cc4a75dc6f1c9952acf6f9e34782ef4650dd37c00634f5153d5c26",
+        "sourceSha256": "b56303379b539a0bd7c7930ca57b07467abb33f5994ebac3c47fd035e5ee592a",
+        "scope": "Explicit visual review of the referenced after captures; source fidelity is not certified."
+      },
+      "runs": [
+        {
+          "receipt": "BXP-007/before/r01/receipt.json",
+          "phase": "before",
+          "attempt": "r01",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        },
+        {
+          "receipt": "BXP-007/after/r01/receipt.json",
+          "phase": "after",
+          "attempt": "r01",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        },
+        {
+          "receipt": "BXP-007/after/r02/receipt.json",
+          "phase": "after",
+          "attempt": "r02",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        }
+      ]
+    },
+    {
+      "case": "BXP-008",
+      "visualReview": {
+        "status": "accepted",
+        "notes": [
+          "SDK0.6.7: visually inspected initial and both scroll captures on Fold7. Restaurant name and neighborhood form one header; signature dish now has a restrained highlighted panel; exact cost and full split opening hours/Friday and Sunday closures remain readable, including citations. All three restaurants and final recommendation retained with unchanged A2UI bytes. No photo, rating, open-now state or booking action invented. The source-generated unusual price range is preserved; visual acceptance does not certify its factual accuracy."
+        ],
+        "reviewer": "codex",
+        "updatedAtUtc": "2026-10-08T20:21:34.597855+00:00",
+        "reviewedAfterReceipt": "BXP-008/after/r01/receipt.json",
+        "reviewedAfterReceiptSha256": "92cc66504fb81f9f18aa62a7f9ab09ad16179785068483f85043d99e8c4576ff",
+        "sourceSha256": "6df258117b1c4d3d4232888621c5d03b0fb250c1f2693f9f82af39184d320879",
+        "scope": "Explicit visual review of the referenced after captures; source fidelity is not certified."
+      },
+      "runs": [
+        {
+          "receipt": "BXP-008/before/r01/receipt.json",
+          "phase": "before",
+          "attempt": "r01",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        },
+        {
+          "receipt": "BXP-008/after/r01/receipt.json",
+          "phase": "after",
+          "attempt": "r01",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        }
+      ]
+    },
+    {
+      "case": "BXP-009",
+      "visualReview": {
+        "status": "accepted",
+        "notes": [
+          "SDK0.6.8: inspected initial and both scroll pages on Fold7. Three neighborhood cards now group each full access, transport, atmosphere and drawback paragraph under its area heading; plain divider whitespace is replaced by card boundaries. All original text and ordering retained with identical model document bytes. Seven section-policy tests passed. The model omitted source citations [3], [6], [4]; this renderer-only change does not restore or certify those."
+        ],
+        "reviewer": "codex",
+        "updatedAtUtc": "2026-10-08T20:31:13.155032+00:00",
+        "reviewedAfterReceipt": "BXP-009/after/r01/receipt.json",
+        "reviewedAfterReceiptSha256": "3861d96ea7c366aa7c0d016caffe9d8261a7f12ac997ed4099ba62ff170cdc6a",
+        "sourceSha256": "29a1cc9325ebd2373c4253efaa4508e27c2cabb84ef3e09b1c51b030b29be570",
+        "scope": "Explicit visual review of the referenced after captures; source fidelity is not certified."
+      },
+      "runs": [
+        {
+          "receipt": "BXP-009/before/r01/receipt.json",
+          "phase": "before",
+          "attempt": "r01",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        },
+        {
+          "receipt": "BXP-009/after/r01/receipt.json",
+          "phase": "after",
+          "attempt": "r01",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        }
+      ]
+    },
+    {
+      "case": "BXP-010",
+      "visualReview": {
+        "status": "accepted",
+        "notes": [
+          "Existing SDK0.6.8 product cards are appropriate: all three model names with clearly associated price pills and complete features/trade-offs; live-pricing caveat and best-fit recommendation preserved. Before initial and both scroll pages inspected; after initial content pixels matched exactly and both after scroll pages visually checked. No renderer change needed for this case. No inferred ANC/battery fields, invented photos, ratings or purchase actions.",
+          "SDK 0.6.9 targeted regression on Fold7 R3CY30QFWLP, after/r02: inspected all three PNG pages. All three model names retain their associated price pills and complete features/trade-offs; all nine table cells and five source prose values are present. The live-pricing caveat and complete best-fit recommendation remain readable. Same saved source bytes as before; no clipping or blank chip row was observed."
+        ],
+        "reviewer": "codex",
+        "updatedAtUtc": "2026-10-08T21:00:23.326139+00:00",
+        "reviewedAfterReceipt": "BXP-010/after/r02/receipt.json",
+        "reviewedAfterReceiptSha256": "34623a6f948920e38cc7a73d4b733677c36b248bb9273a47476df4be0b30cebb",
+        "sourceSha256": "e54a9d7e8f4a8fa3f714d0befce8383383b04461c06b9acfc77478abc3d11935",
+        "scope": "Explicit visual review of the referenced after captures; source fidelity is not certified."
+      },
+      "runs": [
+        {
+          "receipt": "BXP-010/before/r01/receipt.json",
+          "phase": "before",
+          "attempt": "r01",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        },
+        {
+          "receipt": "BXP-010/after/r01/receipt.json",
+          "phase": "after",
+          "attempt": "r01",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        },
+        {
+          "receipt": "BXP-010/after/r02/receipt.json",
+          "phase": "after",
+          "attempt": "r02",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        }
+      ]
+    },
+    {
+      "case": "BXP-011",
+      "visualReview": {
+        "status": "accepted",
+        "notes": [
+          "SDK0.6.9: inspected initial and both scroll captures on Fold7. Display, Battery, Software support and Best for now stay in the same field order across all three phones; a short Samsung battery no longer jumps into a chip above Display. Empty chip-row space removed. All 18 table values, long price qualifiers, citations and three quick-pick paragraphs remain readable. Identical accepted model document before/after; 23 mapping/presentation tests passed."
+        ],
+        "reviewer": "codex",
+        "updatedAtUtc": "2026-10-08T20:46:44.439900+00:00",
+        "reviewedAfterReceipt": "BXP-011/after/r01/receipt.json",
+        "reviewedAfterReceiptSha256": "be88049597ecfadca013fbe3da59563183669c76911f574b1cc5989aaaca78bd",
+        "sourceSha256": "7f84fdbb4a88877262268312d14c088a8abffd56dcd195b2af7881783a09a05d",
+        "scope": "Explicit visual review of the referenced after captures; source fidelity is not certified."
+      },
+      "runs": [
+        {
+          "receipt": "BXP-011/before/r01/receipt.json",
+          "phase": "before",
+          "attempt": "r01",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        },
+        {
+          "receipt": "BXP-011/after/r01/receipt.json",
+          "phase": "after",
+          "attempt": "r01",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        }
+      ]
+    },
+    {
+      "case": "BXP-012",
+      "visualReview": {
+        "status": "accepted",
+        "notes": [
+          "SDK0.6.9 existing comparison cards keep all three apps and all offline, synchronization, export and restriction fields readable in consistent order. Initial and both before scroll pages inspected; after initial/first-scroll content pixels match, final scroll visually checked. All three recommendations and final export-coverage caveat remain visible. Model-authored grouping puts the Joplin recommendation outside the Best fit card; preserved rather than guessing a new content hierarchy. No renderer change needed for the main comparison; this remaining grouping limitation is recorded."
+        ],
+        "reviewer": "codex",
+        "updatedAtUtc": "2026-10-08T20:48:43.071482+00:00",
+        "reviewedAfterReceipt": "BXP-012/after/r01/receipt.json",
+        "reviewedAfterReceiptSha256": "60f1acbae1f6a1c1e2f60d6e472d992d17a58acf1fd79e1a10999959d5a82f27",
+        "sourceSha256": "dd8074da0812f60a118180f3df60c33b2f2a626fe603ee98531fa6a84c35a9c3",
+        "scope": "Explicit visual review of the referenced after captures; source fidelity is not certified."
+      },
+      "runs": [
+        {
+          "receipt": "BXP-012/before/r01/receipt.json",
+          "phase": "before",
+          "attempt": "r01",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        },
+        {
+          "receipt": "BXP-012/after/r01/receipt.json",
+          "phase": "after",
+          "attempt": "r01",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        }
+      ]
+    },
+    {
+      "case": "BXP-013",
+      "visualReview": {
+        "status": "accepted",
+        "notes": [
+          "SDK 0.6.10 rate-first FD cards retain strong bank/rate/deposit semantics without deriving new financial facts. Root inspected all default after/r01 pages; the independent dark review inspected all five saved PNGs at font scale 1.3 in visual_013_dark_large_20261009, including the repeated scroll-end capture. Each bank keeps its exact supplied 6.25% rate and Below ₹3 crore bucket; HDFC’s explicit 19 August 2026 effective date and the complete SBI/ICICI source-date wording remain readable. All 12 table cells and all source narrative/List values, citations, tenure qualifiers and premature-withdrawal qualifications/exceptions are preserved across the pages. No clipping, new dates, ranking or penalty facts were introduced. Dark configuration is confirmed by replay_config.json and input JSON bytes match before/default after exactly. Visual acceptance preserves the generated source; it does not certify current rates or source fidelity."
+        ],
+        "reviewer": "codex",
+        "updatedAtUtc": "2026-10-08T21:06:54.837561+00:00",
+        "reviewedAfterReceipt": "BXP-013/after/r01/receipt.json",
+        "reviewedAfterReceiptSha256": "f70c25705577947071ed958725e2833edc6d35f37ec80a7d60ff7961706cce65",
+        "sourceSha256": "5800137e683e596bab366ec786f3430cdef5dfc2c31e5a6d09c9db8e6785e609",
+        "scope": "Explicit visual review of the referenced after captures; source fidelity is not certified."
+      },
+      "runs": [
+        {
+          "receipt": "BXP-013/before/r01/receipt.json",
+          "phase": "before",
+          "attempt": "r01",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        },
+        {
+          "receipt": "BXP-013/after/r01/receipt.json",
+          "phase": "after",
+          "attempt": "r01",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        }
+      ]
+    },
+    {
+      "case": "BXP-014",
+      "visualReview": {
+        "status": "accepted",
+        "notes": [
+          "Root visually inspected after/r01 initial and identical end-page captures on Fold7: the compact quote panel aligns USD/INR, EUR/INR and GBP/INR with their exact four-decimal rates 95.5614, 111.2956 and 129.8867. The shared exact Quoted As Of timestamp 28-Aug-2026 14:23:47 IST clearly applies to all three rows; the full reference-versus-traveler explanation remains unchanged and readable. No new facts were added.",
+          "Mechanical replay evidence records all nine supplied table-cell values as displayed text, with zero missing or accessibility-only cells, zero render failures and zero repair rejections. Before/after saved source SHA-256 is identical: bbc5e5520df3270e7d8a604251bfaa71d54cf6575d7ef55c3ebe283106eb3e76. Three repeated timestamp cells remain explicitly flagged as ambiguous by node coverage; manual visual review established the shared timestamp scope. Node coverage alone does not certify placement or pixel legibility.",
+          "The generated document omits original model-source citation markers [18], [12] and [3]. This is a model citation omission separate from renderer acceptance; the source bytes were preserved. This review does not certify current financial rates or full source fidelity. Four targeted CurrencyQuoteSummary release tests passed in SDK 0.6.11. No later conditional-action guard tests or rollout are claimed here.",
+          "SDK 0.6.12 guarded-route regression: independently inspected both after/r02 screenshots. Source SHA remains identical and all nine table cells remain observed. The complete UI content body at pixels y120 through2399 is pixel-identical to after/r01 in both capture pages; system bars are excluded. All prior visual and model-citation notes remain applicable. This replay does not claim later host guard-unit-test results."
+        ],
+        "reviewer": "codex; root original visual review plus independent SDK0.6.12 regression",
+        "updatedAtUtc": "2026-10-08T21:21:56.893459+00:00",
+        "reviewedAfterReceipt": "BXP-014/after/r02/receipt.json",
+        "reviewedAfterReceiptSha256": "945fa964d157ccf8bbcdab9b8e07f6e53d2bb29252301cade2a79200796fac2b",
+        "sourceSha256": "bbc5e5520df3270e7d8a604251bfaa71d54cf6575d7ef55c3ebe283106eb3e76",
+        "scope": "Explicit visual review of the referenced after captures; source fidelity is not certified."
+      },
+      "runs": [
+        {
+          "receipt": "BXP-014/before/r01/receipt.json",
+          "phase": "before",
+          "attempt": "r01",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        },
+        {
+          "receipt": "BXP-014/after/r01/receipt.json",
+          "phase": "after",
+          "attempt": "r01",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        },
+        {
+          "receipt": "BXP-014/after/r02/receipt.json",
+          "phase": "after",
+          "attempt": "r02",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        }
+      ]
+    },
+    {
+      "case": "BXP-015",
+      "visualReview": {
+        "status": "accepted",
+        "notes": [
+          "Root visually inspected both SDK 0.6.12 default after/r01 captures: compact match metadata groups the supplied date/venue, opponent and format; both exact score strings and result are prominent; both full standout paragraphs remain readable. No new sporting facts were added.",
+          "Independent Fold7 dark-mode/font1.3 JSON replay visual_015_dark_large_20261009 passed, and both saved PNGs were visually inspected without clipping. All ten supplied literal Text values were separately checked across displayed text nodes, including Galle[13], 462 and 193/48.5, 284 and 206, India won by 165 runs, and the two full standout paragraphs. Evidence: BXP-015/visual_015_dark_large_20261009/visual_review.json. Before/default-after/dark saved source SHA-256 is identical: 741fb60af79c62a1efde0572ff1eafad6642cc0718432cbf89e8dd21d410cbcc.",
+          "Rendering acceptance preserves the supplied unusual 193/48.5 score wording and does not certify the sporting facts, match recency or full model/source fidelity. The replay contains no tables, so table coverage status is supplemented by explicit prose checks and visual inspection. No host tests or builds were run for these delegated checks."
+        ],
+        "reviewer": "codex; root default review with independent dark/font1.3 visual review",
+        "updatedAtUtc": "2026-10-08T21:21:57.029858+00:00",
+        "reviewedAfterReceipt": "BXP-015/after/r01/receipt.json",
+        "reviewedAfterReceiptSha256": "ec73e088b54b3bf3264304640b6d1941fccf6debbc5496404cfbafdfc93b67ee",
+        "sourceSha256": "741fb60af79c62a1efde0572ff1eafad6642cc0718432cbf89e8dd21d410cbcc",
+        "scope": "Explicit visual review of the referenced after captures; source fidelity is not certified."
+      },
+      "runs": [
+        {
+          "receipt": "BXP-015/before/r01/receipt.json",
+          "phase": "before",
+          "attempt": "r01",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        },
+        {
+          "receipt": "BXP-015/after/r01/receipt.json",
+          "phase": "after",
+          "attempt": "r01",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        }
+      ]
+    },
+    {
+      "case": "BXP-016",
+      "visualReview": {
+        "status": "accepted",
+        "notes": [
+          "Inspected every before capture and both after captures on Fold7. The before view ignored the declared cards/primary-column intent and hid synopses in a horizontally scrolling grid. SDK0.6.13 now uses complete film cards: all three titles, platforms, exact streaming dates, full synopses with [33]/[21]/[22], and the provenance paragraph with [1] are visible together without horizontal scrolling. Accepted JSON bytes are unchanged. No artwork, ratings or playback actions were invented. This verifies presentation and retained generated content, not factual recency; the unused platformReleaseDate state only duplicates declared dates."
+        ],
+        "reviewer": "codex",
+        "updatedAtUtc": "2026-10-08T21:28:21.022952+00:00",
+        "reviewedAfterReceipt": "BXP-016/after/r01/receipt.json",
+        "reviewedAfterReceiptSha256": "2f56a052813d1520681d069e033ba1cec4b7b653cbd49569cbb2048abd9d4e46",
+        "sourceSha256": "4acf224cd36033df0d3f01186a2fbdbcb141b91eb0204152b4124163e401a7c3",
+        "scope": "Explicit visual review of the referenced after captures; source fidelity is not certified."
+      },
+      "runs": [
+        {
+          "receipt": "BXP-016/before/r01/receipt.json",
+          "phase": "before",
+          "attempt": "r01",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        },
+        {
+          "receipt": "BXP-016/after/r01/receipt.json",
+          "phase": "after",
+          "attempt": "r01",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        }
+      ]
+    },
+    {
+      "case": "BXP-017",
+      "visualReview": {
+        "status": "accepted",
+        "notes": [
+          "Inspected the complete Fold7 response; both after captures are pixel-identical below the system status strip to the inspected before image. The limitation heading and all three explanatory paragraphs are readable without clipping or scrolling. No renderer change was needed: the original source itself declined to provide a verified book list, and the generated graph contains no books, covers, authors or actions to support book cards. Presentation acceptance does not mean the source answered the recommendation query."
+        ],
+        "reviewer": "codex",
+        "updatedAtUtc": "2026-10-08T21:29:18.361295+00:00",
+        "reviewedAfterReceipt": "BXP-017/after/r01/receipt.json",
+        "reviewedAfterReceiptSha256": "5992c6ddeb99f553faafc9c09ac228598f26302f724d801ba6d716757588cf3f",
+        "sourceSha256": "e11673a0cc052f320bf400af394475bfa0a9e4696dfafb1d6f0e90b45a18e80d",
+        "scope": "Explicit visual review of the referenced after captures; source fidelity is not certified."
+      },
+      "runs": [
+        {
+          "receipt": "BXP-017/before/r01/receipt.json",
+          "phase": "before",
+          "attempt": "r01",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        },
+        {
+          "receipt": "BXP-017/after/r01/receipt.json",
+          "phase": "after",
+          "attempt": "r01",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        }
+      ]
+    },
+    {
+      "case": "BXP-018",
+      "visualReview": {
+        "status": "accepted",
+        "notes": [
+          "Inspected both before and both after Fold7 captures. Before failed because the playlist presentation dropped chart dates and split the combined song/artist text in the wrong direction; that failed baseline is preserved. After SDK0.6.14 shows a compact ranked chart with every original rank and full unsplit Song Title, plus the exact shared Chart Week Date. Both observation paragraphs remain visible. Every after check passed against identical generated JSON; the explicit baseline waiver applies only to its two renderer failures. Remaining model fidelity issue: the generated rank-4 entry loses the original source uncertainty, repeats rank 1 and supplies a date; citations [4]/[13]/[1] are absent. Rendering preserves that generated data and does not certify chart accuracy."
+        ],
+        "reviewer": "codex",
+        "updatedAtUtc": "2026-10-08T21:37:21.906657+00:00",
+        "reviewedAfterReceipt": "BXP-018/after/r01/receipt.json",
+        "reviewedAfterReceiptSha256": "1ff65bacd298fd5795eaccc7595a91c1a205d2a7781e7e7581ee17a317487e9a",
+        "sourceSha256": "3e36975625252d2f1bdff8e9450832e6367dd447f934c03b03d2397b0969e0f5",
+        "scope": "Explicit visual review of the referenced after captures; source fidelity is not certified."
+      },
+      "runs": [
+        {
+          "receipt": "BXP-018/before/r01/receipt.json",
+          "phase": "before",
+          "attempt": "r01",
+          "status": "failed",
+          "automatedChecksSatisfied": false
+        },
+        {
+          "receipt": "BXP-018/after/r01/receipt.json",
+          "phase": "after",
+          "attempt": "r01",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        }
+      ]
+    },
+    {
+      "case": "BXP-019",
+      "visualReview": {
+        "status": "accepted",
+        "notes": [
+          "Independently inspected all three before/r01 and all three after/r01 Fold7 SDK 0.6.14 screenshots. Existing game cards are readable and require no renderer change. All three exact names, full online/account age caveats including regional wording, local/online/solo co-op details and player counts remain correctly associated with their games.",
+          "All exact indicative Indian prices, past-promotion prices, the authored US-dollar quote and every qualifier/citation remain visible without clipping. All fifteen original Markdown table values match the saved data model after removing Markdown bold delimiters; all ten original citation markers are retained. All fifteen table-cell values and six literal Text values were independently checked in both before and after XML captures. Two repeated Players=2 cells remain explicitly ambiguous in automated coverage and were manually checked within their respective cards.",
+          "The complete three Best fit recommendations and price-sales/regional-update disclaimer remain readable. Both replays passed all checks using identical source SHA-256 8678392b11be8429ba873a6578a9f3e45979003f0daa3e1254e4edae2ac221b1. Audit: BXP-019/visual_review.json. Existing runtime source-fidelity warnings remain recorded; this visual/content review does not verify current prices, authoritative age ratings or full model/source correctness. No inferred ratings, prices or actions were added."
+        ],
+        "reviewer": "codex; independent before/after visual review",
+        "updatedAtUtc": "2026-10-08T21:41:34.031712+00:00",
+        "reviewedAfterReceipt": "BXP-019/after/r01/receipt.json",
+        "reviewedAfterReceiptSha256": "c177dc81319ab201047e4d09db2718f3a5e722a0b895c15ae965e5df303dfb05",
+        "sourceSha256": "8678392b11be8429ba873a6578a9f3e45979003f0daa3e1254e4edae2ac221b1",
+        "scope": "Explicit visual review of the referenced after captures; source fidelity is not certified."
+      },
+      "runs": [
+        {
+          "receipt": "BXP-019/before/r01/receipt.json",
+          "phase": "before",
+          "attempt": "r01",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        },
+        {
+          "receipt": "BXP-019/after/r01/receipt.json",
+          "phase": "after",
+          "attempt": "r01",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        }
+      ]
+    },
+    {
+      "case": "BXP-020",
+      "visualReview": {
+        "status": "accepted",
+        "notes": [
+          "Reviewed both normal after pages and both dark/font1.3 pages on Fold7. Mission identity is prominent; date and vehicle pair at normal width and stack at large font; complete purpose, provisional-schedule uncertainty and official-versus-third-party qualification remain readable. All replay checks pass on unchanged model JSON. Model omitted source citations [2][10][1][5]; visual acceptance is not factual recency or fidelity certification."
+        ],
+        "reviewer": "codex",
+        "updatedAtUtc": "2026-10-08T21:55:19.425039+00:00",
+        "reviewedAfterReceipt": "BXP-020/after/r01/receipt.json",
+        "reviewedAfterReceiptSha256": "f24538c1c6aabe778ba15eba9a2fbc9d7f5128b0c78f58c7e4bdeca6cb667af1",
+        "sourceSha256": "341c30fe92367f05a4b2f28568ec0a0836ee3a9f56c252aca5fddb7335c52de2",
+        "scope": "Explicit visual review of the referenced after captures; source fidelity is not certified."
+      },
+      "runs": [
+        {
+          "receipt": "BXP-020/before/r01/receipt.json",
+          "phase": "before",
+          "attempt": "r01",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        },
+        {
+          "receipt": "BXP-020/after/r01/receipt.json",
+          "phase": "after",
+          "attempt": "r01",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        }
+      ]
+    },
+    {
+      "case": "BXP-021",
+      "visualReview": {
+        "status": "accepted",
+        "notes": [
+          "Reviewed all three before and after captures. Existing shared section panels provide clear discovery, dating evidence, significance, and established-versus-speculative hierarchy; every paragraph and uncertainty sentence remains readable through the end. No structured dates or images were invented from prose. Current renderer needs no additional change for this sample. All replay checks pass; source factual recency was not evaluated."
+        ],
+        "reviewer": "codex",
+        "updatedAtUtc": "2026-10-08T21:56:17.682855+00:00",
+        "reviewedAfterReceipt": "BXP-021/after/r01/receipt.json",
+        "reviewedAfterReceiptSha256": "b67677ca023a4fa06c9040f796f71ec49943e26927b7d03d9bd146e10576a969",
+        "sourceSha256": "61ec663cfd5f05a39835d397a277b9406a5ab48edf2b81e392b4b4427b9b9333",
+        "scope": "Explicit visual review of the referenced after captures; source fidelity is not certified."
+      },
+      "runs": [
+        {
+          "receipt": "BXP-021/before/r01/receipt.json",
+          "phase": "before",
+          "attempt": "r01",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        },
+        {
+          "receipt": "BXP-021/after/r01/receipt.json",
+          "phase": "after",
+          "attempt": "r01",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        }
+      ]
+    },
+    {
+      "case": "BXP-022",
+      "visualReview": {
+        "status": "accepted",
+        "notes": [
+          "Reviewed all three r02 captures on SDK0.6.17. Five care sections now use consistent compact cards: container size and common problems no longer appear as detached blocks; redundant heading and wrapper padding is removed. All15 original Text values, inch/litre/hour ranges, qualifications and citations are readable. Original wire bytes unchanged; unreachable x/y/z remain untouched. First unchanged visual attempt r01 is preserved.14 SDK tests passed including exact saved wire through production host-gutter normalization."
+        ],
+        "reviewer": "codex",
+        "updatedAtUtc": "2026-10-08T22:15:05.889518+00:00",
+        "reviewedAfterReceipt": "BXP-022/after/r02/receipt.json",
+        "reviewedAfterReceiptSha256": "a90e29df91b6dd74bc0afd81b8727be0e73fa16dd312078e6e3278ebad31a23a",
+        "sourceSha256": "c092340f4d4c8467d8b6683126f4761be782becbbe807f4793b717da9e8f3ce2",
+        "scope": "Explicit visual review of the referenced after captures; source fidelity is not certified."
+      },
+      "runs": [
+        {
+          "receipt": "BXP-022/before/r01/receipt.json",
+          "phase": "before",
+          "attempt": "r01",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        },
+        {
+          "receipt": "BXP-022/after/r01/receipt.json",
+          "phase": "after",
+          "attempt": "r01",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        },
+        {
+          "receipt": "BXP-022/after/r02/receipt.json",
+          "phase": "after",
+          "attempt": "r02",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        }
+      ]
+    },
+    {
+      "case": "BXP-023",
+      "visualReview": {
+        "status": "accepted",
+        "notes": [
+          "All three before and after captures inspected: four care sections and all paragraphs, interval/risk/veterinarian qualifiers and citations remain readable. Existing separated guide sections are usable; no imagery, completed checkmarks, vaccine dates or reminder actions were invented. No additional renderer change. Model adds Checklist complete and a veterinarian footer absent from source; these remain plain generated text, not evidence of completed care, and are recorded as a model fidelity issue. Clinical accuracy is not evaluated by this renderer review."
+        ],
+        "reviewer": "codex",
+        "updatedAtUtc": "2026-10-08T22:16:58.946678+00:00",
+        "reviewedAfterReceipt": "BXP-023/after/r01/receipt.json",
+        "reviewedAfterReceiptSha256": "5c4838554114fb04100215e6ba88fceb902e6603ffb06bf10a8cdb2db54edb9b",
+        "sourceSha256": "ccd8f2fd3b8a36ceb5d9328f97e370610268e668577a6a8d8b7bda877290cb5f",
+        "scope": "Explicit visual review of the referenced after captures; source fidelity is not certified."
+      },
+      "runs": [
+        {
+          "receipt": "BXP-023/before/r01/receipt.json",
+          "phase": "before",
+          "attempt": "r01",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        },
+        {
+          "receipt": "BXP-023/after/r01/receipt.json",
+          "phase": "after",
+          "attempt": "r01",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        }
+      ]
+    },
+    {
+      "case": "BXP-024",
+      "visualReview": {
+        "status": "pending",
+        "notes": []
+      },
+      "runs": [
+        {
+          "receipt": "BXP-024/before/r01/receipt.json",
+          "phase": "before",
+          "attempt": "r01",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        },
+        {
+          "receipt": "BXP-024/after/r01/receipt.json",
+          "phase": "after",
+          "attempt": "r01",
+          "status": "collected",
+          "automatedChecksSatisfied": true
+        }
+      ]
+    }
+  ],
+  "note": "Automated collection/coverage checks do not establish visual acceptance or source fidelity."
+}

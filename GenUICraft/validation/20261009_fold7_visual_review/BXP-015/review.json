@@ -1,0 +1,14 @@
+{
+  "status": "accepted",
+  "notes": [
+    "Root visually inspected both SDK 0.6.12 default after/r01 captures: compact match metadata groups the supplied date/venue, opponent and format; both exact score strings and result are prominent; both full standout paragraphs remain readable. No new sporting facts were added.",
+    "Independent Fold7 dark-mode/font1.3 JSON replay visual_015_dark_large_20261009 passed, and both saved PNGs were visually inspected without clipping. All ten supplied literal Text values were separately checked across displayed text nodes, including Galle[13], 462 and 193/48.5, 284 and 206, India won by 165 runs, and the two full standout paragraphs. Evidence: BXP-015/visual_015_dark_large_20261009/visual_review.json. Before/default-after/dark saved source SHA-256 is identical: 741fb60af79c62a1efde0572ff1eafad6642cc0718432cbf89e8dd21d410cbcc.",
+    "Rendering acceptance preserves the supplied unusual 193/48.5 score wording and does not certify the sporting facts, match recency or full model/source fidelity. The replay contains no tables, so table coverage status is supplemented by explicit prose checks and visual inspection. No host tests or builds were run for these delegated checks."
+  ],
+  "reviewer": "codex; root default review with independent dark/font1.3 visual review",
+  "updatedAtUtc": "2026-10-08T21:21:57.029858+00:00",
+  "reviewedAfterReceipt": "BXP-015/after/r01/receipt.json",
+  "reviewedAfterReceiptSha256": "ec73e088b54b3bf3264304640b6d1941fccf6debbc5496404cfbafdfc93b67ee",
+  "sourceSha256": "741fb60af79c62a1efde0572ff1eafad6642cc0718432cbf89e8dd21d410cbcc",
+  "scope": "Explicit visual review of the referenced after captures; source fidelity is not certified."
+}

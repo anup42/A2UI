@@ -1,0 +1,13 @@
+{
+  "status": "accepted",
+  "notes": [
+    "Existing route option cards are appropriate: complete waypoint names, blue travel-time emphasis, labeled distance, road conditions and useful stop. Reviewed every scroll page and notes; no need to invent map geometry, live traffic or route selection controls. Source qualifiers and numbered citations retained in model document. No new renderer changes for this sample. The model generated a Continue button without an action; renderer correctly leaves it disabled, which remains a model-output usability limitation.",
+    "SDK 0.6.9 targeted regression on Fold7 R3CY30QFWLP, after/r02: inspected all three PNG pages. Both route cards retain complete waypoint names, travel-time ranges, distance qualifiers, road conditions and stops; all 10 table cells and 10 source prose/List values are present. The complete guidance remains readable and the existing actionless Continue button remains disabled. Same saved source bytes as before; no new clipping or blank chip row was observed."
+  ],
+  "reviewer": "codex",
+  "updatedAtUtc": "2026-10-08T21:00:23.093246+00:00",
+  "reviewedAfterReceipt": "BXP-006/after/r02/receipt.json",
+  "reviewedAfterReceiptSha256": "507aa49c1b754f08e9ac7dcd568a8dfaaacc08434fbde6b1f11393d638249ecb",
+  "sourceSha256": "16cb1db09811207ac690fda6ebbd72526994fb3c36fc7974d1d3ef1d8d7997f0",
+  "scope": "Explicit visual review of the referenced after captures; source fidelity is not certified."
+}

@@ -1,0 +1,12 @@
+{
+  "status": "accepted",
+  "notes": [
+    "Reviewed complete before and after captures on Fold7. Compact aligned forecast panel retains all 12 date/high/low/rain values, summary and both tips in the first viewport; removed duplicate hero/chart and unsupported condition icons. Dark mode at 1.3 font scale also fits without clipping. Baseline/final Express SHA identical. Existing model citation omission remains separate from rendering. Shared SDK tests: 483 passed."
+  ],
+  "reviewer": "codex",
+  "updatedAtUtc": "2026-10-08T18:53:40.506471+00:00",
+  "reviewedAfterReceipt": "BXP-001/after/r01/receipt.json",
+  "reviewedAfterReceiptSha256": "dce368f1ffb02283959f63b4ea3598658a67a284f585a632f1868a3e735f58ad",
+  "sourceSha256": "59671e3b384c5410c8dfe6883c1d6b18a51009c8c69b54737c9b4c5a4af4b5db",
+  "scope": "Explicit visual review of the referenced after captures; source fidelity is not certified."
+}

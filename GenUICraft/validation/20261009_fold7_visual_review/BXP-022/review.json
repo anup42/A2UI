@@ -1,0 +1,12 @@
+{
+  "status": "accepted",
+  "notes": [
+    "Reviewed all three r02 captures on SDK0.6.17. Five care sections now use consistent compact cards: container size and common problems no longer appear as detached blocks; redundant heading and wrapper padding is removed. All15 original Text values, inch/litre/hour ranges, qualifications and citations are readable. Original wire bytes unchanged; unreachable x/y/z remain untouched. First unchanged visual attempt r01 is preserved.14 SDK tests passed including exact saved wire through production host-gutter normalization."
+  ],
+  "reviewer": "codex",
+  "updatedAtUtc": "2026-10-08T22:15:05.889518+00:00",
+  "reviewedAfterReceipt": "BXP-022/after/r02/receipt.json",
+  "reviewedAfterReceiptSha256": "a90e29df91b6dd74bc0afd81b8727be0e73fa16dd312078e6e3278ebad31a23a",
+  "sourceSha256": "c092340f4d4c8467d8b6683126f4761be782becbbe807f4793b717da9e8f3ce2",
+  "scope": "Explicit visual review of the referenced after captures; source fidelity is not certified."
+}

@@ -1,0 +1,12 @@
+{
+  "status": "accepted",
+  "notes": [
+    "Inspected both before and both after Fold7 captures. Before failed because the playlist presentation dropped chart dates and split the combined song/artist text in the wrong direction; that failed baseline is preserved. After SDK0.6.14 shows a compact ranked chart with every original rank and full unsplit Song Title, plus the exact shared Chart Week Date. Both observation paragraphs remain visible. Every after check passed against identical generated JSON; the explicit baseline waiver applies only to its two renderer failures. Remaining model fidelity issue: the generated rank-4 entry loses the original source uncertainty, repeats rank 1 and supplies a date; citations [4]/[13]/[1] are absent. Rendering preserves that generated data and does not certify chart accuracy."
+  ],
+  "reviewer": "codex",
+  "updatedAtUtc": "2026-10-08T21:37:21.906657+00:00",
+  "reviewedAfterReceipt": "BXP-018/after/r01/receipt.json",
+  "reviewedAfterReceiptSha256": "1ff65bacd298fd5795eaccc7595a91c1a205d2a7781e7e7581ee17a317487e9a",
+  "sourceSha256": "3e36975625252d2f1bdff8e9450832e6367dd447f934c03b03d2397b0969e0f5",
+  "scope": "Explicit visual review of the referenced after captures; source fidelity is not certified."
+}

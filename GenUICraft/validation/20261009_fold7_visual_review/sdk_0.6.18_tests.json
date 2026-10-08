@@ -1,0 +1,130 @@
+{
+  "sdkVersion": "0.6.18",
+  "variant": "release",
+  "scope": "Prose key/value rows, table viewport usability and air quality semantics",
+  "suites": [
+    {
+      "suite": {
+        "name": "com.samsung.genuicraft.sdk.internal.renderer.FlatKeyValuePresentationPolicyTest",
+        "tests": "3",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-10-08T22:21:16",
+        "hostname": "NOTEBOOK-PC",
+        "time": "0.037"
+      },
+      "tests": [
+        {
+          "name": "long labels and multiline supplied text get full reading width",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.FlatKeyValuePresentationPolicyTest",
+          "time": "0.035"
+        },
+        {
+          "name": "short observation metrics keep the compact aligned layout",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.FlatKeyValuePresentationPolicyTest",
+          "time": "0.001"
+        },
+        {
+          "name": "long instructions use a coherent full width panel without modifying cells",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.FlatKeyValuePresentationPolicyTest",
+          "time": "0.0"
+        }
+      ]
+    },
+    {
+      "suite": {
+        "name": "com.samsung.genuicraft.sdk.internal.renderer.native.intents.airquality.NativeAirQualitySemanticsTest",
+        "tests": "4",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-10-08T22:21:16",
+        "hostname": "NOTEBOOK-PC",
+        "time": "0.026"
+      },
+      "tests": [
+        {
+          "name": "absentAqiGenericStatusAndTimetableDoNotEnterTheAqiRoute",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.native.intents.airquality.NativeAirQualitySemanticsTest",
+          "time": "0.006"
+        },
+        {
+          "name": "unknownFactsCitationsBlankCellsAndDuplicatesAreNotDiscarded",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.native.intents.airquality.NativeAirQualitySemanticsTest",
+          "time": "0.002"
+        },
+        {
+          "name": "onlyDetailValuePairsOverrideStatusShapeAndExplicitGridStillWins",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.native.intents.airquality.NativeAirQualitySemanticsTest",
+          "time": "0.017"
+        },
+        {
+          "name": "suppliedReadingAndContradictoryCategoryRemainExactWithoutThresholdInference",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.native.intents.airquality.NativeAirQualitySemanticsTest",
+          "time": "0.001"
+        }
+      ]
+    },
+    {
+      "suite": {
+        "name": "com.samsung.genuicraft.sdk.internal.renderer.TableViewportUsabilityTest",
+        "tests": "8",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-10-08T22:21:16",
+        "hostname": "NOTEBOOK-PC",
+        "time": "0.063"
+      },
+      "tests": [
+        {
+          "name": "snap boundaries remain bounded without integer overflow",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.TableViewportUsabilityTest",
+          "time": "0.038"
+        },
+        {
+          "name": "numeric alignment retains scalar currency ranges signs and units",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.TableViewportUsabilityTest",
+          "time": "0.018"
+        },
+        {
+          "name": "three-column identities stay attached during horizontal reading",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.TableViewportUsabilityTest",
+          "time": "0.001"
+        },
+        {
+          "name": "snap starts use exact pixel widths and include a clamped final column",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.TableViewportUsabilityTest",
+          "time": "0.0"
+        },
+        {
+          "name": "cost prose is left aligned without changing numeric heuristics used by cards",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.TableViewportUsabilityTest",
+          "time": "0.002"
+        },
+        {
+          "name": "actual narrow and wide host widths are honored independently of device size",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.TableViewportUsabilityTest",
+          "time": "0.0"
+        },
+        {
+          "name": "idle fragments settle to the nearest column and settle only once",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.TableViewportUsabilityTest",
+          "time": "0.0"
+        },
+        {
+          "name": "frozen label and each full value fit the reduced host viewport",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.TableViewportUsabilityTest",
+          "time": "0.0"
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "tests": 15,
+    "skipped": 0,
+    "failures": 0,
+    "errors": 0
+  }
+}

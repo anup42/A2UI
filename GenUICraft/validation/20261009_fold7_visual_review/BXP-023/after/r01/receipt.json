@@ -1,0 +1,201 @@
+{
+  "schemaVersion": 1,
+  "case": "BXP-023",
+  "phase": "after",
+  "attempt": "r01",
+  "startedAtUtc": "2026-10-08T22:16:23.481294+00:00",
+  "runId": "visual_BXP-023_after_r01_c7bea369",
+  "status": "collected",
+  "automatedChecksSatisfied": true,
+  "visualReviewStatus": "pending",
+  "inferenceAttempted": false,
+  "provenance": {
+    "serial": "R3CY30QFWLP",
+    "deviceModel": "SM-F966B",
+    "fingerprint": "samsung/q7qxeea/q7q:16/BP4A.251205.006/F966BXXS9BZE2_OXM9BZE2:userdebug/test-keys",
+    "corpusSha256": "fc46aa381957bed206f9e0f53e28edbb21b5096ca093985ad184fda73faaea0a",
+    "apks": {
+      "com.samsung.genuicraft": [
+        {
+          "path": "/data/app/~~lhP_5W0ahyQ_A9DP_5xrZQ==/com.samsung.genuicraft-kEU4EWRvf5tCXIY5fuSJhg==/base.apk",
+          "sha256": "83787febb391a2fed9e85f6772ba8e3195ed26654230e92369afb335764caf49"
+        }
+      ],
+      "com.samsung.genuicraft.test": [
+        {
+          "path": "/data/app/~~fFo8qAHcHZfzoEqWUwsTEw==/com.samsung.genuicraft.test-o8hY2YMtvYlCMVD5uNk0Eg==/base.apk",
+          "sha256": "8f5d6bb5312b2a7bc8e5d0771f455c12f8a4abeef9886fda42c561b2b4823d2e"
+        }
+      ]
+    },
+    "hostRendererSource": {
+      "files": 88,
+      "sha256": "70cc36c00df9b5142364eed8a6856ccaa387cae903edb4f505bd4a0e5ad4d02e",
+      "note": "Host source fingerprint; installed APK hashes are recorded separately."
+    }
+  },
+  "source": {
+    "originalPath": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20261009_fold7_visual_review\\BXP-023\\before\\r01\\input\\BXP-023\\output.a2ui.json",
+    "sha256": "ccd8f2fd3b8a36ceb5d9328f97e370610268e668577a6a8d8b7bda877290cb5f",
+    "replayMode": "json",
+    "pinnedBeforeReceipt": "BXP-023/before/r01/receipt.json",
+    "pinnedBeforeReceiptSha256": "008387a7695dab19a7295debb307572c01cbef5c3b014def181811e168d60664",
+    "documentOrigin": "Caller-selected saved final output; model provenance is not inferred from its filename.",
+    "archivedPath": "BXP-023/after/r01/input/BXP-023/output.a2ui.json",
+    "remotePath": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_benchmark/visual_BXP-023_after_r01_c7bea369_input/BXP-023/output.a2ui.json",
+    "remoteSha256": "ccd8f2fd3b8a36ceb5d9328f97e370610268e668577a6a8d8b7bda877290cb5f"
+  },
+  "command": [
+    "C:\\Users\\anupk\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe",
+    "-s",
+    "R3CY30QFWLP",
+    "shell",
+    "am",
+    "instrument",
+    "-w",
+    "-r",
+    "-e",
+    "class",
+    "com.samsung.genuicraft.GenUiSdkBixby50Test#replaySavedBixbyCorpus",
+    "-e",
+    "sourceRunId",
+    "visual_BXP-023_after_r01_c7bea369_input",
+    "-e",
+    "runId",
+    "visual_BXP-023_after_r01_c7bea369",
+    "-e",
+    "cases",
+    "BXP-023",
+    "-e",
+    "replayMode",
+    "json",
+    "-e",
+    "maxVerticalSwipes",
+    "30",
+    "-e",
+    "maxHorizontalSwipes",
+    "8",
+    "-e",
+    "renderFontScale",
+    "1.0",
+    "-e",
+    "renderDark",
+    "false",
+    "com.samsung.genuicraft.test/androidx.test.runner.AndroidJUnitRunner"
+  ],
+  "remoteOutput": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_benchmark/visual_BXP-023_after_r01_c7bea369",
+  "adbExitCode": 0,
+  "hostElapsedSeconds": 5.265,
+  "instrumentationPassed": true,
+  "result": {
+    "id": "BXP-023",
+    "kind": "renderer_replay",
+    "replayMode": "json",
+    "sourceRunId": "visual_BXP-023_after_r01_c7bea369_input",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceJsonSha256": "ccd8f2fd3b8a36ceb5d9328f97e370610268e668577a6a8d8b7bda877290cb5f",
+    "sourceArtifact": "visual_BXP-023_after_r01_c7bea369_input/BXP-023/output.a2ui.json",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 11,
+        "fullyVisibleDescriptionNodes": 0
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 11,
+        "fullyVisibleDescriptionNodes": 0
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 11,
+        "fullyVisibleDescriptionNodes": 0
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "coverageStatus": "all_cell_values_observed",
+    "coverageDiagnosticsAffectRenderStatus": false,
+    "visualReviewRequired": true,
+    "status": "rendered",
+    "replayElapsedMs": 3516
+  },
+  "summary": {
+    "kind": "renderer_replay",
+    "replayMode": "json",
+    "runId": "visual_BXP-023_after_r01_c7bea369",
+    "sourceRunId": "visual_BXP-023_after_r01_c7bea369_input",
+    "total": 1,
+    "rendered": 1,
+    "failed": 0,
+    "repairRejected": 0,
+    "renderFailures": 0,
+    "renderedWithCoverageIssues": 0,
+    "casesWithIncompleteCellCoverage": 0,
+    "casesWithAmbiguousRepeatedCells": 0,
+    "coverageDiagnosticsAffectRenderStatus": false,
+    "visualReviewRequired": true,
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "repairCounts": {},
+    "sourceIntegrityAccepted": 0,
+    "sourceIntegrityRejected": 0,
+    "sourceIntegrityNotEvaluated": 0,
+    "sourceTextFallbacks": 0
+  },
+  "checks": {
+    "instrumentationPassed": true,
+    "singleSelectedCase": true,
+    "frozenCorpus": true,
+    "noInference": true,
+    "sameAcceptedInput": true,
+    "renderedWithoutIssues": true,
+    "capturesComplete": true,
+    "verticalEndObserved": true,
+    "allTableColumnsObserved": true
+  },
+  "documentHashes": {
+    "BXP-023/after/r01/artifacts/BXP-023/replay_result.json": "24a571f261c073213c2a3f4fc30ff6b57fa317915689d5554a72abf4e7645de9",
+    "BXP-023/after/r01/artifacts/BXP-023/source.output.a2ui.json": "ccd8f2fd3b8a36ceb5d9328f97e370610268e668577a6a8d8b7bda877290cb5f",
+    "BXP-023/after/r01/artifacts/replay_config.json": "3e353f5f2c49e56a043d4a59ffdd1bf953a695722a5f9e80fb05836ccaa08e2f",
+    "BXP-023/after/r01/artifacts/replay_results.json": "6c97037f699b3d38ff38472749fc9ff52cb7425a64367a2cbc3328f45c6e3a9f",
+    "BXP-023/after/r01/artifacts/replay_summary.json": "ae9be0c75c2ece0c9bad804db2f4cfc75dc7fc58b5cb8dc4e72d3da84ca1f6a6"
+  },
+  "capturedFiles": [
+    {
+      "path": "BXP-023/after/r01/artifacts/BXP-023/initial.png",
+      "sha256": "0ccf422ab681382e213b3f3647fcc02bd3584aa04df4247cef76ba2821474e14"
+    },
+    {
+      "path": "BXP-023/after/r01/artifacts/BXP-023/initial.xml",
+      "sha256": "3db7db1307641007a6896dad628a280276da4fa6e6c3f82f4bfcfe916abd1340"
+    },
+    {
+      "path": "BXP-023/after/r01/artifacts/BXP-023/vertical_1.png",
+      "sha256": "de6f542fdb0d02a2a167feb62a21c5d4628ae33888153c1bd48dbcdbbf4a81d1"
+    },
+    {
+      "path": "BXP-023/after/r01/artifacts/BXP-023/vertical_1.xml",
+      "sha256": "882d155db53112afaf9267484f65669bc8ba9a2508c6d8a2fe95b129edc3022e"
+    },
+    {
+      "path": "BXP-023/after/r01/artifacts/BXP-023/vertical_2.png",
+      "sha256": "2d069f608ba91c9615be7951fb68e08ac571d5b3247677b9b5dd8c06b8e91ee6"
+    },
+    {
+      "path": "BXP-023/after/r01/artifacts/BXP-023/vertical_2.xml",
+      "sha256": "882d155db53112afaf9267484f65669bc8ba9a2508c6d8a2fe95b129edc3022e"
+    }
+  ],
+  "finishedAtUtc": "2026-10-08T22:16:29.776303+00:00"
+}

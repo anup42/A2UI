@@ -1,0 +1,96 @@
+{
+  "sdkVersion": "0.6.16",
+  "variant": "release",
+  "scope": "Container text sections and prior plain sections",
+  "suites": [
+    {
+      "suite": {
+        "name": "com.samsung.genuicraft.sdk.internal.renderer.FlatContainerTextSectionPolicyTest",
+        "tests": "4",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-10-08T22:05:45",
+        "hostname": "NOTEBOOK-PC",
+        "time": "0.049"
+      },
+      "tests": [
+        {
+          "name": "duplicate traversed IDs missing nodes nested structures incomplete sections and nonroot layouts stay unchanged",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.FlatContainerTextSectionPolicyTest",
+          "time": "0.044"
+        },
+        {
+          "name": "plain direct text cards default vertical stacks and h3 headings use the same original IDs",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.FlatContainerTextSectionPolicyTest",
+          "time": "0.001"
+        },
+        {
+          "name": "accepted gardening graph preserves all reachable text IDs props order and citations without inferring unreachable wrappers",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.FlatContainerTextSectionPolicyTest",
+          "time": "0.001"
+        },
+        {
+          "name": "custom containers actions visibility repetition watches and bound text retain their existing route",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.FlatContainerTextSectionPolicyTest",
+          "time": "0.001"
+        }
+      ]
+    },
+    {
+      "suite": {
+        "name": "com.samsung.genuicraft.sdk.internal.renderer.FlatTextSectionPolicyTest",
+        "tests": "7",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-10-08T22:05:45",
+        "hostname": "NOTEBOOK-PC",
+        "time": "0.005"
+      },
+      "tests": [
+        {
+          "name": "mixed nested interactive and unresolved graphs keep their existing renderer",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.FlatTextSectionPolicyTest",
+          "time": "0.001"
+        },
+        {
+          "name": "section identities stay stable as streaming paragraphs arrive",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.FlatTextSectionPolicyTest",
+          "time": "0.002"
+        },
+        {
+          "name": "dynamic visibility repeat and text bindings do not get regrouped",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.FlatTextSectionPolicyTest",
+          "time": "0.0"
+        },
+        {
+          "name": "intro and page title remain outside the section panels",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.FlatTextSectionPolicyTest",
+          "time": "0.0"
+        },
+        {
+          "name": "plain dividers become panel boundaries while all original text and graph data remain",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.FlatTextSectionPolicyTest",
+          "time": "0.0"
+        },
+        {
+          "name": "labeled styled interactive conditional or misplaced dividers keep their authored route",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.FlatTextSectionPolicyTest",
+          "time": "0.001"
+        },
+        {
+          "name": "groups sections without changing nodes text citations or order",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.FlatTextSectionPolicyTest",
+          "time": "0.0"
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "tests": 11,
+    "skipped": 0,
+    "failures": 0,
+    "errors": 0
+  }
+}

@@ -1,0 +1,22 @@
+<a2ui>
+$/={key_terms:[{term:"Deductible",meaning:"A fixed amount you must pay before the insurer pays any admissible claim. In indemnity plans, it is a rupee threshold. [3]",effect:"The insurer starts paying only after the deductible is crossed."},{term:"Co-payment",meaning:"A percentage of the admissible claim that you must bear. It does not reduce the sum insured, but it reduces what the insurer pays for that claim.",effect:"You share the bill in a fixed ratio, such as 10% or 20%."},{term:"Waiting period",meaning:"A period after policy start during which certain claims are not payable. Standard policies generally have a 30-day initial waiting period, and pre-existing-disease waiting periods are commonly capped at 36 months in newer IRDAI-regulated products. [5][7]",effect:"Claims during the waiting period may be fully rejected."},{term:"Room-rent limit",meaning:"A cap on the hospital room charge covered by the policy, often linked to a percentage of the sum insured. [12]",effect:"If you choose a costlier room, some policies reduce payment for other hospital charges in the same proportion."},{term:"Exclusions",meaning:"Treatments or situations the policy does not cover at all, such as pre-existing disease during the waiting period, many non-medical items, cosmetic care, and other listed exclusions. [13][20]",effect:"The insurer pays nothing for excluded items or events."}]}
+root=Column([a,b,c,f,i,p,t],gap="md",padding=16)
+a=Text("Key terms","h2")
+b=Table(columns=[{key:"term",label:"Term"},{key:"meaning",label:"What it means"},{key:"effect",label:"Typical effect on a claim"}],statePath="/key_terms",domain="generic",preferredPresentation="table")
+c=Card([d])
+d=Column([e,f],"sm")
+e=Text("How they work","h2")
+f=Text("A deductible and a co-payment both shift part of the cost to the policyholder, but they work differently: a deductible is paid first and a co-payment is a percentage share of the claim. Room-rent limits are especially important because some policies apply proportionate reduction to other hospital expenses if the room chosen is above the eligible limit. Waiting periods and exclusions are coverage filters, so if a claim falls inside them, the claim may be denied even if the hospital bill is genuine.",variant="body")
+g=Card([h,i])
+h=Text("Two INR 100000 examples","h2")
+i=Column([j,k],"sm")
+j=Text("Example 1: Deductible and co-payment","h3")
+k=Text("Assume a policy has a deductible of INR 20000 and a co-payment of 20% after the deductible. For an admissible claim of INR 100000, you first bear INR 20000, leaving INR 80000; then you pay 20% of that remaining amount, which is INR 16000. The insurer would pay INR 64000.",variant="body")
+l=Column([m,n],"sm")
+m=Text("Example 2: Room-rent limit plus exclusion","h3")
+n=Text("Assume a policy caps room rent at INR 5000 per day, but you choose a room costing INR 10000 per day. In a policy that applies proportionate reduction, the insurer may reduce related hospital charges in the same 1:2 ratio, so even if the total eligible bill is INR 100000, the payable amount can fall materially below INR 100000. If part of the same INR 100000 claim is for an excluded item, such as a non-covered consumable or a treatment excluded by the policy, that portion is paid as INR 0.",variant="body")
+o=Card([p,q])
+p=Text("Practical takeaway","h2")
+q=Text("The biggest surprise in Indian health insurance is usually not the sum insured, but the fine print around room choice, waiting periods, and exclusions. When comparing policies, check whether room-rent limits trigger proportionate deductions, whether pre-existing-disease waiting periods are 36 months or less, and whether your likely treatments fall under exclusions.",variant="body")
+p=Text("End of document","caption")
+</a2ui>

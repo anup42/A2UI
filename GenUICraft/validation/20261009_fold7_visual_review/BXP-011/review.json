@@ -1,0 +1,12 @@
+{
+  "status": "accepted",
+  "notes": [
+    "SDK0.6.9: inspected initial and both scroll captures on Fold7. Display, Battery, Software support and Best for now stay in the same field order across all three phones; a short Samsung battery no longer jumps into a chip above Display. Empty chip-row space removed. All 18 table values, long price qualifiers, citations and three quick-pick paragraphs remain readable. Identical accepted model document before/after; 23 mapping/presentation tests passed."
+  ],
+  "reviewer": "codex",
+  "updatedAtUtc": "2026-10-08T20:46:44.439900+00:00",
+  "reviewedAfterReceipt": "BXP-011/after/r01/receipt.json",
+  "reviewedAfterReceiptSha256": "be88049597ecfadca013fbe3da59563183669c76911f574b1cc5989aaaca78bd",
+  "sourceSha256": "7f84fdbb4a88877262268312d14c088a8abffd56dcd195b2af7881783a09a05d",
+  "scope": "Explicit visual review of the referenced after captures; source fidelity is not certified."
+}

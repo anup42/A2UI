@@ -1,0 +1,218 @@
+{
+  "id": "BXP-001",
+  "kind": "renderer_replay",
+  "replayMode": "express",
+  "sourceRunId": "visual_review_20261009_source",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "visual_review_20261009_source/BXP-001/output.express",
+  "sourceExpressSha256": "59671e3b384c5410c8dfe6883c1d6b18a51009c8c69b54737c9b4c5a4af4b5db",
+  "renderFontScale": 1.3,
+  "renderDark": true,
+  "tables": [
+    {
+      "id": "b",
+      "columns": [
+        "Date",
+        "High (°C)",
+        "Low (°C)",
+        "Rain probability"
+      ],
+      "rowSource": "statePath:/forecast_data",
+      "sourceRows": 3,
+      "sourceCells": 12,
+      "observedHeaders": [
+        "Rain probability"
+      ],
+      "observedRepresentativeCells": [
+        "Wed, Sep 9",
+        "31",
+        "20",
+        "57%",
+        "Thu, Sep 10",
+        "30",
+        "21",
+        "55%",
+        "Fri, Sep 11"
+      ],
+      "cells": [
+        {
+          "row": 1,
+          "column": "Date",
+          "value": "Wed, Sep 9",
+          "displayedTextObserved": true,
+          "accessibilityObserved": true,
+          "repeatedSourceValue": false
+        },
+        {
+          "row": 1,
+          "column": "High (°C)",
+          "value": "31",
+          "displayedTextObserved": true,
+          "accessibilityObserved": true,
+          "repeatedSourceValue": false
+        },
+        {
+          "row": 1,
+          "column": "Low (°C)",
+          "value": "20",
+          "displayedTextObserved": true,
+          "accessibilityObserved": true,
+          "repeatedSourceValue": false
+        },
+        {
+          "row": 1,
+          "column": "Rain probability",
+          "value": "57%",
+          "displayedTextObserved": true,
+          "accessibilityObserved": true,
+          "repeatedSourceValue": false
+        },
+        {
+          "row": 2,
+          "column": "Date",
+          "value": "Thu, Sep 10",
+          "displayedTextObserved": true,
+          "accessibilityObserved": true,
+          "repeatedSourceValue": false
+        },
+        {
+          "row": 2,
+          "column": "High (°C)",
+          "value": "30",
+          "displayedTextObserved": true,
+          "accessibilityObserved": true,
+          "repeatedSourceValue": true
+        },
+        {
+          "row": 2,
+          "column": "Low (°C)",
+          "value": "21",
+          "displayedTextObserved": true,
+          "accessibilityObserved": true,
+          "repeatedSourceValue": true
+        },
+        {
+          "row": 2,
+          "column": "Rain probability",
+          "value": "55%",
+          "displayedTextObserved": true,
+          "accessibilityObserved": true,
+          "repeatedSourceValue": true
+        },
+        {
+          "row": 3,
+          "column": "Date",
+          "value": "Fri, Sep 11",
+          "displayedTextObserved": true,
+          "accessibilityObserved": true,
+          "repeatedSourceValue": false
+        },
+        {
+          "row": 3,
+          "column": "High (°C)",
+          "value": "30",
+          "displayedTextObserved": true,
+          "accessibilityObserved": true,
+          "repeatedSourceValue": true
+        },
+        {
+          "row": 3,
+          "column": "Low (°C)",
+          "value": "21",
+          "displayedTextObserved": true,
+          "accessibilityObserved": true,
+          "repeatedSourceValue": true
+        },
+        {
+          "row": 3,
+          "column": "Rain probability",
+          "value": "55%",
+          "displayedTextObserved": true,
+          "accessibilityObserved": true,
+          "repeatedSourceValue": true
+        }
+      ],
+      "missingCells": [],
+      "accessibilityOnlyCells": [],
+      "ambiguousRepeatedCells": [
+        {
+          "row": 2,
+          "column": "High (°C)",
+          "value": "30",
+          "displayedTextObserved": true,
+          "accessibilityObserved": true,
+          "repeatedSourceValue": true
+        },
+        {
+          "row": 2,
+          "column": "Low (°C)",
+          "value": "21",
+          "displayedTextObserved": true,
+          "accessibilityObserved": true,
+          "repeatedSourceValue": true
+        },
+        {
+          "row": 2,
+          "column": "Rain probability",
+          "value": "55%",
+          "displayedTextObserved": true,
+          "accessibilityObserved": true,
+          "repeatedSourceValue": true
+        },
+        {
+          "row": 3,
+          "column": "High (°C)",
+          "value": "30",
+          "displayedTextObserved": true,
+          "accessibilityObserved": true,
+          "repeatedSourceValue": true
+        },
+        {
+          "row": 3,
+          "column": "Low (°C)",
+          "value": "21",
+          "displayedTextObserved": true,
+          "accessibilityObserved": true,
+          "repeatedSourceValue": true
+        },
+        {
+          "row": 3,
+          "column": "Rain probability",
+          "value": "55%",
+          "displayedTextObserved": true,
+          "accessibilityObserved": true,
+          "repeatedSourceValue": true
+        }
+      ],
+      "displayedCellCoverageComplete": true,
+      "cellPlacementEvaluated": false,
+      "missingColumns": [],
+      "horizontalScrollObserved": false
+    }
+  ],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 26,
+      "fullyVisibleDescriptionNodes": 5
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 26,
+      "fullyVisibleDescriptionNodes": 5
+    }
+  ],
+  "verticalSwipes": 1,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "coverageStatus": "all_cell_values_observed",
+  "coverageDiagnosticsAffectRenderStatus": false,
+  "visualReviewRequired": true,
+  "status": "rendered",
+  "replayElapsedMs": 3015
+}

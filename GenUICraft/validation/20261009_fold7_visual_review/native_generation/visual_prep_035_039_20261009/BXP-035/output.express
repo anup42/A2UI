@@ -1,0 +1,23 @@
+<a2ui>
+$/={plan_data:[{week:"Week 1",walk:"Walk 5 days: 10 minutes at a comfortable brisk pace; use the “can talk, not sing” test to stay moderate.",strength:"2 days, after a walk or on separate days: chair sit-to-stands, wall push-ups, glute bridges, standing calf raises, and bird-dogs. Do 1 set of 6-8 reps each.",recovery:"2 full rest days, with light stretching or easy strolling only."},{week:"Week 2",walk:"Walk 5 days: 12-15 minutes per session.",strength:"2 days: the same exercises, 1-2 sets of 8 reps each.",recovery:"keep one day completely off and one day very light if you feel sore."},{week:"Week 3",walk:"Walk 5 days: 18-20 minutes per session, or split into two short walks if needed.",strength:"2 days: 2 sets of 8-10 reps each, moving slowly and with control.",recovery:"Add 3-5 minutes of balance work after one or two sessions: tandem walking, side steps, or single-leg stands near a wall."},{week:"Week 4",walk:"Walk 5 days: 20-25 minutes per session. If this feels easy, add a few one-minute faster intervals.",strength:"2-3 days: 2 sets of 10-12 reps, keeping form first and stopping before failure.",recovery:"keep at least 1-2 easier days each week."}],exercises_data:[{exercise:"Chair sit-to-stand",focus:"Lower Body"},{exercise:"Wall push-up",focus:"Upper Body"},{exercise:"Glute bridge",focus:"Glutes"},{exercise:"Standing calf raise",focus:"Calves"},{exercise:"Bird-dog or dead bug",focus:"Core"},{exercise:"Side step, heel-to-toe walk, or single-leg stand",focus:"Balance"}]}
+root=Column([a,d,g,j,k,l,m,n,o,p,q,r,s],gap="md",padding=16)
+a=Column([b,c],"sm")
+b=Text("Four-Week Plan","h2")
+c=Text("This plan is designed for a healthy sedentary adult and follows public guidance to build toward about 150 minutes of moderate walking per week plus strength work at least 2 days weekly.",variant="body")
+d=Tabs([{title:"Week 1",child:"e"},{title:"Week 2",child:"f"},{title:"Week 3",child:"g"},{title:"Week 4",child:"h"}])
+e=Table(columns=[{key:"week",label:"Week"},{key:"walk",label:"Walk"},{key:"strength",label:"Strength"},{key:"recovery",label:"Recovery"}],statePath="/plan_data",domain="schedule",preferredPresentation="cards",primaryColumn="week")
+f=Column([g,h],"sm")
+g=Text("Simple Exercises","h3")
+h=Table(columns=[{key:"exercise",label:"Exercise"},{key:"focus",label:"Focus"}],statePath="/exercises_data",domain="generic",preferredPresentation="table")
+i=Text("When To Stop","h3")
+j=Text("Stop exercise right away if you have chest pain or tightness, dizziness, faintness, unusual shortness of breath that stops you talking comfortably, palpitations, nausea, or feel cold and clammy.",variant="body")
+k=Text("How To Adjust","h3")
+l=Text("Too hard: shorten the walk, slow the pace, reduce to 1 set, or use a higher chair or wall support.",variant="body")
+m=Text("Too easy: add 5 minutes to walking, add a set, or use slower lowering on strength moves.",variant="body")
+n=Text("If sore: keep moving lightly, but skip hard sessions until normal soreness settles.",variant="body")
+o=Text("[1][5][8]","caption")
+p=Text("A2UI Express v1 generated model contract","caption")
+q=Text("Generated from pinned grammar/catalog/profile/quality policy: grammar=37044656eb10e4c4a4a54c822432f327c5340761b5bfe914b58fa0db3581cf42 catalog=b5571b35b1af2629361d66e896d59c7dbc5b27aaea17492c274933f6125b518e profile=c0259faae3a08bdb245faf9bb2abe0798b665ddb95c1b174f7e7c5d09ae52b83 quality=299b206f0280f3a622bcab96a8f6d32d113432e473174b8790fc5a266693de0e")
+r=Text("The plan is designed for a healthy sedentary adult and follows public guidance to build toward about 150 minutes of moderate walking per week plus strength work at least 2 days weekly.",variant="body")
+s=Text("A2UI Express v1 generated model contract","caption")
+</a2ui>

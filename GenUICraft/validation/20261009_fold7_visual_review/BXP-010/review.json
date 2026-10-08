@@ -1,0 +1,13 @@
+{
+  "status": "accepted",
+  "notes": [
+    "Existing SDK0.6.8 product cards are appropriate: all three model names with clearly associated price pills and complete features/trade-offs; live-pricing caveat and best-fit recommendation preserved. Before initial and both scroll pages inspected; after initial content pixels matched exactly and both after scroll pages visually checked. No renderer change needed for this case. No inferred ANC/battery fields, invented photos, ratings or purchase actions.",
+    "SDK 0.6.9 targeted regression on Fold7 R3CY30QFWLP, after/r02: inspected all three PNG pages. All three model names retain their associated price pills and complete features/trade-offs; all nine table cells and five source prose values are present. The live-pricing caveat and complete best-fit recommendation remain readable. Same saved source bytes as before; no clipping or blank chip row was observed."
+  ],
+  "reviewer": "codex",
+  "updatedAtUtc": "2026-10-08T21:00:23.326139+00:00",
+  "reviewedAfterReceipt": "BXP-010/after/r02/receipt.json",
+  "reviewedAfterReceiptSha256": "34623a6f948920e38cc7a73d4b733677c36b248bb9273a47476df4be0b30cebb",
+  "sourceSha256": "e54a9d7e8f4a8fa3f714d0befce8383383b04461c06b9acfc77478abc3d11935",
+  "scope": "Explicit visual review of the referenced after captures; source fidelity is not certified."
+}

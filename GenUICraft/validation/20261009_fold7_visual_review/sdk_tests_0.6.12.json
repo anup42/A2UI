@@ -1,0 +1,130 @@
+{
+  "sdkVersion": "0.6.12",
+  "variant": "release",
+  "scope": "Targeted match, currency quote and FD action-preservation tests",
+  "suites": [
+    {
+      "suite": {
+        "name": "com.samsung.genuicraft.sdk.internal.renderer.FlatCurrencyQuoteSummaryTest",
+        "tests": "5",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-10-08T21:18:44",
+        "hostname": "NOTEBOOK-PC",
+        "time": "0.089"
+      },
+      "tests": [
+        {
+          "name": "accepted currency quotes retain every exact pair rate and shared timestamp cell",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.FlatCurrencyQuoteSummaryTest",
+          "time": "0.079"
+        },
+        {
+          "name": "unknown columns blank cells ragged rows and URLs keep all authored content on the existing route",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.FlatCurrencyQuoteSummaryTest",
+          "time": "0.003"
+        },
+        {
+          "name": "weak bank deposit equity and malformed pair schemas keep the existing route",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.FlatCurrencyQuoteSummaryTest",
+          "time": "0.002"
+        },
+        {
+          "name": "URL forms already supported by entity actions in rate or timestamp retain the existing route",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.FlatCurrencyQuoteSummaryTest",
+          "time": "0.002"
+        },
+        {
+          "name": "permuted quote roles preserve pair citations and differing timestamps per row",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.FlatCurrencyQuoteSummaryTest",
+          "time": "0.002"
+        }
+      ]
+    },
+    {
+      "suite": {
+        "name": "com.samsung.genuicraft.sdk.internal.renderer.FlatDepositRateSummaryTest",
+        "tests": "5",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-10-08T21:18:45",
+        "hostname": "NOTEBOOK-PC",
+        "time": "0.021"
+      },
+      "tests": [
+        {
+          "name": "authored media contact and action columns retain the existing renderer",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.FlatDepositRateSummaryTest",
+          "time": "0.012"
+        },
+        {
+          "name": "generic rates forex feature matrices and missing row identities retain their existing route",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.FlatDepositRateSummaryTest",
+          "time": "0.001"
+        },
+        {
+          "name": "permuted bank and fixed deposit rate roles keep unknown labeled details in source order",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.FlatDepositRateSummaryTest",
+          "time": "0.003"
+        },
+        {
+          "name": "URL forms already supported by entity actions keep their existing route even under a plain detail label",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.FlatDepositRateSummaryTest",
+          "time": "0.003"
+        },
+        {
+          "name": "accepted FD comparison preserves every bank rate deposit bucket and effective date wording",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.FlatDepositRateSummaryTest",
+          "time": "0.002"
+        }
+      ]
+    },
+    {
+      "suite": {
+        "name": "com.samsung.genuicraft.sdk.internal.renderer.FlatMatchSummaryTest",
+        "tests": "5",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-10-08T21:18:45",
+        "hostname": "NOTEBOOK-PC",
+        "time": "0.013"
+      },
+      "tests": [
+        {
+          "name": "interactive dynamic styled nested multiline and heading score nodes remain on their existing route",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.FlatMatchSummaryTest",
+          "time": "0.007"
+        },
+        {
+          "name": "noncontiguous fields and two complete candidate runs are ambiguous and remain unchanged",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.FlatMatchSummaryTest",
+          "time": "0.002"
+        },
+        {
+          "name": "weak incomplete duplicate and reused identity fields keep their authored renderer",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.FlatMatchSummaryTest",
+          "time": "0.002"
+        },
+        {
+          "name": "accepted match fields preserve score literals date opponent roles and both root and text identities",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.FlatMatchSummaryTest",
+          "time": "0.001"
+        },
+        {
+          "name": "arbitrary team names unknown fields and qualified score values stay literal",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.FlatMatchSummaryTest",
+          "time": "0.001"
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "tests": 15,
+    "skipped": 0,
+    "failures": 0,
+    "errors": 0
+  }
+}

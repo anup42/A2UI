@@ -1,0 +1,355 @@
+{
+  "schemaVersion": 1,
+  "case": "BXP-002",
+  "phase": "before",
+  "attempt": "r01",
+  "startedAtUtc": "2026-10-08T18:53:40.683873+00:00",
+  "runId": "visual_BXP-002_before_r01_defbfd40",
+  "status": "collected",
+  "automatedChecksSatisfied": true,
+  "visualReviewStatus": "pending",
+  "inferenceAttempted": false,
+  "provenance": {
+    "serial": "R3CY30QFWLP",
+    "deviceModel": "SM-F966B",
+    "fingerprint": "samsung/q7qxeea/q7q:16/BP4A.251205.006/F966BXXS9BZE2_OXM9BZE2:userdebug/test-keys",
+    "corpusSha256": "fc46aa381957bed206f9e0f53e28edbb21b5096ca093985ad184fda73faaea0a",
+    "apks": {
+      "com.samsung.genuicraft": [
+        {
+          "path": "/data/app/~~yDU0sP6cTQxBwrU4gorBgQ==/com.samsung.genuicraft-lzOAMKWE2kUkvqhZbY613A==/base.apk",
+          "sha256": "7f1827ddb3b5c0ff9fef38dec827923cbae951bd2ef1ebbc66008f2f626dc7ae"
+        }
+      ],
+      "com.samsung.genuicraft.test": [
+        {
+          "path": "/data/app/~~IOcLfsneWRTni7DJOOnhHw==/com.samsung.genuicraft.test-T0J-8n_HsOQJ9elr0G8SfQ==/base.apk",
+          "sha256": "f98049546fd93086d7fa31eb090b041a16a3d9ee568780c1477a50f15e653638"
+        }
+      ]
+    },
+    "hostRendererSource": {
+      "files": 77,
+      "sha256": "c5dec7aa1488c91c1f02a7b9f9ecb0aa6465a039d065b8ba1715ce2f32403cac",
+      "note": "Host source fingerprint; installed APK hashes are recorded separately."
+    }
+  },
+  "source": {
+    "originalPath": "C:\\Users\\anupk\\Documents\\git\\A2UI\\.tmp\\20261009_visual_review\\visual_002_current_20261009\\BXP-002\\a2ui.json",
+    "sha256": "410b6ee0be34f153756125c996a6c7aa4695d34f84acda13c8b71fdf72308a82",
+    "replayMode": "json",
+    "sourceMetadata": {
+      "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\.tmp\\20261009_visual_review\\visual_002_current_20261009\\BXP-002\\source.json",
+      "sha256": "994bb0c2581f95caacdc67dfc904ae0dc8032ad15fa45960fb023774c8ac7889",
+      "matchesFrozenCase": true
+    },
+    "callerSuppliedProvenance": {
+      "id": "BXP-002",
+      "status": "valid",
+      "strictValid": true,
+      "renderValid": true,
+      "elapsedMs": 16119,
+      "firstInRun": true,
+      "attempts": 1,
+      "startedAtEpochMs": 1791484871857,
+      "deviceBefore": {
+        "epochMs": 1791484871858,
+        "thermalStatus": 0,
+        "batteryTemperatureC": 31.4,
+        "batteryLevel": 100,
+        "plugged": 2
+      },
+      "metrics": {
+        "inputTokens": 3112,
+        "outputTokens": 237,
+        "decodeTokensPerSecond": 49.96702030132353,
+        "providerCallMs": 16076,
+        "prefillTokensPerSecond": 1759.8825291531737,
+        "timeToFirstTokenSeconds": 1.7883130435,
+        "engineInitializationSeconds": 9.529609215,
+        "engineInitializedForRequest": true,
+        "nativeInitializationPhaseSeconds": 15.674015568,
+        "finishReason": "COMPLETED",
+        "finishDetail": null
+      },
+      "provider": "gemma4_e2b",
+      "providerCalls": 1,
+      "rawStrictValid": true,
+      "runtime": "LiteRT-LM/Gemma4/GPU+FP16_CORRECTED+MTP",
+      "renderedPromptSha256": "d8ce97fc3365a2fb2439760db49142b81be5c064e1ce0b9548863b4f6127ccde",
+      "repairKind": "NONE",
+      "usedFallback": false,
+      "sourceFidelityWarnings": 7,
+      "warnings": [
+        "Runtime: LiteRT-LM/Gemma4/GPU+FP16_CORRECTED+MTP",
+        "Generated-output diagnostic mode: renders repaired model output; no source-text fallback.",
+        "Source fidelity warning: generated output may omit or change source details. It is not a faithful conversion.",
+        "Source fidelity: Conversion must use literal content, without generated state.",
+        "Source fidelity: Conversion must use literal source content.",
+        "Source fidelity: Missing citation markers: [[5], [7]]",
+        "Source fidelity: Missing or changed numeric facts (including signs/units): [8:30, 197, 2.5]",
+        "Source fidelity: Missing source wording: [aqi, observation, time, 8, 30, am, ist, reported, scale, in, 197, pollution, category, poor, main, pollutant, pm2, 5]",
+        "Source fidelity: Added or duplicated visible wording: [detail, value]",
+        "Source fidelity: Visible source wording order or multiplicity changed.",
+        "Trained E2B output passed strict compilation only."
+      ],
+      "rendererContractValid": true,
+      "rendererWarnings": [],
+      "screenCaptured": true,
+      "scrolledScreenCaptured": true,
+      "currentCaseVisible": true,
+      "rendererErrorVisible": false,
+      "caseElapsedMs": 18686,
+      "finishedAtEpochMs": 1791484890546,
+      "deviceAfter": {
+        "epochMs": 1791484890546,
+        "thermalStatus": 0,
+        "batteryTemperatureC": 31.4,
+        "batteryLevel": 100,
+        "plugged": 2
+      }
+    },
+    "callerSuppliedProvenanceSha256": "d63fcee6384f8c6d46bcab34692f936a9338e1fc04336a91250b97837f3aa64b",
+    "documentOrigin": "Caller-selected saved final output; model provenance is not inferred from its filename.",
+    "archivedPath": "BXP-002/before/r01/input/BXP-002/output.a2ui.json",
+    "remotePath": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_benchmark/visual_BXP-002_before_r01_defbfd40_input/BXP-002/output.a2ui.json",
+    "remoteSha256": "410b6ee0be34f153756125c996a6c7aa4695d34f84acda13c8b71fdf72308a82"
+  },
+  "command": [
+    "C:\\Users\\anupk\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.EXE",
+    "-s",
+    "R3CY30QFWLP",
+    "shell",
+    "am",
+    "instrument",
+    "-w",
+    "-r",
+    "-e",
+    "class",
+    "com.samsung.genuicraft.GenUiSdkBixby50Test#replaySavedBixbyCorpus",
+    "-e",
+    "sourceRunId",
+    "visual_BXP-002_before_r01_defbfd40_input",
+    "-e",
+    "runId",
+    "visual_BXP-002_before_r01_defbfd40",
+    "-e",
+    "cases",
+    "BXP-002",
+    "-e",
+    "replayMode",
+    "json",
+    "-e",
+    "maxVerticalSwipes",
+    "30",
+    "-e",
+    "maxHorizontalSwipes",
+    "8",
+    "-e",
+    "renderFontScale",
+    "1.0",
+    "-e",
+    "renderDark",
+    "false",
+    "com.samsung.genuicraft.test/androidx.test.runner.AndroidJUnitRunner"
+  ],
+  "remoteOutput": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_benchmark/visual_BXP-002_before_r01_defbfd40",
+  "adbExitCode": 0,
+  "hostElapsedSeconds": 4.609,
+  "instrumentationPassed": true,
+  "result": {
+    "id": "BXP-002",
+    "kind": "renderer_replay",
+    "replayMode": "json",
+    "sourceRunId": "visual_BXP-002_before_r01_defbfd40_input",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceJsonSha256": "410b6ee0be34f153756125c996a6c7aa4695d34f84acda13c8b71fdf72308a82",
+    "sourceArtifact": "visual_BXP-002_before_r01_defbfd40_input/BXP-002/output.a2ui.json",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Detail",
+          "Value"
+        ],
+        "rowSource": "statePath:/aqi_details",
+        "sourceRows": 4,
+        "sourceCells": 8,
+        "observedHeaders": [
+          "Detail",
+          "Value"
+        ],
+        "observedRepresentativeCells": [
+          "Observation time",
+          "8:30 AM IST",
+          "Reported AQI scale",
+          "AQI-IN 197",
+          "Pollution category",
+          "Poor",
+          "Main pollutant",
+          "PM2.5"
+        ],
+        "cells": [
+          {
+            "row": 1,
+            "column": "Detail",
+            "value": "Observation time",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 1,
+            "column": "Value",
+            "value": "8:30 AM IST",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Detail",
+            "value": "Reported AQI scale",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Value",
+            "value": "AQI-IN 197",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 3,
+            "column": "Detail",
+            "value": "Pollution category",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 3,
+            "column": "Value",
+            "value": "Poor",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 4,
+            "column": "Detail",
+            "value": "Main pollutant",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 4,
+            "column": "Value",
+            "value": "PM2.5",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          }
+        ],
+        "missingCells": [],
+        "accessibilityOnlyCells": [],
+        "ambiguousRepeatedCells": [],
+        "displayedCellCoverageComplete": true,
+        "cellPlacementEvaluated": false,
+        "missingColumns": [],
+        "horizontalScrollObserved": false
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 19,
+        "fullyVisibleDescriptionNodes": 5
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 19,
+        "fullyVisibleDescriptionNodes": 5
+      }
+    ],
+    "verticalSwipes": 1,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "coverageStatus": "all_cell_values_observed",
+    "coverageDiagnosticsAffectRenderStatus": false,
+    "visualReviewRequired": true,
+    "status": "rendered",
+    "replayElapsedMs": 2799
+  },
+  "summary": {
+    "kind": "renderer_replay",
+    "replayMode": "json",
+    "runId": "visual_BXP-002_before_r01_defbfd40",
+    "sourceRunId": "visual_BXP-002_before_r01_defbfd40_input",
+    "total": 1,
+    "rendered": 1,
+    "failed": 0,
+    "repairRejected": 0,
+    "renderFailures": 0,
+    "renderedWithCoverageIssues": 0,
+    "casesWithIncompleteCellCoverage": 0,
+    "casesWithAmbiguousRepeatedCells": 0,
+    "coverageDiagnosticsAffectRenderStatus": false,
+    "visualReviewRequired": true,
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "repairCounts": {},
+    "sourceIntegrityAccepted": 0,
+    "sourceIntegrityRejected": 0,
+    "sourceIntegrityNotEvaluated": 0,
+    "sourceTextFallbacks": 0
+  },
+  "checks": {
+    "instrumentationPassed": true,
+    "singleSelectedCase": true,
+    "frozenCorpus": true,
+    "noInference": true,
+    "sameAcceptedInput": true,
+    "renderedWithoutIssues": true,
+    "capturesComplete": true,
+    "verticalEndObserved": true,
+    "allTableColumnsObserved": true
+  },
+  "documentHashes": {
+    "BXP-002/before/r01/artifacts/BXP-002/replay_result.json": "34b606cb157e69c0ae053063344fcac3a175bea9c24ff3e1d9df3791efbf17dc",
+    "BXP-002/before/r01/artifacts/BXP-002/source.output.a2ui.json": "410b6ee0be34f153756125c996a6c7aa4695d34f84acda13c8b71fdf72308a82",
+    "BXP-002/before/r01/artifacts/replay_config.json": "6089a07cd8db5733423afd2e4d5ad5ee071c82e1630746c832adeb1235619020",
+    "BXP-002/before/r01/artifacts/replay_results.json": "feea9d1f2da2330bac566c76112bd24a533aade6c5e7a398a418c49293de4ee1",
+    "BXP-002/before/r01/artifacts/replay_summary.json": "b4eaac8ef1694836e157f826abf499337a21ed0dcccff002a44a3e3a0cd5ef52"
+  },
+  "capturedFiles": [
+    {
+      "path": "BXP-002/before/r01/artifacts/BXP-002/initial.png",
+      "sha256": "f56f189bd2db89e77b66a78f5c1f6ffe5629042952d43864bf7731394012aac9"
+    },
+    {
+      "path": "BXP-002/before/r01/artifacts/BXP-002/initial.xml",
+      "sha256": "2138251e1efb76e4d2f42d7cbf4d10b3d6c70bf42f4cdd2ada2e568a08da0272"
+    },
+    {
+      "path": "BXP-002/before/r01/artifacts/BXP-002/vertical_1.png",
+      "sha256": "f56f189bd2db89e77b66a78f5c1f6ffe5629042952d43864bf7731394012aac9"
+    },
+    {
+      "path": "BXP-002/before/r01/artifacts/BXP-002/vertical_1.xml",
+      "sha256": "2138251e1efb76e4d2f42d7cbf4d10b3d6c70bf42f4cdd2ada2e568a08da0272"
+    }
+  ],
+  "finishedAtUtc": "2026-10-08T18:53:46.375537+00:00"
+}

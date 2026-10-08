@@ -1,0 +1,36 @@
+{
+  "sdkVersion": "0.6.9",
+  "scope": "Targeted entity-card mapping and presentation tests",
+  "suites": [
+    {
+      "name": "com.samsung.genuicraft.sdk.internal.renderer.EntityTableCardMappingTest",
+      "tests": "7",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-08T20:42:38",
+      "hostname": "NOTEBOOK-PC",
+      "time": "0.175"
+    },
+    {
+      "name": "com.samsung.genuicraft.sdk.internal.renderer.FlatSightseeingPolicyTest",
+      "tests": "3",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-08T20:42:39",
+      "hostname": "NOTEBOOK-PC",
+      "time": "0.002"
+    },
+    {
+      "name": "com.samsung.genuicraft.sdk.internal.renderer.ExplicitTablePresentationTest",
+      "tests": "13",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-08T20:42:39",
+      "hostname": "NOTEBOOK-PC",
+      "time": "0.078"
+    }
+  ]
+}

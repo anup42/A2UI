@@ -1,0 +1,58 @@
+{
+  "id": "BXP-017",
+  "status": "valid",
+  "strictValid": true,
+  "renderValid": true,
+  "elapsedMs": 5167,
+  "firstInRun": false,
+  "attempts": 1,
+  "startedAtEpochMs": 1791485846097,
+  "deviceBefore": {
+    "epochMs": 1791485846097,
+    "thermalStatus": 0,
+    "batteryTemperatureC": 32.9,
+    "batteryLevel": 100,
+    "plugged": 2
+  },
+  "metrics": {
+    "inputTokens": 3089,
+    "outputTokens": 148,
+    "decodeTokensPerSecond": 46.84614773852646,
+    "providerCallMs": 5147,
+    "prefillTokensPerSecond": 1565.22327124059,
+    "timeToFirstTokenSeconds": 1.9948668362500002,
+    "engineInitializationSeconds": null,
+    "engineInitializedForRequest": false,
+    "nativeInitializationPhaseSeconds": null,
+    "finishReason": "COMPLETED",
+    "finishDetail": null
+  },
+  "provider": "gemma4_e2b",
+  "providerCalls": 1,
+  "rawStrictValid": true,
+  "runtime": "LiteRT-LM/Gemma4/GPU+FP16_CORRECTED+MTP",
+  "renderedPromptSha256": "aa8f6c7ec7c3788de194e14304ad5e09410ca055876f0864e8db2bf0af89b2a9",
+  "repairKind": "NONE",
+  "usedFallback": false,
+  "sourceFidelityWarnings": 0,
+  "warnings": [
+    "Runtime: LiteRT-LM/Gemma4/GPU+FP16_CORRECTED+MTP",
+    "Generated-output diagnostic mode: renders repaired model output; no source-text fallback.",
+    "Trained E2B output passed strict compilation and mechanical source-integrity checks."
+  ],
+  "rendererContractValid": true,
+  "rendererWarnings": [],
+  "screenCaptured": true,
+  "scrolledScreenCaptured": true,
+  "currentCaseVisible": true,
+  "rendererErrorVisible": false,
+  "caseElapsedMs": 12747,
+  "finishedAtEpochMs": 1791485858844,
+  "deviceAfter": {
+    "epochMs": 1791485858845,
+    "thermalStatus": 0,
+    "batteryTemperatureC": 32.9,
+    "batteryLevel": 100,
+    "plugged": 2
+  }
+}

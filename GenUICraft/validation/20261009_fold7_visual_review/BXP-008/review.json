@@ -1,0 +1,12 @@
+{
+  "status": "accepted",
+  "notes": [
+    "SDK0.6.7: visually inspected initial and both scroll captures on Fold7. Restaurant name and neighborhood form one header; signature dish now has a restrained highlighted panel; exact cost and full split opening hours/Friday and Sunday closures remain readable, including citations. All three restaurants and final recommendation retained with unchanged A2UI bytes. No photo, rating, open-now state or booking action invented. The source-generated unusual price range is preserved; visual acceptance does not certify its factual accuracy."
+  ],
+  "reviewer": "codex",
+  "updatedAtUtc": "2026-10-08T20:21:34.597855+00:00",
+  "reviewedAfterReceipt": "BXP-008/after/r01/receipt.json",
+  "reviewedAfterReceiptSha256": "92cc66504fb81f9f18aa62a7f9ab09ad16179785068483f85043d99e8c4576ff",
+  "sourceSha256": "6df258117b1c4d3d4232888621c5d03b0fb250c1f2693f9f82af39184d320879",
+  "scope": "Explicit visual review of the referenced after captures; source fidelity is not certified."
+}

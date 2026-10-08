@@ -1,0 +1,398 @@
+{
+  "schemaVersion": 1,
+  "case": "BXP-013",
+  "phase": "after",
+  "attempt": "r01",
+  "startedAtUtc": "2026-10-08T20:58:35.445145+00:00",
+  "runId": "visual_BXP-013_after_r01_39207a6e",
+  "status": "collected",
+  "automatedChecksSatisfied": true,
+  "visualReviewStatus": "pending",
+  "inferenceAttempted": false,
+  "provenance": {
+    "serial": "R3CY30QFWLP",
+    "deviceModel": "SM-F966B",
+    "fingerprint": "samsung/q7qxeea/q7q:16/BP4A.251205.006/F966BXXS9BZE2_OXM9BZE2:userdebug/test-keys",
+    "corpusSha256": "fc46aa381957bed206f9e0f53e28edbb21b5096ca093985ad184fda73faaea0a",
+    "apks": {
+      "com.samsung.genuicraft": [
+        {
+          "path": "/data/app/~~4bcR1FIpt2IlrHZIGpXoYQ==/com.samsung.genuicraft-GZBveJWMhjd4DVRlENAfNQ==/base.apk",
+          "sha256": "f832abcd1fc8333f99202e8c88e1b5d4618293f9f168d8b8a88ca830b353e92d"
+        }
+      ],
+      "com.samsung.genuicraft.test": [
+        {
+          "path": "/data/app/~~fFo8qAHcHZfzoEqWUwsTEw==/com.samsung.genuicraft.test-o8hY2YMtvYlCMVD5uNk0Eg==/base.apk",
+          "sha256": "8f5d6bb5312b2a7bc8e5d0771f455c12f8a4abeef9886fda42c561b2b4823d2e"
+        }
+      ]
+    },
+    "hostRendererSource": {
+      "files": 83,
+      "sha256": "e21aa8334795ad12848c9babe23092e606fbae38712e5a6f76400625ce7d3d6f",
+      "note": "Host source fingerprint; installed APK hashes are recorded separately."
+    }
+  },
+  "source": {
+    "originalPath": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20261009_fold7_visual_review\\BXP-013\\before\\r01\\input\\BXP-013\\output.a2ui.json",
+    "sha256": "5800137e683e596bab366ec786f3430cdef5dfc2c31e5a6d09c9db8e6785e609",
+    "replayMode": "json",
+    "pinnedBeforeReceipt": "BXP-013/before/r01/receipt.json",
+    "pinnedBeforeReceiptSha256": "e1e5aec95b725088ee14301c6582d71466f07557ef94f9709352b57f421ede1f",
+    "documentOrigin": "Caller-selected saved final output; model provenance is not inferred from its filename.",
+    "archivedPath": "BXP-013/after/r01/input/BXP-013/output.a2ui.json",
+    "remotePath": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_benchmark/visual_BXP-013_after_r01_39207a6e_input/BXP-013/output.a2ui.json",
+    "remoteSha256": "5800137e683e596bab366ec786f3430cdef5dfc2c31e5a6d09c9db8e6785e609"
+  },
+  "command": [
+    "C:\\Users\\anupk\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe",
+    "-s",
+    "R3CY30QFWLP",
+    "shell",
+    "am",
+    "instrument",
+    "-w",
+    "-r",
+    "-e",
+    "class",
+    "com.samsung.genuicraft.GenUiSdkBixby50Test#replaySavedBixbyCorpus",
+    "-e",
+    "sourceRunId",
+    "visual_BXP-013_after_r01_39207a6e_input",
+    "-e",
+    "runId",
+    "visual_BXP-013_after_r01_39207a6e",
+    "-e",
+    "cases",
+    "BXP-013",
+    "-e",
+    "replayMode",
+    "json",
+    "-e",
+    "maxVerticalSwipes",
+    "30",
+    "-e",
+    "maxHorizontalSwipes",
+    "8",
+    "-e",
+    "renderFontScale",
+    "1.0",
+    "-e",
+    "renderDark",
+    "false",
+    "com.samsung.genuicraft.test/androidx.test.runner.AndroidJUnitRunner"
+  ],
+  "remoteOutput": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_benchmark/visual_BXP-013_after_r01_39207a6e",
+  "adbExitCode": 0,
+  "hostElapsedSeconds": 9.094,
+  "instrumentationPassed": true,
+  "result": {
+    "id": "BXP-013",
+    "kind": "renderer_replay",
+    "replayMode": "json",
+    "sourceRunId": "visual_BXP-013_after_r01_39207a6e_input",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceJsonSha256": "5800137e683e596bab366ec786f3430cdef5dfc2c31e5a6d09c9db8e6785e609",
+    "sourceArtifact": "visual_BXP-013_after_r01_39207a6e_input/BXP-013/output.a2ui.json",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Bank",
+          "One-year retail FD rate",
+          "Assumed deposit size",
+          "Rate date / effective date"
+        ],
+        "rowSource": "inline_rows",
+        "sourceRows": 3,
+        "sourceCells": 12,
+        "observedHeaders": [
+          "Bank",
+          "One-year retail FD rate",
+          "Assumed deposit size",
+          "Rate date / effective date"
+        ],
+        "observedRepresentativeCells": [
+          "SBI",
+          "6.25%",
+          "Below ₹3 crore",
+          "Current retail grid shown on SBI’s retail domestic term-deposit page",
+          "HDFC Bank",
+          "19 August 2026",
+          "ICICI Bank",
+          "Current retail grid shown in the cited rate snapshot"
+        ],
+        "cells": [
+          {
+            "row": 1,
+            "column": "Bank",
+            "value": "SBI",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 1,
+            "column": "One-year retail FD rate",
+            "value": "6.25%",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 1,
+            "column": "Assumed deposit size",
+            "value": "Below ₹3 crore",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 1,
+            "column": "Rate date / effective date",
+            "value": "Current retail grid shown on SBI’s retail domestic term-deposit page",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Bank",
+            "value": "HDFC Bank",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "One-year retail FD rate",
+            "value": "6.25%",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 2,
+            "column": "Assumed deposit size",
+            "value": "Below ₹3 crore",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 2,
+            "column": "Rate date / effective date",
+            "value": "19 August 2026",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 3,
+            "column": "Bank",
+            "value": "ICICI Bank",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 3,
+            "column": "One-year retail FD rate",
+            "value": "6.25%",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 3,
+            "column": "Assumed deposit size",
+            "value": "Below ₹3 crore",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 3,
+            "column": "Rate date / effective date",
+            "value": "Current retail grid shown in the cited rate snapshot",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          }
+        ],
+        "missingCells": [],
+        "accessibilityOnlyCells": [],
+        "ambiguousRepeatedCells": [
+          {
+            "row": 1,
+            "column": "One-year retail FD rate",
+            "value": "6.25%",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 1,
+            "column": "Assumed deposit size",
+            "value": "Below ₹3 crore",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 2,
+            "column": "One-year retail FD rate",
+            "value": "6.25%",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 2,
+            "column": "Assumed deposit size",
+            "value": "Below ₹3 crore",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 3,
+            "column": "One-year retail FD rate",
+            "value": "6.25%",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 3,
+            "column": "Assumed deposit size",
+            "value": "Below ₹3 crore",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          }
+        ],
+        "displayedCellCoverageComplete": true,
+        "cellPlacementEvaluated": false,
+        "missingColumns": [],
+        "horizontalScrollObserved": false
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 30,
+        "fullyVisibleDescriptionNodes": 0
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 9,
+        "fullyVisibleDescriptionNodes": 0
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 9,
+        "fullyVisibleDescriptionNodes": 0
+      },
+      {
+        "name": "vertical_3",
+        "screenshot": true,
+        "visibleTextNodes": 9,
+        "fullyVisibleDescriptionNodes": 0
+      }
+    ],
+    "verticalSwipes": 3,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "coverageStatus": "all_cell_values_observed",
+    "coverageDiagnosticsAffectRenderStatus": false,
+    "visualReviewRequired": true,
+    "status": "rendered",
+    "replayElapsedMs": 7205
+  },
+  "summary": {
+    "kind": "renderer_replay",
+    "replayMode": "json",
+    "runId": "visual_BXP-013_after_r01_39207a6e",
+    "sourceRunId": "visual_BXP-013_after_r01_39207a6e_input",
+    "total": 1,
+    "rendered": 1,
+    "failed": 0,
+    "repairRejected": 0,
+    "renderFailures": 0,
+    "renderedWithCoverageIssues": 0,
+    "casesWithIncompleteCellCoverage": 0,
+    "casesWithAmbiguousRepeatedCells": 1,
+    "coverageDiagnosticsAffectRenderStatus": false,
+    "visualReviewRequired": true,
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "repairCounts": {},
+    "sourceIntegrityAccepted": 0,
+    "sourceIntegrityRejected": 0,
+    "sourceIntegrityNotEvaluated": 0,
+    "sourceTextFallbacks": 0
+  },
+  "checks": {
+    "instrumentationPassed": true,
+    "singleSelectedCase": true,
+    "frozenCorpus": true,
+    "noInference": true,
+    "sameAcceptedInput": true,
+    "renderedWithoutIssues": true,
+    "capturesComplete": true,
+    "verticalEndObserved": true,
+    "allTableColumnsObserved": true
+  },
+  "documentHashes": {
+    "BXP-013/after/r01/artifacts/BXP-013/replay_result.json": "ae17b85bc8c938c8da8a4a9fd06e72660801a056b5dafa7fbc8cc948acd6cba6",
+    "BXP-013/after/r01/artifacts/BXP-013/source.output.a2ui.json": "5800137e683e596bab366ec786f3430cdef5dfc2c31e5a6d09c9db8e6785e609",
+    "BXP-013/after/r01/artifacts/replay_config.json": "0336fb406bfd7d62a3f5bb76c1a87cff1305ea2d312530d7dfa9ed1e88a0d4bf",
+    "BXP-013/after/r01/artifacts/replay_results.json": "63110edd27e09bf0435e4eb7a86b3fb037dd7e99e4d44bc925e102b617821419",
+    "BXP-013/after/r01/artifacts/replay_summary.json": "fc9d5a1046d009230d70722e8d36090794603a185ed981ea3d855b5d97c6bd3b"
+  },
+  "capturedFiles": [
+    {
+      "path": "BXP-013/after/r01/artifacts/BXP-013/initial.png",
+      "sha256": "4e6f158c9864ec74469887b44bdb8e98fdc4deb7d6496061ce68e03a7a2339e1"
+    },
+    {
+      "path": "BXP-013/after/r01/artifacts/BXP-013/initial.xml",
+      "sha256": "f70721dc76e40c69fb03eef41e19fc7f0a937b6e69d792da125a14e864e6657b"
+    },
+    {
+      "path": "BXP-013/after/r01/artifacts/BXP-013/vertical_1.png",
+      "sha256": "ad3ec23cb4ee533947658e4742b266689034d34f628f0289cdb195426b47d563"
+    },
+    {
+      "path": "BXP-013/after/r01/artifacts/BXP-013/vertical_1.xml",
+      "sha256": "b68de260c19cdf8885b8b920283c364eca25efa4d970afa90ab343a4f2a02e02"
+    },
+    {
+      "path": "BXP-013/after/r01/artifacts/BXP-013/vertical_2.png",
+      "sha256": "c24731abc1f4910b625ef494fb1152d0411037f0ce2259dd112d6b9e9620a4ec"
+    },
+    {
+      "path": "BXP-013/after/r01/artifacts/BXP-013/vertical_2.xml",
+      "sha256": "17f68191b988ef361f679eb6ab6b04d23c4b637aa0290a26bc9e218d31519008"
+    },
+    {
+      "path": "BXP-013/after/r01/artifacts/BXP-013/vertical_3.png",
+      "sha256": "7d5fe79a4bed65a2400cbdcf0363461ab78ac659f885bcaab0deded57c9bf3a4"
+    },
+    {
+      "path": "BXP-013/after/r01/artifacts/BXP-013/vertical_3.xml",
+      "sha256": "17f68191b988ef361f679eb6ab6b04d23c4b637aa0290a26bc9e218d31519008"
+    }
+  ],
+  "finishedAtUtc": "2026-10-08T20:58:45.278620+00:00"
+}

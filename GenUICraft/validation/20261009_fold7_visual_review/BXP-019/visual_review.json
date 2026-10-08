@@ -1,0 +1,204 @@
+{
+  "kind": "saved_capture_visual_review",
+  "case": "BXP-019",
+  "sdkVersion": "0.6.14",
+  "sourceSha256": "8678392b11be8429ba873a6578a9f3e45979003f0daa3e1254e4edae2ac221b1",
+  "beforeAndAfterSameSavedDocument": true,
+  "beforePagesVisuallyInspected": 3,
+  "afterPagesVisuallyInspected": 3,
+  "rendererChangeNeeded": false,
+  "visualVerdict": "accepted",
+  "originalMarkdownTableValuesMatchSavedDataModel": true,
+  "allOriginalCitationMarkersRetained": [
+    "[11]",
+    "[17]",
+    "[19]",
+    "[1]",
+    "[21]",
+    "[29]",
+    "[2]",
+    "[31]",
+    "[40]",
+    "[4]"
+  ],
+  "displayedTextChecks": {
+    "before": [
+      {
+        "sourceText": "Family-friendly co-op picks",
+        "observedInDisplayedText": true
+      },
+      {
+        "sourceText": "Best fit",
+        "observedInDisplayedText": true
+      },
+      {
+        "sourceText": "Best pure two-player story co-op: It Takes Two, with full teamwork focus and free Friend’s Pass access for a second player[11].",
+        "observedInDisplayedText": true
+      },
+      {
+        "sourceText": "Best relaxed local co-op: Unravel Two, which is family-friendly and works well on one screen[19].",
+        "observedInDisplayedText": true
+      },
+      {
+        "sourceText": "Best larger-group party game: Overcooked! 2, especially if you want chaotic family sessions for up to four players.",
+        "observedInDisplayedText": true
+      },
+      {
+        "sourceText": "Indicative India prices are based on current Steam/SteamDB records and may change with sales or regional updates.",
+        "observedInDisplayedText": true
+      },
+      {
+        "sourceText": "It Takes Two",
+        "observedInDisplayedText": true
+      },
+      {
+        "sourceText": "13+ for online features",
+        "observedInDisplayedText": true
+      },
+      {
+        "sourceText": "Online co-op; Friend’s Pass supports inviting a friend",
+        "observedInDisplayedText": true
+      },
+      {
+        "sourceText": "2",
+        "observedInDisplayedText": true
+      },
+      {
+        "sourceText": "₹2,199; SteamDB shows ₹659 on a past promotion [1][21][40]",
+        "observedInDisplayedText": true
+      },
+      {
+        "sourceText": "Unravel Two",
+        "observedInDisplayedText": true
+      },
+      {
+        "sourceText": "13+ or 16+ to register an EA account, depending on region",
+        "observedInDisplayedText": true
+      },
+      {
+        "sourceText": "Local co-op; also playable solo",
+        "observedInDisplayedText": true
+      },
+      {
+        "sourceText": "2",
+        "observedInDisplayedText": true
+      },
+      {
+        "sourceText": "₹1,199; SteamDB shows ₹299 on a past promotion [2][29][31]",
+        "observedInDisplayedText": true
+      },
+      {
+        "sourceText": "Overcooked! 2",
+        "observedInDisplayedText": true
+      },
+      {
+        "sourceText": "No formal age rating listed on the store page",
+        "observedInDisplayedText": true
+      },
+      {
+        "sourceText": "Local couch co-op and online play",
+        "observedInDisplayedText": true
+      },
+      {
+        "sourceText": "1-4",
+        "observedInDisplayedText": true
+      },
+      {
+        "sourceText": "₹1,920 on Steam; Steam page shows $24.99 and supports up to four players [4][17]",
+        "observedInDisplayedText": true
+      }
+    ],
+    "after": [
+      {
+        "sourceText": "Family-friendly co-op picks",
+        "observedInDisplayedText": true
+      },
+      {
+        "sourceText": "Best fit",
+        "observedInDisplayedText": true
+      },
+      {
+        "sourceText": "Best pure two-player story co-op: It Takes Two, with full teamwork focus and free Friend’s Pass access for a second player[11].",
+        "observedInDisplayedText": true
+      },
+      {
+        "sourceText": "Best relaxed local co-op: Unravel Two, which is family-friendly and works well on one screen[19].",
+        "observedInDisplayedText": true
+      },
+      {
+        "sourceText": "Best larger-group party game: Overcooked! 2, especially if you want chaotic family sessions for up to four players.",
+        "observedInDisplayedText": true
+      },
+      {
+        "sourceText": "Indicative India prices are based on current Steam/SteamDB records and may change with sales or regional updates.",
+        "observedInDisplayedText": true
+      },
+      {
+        "sourceText": "It Takes Two",
+        "observedInDisplayedText": true
+      },
+      {
+        "sourceText": "13+ for online features",
+        "observedInDisplayedText": true
+      },
+      {
+        "sourceText": "Online co-op; Friend’s Pass supports inviting a friend",
+        "observedInDisplayedText": true
+      },
+      {
+        "sourceText": "2",
+        "observedInDisplayedText": true
+      },
+      {
+        "sourceText": "₹2,199; SteamDB shows ₹659 on a past promotion [1][21][40]",
+        "observedInDisplayedText": true
+      },
+      {
+        "sourceText": "Unravel Two",
+        "observedInDisplayedText": true
+      },
+      {
+        "sourceText": "13+ or 16+ to register an EA account, depending on region",
+        "observedInDisplayedText": true
+      },
+      {
+        "sourceText": "Local co-op; also playable solo",
+        "observedInDisplayedText": true
+      },
+      {
+        "sourceText": "2",
+        "observedInDisplayedText": true
+      },
+      {
+        "sourceText": "₹1,199; SteamDB shows ₹299 on a past promotion [2][29][31]",
+        "observedInDisplayedText": true
+      },
+      {
+        "sourceText": "Overcooked! 2",
+        "observedInDisplayedText": true
+      },
+      {
+        "sourceText": "No formal age rating listed on the store page",
+        "observedInDisplayedText": true
+      },
+      {
+        "sourceText": "Local couch co-op and online play",
+        "observedInDisplayedText": true
+      },
+      {
+        "sourceText": "1-4",
+        "observedInDisplayedText": true
+      },
+      {
+        "sourceText": "₹1,920 on Steam; Steam page shows $24.99 and supports up to four players [4][17]",
+        "observedInDisplayedText": true
+      }
+    ]
+  },
+  "scope": "Literal content and saved screenshot presentation. No live price, age-rating authority or game factual verification.",
+  "notes": [
+    "All three games preserve long price and account/online age qualifiers, local/online/solo support, player counts and citations without clipping.",
+    "The two repeated Players=2 cells remain flagged by node coverage; their respective cards were independently checked visually.",
+    "All three recommendations and the sales/regional-update caveat are readable. Runtime source-fidelity warnings are retained separately; state-backed table data and citations are present."
+  ]
+}

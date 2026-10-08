@@ -1,0 +1,12 @@
+{
+  "status": "accepted",
+  "notes": [
+    "SDK0.6.8: inspected initial and both scroll pages on Fold7. Three neighborhood cards now group each full access, transport, atmosphere and drawback paragraph under its area heading; plain divider whitespace is replaced by card boundaries. All original text and ordering retained with identical model document bytes. Seven section-policy tests passed. The model omitted source citations [3], [6], [4]; this renderer-only change does not restore or certify those."
+  ],
+  "reviewer": "codex",
+  "updatedAtUtc": "2026-10-08T20:31:13.155032+00:00",
+  "reviewedAfterReceipt": "BXP-009/after/r01/receipt.json",
+  "reviewedAfterReceiptSha256": "3861d96ea7c366aa7c0d016caffe9d8261a7f12ac997ed4099ba62ff170cdc6a",
+  "sourceSha256": "29a1cc9325ebd2373c4253efaa4508e27c2cabb84ef3e09b1c51b030b29be570",
+  "scope": "Explicit visual review of the referenced after captures; source fidelity is not certified."
+}

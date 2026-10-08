@@ -1,0 +1,23 @@
+{
+  "kind": "renderer_replay",
+  "replayMode": "express",
+  "runId": "visual_001_after_dark_large",
+  "sourceRunId": "visual_review_20261009_source",
+  "total": 1,
+  "rendered": 1,
+  "failed": 0,
+  "repairRejected": 0,
+  "renderFailures": 0,
+  "renderedWithCoverageIssues": 0,
+  "casesWithIncompleteCellCoverage": 0,
+  "casesWithAmbiguousRepeatedCells": 1,
+  "coverageDiagnosticsAffectRenderStatus": false,
+  "visualReviewRequired": true,
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "repairCounts": {},
+  "sourceIntegrityAccepted": 0,
+  "sourceIntegrityRejected": 0,
+  "sourceIntegrityNotEvaluated": 0,
+  "sourceTextFallbacks": 0
+}

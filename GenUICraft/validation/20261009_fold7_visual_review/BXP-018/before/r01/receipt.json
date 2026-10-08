@@ -1,0 +1,565 @@
+{
+  "schemaVersion": 1,
+  "case": "BXP-018",
+  "phase": "before",
+  "attempt": "r01",
+  "startedAtUtc": "2026-10-08T21:29:23.858127+00:00",
+  "runId": "visual_BXP-018_before_r01_a67fa604",
+  "status": "failed",
+  "automatedChecksSatisfied": false,
+  "visualReviewStatus": "pending",
+  "inferenceAttempted": false,
+  "provenance": {
+    "serial": "R3CY30QFWLP",
+    "deviceModel": "SM-F966B",
+    "fingerprint": "samsung/q7qxeea/q7q:16/BP4A.251205.006/F966BXXS9BZE2_OXM9BZE2:userdebug/test-keys",
+    "corpusSha256": "fc46aa381957bed206f9e0f53e28edbb21b5096ca093985ad184fda73faaea0a",
+    "apks": {
+      "com.samsung.genuicraft": [
+        {
+          "path": "/data/app/~~43UzbLarMXlI_1iLIRHKDg==/com.samsung.genuicraft-vlN3tEMyd4s_hPNh4SIW_A==/base.apk",
+          "sha256": "8732c837ca59f14e1626c0c58f6a4f2a22743d34d48437d354ca8404a183df64"
+        }
+      ],
+      "com.samsung.genuicraft.test": [
+        {
+          "path": "/data/app/~~fFo8qAHcHZfzoEqWUwsTEw==/com.samsung.genuicraft.test-o8hY2YMtvYlCMVD5uNk0Eg==/base.apk",
+          "sha256": "8f5d6bb5312b2a7bc8e5d0771f455c12f8a4abeef9886fda42c561b2b4823d2e"
+        }
+      ]
+    },
+    "hostRendererSource": {
+      "files": 85,
+      "sha256": "962c287d1ec47f4ad86312f7b70154bacbc0dff96488fc2d4e1f0f9b84c7c063",
+      "note": "Host source fingerprint; installed APK hashes are recorded separately."
+    }
+  },
+  "source": {
+    "originalPath": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20261009_fold7_visual_review\\native_generation\\visual_prep_016_022_20261009\\BXP-018\\a2ui.json",
+    "sha256": "3e36975625252d2f1bdff8e9450832e6367dd447f934c03b03d2397b0969e0f5",
+    "replayMode": "json",
+    "sourceMetadata": {
+      "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20261009_fold7_visual_review\\native_generation\\visual_prep_016_022_20261009\\BXP-018\\source.json",
+      "sha256": "9563ef49aea22da50e18de75a5595703a61344f63bc4e3b2557a775d391c60a2",
+      "matchesFrozenCase": true
+    },
+    "documentOrigin": "Caller-selected saved final output; model provenance is not inferred from its filename.",
+    "archivedPath": "BXP-018/before/r01/input/BXP-018/output.a2ui.json",
+    "remotePath": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_benchmark/visual_BXP-018_before_r01_a67fa604_input/BXP-018/output.a2ui.json",
+    "remoteSha256": "3e36975625252d2f1bdff8e9450832e6367dd447f934c03b03d2397b0969e0f5"
+  },
+  "command": [
+    "C:\\Users\\anupk\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe",
+    "-s",
+    "R3CY30QFWLP",
+    "shell",
+    "am",
+    "instrument",
+    "-w",
+    "-r",
+    "-e",
+    "class",
+    "com.samsung.genuicraft.GenUiSdkBixby50Test#replaySavedBixbyCorpus",
+    "-e",
+    "sourceRunId",
+    "visual_BXP-018_before_r01_a67fa604_input",
+    "-e",
+    "runId",
+    "visual_BXP-018_before_r01_a67fa604",
+    "-e",
+    "cases",
+    "BXP-018",
+    "-e",
+    "replayMode",
+    "json",
+    "-e",
+    "maxVerticalSwipes",
+    "30",
+    "-e",
+    "maxHorizontalSwipes",
+    "8",
+    "-e",
+    "renderFontScale",
+    "1.0",
+    "-e",
+    "renderDark",
+    "false",
+    "com.samsung.genuicraft.test/androidx.test.runner.AndroidJUnitRunner"
+  ],
+  "remoteOutput": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_benchmark/visual_BXP-018_before_r01_a67fa604",
+  "adbExitCode": 0,
+  "hostElapsedSeconds": 5.109,
+  "instrumentationPassed": true,
+  "result": {
+    "id": "BXP-018",
+    "kind": "renderer_replay",
+    "replayMode": "json",
+    "sourceRunId": "visual_BXP-018_before_r01_a67fa604_input",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceJsonSha256": "3e36975625252d2f1bdff8e9450832e6367dd447f934c03b03d2397b0969e0f5",
+    "sourceArtifact": "visual_BXP-018_before_r01_a67fa604_input/BXP-018/output.a2ui.json",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Rank",
+          "Song Title",
+          "Chart Week Date"
+        ],
+        "rowSource": "statePath:/billboard_chart",
+        "sourceRows": 5,
+        "sourceCells": 15,
+        "observedHeaders": [],
+        "observedRepresentativeCells": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "cells": [
+          {
+            "row": 1,
+            "column": "Rank",
+            "value": "1",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 1,
+            "column": "Song Title",
+            "value": "“Hate That I Made You Love Me” — Ariana Grande",
+            "displayedTextObserved": false,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 1,
+            "column": "Chart Week Date",
+            "value": "September 5, 2026",
+            "displayedTextObserved": false,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 2,
+            "column": "Rank",
+            "value": "2",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Song Title",
+            "value": "“Choosin' Texas” — Ella Langley",
+            "displayedTextObserved": false,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Chart Week Date",
+            "value": "September 5, 2026",
+            "displayedTextObserved": false,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 3,
+            "column": "Rank",
+            "value": "3",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 3,
+            "column": "Song Title",
+            "value": "“Loser” — Tame Impala",
+            "displayedTextObserved": false,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 3,
+            "column": "Chart Week Date",
+            "value": "September 5, 2026",
+            "displayedTextObserved": false,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 4,
+            "column": "Rank",
+            "value": "4",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 4,
+            "column": "Song Title",
+            "value": "“Hate That I Made You Love Me” — Ariana Grande",
+            "displayedTextObserved": false,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 4,
+            "column": "Chart Week Date",
+            "value": "September 5, 2026",
+            "displayedTextObserved": false,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 5,
+            "column": "Rank",
+            "value": "5",
+            "displayedTextObserved": true,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 5,
+            "column": "Song Title",
+            "value": "“BbY WOW” — Karol G With Judeline & rusowsky",
+            "displayedTextObserved": false,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 5,
+            "column": "Chart Week Date",
+            "value": "September 5, 2026",
+            "displayedTextObserved": false,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          }
+        ],
+        "missingCells": [
+          {
+            "row": 1,
+            "column": "Song Title",
+            "value": "“Hate That I Made You Love Me” — Ariana Grande",
+            "displayedTextObserved": false,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 1,
+            "column": "Chart Week Date",
+            "value": "September 5, 2026",
+            "displayedTextObserved": false,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 2,
+            "column": "Song Title",
+            "value": "“Choosin' Texas” — Ella Langley",
+            "displayedTextObserved": false,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Chart Week Date",
+            "value": "September 5, 2026",
+            "displayedTextObserved": false,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 3,
+            "column": "Song Title",
+            "value": "“Loser” — Tame Impala",
+            "displayedTextObserved": false,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 3,
+            "column": "Chart Week Date",
+            "value": "September 5, 2026",
+            "displayedTextObserved": false,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 4,
+            "column": "Song Title",
+            "value": "“Hate That I Made You Love Me” — Ariana Grande",
+            "displayedTextObserved": false,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 4,
+            "column": "Chart Week Date",
+            "value": "September 5, 2026",
+            "displayedTextObserved": false,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 5,
+            "column": "Song Title",
+            "value": "“BbY WOW” — Karol G With Judeline & rusowsky",
+            "displayedTextObserved": false,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 5,
+            "column": "Chart Week Date",
+            "value": "September 5, 2026",
+            "displayedTextObserved": false,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          }
+        ],
+        "accessibilityOnlyCells": [
+          {
+            "row": 1,
+            "column": "Song Title",
+            "value": "“Hate That I Made You Love Me” — Ariana Grande",
+            "displayedTextObserved": false,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 1,
+            "column": "Chart Week Date",
+            "value": "September 5, 2026",
+            "displayedTextObserved": false,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 2,
+            "column": "Song Title",
+            "value": "“Choosin' Texas” — Ella Langley",
+            "displayedTextObserved": false,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Chart Week Date",
+            "value": "September 5, 2026",
+            "displayedTextObserved": false,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 3,
+            "column": "Song Title",
+            "value": "“Loser” — Tame Impala",
+            "displayedTextObserved": false,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 3,
+            "column": "Chart Week Date",
+            "value": "September 5, 2026",
+            "displayedTextObserved": false,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 4,
+            "column": "Song Title",
+            "value": "“Hate That I Made You Love Me” — Ariana Grande",
+            "displayedTextObserved": false,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 4,
+            "column": "Chart Week Date",
+            "value": "September 5, 2026",
+            "displayedTextObserved": false,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 5,
+            "column": "Song Title",
+            "value": "“BbY WOW” — Karol G With Judeline & rusowsky",
+            "displayedTextObserved": false,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 5,
+            "column": "Chart Week Date",
+            "value": "September 5, 2026",
+            "displayedTextObserved": false,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          }
+        ],
+        "ambiguousRepeatedCells": [
+          {
+            "row": 1,
+            "column": "Song Title",
+            "value": "“Hate That I Made You Love Me” — Ariana Grande",
+            "displayedTextObserved": false,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 1,
+            "column": "Chart Week Date",
+            "value": "September 5, 2026",
+            "displayedTextObserved": false,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 2,
+            "column": "Chart Week Date",
+            "value": "September 5, 2026",
+            "displayedTextObserved": false,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 3,
+            "column": "Chart Week Date",
+            "value": "September 5, 2026",
+            "displayedTextObserved": false,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 4,
+            "column": "Song Title",
+            "value": "“Hate That I Made You Love Me” — Ariana Grande",
+            "displayedTextObserved": false,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 4,
+            "column": "Chart Week Date",
+            "value": "September 5, 2026",
+            "displayedTextObserved": false,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 5,
+            "column": "Chart Week Date",
+            "value": "September 5, 2026",
+            "displayedTextObserved": false,
+            "accessibilityObserved": true,
+            "repeatedSourceValue": true
+          }
+        ],
+        "displayedCellCoverageComplete": false,
+        "cellPlacementEvaluated": false,
+        "missingColumns": [
+          "Song Title",
+          "Chart Week Date"
+        ],
+        "horizontalScrollObserved": false
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 24,
+        "fullyVisibleDescriptionNodes": 7
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 24,
+        "fullyVisibleDescriptionNodes": 7
+      }
+    ],
+    "verticalSwipes": 1,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [
+      "Unobserved table columns (b): [Song Title, Chart Week Date]",
+      "Unobserved table cells (b): [{row=1, column=Song Title, value=“Hate That I Made You Love Me” — Ariana Grande, displayedTextObserved=false, accessibilityObserved=true, repeatedSourceValue=true}, {row=1, column=Chart Week Date, value=September 5, 2026, displayedTextObserved=false, accessibilityObserved=true, repeatedSourceValue=true}, {row=2, column=Song Title, value=“Choosin' Texas” — Ella Langley, displayedTextObserved=false, accessibilityObserved=true, repeatedSourceValue=false}, {row=2, column=Chart Week Date, value=September 5, 2026, displayedTextObserved=false, accessibilityObserved=true, repeatedSourceValue=true}, {row=3, column=Song Title, value=“Loser” — Tame Impala, displayedTextObserved=false, accessibilityObserved=true, repeatedSourceValue=false}, {row=3, column=Chart Week Date, value=September 5, 2026, displayedTextObserved=false, accessibilityObserved=true, repeatedSourceValue=true}, {row=4, column=Song Title, value=“Hate That I Made You Love Me” — Ariana Grande, displayedTextObserved=false, accessibilityObserved=true, repeatedSourceValue=true}, {row=4, column=Chart Week Date, value=September 5, 2026, displayedTextObserved=false, accessibilityObserved=true, repeatedSourceValue=true}, {row=5, column=Song Title, value=“BbY WOW” — Karol G With Judeline & rusowsky, displayedTextObserved=false, accessibilityObserved=true, repeatedSourceValue=false}, {row=5, column=Chart Week Date, value=September 5, 2026, displayedTextObserved=false, accessibilityObserved=true, repeatedSourceValue=true}]"
+    ],
+    "coverageStatus": "incomplete",
+    "coverageDiagnosticsAffectRenderStatus": false,
+    "visualReviewRequired": true,
+    "status": "rendered",
+    "replayElapsedMs": 3280
+  },
+  "summary": {
+    "kind": "renderer_replay",
+    "replayMode": "json",
+    "runId": "visual_BXP-018_before_r01_a67fa604",
+    "sourceRunId": "visual_BXP-018_before_r01_a67fa604_input",
+    "total": 1,
+    "rendered": 1,
+    "failed": 0,
+    "repairRejected": 0,
+    "renderFailures": 0,
+    "renderedWithCoverageIssues": 1,
+    "casesWithIncompleteCellCoverage": 1,
+    "casesWithAmbiguousRepeatedCells": 1,
+    "coverageDiagnosticsAffectRenderStatus": false,
+    "visualReviewRequired": true,
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "repairCounts": {},
+    "sourceIntegrityAccepted": 0,
+    "sourceIntegrityRejected": 0,
+    "sourceIntegrityNotEvaluated": 0,
+    "sourceTextFallbacks": 0
+  },
+  "checks": {
+    "instrumentationPassed": true,
+    "singleSelectedCase": true,
+    "frozenCorpus": true,
+    "noInference": true,
+    "sameAcceptedInput": true,
+    "renderedWithoutIssues": false,
+    "capturesComplete": true,
+    "verticalEndObserved": true,
+    "allTableColumnsObserved": false
+  },
+  "documentHashes": {
+    "BXP-018/before/r01/artifacts/BXP-018/replay_result.json": "1fd3807ced2fb2c26de2aeab515a5a90262c2c40cb0aca07635935aaedff901c",
+    "BXP-018/before/r01/artifacts/BXP-018/source.output.a2ui.json": "3e36975625252d2f1bdff8e9450832e6367dd447f934c03b03d2397b0969e0f5",
+    "BXP-018/before/r01/artifacts/replay_config.json": "fe2da1b3c897b76f5aea84eef8df103927ae188c803e69f5f697cd3a4bc88660",
+    "BXP-018/before/r01/artifacts/replay_results.json": "b2a101d213e107c6c0efd556844e96ce82892234ee8ff1becdf885efc1b55e12",
+    "BXP-018/before/r01/artifacts/replay_summary.json": "ccc880e4eca34a7f44d6b58ebb04c2e192087380fad07a765a2721e08a336201"
+  },
+  "capturedFiles": [
+    {
+      "path": "BXP-018/before/r01/artifacts/BXP-018/initial.png",
+      "sha256": "45a2eaaf887d23fd52aca208e8934db003f0bd4be17b77138e024414a4e117d0"
+    },
+    {
+      "path": "BXP-018/before/r01/artifacts/BXP-018/initial.xml",
+      "sha256": "a9ffb62ccffd8cb11611a152aacea7b8fb7c1c848fbb29c5779b923117ae2f4b"
+    },
+    {
+      "path": "BXP-018/before/r01/artifacts/BXP-018/vertical_1.png",
+      "sha256": "7732a5e05e12d4bb7530e36294dd0ef42368ad7d75601a1d9c0ed2b0a7d3b35a"
+    },
+    {
+      "path": "BXP-018/before/r01/artifacts/BXP-018/vertical_1.xml",
+      "sha256": "a9ffb62ccffd8cb11611a152aacea7b8fb7c1c848fbb29c5779b923117ae2f4b"
+    }
+  ],
+  "error": "Checks did not all pass; inspect the receipt. The attempt is preserved.",
+  "finishedAtUtc": "2026-10-08T21:29:29.919789+00:00"
+}

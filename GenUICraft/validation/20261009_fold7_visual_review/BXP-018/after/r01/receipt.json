@@ -1,0 +1,412 @@
+{
+  "schemaVersion": 1,
+  "case": "BXP-018",
+  "phase": "after",
+  "attempt": "r01",
+  "startedAtUtc": "2026-10-08T21:36:49.259068+00:00",
+  "runId": "visual_BXP-018_after_r01_159f8855",
+  "status": "collected",
+  "automatedChecksSatisfied": true,
+  "visualReviewStatus": "pending",
+  "inferenceAttempted": false,
+  "provenance": {
+    "serial": "R3CY30QFWLP",
+    "deviceModel": "SM-F966B",
+    "fingerprint": "samsung/q7qxeea/q7q:16/BP4A.251205.006/F966BXXS9BZE2_OXM9BZE2:userdebug/test-keys",
+    "corpusSha256": "fc46aa381957bed206f9e0f53e28edbb21b5096ca093985ad184fda73faaea0a",
+    "apks": {
+      "com.samsung.genuicraft": [
+        {
+          "path": "/data/app/~~1y8oWTv6vvgCHhhFkgtseA==/com.samsung.genuicraft-RF8VtkIzk22Jqk_gA8Gpbw==/base.apk",
+          "sha256": "a0b65c4416901f1412cac70340fc8d74639064f272fd36aba69f5b943206290c"
+        }
+      ],
+      "com.samsung.genuicraft.test": [
+        {
+          "path": "/data/app/~~fFo8qAHcHZfzoEqWUwsTEw==/com.samsung.genuicraft.test-o8hY2YMtvYlCMVD5uNk0Eg==/base.apk",
+          "sha256": "8f5d6bb5312b2a7bc8e5d0771f455c12f8a4abeef9886fda42c561b2b4823d2e"
+        }
+      ]
+    },
+    "hostRendererSource": {
+      "files": 86,
+      "sha256": "f0606aa0e6ae91beceb40266163d83ecd391efa2497e972ed32c65477c16a13d",
+      "note": "Host source fingerprint; installed APK hashes are recorded separately."
+    }
+  },
+  "source": {
+    "originalPath": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20261009_fold7_visual_review\\BXP-018\\before\\r01\\input\\BXP-018\\output.a2ui.json",
+    "sha256": "3e36975625252d2f1bdff8e9450832e6367dd447f934c03b03d2397b0969e0f5",
+    "replayMode": "json",
+    "pinnedBeforeReceipt": "BXP-018/before/r01/receipt.json",
+    "pinnedBeforeReceiptSha256": "5790773cabc6a8b5c47f014c66042f1a5a77aac70df419e429425f858127d4a7",
+    "beforeRenderFailureOverride": {
+      "enabled": true,
+      "overriddenChecks": [
+        "allTableColumnsObserved",
+        "renderedWithoutIssues"
+      ],
+      "beforeStatus": "failed",
+      "beforeAutomatedChecksSatisfied": false,
+      "scope": "Explicit comparison-only baseline waiver. Before remains failed; all after checks are required."
+    },
+    "documentOrigin": "Caller-selected saved final output; model provenance is not inferred from its filename.",
+    "archivedPath": "BXP-018/after/r01/input/BXP-018/output.a2ui.json",
+    "remotePath": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_benchmark/visual_BXP-018_after_r01_159f8855_input/BXP-018/output.a2ui.json",
+    "remoteSha256": "3e36975625252d2f1bdff8e9450832e6367dd447f934c03b03d2397b0969e0f5"
+  },
+  "command": [
+    "C:\\Users\\anupk\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe",
+    "-s",
+    "R3CY30QFWLP",
+    "shell",
+    "am",
+    "instrument",
+    "-w",
+    "-r",
+    "-e",
+    "class",
+    "com.samsung.genuicraft.GenUiSdkBixby50Test#replaySavedBixbyCorpus",
+    "-e",
+    "sourceRunId",
+    "visual_BXP-018_after_r01_159f8855_input",
+    "-e",
+    "runId",
+    "visual_BXP-018_after_r01_159f8855",
+    "-e",
+    "cases",
+    "BXP-018",
+    "-e",
+    "replayMode",
+    "json",
+    "-e",
+    "maxVerticalSwipes",
+    "30",
+    "-e",
+    "maxHorizontalSwipes",
+    "8",
+    "-e",
+    "renderFontScale",
+    "1.0",
+    "-e",
+    "renderDark",
+    "false",
+    "com.samsung.genuicraft.test/androidx.test.runner.AndroidJUnitRunner"
+  ],
+  "remoteOutput": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_benchmark/visual_BXP-018_after_r01_159f8855",
+  "adbExitCode": 0,
+  "hostElapsedSeconds": 4.766,
+  "instrumentationPassed": true,
+  "result": {
+    "id": "BXP-018",
+    "kind": "renderer_replay",
+    "replayMode": "json",
+    "sourceRunId": "visual_BXP-018_after_r01_159f8855_input",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceJsonSha256": "3e36975625252d2f1bdff8e9450832e6367dd447f934c03b03d2397b0969e0f5",
+    "sourceArtifact": "visual_BXP-018_after_r01_159f8855_input/BXP-018/output.a2ui.json",
+    "renderFontScale": 1.0,
+    "renderDark": false,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Rank",
+          "Song Title",
+          "Chart Week Date"
+        ],
+        "rowSource": "statePath:/billboard_chart",
+        "sourceRows": 5,
+        "sourceCells": 15,
+        "observedHeaders": [
+          "Rank",
+          "Song Title",
+          "Chart Week Date"
+        ],
+        "observedRepresentativeCells": [
+          "1",
+          "“Hate That I Made You Love Me” — Ariana Grande",
+          "September 5, 2026",
+          "2",
+          "“Choosin' Texas” — Ella Langley",
+          "3",
+          "“Loser” — Tame Impala",
+          "4",
+          "5",
+          "“BbY WOW” — Karol G With Judeline & rusowsky"
+        ],
+        "cells": [
+          {
+            "row": 1,
+            "column": "Rank",
+            "value": "1",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 1,
+            "column": "Song Title",
+            "value": "“Hate That I Made You Love Me” — Ariana Grande",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 1,
+            "column": "Chart Week Date",
+            "value": "September 5, 2026",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 2,
+            "column": "Rank",
+            "value": "2",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Song Title",
+            "value": "“Choosin' Texas” — Ella Langley",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 2,
+            "column": "Chart Week Date",
+            "value": "September 5, 2026",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 3,
+            "column": "Rank",
+            "value": "3",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 3,
+            "column": "Song Title",
+            "value": "“Loser” — Tame Impala",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 3,
+            "column": "Chart Week Date",
+            "value": "September 5, 2026",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 4,
+            "column": "Rank",
+            "value": "4",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 4,
+            "column": "Song Title",
+            "value": "“Hate That I Made You Love Me” — Ariana Grande",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 4,
+            "column": "Chart Week Date",
+            "value": "September 5, 2026",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 5,
+            "column": "Rank",
+            "value": "5",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 5,
+            "column": "Song Title",
+            "value": "“BbY WOW” — Karol G With Judeline & rusowsky",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": false
+          },
+          {
+            "row": 5,
+            "column": "Chart Week Date",
+            "value": "September 5, 2026",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          }
+        ],
+        "missingCells": [],
+        "accessibilityOnlyCells": [],
+        "ambiguousRepeatedCells": [
+          {
+            "row": 1,
+            "column": "Song Title",
+            "value": "“Hate That I Made You Love Me” — Ariana Grande",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 1,
+            "column": "Chart Week Date",
+            "value": "September 5, 2026",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 2,
+            "column": "Chart Week Date",
+            "value": "September 5, 2026",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 3,
+            "column": "Chart Week Date",
+            "value": "September 5, 2026",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 4,
+            "column": "Song Title",
+            "value": "“Hate That I Made You Love Me” — Ariana Grande",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 4,
+            "column": "Chart Week Date",
+            "value": "September 5, 2026",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          },
+          {
+            "row": 5,
+            "column": "Chart Week Date",
+            "value": "September 5, 2026",
+            "displayedTextObserved": true,
+            "accessibilityObserved": false,
+            "repeatedSourceValue": true
+          }
+        ],
+        "displayedCellCoverageComplete": true,
+        "cellPlacementEvaluated": false,
+        "missingColumns": [],
+        "horizontalScrollObserved": false
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 17,
+        "fullyVisibleDescriptionNodes": 0
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 17,
+        "fullyVisibleDescriptionNodes": 0
+      }
+    ],
+    "verticalSwipes": 1,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "coverageStatus": "all_cell_values_observed",
+    "coverageDiagnosticsAffectRenderStatus": false,
+    "visualReviewRequired": true,
+    "status": "rendered",
+    "replayElapsedMs": 2869
+  },
+  "summary": {
+    "kind": "renderer_replay",
+    "replayMode": "json",
+    "runId": "visual_BXP-018_after_r01_159f8855",
+    "sourceRunId": "visual_BXP-018_after_r01_159f8855_input",
+    "total": 1,
+    "rendered": 1,
+    "failed": 0,
+    "repairRejected": 0,
+    "renderFailures": 0,
+    "renderedWithCoverageIssues": 0,
+    "casesWithIncompleteCellCoverage": 0,
+    "casesWithAmbiguousRepeatedCells": 1,
+    "coverageDiagnosticsAffectRenderStatus": false,
+    "visualReviewRequired": true,
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "repairCounts": {},
+    "sourceIntegrityAccepted": 0,
+    "sourceIntegrityRejected": 0,
+    "sourceIntegrityNotEvaluated": 0,
+    "sourceTextFallbacks": 0
+  },
+  "checks": {
+    "instrumentationPassed": true,
+    "singleSelectedCase": true,
+    "frozenCorpus": true,
+    "noInference": true,
+    "sameAcceptedInput": true,
+    "renderedWithoutIssues": true,
+    "capturesComplete": true,
+    "verticalEndObserved": true,
+    "allTableColumnsObserved": true
+  },
+  "documentHashes": {
+    "BXP-018/after/r01/artifacts/BXP-018/replay_result.json": "dd35ae654a4bca31b17e257897da6560b74e99b63a020e14993cf932ea977bac",
+    "BXP-018/after/r01/artifacts/BXP-018/source.output.a2ui.json": "3e36975625252d2f1bdff8e9450832e6367dd447f934c03b03d2397b0969e0f5",
+    "BXP-018/after/r01/artifacts/replay_config.json": "112c2b1fa56576ec7f272708c18f4ea7b9243bd69483e6705947345a8e1ed1da",
+    "BXP-018/after/r01/artifacts/replay_results.json": "9ba1d3273450152ed24fc0540e7e2f40ecb7169f75e854f7c4d640e417ba0f04",
+    "BXP-018/after/r01/artifacts/replay_summary.json": "9861afe98b9ab21eccc44649066ac408b8c261a36729b12a924e67001cd001e6"
+  },
+  "capturedFiles": [
+    {
+      "path": "BXP-018/after/r01/artifacts/BXP-018/initial.png",
+      "sha256": "6a2c0f7b26586d94176f84ba40a852d2a38e14e539d8accb18890a163ec172e2"
+    },
+    {
+      "path": "BXP-018/after/r01/artifacts/BXP-018/initial.xml",
+      "sha256": "f7f5e01084b740c8b906cd5c196fba77d387410611f17c7f1db9fbf57173e78c"
+    },
+    {
+      "path": "BXP-018/after/r01/artifacts/BXP-018/vertical_1.png",
+      "sha256": "6a2c0f7b26586d94176f84ba40a852d2a38e14e539d8accb18890a163ec172e2"
+    },
+    {
+      "path": "BXP-018/after/r01/artifacts/BXP-018/vertical_1.xml",
+      "sha256": "f7f5e01084b740c8b906cd5c196fba77d387410611f17c7f1db9fbf57173e78c"
+    }
+  ],
+  "finishedAtUtc": "2026-10-08T21:36:54.992438+00:00"
+}

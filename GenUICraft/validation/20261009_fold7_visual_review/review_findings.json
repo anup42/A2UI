@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "scope": "Explicit reviewer findings only; warning counts are not classified as facts or model gaps.",
+  "cases": {
+    "BXP-001": {
+      "modelFindings": [
+        {
+          "kind": "citation_omission",
+          "detail": "Generated document omits source citations; visual acceptance covers rendering.",
+          "evidence": "BXP-001/review.json"
+        }
+      ]
+    },
+    "BXP-003": {
+      "validationFindings": [
+        {
+          "kind": "known_historical_fixture_failure",
+          "detail": "Historical malformed-fixture hash changed under the intentional no-additional-recovered-text policy. Original fixture test remains unchanged; current same-output replay preserves notes and passed.",
+          "evidence": "README.md"
+        }
+      ]
+    },
+    "BXP-005": {
+      "modelFindings": [
+        {
+          "kind": "false_source_provenance",
+          "detail": "Generated Source: A2UI Express v1 generated model contract is false provenance present in the accepted document.",
+          "evidence": "BXP-005/review.json"
+        },
+        {
+          "kind": "citation_omission",
+          "detail": "Missing source citations are recorded separately from rendering.",
+          "evidence": "BXP-005/review.json"
+        }
+      ]
+    },
+    "BXP-006": {
+      "modelFindings": [
+        {
+          "kind": "nonfunctional_generated_control",
+          "detail": "Model generated Continue without an action; renderer leaves it disabled.",
+          "evidence": "BXP-006/review.json"
+        }
+      ]
+    },
+    "BXP-007": {
+      "modelFindings": [
+        {
+          "kind": "nonfunctional_generated_control",
+          "detail": "Model-generated View all attractions has no action and remains disabled.",
+          "evidence": "BXP-007/review.json"
+        }
+      ]
+    },
+    "BXP-008": {
+      "limitations": [
+        {
+          "kind": "factual_accuracy_not_verified",
+          "detail": "Unusual generated price range is preserved; visual acceptance does not certify its factual accuracy.",
+          "evidence": "BXP-008/review.json"
+        }
+      ]
+    },
+    "BXP-014": {
+      "modelFindings": [
+        {
+          "kind": "citation_omission",
+          "detail": "Generated document omits original source citation markers [18], [12] and [3]. All three exact rates and quote timestamps are retained; visual acceptance covers rendering, not current financial rates or full source fidelity.",
+          "evidence": "BXP-014/review.json"
+        }
+      ]
+    },
+    "BXP-015": {
+      "limitations": [
+        {
+          "kind": "factual_accuracy_not_verified",
+          "detail": "The frozen source gives only July 2026 as the match date and the unusual score 193/48.5. Generated output retains these values exactly. Their source accuracy is unverified; this is not classified as a model conversion defect or renderer error.",
+          "evidence": "native_generation/visual_prep_012_015_20261009/BXP-015/source.json"
+        }
+      ]
+    }
+  }
+}

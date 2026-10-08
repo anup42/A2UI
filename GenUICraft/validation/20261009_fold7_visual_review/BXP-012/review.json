@@ -1,0 +1,12 @@
+{
+  "status": "accepted",
+  "notes": [
+    "SDK0.6.9 existing comparison cards keep all three apps and all offline, synchronization, export and restriction fields readable in consistent order. Initial and both before scroll pages inspected; after initial/first-scroll content pixels match, final scroll visually checked. All three recommendations and final export-coverage caveat remain visible. Model-authored grouping puts the Joplin recommendation outside the Best fit card; preserved rather than guessing a new content hierarchy. No renderer change needed for the main comparison; this remaining grouping limitation is recorded."
+  ],
+  "reviewer": "codex",
+  "updatedAtUtc": "2026-10-08T20:48:43.071482+00:00",
+  "reviewedAfterReceipt": "BXP-012/after/r01/receipt.json",
+  "reviewedAfterReceiptSha256": "60f1acbae1f6a1c1e2f60d6e472d992d17a58acf1fd79e1a10999959d5a82f27",
+  "sourceSha256": "dd8074da0812f60a118180f3df60c33b2f2a626fe603ee98531fa6a84c35a9c3",
+  "scope": "Explicit visual review of the referenced after captures; source fidelity is not certified."
+}

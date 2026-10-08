@@ -1,0 +1,12 @@
+{
+  "status": "accepted",
+  "notes": [
+    "Inspected every before capture and both after captures on Fold7. The before view ignored the declared cards/primary-column intent and hid synopses in a horizontally scrolling grid. SDK0.6.13 now uses complete film cards: all three titles, platforms, exact streaming dates, full synopses with [33]/[21]/[22], and the provenance paragraph with [1] are visible together without horizontal scrolling. Accepted JSON bytes are unchanged. No artwork, ratings or playback actions were invented. This verifies presentation and retained generated content, not factual recency; the unused platformReleaseDate state only duplicates declared dates."
+  ],
+  "reviewer": "codex",
+  "updatedAtUtc": "2026-10-08T21:28:21.022952+00:00",
+  "reviewedAfterReceipt": "BXP-016/after/r01/receipt.json",
+  "reviewedAfterReceiptSha256": "2f56a052813d1520681d069e033ba1cec4b7b653cbd49569cbb2048abd9d4e46",
+  "sourceSha256": "4acf224cd36033df0d3f01186a2fbdbcb141b91eb0204152b4124163e401a7c3",
+  "scope": "Explicit visual review of the referenced after captures; source fidelity is not certified."
+}

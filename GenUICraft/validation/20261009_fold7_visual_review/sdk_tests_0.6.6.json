@@ -1,0 +1,8 @@
+{
+  "tests": 7,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "sdk": "0.6.6",
+  "scope": "Sightseeing policy, FlatTable and Entity tests"
+}

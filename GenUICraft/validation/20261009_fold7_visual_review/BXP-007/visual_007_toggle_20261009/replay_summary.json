@@ -1,0 +1,23 @@
+{
+  "kind": "renderer_replay",
+  "replayMode": "json",
+  "runId": "visual_007_toggle_20261009",
+  "sourceRunId": "visual_BXP-007_before_r01_341693c0_input",
+  "total": 1,
+  "rendered": 1,
+  "failed": 0,
+  "repairRejected": 0,
+  "renderFailures": 0,
+  "renderedWithCoverageIssues": 0,
+  "casesWithIncompleteCellCoverage": 0,
+  "casesWithAmbiguousRepeatedCells": 1,
+  "coverageDiagnosticsAffectRenderStatus": false,
+  "visualReviewRequired": true,
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "repairCounts": {},
+  "sourceIntegrityAccepted": 0,
+  "sourceIntegrityRejected": 0,
+  "sourceIntegrityNotEvaluated": 0,
+  "sourceTextFallbacks": 0
+}
