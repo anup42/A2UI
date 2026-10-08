@@ -5775,6 +5775,7 @@ internal fun RenderKeyValueTablePanel(
 ) {
     if (rows.isEmpty()) return
     val panelTitle = title?.trim()?.takeIf { it.isNotBlank() }
+    val proseRows = shouldStackKeyValueRows(rows)
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -5805,6 +5806,26 @@ internal fun RenderKeyValueTablePanel(
                 val label = row.getOrNull(0).orEmpty().trim().ifBlank { tableHeaderLabel(headers, 0) }
                 val value = row.getOrNull(1).orEmpty().trim()
                 if (label.isBlank() && value.isBlank()) return@forEachIndexed
+                if (proseRows) {
+                    if (index > 0) HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f))
+                    Column(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
+                        verticalArrangement = Arrangement.spacedBy(5.dp),
+                    ) {
+                        Text(
+                            text = parseBoldMarkdown(label),
+                            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.semantics { heading() },
+                        )
+                        if (value.isNotBlank()) Text(
+                            text = parseBoldMarkdown(value),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    return@forEachIndexed
+                }
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth()
