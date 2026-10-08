@@ -42,6 +42,9 @@ RUNNER = f"{PACKAGE}.test/androidx.test.runner.AndroidJUnitRunner"
 BENCHMARK = f"/sdcard/Android/data/{PACKAGE}/files/sdk_benchmark"
 MODEL = f"/sdcard/Android/data/{PACKAGE}/files/sdk_models/model-fp16-corrected.litertlm"
 MODEL_SHA256 = "7f01bdf1c6ba9bdf658e57c75001fc35a42edad88238bc5dab0a5f7dcf3de373"
+REPLAY_CHECK_NAMES = frozenset({"instrumentationPassed", "singleSelectedCase", "frozenCorpus", "noInference",
+    "sameAcceptedInput", "renderedWithoutIssues", "capturesComplete", "verticalEndObserved", "allTableColumnsObserved"})
+BEFORE_RENDER_FAILURE_CHECKS = frozenset({"renderedWithoutIssues", "allTableColumnsObserved"})
 
 
 def require(condition, message):
@@ -206,12 +209,57 @@ def latest_receipt(root, selected, phase):
     return path, value
 
 
+def before_replay_overrides(receipt, allow_render_failures=False):
+    checks = receipt.get("checks", {})
+    require(isinstance(checks, dict) and set(checks) == REPLAY_CHECK_NAMES,
+            "Before receipt must contain exactly the expected replay check names")
+    require(all(value is True or value is False for value in checks.values()), "Before checks must be explicit booleans")
+    failed = sorted(key for key, value in checks.items() if value is False)
+    if not failed:
+        require(receipt.get("automatedChecksSatisfied") is True and receipt.get("status") == "collected",
+                "The newest before attempt was not successfully collected")
+        return []
+    require(allow_render_failures and set(failed) <= BEFORE_RENDER_FAILURE_CHECKS,
+            "Before checks failed; only known render/column failures may be explicitly allowed for an after replay")
+    require(receipt.get("status") == "failed" and receipt.get("automatedChecksSatisfied") is False,
+            "A waived before receipt must retain its failed status and failed checks")
+    return failed
+
+
+def pinned_before_evidence(root, after, before_path, before):
+    """Verify a comparison baseline without turning its render failures into passes."""
+    try:
+        before_replay_overrides(after)  # Every after check remains mandatory.
+        source, baseline = after["source"], before["source"]
+        require(source.get("pinnedBeforeReceipt") == before_path.relative_to(root).as_posix() and
+                source.get("pinnedBeforeReceiptSha256") == digest(before_path), "Before receipt pin changed")
+        require(source["sha256"] == baseline["sha256"] and source["replayMode"] == baseline["replayMode"],
+                "Before/after input differs")
+        archived = root / baseline["archivedPath"]
+        require(archived.is_file() and digest(archived) == baseline["sha256"], "Archived before input changed")
+        override = source.get("beforeRenderFailureOverride")
+        failed = before_replay_overrides(before, allow_render_failures=override is not None)
+        if failed:
+            require(isinstance(override, dict) and override.get("enabled") is True and
+                    override.get("overriddenChecks") == failed and override.get("beforeStatus") == "failed" and
+                    override.get("beforeAutomatedChecksSatisfied") is False, "Invalid before-render override provenance")
+        else:
+            require(override is None, "A passing baseline must not claim failed-check overrides")
+        return True
+    except (ValueError, KeyError, TypeError, OSError):
+        return False
+
+
 def choose_source(root, args):
     before = None
+    allow_before = getattr(args, "allow_before_render_failures", False)
+    require(not allow_before or args.phase == "after", "--allow-before-render-failures is only valid for replay --phase after")
+    overridden = []
     if args.phase == "after":
         before_path, before = latest_receipt(root, args.case, "before")
-        require(before.get("automatedChecksSatisfied") is True and before.get("status") == "collected",
-                "The newest before attempt did not satisfy every check; inspect it before continuing")
+        overridden = before_replay_overrides(before, allow_before)
+        archived = root / before["source"]["archivedPath"]
+        require(archived.is_file() and digest(archived) == before["source"]["sha256"], "Archived before source bytes changed")
     source = args.source.resolve() if args.source else (root / before["source"]["archivedPath"] if before else None)
     require(source is not None and source.is_file(), "Before replay requires --source pointing to an existing final artifact")
     require(source.suffix.lower() in (".json", ".express"), "--source must be a final .json or .express artifact")
@@ -222,6 +270,10 @@ def choose_source(root, args):
                 "After replay must use exactly the same accepted document bytes and format as before")
         value["pinnedBeforeReceipt"] = before_path.relative_to(root).as_posix()
         value["pinnedBeforeReceiptSha256"] = digest(before_path)
+        if overridden:
+            value["beforeRenderFailureOverride"] = {"enabled": True, "overriddenChecks": overridden,
+                "beforeStatus": before["status"], "beforeAutomatedChecksSatisfied": before["automatedChecksSatisfied"],
+                "scope": "Explicit comparison-only baseline waiver. Before remains failed; all after checks are required."}
     adjacent = source.parent / "source.json"
     if adjacent.is_file():
         original = read(adjacent)
@@ -382,6 +434,11 @@ def build_report(root):
         log = path.parent / "instrumentation.txt"
         metadata = (f'<p class="attempt-meta">{link(path, "Receipt, checks and provenance")} · '
                     f'{link(log, "Instrumentation log") if log.exists() else "Instrumentation did not start"}</p>')
+        override = (receipt.get("source") or {}).get("beforeRenderFailureOverride")
+        if override:
+            metadata += ('<p class="issues"><strong>Explicit before-render baseline waiver:</strong> ' +
+                         html.escape(", ".join(override.get("overriddenChecks", []))) +
+                         '. The pinned before receipt remains failed. Every after check remains required.</p>')
         orphan_xml = [link(xml, xml.name) for xml in sorted((path.parent / "artifacts" / receipt["case"]).glob("*.xml"))
                       if not xml.with_suffix(".png").is_file()]
         fidelity = warnings(receipt)
@@ -609,6 +666,8 @@ def parser():
             command.add_argument("--case-timeout-ms", type=int, default=360_000)
         else:
             command.add_argument("--phase", required=True, choices=("before", "after"))
+            command.add_argument("--allow-before-render-failures", action="store_true",
+                help="After replay only: allow a preserved baseline failing only render/column checks; never waive after checks")
             command.add_argument("--source", type=Path)
             command.add_argument("--source-info", type=Path)
             command.add_argument("--max-vertical-swipes", type=int, default=30)
