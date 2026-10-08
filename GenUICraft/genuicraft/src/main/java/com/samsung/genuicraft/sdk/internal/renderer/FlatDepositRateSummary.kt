@@ -18,6 +18,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.samsung.genuicraft.sdk.internal.renderer.CitationText as Text
+import com.samsung.genuicraft.sdk.internal.renderer.flat.compose.table.isActionLabelColumn
+import com.samsung.genuicraft.sdk.internal.renderer.flat.compose.table.isUrlColumnLabel
 import java.util.Locale
 
 internal data class DepositRateSummaryProfile(val bank: Int, val rate: Int) {
@@ -30,9 +32,10 @@ internal fun depositRateSummaryProfile(headers: List<String>, rows: List<List<St
     val bank = labels.indexOfFirst { it in setOf("bank", "bank name") }
     val rate = labels.indexOfFirst { Regex("\\b(fd|fixed deposit)\\b").containsMatchIn(it) && Regex("\\brates?\\b").containsMatchIn(it) && !Regex("\\b(date|effective|updated)\\b").containsMatchIn(it) }
     if (bank < 0 || rate < 0 || rows.any { it.size > headers.size || it.getOrNull(bank).isNullOrBlank() }) return null
-    if (labels.any { it in setOf("feature", "factor", "step", "stage") ||
+    if (labels.any { isUrlColumnLabel(it) || isActionLabelColumn(it) ||
+            it in setOf("feature", "factor", "step", "stage") ||
             Regex("\\b(url|photo|image|media|action|website|phone|booking|reservation)\\b").containsMatchIn(it) }) return null
-    if (rows.any { row -> row.any { Regex("(?i)\\bhttps?://").containsMatchIn(it) } }) return null
+    if (rows.any { row -> row.any { isLikelyHttpUrl(it) || Regex("(?i)\\bhttps?://").containsMatchIn(it) } }) return null
     return DepositRateSummaryProfile(bank, rate)
 }
 

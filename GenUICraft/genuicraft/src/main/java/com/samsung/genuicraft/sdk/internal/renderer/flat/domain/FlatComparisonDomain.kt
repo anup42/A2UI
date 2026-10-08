@@ -317,6 +317,7 @@ internal fun RenderEntityTableCards(
 ) {
     if (rows.isEmpty()) return
     if (renderDepositRateSummaryIfPossible(headers, rows, modifier, tableTitle)) return
+    if (renderCurrencyQuoteSummaryIfPossible(headers, rows, modifier, tableTitle)) return
     val primaryIndex = inferEntityPrimaryColumnIndex(headers, primaryColumn)
     val inferredHighlightIndexes = selectEntityHighlightIndexes(headers, rows, primaryIndex, highlightColumns)
     val compactBodyIndexes = selectEntityCompactBodyIndexes(headers, rows, primaryIndex, inferredHighlightIndexes)

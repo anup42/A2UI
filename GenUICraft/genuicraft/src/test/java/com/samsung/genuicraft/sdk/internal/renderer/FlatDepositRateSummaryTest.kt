@@ -63,11 +63,25 @@ class FlatDepositRateSummaryTest {
     }
 
     @Test fun `authored media contact and action columns retain the existing renderer`() {
-        listOf("Photo URL", "Image", "Media", "Website", "URL", "Phone", "Booking", "Action", "Action label").forEach { authoredColumn ->
+        listOf("Photo URL", "Image", "Media", "Website", "URL", "Phone", "Booking", "Action", "Action label",
+            "Source link", "Terms link", "Link", "Href", "CTA", "CTA label", "Button label").forEach { authoredColumn ->
             assertNull(depositRateSummaryProfile(
                 listOf("Bank", "One-year FD rate", authoredColumn),
                 listOf(listOf("A", "6.25%", "Original authored value [4]")),
             ))
         }
+    }
+
+    @Test fun `URL forms already supported by entity actions keep their existing route even under a plain detail label`() {
+        listOf("www.who.int", "who.int", "//www.who.int", "tel:+911234567890").forEach { authoredUrl ->
+            assertNull(depositRateSummaryProfile(
+                listOf("Bank", "One-year FD rate", "Terms"),
+                listOf(listOf("SBI", "6.25%", authoredUrl)),
+            ))
+        }
+        assertEquals(DepositRateSummaryProfile(0, 1), depositRateSummaryProfile(
+            listOf("Bank", "One-year FD rate", "Rate date / effective date"),
+            listOf(listOf("SBI", "6.25%", "19 August 2026")),
+        ))
     }
 }
