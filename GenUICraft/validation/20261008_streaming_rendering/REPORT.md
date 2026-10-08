@@ -6,7 +6,7 @@ SDK 0.6.0: **478 unit tests passed**; **3 deterministic Fold7 device tests passe
 
 Pipeline bridge: **9 unit tests passed** ([log](pipeline_bridge_tests.txt)). Connected progressive-preview checks exercise the SDK demo; this report does not claim a separate Pipeline/IR early-preview device test.
 
-Bixby source checks: **14 JavaScript / 18 host / 5 manager tests passed**. The [22-entry changed-file handoff](../../artifacts/Bixby_GenUICraft_0.6.0_Streaming_ChangedFiles.zip) is source/package evidence; a Bixby application build/device run is not claimed.
+Bixby source checks: **14 JavaScript / 18 host / 5 manager tests passed**. The [22-entry changed-file handoff](../../artifacts/Bixby_GenUICraft_0.6.0_Streaming_ChangedFiles.zip) is source/package evidence; a Bixby application build/device run is not claimed. [Host tests](bixby_host_tests.txt) · [Manager tests](bixby_manager_tests.txt) · [Delivery manifest](delivery.json).
 
 Saved Bixby50 replay: **32/50 early previews**, **14 accepted only by terminal generated-DSL repair**, **4 terminal rejects**. Replay measures character readiness rather than native latency.
 
