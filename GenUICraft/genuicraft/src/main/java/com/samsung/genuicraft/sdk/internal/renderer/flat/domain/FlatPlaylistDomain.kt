@@ -189,6 +189,8 @@ internal fun RenderPlaylistTableRows(
     landscape: Boolean
 ) {
     if (rows.isEmpty()) return
+    if (listOf("subtitle", "mood", "genre").all { props[it] == null } &&
+        renderChartRankingIfPossible(headers, rows, modifier, props["title"]?.toString())) return
     val tracks = buildPlaylistTrackRows(headers, rows)
     val trackCount = tracks.size
     val title = props["title"]?.toString()?.trim()?.takeIf { it.isNotBlank() } ?: "Playlist"
