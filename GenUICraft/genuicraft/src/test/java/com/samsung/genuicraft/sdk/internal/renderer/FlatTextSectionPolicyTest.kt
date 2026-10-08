@@ -82,4 +82,48 @@ class FlatTextSectionPolicyTest {
         assertEquals(listOf("a", "b", "extra"), next.first().childIds)
         assertEquals(later.getValue("root").children, next.flatMap { it.childIds })
     }
+
+    @Test fun `plain dividers become panel boundaries while all original text and graph data remain`() {
+        val elements = fixture().toMutableMap()
+        elements["separator"] = FlatElement("Divider", emptyMap(), emptyList())
+        elements["lastTitle"] = text("Vaishali Nagar", "h2")
+        elements["lastBody"] = text("Main drawback: farther from the heritage core; preserve the full qualification [4].", "caption")
+        elements["root"] = elements.getValue("root").copy(children = listOf("a", "b", "separator", "c", "d", "lastTitle", "lastBody"))
+        val snapshot = elements.toMap()
+        val sections = plan(elements)!!
+
+        assertEquals(listOf("a", "c", "lastTitle"), sections.map { it.headingId })
+        assertEquals(listOf("a", "b", "c", "d", "lastTitle", "lastBody"), sections.flatMap { it.childIds })
+        assertEquals(snapshot, elements)
+        assertEquals(snapshot.getValue("lastBody").props, elements.getValue("lastBody").props)
+    }
+
+    @Test fun `labeled styled interactive conditional or misplaced dividers keep their authored route`() {
+        val plain = FlatElement("Divider", emptyMap(), emptyList())
+        val guarded = listOf(
+            plain.copy(props = mapOf("label" to "Source section")),
+            plain.copy(props = mapOf("color" to "#112233")),
+            plain.copy(props = mapOf("thickness" to 3)),
+            plain.copy(on = mapOf("click" to "originalAction")),
+            plain.copy(watch = mapOf("/value" to "originalWatch")),
+            plain.copy(visible = mapOf("path" to "/show")),
+            plain.copy(repeat = RepeatConfig("/items")),
+        )
+        guarded.forEach { divider ->
+            val elements = fixture().toMutableMap()
+            elements["separator"] = divider
+            elements["root"] = elements.getValue("root").copy(children = listOf("a", "b", "separator", "c", "d"))
+            val snapshot = elements.toMap()
+            assertNull(plan(elements))
+            assertEquals(snapshot, elements)
+            assertEquals(divider.on, elements.getValue("separator").on)
+            assertEquals(divider.watch, elements.getValue("separator").watch)
+        }
+        listOf(listOf("separator", "a", "b", "c", "d"), listOf("a", "b", "c", "d", "separator")).forEach { children ->
+            val elements = fixture().toMutableMap()
+            elements["separator"] = plain
+            elements["root"] = elements.getValue("root").copy(children = children)
+            assertNull(plan(elements))
+        }
+    }
 }
