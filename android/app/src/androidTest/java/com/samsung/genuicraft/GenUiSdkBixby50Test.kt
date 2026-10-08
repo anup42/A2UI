@@ -449,11 +449,13 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
                         val nodes = replayNodes(xml.readText(), context.packageName, viewport.get())
                         if (!screenshot) issues += "Screenshot failed: $label"
                         if (nodes.any { it.text.contains("Unable to render GenUI") }) issues += "Renderer reported an error at $label."
-                        val texts = nodes.map { replayComparable(it.text) }.filter(String::isNotBlank)
+                        // Citation-only source cells need their original bracket markers.
+                        // replayContains still normalizes ordinary prose and numeric tokens.
+                        val texts = nodes.map { it.text }.filter(String::isNotBlank)
                         // A row/table summary can name clipped or horizontally hidden values.
                         // Preserve that evidence without crediting it as displayed text.
                         val descriptions = nodes.filter { it.fullyVisible }
-                            .map { replayComparable(it.description) }.filter(String::isNotBlank)
+                            .map { it.description }.filter(String::isNotBlank)
                         tables.forEachIndexed { tableIndex, table ->
                             table.columns.indices.forEach { column ->
                                 if (texts.any { replayContains(it, table.columns[column]) }) seenHeaders[tableIndex] += column
@@ -504,7 +506,7 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
                             // Use a rendered label/cell to locate the table, never a fixed screen y.
                             val anchors = (table.columns + table.cells.map { it.value }).filter(String::isNotBlank).distinct()
                             val anchoredScroller = anchors.asSequence().flatMap { anchor ->
-                                current.asSequence().filter { replayContains(replayComparable(it.text), anchor) }
+                                current.asSequence().filter { replayContains(it.text, anchor) }
                             }.mapNotNull { anchor ->
                                 val y = anchor.bounds.centerY()
                                 current.firstOrNull {
@@ -745,8 +747,8 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
                         val observedCellColumns = seenCells[index].map { table.cells[it].column }.toSet()
                         val missing = table.columns.indices.filter { it !in seenHeaders[index] && it !in observedCellColumns }
                         val missingCells = table.cells.indices.filter { it !in seenCells[index] }
-                        val repeatedValues = table.cells.groupingBy { replayTokens(it.value) }.eachCount()
-                        val ambiguousCells = table.cells.indices.filter { repeatedValues[replayTokens(table.cells[it].value)]!! > 1 }
+                        val repeatedValues = table.cells.groupingBy { replayCellIdentity(it.value) }.eachCount()
+                        val ambiguousCells = table.cells.indices.filter { repeatedValues[replayCellIdentity(table.cells[it].value)]!! > 1 }
                         fun cellReport(cellIndex: Int) = table.cells[cellIndex].let { cell -> mapOf(
                             "row" to cell.row + 1, "column" to table.columns[cell.column], "value" to cell.value,
                             "displayedTextObserved" to (cellIndex in seenCells[index]),
@@ -887,10 +889,25 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
         .replace(Regex("[*_`]"), "")
         .replace(Regex("[\\s\\p{Z}]+"), " ").trim().lowercase(Locale.ROOT)
 
-    private fun replayContains(normalizedText: String, expected: String): Boolean {
+    private val replayCitationGroup = Regex("\\[\\d+(?:\\s*[,–-]\\s*\\d+)*](?:[\\s\\p{Z}]*\\[\\d+(?:\\s*[,–-]\\s*\\d+)*])*")
+
+    private fun replayCitationOnly(value: String): String? {
+        val raw = value.removePrefix("\u001EGenUICraftLiteral:v1:").trim()
+        return raw.takeIf { replayCitationGroup.matches(it) }
+            ?.replace(Regex("[\\s\\p{Z}]+"), "")
+    }
+
+    private fun replayCellIdentity(value: String): List<String> =
+        replayCitationOnly(value)?.let { listOf(it) } ?: replayTokens(value)
+
+    private fun replayContains(observedText: String, expected: String): Boolean {
+        replayCitationOnly(expected)?.let { wanted ->
+            // Match a whole ordered marker group, never bare numbers or a subset of it.
+            return replayCitationGroup.findAll(observedText).any { replayCitationOnly(it.value) == wanted }
+        }
         val wanted = replayTokens(expected)
         if (wanted.isEmpty()) return false
-        return replayTokens(normalizedText).windowed(wanted.size).any { it == wanted }
+        return replayTokens(observedText).windowed(wanted.size).any { it == wanted }
     }
 
     /** Ignore layout punctuation, but retain whole signed numbers, decimals, identifiers and units. */
@@ -1101,6 +1118,27 @@ root=Table(columns=[{key:"date",label:"Date"},{key:"high",label:"High (°C)"},{k
             "SKU20" to "20", "20AB" to "20", "20°F" to "20°C", "57%" to "").forEach { (actual, expected) ->
             assertFalse("Different value was incorrectly credited: $actual / $expected", replayContains(actual, expected))
         }
+    }
+
+    @Test fun replayCoverageMatchesCitationOnlyCellsWithoutCreditingUnrelatedNumbers() {
+        val citations = listOf("[1][3][4][9]", "[13]", "[2][5][10][14][15]", "[7]")
+        citations.forEach { expected ->
+            assertTrue("Citation-only cell was not observed: $expected", replayContains(expected, expected))
+            assertTrue("Wrapped citation-only cell was not observed: $expected", replayContains("Source: $expected", expected))
+            assertFalse("Stripped citations must not match: $expected", replayContains(replayComparable(expected), expected))
+        }
+        assertTrue(replayContains("Source: [1] \n[3]\u00a0[4] [9]", "[1][3][4][9]"))
+        listOf("[9][4][3][1]" to "[1][3][4][9]", "[1][3][9]" to "[1][3][4][9]",
+            "[1][3][4][9][10]" to "[1][3][4][9]", "[13]" to "[1]", "[1][3]" to "[1]",
+            "13" to "[13]", "[13]" to "13", "[7]" to "", "[7]" to "[]",
+            "2019" to "20", "20.5°C" to "20", "-20°C" to "20").forEach { (actual, expected) ->
+            assertFalse("Different or empty value was incorrectly credited: $actual / $expected", replayContains(actual, expected))
+        }
+        assertTrue("Ordinary prose still ignores appended citations", replayContains("Verified records [13]", "Verified records"))
+        assertTrue("Ordinary unit matching changed", replayContains("31 ° C", "31"))
+        assertEquals("Distinct source groups must not collide as empty token lists", 4,
+            citations.map(::replayCellIdentity).distinct().size)
+        assertEquals(replayCellIdentity("[1] [3][4] [9]"), replayCellIdentity("[1][3][4][9]"))
     }
 
     /** Experimental input-only scaffold; acceptance still uses the AAR's unchanged validators. */

@@ -192,8 +192,17 @@ internal fun extractDirectTableModel(
         explicitPreferredPresentation == "cards" && declaredPrimaryIndex >= 0 &&
         !isComparisonFeatureHeader(headerLabels[declaredPrimaryIndex]) && resolvedRows.isNotEmpty() &&
         resolvedRows.all { !it.getOrNull(declaredPrimaryIndex).isNullOrBlank() }
-    val shape = if (declaredEntityCards) FlatTableShape.ENTITY_ROW else inferredShape
-    val primaryColumn = if (declaredEntityCards) headerLabels[declaredPrimaryIndex] else declaredPrimary
+    // An authored document checklist can supply its own unambiguous row identity without primaryColumn.
+    val documentChecklist = if (inferredShape == FlatTableShape.GENERIC_GRID && domain == "generic" &&
+        explicitPreferredPresentation == "cards" && declaredPrimary == null) {
+        documentChecklistProfile(headerLabels, resolvedRows)
+    } else null
+    val shape = if (declaredEntityCards || documentChecklist != null) FlatTableShape.ENTITY_ROW else inferredShape
+    val primaryColumn = when {
+        declaredEntityCards -> headerLabels[declaredPrimaryIndex]
+        documentChecklist != null -> headerLabels[documentChecklist.document]
+        else -> declaredPrimary
+    }
     val highlightColumns = stringSetFromTableProp(props["highlightColumns"])
     val numericColumns = stringSetFromTableProp(props["numericColumns"])
     val entityMedia = extractTableEntityMedia(props)
