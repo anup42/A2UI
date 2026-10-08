@@ -525,8 +525,17 @@ internal fun RenderStack(
                     }
                 }
             } else if (textSections == null) {
+                val retainedWrapperIds = children.filterNot { childId ->
+                    isDetachedMediaDumpElement(childId, elements) ||
+                        isRedundantWeatherLeadInElement(childId, children, elements, state) ||
+                        isRedundantTopMetricSummaryElement(childId, children, elements, state)
+                }.toSet()
                 RenderChildren(
-                    children = children,
+                    children = filterAdjacentBareTextDuplicates(
+                        elementId, children, elements, direction,
+                        isRepeated = repeatScope != null || repeatedChildScopes != null,
+                        retainedWrapperIds = retainedWrapperIds,
+                    ),
                     elements = elements,
                     state = state,
                     repeatScope = repeatScope,
