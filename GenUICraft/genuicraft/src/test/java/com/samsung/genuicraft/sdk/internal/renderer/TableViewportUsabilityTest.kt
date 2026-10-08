@@ -29,7 +29,10 @@ class TableViewportUsabilityTest {
     @Test fun `three-column identities stay attached during horizontal reading`() {
         listOf(
             listOf("Term", "What it means", "Typical effect on a claim"),
-            listOf("Level", "Best measures", "Expected impact")
+            listOf("Level", "Best measures", "Expected impact"),
+            listOf("Point", "ITR-1 (Sahaj)", "ITR-2"),
+            listOf("Criterion", "Option A", "Option B"),
+            listOf("Criteria", "Option A", "Option B")
         ).forEach { headers ->
             assertTrue(nativeTableStickyFirstColumn(headers, true))
             assertFalse(nativeTableStickyFirstColumn(headers, false))

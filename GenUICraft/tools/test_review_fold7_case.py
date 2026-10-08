@@ -26,7 +26,8 @@ class BeforeRenderFailureGateTest(unittest.TestCase):
         self.source.write_bytes(b"[]")
         self.args = SimpleNamespace(case="BXP-018", phase="after", source=None, source_info=None,
             allow_before_render_failures=False, output=self.root, action="replay", attempt="r01",
-            adb="unused", serial="R3CY30QFWLP", max_vertical_swipes=30, max_horizontal_swipes=8, timeout=30)
+            adb="unused", serial="R3CY30QFWLP", max_vertical_swipes=30, max_horizontal_swipes=8,
+            repeat_table_sweeps_per_viewport=False, timeout=30)
         self.write_before()
 
     def write_before(self, failed=()):
@@ -98,6 +99,10 @@ class BeforeRenderFailureGateTest(unittest.TestCase):
         with self.assertRaises(ValueError): review.choose_source(self.root, self.args)
         parsed = review.parser().parse_args(["replay", "--case", "BXP-018", "--phase", "after", "--allow-before-render-failures"])
         self.assertTrue(parsed.allow_before_render_failures)
+        self.assertFalse(parsed.repeat_table_sweeps_per_viewport)
+        opted_in = review.parser().parse_args(["replay", "--case", "BXP-029", "--phase", "after",
+            "--repeat-table-sweeps-per-viewport"])
+        self.assertTrue(opted_in.repeat_table_sweeps_per_viewport)
 
     def test_reporting_requires_exact_override_receipt_pin_source_hash_and_after_checks(self):
         self.write_before(review.BEFORE_RENDER_FAILURE_CHECKS)
@@ -127,6 +132,7 @@ class BeforeRenderFailureGateTest(unittest.TestCase):
             def command(self, *args, **kwargs): return ""
             def file_hash(self, *args): return source_digest
         def instrument(adb, invocation, remote, target, timeout, receipt):
+            self.assertEqual("false", invocation[invocation.index("repeatTableSweepsPerViewport") + 1])
             artifacts = target / "artifacts"; case = artifacts / "BXP-018"; case.mkdir(parents=True)
             (case / "initial.png").write_bytes(b"fixture"); (case / "initial.xml").write_text("<hierarchy/>")
             report = {"id": "BXP-018", "sourceJsonSha256": source_digest, "status": "rendered",
@@ -143,6 +149,7 @@ class BeforeRenderFailureGateTest(unittest.TestCase):
         failed = review.read(self.root / "BXP-018/after/r01/receipt.json")
         self.assertEqual("failed", failed["status"])
         self.assertFalse(failed["automatedChecksSatisfied"])
+        self.assertFalse(failed["repeatTableSweepsPerViewport"])
         self.assertFalse(failed["checks"]["renderedWithoutIssues"])
         self.assertFalse(failed["checks"]["allTableColumnsObserved"])
         self.assertFalse(review.pinned_before_evidence(self.root, failed, self.before_path, self.before))

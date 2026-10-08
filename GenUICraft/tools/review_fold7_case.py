@@ -304,6 +304,8 @@ def collect(args):
                    "startedAtUtc": utc(), "runId": run_id, "status": "running",
                    "automatedChecksSatisfied": False, "visualReviewStatus": "pending",
                    "inferenceAttempted": args.action == "generate"}
+        if args.action == "replay":
+            receipt["repeatTableSweepsPerViewport"] = args.repeat_table_sweeps_per_viewport
         save(target / "receipt.json", receipt)
         try:
             receipt["provenance"] = provenance(adb, args, args.action == "generate")
@@ -335,6 +337,7 @@ def collect(args):
                     "sourceRunId": source_run, "runId": run_id, "cases": args.case,
                     "replayMode": receipt["source"]["replayMode"], "maxVerticalSwipes": args.max_vertical_swipes,
                     "maxHorizontalSwipes": args.max_horizontal_swipes, "renderFontScale": "1.0", "renderDark": "false",
+                    "repeatTableSweepsPerViewport": str(args.repeat_table_sweeps_per_viewport).lower(),
                 })
             instrument(adb, command, remote, target, args.timeout, receipt)
             artifacts = target / "artifacts"
@@ -369,6 +372,8 @@ def collect(args):
                 key = "sourceJsonSha256" if receipt["source"]["replayMode"] == "json" else "sourceExpressSha256"
                 captures = report.get("captures", [])
                 checks.update({"noInference": summary.get("modelCalls") == 0 and config.get("inferenceEvaluated") is False,
+                               "requestedViewportTableSweeps": not args.repeat_table_sweeps_per_viewport or
+                                   (config.get("repeatTableSweepsPerViewport") is True and report.get("repeatTableSweepsPerViewport") is True),
                                "sameAcceptedInput": report.get(key) == receipt["source"]["sha256"],
                                "renderedWithoutIssues": report.get("status") == "rendered" and report.get("issues") == [],
                                "capturesComplete": bool(captures) and all(capture.get("screenshot") is True and
@@ -672,6 +677,8 @@ def parser():
             command.add_argument("--source-info", type=Path)
             command.add_argument("--max-vertical-swipes", type=int, default=30)
             command.add_argument("--max-horizontal-swipes", type=int, default=8)
+            command.add_argument("--repeat-table-sweeps-per-viewport", action="store_true",
+                help="Sweep visible tables to both horizontal endpoints at every vertical viewport; default is one sweep per table")
     return result
 
 

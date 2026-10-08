@@ -9,6 +9,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Until
 import com.google.gson.GsonBuilder
@@ -214,6 +215,9 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
         }
         val renderDark = args.getString("renderDark")?.toBooleanStrict()
         val verifyTableViewToggle = args.getString("verifyTableViewToggle", "false")!!.toBooleanStrict()
+        val verifyTabViews = args.getString("verifyTabViews", "false")!!.toBooleanStrict()
+        val repeatTableSweepsPerViewport = args.getString("repeatTableSweepsPerViewport", "false")!!.toBooleanStrict()
+        require(!verifyTabViews || maxVertical > 0) { "Tab verification requires maxVerticalSwipes greater than zero." }
         val selected = args.getString("cases", "")!!.split(',').map(String::trim).filter(String::isNotBlank).toSet()
         val corpusBytes = context.assets.open("genuicraft_bixby50.jsonl").use { it.readBytes() }
         val allRows = corpusBytes.toString(Charsets.UTF_8).lineSequence().filter(String::isNotBlank)
@@ -238,8 +242,12 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
             "corpusSha256" to replaySha256(corpusBytes),
             "hierarchyPolicy" to "Clear UiAutomation cache on API 34+, refresh nodes, then dump.",
             "columnCheck" to "Every nonempty supplied cell is checked against displayed text as complete tokens. Accessibility evidence is reported separately and never satisfies displayed coverage; cell placement requires visual review.",
+            "verticalCaptureGesture" to mapOf("viewportFraction" to 0.30, "steps" to 100,
+                "scope" to "Slower overlapping capture pages; pixel legibility still requires visual review."),
             "renderFontScale" to renderFontScale, "renderDark" to renderDark,
             "verifyTableViewToggle" to verifyTableViewToggle,
+            "verifyTabViews" to verifyTabViews,
+            "repeatTableSweepsPerViewport" to repeatTableSweepsPerViewport,
         )))
         val device = UiDevice.getInstance(instrumentation)
         val reports = mutableListOf<JsonObject>()
@@ -382,11 +390,14 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
                         GenUiCompiler.compile(revalidated.a2uiJson)
                     }
                     val tables = replayTableTargets(document.a2uiJson)
+                    val authoredTabLabels = replayTabTargets(document.a2uiJson, requireLiteralLabels = false)
+                        .flatMap { group -> group.tabs.map(ReplayTab::label) }.toSet()
                     val seenHeaders = tables.map { mutableSetOf<Int>() }
                     val seenCells = tables.map { mutableSetOf<Int>() }
                     val describedCells = tables.map { mutableSetOf<Int>() }
                     val sweptTables = mutableSetOf<Int>()
                     val horizontalTables = mutableSetOf<Int>()
+                    val viewportTableSweeps = mutableListOf<Map<String, Any>>()
                     val captures = mutableListOf<Map<String, Any>>()
                     val issues = mutableListOf<String>()
                     val viewport = AtomicReference(Rect())
@@ -428,6 +439,7 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
                             location[0] + view.width - view.paddingRight, location[1] + view.height - view.paddingBottom))
                     }
                     require(viewport.get().width() > 100 && viewport.get().height() > 100) { "Replay view has no usable viewport." }
+                    var requestedTabLabel: String? = null
                     fun capture(label: String): List<ReplayNode> {
                         instrumentation.waitForIdleSync()
                         require(device.currentPackageName == context.packageName) { "Replay activity is not foreground at $label." }
@@ -451,12 +463,23 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
                                 if (descriptions.any { replayContains(it, cell.value) }) describedCells[tableIndex] += cellIndex
                             }
                         }
-                        captures += mapOf("name" to label, "screenshot" to screenshot,
-                            "visibleTextNodes" to texts.size, "fullyVisibleDescriptionNodes" to descriptions.size)
+                        captures += buildMap {
+                            put("name", label); put("screenshot", screenshot)
+                            put("visibleTextNodes", texts.size); put("fullyVisibleDescriptionNodes", descriptions.size)
+                            if (verifyTabViews) {
+                                put("visibleTexts", nodes.map { it.text }.filter(String::isNotBlank))
+                                requestedTabLabel?.let { put("requestedTabLabel", it) }
+                            }
+                        }
                         return nodes
                     }
                     fun fingerprint(nodes: List<ReplayNode>) = nodes.filter { it.text.isNotBlank() }
                         .joinToString("\n") { "${it.text}|${it.bounds.flattenToString()}" }
+                    fun swipeReplayPage(): Boolean {
+                        val bounds = viewport.get()
+                        return device.swipe(bounds.centerX(), bounds.top + bounds.height() * 70 / 100,
+                            bounds.centerX(), bounds.top + bounds.height() * 40 / 100, 100)
+                    }
                     fun swipeHorizontal(bounds: Rect, y: Int, towardsEnd: Boolean): Boolean {
                         val margin = (bounds.width() / 8).coerceAtLeast(24)
                         val left = bounds.left + margin
@@ -474,10 +497,10 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
                         }
                         return false
                     }
-                    fun sweepVisibleTables(input: List<ReplayNode>): List<ReplayNode> {
+                    fun sweepVisibleTables(input: List<ReplayNode>, viewportLabel: String): List<ReplayNode> {
                         var current = input
                         tables.forEachIndexed { tableIndex, table ->
-                            if (tableIndex in sweptTables) return@forEachIndexed
+                            if (!repeatTableSweepsPerViewport && tableIndex in sweptTables) return@forEachIndexed
                             // Use a rendered label/cell to locate the table, never a fixed screen y.
                             val anchors = (table.columns + table.cells.map { it.value }).filter(String::isNotBlank).distinct()
                             val anchoredScroller = anchors.asSequence().flatMap { anchor ->
@@ -486,12 +509,46 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
                                 val y = anchor.bounds.centerY()
                                 current.firstOrNull {
                                     it.className == "android.widget.HorizontalScrollView" &&
+                                        !replayIsObservedTabStrip(it, current, authoredTabLabels) &&
                                         y > it.bounds.top + 2 && y < it.bounds.bottom - 2
                                 }?.let { it.bounds to y }
                             }.firstOrNull() ?: return@forEachIndexed
                             horizontalTables += tableIndex
                             sweptTables += tableIndex
                             val (bounds, y) = anchoredScroller
+                            if (repeatTableSweepsPerViewport) {
+                                val prefix = "${viewportLabel}_table_${tableIndex + 1}"
+                                // Logical XML cell coverage can include clipped values. Observe movement
+                                // to both endpoints at every viewport, independently of that coverage.
+                                fun sweep(towardsEnd: Boolean, label: String): Pair<Int, Boolean> {
+                                    var swipes = 0
+                                    for (step in 1..maxHorizontal) {
+                                        val before = replayHorizontalFingerprint(current, bounds)
+                                        if (!swipeHorizontal(bounds, y, towardsEnd)) {
+                                            issues += "Horizontal gesture failed for table ${table.id} at $label."
+                                            return swipes to false
+                                        }
+                                        swipes++
+                                        current = capture("${prefix}_${label}_$step")
+                                        if (replayHorizontalSweepEnded(before,
+                                                replayHorizontalFingerprint(current, bounds))) return swipes to true
+                                    }
+                                    return swipes to false
+                                }
+                                val start = sweep(towardsEnd = false, label = "left")
+                                val end = sweep(towardsEnd = true, label = "horizontal")
+                                val reset = sweep(towardsEnd = false, label = "reset")
+                                viewportTableSweeps += mapOf("viewport" to viewportLabel, "tableId" to table.id,
+                                    "capturePrefix" to prefix, "startSwipes" to start.first,
+                                    "startObserved" to start.second, "horizontalSwipes" to end.first,
+                                    "endObserved" to end.second, "resetSwipes" to reset.first,
+                                    "resetObserved" to reset.second,
+                                    "limitReached" to (!start.second || !end.second || !reset.second))
+                                if (!start.second || !end.second || !reset.second) {
+                                    issues += "Horizontal sweep endpoint not observed within the gesture bound for table ${table.id} at $viewportLabel."
+                                }
+                                return@forEachIndexed
+                            }
                             var performed = 0
                             for (step in 1..maxHorizontal) {
                                 val before = fingerprint(current)
@@ -560,16 +617,125 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
                             "scope" to "Mode switch and first-row text-node retention; screenshot pixel legibility still requires visual review.",
                         )))
                     }
+                    if (verifyTabViews) {
+                        report.addProperty("tabViewsVerified", false)
+                        val groups = replayTabTargets(document.a2uiJson)
+                        val labels = groups.flatMap { it.tabs.map(ReplayTab::label) }
+                        require(groups.isNotEmpty() && labels.size in 1..12) { "Tab verification requires 1..12 authored literal tab labels." }
+                        require(labels.distinct().size == labels.size) { "Repeated tab labels require a separately scoped manual review." }
+                        val evidence = mutableListOf<Map<String, Any>>()
+                        fun control(label: String): UiObject2? {
+                            val matches = device.findObjects(By.pkg(context.packageName).text(label).clickable(true)).filter {
+                                it.isEnabled && it.visibleBounds.width() > 16 && it.visibleBounds.height() > 16 &&
+                                    Rect.intersects(it.visibleBounds, viewport.get())
+                            }
+                            require(matches.size <= 1) { "Ambiguous visible tab control: $label" }
+                            return matches.singleOrNull()
+                        }
+                        fun resetVertical(prefix: String) {
+                            for (step in 1..8) {
+                                val before = fingerprint(current)
+                                val bounds = viewport.get()
+                                require(device.swipe(bounds.centerX(), bounds.top + bounds.height() / 4,
+                                    bounds.centerX(), bounds.bottom - bounds.height() / 10, 35)) { "Tab viewport reset failed." }
+                                Thread.sleep(300)
+                                current = capture("${prefix}_top_$step")
+                                if (fingerprint(current) == before) return
+                            }
+                            error("Tab viewport did not reach the top within eight gestures.")
+                        }
+                        groups.forEachIndexed { groupIndex, group ->
+                            val prefix = "tabs_${groupIndex + 1}"
+                            resetVertical(prefix)
+                            var groupVisible = group.tabs.any { control(it.label) != null }
+                            for (step in 1..8) {
+                                if (groupVisible) break
+                                val bounds = viewport.get()
+                                require(device.swipe(bounds.centerX(), bounds.bottom - bounds.height() / 10,
+                                    bounds.centerX(), bounds.top + bounds.height() / 4, 35)) { "Tab search gesture failed." }
+                                Thread.sleep(300)
+                                current = capture("${prefix}_locate_$step")
+                                groupVisible = group.tabs.any { control(it.label) != null }
+                            }
+                            require(groupVisible) { "Authored tab controls were not visible for ${group.id}." }
+                            val original = group.tabs.singleOrNull { control(it.label)?.isSelected == true }
+                                ?: error("Exactly one initial selected tab must be observable for ${group.id}.")
+                            fun locate(label: String, searchPrefix: String): UiObject2 {
+                                control(label)?.let { return it }
+                                for (towardsEnd in listOf(true, false)) {
+                                    for (step in 1..maxHorizontal.coerceAtMost(4)) {
+                                        val anchors = group.tabs.mapNotNull { control(it.label)?.visibleBounds }
+                                        val strip = current.firstOrNull { node ->
+                                            node.className == "android.widget.HorizontalScrollView" && anchors.any {
+                                                it.centerY() > node.bounds.top && it.centerY() < node.bounds.bottom
+                                            }
+                                        } ?: error("No observed horizontal tab strip can reveal $label.")
+                                        val before = fingerprint(current)
+                                        require(swipeHorizontal(strip.bounds, strip.bounds.centerY(), towardsEnd)) { "Horizontal tab-strip gesture failed." }
+                                        current = capture("${searchPrefix}_${if (towardsEnd) "end" else "start"}_$step")
+                                        control(label)?.let { return it }
+                                        if (fingerprint(current) == before) break
+                                    }
+                                }
+                                error("Authored tab label was not revealed within the bounded strip search: $label")
+                            }
+                            group.tabs.forEachIndexed { tabIndex, tab ->
+                                if (tabIndex > 0) resetVertical("${prefix}_${tabIndex + 1}")
+                                val tabPrefix = "${prefix}_${tabIndex + 1}"
+                                requestedTabLabel = tab.label
+                                locate(tab.label, "${tabPrefix}_strip").click()
+                                instrumentation.waitForIdleSync()
+                                Thread.sleep(300)
+                                current = capture("${tabPrefix}_selected")
+                                require(control(tab.label)?.isSelected == true) { "Clicked tab was not observed selected: ${tab.label}" }
+                                val pages = mutableListOf<Map<String, Any>>()
+                                fun recordPage(name: String) {
+                                    pages += mapOf("capture" to name, "selectedLabel" to tab.label,
+                                        "visibleTexts" to current.map { it.text }.filter(String::isNotBlank),
+                                        "textNodes" to current.filter { it.text.isNotBlank() }.map {
+                                            mapOf("text" to it.text, "fullyVisible" to it.fullyVisible,
+                                                "bounds" to it.bounds.flattenToString())
+                                        })
+                                }
+                                recordPage("${tabPrefix}_selected")
+                                var tabEnd = false
+                                for (step in 1..maxVertical) {
+                                    current = sweepVisibleTables(current, "${tabPrefix}_viewport_${step - 1}")
+                                    val before = fingerprint(current)
+                                    require(swipeReplayPage()) { "Selected-tab vertical gesture failed." }
+                                    Thread.sleep(300)
+                                    val name = "${tabPrefix}_vertical_$step"
+                                    current = capture(name)
+                                    recordPage(name)
+                                    if (fingerprint(current) == before) { tabEnd = true; break }
+                                }
+                                if (repeatTableSweepsPerViewport && !tabEnd) {
+                                    current = sweepVisibleTables(current, "${tabPrefix}_viewport_$maxVertical")
+                                }
+                                evidence += mapOf("tabsId" to group.id, "authoredTabIndex" to tabIndex,
+                                    "selectedLabel" to tab.label, "authoredChild" to tab.child,
+                                    "selectedStateObserved" to true, "scrollEndObserved" to tabEnd, "pages" to pages)
+                                report.add("tabViewEvidence", gson.toJsonTree(evidence))
+                                require(tabEnd) { "Selected tab did not reach scroll end within $maxVertical gestures: ${tab.label}" }
+                            }
+                            resetVertical("${prefix}_restore")
+                            requestedTabLabel = original.label
+                            locate(original.label, "${prefix}_restore_strip").click()
+                            Thread.sleep(300)
+                            current = capture("${prefix}_restored")
+                            require(control(original.label)?.isSelected == true) { "Original selected tab was not restored." }
+                        }
+                        requestedTabLabel = null
+                        report.addProperty("tabViewsVerified", true)
+                        report.addProperty("tabViewEvidenceScope", "Authored labels clicked and UI-selected states observed; visible text nodes and capture pages retained. Tab-content meaning and screenshot pixel legibility require manual review.")
+                    }
                     var verticalCount = 0
                     var endObserved = false
                     for (step in 0..maxVertical) {
-                        current = sweepVisibleTables(current)
+                        current = sweepVisibleTables(current, "viewport_$step")
                         if (step == maxVertical) break
                         val before = fingerprint(current)
-                        val bounds = viewport.get()
-                        val x = bounds.centerX()
-                        require(device.swipe(x, bounds.bottom - bounds.height() / 10,
-                            x, bounds.top + bounds.height() / 4, 35)) { "Vertical replay gesture failed." }
+                        require(swipeReplayPage()) { "Vertical replay gesture failed." }
                         verticalCount++
                         Thread.sleep(300)
                         current = capture("vertical_$verticalCount")
@@ -607,6 +773,11 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
                         )
                     }
                     report.add("tables", gson.toJsonTree(tableReports)); report.add("captures", gson.toJsonTree(captures))
+                    report.addProperty("repeatTableSweepsPerViewport", repeatTableSweepsPerViewport)
+                    if (repeatTableSweepsPerViewport) {
+                        report.add("viewportTableSweeps", gson.toJsonTree(viewportTableSweeps))
+                        report.addProperty("horizontalEndpointEvidenceScope", "Unchanged table text/coordinates after a successful gesture; bounded independently of logical cell coverage. Screenshot legibility and placement require manual review.")
+                    }
                     report.addProperty("verticalSwipes", verticalCount); report.addProperty("verticalEndObserved", endObserved)
                     report.addProperty("verticalLimitReached", !endObserved && verticalCount == maxVertical)
                     report.add("issues", gson.toJsonTree(issues.distinct()))
@@ -674,10 +845,12 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
 
     private class GeneratedDslRepairRejected(message: String) : IllegalArgumentException(message)
     private data class ReplayNode(val text: String, val className: String, val bounds: Rect,
-        val description: String, val fullyVisible: Boolean)
+        val description: String, val fullyVisible: Boolean, val clickable: Boolean, val selected: Boolean)
     private data class ReplayCell(val row: Int, val column: Int, val value: String)
     private data class ReplayTable(val id: String, val columns: List<String>, val cells: List<ReplayCell>,
         val rowSource: String, val rowCount: Int, val dataIssue: String?)
+    private data class ReplayTab(val label: String, val child: String)
+    private data class ReplayTabs(val id: String, val tabs: List<ReplayTab>)
 
     /** Screenshots are fresh independently; accessibility caches can retain a previous case. */
     private fun dumpFreshHierarchy(device: UiDevice, file: File) {
@@ -747,13 +920,95 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
                     if (bounds.intersect(viewport) && bounds.width() > 8 && bounds.height() > 8) {
                         nodes += ReplayNode(parser.getAttributeValue(null, "text").orEmpty(),
                             parser.getAttributeValue(null, "class").orEmpty(), bounds,
-                            parser.getAttributeValue(null, "content-desc").orEmpty(), fullyVisible)
+                            parser.getAttributeValue(null, "content-desc").orEmpty(), fullyVisible,
+                            parser.getAttributeValue(null, "clickable") == "true",
+                            parser.getAttributeValue(null, "selected") == "true")
                     }
                 }
             }
             parser.next()
         }
         return nodes
+    }
+
+    private fun replayIsObservedTabStrip(scroller: ReplayNode, nodes: List<ReplayNode>, authoredLabels: Set<String>): Boolean {
+        if (scroller.className != "android.widget.HorizontalScrollView") return false
+        // Table cells can repeat a tab's title. Require an actual selected clickable control
+        // inside a strip-sized observed scroll container, rather than a matching text alone.
+        return nodes.any { control ->
+            control.clickable && control.selected && control.text in authoredLabels &&
+                scroller.bounds.contains(control.bounds) &&
+                scroller.bounds.height() <= control.bounds.height() * 2
+        }
+    }
+
+    private fun replayHorizontalFingerprint(nodes: List<ReplayNode>, bounds: Rect): String = nodes
+        .filter { bounds.contains(it.bounds.centerX(), it.bounds.centerY()) &&
+            it.className != "android.widget.HorizontalScrollView" &&
+            (it.text.isNotBlank() || it.description.isNotBlank()) }
+        .joinToString("\n") { "${it.text}|${it.description}|${it.bounds.flattenToString()}" }
+
+    private fun replayHorizontalSweepEnded(before: String, after: String): Boolean =
+        before.isNotEmpty() && before == after
+
+    private fun replayTabTargets(json: String, requireLiteralLabels: Boolean = true): List<ReplayTabs> {
+        val payload = JsonParser.parseString(json)
+        val messages = if (payload.isJsonArray) payload.asJsonArray.toList() else listOf(payload)
+        fun literal(value: JsonElement?): String = value?.takeIf { it.isJsonPrimitive }?.asString.orEmpty()
+        return messages.flatMap { message ->
+            message.takeIf { it.isJsonObject }?.asJsonObject?.get("updateComponents")
+                ?.takeIf { it.isJsonObject }?.asJsonObject?.get("components")
+                ?.takeIf { it.isJsonArray }?.asJsonArray?.toList().orEmpty()
+        }.mapNotNull component@ { value ->
+            val node = value.takeIf { it.isJsonObject }?.asJsonObject ?: return@component null
+            if (literal(node.get("component")) != "Tabs") return@component null
+            val tabs = node.get("tabs")?.takeIf { it.isJsonArray }?.asJsonArray?.mapNotNull tabEntry@ { entry ->
+                val tab = entry.takeIf { it.isJsonObject }?.asJsonObject
+                if (tab == null) {
+                    require(!requireLiteralLabels) { "Authored tab definition is not an object." }
+                    return@tabEntry null
+                }
+                val label = literal(tab.get("title")).ifBlank { literal(tab.get("label")) }
+                if (label.isBlank()) {
+                    require(!requireLiteralLabels) { "Authored tab requires a literal title/label for UI verification." }
+                    return@tabEntry null
+                }
+                ReplayTab(label, listOf("child", "content", "id", "element").firstNotNullOfOrNull { key ->
+                    literal(tab.get(key)).takeIf(String::isNotBlank)
+                }.orEmpty())
+            }.orEmpty()
+            if (tabs.isEmpty()) {
+                require(!requireLiteralLabels) { "Authored Tabs ${literal(node.get("id"))} has no tabs to verify." }
+                return@component null
+            }
+            ReplayTabs(literal(node.get("id")), tabs)
+        }
+    }
+
+    @Test fun replayTableSweepSeparatesSelectedTabStripFromIdenticallyNamedCells() {
+        val nodes = replayNodes("""<hierarchy>
+            <node package="com.samsung.genuicraft" class="android.widget.HorizontalScrollView" bounds="[0,0][600,100]"/>
+            <node package="com.samsung.genuicraft" class="android.view.View" text="Week 1" clickable="true" selected="true" bounds="[0,0][120,100]"/>
+            <node package="com.samsung.genuicraft" class="android.widget.HorizontalScrollView" bounds="[0,200][600,1100]"/>
+            <node package="com.samsung.genuicraft" class="android.view.View" text="Week 1" clickable="true" selected="true" bounds="[0,220][120,320]"/>
+        </hierarchy>""", "com.samsung.genuicraft", Rect(0, 0, 600, 1200))
+        val labels = setOf("Week 1", "Week 2")
+        assertTrue(replayIsObservedTabStrip(nodes[0], nodes, labels))
+        assertFalse(replayIsObservedTabStrip(nodes[2], nodes, labels))
+        assertFalse(replayIsObservedTabStrip(nodes[0], nodes.map { it.copy(selected = false) }, labels))
+        assertFalse(replayIsObservedTabStrip(nodes[0], nodes, setOf("Different authored tab")))
+    }
+
+    @Test fun replayHorizontalEndpointRequiresStableCoordinatesDespiteCompleteLogicalText() {
+        val bounds = Rect(0, 200, 600, 1100)
+        val initial = listOf(ReplayNode("Complete logical cell value", "android.view.View",
+            Rect(300, 220, 590, 320), "", true, false, false))
+        val moved = initial.map { it.copy(bounds = Rect(100, 220, 390, 320)) }
+        val before = replayHorizontalFingerprint(initial, bounds)
+        val after = replayHorizontalFingerprint(moved, bounds)
+        assertFalse(replayHorizontalSweepEnded(before, after))
+        assertTrue(replayHorizontalSweepEnded(after, replayHorizontalFingerprint(moved, bounds)))
+        assertFalse(replayHorizontalSweepEnded("", ""))
     }
 
     private fun replayTableTargets(json: String): List<ReplayTable> {

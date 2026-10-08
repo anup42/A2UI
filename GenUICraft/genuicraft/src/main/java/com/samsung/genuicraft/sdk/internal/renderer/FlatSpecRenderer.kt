@@ -307,7 +307,7 @@ internal fun nativeTableShouldScroll(
 internal fun nativeTableStickyFirstColumn(headers: List<String>, horizontalScrollEnabled: Boolean): Boolean =
     horizontalScrollEnabled && (headers.size >= 4 || (headers.size == 3 &&
         normalizeTableHeaderForMatch(headers.first()) in setOf(
-            "term", "level", "feature", "factor", "item", "name", "type", "category",
+            "term", "level", "feature", "factor", "point", "criterion", "criteria", "item", "name", "type", "category",
             "option", "model", "route", "restaurant", "date", "day", "chemistry"
         )))
 
