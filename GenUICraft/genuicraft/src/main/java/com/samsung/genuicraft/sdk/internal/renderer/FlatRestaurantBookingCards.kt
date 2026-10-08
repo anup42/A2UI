@@ -154,6 +154,7 @@ internal fun renderRestaurantRowsIfPossible(
     modifier: Modifier = Modifier,
     title: String? = null
 ): Boolean {
+    if (renderRestaurantSummaryIfPossible(headers, rows, modifier, title)) return true
     if (rows.isEmpty()) return false
     val titleIndex = restaurantTitleIndex(headers)
     val ratingIndex = restaurantRatingIndex(headers)
