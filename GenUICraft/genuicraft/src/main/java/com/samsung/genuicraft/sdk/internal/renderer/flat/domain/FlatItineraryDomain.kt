@@ -515,6 +515,7 @@ internal fun ResponsiveScheduleRowCard(
         StudyPlanWeekCard(headers = headers, row = row)
         return
     }
+    if (renderTimedDayPlanRowIfPossible(headers, row)) return
 
     val content = responsiveScheduleCardContent(headers, row) ?: return
     val iconCell = content.iconCell
