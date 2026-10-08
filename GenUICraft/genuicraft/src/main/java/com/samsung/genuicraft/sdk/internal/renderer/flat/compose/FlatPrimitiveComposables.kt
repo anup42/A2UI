@@ -486,13 +486,26 @@ internal fun RenderStack(
         direction = direction,
         isRepeated = repeatScope != null || repeatedChildScopes != null,
     )
+    val matchSummary = if (textSections == null && activePath == setOf(elementId) &&
+        direction == "vertical" && repeatScope == null && repeatedChildScopes == null &&
+        elements[elementId]?.let { it.repeat == null && it.visible == null && it.on.isNullOrEmpty() && it.watch.isNullOrEmpty() } == true
+    ) planFlatMatchSummary(children, elements) else null
     CompositionLocalProvider(LocalFlatSpecTextHorizontalPadding provides childTextHorizontalPadding) {
         Column(
             modifier = stackModifier,
             verticalArrangement = verticalArrangement,
             horizontalAlignment = horizontalAlignment
         ) {
-            if (textSections == null) {
+            if (matchSummary != null) {
+                children.forEach { childId ->
+                    key(childId) {
+                        if (childId == matchSummary.rootIds.first()) RenderFlatMatchSummary(matchSummary)
+                        else if (childId !in matchSummary.rootIds) RenderElement(
+                            childId, elements, state, repeatScope, onOpenUrl, onSetState, onAction, activePath,
+                        )
+                    }
+                }
+            } else if (textSections == null) {
                 RenderChildren(
                     children = children,
                     elements = elements,
