@@ -181,8 +181,19 @@ internal fun extractDirectTableModel(
         explicitPreferredPresentation == null -> if (domain in CARD_FIRST_TABLE_DOMAINS) "cards" else "table"
         else -> explicitPreferredPresentation
     }
-    val shape = detectTableShape(headerLabels, resolvedRows, domain)
-    val primaryColumn = props["primaryColumn"]?.toString()?.trim()?.takeIf { it.isNotBlank() }
+    val inferredShape = detectTableShape(headerLabels, resolvedRows, domain)
+    val declaredPrimary = props["primaryColumn"]?.toString()?.trim()?.takeIf { it.isNotBlank() }
+    val declaredPrimaryIndex = columns.indexOfFirst {
+        declaredPrimary != null && (it.key.equals(declaredPrimary, true) || it.label.equals(declaredPrimary, true))
+    }
+    // Explicit row identity plus cards is enough for a generic table; do not require a known domain.
+    // Feature matrices and other recognized structures retain their existing interpretation.
+    val declaredEntityCards = inferredShape == FlatTableShape.GENERIC_GRID &&
+        explicitPreferredPresentation == "cards" && declaredPrimaryIndex >= 0 &&
+        !isComparisonFeatureHeader(headerLabels[declaredPrimaryIndex]) && resolvedRows.isNotEmpty() &&
+        resolvedRows.all { !it.getOrNull(declaredPrimaryIndex).isNullOrBlank() }
+    val shape = if (declaredEntityCards) FlatTableShape.ENTITY_ROW else inferredShape
+    val primaryColumn = if (declaredEntityCards) headerLabels[declaredPrimaryIndex] else declaredPrimary
     val highlightColumns = stringSetFromTableProp(props["highlightColumns"])
     val numericColumns = stringSetFromTableProp(props["numericColumns"])
     val entityMedia = extractTableEntityMedia(props)
