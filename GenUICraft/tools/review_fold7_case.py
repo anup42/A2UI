@@ -344,10 +344,71 @@ def collect(args):
 
 def build_report(root):
     root.mkdir(parents=True, exist_ok=True)
+
     def link(path, label):
         return f'<a href="{quote(path.relative_to(root).as_posix())}">{html.escape(label)}</a>'
+
+    def passed(receipt):
+        return receipt.get("automatedChecksSatisfied") is True and receipt.get("status") == "collected"
+
+    def warnings(receipt):
+        audit = receipt.get("sourceFidelityAudit") or {}
+        result = receipt.get("result") or {}
+        values = list(audit.get("warnings") or [])
+        values += [value for value in result.get("warnings", []) if "fidelity" in str(value).lower()]
+        if result.get("sourceIntegrityFailure"):
+            values.append(result["sourceIntegrityFailure"])
+        return list(dict.fromkeys(str(value) for value in values if value))
+
+    def figure(image):
+        image_url = quote(image.relative_to(root).as_posix())
+        xml = image.with_suffix(".xml")
+        return (f'<figure><a href="{image_url}" target="_blank" rel="noopener"><img loading="lazy" '
+                f'src="{image_url}" alt="{html.escape(image.parent.name + " · " + image.stem)}"></a>'
+                f'<figcaption>{link(image, image.name)} · {link(xml, "XML") if xml.exists() else "XML unavailable"}</figcaption></figure>')
+
+    def attempt(path, receipt, featured=False):
+        pictures = sorted((path.parent / "artifacts" / receipt["case"]).glob("*.png"))
+        first = next((image for stem in ("initial", "screen", "page_0", "page_00", "page_01")
+                      for image in pictures if image.stem == stem), pictures[0] if pictures else None)
+        badge = "Checks passed" if passed(receipt) else ("Checks pending" if receipt["status"] == "running" else "Checks need attention")
+        failed_checks = [key for key, value in receipt.get("checks", {}).items() if value is not True]
+        issues = list((receipt.get("result") or {}).get("issues", []))
+        if receipt.get("error"):
+            issues.insert(0, receipt["error"])
+        if failed_checks:
+            issues.append("Checks requiring attention: " + ", ".join(failed_checks))
+        issue_html = ('<ul class="issues">' + "".join(f'<li>{html.escape(str(value))}</li>' for value in issues) + '</ul>') if issues else ""
+        log = path.parent / "instrumentation.txt"
+        metadata = (f'<p class="attempt-meta">{link(path, "Receipt, checks and provenance")} · '
+                    f'{link(log, "Instrumentation log") if log.exists() else "Instrumentation did not start"}</p>')
+        orphan_xml = [link(xml, xml.name) for xml in sorted((path.parent / "artifacts" / receipt["case"]).glob("*.xml"))
+                      if not xml.with_suffix(".png").is_file()]
+        fidelity = warnings(receipt)
+        fidelity_html = ('<div class="fidelity"><strong>Recorded fidelity warnings</strong><ul>' +
+                        "".join(f'<li>{html.escape(value)}</li>' for value in fidelity) + '</ul></div>') if fidelity else ""
+        all_captures = ('<div class="captures">' + "".join(figure(image) for image in pictures) + '</div>') if pictures else '<p class="empty">No captures collected.</p>'
+        body = metadata + issue_html + fidelity_html
+        if featured:
+            body += figure(first) if first else '<p class="empty">No captures collected.</p>'
+            if len(pictures) > 1:
+                body += f'<details class="capture-pages"><summary>Review all {len(pictures)} capture pages</summary>{all_captures}</details>'
+        else:
+            body += all_captures
+        if orphan_xml:
+            body += '<p class="attempt-meta">XML without a screenshot: ' + " · ".join(orphan_xml) + '</p>'
+        title = html.escape(receipt["phase"].capitalize() + " · " + receipt["attempt"])
+        state = f'<span class="badge {"check-pass" if passed(receipt) else "check-pending"}">{badge}</span>'
+        if featured:
+            return f'<article class="attempt"><header><h3>{title}</h3>{state}</header>{body}</article>'
+        return f'<details class="past-attempt"><summary>{title} · {html.escape(receipt["status"])} · {badge}</summary>{body}</details>'
+
     cards = []
     index = []
+    navigation = []
+    domains = set()
+    visual_counts = {"accepted": 0, "pending": 0, "needs_work": 0}
+    check_counts = {phase: {"passed": 0, "attention": 0, "pending": 0} for phase in ("before", "after")}
     for directory in sorted(root.glob("BXP-???")):
         if not directory.is_dir():
             continue
@@ -363,45 +424,142 @@ def build_report(root):
                 review = {**review, "status": "pending", "previousVisualStatus": "accepted",
                           "pendingReason": "The newest after attempt has not received the referenced visual review."}
         runs = []
-        blocks = []
+        entries = []
         order = {"before": 0, "after": 1, "generation": 2}
         for path in sorted(directory.glob("*/*/receipt.json"), key=lambda item: (order.get(item.parent.parent.name, 3), item.parent.name)):
             receipt = read(path)
             relative = path.relative_to(root).as_posix()
             runs.append({"receipt": relative, "phase": receipt["phase"], "attempt": receipt["attempt"],
                          "status": receipt["status"], "automatedChecksSatisfied": receipt["automatedChecksSatisfied"]})
-            pictures = []
-            for image in sorted((path.parent / "artifacts" / selected).glob("*.png")):
-                image_url = quote(image.relative_to(root).as_posix())
-                xml = image.with_suffix(".xml")
-                pictures.append(f'<figure><a href="{image_url}"><img loading="lazy" src="{image_url}" alt="{html.escape(image.stem)}"></a>'
-                                f'<figcaption>{link(image, image.name)} {link(xml, "XML") if xml.exists() else ""}</figcaption></figure>')
-            orphan_xml = [link(xml, xml.name) for xml in sorted((path.parent / "artifacts" / selected).glob("*.xml"))
-                          if not xml.with_suffix(".png").is_file()]
-            issue = html.escape(receipt.get("error", ""))
-            log = path.parent / "instrumentation.txt"
-            audit = receipt.get("sourceFidelityAudit")
-            fidelity = (f'<details><summary>Source fidelity: not established; reported warnings {audit.get("reportedWarningCount")}</summary>'
-                        f'<pre>{html.escape(chr(10).join(audit["warnings"]))}</pre></details>') if audit else ""
-            blocks.append(f'<details open><summary>{html.escape(receipt["phase"] + "/" + receipt["attempt"])} — '
-                          f'{html.escape(receipt["status"])}; automated checks {receipt["automatedChecksSatisfied"]}</summary>'
-                          f'<p>{link(path, "Receipt, checks and provenance")} · {link(log, "Instrumentation log") if log.exists() else "Instrumentation did not start."}</p>'
-                          f'<p>{issue}</p>{fidelity}<div class="captures">{"".join(pictures) or "No captures collected."}</div><p>{" · ".join(orphan_xml)}</p></details>')
-        notes = "\n".join(review.get("notes", []))
-        cards.append(f'<section><h2>{selected} · {html.escape(row.get("domain", ""))}</h2>'
-                     f'<p>Visual review: <strong>{html.escape(review["status"])}</strong></p><pre>{html.escape(notes)}</pre>'
-                     f'<details><summary>Frozen source query and answer</summary><p>{html.escape(row["query"])}</p><pre>{html.escape(row["text"])}</pre></details>'
-                     f'{"".join(blocks)}</section>')
+            entries.append((path, receipt))
+        latest = {}
+        for phase in ("before", "after", "generation"):
+            phase_entries = [entry for entry in entries if entry[1]["phase"] == phase]
+            if phase_entries:
+                latest[phase] = max(phase_entries, key=lambda entry: entry[1].get("startedAtUtc", ""))
+        for phase in check_counts:
+            receipt = latest.get(phase, (None, None))[1]
+            check_counts[phase]["pending" if receipt is None or receipt.get("status") == "running" else
+                                "passed" if passed(receipt) else "attention"] += 1
+        status = review["status"]
+        visual_counts[status] = visual_counts.get(status, 0) + 1
+        domain = str(row.get("domain", "Unspecified"))
+        domains.add(domain)
+        notes = "".join(f'<p>{html.escape(str(note))}</p>' for note in review.get("notes", [])) or '<p>No visual review notes recorded.</p>'
+        pending = f'<p class="issues">{html.escape(review["pendingReason"])}</p>' if review.get("pendingReason") else ""
+        featured = []
+        for phase in ("before", "after"):
+            featured.append(attempt(*latest[phase], featured=True) if phase in latest else
+                            f'<article class="attempt empty"><h3>{phase.capitalize()}</h3><p>No {phase} attempt collected.</p></article>')
+        shown = {entry[0] for phase, entry in latest.items() if phase in ("before", "after")}
+        history = [(path, receipt) for path, receipt in entries if path not in shown]
+        history_html = (f'<details class="history"><summary>Previous attempts and generation evidence · {len(history)}</summary>' +
+                        "".join(attempt(path, receipt) for path, receipt in history) + '</details>') if history else ""
+        current_warnings = {}
+        for phase, (_, receipt) in latest.items():
+            for warning in warnings(receipt):
+                current_warnings.setdefault(warning, []).append(phase + "/" + receipt["attempt"])
+        fidelity_html = ('<div class="fidelity"><strong>Latest recorded fidelity warnings</strong><ul>' +
+                         "".join(f'<li>{html.escape(warning)} <span class="attempt-meta">({html.escape(", ".join(origins))})</span></li>'
+                                 for warning, origins in current_warnings.items()) + '</ul></div>') if current_warnings else ""
+        document_note = ""
+        if "before" in latest and "after" in latest:
+            before_hash = latest["before"][1].get("source", {}).get("sha256")
+            after_hash = latest["after"][1].get("source", {}).get("sha256")
+            if before_hash and after_hash:
+                document_note = ('<p class="document-note">Same saved document in both replays.</p>' if before_hash == after_hash else
+                                 '<p class="issues">Before and after document hashes differ; inspect the receipts.</p>')
+        badge_text = {"accepted": "Visually accepted", "pending": "Visual review pending", "needs_work": "Needs work"}.get(status, status)
+        search_text = " ".join((selected, domain, row["query"], " ".join(str(value) for value in review.get("notes", [])))).lower()
+        attrs = f'data-case="{selected}" data-domain="{html.escape(domain, quote=True)}" data-status="{html.escape(status, quote=True)}" data-search="{html.escape(search_text, quote=True)}"'
+        navigation.append(f'<li><a class="case-link" href="#case-{selected}" data-case="{selected}">{selected}<span>{html.escape(domain)}</span></a></li>')
+        cards.append(f'<section class="case-card" id="case-{selected}" {attrs}><header class="case-heading">'
+                     f'<div><p class="eyebrow">{html.escape(domain)}</p><h2>{selected}</h2></div><span class="badge {html.escape(status, quote=True)}">{html.escape(badge_text)}</span></header>'
+                     f'<div class="review-notes"><h3>Review notes</h3>{notes}{pending}</div>'
+                     '<p class="scope">Visual acceptance and automated checks do not certify source fidelity. Recorded fidelity warnings appear with their attempts.</p>'
+                     f'{fidelity_html}{document_note}<div class="comparison">{"".join(featured)}</div>{history_html}'
+                     f'<details class="frozen-source"><summary>Frozen source query and answer</summary><p>{html.escape(row["query"])}</p><pre>{html.escape(row["text"])}</pre></details></section>')
         index.append({"case": selected, "visualReview": review, "runs": runs})
     save(root / "review_index.json", {"schemaVersion": 1, "generatedAtUtc": utc(), "cases": index,
          "note": "Automated collection/coverage checks do not establish visual acceptance or source fidelity."})
-    page = ('<!doctype html><html lang="en"><meta charset="utf-8"><title>Fold7 sequential visual review</title>'
-            '<style>body{font:15px system-ui;max-width:1500px;margin:24px auto;padding:0 20px;color:#172033}section{border-top:1px solid #ccc;padding:20px 0}'
-            '.captures{display:flex;flex-wrap:wrap;gap:16px}figure{margin:0;max-width:280px}img{width:260px;height:auto;border:1px solid #ddd}'
-            'pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f3f5f8;padding:12px}summary{cursor:pointer;margin:12px 0}a{color:#1759ad}</style>'
-            '<h1>Fold7 sequential visual review</h1><p>Each operation selects one frozen Bixby50 case. '
-            'Saved captures and automated checks remain pending until explicitly reviewed. Source fidelity is reported separately.</p>'
-            '<p><a href="review_index.json">Review index JSON</a></p>' + ("".join(cards) or '<p>No case evidence collected.</p>') + '</html>')
+    metrics = (f'<div><strong>{len(index)}</strong><span>Recorded cases</span></div>'
+               f'<div><strong>{visual_counts["accepted"]}</strong><span>Visually accepted</span></div>'
+               f'<div><strong>{visual_counts["pending"]}</strong><span>Visual review pending</span></div>'
+               f'<div><strong>{visual_counts["needs_work"]}</strong><span>Need work</span></div>')
+    for phase, counts in check_counts.items():
+        metrics += (f'<div><strong>{counts["passed"]}</strong><span>{phase.capitalize()} checks passed</span>'
+                    f'<small>{counts["attention"]} need attention · {counts["pending"]} pending or absent</small></div>')
+    domain_options = "".join(f'<option value="{html.escape(domain, quote=True)}">{html.escape(domain)}</option>' for domain in sorted(domains))
+    css = """
+      :root{color-scheme:light;--ink:#172334;--muted:#5a6879;--line:#dfe5ec;--blue:#205a9d}
+      *{box-sizing:border-box}body{margin:0;background:#f5f7fa;color:var(--ink);font:15px/1.55 system-ui,-apple-system,Segoe UI,sans-serif}
+      main{max-width:1400px;margin:auto;padding:28px 24px 56px}h1,h2,h3,p{margin:0}h1{font-size:clamp(25px,3vw,36px);letter-spacing:-.6px}
+      h2{font-size:25px}h3{font-size:15px}a{color:var(--blue);text-underline-offset:3px}a:focus-visible,input:focus-visible,select:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid #79a8df;outline-offset:3px}
+      .intro>p{color:var(--muted);max-width:900px;margin-top:8px}.intro .eyebrow{margin-bottom:4px}.eyebrow{text-transform:uppercase;letter-spacing:1px;font-size:11px;font-weight:700;color:var(--muted)}
+      .metrics{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin:22px 0}.metrics>div{background:white;border:1px solid var(--line);border-radius:12px;padding:13px 15px;display:flex;flex-direction:column;gap:1px}
+      .metrics strong{font-size:27px;line-height:1.2}.metrics span{font-size:12px;color:var(--muted)}.metrics small{font-size:10px;color:var(--muted);margin-top:4px}
+      .toolbar{display:flex;gap:12px;align-items:end;flex-wrap:wrap;background:white;border:1px solid var(--line);padding:16px;border-radius:14px}.toolbar label{display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600}.search{flex:1;min-width:200px}
+      input,select,button{font:inherit;border:1px solid #cbd5e1;border-radius:8px;background:white;color:var(--ink);padding:8px 10px;min-height:40px}button{cursor:pointer}.result-count{font-size:12px;color:var(--muted);margin:10px 0}
+      .case-nav{list-style:none;display:flex;gap:8px;flex-wrap:wrap;padding:0;margin:0 0 24px}.case-link{text-decoration:none;display:flex;align-items:center;gap:7px;background:white;border:1px solid var(--line);padding:6px 10px;border-radius:8px;font-weight:600;font-size:12px}.case-link span{font-weight:400;color:var(--muted);font-size:11px}.case-link[aria-current]{border-color:var(--blue);background:#eef4fc}
+      .case-card{background:white;border:1px solid var(--line);border-radius:18px;padding:20px;margin:0 0 24px;scroll-margin-top:16px}.case-heading,.attempt>header{display:flex;justify-content:space-between;gap:12px;align-items:center}.case-heading{margin-bottom:16px}.badge{font-size:11px;font-weight:600;padding:5px 9px;border:1px solid var(--line);border-radius:999px;white-space:nowrap;color:var(--muted);background:#f6f8fa}
+      .accepted,.check-pass{color:#245e42;background:#edf7f0;border-color:#cee5d6}.needs_work{color:#855a22;background:#fff6e8;border-color:#ead7b7}.review-notes{background:#f6f8fb;border-radius:10px;padding:13px 15px}.review-notes p{margin-top:6px;white-space:pre-wrap;overflow-wrap:anywhere}.scope{font-size:12px;color:var(--muted);margin:12px 0}.document-note{font-size:12px;color:var(--muted);margin:0 0 10px}
+      .comparison{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.attempt{min-width:0;background:#fafbfd;border:1px solid var(--line);border-radius:12px;padding:14px}.attempt-meta{font-size:11px;color:var(--muted);margin:9px 0;overflow-wrap:anywhere}
+      figure{margin:0 auto;min-width:0;max-width:360px}figure>a{display:block}img{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:7px;background:white}figcaption{font-size:11px;text-align:center;padding:6px 0;color:var(--muted)}
+      .captures{display:flex;gap:12px;overflow-x:auto;align-items:flex-start;padding:4px 0 9px;scroll-snap-type:x proximity}.captures figure{flex:0 0 min(280px,100%);scroll-snap-align:start;margin:0}.captures img{border-radius:5px}
+      details{margin-top:12px}summary{cursor:pointer;font-size:12px;font-weight:600;padding:6px 0}.history,.frozen-source{border-top:1px solid var(--line);padding-top:5px}.past-attempt{padding:8px 12px;background:#f8fafc;border:1px solid var(--line);border-radius:9px}.frozen-source p{margin:8px 0}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f3f5f8;padding:12px;font:13px/1.6 inherit}
+      .issues,.fidelity{font-size:12px;background:#fff7ed;color:#704e22;border-radius:8px;padding:10px 14px;margin:10px 0;overflow-wrap:anywhere}.issues li,.fidelity li{margin:3px 0}.empty{color:var(--muted);padding:22px 14px}.no-results{padding:28px;text-align:center;color:var(--muted)}[hidden]{display:none!important}
+      @media(max-width:1000px){.metrics{grid-template-columns:repeat(3,minmax(0,1fr))}}
+      @media(max-width:680px){main{padding:20px 12px}.metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.metrics>div{padding:10px 12px}.comparison{grid-template-columns:1fr}.case-card{padding:14px}.case-heading{align-items:flex-start}.badge{white-space:normal}.toolbar{gap:10px;padding:12px}.toolbar label{flex:1;min-width:130px}.toolbar .search{flex-basis:100%}.case-link span{display:none}figure{max-width:320px}}
+    """
+    script = """
+      const search = document.getElementById('case-search');
+      const domain = document.getElementById('domain-filter');
+      const status = document.getElementById('status-filter');
+      const cards = Array.from(document.querySelectorAll('.case-card'));
+      const links = Array.from(document.querySelectorAll('.case-link'));
+      function filterCases() {
+        const term = search.value.trim().toLowerCase();
+        let visible = 0;
+        cards.forEach(card => {
+          const show = (!term || card.dataset.search.includes(term)) &&
+            (!domain.value || card.dataset.domain === domain.value) &&
+            (!status.value || card.dataset.status === status.value);
+          card.hidden = !show;
+          if (show) visible++;
+          const link = links.find(link => link.dataset.case === card.dataset.case);
+          if (link) link.parentElement.hidden = !show;
+        });
+        document.getElementById('result-count').textContent = visible + ' of ' + cards.length + ' recorded cases shown';
+        document.getElementById('no-results').hidden = visible !== 0;
+      }
+      function markCurrentCase() {
+        links.forEach(link => {
+          if (link.hash === location.hash) link.setAttribute('aria-current', 'location');
+          else link.removeAttribute('aria-current');
+        });
+      }
+      search.addEventListener('input', filterCases);
+      domain.addEventListener('change', filterCases);
+      status.addEventListener('change', filterCases);
+      document.getElementById('clear-filters').addEventListener('click', () => {
+        search.value = ''; domain.value = ''; status.value = ''; filterCases();
+      });
+      window.addEventListener('hashchange', markCurrentCase);
+      filterCases(); markCurrentCase();
+    """
+    page = ('<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
+            '<title>Fold7 sequential visual review</title><style>' + css + '</style></head><body><main>'
+            '<header class="intro"><p class="eyebrow">GenUICraft · Fold7</p><h1>Sequential visual review</h1>'
+            '<p>Latest saved before and after captures for each recorded Bixby50 case. Visual acceptance requires an explicit review of the referenced captures.</p>'
+            '<p>Before/after counts below are collection and coverage checks, not quality scores. <a href="review_index.json">Review index JSON</a></p></header>'
+            f'<div class="metrics" aria-label="Recorded review summary">{metrics}</div>'
+            '<div class="toolbar"><label class="search" for="case-search">Search cases<input id="case-search" type="search" placeholder="Case ID, domain, query or review notes"></label>'
+            f'<label for="domain-filter">Domain<select id="domain-filter"><option value="">All domains</option>{domain_options}</select></label>'
+            '<label for="status-filter">Visual review<select id="status-filter"><option value="">All statuses</option><option value="accepted">Accepted</option><option value="pending">Pending</option><option value="needs_work">Needs work</option></select></label>'
+            '<button id="clear-filters" type="button">Clear filters</button></div>'
+            f'<p id="result-count" class="result-count" role="status">{len(index)} recorded cases shown</p><nav aria-label="Recorded cases"><ol class="case-nav">{"".join(navigation)}</ol></nav>'
+            '<p id="no-results" class="no-results" hidden>No recorded cases match these filters.</p>' +
+            ("".join(cards) or '<p class="empty">No case evidence collected.</p>') + '<script>' + script + '</script></main></body></html>')
     (root / "index.html").write_text(page, encoding="utf-8")
 
 

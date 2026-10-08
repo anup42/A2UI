@@ -70,6 +70,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -149,6 +150,8 @@ import com.samsung.genuicraft.sdk.internal.renderer.flat.expr.*
 import com.samsung.genuicraft.sdk.internal.renderer.flat.runtime.*
 import com.samsung.genuicraft.sdk.internal.renderer.flat.model.*
 import com.samsung.genuicraft.sdk.internal.renderer.flat.compose.table.*
+
+private val LocalFlatTextSectionPanel = staticCompositionLocalOf { false }
 
 // moved from FlatSpecRenderer.kt (RenderStack)
 @OptIn(ExperimentalLayoutApi::class)
@@ -475,23 +478,70 @@ internal fun RenderStack(
         "end" -> Alignment.End
         else -> Alignment.Start
     }
+    val textSections = planFlatTextSections(
+        elementId = elementId,
+        children = children,
+        elements = elements,
+        isRoot = activePath == setOf(elementId),
+        direction = direction,
+        isRepeated = repeatScope != null || repeatedChildScopes != null,
+    )
     CompositionLocalProvider(LocalFlatSpecTextHorizontalPadding provides childTextHorizontalPadding) {
         Column(
             modifier = stackModifier,
             verticalArrangement = verticalArrangement,
             horizontalAlignment = horizontalAlignment
         ) {
-            RenderChildren(
-                children = children,
-                elements = elements,
-                state = state,
-                repeatScope = repeatScope,
-                repeatedChildScopes = repeatedChildScopes,
-                onOpenUrl = onOpenUrl,
-                onSetState = onSetState,
-                onAction = onAction,
-                activePath = activePath
-            )
+            if (textSections == null) {
+                RenderChildren(
+                    children = children,
+                    elements = elements,
+                    state = state,
+                    repeatScope = repeatScope,
+                    repeatedChildScopes = repeatedChildScopes,
+                    onOpenUrl = onOpenUrl,
+                    onSetState = onSetState,
+                    onAction = onAction,
+                    activePath = activePath
+                )
+            } else {
+                textSections.forEach { section ->
+                    key(section.stableKey) {
+                        if (section.headingId == null) {
+                            RenderElement(
+                                section.childIds.single(), elements, state, repeatScope,
+                                onOpenUrl, onSetState, onAction, activePath,
+                            )
+                        } else {
+                            Surface(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(14.dp),
+                                color = genUiCardContainerColor(GenUiCardTone.Neutral),
+                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f)),
+                            ) {
+                                CompositionLocalProvider(
+                                    LocalFlatSpecTextHorizontalPadding provides 0.dp,
+                                    LocalFlatTextSectionPanel provides true,
+                                ) {
+                                    Column(
+                                        modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 10.dp),
+                                        verticalArrangement = Arrangement.spacedBy(6.dp),
+                                    ) {
+                                        section.childIds.forEach { childId ->
+                                            key(childId) {
+                                                RenderElement(
+                                                    childId, elements, state, repeatScope,
+                                                    onOpenUrl, onSetState, onAction, activePath,
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -793,6 +843,7 @@ internal fun RenderText(props: Map<String, Any?>, modifier: Modifier = Modifier)
         ?: asFlatSpacingDp(props["paddingHorizontal"])
         ?: LocalFlatSpecTextHorizontalPadding.current
     val primaryTextColor = MaterialTheme.colorScheme.onSurface
+    val sectionPanel = LocalFlatTextSectionPanel.current
     when (variant) {
         "h1" -> Text(
             text = markdown.content,
@@ -804,10 +855,11 @@ internal fun RenderText(props: Map<String, Any?>, modifier: Modifier = Modifier)
         )
         "h2" -> Text(
             text = markdown.content,
-            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+            style = (if (sectionPanel) MaterialTheme.typography.titleMedium else MaterialTheme.typography.titleLarge)
+                .copy(fontWeight = FontWeight.Bold),
             color = primaryTextColor,
             modifier = modifier
-                .padding(start = horizontalPadding, end = horizontalPadding, top = 12.dp, bottom = 4.dp)
+                .padding(start = horizontalPadding, end = horizontalPadding, top = if (sectionPanel) 0.dp else 12.dp, bottom = 4.dp)
                 .accessibilitySemantics(props = props, isHeading = true)
         )
         "h3" -> Text(
@@ -815,7 +867,7 @@ internal fun RenderText(props: Map<String, Any?>, modifier: Modifier = Modifier)
             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
             color = primaryTextColor,
             modifier = modifier
-                .padding(start = horizontalPadding, end = horizontalPadding, top = 10.dp, bottom = 3.dp)
+                .padding(start = horizontalPadding, end = horizontalPadding, top = if (sectionPanel) 0.dp else 10.dp, bottom = 3.dp)
                 .accessibilitySemantics(props = props, isHeading = true)
         )
         "caption", "label" -> Text(
