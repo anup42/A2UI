@@ -1,0 +1,5 @@
+<a2ui>
+$/={"forecast_data":[{"date":"Wed, Sep 9","high":"31","low":"20","rain":"57%"},{"date":"Thu, Sep 10","high":"30","low":"21","rain":"55%"},{"date":"Fri, Sep 11","high":"30","low":"21","rain":"55%"}]}
+root=Column([a],"md",padding=16)
+a=Text("AccuWeather’s Bengaluru forecast","h2")
+</a2ui>

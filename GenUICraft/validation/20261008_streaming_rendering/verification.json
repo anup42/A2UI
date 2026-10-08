@@ -1,0 +1,10 @@
+{
+  "date": "2026-10-08",
+  "sdkVersion": "0.6.0",
+  "sdkUnitTests": {"tests": 478, "suites": 54, "failures": 0, "errors": 0, "skipped": 0, "source": "sdk_build_tests.txt", "countEvidence": "Full-suite XML aggregate captured before targeted replay runs overwrote generated test reports."},
+  "pipelineBridgeTests": {"passed": 9, "source": "pipeline_bridge_tests.txt", "scope": "Host bridge unit tests; not a Pipeline/IR native preview device run."},
+  "deviceStateTests": {"tests": 3, "passed": 3, "source": "device_state_tests.txt", "class": "SdkProgressiveRenderingStateTest"},
+  "modelSha256": "7f01bdf1c6ba9bdf658e57c75001fc35a42edad88238bc5dab0a5f7dcf3de373",
+  "modelHashEvidence": "Root-controlled staging verified the corrected FP16 package SHA-256 on Fold7.",
+  "bixbySourceChecks": {"javascriptPassed": 14, "hostPassed": 18, "managerPassed": 5, "archiveEntries": 22, "archive": "../../artifacts/Bixby_GenUICraft_0.6.0_Streaming_ChangedFiles.zip", "evidence": "Root-controlled source checks and changed-file archive verification; not a Bixby application build or device run."}
+}

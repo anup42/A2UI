@@ -1,0 +1,57 @@
+Starting a Gradle Daemon, 2 busy and 2 incompatible and 2 stopped Daemons could not be reused, use --status for details
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:generateRendererCapabilities UP-TO-DATE
+> Task :app:stageGenUiCompatibleLegacyJni UP-TO-DATE
+> Task :app:syncIntentFixtures UP-TO-DATE
+> Task :app:verifyGenUiPromptMirror
+> Task :app:verifyLauncherIconAssets
+> Task :app:preBuild
+> Task :app:preDebugBuild
+> Task :app:generateDebugBuildConfig UP-TO-DATE
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest UP-TO-DATE
+> Task :app:processDebugManifest UP-TO-DATE
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+> Task :app:processDebugResources UP-TO-DATE
+> Task :app:compileDebugKotlin UP-TO-DATE
+> Task :app:javaPreCompileDebug UP-TO-DATE
+> Task :app:compileDebugJavaWithJavac UP-TO-DATE
+> Task :app:bundleDebugClassesToCompileJar UP-TO-DATE
+> Task :app:bundleDebugClassesToRuntimeJar
+> Task :app:preDebugUnitTestBuild
+> Task :app:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :app:mergeDebugShaders UP-TO-DATE
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets UP-TO-DATE
+> Task :app:packageDebugUnitTestForUnitTest UP-TO-DATE
+> Task :app:generateDebugUnitTestConfig UP-TO-DATE
+> Task :app:processDebugJavaRes UP-TO-DATE
+> Task :app:compileDebugUnitTestKotlin
+w: file:///C:/Users/anupk/Documents/git/A2UI/android/app/src/test/java/com/samsung/genuicraft/GenUiNativeRendererFlatSpecTest.kt:59:28 'val flatSpec: FlatSpec?' is deprecated. Use canonicalSpec; legacy terminology is migration-only.
+w: file:///C:/Users/anupk/Documents/git/A2UI/android/app/src/test/java/com/samsung/genuicraft/GenUiNativeRendererFlatSpecTest.kt:77:48 'val flatSpec: FlatSpec?' is deprecated. Use canonicalSpec; legacy terminology is migration-only.
+w: file:///C:/Users/anupk/Documents/git/A2UI/android/app/src/test/java/com/samsung/genuicraft/GenUiNativeRendererFlatSpecTest.kt:96:48 'val flatSpec: FlatSpec?' is deprecated. Use canonicalSpec; legacy terminology is migration-only.
+w: file:///C:/Users/anupk/Documents/git/A2UI/android/app/src/test/java/com/samsung/genuicraft/GenUiNativeRendererFlatSpecTest.kt:109:48 'val flatSpec: FlatSpec?' is deprecated. Use canonicalSpec; legacy terminology is migration-only.
+w: file:///C:/Users/anupk/Documents/git/A2UI/android/app/src/test/java/com/samsung/genuicraft/GenUiNativeRendererFlatSpecTest.kt:125:52 'val flatSpec: FlatSpec?' is deprecated. Use canonicalSpec; legacy terminology is migration-only.
+w: file:///C:/Users/anupk/Documents/git/A2UI/android/app/src/test/java/com/samsung/genuicraft/GenUiNativeRendererFlatSpecTest.kt:141:48 'val flatSpec: FlatSpec?' is deprecated. Use canonicalSpec; legacy terminology is migration-only.
+w: file:///C:/Users/anupk/Documents/git/A2UI/android/app/src/test/java/com/samsung/genuicraft/GenUiNativeRendererFlatSpecTest.kt:195:45 'val flatSpec: FlatSpec?' is deprecated. Use canonicalSpec; legacy terminology is migration-only.
+w: file:///C:/Users/anupk/Documents/git/A2UI/android/app/src/test/java/com/samsung/genuicraft/GenUiNativeRendererFlatSpecTest.kt:220:48 'val flatSpec: FlatSpec?' is deprecated. Use canonicalSpec; legacy terminology is migration-only.
+w: file:///C:/Users/anupk/Documents/git/A2UI/android/app/src/test/java/com/samsung/genuicraft/pipeline/FlatSpecContractTest.kt:889:31 Unnecessary non-null assertion (!!) on a non-null receiver of type 'JsonObject'.
+w: file:///C:/Users/anupk/Documents/git/A2UI/android/app/src/test/java/com/samsung/genuicraft/pipeline/FlatSpecIngestorTest.kt:126:24 Java type mismatch: inferred type is 'String?', but 'String' was expected.
+w: file:///C:/Users/anupk/Documents/git/A2UI/android/app/src/test/java/com/samsung/genuicraft/pipeline/Gemma4E2bTrainedProfileTest.kt:203:40 'val flatSpec: FlatSpec?' is deprecated. Use canonicalSpec; legacy terminology is migration-only.
+w: file:///C:/Users/anupk/Documents/git/A2UI/android/app/src/test/java/com/samsung/genuicraft/renderer/FlatRendererApiTest.kt:32:22 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+
+> Task :app:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :app:processDebugUnitTestJavaRes UP-TO-DATE
+> Task :app:testDebugUnitTest
+
+BUILD SUCCESSFUL in 1m 1s
+33 actionable tasks: 5 executed, 28 up-to-date

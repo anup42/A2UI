@@ -89,6 +89,7 @@ class SdkStreamingOnDeviceTest {
                         lastPartial = raw
                         samples += streamSample(raw)
                         if (samples.size == 2) {
+                            clickText(device, context.packageName, "Inspect IR")
                             waitForText(device, context.packageName, "Generated IR · live")
                             capture(device, context.packageName, File(runDir, LIVE_SCREENSHOT))
                             liveCapturedAt = System.currentTimeMillis()

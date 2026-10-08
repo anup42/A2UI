@@ -50,6 +50,8 @@ import androidx.lifecycle.lifecycleScope
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonParser
 import com.samsung.genuicraft.security.SafeContentPolicy
+import com.samsung.genuicraft.sdk.GenUiRenderSnapshot
+import com.samsung.genuicraft.sdk.GenUiStreamingContent
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
@@ -109,6 +111,9 @@ class IrDemoRenderActivity : AppCompatActivity() {
     private var pipelineLogs by mutableStateOf<List<String>>(emptyList())
     private var generatedIrJson by mutableStateOf<String?>(null)
     private var generationDebugState by mutableStateOf(IrDemoGenerationDebugState())
+    private var renderSnapshot by mutableStateOf<GenUiRenderSnapshot?>(null)
+    private var generationRunId = 0L
+    private var generationAttempt = 0
     private var currentRecordIndex: Int = -1
     private var uiState by mutableStateOf<IrDemoRenderUiState>(
         IrDemoRenderUiState.Loading(message = "")
@@ -120,6 +125,8 @@ class IrDemoRenderActivity : AppCompatActivity() {
 
     internal fun failureMessageForTest(): String? =
         (uiState as? IrDemoRenderUiState.Failure)?.message
+
+    internal fun renderSnapshotForTest(): GenUiRenderSnapshot? = renderSnapshot
 
     /** Lets device tests observe the real stream without triggering another model invocation. */
     internal fun debugIrSnapshotForTest(): IrDemoDebugSnapshot {
@@ -174,6 +181,7 @@ class IrDemoRenderActivity : AppCompatActivity() {
                     debugMode = debugMode,
                     generatedIrJson = generatedIrJson,
                     generationDebugState = generationDebugState,
+                    renderSnapshot = renderSnapshot,
                     onDebugModeChange = {
                         debugMode = it
                         persistSessionCache()
@@ -382,6 +390,9 @@ class IrDemoRenderActivity : AppCompatActivity() {
         generatedIrJson = null
         pipelineLogs = emptyList()
         generationDebugState = IrDemoGenerationDebugState()
+        renderSnapshot = null
+        generationAttempt = 0
+        val runId = ++generationRunId
         uiState = IrDemoRenderUiState.Loading(getString(R.string.ir_demo_status_initializing))
         persistSessionCache()
         val runStartedAtMs = System.currentTimeMillis()
@@ -397,8 +408,20 @@ class IrDemoRenderActivity : AppCompatActivity() {
             val outcome = pipeline.executeStage3FromResponse(
                 queryText = queryText,
                 stage2ResponseText = record.responseText
-            ) { update ->
-                val isStreamEvent = update.stage3StreamText != null
+            ) stageUpdate@ { update ->
+                if (generationRunId != runId || isDestroyed ||
+                    uiState !is IrDemoRenderUiState.Loading
+                ) return@stageUpdate
+                update.stage3AttemptStarted?.let { generationAttempt = it }
+                update.stage3RenderSnapshot?.let { incoming ->
+                    val previous = renderSnapshot
+                    if (incoming.attempt == generationAttempt &&
+                        (previous == null || previous.surfaceKey != incoming.surfaceKey ||
+                            incoming.revision > previous.revision)
+                    ) renderSnapshot = incoming
+                }
+                val isStreamEvent = update.stage3StreamText != null ||
+                    update.stage3RenderSnapshot != null
                 if (!isStreamEvent) {
                     appendPipelineLog(update.message)
                     update.debugLog?.let(::appendPipelineLog)
@@ -415,6 +438,9 @@ class IrDemoRenderActivity : AppCompatActivity() {
                 uiState = IrDemoRenderUiState.Loading(message)
                 persistSessionCache()
             }
+
+            if (generationRunId != runId || isDestroyed) return@launch
+            renderSnapshot = null
 
             uiState = when (outcome) {
                 is GenUiStagePipeline.Outcome.Success -> {
@@ -474,6 +500,12 @@ class IrDemoRenderActivity : AppCompatActivity() {
         }
     }
 
+    override fun onDestroy() {
+        ++generationRunId
+        renderSnapshot = null
+        super.onDestroy()
+    }
+
     private fun openExternalUrl(url: String) {
         val safeUrl = SafeContentPolicy.sanitizeActionUrl(url) ?: return
         val uri = runCatching { Uri.parse(safeUrl) }.getOrNull() ?: return
@@ -496,6 +528,7 @@ private fun IrDemoRenderScreen(
     debugMode: Boolean,
     generatedIrJson: String?,
     generationDebugState: IrDemoGenerationDebugState,
+    renderSnapshot: GenUiRenderSnapshot?,
     onDebugModeChange: (Boolean) -> Unit,
     onOpenExternalUrl: (String) -> Unit
 ) {
@@ -650,6 +683,11 @@ private fun IrDemoRenderScreen(
                     when (uiState) {
                         is IrDemoRenderUiState.Loading -> {
                             item { IrDemoLoadingCard(message = uiState.message) }
+                            renderSnapshot?.let { snapshot ->
+                                item(key = "live_native_preview") {
+                                    IrDemoStreamingPreview(snapshot, onOpenExternalUrl)
+                                }
+                            }
                         }
 
                         is IrDemoRenderUiState.Failure -> {
@@ -711,6 +749,11 @@ private fun IrDemoRenderScreen(
                     when (uiState) {
                         is IrDemoRenderUiState.Loading -> {
                             item { IrDemoLoadingCard(message = uiState.message) }
+                            renderSnapshot?.let { snapshot ->
+                                item(key = "live_native_preview") {
+                                    IrDemoStreamingPreview(snapshot, onOpenExternalUrl)
+                                }
+                            }
                         }
 
                         is IrDemoRenderUiState.Failure -> {
@@ -741,6 +784,19 @@ private fun IrDemoRenderScreen(
             }
         }
     }
+}
+
+@Composable
+private fun IrDemoStreamingPreview(snapshot: GenUiRenderSnapshot, onOpenExternalUrl: (String) -> Unit) {
+    GenUiStreamingContent(
+        snapshot = snapshot,
+        modifier = Modifier.fillMaxWidth(),
+        onAction = { action ->
+            if (action.name == "openUrl") {
+                action.parameters["url"]?.let(onOpenExternalUrl)
+            }
+        },
+    )
 }
 
 @Composable

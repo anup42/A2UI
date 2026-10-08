@@ -44,6 +44,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
+import com.samsung.genuicraft.sdk.GenUiRenderSnapshot
+import com.samsung.genuicraft.sdk.GenUiStreamingContent
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -252,6 +254,8 @@ private fun GenUiAssistantScreen(
     var stage2Text by remember { mutableStateOf<String?>(GenUiAssistantSessionCache.stage2Text) }
     var stage3Json by remember { mutableStateOf<String?>(GenUiAssistantSessionCache.stage3Json) }
     var rawStage3Text by remember { mutableStateOf(GenUiAssistantSessionCache.rawStage3Text) }
+    var renderSnapshot by remember { mutableStateOf<GenUiRenderSnapshot?>(null) }
+    var generationAttempt by remember { mutableStateOf(0) }
     var stage3StreamComplete by rememberSaveable {
         mutableStateOf(GenUiAssistantSessionCache.stage3StreamComplete)
     }
@@ -434,6 +438,7 @@ private fun GenUiAssistantScreen(
     }
 
     fun markPipelineStopped() {
+        renderSnapshot = null
         currentStatus = "Pipeline stopped"
         appendDebugLogLine("Pipeline stopped by user.")
         steps.indices.forEach { index ->
@@ -511,6 +516,7 @@ private fun GenUiAssistantScreen(
         stage2Text = null
         stage3Json = null
         rawStage3Text = ""
+        renderSnapshot = null
         stage3StreamComplete = false
         stage3WasRepaired = null
         finalIrFailed = false
@@ -535,6 +541,7 @@ private fun GenUiAssistantScreen(
         stage2Text = item.responseText
         stage3Json = item.genUiJson
         rawStage3Text = ""
+        renderSnapshot = null
         stage3StreamComplete = true
         stage3WasRepaired = null
         finalIrFailed = false
@@ -910,6 +917,8 @@ private fun GenUiAssistantScreen(
                                     stage2Text = null
                                     stage3Json = null
                                     rawStage3Text = ""
+                                    renderSnapshot = null
+                                    generationAttempt = 0
                                     stage3StreamComplete = false
                                     stage3WasRepaired = null
                                     finalIrFailed = false
@@ -934,10 +943,19 @@ private fun GenUiAssistantScreen(
                                     val pipelineJob = coroutineScope.launch {
                                         try {
                                             val outcome = pipeline.execute(query) stageUpdate@ { update ->
-                                                if (activeRunToken != runToken) {
+                                                if (activeRunToken != runToken || !isRunning) {
                                                     return@stageUpdate
                                                 }
-                                                val isStreamEvent = update.stage3StreamText != null
+                                                update.stage3AttemptStarted?.let { generationAttempt = it }
+                                                update.stage3RenderSnapshot?.let { incoming ->
+                                                    val previous = renderSnapshot
+                                                    if (incoming.attempt == generationAttempt &&
+                                                        (previous == null || previous.surfaceKey != incoming.surfaceKey ||
+                                                            incoming.revision > previous.revision)
+                                                    ) renderSnapshot = incoming
+                                                }
+                                                val isStreamEvent = update.stage3StreamText != null ||
+                                                    update.stage3RenderSnapshot != null
                                                 if (!isStreamEvent) {
                                                     currentStatus = sanitizeUiLogText(update.message)
                                                     updateSteps(update)
@@ -994,6 +1012,7 @@ private fun GenUiAssistantScreen(
                                             }
                                             when (outcome) {
                                                 is GenUiStagePipeline.Outcome.Success -> {
+                                                    renderSnapshot = null
                                                     val result = outcome.result
                                                     stage2Text = result.stage2Response
                                                     stage3Json = result.stage3Json
@@ -1057,6 +1076,7 @@ private fun GenUiAssistantScreen(
                                                 }
 
                                                 is GenUiStagePipeline.Outcome.Failure -> {
+                                                    renderSnapshot = null
                                                     errorText = sanitizeUiLogText(outcome.message)
                                                     if (rawStage3Text.isNotBlank()) {
                                                         stage3StreamComplete = true
@@ -1103,6 +1123,7 @@ private fun GenUiAssistantScreen(
                                             }
                                         } finally {
                                             if (activeRunToken == runToken) {
+                                                renderSnapshot = null
                                                 isRunning = false
                                                 activePipelineJob = null
                                             }
@@ -1269,7 +1290,21 @@ private fun GenUiAssistantScreen(
                     }
                 }
 
-                if (displayRenderResult != null) {
+                if (isRunning && renderSnapshot != null) {
+                    item(key = "live_native_preview") {
+                        renderSnapshot?.let { snapshot ->
+                            GenUiStreamingContent(
+                                snapshot = snapshot,
+                                modifier = Modifier.fillMaxWidth(),
+                                onAction = { action ->
+                                    if (action.name == "openUrl") {
+                                        action.parameters["url"]?.let(onOpenExternalUrl)
+                                    }
+                                },
+                            )
+                        }
+                    }
+                } else if (displayRenderResult != null) {
                     item {
                         displayRenderResult?.let { resolvedRender ->
                             GenUiNativeRenderer.RenderInline(

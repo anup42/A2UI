@@ -102,7 +102,7 @@ class GenUiSdkConfigurationStateTest {
                 (compose.activity.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == targetNightMask
             }
             assertRetainedSession(retained, provider)
-            compose.onNodeWithTag("sdk_ir_tab").assertIsSelected()
+            compose.onNodeWithTag("sdk_preview_tab").assertIsSelected()
 
             provider.finish.complete(Unit)
             compose.waitUntil(15_000) { !retained.working }

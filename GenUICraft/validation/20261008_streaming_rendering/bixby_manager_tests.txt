@@ -1,0 +1,48 @@
+Starting a Gradle Daemon, 1 busy and 1 incompatible and 1 stopped Daemons could not be reused, use --status for details
+> Task :checks:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :checks:preBuild UP-TO-DATE
+> Task :checks:preDebugBuild UP-TO-DATE
+> Task :checks:generateDebugResValues
+> Task :checks:generateDebugResources
+> Task :checks:packageDebugResources
+> Task :checks:parseDebugLocalResources
+> Task :checks:realSources
+> Task :checks:preDebugUnitTestBuild UP-TO-DATE
+> Task :checks:javaPreCompileDebug
+> Task :checks:writeDebugAarMetadata
+> Task :checks:generateDebugRFile
+> Task :checks:compileDebugLibraryResources
+> Task :checks:generateDebugUnitTestResValues
+> Task :checks:checkDebugUnitTestAarMetadata
+> Task :checks:mapDebugUnitTestSourceSetPaths
+> Task :checks:generateDebugUnitTestResources
+> Task :checks:extractDeepLinksDebug
+> Task :checks:generateDebugUnitTestAssets UP-TO-DATE
+> Task :checks:javaPreCompileDebugUnitTest
+> Task :checks:mergeDebugShaders
+> Task :checks:compileDebugShaders NO-SOURCE
+> Task :checks:generateDebugAssets UP-TO-DATE
+> Task :checks:mergeDebugAssets
+> Task :checks:processDebugManifest
+> Task :checks:mergeDebugUnitTestAssets
+> Task :checks:mergeDebugUnitTestResources
+> Task :checks:processDebugUnitTestManifest
+> Task :checks:processDebugUnitTestResources
+> Task :checks:packageDebugUnitTestForUnitTest
+> Task :checks:generateDebugUnitTestConfig
+
+> Task :checks:compileDebugKotlin
+w: file:///C:/Users/anupk/Documents/git/A2UI/.tmp/bixby_stream_render/manager_harness/checks/build/generated/realSources/com/samsung/android/bixby/agent/renderer/internal/genuicraft/GenUiHostRegistry.kt:174:40 Condition is always 'true'.
+w: file:///C:/Users/anupk/Documents/git/A2UI/.tmp/bixby_stream_render/manager_harness/checks/build/generated/realSources/com/samsung/android/bixby/agent/renderer/internal/genuicraft/GenUiHostRegistry.kt:180:52 Condition is always 'true'.
+
+> Task :checks:compileDebugJavaWithJavac NO-SOURCE
+> Task :checks:processDebugJavaRes
+> Task :checks:bundleLibRuntimeToJarDebug
+> Task :checks:bundleLibCompileToJarDebug
+> Task :checks:compileDebugUnitTestKotlin
+> Task :checks:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :checks:processDebugUnitTestJavaRes
+> Task :checks:testDebugUnitTest
+
+BUILD SUCCESSFUL in 1m 16s
+31 actionable tasks: 31 executed

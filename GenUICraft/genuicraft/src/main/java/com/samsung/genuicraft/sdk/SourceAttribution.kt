@@ -5,6 +5,7 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
 import com.samsung.genuicraft.sdk.internal.pipeline.A2uiExpressCodec
+import com.samsung.genuicraft.sdk.internal.pipeline.A2uiWireCodec
 import com.samsung.genuicraft.sdk.internal.pipeline.GenUiIrCodec
 import com.samsung.genuicraft.sdk.internal.pipeline.LiteralTextCodec
 import com.samsung.genuicraft.sdk.internal.security.SafeContentPolicy
@@ -12,6 +13,24 @@ import com.samsung.genuicraft.sdk.internal.security.SafeContentPolicy
 /** Host-supplied attribution is attached deterministically, after model validation. */
 internal object SourceAttribution {
     private const val STATE_KEY = "__genuicraft_sources"
+
+    /** Preview attribution adds only trusted metadata, preserving model component identities. */
+    fun preview(document: GenUiDocument, sources: List<GenUiSource>): GenUiDocument {
+        if (sources.isEmpty()) return document
+        val graph = A2uiExpressCodec.decode(document.express)
+        graph.getAsJsonObject("state").add(STATE_KEY, JsonArray().apply {
+            sources.take(100).forEach { source -> add(JsonObject().apply {
+                addProperty("id", source.id)
+                addProperty("url", source.url)
+                source.title?.let { addProperty("title", it) }
+                source.description?.let { addProperty("description", it) }
+            }) }
+        })
+        return document.copy(
+            express = A2uiExpressCodec.encode(graph, shortenIds = false),
+            a2uiJson = A2uiWireCodec.encode(graph, shortenIds = false).toString(),
+        )
+    }
 
     fun append(document: GenUiDocument, sources: List<GenUiSource>): GenUiDocument {
         if (sources.isEmpty()) return document

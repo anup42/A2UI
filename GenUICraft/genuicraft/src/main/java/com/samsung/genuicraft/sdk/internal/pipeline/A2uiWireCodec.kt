@@ -79,8 +79,8 @@ internal object A2uiWireCodec {
         }
     }
 
-    fun encode(canonicalGraph: JsonObject): JsonArray {
-        val source = CanonicalGraphIdRewriter.rewrite(canonicalGraph, shorten = true)
+    fun encode(canonicalGraph: JsonObject, shortenIds: Boolean = true): JsonArray {
+        val source = CanonicalGraphIdRewriter.rewrite(canonicalGraph, shorten = shortenIds)
         val components = JsonArray()
         source.get("elements")?.takeIf { it.isJsonObject }?.asJsonObject?.entrySet()?.forEach { (id, raw) ->
             if (!raw.isJsonObject) return@forEach

@@ -43,11 +43,22 @@ dependencyResolutionManagement {
     }
 }
 // consumer module
-implementation("com.samsung.genuicraft:genuicraft:0.5.7")
+implementation("com.samsung.genuicraft:genuicraft:0.6.0")
 ```
 
 Version 0.5.0 removes the remote server provider and its public configuration API.
 Conversion uses the SDK's on-device LiteRT model profiles.
+
+Version 0.6.0 adds progressive native rendering through `GenUiSession`,
+`GenUiGenerationObserver.onRenderSnapshot`, `GenUiStreamingContent`, and
+`GenUiView.renderSnapshot`. The SDK compiles safe portions of cumulative model
+output in a separate worker while inference continues. The final document still
+passes the selected conversion and repair policy. The reference demos show the
+live native UI by default and keep generated/repaired IR available for inspection.
+See the [streaming-rendering validation](validation/20261008_streaming_rendering/REPORT.md)
+for SDK/device tests, the saved-output replay, five native paired comparisons,
+byte-hash parity, and timing limitations; the [gallery](validation/20261008_streaming_rendering/index.html)
+shows the captured live and final native UI.
 
 Version 0.5.7 recognizes combined flight-time ranges such as `04:40–07:10` in
 the shared native flight-card route, including explicit AM/PM and next-day offsets.
@@ -184,6 +195,116 @@ engine cache, conversation/template handling, native token measurements and expl
 labelled estimates are library-owned. The reference app's `OnDeviceLitertBackend` is
 only an adapter to that API.
 
+### Progressive native rendering
+
+Register `onRenderSnapshot` on the session observer to receive native rendering
+revisions. Each `GenUiRenderSnapshot` contains a compiled `document`, `attempt`,
+monotonic `revision`, `surfaceKey`, `elapsedMs`, `readyComponentCount`, and
+`isFinal`. The surface key stays the same from preview to final within an attempt;
+another attempt or conversion gets a new key. The component count includes
+layout containers; it is not a count of visible cards. `elapsedMs` measures
+session conversion start to publication, including runtime preparation, rather
+than first screen paint.
+
+The worker accepts completed component expressions and complete entries from
+bound data arrays, then validates a separate renderable projection. Unfinished
+strings, missing references, and pending data stay out of that projection. It
+preserves usable generated content and identities without modifying the raw
+attempt capture or inventing facts. Preview work is coalesced off the native
+decode callback, so hosts need not receive every token-sized revision. Some
+outputs may produce no usable preview before final validation.
+
+Callbacks must return promptly and dispatch UI updates to the main thread.
+Track the current run and attempt so queued updates cannot overwrite a new run,
+failure, or cancellation. A host can keep the last safe preview visible while a
+repair attempt waits for its first usable component, then accept only snapshots
+from the current attempt. An Android View host can use the following pattern;
+the example runs in its main-thread lifecycle coroutine, and `generationRun` is
+host-owned main-thread state:
+
+```kotlin
+val main = Handler(Looper.getMainLooper())
+val run = ++generationRun
+var activeAttempt = 0
+genUiView.clear()
+val observer = GenUiGenerationObserver(
+    onAttemptStarted = { attempt ->
+        main.post { if (generationRun == run) activeAttempt = attempt }
+    },
+    onPartialText = { attempt, raw ->
+        main.post { if (generationRun == run) showRawIr(attempt, raw) }
+    },
+    onRenderSnapshot = { snapshot ->
+        main.post {
+            if (generationRun == run && snapshot.attempt == activeAttempt) {
+                genUiView.renderSnapshot(snapshot)
+            }
+        }
+    },
+)
+try {
+    val result = session.convert(
+        GenUiRequest(text = markdownOrPlainResponse), observer,
+        enableStreamingRendering = streamUi,
+    )
+    if (generationRun == run) when (result) {
+        is GenUiConversionResult.Success -> {
+            markConversionComplete(result) // Persist result.document, not a preview.
+            if (!streamUi) genUiView.render(result.document)
+        }
+        is GenUiConversionResult.Failure -> {
+            ++generationRun
+            genUiView.clear()
+            showRetry(result.message)
+        }
+    }
+} catch (cancelled: CancellationException) {
+    if (generationRun == run) {
+        ++generationRun
+        genUiView.clear()
+    }
+    throw cancelled
+}
+```
+
+Compose hosts keep the accepted snapshot in their retained UI state and render
+it at a stable position. Update that state on the main thread using the same
+run/attempt guards:
+
+```kotlin
+currentSnapshot?.let { snapshot ->
+    GenUiStreamingContent(
+        snapshot = snapshot,
+        modifier = Modifier.fillMaxWidth(),
+        onAction = ::handleAction,
+        showSources = true,
+    )
+}
+```
+
+Both streaming render APIs preserve native surface state, scrolling, and source
+disclosure across revisions of the same surface key. `GenUiView` rejects older
+revisions and provisional updates after finalization for that key. Generated
+control events, form edits, state mutations, navigation actions, and watches remain
+inactive while `isFinal == false`. Host-supplied citation/source disclosure keeps
+its own behavior. Finalization enables the accepted document's interactions.
+
+Keep loading active until `session.convert` returns its authoritative result.
+The accepted final snapshot is emitted after full compilation/repair and metrics
+finalization, before a successful call returns, and contains the same document
+as `GenUiConversionResult.Success`. Repair can change the final structure;
+partial rendering does not establish conversion success or source fidelity.
+On failure or cancellation, invalidate queued callbacks and discard the preview.
+Persist only successful result documents and retain the separate raw attempts
+and repair warnings for diagnostics.
+
+`enableStreamingRendering` defaults to `true`. Passing `false` suppresses all
+render snapshots, including the final callback, while raw streaming, prompts,
+conversion, and repair remain unchanged. Render `result.document` normally in
+that mode. Without an `onRenderSnapshot` observer, the session does not run the
+preview compiler. This lets hosts compare inference throughput with rendering
+enabled and disabled using the same conversion policy.
+
 ### Original trained E2B v10 W4 option
 
 The SDK test screen also offers **Trained E2B v10 · W4 · GPU**. Place the separate
@@ -305,15 +426,27 @@ substrings, with specific names evaluated first. Thus `flight_options_schedule` 
 generic or schedule route.
 
 The **GenUICraft SDK · Bixby50** screen also streams Gemma output directly from
-the AAR. Its **IR** view keeps each generated attempt, then shows the repaired
-Express program in a separate panel; **Preview** opens the rendered result.
+the AAR. **Live preview** is selected while generation runs and displays native
+components as safe snapshots become available; loading remains active until
+conversion completes. **Inspect IR** keeps each generated attempt, then shows
+the repaired Express program in a separate panel; **Preview** shows the final result.
 Code panels provide copy controls, character counts, and scrolling that follows
 live output. Conversion notes retain repair and source-fidelity diagnostics.
 The trained SDK demo uses generated-DSL repair with source-text fallback disabled,
 matching the trained Pipeline and IR Demo routes. Token metrics remain optional
 and do not control whether text streams.
 
-Open **GenUICraft SDK · Bixby50 → Settings → MTP drafter** to enable or disable
+Open **GenUICraft SDK · Bixby50 → Settings → Stream UI** to enable or disable
+native previews on the next run. The setting defaults to on, persists across
+app restarts, and is disabled during generation. With it off, the screen waits
+for the final native UI while raw output remains available in **Inspect IR**.
+The trained Pipeline and IR Demo routes also display native snapshots while
+generation runs; their **Debug** views retain the raw and repaired programs.
+The SDK demo records first compiled-preview publication, first displayed-preview
+frame, and accepted preview revision counts separately from native inference
+metrics. These timing values do not establish source fidelity.
+
+Open **GenUICraft SDK · Bixby50 → Settings → MTP acceleration** to enable or disable
 speculative decoding. It defaults to on, persists across app restarts, and applies
 to both Gemma profiles. Changing it recreates the GPU engine on the next conversion.
 The switch is disabled during generation. An MTP-capable
@@ -326,7 +459,7 @@ not use a drafter; the choice applies to MTP-capable Gemma 4 GPU packages.
 
 ## Optional token metrics in the test app
 
-Open **GenUICraft SDK · Bixby50** and use **Token metrics** to enable or disable
+Open **GenUICraft SDK · Bixby50 → Settings → Performance metrics** to enable or disable
 the measurements. The preference persists across app restarts and is enabled by
 default in the demo. With Gemma, changing it takes effect on the next conversion
 and recreates the engine as needed. Both Gemma profiles use GPU and honor the
@@ -448,7 +581,7 @@ the subsequent train/weather row-retention fix and device evidence.
 
 ## Validation in the A2UI test app
 
-The latest [shared SDK and Fold7 delivery report](validation/20260922_shared_sdk_fold7/REPORT.md)
+The [shared SDK and Fold7 delivery report](validation/20260922_shared_sdk_fold7/REPORT.md)
 records SDK 0.4.0 ownership, the refreshed demo UI, live GPU+MTP results, and the
 Bixby Settings/model-import integration with its current validation boundaries.
 
@@ -458,6 +591,28 @@ The SDK demo retains the active generation, document, IR trace and metrics in an
 ViewModel. Rotation and theme changes restore the selected sample, edited input, open settings,
 tab and scroll positions. A new request starts a fresh workspace; leaving the page closes its
 provider. See the [Fold7 recreation checks](validation/20260922_sdk_configuration_fold7/REPORT.md).
+
+`SdkProgressiveRenderingStateTest` checks native preview before provider
+completion, recreation, authoritative final handoff, cancellation/failure
+clearing, and streaming-disabled final rendering using a paused test provider.
+`SdkProgressiveRenderingOnDeviceTest#compareNativeProgressiveRenderingOnAndOff`
+uses the actual trained model and SDK screen. Arguments include
+`modelPath=/sdcard/Android/data/com.samsung.genuicraft/files/sdk_models/gemma4_e2b_a2ui_mobile_r32.litertlm`,
+`precision=FP16_CORRECTED`, `mtp=true`, `cases=BXP-001,BXP-003,BXP-004`,
+`outputDir=<new-leaf>`, and `caseTimeoutMs=360000`. The model path names the
+original trained package; corrected FP16 selection uses its verified prepared
+sibling and manifest through the same app model-selection path.
+
+The native harness requests a live screenshot during its warmup, alternates
+streaming-on/off ordering across measured pairs, and captures measured-run
+screenshots only after generation. Artifacts under external-files
+`sdk_progressive_rendering/<outputDir>` retain raw/final IR, screenshots,
+native revisions, first preview/frame timing, converter elapsed time, and total
+session wall time sampled at 40 ms intervals. Actual native initialization,
+prefill/decode, provider timing, and MTP metrics remain separate. MTP metrics
+finalization can close the engine between cases, so inspect initialization
+counters rather than assuming every measured case is warm. Test definitions
+and artifacts must be evaluated separately from historical device reports.
 
 Instrumentation class: `com.samsung.genuicraft.GenUiSdkBixby50Test`. Arguments: `modelPath`, `accelerator=GPU|CPU` (default GPU), `mtp=true` (default), `cases=BXP-001,BXP-038` (omit for all 50), `runId`, `repairs=1`, `caseTimeoutMs=600000`, `temperature=0.0`. Gemma's optional `thinkingBudget` overrides the SDK's 1,024-token default without disabling thinking. Optional `promptPath` loads a local prompt for development, with `sourceBindings=true` for a custom bound prompt; omit it for bundled-prompt acceptance. Artifacts are written to the app's external-files `sdk_benchmark/<runId>` directory. Each success is replayed through JSON-only rendering without another model call. Failures remain failures in reports. `tools/summarize_benchmark.py <pulled-run>` reports first-attempt successes, repaired successes, failures, timing, and whole-process PSS separately. Its `run_complete` flag requires the completion record and the full expected set of unique case IDs; partial results remain explicitly incomplete.
 

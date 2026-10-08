@@ -1,0 +1,25 @@
+{
+  "kind": "native_progressive_rendering_comparison",
+  "startedAtEpochMs": 1791482274413,
+  "modelPath": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_models/model-fp16-corrected.litertlm",
+  "modelBytes": 2682454016,
+  "precision": "FP16_CORRECTED",
+  "mtpRequested": true,
+  "cases": [
+    "BXP-001",
+    "BXP-003",
+    "BXP-004",
+    "BXP-008",
+    "BXP-011"
+  ],
+  "caseTimeoutMs": 360000,
+  "corpusSha256": "fc46aa381957bed206f9e0f53e28edbb21b5096ca093985ad184fda73faaea0a",
+  "measuredPairCapturesDuringGeneration": false,
+  "sessionWallSamplingIntervalMs": 40,
+  "device": {
+    "manufacturer": "samsung",
+    "model": "SM-F966B",
+    "sdkInt": 36,
+    "fingerprint": "samsung/q7qxeea/q7q:16/BP4A.251205.006/F966BXXS9BZE2_OXM9BZE2:userdebug/test-keys"
+  }
+}

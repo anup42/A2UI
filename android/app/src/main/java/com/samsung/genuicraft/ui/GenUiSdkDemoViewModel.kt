@@ -17,6 +17,10 @@ import kotlinx.coroutines.launch
 /** Owns the demo's session, never an Activity, across rotation and UI-mode recreation. */
 internal class GenUiSdkDemoViewModel(application: Application) : AndroidViewModel(application) {
     var document by mutableStateOf<GenUiDocument?>(null)
+    var renderSnapshot by mutableStateOf<GenUiRenderSnapshot?>(null)
+        private set
+    var generationSourceText by mutableStateOf<String?>(null)
+        private set
     var status by mutableStateOf("Choose a Bixby response or enter text.")
     var working by mutableStateOf(false)
     var editorVisible by mutableStateOf(true)
@@ -31,13 +35,16 @@ internal class GenUiSdkDemoViewModel(application: Application) : AndroidViewMode
     private var activeJob: Job? = null
     private val streamHandler = Handler(Looper.getMainLooper())
     private var generationRunId = 0L
+    private var conversionStartedAtMs = 0L
 
     private fun postGenerationUpdate(runId: Long, update: () -> Unit) {
-        streamHandler.post {
+        val guardedUpdate = {
             if (generationRunId == runId && working &&
                 generationTrace.phase != SdkGenerationPhase.CANCELLED
             ) update()
         }
+        if (Looper.myLooper() == Looper.getMainLooper()) guardedUpdate()
+        else streamHandler.post { guardedUpdate() }
     }
 
     private fun updateGenerationAttempt(number: Int, rawText: String, complete: Boolean) {
@@ -57,6 +64,8 @@ internal class GenUiSdkDemoViewModel(application: Application) : AndroidViewMode
         lastRuntime = null
         lastPrecision = null
         generationTrace = SdkGenerationTrace()
+        renderSnapshot = null
+        generationSourceText = null
         document = value
         status = message
         editorVisible = false
@@ -74,6 +83,7 @@ internal class GenUiSdkDemoViewModel(application: Application) : AndroidViewMode
 
     fun cancelGeneration() {
         activeJob?.cancel()
+        renderSnapshot = null
         generationMetrics = null
         generationTrace = generationTrace.copy(phase = SdkGenerationPhase.CANCELLED)
         status = "Cancelled · generated text retained"
@@ -86,6 +96,7 @@ internal class GenUiSdkDemoViewModel(application: Application) : AndroidViewMode
         metricsForRun: Boolean,
         mtpForRun: Boolean,
         gpuPrecisionForRun: Gemma4GpuPrecision = Gemma4GpuPrecision.FP32,
+        streamingRenderingForRun: Boolean = true,
         // Injectable provider keeps lifecycle tests independent of network or native model timing.
         providerFactory: () -> GenUiProvider = {
             createSdkDemoProvider(
@@ -96,6 +107,8 @@ internal class GenUiSdkDemoViewModel(application: Application) : AndroidViewMode
         if (working) return
         workspaceRevision++
         document = null
+        renderSnapshot = null
+        generationSourceText = source
         generationMetrics = null
         lastRuntime = null
         lastPrecision = if (e2bModelChoiceForRun == E2bModelChoice.TRAINED_E2B_V10_W4) {
@@ -107,7 +120,10 @@ internal class GenUiSdkDemoViewModel(application: Application) : AndroidViewMode
         } else null
         working = true
         editorVisible = false
-        generationTrace = SdkGenerationTrace(phase = SdkGenerationPhase.GENERATING)
+        generationTrace = SdkGenerationTrace(
+            phase = SdkGenerationPhase.GENERATING,
+            streamingRenderingEnabled = streamingRenderingForRun,
+        )
         val runId = ++generationRunId
         status = "Generating IR…" + lastPrecision?.let { " · $it" }.orEmpty()
         val sourceForRun = source
@@ -138,6 +154,7 @@ internal class GenUiSdkDemoViewModel(application: Application) : AndroidViewMode
                 }
                 // Runtime identity comes from the initialized engine, even with metrics off.
                 var runtimeForRun: String? = null
+                var finalSnapshotForRun: GenUiRenderSnapshot? = null
                 var lastPartialAtMs = 0L
                 val session = GenUiSession(
                     getApplication<Application>(),
@@ -171,8 +188,32 @@ internal class GenUiSdkDemoViewModel(application: Application) : AndroidViewMode
                             status = "Validating and repairing IR…"
                         }
                     },
+                    onRenderSnapshot = { snapshot ->
+                        if (snapshot.isFinal) finalSnapshotForRun = snapshot
+                        postGenerationUpdate(runId) {
+                            val activeAttempt = generationTrace.attempts.lastOrNull()?.number ?: 1
+                            val previous = renderSnapshot
+                            if (snapshot.attempt == activeAttempt &&
+                                (previous == null || previous.surfaceKey != snapshot.surfaceKey ||
+                                    snapshot.revision > previous.revision)
+                            ) {
+                                renderSnapshot = snapshot
+                                generationTrace = generationTrace.copy(
+                                    previewSnapshotCount = generationTrace.previewSnapshotCount +
+                                        if (snapshot.isFinal) 0 else 1,
+                                    firstPreviewElapsedMs = generationTrace.firstPreviewElapsedMs ?:
+                                        snapshot.elapsedMs.takeIf { !snapshot.isFinal },
+                                    latestReadyComponentCount = snapshot.readyComponentCount,
+                                )
+                            }
+                        }
+                    },
                 )
-                val result = session.convert(GenUiRequest(sourceForRun), observer)
+                conversionStartedAtMs = SystemClock.elapsedRealtime()
+                val result = session.convert(
+                    GenUiRequest(sourceForRun), observer,
+                    enableStreamingRendering = streamingRenderingForRun,
+                )
                 generationTrace = generationTrace.copy(
                     attempts = session.attemptSnapshots.map {
                         SdkGenerationAttempt(it.number, it.rawText, it.complete)
@@ -181,6 +222,10 @@ internal class GenUiSdkDemoViewModel(application: Application) : AndroidViewMode
                 when (result) {
                     is GenUiConversionResult.Success -> {
                         document = result.document
+                        renderSnapshot = (finalSnapshotForRun ?: renderSnapshot)?.takeIf {
+                            it.isFinal && it.document.a2uiJson == result.document.a2uiJson &&
+                                it.document.express == result.document.express
+                        }
                         editorVisible = false
                         val stateLabel = if (result.repairKind == GenUiRepairKind.GENERATED_DSL_REPAIR) {
                             "Recovered"
@@ -193,6 +238,8 @@ internal class GenUiSdkDemoViewModel(application: Application) : AndroidViewMode
                             finalIr = result.document.express,
                             repairKind = result.repairKind,
                             warnings = result.warnings,
+                            latestReadyComponentCount = renderSnapshot?.readyComponentCount
+                                ?: generationTrace.latestReadyComponentCount,
                         )
                         generationMetrics = if (metricsForRun) session.toUiState(
                             reportedAttempts = result.attempts,
@@ -200,6 +247,7 @@ internal class GenUiSdkDemoViewModel(application: Application) : AndroidViewMode
                         ) else null
                     }
                     is GenUiConversionResult.Failure -> {
+                        renderSnapshot = null
                         status = "Conversion failed"
                         generationTrace = generationTrace.copy(
                             phase = SdkGenerationPhase.FAILED,
@@ -213,11 +261,13 @@ internal class GenUiSdkDemoViewModel(application: Application) : AndroidViewMode
                 }
                 lastRuntime = runtimeForRun
             } catch (cancel: kotlinx.coroutines.CancellationException) {
+                renderSnapshot = null
                 generationMetrics = null
                 generationTrace = generationTrace.copy(phase = SdkGenerationPhase.CANCELLED)
                 status = "Cancelled · generated text retained"
                 throw cancel
             } catch (error: Exception) {
+                renderSnapshot = null
                 generationMetrics = null
                 generationTrace = generationTrace.copy(
                     phase = SdkGenerationPhase.FAILED,
@@ -234,6 +284,18 @@ internal class GenUiSdkDemoViewModel(application: Application) : AndroidViewMode
                 }
                 working = false
             }
+        }
+    }
+
+    /** First native preview frame, measured against the same conversion start as SDK snapshots. */
+    fun onSnapshotPresented(snapshot: GenUiRenderSnapshot) {
+        if (working && !snapshot.isFinal && renderSnapshot?.surfaceKey == snapshot.surfaceKey &&
+            generationTrace.firstPreviewFrameElapsedMs == null
+        ) {
+            generationTrace = generationTrace.copy(
+                firstPreviewFrameElapsedMs =
+                    (SystemClock.elapsedRealtime() - conversionStartedAtMs).coerceAtLeast(0L),
+            )
         }
     }
 

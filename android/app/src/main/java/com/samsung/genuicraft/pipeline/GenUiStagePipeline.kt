@@ -29,6 +29,7 @@ import com.samsung.genuicraft.pipeline.PipelinePromptBuilder
 import com.samsung.genuicraft.pipeline.ResponseFactCoverage
 import com.samsung.genuicraft.pipeline.TrainedStage3Bridge
 import com.samsung.genuicraft.sdk.GenUiRepairKind
+import com.samsung.genuicraft.sdk.GenUiRenderSnapshot
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
@@ -56,6 +57,8 @@ class GenUiStagePipeline(private val appContext: Context) {
         val streamMetricsAreEstimated: Boolean = false,
         val stage3StreamComplete: Boolean = false,
         val stage3WasRepaired: Boolean? = null,
+        val stage3RenderSnapshot: GenUiRenderSnapshot? = null,
+        val stage3AttemptStarted: Int? = null,
     )
 
     data class PipelineResult(
@@ -2379,6 +2382,24 @@ class GenUiStagePipeline(private val appContext: Context) {
             modelPath = modelPath,
             sourceResponse = stage2Response,
             queryText = normalizedQuery,
+            onAttemptStarted = { attempt ->
+                Handler(Looper.getMainLooper()).post {
+                    onStageUpdate(StageUpdate(
+                        stage = Stage.STAGE3,
+                        message = "Generating IR · attempt $attempt",
+                        stage3AttemptStarted = attempt,
+                    ))
+                }
+            },
+            onRenderSnapshot = { snapshot ->
+                Handler(Looper.getMainLooper()).post {
+                    onStageUpdate(StageUpdate(
+                        stage = Stage.STAGE3,
+                        message = if (snapshot.isFinal) "Validating generated UI" else "Generating UI",
+                        stage3RenderSnapshot = snapshot,
+                    ))
+                }
+            },
             onPartialText = { rawText ->
                 val nowMs = android.os.SystemClock.elapsedRealtime()
                 if (

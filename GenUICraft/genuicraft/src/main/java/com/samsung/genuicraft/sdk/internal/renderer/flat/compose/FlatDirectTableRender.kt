@@ -225,6 +225,33 @@ internal fun extractDirectTableModel(
     )
 }
 
+/** Keep inferred table/card routing stable while bound rows grow; final routing stays authoritative. */
+internal class FlatPreviewTableRoute {
+    private var firstModel: FlatDirectTableModel? = null
+    private var firstPresentation: AdaptiveTablePresentation? = null
+
+    fun model(incoming: FlatDirectTableModel, isFinal: Boolean): FlatDirectTableModel {
+        if (isFinal) {
+            firstModel = null
+            firstPresentation = null
+            return incoming
+        }
+        if (firstModel == null && incoming.rows.isNotEmpty()) firstModel = incoming
+        val first = firstModel ?: return incoming
+        return incoming.copy(
+            domain = first.domain,
+            preferredPresentation = first.preferredPresentation,
+            shape = first.shape,
+            renderMode = first.renderMode,
+        )
+    }
+
+    fun presentation(incoming: AdaptiveTablePresentation, isFinal: Boolean): AdaptiveTablePresentation {
+        if (isFinal || firstModel == null) return incoming
+        return firstPresentation ?: incoming.also { firstPresentation = it }
+    }
+}
+
 // moved from FlatSpecRenderer.kt (RenderDirectTable)
 @Composable
 internal fun RenderDirectTable(
@@ -237,7 +264,10 @@ internal fun RenderDirectTable(
     val screenWidthDp = configuration.screenWidthDp
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
     val compactPortrait = screenWidthDp < 600 && !isLandscape
-    val table = extractDirectTableModel(props, state, compactPortrait) ?: return
+    val incomingTable = extractDirectTableModel(props, state, compactPortrait) ?: return
+    val previewRoute = remember { FlatPreviewTableRoute() }
+    val isFinal = LocalFlatInteractionEnabled.current
+    val table = previewRoute.model(incomingTable, isFinal)
     val headers = table.columns.map { column -> column.label }
     val tableModifier = applyStackModifier(modifier, props, "vertical")
     if (table.columns.size == 1 && !hasExplicitTablePresentation(props)) {
@@ -530,13 +560,13 @@ internal fun RenderDirectTable(
         headers = headers,
         rows = table.rows
     )
-    val presentation = selectAdaptiveTablePresentation(
+    val presentation = previewRoute.presentation(selectAdaptiveTablePresentation(
         table = table,
         screenWidthDp = screenWidthDp,
         isLandscape = isLandscape,
         autoHorizontalScroll = autoHorizontalScroll,
         cardsRequested = cardsRequested
-    )
+    ), isFinal)
     when (presentation) {
         AdaptiveTablePresentation.CLIMATE_CARDS -> RenderClimateComparisonCards(
             headers = headers,

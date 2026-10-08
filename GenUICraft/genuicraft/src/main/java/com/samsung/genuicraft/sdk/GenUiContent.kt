@@ -8,7 +8,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -21,6 +23,8 @@ import com.samsung.genuicraft.sdk.internal.renderer.FlatDiagnostic
 import com.samsung.genuicraft.sdk.internal.renderer.FlatRenderEvent
 import com.samsung.genuicraft.sdk.internal.renderer.FlatRendererHost
 import com.samsung.genuicraft.sdk.internal.renderer.FlatSpecContent
+import com.samsung.genuicraft.sdk.internal.renderer.rememberFlatSpecStateHolder
+import com.samsung.genuicraft.sdk.internal.renderer.flat.model.FlatSpec
 import com.samsung.genuicraft.sdk.internal.renderer.GenUiNativeRenderer
 import com.samsung.genuicraft.sdk.internal.renderer.LocalFlatSpecTextHorizontalPadding
 import com.samsung.genuicraft.sdk.internal.renderer.LocalSourceCitations
@@ -47,6 +51,26 @@ fun GenUiContent(
     showSources: Boolean,
 ) = GenUiContentImpl(document, modifier, onAction, showSources)
 
+/**
+ * Updates one native surface in place as accepted components arrive.
+ * Use one [GenUiRenderSnapshot.surfaceKey] throughout generation and finalization.
+ * Generated controls and watches remain inactive until [GenUiRenderSnapshot.isFinal].
+ */
+@Composable
+fun GenUiStreamingContent(
+    snapshot: GenUiRenderSnapshot,
+    modifier: Modifier = Modifier,
+    onAction: (GenUiAction) -> Unit = {},
+    showSources: Boolean = true,
+) = GenUiContentImpl(
+    document = snapshot.document,
+    modifier = modifier,
+    onAction = onAction,
+    showSources = showSources,
+    surfaceKey = snapshot.surfaceKey,
+    interactionEnabled = snapshot.isFinal,
+)
+
 @Composable
 internal fun GenUiContentImpl(
     document: GenUiDocument,
@@ -55,6 +79,8 @@ internal fun GenUiContentImpl(
     showSources: Boolean = true,
     onSourcePreviewChanged: (Boolean) -> Unit = {},
     embeddedMode: Boolean = false,
+    surfaceKey: String? = null,
+    interactionEnabled: Boolean = true,
 ) {
     val renderResult = remember(document.a2uiJson, document.express) {
         val input = document.a2uiJson.ifBlank { document.express }
@@ -62,7 +88,8 @@ internal fun GenUiContentImpl(
     }
     val callbackHost = remember(onAction) { CallbackRendererHost(onAction) }
     val sources = remember(document.express, document.a2uiJson) { SourceAttribution.read(document) }
-    var previewSource by remember(document.express, document.a2uiJson) {
+    val disclosureKey: Any = surfaceKey ?: (document.express to document.a2uiJson)
+    var previewSource by remember(disclosureKey) {
         mutableStateOf<GenUiSource?>(null)
     }
     val citationContext = SourceCitationContext(
@@ -101,13 +128,25 @@ internal fun GenUiContentImpl(
                 ) {
                     renderResult.surfaces.forEach { surface ->
                         val spec = surface.canonicalSpec ?: return@forEach
-                        FlatSpecContent(
-                            spec = spec,
-                            host = callbackHost,
-                            onEvent = { event -> dispatchExternalEvent(event, onAction) },
-                            collapseRootHorizontalPadding = true,
-                            modifier = Modifier.fillMaxWidth(),
-                        )
+                        val identity: Any = surfaceKey?.let { it to surface.surfaceId } ?: spec
+                        key(identity) {
+                            val stateHolder = rememberFlatSpecStateHolder(identity, spec.state)
+                            if (surfaceKey != null) {
+                                SideEffect { stateHolder.mergeGeneratedState(spec.state) }
+                            }
+                            val renderSpec = remember(spec, interactionEnabled) {
+                                if (interactionEnabled) spec else spec.withoutPreviewBindings()
+                            }
+                            FlatSpecContent(
+                                spec = renderSpec,
+                                host = callbackHost,
+                                stateHolder = stateHolder,
+                                onEvent = { event -> dispatchExternalEvent(event, onAction) },
+                                collapseRootHorizontalPadding = true,
+                                modifier = Modifier.fillMaxWidth(),
+                                interactionEnabled = interactionEnabled,
+                            )
+                        }
                     }
                 }
             }
@@ -122,6 +161,10 @@ internal fun GenUiContentImpl(
         )
     }
 }
+
+internal fun FlatSpec.withoutPreviewBindings(): FlatSpec = copy(
+    elements = elements.mapValues { (_, element) -> element.copy(on = null, watch = null) },
+)
 
 internal class CallbackRendererHost(
     private val callback: (GenUiAction) -> Unit,

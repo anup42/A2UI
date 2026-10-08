@@ -80,6 +80,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -90,6 +94,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
@@ -375,6 +381,7 @@ internal val LocalFlatSpecAssetResolver = staticCompositionLocalOf<(String) -> S
 internal val LocalFlatSpecComputedFunctions = staticCompositionLocalOf<Map<String, FlatComputedFunction>> { emptyMap() }
 internal val LocalFlatSpecTextHorizontalPadding = staticCompositionLocalOf { 16.dp }
 internal val LocalFlatDiagnosticSink = staticCompositionLocalOf<(FlatDiagnostic) -> Unit> { {} }
+internal val LocalFlatInteractionEnabled = staticCompositionLocalOf { true }
 internal const val WATCH_ACTION_BUDGET = 32
 internal val IMAGE_PROP_KEYS = listOf("url", "src", "image", "source", "name")
 internal val ICON_PROP_KEYS = listOf("name", "icon", "source", "url", "src")
@@ -758,7 +765,8 @@ fun FlatSpecContent(
     computedFunctions: Map<String, FlatComputedFunction> = emptyMap(),
     onEvent: (FlatRenderEvent) -> Unit = {},
     collapseRootHorizontalPadding: Boolean = false,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    interactionEnabled: Boolean = true,
 ) {
     val renderSpec = remember(spec, collapseRootHorizontalPadding) {
         if (collapseRootHorizontalPadding) spec.withCollapsedRootHorizontalPadding() else spec
@@ -785,12 +793,14 @@ fun FlatSpecContent(
     }
 
     val onOpenUrl: (String) -> Unit = { url ->
-        onEvent(FlatRenderEvent(FlatRenderEvent.Kind.NAVIGATION, action = "openUrl", value = url))
-        host.openUrl(url)
+        if (interactionEnabled) {
+            onEvent(FlatRenderEvent(FlatRenderEvent.Kind.NAVIGATION, action = "openUrl", value = url))
+            host.openUrl(url)
+        }
     }
     val onSetState: (String, Any?) -> Unit = { path, value ->
         val normalizedPath = normalizePointer(path)
-        if (normalizedPath.isNotBlank()) {
+        if (interactionEnabled && normalizedPath.isNotBlank()) {
             val before = deepCopyValue(FlatSpecParser.getAtPath(stateStore, normalizedPath))
             FlatSpecParser.setAtPath(stateStore, normalizedPath, value)
             val mutation = FlatStateMutation(
@@ -812,16 +822,18 @@ fun FlatSpecContent(
     }
     val onAction: (Any?, RepeatScope?) -> Int = { actionCandidate, repeatScope ->
         val sourced = actionCandidate as? SourcedActionCandidate
-        val result = FlatActionRuntime.executeDetailed(
-            actionCandidate = sourced?.candidate ?: actionCandidate,
-            stateStore = stateStore,
-            repeatScope = repeatScope,
-            computedFunctions = combinedComputedFunctions,
-            onOpenUrl = onOpenUrl,
-            onDiagnostic = emitDiagnostic,
-            elements = renderSpec.elements,
-            elementId = sourced?.elementId
-        )
+        val result = executeFlatRenderAction(interactionEnabled) {
+            FlatActionRuntime.executeDetailed(
+                actionCandidate = sourced?.candidate ?: actionCandidate,
+                stateStore = stateStore,
+                repeatScope = repeatScope,
+                computedFunctions = combinedComputedFunctions,
+                onOpenUrl = onOpenUrl,
+                onDiagnostic = emitDiagnostic,
+                elements = renderSpec.elements,
+                elementId = sourced?.elementId
+            )
+        }
         result.actions.forEach { execution ->
             onEvent(
                 FlatRenderEvent(
@@ -850,7 +862,8 @@ fun FlatSpecContent(
         result.attempted
     }
 
-    LaunchedEffect(renderSpec) {
+    LaunchedEffect(renderSpec, interactionEnabled) {
+        if (!interactionEnabled) return@LaunchedEffect
         snapshotFlow { stateStore.toMap() }.collect { snapshot ->
             val triggered = watchRuntime.collectTriggeredEntries(snapshot)
             if (triggered.isEmpty()) {
@@ -892,7 +905,8 @@ fun FlatSpecContent(
         LocalFlatSpecAssetResolver provides { raw -> host.resolveAssetUrl(raw) },
         LocalFlatImageLoader provides host.imageLoader,
         LocalFlatSpecComputedFunctions provides combinedComputedFunctions,
-        LocalFlatDiagnosticSink provides emitDiagnostic
+        LocalFlatDiagnosticSink provides emitDiagnostic,
+        LocalFlatInteractionEnabled provides interactionEnabled,
     ) {
         RenderElement(
             elementId = renderSpec.root,
@@ -1019,7 +1033,7 @@ internal fun RenderElement(
         type = element.type,
         props = resolvedProps,
         children = element.children,
-        onMap = element.on,
+        onMap = element.on.takeIf { LocalFlatInteractionEnabled.current },
         elements = elements,
         state = state,
         repeatScope = repeatScope,
@@ -1028,7 +1042,7 @@ internal fun RenderElement(
         onSetState = onSetState,
         onAction = onAction,
         activePath = activePath + elementId,
-        modifier = modifier
+        modifier = modifier.withFlatInteractionPolicy(LocalFlatInteractionEnabled.current, element.type),
     )
 }
 
@@ -1049,6 +1063,7 @@ internal fun RenderByType(
     activePath: Set<String>,
     modifier: Modifier = Modifier
 ) {
+    if (!LocalFlatInteractionEnabled.current && canonicalFlatType(type) == "modal") return
     val compatibilityDirection = GeneratedRendererCapabilities.compatibilityTypeDirections[
         type.trim().lowercase(Locale.US)
     ]
@@ -1167,16 +1182,18 @@ internal fun RenderChildren(
     }
     if (repeatedChildScopes == null) {
         visibleChildren.forEach { childId ->
-            RenderElement(
-                elementId = childId,
-                elements = elements,
-                state = state,
-                repeatScope = repeatScope,
-                onOpenUrl = onOpenUrl,
-                onSetState = onSetState,
-                onAction = onAction,
-                activePath = activePath
-            )
+            key(childId) {
+                RenderElement(
+                    elementId = childId,
+                    elements = elements,
+                    state = state,
+                    repeatScope = repeatScope,
+                    onOpenUrl = onOpenUrl,
+                    onSetState = onSetState,
+                    onAction = onAction,
+                    activePath = activePath
+                )
+            }
         }
         return
     }
@@ -1201,6 +1218,27 @@ internal fun RenderChildren(
             }
         }
     }
+}
+
+/** Controls also own local remember state; block input before those callbacks run. */
+private val PREVIEW_CONTROL_TYPES = setOf(
+    "button", "tabs", "textfield", "checkbox", "choicepicker", "slider",
+    "datetimeinput", "codeblock", "emailpreview", "consolelog", "video",
+    "audioplayer", "modal", "checklist",
+)
+
+internal fun Modifier.withFlatInteractionPolicy(interactionEnabled: Boolean, type: String): Modifier {
+    if (interactionEnabled || canonicalFlatType(type) !in PREVIEW_CONTROL_TYPES) return this
+    return focusProperties { canFocus = false }
+        .onPreviewKeyEvent { true }
+        .pointerInput(Unit) {
+            awaitPointerEventScope {
+                while (true) {
+                    awaitPointerEvent(PointerEventPass.Initial).changes.forEach { it.consume() }
+                }
+            }
+        }
+        .clearAndSetSemantics { disabled() }
 }
 
 @Composable

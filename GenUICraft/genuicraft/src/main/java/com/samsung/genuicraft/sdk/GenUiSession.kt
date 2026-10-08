@@ -10,6 +10,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -50,11 +51,15 @@ object GenUiModelProfiles {
     }
 }
 
-/** Callbacks run on the generation worker; dispatch UI updates to the main thread. */
+/** Callbacks run off the UI thread or on the provider worker; dispatch UI updates to main. */
+internal val NO_RENDER_OBSERVER: (GenUiRenderSnapshot) -> Unit = {}
+
 data class GenUiGenerationObserver(
     val onAttemptStarted: (Int) -> Unit = {},
     val onPartialText: (Int, String) -> Unit = { _, _ -> },
     val onAttemptCompleted: (Int, GenUiModelOutput) -> Unit = { _, _ -> },
+    /** Provisional native revisions and the accepted final document; dispatched off native decode. */
+    val onRenderSnapshot: (GenUiRenderSnapshot) -> Unit = NO_RENDER_OBSERVER,
 )
 
 /** Exact native output and measurements, never replaced by compiled or repaired IR. */
@@ -112,7 +117,15 @@ class GenUiSession private constructor(
     suspend fun convert(
         request: GenUiRequest,
         observer: GenUiGenerationObserver = GenUiGenerationObserver(),
-    ): GenUiConversionResult = mutex.withLock {
+    ): GenUiConversionResult = convert(request, observer, enableStreamingRendering = true)
+
+    /** Disable previews for throughput comparisons; raw streaming and final repair stay identical. */
+    suspend fun convert(
+        request: GenUiRequest,
+        observer: GenUiGenerationObserver,
+        enableStreamingRendering: Boolean,
+    ): GenUiConversionResult = mutex.withLock { coroutineScope {
+        val startedNanos = System.nanoTime()
         check(!closed.get()) { "GenUICraft session has been closed." }
         capture = null
         completedSessionMetrics = null
@@ -120,11 +133,28 @@ class GenUiSession private constructor(
         withContext(Dispatchers.IO) { prepareRuntime() }
         coroutineContext.ensureActive()
         check(!closed.get()) { "GenUICraft session was closed while preparing its runtime." }
-        val observed = GenUiStreamingProvider(
-            provider, observer.onAttemptStarted, observer.onPartialText, observer.onAttemptCompleted,
+        val preview = if (enableStreamingRendering && observer.onRenderSnapshot !== NO_RENDER_OBSERVER)
+            GenUiPreviewCoordinator(this, request.sources, observer.onRenderSnapshot, startedNanos) else null
+        val observed = GenUiStreamingProvider(provider,
+            onAttemptStarted = { attempt ->
+                preview?.startAttempt(attempt)
+                observer.onAttemptStarted(attempt)
+            },
+            onPartialText = { attempt, raw ->
+                preview?.offer(attempt, raw)
+                observer.onPartialText(attempt, raw)
+            },
+            onAttemptCompleted = { attempt, output ->
+                preview?.offer(attempt, output.text)
+                observer.onAttemptCompleted(attempt, output)
+            },
         )
         capture = observed
-        val result = conversion(observed, request)
+        val result = try {
+            conversion(observed, request)
+        } finally {
+            withContext(NonCancellable) { preview?.stop() }
+        }
         completedSessionMetrics = try {
             provider.finishGenerationMetrics()
         } catch (cancelled: CancellationException) {
@@ -133,8 +163,10 @@ class GenUiSession private constructor(
             // Telemetry is optional and must not turn a successful conversion into a failure.
             null
         }
+        coroutineContext.ensureActive()
+        withContext(Dispatchers.Default) { preview?.finish(result) }
         result
-    }
+    } }
 
     override fun close() {
         if (closed.compareAndSet(false, true)) provider.close()

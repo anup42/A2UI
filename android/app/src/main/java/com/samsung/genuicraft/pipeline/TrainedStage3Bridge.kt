@@ -12,6 +12,7 @@ import com.samsung.genuicraft.sdk.GenUiPrompt
 import com.samsung.genuicraft.sdk.GenUiProvider
 import com.samsung.genuicraft.sdk.GenUiRepairKind
 import com.samsung.genuicraft.sdk.GenUiRequest
+import com.samsung.genuicraft.sdk.GenUiRenderSnapshot
 import com.samsung.genuicraft.sdk.GenUiSession
 import com.samsung.genuicraft.sdk.GenUiConversionProfile
 import com.samsung.genuicraft.sdk.GenUiGenerationObserver
@@ -90,6 +91,9 @@ internal object TrainedStage3Bridge {
         sourceResponse: String,
         queryText: String,
         onPartialText: ((String) -> Unit)? = null,
+        onRenderSnapshot: ((GenUiRenderSnapshot) -> Unit)? = null,
+        onAttemptStarted: ((Int) -> Unit)? = null,
+        enableStreamingRendering: Boolean = true,
     ): Result {
         val selection = selectTrainedE2bModel(
             modelPath,
@@ -134,6 +138,9 @@ internal object TrainedStage3Bridge {
                 session = GenUiSession(context, Gemma4Provider(config), GenUiConversionProfile.TRAINED_E2B_V10_W4),
                 request = GenUiRequest(text = sourceResponse, query = queryText),
                 onPartialText = onPartialText,
+                onRenderSnapshot = onRenderSnapshot,
+                onAttemptStarted = onAttemptStarted,
+                enableStreamingRendering = enableStreamingRendering,
             )
         } catch (cancelled: CancellationException) {
             throw cancelled
@@ -164,11 +171,19 @@ internal object TrainedStage3Bridge {
         session: GenUiSession,
         request: GenUiRequest,
         onPartialText: ((String) -> Unit)?,
+        onRenderSnapshot: ((GenUiRenderSnapshot) -> Unit)? = null,
+        onAttemptStarted: ((Int) -> Unit)? = null,
+        enableStreamingRendering: Boolean = true,
     ): Result {
         val result = try {
             val conversion = session.convert(
                 request,
-                GenUiGenerationObserver(onPartialText = { _, text -> onPartialText?.invoke(text) }),
+                GenUiGenerationObserver(
+                    onPartialText = { _, text -> onPartialText?.invoke(text) },
+                    onRenderSnapshot = onRenderSnapshot ?: {},
+                    onAttemptStarted = onAttemptStarted ?: {},
+                ),
+                enableStreamingRendering = enableStreamingRendering,
             )
             val attempt = session.attemptSnapshots.lastOrNull()
             adapt(

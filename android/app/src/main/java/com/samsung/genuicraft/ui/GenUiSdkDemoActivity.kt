@@ -33,6 +33,7 @@ import kotlinx.coroutines.launch
 
 private const val PREFERENCE_TOKEN_METRICS_ENABLED = "token_metrics_enabled"
 private const val PREFERENCE_GEMMA_MODEL_SOURCE = "gemma_model_source"
+internal const val PREFERENCE_STREAMING_UI_ENABLED = "streaming_ui_enabled"
 
 /** The demo uses the published SDK AAR; it does not call the app's legacy pipeline. */
 class GenUiSdkDemoActivity : ComponentActivity() {
@@ -65,6 +66,8 @@ class GenUiSdkDemoActivity : ComponentActivity() {
     internal fun generationTraceForTest(): SdkGenerationTrace = generationTrace
     internal fun runtimeForTest(): String? = lastRuntime
     internal fun renderedDocumentForTest(): GenUiDocument? = document
+    internal fun renderSnapshotForTest(): GenUiRenderSnapshot? = screen.renderSnapshot
+    internal fun generationMetricsForTest(): GenerationMetricsUiState? = generationMetrics
     internal fun statusForTest(): String = status
 
     /** Optional host override used by integration tests; default opens approved web links. */
@@ -100,6 +103,9 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                 var settingsVisible by rememberSaveable { mutableStateOf(false) }
                 var mtpEnabled by rememberSaveable {
                     mutableStateOf(preferences.getBoolean(PREFERENCE_E2B_MTP_ENABLED, true))
+                }
+                var streamingUiEnabled by rememberSaveable {
+                    mutableStateOf(preferences.getBoolean(PREFERENCE_STREAMING_UI_ENABLED, true))
                 }
                 var trainedGpuPrecision by rememberSaveable {
                     mutableStateOf(InferenceBackendSettings.getTrainedE2bGpuPrecision(this@GenUiSdkDemoActivity))
@@ -153,6 +159,9 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                 val editorScroll = rememberScrollState()
                 val selectedCase = cases[caseIndex]
                 val customInput = source != selectedCase.get("text").asString
+                val generationCase = screen.generationSourceText?.let { submittedText ->
+                    cases.firstOrNull { it.get("text").asString == submittedText }
+                } ?: selectedCase.takeIf { screen.generationSourceText == null && !customInput }
                 Surface(modifier = Modifier.fillMaxSize()) {
                     Column(
                         Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 16.dp, vertical = 12.dp),
@@ -246,11 +255,11 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                         if (working) LinearProgressIndicator(Modifier.fillMaxWidth())
                         if (!editorVisible && generationTrace.phase != SdkGenerationPhase.IDLE) {
                             Text(
-                                if (customInput) {
+                                if (generationCase == null) {
                                     "Custom input"
                                 } else {
-                                    "${selectedCase.get("id").asString} · " +
-                                        selectedCase.get("query").asString
+                                    "${generationCase.get("id").asString} · " +
+                                        generationCase.get("query").asString
                                 },
                                 style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -582,6 +591,7 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                                 ),
                                             gpuPrecisionForRun = trainedSelectionForRun?.gpuPrecision ?:
                                                 com.samsung.genuicraft.sdk.provider.Gemma4GpuPrecision.FP32,
+                                            streamingRenderingForRun = streamingUiEnabled,
                                         )
                                     },
                                 ) { Text("Generate UI") }
@@ -603,12 +613,14 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                             SdkGenerationWorkspace(
                                 trace = generationTrace,
                                 document = document,
+                                snapshot = screen.renderSnapshot,
                                 modifier = Modifier.weight(if (editorVisible) 0.3f else 1f).fillMaxWidth(),
                                 metrics = {
                                     if (tokenMetricsEnabled) {
                                         generationMetrics?.let { metrics -> GenerationMetricsPanel(metrics) }
                                     }
                                 },
+                                onSnapshotPresented = screen::onSnapshotPresented,
                                 onAction = { action ->
                                     val handler = onSdkAction
                                     if (handler != null) handler(action)
@@ -633,6 +645,27 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                     .verticalScroll(rememberScrollState()),
                                 verticalArrangement = Arrangement.spacedBy(12.dp),
                             ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Column(Modifier.weight(1f)) {
+                                        Text("Stream UI", style = MaterialTheme.typography.titleSmall)
+                                        Text(
+                                            "Show native components while the model generates the answer.",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        )
+                                    }
+                                    Switch(
+                                        checked = streamingUiEnabled,
+                                        onCheckedChange = { enabled ->
+                                            streamingUiEnabled = enabled
+                                            preferences.edit().putBoolean(PREFERENCE_STREAMING_UI_ENABLED, enabled).apply()
+                                        },
+                                        enabled = !working,
+                                        modifier = Modifier.testTag("sdk_streaming_ui_switch")
+                                            .semantics { contentDescription = "Stream native UI" },
+                                    )
+                                }
+                                HorizontalDivider()
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     verticalAlignment = Alignment.CenterVertically,

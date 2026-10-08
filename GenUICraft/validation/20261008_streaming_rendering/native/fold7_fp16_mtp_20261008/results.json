@@ -1,0 +1,877 @@
+[
+  {
+    "fixtureId": "BXP-001",
+    "streamingEnabled": true,
+    "phase": "COMPLETE",
+    "error": null,
+    "status": "Ready · 14023 ms · 1 attempt(s)",
+    "runtime": "LiteRT-LM/Gemma4/GPU+FP16_CORRECTED+MTP",
+    "repairKind": "NONE",
+    "conversionElapsedMs": 14023,
+    "sessionWallElapsedMs": 15054,
+    "firstPreviewElapsedMs": 10050,
+    "firstPreviewFrameElapsedMs": 10077,
+    "previewSnapshotCount": 5,
+    "finalReadyComponentCount": 6,
+    "observedNativeRevisions": [
+      {
+        "surfaceKey": "7b8f822a-1b42-41a6-ba03-f1147448aa35:1",
+        "attempt": 1,
+        "revision": 1,
+        "elapsedMs": 10050,
+        "readyComponentCount": 2,
+        "isFinal": false,
+        "uiObservedWhileWorking": true,
+        "expressSha256": "9d123cbb8b3f5108c3312690d5f3fbbfcdde139e749ae21b537d8597906ef0b3"
+      },
+      {
+        "surfaceKey": "7b8f822a-1b42-41a6-ba03-f1147448aa35:1",
+        "attempt": 1,
+        "revision": 2,
+        "elapsedMs": 11839,
+        "readyComponentCount": 3,
+        "isFinal": false,
+        "uiObservedWhileWorking": true,
+        "expressSha256": "a68876f737bafb9b85a80cfae8adadd0ed92a969e86dc5918e06b5f225a69331"
+      },
+      {
+        "surfaceKey": "7b8f822a-1b42-41a6-ba03-f1147448aa35:1",
+        "attempt": 1,
+        "revision": 3,
+        "elapsedMs": 12889,
+        "readyComponentCount": 4,
+        "isFinal": false,
+        "uiObservedWhileWorking": true,
+        "expressSha256": "272a6459c552029cb00f789a3f53ce34f60ca3239b24fe57baac8095eb2b12f8"
+      },
+      {
+        "surfaceKey": "7b8f822a-1b42-41a6-ba03-f1147448aa35:1",
+        "attempt": 1,
+        "revision": 4,
+        "elapsedMs": 13333,
+        "readyComponentCount": 5,
+        "isFinal": false,
+        "uiObservedWhileWorking": true,
+        "expressSha256": "16df22975c90338f9903e9801e8bb9d3711f40335d7a8b45efbf86ff9f1bb860"
+      },
+      {
+        "surfaceKey": "7b8f822a-1b42-41a6-ba03-f1147448aa35:1",
+        "attempt": 1,
+        "revision": 5,
+        "elapsedMs": 13857,
+        "readyComponentCount": 6,
+        "isFinal": false,
+        "uiObservedWhileWorking": true,
+        "expressSha256": "59671e3b384c5410c8dfe6883c1d6b18a51009c8c69b54737c9b4c5a4af4b5db"
+      },
+      {
+        "surfaceKey": "7b8f822a-1b42-41a6-ba03-f1147448aa35:1",
+        "attempt": 1,
+        "revision": 6,
+        "elapsedMs": 14905,
+        "readyComponentCount": 6,
+        "isFinal": true,
+        "uiObservedWhileWorking": false,
+        "expressSha256": "59671e3b384c5410c8dfe6883c1d6b18a51009c8c69b54737c9b4c5a4af4b5db"
+      }
+    ],
+    "liveScreenshotCaptured": false,
+    "metrics": {
+      "reportedAttempts": 1,
+      "inputTokens": 3174,
+      "outputTokens": 302,
+      "nativeDecodeTokensPerSecond": 42.020525196578575,
+      "requestAverageTokensPerSecond": 21.59976629996959,
+      "providerCallElapsedNanos": 13981632755,
+      "nativeEngineInitializationNanos": 4962083748,
+      "nativePrefillElapsedNanos": 1819586197,
+      "nativeDecodeElapsedNanos": 7186963956,
+      "validationAndRecoveryElapsedNanos": 41367245,
+      "mtpEnabled": true,
+      "mtpAcceptanceRate": 0.650327,
+      "attempts": [
+        {
+          "engineInitializedForRequest": true,
+          "inputTokens": 3174,
+          "nativeDecodeTokensPerSecond": 42.020525196578575,
+          "nativeEngineInitializationSeconds": 4.962083748,
+          "nativeInitializationPhaseSeconds": 9.94532484,
+          "nativePrefillTokensPerSecond": 1744.3526464911117,
+          "nativeTimeToFirstTokenSeconds": 1.8433840917500002,
+          "outputTokens": 302,
+          "providerCallElapsedNanos": 13981632755
+        }
+      ]
+    },
+    "finalExpressSha256": "59671e3b384c5410c8dfe6883c1d6b18a51009c8c69b54737c9b4c5a4af4b5db",
+    "finalSnapshotMatchesDocument": true
+  },
+  {
+    "fixtureId": "BXP-001",
+    "streamingEnabled": false,
+    "phase": "COMPLETE",
+    "error": null,
+    "status": "Ready · 15373 ms · 1 attempt(s)",
+    "runtime": "LiteRT-LM/Gemma4/GPU+FP16_CORRECTED+MTP",
+    "repairKind": "NONE",
+    "conversionElapsedMs": 15373,
+    "sessionWallElapsedMs": 16280,
+    "firstPreviewElapsedMs": null,
+    "firstPreviewFrameElapsedMs": null,
+    "previewSnapshotCount": 0,
+    "finalReadyComponentCount": 0,
+    "observedNativeRevisions": [],
+    "liveScreenshotCaptured": false,
+    "metrics": {
+      "reportedAttempts": 1,
+      "inputTokens": 3174,
+      "outputTokens": 302,
+      "nativeDecodeTokensPerSecond": 37.51001091267072,
+      "requestAverageTokensPerSecond": 19.688364476581125,
+      "providerCallElapsedNanos": 15339009005,
+      "nativeEngineInitializationNanos": 5246715363,
+      "nativePrefillElapsedNanos": 2029419062,
+      "nativeDecodeElapsedNanos": 8051184008,
+      "validationAndRecoveryElapsedNanos": 33990995,
+      "mtpEnabled": true,
+      "mtpAcceptanceRate": 0.650327,
+      "attempts": [
+        {
+          "engineInitializedForRequest": true,
+          "inputTokens": 3174,
+          "nativeDecodeTokensPerSecond": 37.51001091267072,
+          "nativeEngineInitializationSeconds": 5.246715363,
+          "nativeInitializationPhaseSeconds": 10.563268589,
+          "nativePrefillTokensPerSecond": 1563.9943762388884,
+          "nativeTimeToFirstTokenSeconds": 2.0560786115000003,
+          "outputTokens": 302,
+          "providerCallElapsedNanos": 15339009005
+        }
+      ]
+    },
+    "finalExpressSha256": "59671e3b384c5410c8dfe6883c1d6b18a51009c8c69b54737c9b4c5a4af4b5db",
+    "finalSnapshotMatchesDocument": null
+  },
+  {
+    "fixtureId": "BXP-003",
+    "streamingEnabled": false,
+    "phase": "COMPLETE",
+    "error": null,
+    "status": "Recovered · 23140 ms · 1 attempt(s)",
+    "runtime": "LiteRT-LM/Gemma4/GPU+FP16_CORRECTED+MTP",
+    "repairKind": "GENERATED_DSL_REPAIR",
+    "conversionElapsedMs": 23140,
+    "sessionWallElapsedMs": 24188,
+    "firstPreviewElapsedMs": null,
+    "firstPreviewFrameElapsedMs": null,
+    "previewSnapshotCount": 0,
+    "finalReadyComponentCount": 0,
+    "observedNativeRevisions": [],
+    "liveScreenshotCaptured": false,
+    "metrics": {
+      "reportedAttempts": 1,
+      "inputTokens": 3394,
+      "outputTokens": 521,
+      "nativeDecodeTokensPerSecond": 34.270779915406465,
+      "requestAverageTokensPerSecond": 22.645204521519656,
+      "providerCallElapsedNanos": 23007078585,
+      "nativeEngineInitializationNanos": 5017116613,
+      "nativePrefillElapsedNanos": 2776347968,
+      "nativeDecodeElapsedNanos": 15202455307,
+      "validationAndRecoveryElapsedNanos": 132921415,
+      "mtpEnabled": true,
+      "mtpAcceptanceRate": 0.740741,
+      "attempts": [
+        {
+          "engineInitializedForRequest": true,
+          "inputTokens": 3394,
+          "nativeDecodeTokensPerSecond": 34.270779915406465,
+          "nativeEngineInitializationSeconds": 5.017116613,
+          "nativeInitializationPhaseSeconds": 10.118364267,
+          "nativePrefillTokensPerSecond": 1222.4692434518352,
+          "nativeTimeToFirstTokenSeconds": 2.80552734475,
+          "outputTokens": 521,
+          "providerCallElapsedNanos": 23007078585
+        }
+      ]
+    },
+    "finalExpressSha256": "b4db521ab2e7a31552761b6b0f03a8b8eb2a3e08e4eff381938b0da7257c6639",
+    "finalSnapshotMatchesDocument": null
+  },
+  {
+    "fixtureId": "BXP-003",
+    "streamingEnabled": true,
+    "phase": "COMPLETE",
+    "error": null,
+    "status": "Recovered · 23194 ms · 1 attempt(s)",
+    "runtime": "LiteRT-LM/Gemma4/GPU+FP16_CORRECTED+MTP",
+    "repairKind": "GENERATED_DSL_REPAIR",
+    "conversionElapsedMs": 23194,
+    "sessionWallElapsedMs": 24195,
+    "firstPreviewElapsedMs": 15269,
+    "firstPreviewFrameElapsedMs": 15298,
+    "previewSnapshotCount": 6,
+    "finalReadyComponentCount": 9,
+    "observedNativeRevisions": [
+      {
+        "surfaceKey": "a3b5f8c2-6993-416b-8d69-7c2fdbb6592b:1",
+        "attempt": 1,
+        "revision": 1,
+        "elapsedMs": 15269,
+        "readyComponentCount": 2,
+        "isFinal": false,
+        "uiObservedWhileWorking": true,
+        "expressSha256": "7f4d49680cdc5023f3f517f7b458e13c03d1fd797e39c2eb1fd6f07ffb0aa03e"
+      },
+      {
+        "surfaceKey": "a3b5f8c2-6993-416b-8d69-7c2fdbb6592b:1",
+        "attempt": 1,
+        "revision": 2,
+        "elapsedMs": 18109,
+        "readyComponentCount": 3,
+        "isFinal": false,
+        "uiObservedWhileWorking": true,
+        "expressSha256": "30f679f0e08fc5348d2076eb370ca68bb2231b1a3ee6cbad2c14cfbdbe07cdd8"
+      },
+      {
+        "surfaceKey": "a3b5f8c2-6993-416b-8d69-7c2fdbb6592b:1",
+        "attempt": 1,
+        "revision": 3,
+        "elapsedMs": 18380,
+        "readyComponentCount": 4,
+        "isFinal": false,
+        "uiObservedWhileWorking": true,
+        "expressSha256": "fc8d7569f495087cd2a65c98e34d3f25f42d71d9ab5b40b9266c93080c280a50"
+      },
+      {
+        "surfaceKey": "a3b5f8c2-6993-416b-8d69-7c2fdbb6592b:1",
+        "attempt": 1,
+        "revision": 4,
+        "elapsedMs": 19661,
+        "readyComponentCount": 5,
+        "isFinal": false,
+        "uiObservedWhileWorking": true,
+        "expressSha256": "dc487289f0c5aa66c48b0d3a1c23ef618e48522ab66f89836870e07fbd598e7c"
+      },
+      {
+        "surfaceKey": "a3b5f8c2-6993-416b-8d69-7c2fdbb6592b:1",
+        "attempt": 1,
+        "revision": 5,
+        "elapsedMs": 20681,
+        "readyComponentCount": 6,
+        "isFinal": false,
+        "uiObservedWhileWorking": true,
+        "expressSha256": "d6c1d92b41b2797b137f21f95f082dd786a87c4caafe32da749551084ee35d0c"
+      },
+      {
+        "surfaceKey": "a3b5f8c2-6993-416b-8d69-7c2fdbb6592b:1",
+        "attempt": 1,
+        "revision": 6,
+        "elapsedMs": 21417,
+        "readyComponentCount": 7,
+        "isFinal": false,
+        "uiObservedWhileWorking": true,
+        "expressSha256": "9a1a0c9852a781a96d01de23de042a27b123863c09228bb6a883a8c4d451ba54"
+      },
+      {
+        "surfaceKey": "a3b5f8c2-6993-416b-8d69-7c2fdbb6592b:1",
+        "attempt": 1,
+        "revision": 7,
+        "elapsedMs": 24049,
+        "readyComponentCount": 9,
+        "isFinal": true,
+        "uiObservedWhileWorking": false,
+        "expressSha256": "b4db521ab2e7a31552761b6b0f03a8b8eb2a3e08e4eff381938b0da7257c6639"
+      }
+    ],
+    "liveScreenshotCaptured": false,
+    "metrics": {
+      "reportedAttempts": 1,
+      "inputTokens": 3394,
+      "outputTokens": 521,
+      "nativeDecodeTokensPerSecond": 34.556523571937156,
+      "requestAverageTokensPerSecond": 22.557946020210125,
+      "providerCallElapsedNanos": 23096074418,
+      "nativeEngineInitializationNanos": 5053125518,
+      "nativePrefillElapsedNanos": 2955069999,
+      "nativeDecodeElapsedNanos": 15076748068,
+      "validationAndRecoveryElapsedNanos": 97925582,
+      "mtpEnabled": true,
+      "mtpAcceptanceRate": 0.740741,
+      "attempts": [
+        {
+          "engineInitializedForRequest": true,
+          "inputTokens": 3394,
+          "nativeDecodeTokensPerSecond": 34.556523571937156,
+          "nativeEngineInitializationSeconds": 5.053125518,
+          "nativeInitializationPhaseSeconds": 10.178788485,
+          "nativePrefillTokensPerSecond": 1148.534552869656,
+          "nativeTimeToFirstTokenSeconds": 2.984008095,
+          "outputTokens": 521,
+          "providerCallElapsedNanos": 23096074418
+        }
+      ]
+    },
+    "finalExpressSha256": "b4db521ab2e7a31552761b6b0f03a8b8eb2a3e08e4eff381938b0da7257c6639",
+    "finalSnapshotMatchesDocument": true
+  },
+  {
+    "fixtureId": "BXP-004",
+    "streamingEnabled": true,
+    "phase": "COMPLETE",
+    "error": null,
+    "status": "Recovered · 20532 ms · 1 attempt(s)",
+    "runtime": "LiteRT-LM/Gemma4/GPU+FP16_CORRECTED+MTP",
+    "repairKind": "GENERATED_DSL_REPAIR",
+    "conversionElapsedMs": 20532,
+    "sessionWallElapsedMs": 21478,
+    "firstPreviewElapsedMs": 10921,
+    "firstPreviewFrameElapsedMs": 10950,
+    "previewSnapshotCount": 13,
+    "finalReadyComponentCount": 15,
+    "observedNativeRevisions": [
+      {
+        "surfaceKey": "aedd5218-a127-4bdf-92da-f2974d7fdc6a:1",
+        "attempt": 1,
+        "revision": 1,
+        "elapsedMs": 10921,
+        "readyComponentCount": 2,
+        "isFinal": false,
+        "uiObservedWhileWorking": true,
+        "expressSha256": "d812fb5d917842fe9819ef0151c8ced24736fa0f6207a54741beb9fba8116135"
+      },
+      {
+        "surfaceKey": "aedd5218-a127-4bdf-92da-f2974d7fdc6a:1",
+        "attempt": 1,
+        "revision": 2,
+        "elapsedMs": 12174,
+        "readyComponentCount": 3,
+        "isFinal": false,
+        "uiObservedWhileWorking": true,
+        "expressSha256": "770352a2a849abed1ef83621156c452e30dceaff5cfaff30ec988dcbd4036c78"
+      },
+      {
+        "surfaceKey": "aedd5218-a127-4bdf-92da-f2974d7fdc6a:1",
+        "attempt": 1,
+        "revision": 3,
+        "elapsedMs": 12984,
+        "readyComponentCount": 4,
+        "isFinal": false,
+        "uiObservedWhileWorking": true,
+        "expressSha256": "47206176415bb907c0fdf18e08d7893471ee81c1e36781ec23d44809c318ed88"
+      },
+      {
+        "surfaceKey": "aedd5218-a127-4bdf-92da-f2974d7fdc6a:1",
+        "attempt": 1,
+        "revision": 4,
+        "elapsedMs": 13254,
+        "readyComponentCount": 5,
+        "isFinal": false,
+        "uiObservedWhileWorking": true,
+        "expressSha256": "1b4d09b0592d2631309ecad191443568110b0611668170d32fb11c0ae4d968f7"
+      },
+      {
+        "surfaceKey": "aedd5218-a127-4bdf-92da-f2974d7fdc6a:1",
+        "attempt": 1,
+        "revision": 5,
+        "elapsedMs": 13799,
+        "readyComponentCount": 6,
+        "isFinal": false,
+        "uiObservedWhileWorking": true,
+        "expressSha256": "3307894d9f60599ee88b5d9182d1e467cb1ca1f12ba24d423fe1a1f60fd7e095"
+      },
+      {
+        "surfaceKey": "aedd5218-a127-4bdf-92da-f2974d7fdc6a:1",
+        "attempt": 1,
+        "revision": 6,
+        "elapsedMs": 14616,
+        "readyComponentCount": 7,
+        "isFinal": false,
+        "uiObservedWhileWorking": true,
+        "expressSha256": "9a38df4fbcd1b515c9f1fcc82a25b43b04d4cecd6a68e01744b9da327c7a2ae3"
+      },
+      {
+        "surfaceKey": "aedd5218-a127-4bdf-92da-f2974d7fdc6a:1",
+        "attempt": 1,
+        "revision": 7,
+        "elapsedMs": 15167,
+        "readyComponentCount": 8,
+        "isFinal": false,
+        "uiObservedWhileWorking": true,
+        "expressSha256": "e594887373cf9b576a16c2cb183d0f5471750f8e8782a564819a8c1bbc53c0a0"
+      },
+      {
+        "surfaceKey": "aedd5218-a127-4bdf-92da-f2974d7fdc6a:1",
+        "attempt": 1,
+        "revision": 8,
+        "elapsedMs": 15538,
+        "readyComponentCount": 9,
+        "isFinal": false,
+        "uiObservedWhileWorking": true,
+        "expressSha256": "6af6b59c2f9f7361a3c310b147163b13e25a970de170a57db16296fb9ccc07a8"
+      },
+      {
+        "surfaceKey": "aedd5218-a127-4bdf-92da-f2974d7fdc6a:1",
+        "attempt": 1,
+        "revision": 9,
+        "elapsedMs": 16274,
+        "readyComponentCount": 10,
+        "isFinal": false,
+        "uiObservedWhileWorking": true,
+        "expressSha256": "0bcc55b2c3ebb7b78e30df9d061b2956ebd48110ac7e4a91a7e293858190e67a"
+      },
+      {
+        "surfaceKey": "aedd5218-a127-4bdf-92da-f2974d7fdc6a:1",
+        "attempt": 1,
+        "revision": 10,
+        "elapsedMs": 17468,
+        "readyComponentCount": 11,
+        "isFinal": false,
+        "uiObservedWhileWorking": true,
+        "expressSha256": "b900e5e0d297e01f6561d036f7d1ae1fe743a0a116bd11aa58ac34f5fa3379c1"
+      },
+      {
+        "surfaceKey": "aedd5218-a127-4bdf-92da-f2974d7fdc6a:1",
+        "attempt": 1,
+        "revision": 11,
+        "elapsedMs": 17756,
+        "readyComponentCount": 12,
+        "isFinal": false,
+        "uiObservedWhileWorking": true,
+        "expressSha256": "4911309c97c98a351fafb3aee90d1e4362d06d47fe3f13154fd703ec60e11906"
+      },
+      {
+        "surfaceKey": "aedd5218-a127-4bdf-92da-f2974d7fdc6a:1",
+        "attempt": 1,
+        "revision": 12,
+        "elapsedMs": 18310,
+        "readyComponentCount": 13,
+        "isFinal": false,
+        "uiObservedWhileWorking": true,
+        "expressSha256": "a82eab3cfbd5f65f52c1a803b819fe644396ee904c2b3d625eac7e45b210d461"
+      },
+      {
+        "surfaceKey": "aedd5218-a127-4bdf-92da-f2974d7fdc6a:1",
+        "attempt": 1,
+        "revision": 13,
+        "elapsedMs": 19336,
+        "readyComponentCount": 14,
+        "isFinal": false,
+        "uiObservedWhileWorking": true,
+        "expressSha256": "585bf6ac78bf9a97c6a8c7274653e54b4ccc0b18e4001dc2e1b6883813ef1933"
+      },
+      {
+        "surfaceKey": "aedd5218-a127-4bdf-92da-f2974d7fdc6a:1",
+        "attempt": 1,
+        "revision": 14,
+        "elapsedMs": 21382,
+        "readyComponentCount": 15,
+        "isFinal": true,
+        "uiObservedWhileWorking": false,
+        "expressSha256": "2c00b9414017a7400a66c2c9061057cbefcde3d454956375bb2c8c4863fe584a"
+      }
+    ],
+    "liveScreenshotCaptured": false,
+    "metrics": {
+      "reportedAttempts": 1,
+      "inputTokens": 3327,
+      "outputTokens": 432,
+      "nativeDecodeTokensPerSecond": 36.17259856992354,
+      "requestAverageTokensPerSecond": 21.142450942008246,
+      "providerCallElapsedNanos": 20432824992,
+      "nativeEngineInitializationNanos": 5632778383,
+      "nativePrefillElapsedNanos": 2844781770,
+      "nativeDecodeElapsedNanos": 11942741663,
+      "validationAndRecoveryElapsedNanos": 99175008,
+      "mtpEnabled": true,
+      "mtpAcceptanceRate": 0.821333,
+      "attempts": [
+        {
+          "engineInitializedForRequest": true,
+          "inputTokens": 3327,
+          "nativeDecodeTokensPerSecond": 36.17259856992354,
+          "nativeEngineInitializationSeconds": 5.632778383,
+          "nativeInitializationPhaseSeconds": 11.349943483999999,
+          "nativePrefillTokensPerSecond": 1169.5097441516577,
+          "nativeTimeToFirstTokenSeconds": 2.87242700525,
+          "outputTokens": 432,
+          "providerCallElapsedNanos": 20432824992
+        }
+      ]
+    },
+    "finalExpressSha256": "2c00b9414017a7400a66c2c9061057cbefcde3d454956375bb2c8c4863fe584a",
+    "finalSnapshotMatchesDocument": true
+  },
+  {
+    "fixtureId": "BXP-004",
+    "streamingEnabled": false,
+    "phase": "COMPLETE",
+    "error": null,
+    "status": "Recovered · 20105 ms · 1 attempt(s)",
+    "runtime": "LiteRT-LM/Gemma4/GPU+FP16_CORRECTED+MTP",
+    "repairKind": "GENERATED_DSL_REPAIR",
+    "conversionElapsedMs": 20105,
+    "sessionWallElapsedMs": 21144,
+    "firstPreviewElapsedMs": null,
+    "firstPreviewFrameElapsedMs": null,
+    "previewSnapshotCount": 0,
+    "finalReadyComponentCount": 0,
+    "observedNativeRevisions": [],
+    "liveScreenshotCaptured": false,
+    "metrics": {
+      "reportedAttempts": 1,
+      "inputTokens": 3327,
+      "outputTokens": 432,
+      "nativeDecodeTokensPerSecond": 36.343029153318064,
+      "requestAverageTokensPerSecond": 21.594851997833523,
+      "providerCallElapsedNanos": 20004767805,
+      "nativeEngineInitializationNanos": 5314534633,
+      "nativePrefillElapsedNanos": 2788197967,
+      "nativeDecodeElapsedNanos": 11886736193,
+      "validationAndRecoveryElapsedNanos": 100232195,
+      "mtpEnabled": true,
+      "mtpAcceptanceRate": 0.821333,
+      "attempts": [
+        {
+          "engineInitializedForRequest": true,
+          "inputTokens": 3327,
+          "nativeDecodeTokensPerSecond": 36.343029153318064,
+          "nativeEngineInitializationSeconds": 5.314534633,
+          "nativeInitializationPhaseSeconds": 10.718192702,
+          "nativePrefillTokensPerSecond": 1193.243822489309,
+          "nativeTimeToFirstTokenSeconds": 2.81571356,
+          "outputTokens": 432,
+          "providerCallElapsedNanos": 20004767805
+        }
+      ]
+    },
+    "finalExpressSha256": "2c00b9414017a7400a66c2c9061057cbefcde3d454956375bb2c8c4863fe584a",
+    "finalSnapshotMatchesDocument": null
+  },
+  {
+    "fixtureId": "BXP-008",
+    "streamingEnabled": false,
+    "phase": "COMPLETE",
+    "error": null,
+    "status": "Recovered · 22801 ms · 1 attempt(s)",
+    "runtime": "LiteRT-LM/Gemma4/GPU+FP16_CORRECTED+MTP",
+    "repairKind": "GENERATED_DSL_REPAIR",
+    "conversionElapsedMs": 22801,
+    "sessionWallElapsedMs": 23869,
+    "firstPreviewElapsedMs": null,
+    "firstPreviewFrameElapsedMs": null,
+    "previewSnapshotCount": 0,
+    "finalReadyComponentCount": 0,
+    "observedNativeRevisions": [],
+    "liveScreenshotCaptured": false,
+    "metrics": {
+      "reportedAttempts": 1,
+      "inputTokens": 3329,
+      "outputTokens": 488,
+      "nativeDecodeTokensPerSecond": 34.2331083298756,
+      "requestAverageTokensPerSecond": 21.456436470471946,
+      "providerCallElapsedNanos": 22743758064,
+      "nativeEngineInitializationNanos": 5422122393,
+      "nativePrefillElapsedNanos": 3054214217,
+      "nativeDecodeElapsedNanos": 14255205671,
+      "validationAndRecoveryElapsedNanos": 57241936,
+      "mtpEnabled": true,
+      "mtpAcceptanceRate": 0.753333,
+      "attempts": [
+        {
+          "engineInitializedForRequest": true,
+          "inputTokens": 3329,
+          "nativeDecodeTokensPerSecond": 34.2331083298756,
+          "nativeEngineInitializationSeconds": 5.422122393,
+          "nativeInitializationPhaseSeconds": 10.933401662,
+          "nativePrefillTokensPerSecond": 1089.9693876973397,
+          "nativeTimeToFirstTokenSeconds": 3.083425704,
+          "outputTokens": 488,
+          "providerCallElapsedNanos": 22743758064
+        }
+      ]
+    },
+    "finalExpressSha256": "ff130ddcd47ff55e2ed6612d1aed68e7f7a3067bcaa98daefa8aa8da369ee6a2",
+    "finalSnapshotMatchesDocument": null
+  },
+  {
+    "fixtureId": "BXP-008",
+    "streamingEnabled": true,
+    "phase": "COMPLETE",
+    "error": null,
+    "status": "Recovered · 23013 ms · 1 attempt(s)",
+    "runtime": "LiteRT-LM/Gemma4/GPU+FP16_CORRECTED+MTP",
+    "repairKind": "GENERATED_DSL_REPAIR",
+    "conversionElapsedMs": 23013,
+    "sessionWallElapsedMs": 24061,
+    "firstPreviewElapsedMs": 16985,
+    "firstPreviewFrameElapsedMs": 17012,
+    "previewSnapshotCount": 5,
+    "finalReadyComponentCount": 6,
+    "observedNativeRevisions": [
+      {
+        "surfaceKey": "f1d9c7b5-ff13-4847-a733-3812a841e7a5:1",
+        "attempt": 1,
+        "revision": 1,
+        "elapsedMs": 16985,
+        "readyComponentCount": 2,
+        "isFinal": false,
+        "uiObservedWhileWorking": true,
+        "expressSha256": "6e5e63879f7dcac42c3887187ddfb8863811171c479b1a95efa9e9e8f3f39274"
+      },
+      {
+        "surfaceKey": "f1d9c7b5-ff13-4847-a733-3812a841e7a5:1",
+        "attempt": 1,
+        "revision": 2,
+        "elapsedMs": 19850,
+        "readyComponentCount": 3,
+        "isFinal": false,
+        "uiObservedWhileWorking": true,
+        "expressSha256": "b68f23d626785f288d7841c5b42af2e5939cb65cf87bb103359b0603830caea1"
+      },
+      {
+        "surfaceKey": "f1d9c7b5-ff13-4847-a733-3812a841e7a5:1",
+        "attempt": 1,
+        "revision": 3,
+        "elapsedMs": 20042,
+        "readyComponentCount": 4,
+        "isFinal": false,
+        "uiObservedWhileWorking": true,
+        "expressSha256": "a3a63680067c64f5c8400dfee879ac7f24ec2308aacc43ae9c3b5ced94afb2fc"
+      },
+      {
+        "surfaceKey": "f1d9c7b5-ff13-4847-a733-3812a841e7a5:1",
+        "attempt": 1,
+        "revision": 4,
+        "elapsedMs": 20611,
+        "readyComponentCount": 5,
+        "isFinal": false,
+        "uiObservedWhileWorking": true,
+        "expressSha256": "ca2011235a02c3c02d132a8b2af1c162eb6701a94d2e19bcf028a4fe3e61c431"
+      },
+      {
+        "surfaceKey": "f1d9c7b5-ff13-4847-a733-3812a841e7a5:1",
+        "attempt": 1,
+        "revision": 5,
+        "elapsedMs": 22761,
+        "readyComponentCount": 6,
+        "isFinal": false,
+        "uiObservedWhileWorking": true,
+        "expressSha256": "ff130ddcd47ff55e2ed6612d1aed68e7f7a3067bcaa98daefa8aa8da369ee6a2"
+      },
+      {
+        "surfaceKey": "f1d9c7b5-ff13-4847-a733-3812a841e7a5:1",
+        "attempt": 1,
+        "revision": 6,
+        "elapsedMs": 23920,
+        "readyComponentCount": 6,
+        "isFinal": true,
+        "uiObservedWhileWorking": false,
+        "expressSha256": "ff130ddcd47ff55e2ed6612d1aed68e7f7a3067bcaa98daefa8aa8da369ee6a2"
+      }
+    ],
+    "liveScreenshotCaptured": false,
+    "metrics": {
+      "reportedAttempts": 1,
+      "inputTokens": 3329,
+      "outputTokens": 488,
+      "nativeDecodeTokensPerSecond": 32.39082977839142,
+      "requestAverageTokensPerSecond": 21.259699655848035,
+      "providerCallElapsedNanos": 22954228324,
+      "nativeEngineInitializationNanos": 4973015414,
+      "nativePrefillElapsedNanos": 2901732186,
+      "nativeDecodeElapsedNanos": 15065992546,
+      "validationAndRecoveryElapsedNanos": 58771676,
+      "mtpEnabled": true,
+      "mtpAcceptanceRate": 0.753333,
+      "attempts": [
+        {
+          "engineInitializedForRequest": true,
+          "inputTokens": 3329,
+          "nativeDecodeTokensPerSecond": 32.39082977839142,
+          "nativeEngineInitializationSeconds": 4.973015414,
+          "nativeInitializationPhaseSeconds": 10.029572651,
+          "nativePrefillTokensPerSecond": 1147.2457782497781,
+          "nativeTimeToFirstTokenSeconds": 2.9326051215,
+          "outputTokens": 488,
+          "providerCallElapsedNanos": 22954228324
+        }
+      ]
+    },
+    "finalExpressSha256": "ff130ddcd47ff55e2ed6612d1aed68e7f7a3067bcaa98daefa8aa8da369ee6a2",
+    "finalSnapshotMatchesDocument": true
+  },
+  {
+    "fixtureId": "BXP-011",
+    "streamingEnabled": true,
+    "phase": "COMPLETE",
+    "error": null,
+    "status": "Ready · 26040 ms · 1 attempt(s)",
+    "runtime": "LiteRT-LM/Gemma4/GPU+FP16_CORRECTED+MTP",
+    "repairKind": "NONE",
+    "conversionElapsedMs": 26040,
+    "sessionWallElapsedMs": 27099,
+    "firstPreviewElapsedMs": 19163,
+    "firstPreviewFrameElapsedMs": 19196,
+    "previewSnapshotCount": 7,
+    "finalReadyComponentCount": 8,
+    "observedNativeRevisions": [
+      {
+        "surfaceKey": "8a9e3c46-3bc8-4df9-a9fa-6153f5f6ac3b:1",
+        "attempt": 1,
+        "revision": 1,
+        "elapsedMs": 19163,
+        "readyComponentCount": 2,
+        "isFinal": false,
+        "uiObservedWhileWorking": true,
+        "expressSha256": "50c6a76a960ab425b0e9bc392045bc1ab12f8bd86b413632d81eea652ec49173"
+      },
+      {
+        "surfaceKey": "8a9e3c46-3bc8-4df9-a9fa-6153f5f6ac3b:1",
+        "attempt": 1,
+        "revision": 2,
+        "elapsedMs": 22677,
+        "readyComponentCount": 3,
+        "isFinal": false,
+        "uiObservedWhileWorking": true,
+        "expressSha256": "c3c8ddf0a48928eab5a8b37c611b846898c330f1cbb370e077e8a07e4decedf6"
+      },
+      {
+        "surfaceKey": "8a9e3c46-3bc8-4df9-a9fa-6153f5f6ac3b:1",
+        "attempt": 1,
+        "revision": 3,
+        "elapsedMs": 22879,
+        "readyComponentCount": 4,
+        "isFinal": false,
+        "uiObservedWhileWorking": true,
+        "expressSha256": "8933dceb852e4f3aeb41ddfc9522b4e6a21413e230aeb2274f137592575531af"
+      },
+      {
+        "surfaceKey": "8a9e3c46-3bc8-4df9-a9fa-6153f5f6ac3b:1",
+        "attempt": 1,
+        "revision": 4,
+        "elapsedMs": 23613,
+        "readyComponentCount": 5,
+        "isFinal": false,
+        "uiObservedWhileWorking": true,
+        "expressSha256": "53abbb3cfa75b6af73f20d831e597a56b890daa189d998e264264c87b2186ce5"
+      },
+      {
+        "surfaceKey": "8a9e3c46-3bc8-4df9-a9fa-6153f5f6ac3b:1",
+        "attempt": 1,
+        "revision": 5,
+        "elapsedMs": 24483,
+        "readyComponentCount": 6,
+        "isFinal": false,
+        "uiObservedWhileWorking": true,
+        "expressSha256": "c48a5d74e598c6cfca525b8e655e4366af1583d96e9f801181526577cf8a7ca6"
+      },
+      {
+        "surfaceKey": "8a9e3c46-3bc8-4df9-a9fa-6153f5f6ac3b:1",
+        "attempt": 1,
+        "revision": 6,
+        "elapsedMs": 25113,
+        "readyComponentCount": 7,
+        "isFinal": false,
+        "uiObservedWhileWorking": true,
+        "expressSha256": "501ffa031bb28d27429f279ac509ea72ac59768d034d55859b4676ff635daea5"
+      },
+      {
+        "surfaceKey": "8a9e3c46-3bc8-4df9-a9fa-6153f5f6ac3b:1",
+        "attempt": 1,
+        "revision": 7,
+        "elapsedMs": 25985,
+        "readyComponentCount": 8,
+        "isFinal": false,
+        "uiObservedWhileWorking": true,
+        "expressSha256": "9025cf6900373a64d5e567d08b73fc4d4d7d9c87eed99660cc7829503a48199c"
+      },
+      {
+        "surfaceKey": "8a9e3c46-3bc8-4df9-a9fa-6153f5f6ac3b:1",
+        "attempt": 1,
+        "revision": 8,
+        "elapsedMs": 26980,
+        "readyComponentCount": 8,
+        "isFinal": true,
+        "uiObservedWhileWorking": false,
+        "expressSha256": "9025cf6900373a64d5e567d08b73fc4d4d7d9c87eed99660cc7829503a48199c"
+      }
+    ],
+    "liveScreenshotCaptured": false,
+    "metrics": {
+      "reportedAttempts": 1,
+      "inputTokens": 3353,
+      "outputTokens": 535,
+      "nativeDecodeTokensPerSecond": 32.69309442906196,
+      "requestAverageTokensPerSecond": 20.56054256778438,
+      "providerCallElapsedNanos": 26020714105,
+      "nativeEngineInitializationNanos": 6349454633,
+      "nativePrefillElapsedNanos": 3294376718,
+      "nativeDecodeElapsedNanos": 16364312077,
+      "validationAndRecoveryElapsedNanos": 19285895,
+      "mtpEnabled": true,
+      "mtpAcceptanceRate": 0.749495,
+      "attempts": [
+        {
+          "engineInitializedForRequest": true,
+          "inputTokens": 3353,
+          "nativeDecodeTokensPerSecond": 32.69309442906196,
+          "nativeEngineInitializationSeconds": 6.349454633,
+          "nativeInitializationPhaseSeconds": 12.788613901000002,
+          "nativePrefillTokensPerSecond": 1017.7949539528041,
+          "nativeTimeToFirstTokenSeconds": 3.324964217,
+          "outputTokens": 535,
+          "providerCallElapsedNanos": 26020714105
+        }
+      ]
+    },
+    "finalExpressSha256": "9025cf6900373a64d5e567d08b73fc4d4d7d9c87eed99660cc7829503a48199c",
+    "finalSnapshotMatchesDocument": true
+  },
+  {
+    "fixtureId": "BXP-011",
+    "streamingEnabled": false,
+    "phase": "COMPLETE",
+    "error": null,
+    "status": "Ready · 27300 ms · 1 attempt(s)",
+    "runtime": "LiteRT-LM/Gemma4/GPU+FP16_CORRECTED+MTP",
+    "repairKind": "NONE",
+    "conversionElapsedMs": 27300,
+    "sessionWallElapsedMs": 28407,
+    "firstPreviewElapsedMs": null,
+    "firstPreviewFrameElapsedMs": null,
+    "previewSnapshotCount": 0,
+    "finalReadyComponentCount": 0,
+    "observedNativeRevisions": [],
+    "liveScreenshotCaptured": false,
+    "metrics": {
+      "reportedAttempts": 1,
+      "inputTokens": 3353,
+      "outputTokens": 535,
+      "nativeDecodeTokensPerSecond": 29.689174127093494,
+      "requestAverageTokensPerSecond": 19.621152383168916,
+      "providerCallElapsedNanos": 27266492281,
+      "nativeEngineInitializationNanos": 6366623070,
+      "nativePrefillElapsedNanos": 2866547290,
+      "nativeDecodeElapsedNanos": 18020036452,
+      "validationAndRecoveryElapsedNanos": 33507719,
+      "mtpEnabled": true,
+      "mtpAcceptanceRate": 0.749495,
+      "attempts": [
+        {
+          "engineInitializedForRequest": true,
+          "inputTokens": 3353,
+          "nativeDecodeTokensPerSecond": 29.689174127093494,
+          "nativeEngineInitializationSeconds": 6.36662307,
+          "nativeInitializationPhaseSeconds": 12.819959160999998,
+          "nativePrefillTokensPerSecond": 1169.6998726296958,
+          "nativeTimeToFirstTokenSeconds": 2.9002296010000004,
+          "outputTokens": 535,
+          "providerCallElapsedNanos": 27266492281
+        }
+      ]
+    },
+    "finalExpressSha256": "9025cf6900373a64d5e567d08b73fc4d4d7d9c87eed99660cc7829503a48199c",
+    "finalSnapshotMatchesDocument": null
+  }
+]

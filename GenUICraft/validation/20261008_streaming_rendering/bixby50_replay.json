@@ -1,0 +1,523 @@
+{
+  "schema_version": 1,
+  "evidence": "Saved raw-output replay; character readiness only, not device latency or painted-frame timing.",
+  "chunk_characters": 32,
+  "mtp_selection": "on",
+  "case_count": 50,
+  "cases_with_preview_before_document_completion": 32,
+  "cases_without_any_preview": 18,
+  "mean_first_preview_character_fraction": 0.3261875023442548,
+  "median_first_preview_character_fraction": 0.3050234780160395,
+  "cases": [
+    {
+      "case_id": "BXP-001",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_001_005_mtp_on\\BXP-001\\output.express",
+      "raw_characters": 981,
+      "preview_count": 5,
+      "first_preview_characters": 288,
+      "first_preview_character_fraction": 0.29357798165137616,
+      "preview_before_document_completion": true,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "NONE"
+    },
+    {
+      "case_id": "BXP-002",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_001_005_mtp_on\\BXP-002\\output.express",
+      "raw_characters": 665,
+      "preview_count": 6,
+      "first_preview_characters": 128,
+      "first_preview_character_fraction": 0.1924812030075188,
+      "preview_before_document_completion": true,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-003",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_001_005_mtp_on\\BXP-003\\output.express",
+      "raw_characters": 1665,
+      "preview_count": 6,
+      "first_preview_characters": 704,
+      "first_preview_character_fraction": 0.4228228228228228,
+      "preview_before_document_completion": true,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-004",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_001_005_mtp_on\\BXP-004\\output.express",
+      "raw_characters": 1911,
+      "preview_count": 14,
+      "first_preview_characters": 96,
+      "first_preview_character_fraction": 0.05023547880690738,
+      "preview_before_document_completion": true,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-005",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_001_005_mtp_on\\BXP-005\\output.express",
+      "raw_characters": 1935,
+      "preview_count": 13,
+      "first_preview_characters": 128,
+      "first_preview_character_fraction": 0.06614987080103359,
+      "preview_before_document_completion": true,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-006",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_006_010_mtp_on\\BXP-006\\output.express",
+      "raw_characters": 843,
+      "preview_count": 0,
+      "preview_before_document_completion": false,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-007",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_006_010_mtp_on\\BXP-007\\output.express",
+      "raw_characters": 1453,
+      "preview_count": 10,
+      "first_preview_characters": 576,
+      "first_preview_character_fraction": 0.39642119752236754,
+      "preview_before_document_completion": true,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-008",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_006_010_mtp_on\\BXP-008\\output.express",
+      "raw_characters": 1459,
+      "preview_count": 3,
+      "first_preview_characters": 800,
+      "first_preview_character_fraction": 0.5483207676490747,
+      "preview_before_document_completion": true,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-009",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_006_010_mtp_on\\BXP-009\\output.express",
+      "raw_characters": 2208,
+      "preview_count": 6,
+      "first_preview_characters": 1632,
+      "first_preview_character_fraction": 0.7391304347826086,
+      "preview_before_document_completion": true,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-010",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_006_010_mtp_on\\BXP-010\\output.express",
+      "raw_characters": 6614,
+      "preview_count": 0,
+      "preview_before_document_completion": false,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-011",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_011_015_mtp_on\\BXP-011\\output.express",
+      "raw_characters": 1627,
+      "preview_count": 7,
+      "first_preview_characters": 928,
+      "first_preview_character_fraction": 0.5703749231714813,
+      "preview_before_document_completion": true,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "NONE"
+    },
+    {
+      "case_id": "BXP-012",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_011_015_mtp_on\\BXP-012\\output.express",
+      "raw_characters": 1990,
+      "preview_count": 8,
+      "first_preview_characters": 1184,
+      "first_preview_character_fraction": 0.5949748743718593,
+      "preview_before_document_completion": true,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-013",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_011_015_mtp_on\\BXP-013\\output.express",
+      "raw_characters": 3347,
+      "preview_count": 11,
+      "first_preview_characters": 448,
+      "first_preview_character_fraction": 0.13385121003884076,
+      "preview_before_document_completion": true,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-014",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_011_015_mtp_on\\BXP-014\\output.express",
+      "raw_characters": 1029,
+      "preview_count": 6,
+      "first_preview_characters": 320,
+      "first_preview_character_fraction": 0.3109815354713314,
+      "preview_before_document_completion": true,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "NONE"
+    },
+    {
+      "case_id": "BXP-015",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_011_015_mtp_on\\BXP-015\\output.express",
+      "raw_characters": 799,
+      "preview_count": 11,
+      "first_preview_characters": 128,
+      "first_preview_character_fraction": 0.16020025031289112,
+      "preview_before_document_completion": true,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "NONE"
+    },
+    {
+      "case_id": "BXP-016",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_016_020_mtp_on\\BXP-016\\output.express",
+      "raw_characters": 1181,
+      "preview_count": 3,
+      "first_preview_characters": 768,
+      "first_preview_character_fraction": 0.6502963590177815,
+      "preview_before_document_completion": true,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "NONE"
+    },
+    {
+      "case_id": "BXP-017",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_016_020_mtp_on\\BXP-017\\output.express",
+      "raw_characters": 535,
+      "preview_count": 4,
+      "first_preview_characters": 160,
+      "first_preview_character_fraction": 0.29906542056074764,
+      "preview_before_document_completion": true,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "NONE"
+    },
+    {
+      "case_id": "BXP-018",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_016_020_mtp_on\\BXP-018\\output.express",
+      "raw_characters": 59,
+      "preview_count": 0,
+      "preview_before_document_completion": false,
+      "baseline_accepted": false
+    },
+    {
+      "case_id": "BXP-019",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_016_020_mtp_on\\BXP-019\\output.express",
+      "raw_characters": 5097,
+      "preview_count": 7,
+      "first_preview_characters": 736,
+      "first_preview_character_fraction": 0.14439866588189132,
+      "preview_before_document_completion": true,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-020",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_016_020_mtp_on\\BXP-020\\output.express",
+      "raw_characters": 908,
+      "preview_count": 5,
+      "first_preview_characters": 128,
+      "first_preview_character_fraction": 0.14096916299559473,
+      "preview_before_document_completion": true,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-021",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_021_025_mtp_on\\BXP-021\\output.express",
+      "raw_characters": 1735,
+      "preview_count": 6,
+      "first_preview_characters": 96,
+      "first_preview_character_fraction": 0.0553314121037464,
+      "preview_before_document_completion": true,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-022",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_021_025_mtp_on\\BXP-022\\output.express",
+      "raw_characters": 1641,
+      "preview_count": 11,
+      "first_preview_characters": 96,
+      "first_preview_character_fraction": 0.05850091407678245,
+      "preview_before_document_completion": true,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-023",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_021_025_mtp_on\\BXP-023\\output.express",
+      "raw_characters": 2286,
+      "preview_count": 11,
+      "first_preview_characters": 96,
+      "first_preview_character_fraction": 0.04199475065616798,
+      "preview_before_document_completion": true,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-024",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_021_025_mtp_on\\BXP-024\\output.express",
+      "raw_characters": 712,
+      "preview_count": 0,
+      "preview_before_document_completion": false,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-025",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_021_025_mtp_on\\BXP-025\\output.express",
+      "raw_characters": 1860,
+      "preview_count": 7,
+      "first_preview_characters": 1024,
+      "first_preview_character_fraction": 0.5505376344086022,
+      "preview_before_document_completion": true,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-026",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_026_030_mtp_on\\BXP-026\\output.express",
+      "raw_characters": 3542,
+      "preview_count": 10,
+      "first_preview_characters": 2016,
+      "first_preview_character_fraction": 0.5691699604743083,
+      "preview_before_document_completion": true,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-027",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_026_030_mtp_on\\BXP-027\\output.express",
+      "raw_characters": 59,
+      "preview_count": 0,
+      "preview_before_document_completion": false,
+      "baseline_accepted": false
+    },
+    {
+      "case_id": "BXP-028",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_026_030_mtp_on\\BXP-028\\output.express",
+      "raw_characters": 4308,
+      "preview_count": 17,
+      "first_preview_characters": 128,
+      "first_preview_character_fraction": 0.029712163416898793,
+      "preview_before_document_completion": true,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-029",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_026_030_mtp_on\\BXP-029\\output.express",
+      "raw_characters": 1071,
+      "preview_count": 0,
+      "preview_before_document_completion": false,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-030",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_026_030_mtp_on\\BXP-030\\output.express",
+      "raw_characters": 1714,
+      "preview_count": 0,
+      "preview_before_document_completion": false,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-031",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_031_035_mtp_on\\BXP-031\\output.express",
+      "raw_characters": 3920,
+      "preview_count": 7,
+      "first_preview_characters": 2752,
+      "first_preview_character_fraction": 0.7020408163265306,
+      "preview_before_document_completion": true,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-032",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_031_035_mtp_on\\BXP-032\\output.express",
+      "raw_characters": 1450,
+      "preview_count": 0,
+      "preview_before_document_completion": false,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-033",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_031_035_mtp_on\\BXP-033\\output.express",
+      "raw_characters": 59,
+      "preview_count": 0,
+      "preview_before_document_completion": false,
+      "baseline_accepted": false
+    },
+    {
+      "case_id": "BXP-034",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_031_035_mtp_on\\BXP-034\\output.express",
+      "raw_characters": 2573,
+      "preview_count": 7,
+      "first_preview_characters": 576,
+      "first_preview_character_fraction": 0.22386319471434124,
+      "preview_before_document_completion": true,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-035",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_031_035_mtp_on\\BXP-035\\output.express",
+      "raw_characters": 3698,
+      "preview_count": 13,
+      "first_preview_characters": 1568,
+      "first_preview_character_fraction": 0.42401297998918336,
+      "preview_before_document_completion": true,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-036",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_036_040_mtp_on\\BXP-036\\output.express",
+      "raw_characters": 59,
+      "preview_count": 0,
+      "preview_before_document_completion": false,
+      "baseline_accepted": false
+    },
+    {
+      "case_id": "BXP-037",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_036_040_mtp_on\\BXP-037\\output.express",
+      "raw_characters": 2469,
+      "preview_count": 0,
+      "preview_before_document_completion": false,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-038",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_036_040_mtp_on\\BXP-038\\output.express",
+      "raw_characters": 184,
+      "preview_count": 0,
+      "preview_before_document_completion": false,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-039",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_036_040_mtp_on\\BXP-039\\output.express",
+      "raw_characters": 3694,
+      "preview_count": 14,
+      "first_preview_characters": 1888,
+      "first_preview_character_fraction": 0.511099079588522,
+      "preview_before_document_completion": true,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-040",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_036_040_mtp_on\\BXP-040\\output.express",
+      "raw_characters": 3487,
+      "preview_count": 0,
+      "preview_before_document_completion": false,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-041",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_041_045_mtp_on\\BXP-041\\output.express",
+      "raw_characters": 3048,
+      "preview_count": 6,
+      "first_preview_characters": 1952,
+      "first_preview_character_fraction": 0.6404199475065617,
+      "preview_before_document_completion": true,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "NONE"
+    },
+    {
+      "case_id": "BXP-042",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_041_045_mtp_on\\BXP-042\\output.express",
+      "raw_characters": 2134,
+      "preview_count": 7,
+      "first_preview_characters": 704,
+      "first_preview_character_fraction": 0.32989690721649484,
+      "preview_before_document_completion": true,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-043",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_041_045_mtp_on\\BXP-043\\output.express",
+      "raw_characters": 3120,
+      "preview_count": 10,
+      "first_preview_characters": 96,
+      "first_preview_character_fraction": 0.03076923076923077,
+      "preview_before_document_completion": true,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-044",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_041_045_mtp_on\\BXP-044\\output.express",
+      "raw_characters": 672,
+      "preview_count": 0,
+      "preview_before_document_completion": false,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-045",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_041_045_mtp_on\\BXP-045\\output.express",
+      "raw_characters": 458,
+      "preview_count": 0,
+      "preview_before_document_completion": false,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-046",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_046_050_mtp_on\\BXP-046\\output.express",
+      "raw_characters": 3613,
+      "preview_count": 19,
+      "first_preview_characters": 128,
+      "first_preview_character_fraction": 0.035427622474398006,
+      "preview_before_document_completion": true,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-047",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_046_050_mtp_on\\BXP-047\\output.express",
+      "raw_characters": 3624,
+      "preview_count": 7,
+      "first_preview_characters": 1888,
+      "first_preview_character_fraction": 0.5209713024282561,
+      "preview_before_document_completion": true,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-048",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_046_050_mtp_on\\BXP-048\\output.express",
+      "raw_characters": 470,
+      "preview_count": 0,
+      "preview_before_document_completion": false,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-049",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_046_050_mtp_on\\BXP-049\\output.express",
+      "raw_characters": 1578,
+      "preview_count": 0,
+      "preview_before_document_completion": false,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-050",
+      "source": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260930_r32_bixby50_gpu_fp32\\devices\\fold7\\batches\\cases_046_050_mtp_on\\BXP-050\\output.express",
+      "raw_characters": 783,
+      "preview_count": 0,
+      "preview_before_document_completion": false,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    }
+  ]
+}

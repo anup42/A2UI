@@ -1,11 +1,32 @@
 package com.samsung.genuicraft.sdk
 
 import com.samsung.genuicraft.sdk.internal.renderer.FlatRenderEvent
+import com.samsung.genuicraft.sdk.internal.renderer.flat.model.FlatElement
+import com.samsung.genuicraft.sdk.internal.renderer.flat.model.FlatSpec
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class GenUiContentActionTest {
+    @Test
+    fun previewProjectionRemovesEventAndWatchBindingsWithoutMutatingTheFinalSpec() {
+        val binding = mapOf("action" to "setState", "params" to mapOf("statePath" to "/count", "value" to 1.0))
+        val element = FlatElement(
+            type = "Button", props = mapOf("text" to "Continue"), children = emptyList(),
+            on = mapOf("press" to binding), watch = mapOf("/count" to binding),
+        )
+        val spec = FlatSpec("button", mapOf("count" to 0.0), mapOf("button" to element))
+
+        val preview = spec.withoutPreviewBindings()
+
+        assertEquals(null, preview.elements.getValue("button").on)
+        assertEquals(null, preview.elements.getValue("button").watch)
+        assertEquals(spec.state, preview.state)
+        assertEquals(element.props, preview.elements.getValue("button").props)
+        assertEquals(mapOf("press" to binding), spec.elements.getValue("button").on)
+        assertEquals(mapOf("/count" to binding), spec.elements.getValue("button").watch)
+    }
+
     @Test
     fun openUrlIsDeliveredToTheHostWithoutLaunchingAnIntent() {
         val actions = mutableListOf<GenUiAction>()

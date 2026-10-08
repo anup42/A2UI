@@ -1,0 +1,26 @@
+10-08 23:27:55.037 23564 23634 I GenUICraftFp16: Installed scoped Q/DQ adapter: libLiteRt.so
+10-08 23:27:55.037 23564 23634 I GenUICraftFp16: Installed scoped Q/DQ adapter: libLiteRtTopKOpenClSampler.so
+10-08 23:27:55.037 23564 23634 I GenUICraftFp16: Installed scoped Q/DQ adapter: libLiteRtOpenClAccelerator.so
+10-08 23:27:55.037 23564 23634 I GenUICraftFp16: Installed scoped Q/DQ adapter: liblitertlm_jni.so
+10-08 23:28:06.217 23564 23634 I GenUICraftRuntime: Gemma4 backend=GPU; precision=FP16_CORRECTED; MTP=true; MTPRequested=true; modelSupportsMtp=true; thinking=false; metrics=true; model=/storage/emulated/0/Android/data/com.samsung.genuicraft/files/sdk_models/model-fp16-corrected.litertlm
+10-08 23:28:14.772 23564 23634 I GenUICraftFp16: policy=genuicraft-fp16-rope-qdq-v1 source_programs=235; qdq_programs=49; qdq_blocks=206; rejected=0
+10-08 23:28:21.308 23564 23634 I GenUICraftRuntime: Gemma4 backend=GPU; precision=FP16_CORRECTED; MTP=true; MTPRequested=true; modelSupportsMtp=true; thinking=false; metrics=true; model=/storage/emulated/0/Android/data/com.samsung.genuicraft/files/sdk_models/model-fp16-corrected.litertlm
+10-08 23:28:30.327 23564 23634 I GenUICraftFp16: policy=genuicraft-fp16-rope-qdq-v1 source_programs=302; qdq_programs=49; qdq_blocks=206; rejected=0
+10-08 23:28:37.257 23564 23634 I GenUICraftRuntime: Gemma4 backend=GPU; precision=FP16_CORRECTED; MTP=true; MTPRequested=true; modelSupportsMtp=true; thinking=false; metrics=true; model=/storage/emulated/0/Android/data/com.samsung.genuicraft/files/sdk_models/model-fp16-corrected.litertlm
+10-08 23:28:47.348 23564 23634 I GenUICraftFp16: policy=genuicraft-fp16-rope-qdq-v1 source_programs=369; qdq_programs=49; qdq_blocks=206; rejected=0
+10-08 23:28:53.889 23564 23634 I GenUICraftRuntime: Gemma4 backend=GPU; precision=FP16_CORRECTED; MTP=true; MTPRequested=true; modelSupportsMtp=true; thinking=false; metrics=true; model=/storage/emulated/0/Android/data/com.samsung.genuicraft/files/sdk_models/model-fp16-corrected.litertlm
+10-08 23:29:11.879 23564 23634 I GenUICraftFp16: policy=genuicraft-fp16-rope-qdq-v1 source_programs=436; qdq_programs=49; qdq_blocks=206; rejected=0
+10-08 23:29:18.682 23564 23634 I GenUICraftRuntime: Gemma4 backend=GPU; precision=FP16_CORRECTED; MTP=true; MTPRequested=true; modelSupportsMtp=true; thinking=false; metrics=true; model=/storage/emulated/0/Android/data/com.samsung.genuicraft/files/sdk_models/model-fp16-corrected.litertlm
+10-08 23:29:36.724 23564 23634 I GenUICraftFp16: policy=genuicraft-fp16-rope-qdq-v1 source_programs=503; qdq_programs=49; qdq_blocks=206; rejected=0
+10-08 23:29:44.035 23564 23634 I GenUICraftRuntime: Gemma4 backend=GPU; precision=FP16_CORRECTED; MTP=true; MTPRequested=true; modelSupportsMtp=true; thinking=false; metrics=true; model=/storage/emulated/0/Android/data/com.samsung.genuicraft/files/sdk_models/model-fp16-corrected.litertlm
+10-08 23:29:58.834 23564 23634 I GenUICraftFp16: policy=genuicraft-fp16-rope-qdq-v1 source_programs=570; qdq_programs=49; qdq_blocks=206; rejected=0
+10-08 23:30:06.216 23564 23634 I GenUICraftRuntime: Gemma4 backend=GPU; precision=FP16_CORRECTED; MTP=true; MTPRequested=true; modelSupportsMtp=true; thinking=false; metrics=true; model=/storage/emulated/0/Android/data/com.samsung.genuicraft/files/sdk_models/model-fp16-corrected.litertlm
+10-08 23:30:20.905 23564 23634 I GenUICraftFp16: policy=genuicraft-fp16-rope-qdq-v1 source_programs=637; qdq_programs=49; qdq_blocks=206; rejected=0
+10-08 23:30:28.024 23564 23634 I GenUICraftRuntime: Gemma4 backend=GPU; precision=FP16_CORRECTED; MTP=true; MTPRequested=true; modelSupportsMtp=true; thinking=false; metrics=true; model=/storage/emulated/0/Android/data/com.samsung.genuicraft/files/sdk_models/model-fp16-corrected.litertlm
+10-08 23:30:45.345 23564 23634 I GenUICraftFp16: policy=genuicraft-fp16-rope-qdq-v1 source_programs=704; qdq_programs=49; qdq_blocks=206; rejected=0
+10-08 23:30:51.973 23564 23634 I GenUICraftRuntime: Gemma4 backend=GPU; precision=FP16_CORRECTED; MTP=true; MTPRequested=true; modelSupportsMtp=true; thinking=false; metrics=true; model=/storage/emulated/0/Android/data/com.samsung.genuicraft/files/sdk_models/model-fp16-corrected.litertlm
+10-08 23:31:09.953 23564 23634 I GenUICraftFp16: policy=genuicraft-fp16-rope-qdq-v1 source_programs=771; qdq_programs=49; qdq_blocks=206; rejected=0
+10-08 23:31:18.063 23564 23634 I GenUICraftRuntime: Gemma4 backend=GPU; precision=FP16_CORRECTED; MTP=true; MTPRequested=true; modelSupportsMtp=true; thinking=false; metrics=true; model=/storage/emulated/0/Android/data/com.samsung.genuicraft/files/sdk_models/model-fp16-corrected.litertlm
+10-08 23:31:37.733 23564 23634 I GenUICraftFp16: policy=genuicraft-fp16-rope-qdq-v1 source_programs=838; qdq_programs=49; qdq_blocks=206; rejected=0
+10-08 23:31:45.677 23564 23634 I GenUICraftRuntime: Gemma4 backend=GPU; precision=FP16_CORRECTED; MTP=true; MTPRequested=true; modelSupportsMtp=true; thinking=false; metrics=true; model=/storage/emulated/0/Android/data/com.samsung.genuicraft/files/sdk_models/model-fp16-corrected.litertlm
+10-08 23:32:06.576 23564 23634 I GenUICraftFp16: policy=genuicraft-fp16-rope-qdq-v1 source_programs=905; qdq_programs=49; qdq_blocks=206; rejected=0

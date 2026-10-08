@@ -126,7 +126,8 @@ internal class DefaultFlatRendererHost(
 class FlatSpecStateHolder(initial: Map<String, Any?>) {
 
     val state: SnapshotStateMap<String, Any?> =
-        mutableStateMapOf<String, Any?>().apply { putAll(initial) }
+        mutableStateMapOf<String, Any?>().apply { putAll(copyGeneratedState(initial)) }
+    private var generatedState = copyGeneratedState(initial)
 
     fun setAtPath(path: String, value: Any?) {
         val normalized = normalizePointer(path)
@@ -152,11 +153,93 @@ class FlatSpecStateHolder(initial: Map<String, Any?>) {
     /** Replaces state wholesale, e.g. on an explicit surface reset. */
     fun reset(values: Map<String, Any?>) {
         state.clear()
-        state.putAll(values)
+        state.putAll(copyGeneratedState(values))
+        generatedState = copyGeneratedState(values)
     }
 
     fun snapshot(): Map<String, Any?> = state.toMap()
+
+    /**
+     * Applies a new generated snapshot without overwriting compatible local edits.
+     * Unedited values follow the generator; removed generated fields and changed
+     * value types follow the new snapshot. Local-only fields survive until reset.
+     */
+    fun mergeGeneratedState(values: Map<String, Any?>) {
+        if (deepEquals(generatedState, values)) return
+        val merged = mergeGeneratedMaps(generatedState, state.toMap(), values)
+        state.keys.toList().filterNot(merged::containsKey).forEach { state.remove(it) }
+        merged.forEach { (key, value) ->
+            if (!state.containsKey(key) || !deepEquals(state[key], value)) state[key] = value
+        }
+        generatedState = copyGeneratedState(values)
+    }
 }
+
+private fun copyGeneratedState(values: Map<String, Any?>): Map<String, Any?> =
+    values.mapValues { (_, value) -> deepCopyValue(value) }
+
+private fun mergeGeneratedMaps(
+    previous: Map<*, *>,
+    current: Map<*, *>,
+    incoming: Map<*, *>,
+): Map<String, Any?> {
+    val merged = linkedMapOf<String, Any?>()
+    incoming.forEach { (rawKey, value) ->
+        val key = rawKey.toString()
+        if (!previous.containsKey(key) || !current.containsKey(key)) {
+            // A compatible local deletion remains deleted.
+            if (!previous.containsKey(key) || current.containsKey(key) ||
+                !compatibleGeneratedValues(previous[key], value)
+            ) merged[key] = deepCopyValue(value)
+        } else {
+            merged[key] = mergeGeneratedValue(previous[key], current[key], value)
+        }
+    }
+    current.forEach { (rawKey, value) ->
+        val key = rawKey.toString()
+        if (!previous.containsKey(key) && !incoming.containsKey(key)) merged[key] = deepCopyValue(value)
+    }
+    return merged
+}
+
+private fun mergeGeneratedValue(previous: Any?, current: Any?, incoming: Any?): Any? {
+    if (deepEquals(previous, current)) return deepCopyValue(incoming)
+    if (!compatibleGeneratedValues(previous, incoming) ||
+        (current != null && !compatibleGeneratedValues(current, incoming))
+    ) return deepCopyValue(incoming)
+    if (previous is Map<*, *> && current is Map<*, *> && incoming is Map<*, *>) {
+        // A reordered/replaced entity must not inherit another entity's edits.
+        if (previous.containsKey("id") && incoming.containsKey("id") &&
+            !deepEquals(previous["id"], incoming["id"])
+        ) return deepCopyValue(incoming)
+        return mergeGeneratedMaps(previous, current, incoming)
+    }
+    if (previous is List<*> && current is List<*> && incoming is List<*>) {
+        if (current.size != previous.size) return deepCopyValue(incoming)
+        return incoming.mapIndexed { index, value ->
+            if (index < previous.size) mergeGeneratedValue(previous[index], current[index], value)
+            else deepCopyValue(value)
+        }
+    }
+    return deepCopyValue(current)
+}
+
+private fun compatibleGeneratedValues(left: Any?, right: Any?): Boolean = when {
+    left == null || right == null -> left == null && right == null
+    left is Map<*, *> -> right is Map<*, *>
+    left is List<*> -> right is List<*>
+    left is Number -> right is Number
+    left is String -> right is String
+    left is Boolean -> right is Boolean
+    else -> left::class == right::class
+}
+
+/** Gate before execution, including local mutations that never reach a host callback. */
+internal inline fun executeFlatRenderAction(
+    interactionEnabled: Boolean,
+    execute: () -> FlatActionExecutionResult,
+): FlatActionExecutionResult =
+    if (interactionEnabled) execute() else FlatActionExecutionResult(emptyList())
 
 /**
  * Remembers a holder keyed on [key].

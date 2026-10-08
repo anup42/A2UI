@@ -1,0 +1,113 @@
+{
+  "completedPairs": 5,
+  "reports": 10,
+  "successfulConversions": 10,
+  "streamingCasesWithPreFinalNativeUi": 5,
+  "warmup": {
+    "fixtureId": "BXP-001",
+    "streamingEnabled": true,
+    "phase": "COMPLETE",
+    "error": null,
+    "status": "Ready · 19819 ms · 1 attempt(s)",
+    "runtime": "LiteRT-LM/Gemma4/GPU+FP16_CORRECTED+MTP",
+    "repairKind": "NONE",
+    "conversionElapsedMs": 19819,
+    "sessionWallElapsedMs": 20786,
+    "firstPreviewElapsedMs": 16412,
+    "firstPreviewFrameElapsedMs": 16504,
+    "previewSnapshotCount": 5,
+    "finalReadyComponentCount": 6,
+    "observedNativeRevisions": [
+      {
+        "surfaceKey": "340b96de-799d-4992-af0f-e2c26abb6ee9:1",
+        "attempt": 1,
+        "revision": 1,
+        "elapsedMs": 16412,
+        "readyComponentCount": 2,
+        "isFinal": false,
+        "uiObservedWhileWorking": true,
+        "expressSha256": "9d123cbb8b3f5108c3312690d5f3fbbfcdde139e749ae21b537d8597906ef0b3"
+      },
+      {
+        "surfaceKey": "340b96de-799d-4992-af0f-e2c26abb6ee9:1",
+        "attempt": 1,
+        "revision": 2,
+        "elapsedMs": 18015,
+        "readyComponentCount": 3,
+        "isFinal": false,
+        "uiObservedWhileWorking": true,
+        "expressSha256": "a68876f737bafb9b85a80cfae8adadd0ed92a969e86dc5918e06b5f225a69331"
+      },
+      {
+        "surfaceKey": "340b96de-799d-4992-af0f-e2c26abb6ee9:1",
+        "attempt": 1,
+        "revision": 3,
+        "elapsedMs": 18878,
+        "readyComponentCount": 4,
+        "isFinal": false,
+        "uiObservedWhileWorking": true,
+        "expressSha256": "272a6459c552029cb00f789a3f53ce34f60ca3239b24fe57baac8095eb2b12f8"
+      },
+      {
+        "surfaceKey": "340b96de-799d-4992-af0f-e2c26abb6ee9:1",
+        "attempt": 1,
+        "revision": 4,
+        "elapsedMs": 19254,
+        "readyComponentCount": 5,
+        "isFinal": false,
+        "uiObservedWhileWorking": true,
+        "expressSha256": "16df22975c90338f9903e9801e8bb9d3711f40335d7a8b45efbf86ff9f1bb860"
+      },
+      {
+        "surfaceKey": "340b96de-799d-4992-af0f-e2c26abb6ee9:1",
+        "attempt": 1,
+        "revision": 5,
+        "elapsedMs": 19667,
+        "readyComponentCount": 6,
+        "isFinal": false,
+        "uiObservedWhileWorking": true,
+        "expressSha256": "59671e3b384c5410c8dfe6883c1d6b18a51009c8c69b54737c9b4c5a4af4b5db"
+      },
+      {
+        "surfaceKey": "340b96de-799d-4992-af0f-e2c26abb6ee9:1",
+        "attempt": 1,
+        "revision": 6,
+        "elapsedMs": 20626,
+        "readyComponentCount": 6,
+        "isFinal": true,
+        "uiObservedWhileWorking": false,
+        "expressSha256": "59671e3b384c5410c8dfe6883c1d6b18a51009c8c69b54737c9b4c5a4af4b5db"
+      }
+    ],
+    "liveScreenshotCaptured": true,
+    "metrics": {
+      "reportedAttempts": 1,
+      "inputTokens": 3174,
+      "outputTokens": 302,
+      "nativeDecodeTokensPerSecond": 50.63358391200454,
+      "requestAverageTokensPerSecond": 15.267070460425357,
+      "providerCallElapsedNanos": 19781136190,
+      "nativeEngineInitializationNanos": 11179975152,
+      "nativePrefillElapsedNanos": 2574447135,
+      "nativeDecodeElapsedNanos": 5964420779,
+      "validationAndRecoveryElapsedNanos": 37863810,
+      "mtpEnabled": true,
+      "mtpAcceptanceRate": 0.650327,
+      "attempts": [
+        {
+          "engineInitializedForRequest": true,
+          "inputTokens": 3174,
+          "nativeDecodeTokensPerSecond": 50.63358391200454,
+          "nativeEngineInitializationSeconds": 11.179975152,
+          "nativeInitializationPhaseSeconds": 18.543699158000003,
+          "nativePrefillTokensPerSecond": 1232.886065846522,
+          "nativeTimeToFirstTokenSeconds": 2.5941968725000004,
+          "outputTokens": 302,
+          "providerCallElapsedNanos": 19781136190
+        }
+      ]
+    },
+    "finalExpressSha256": "59671e3b384c5410c8dfe6883c1d6b18a51009c8c69b54737c9b4c5a4af4b5db",
+    "finalSnapshotMatchesDocument": true
+  }
+}

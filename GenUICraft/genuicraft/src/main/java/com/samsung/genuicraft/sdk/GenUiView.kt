@@ -9,6 +9,7 @@ import android.widget.FrameLayout
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.widget.NestedScrollView
@@ -71,11 +72,36 @@ class GenUiView(
     /** Hide the SDK source disclosure when the host already renders its own sources footer. */
     var showSources by mutableStateOf(true)
 
+    private data class RenderedContent(
+        val document: GenUiDocument,
+        val snapshot: GenUiRenderSnapshot?,
+        val identity: Long,
+    )
+    private var contentIdentity = 0L
+    private var renderedContent by mutableStateOf<RenderedContent?>(null)
+    internal val currentRenderSnapshot: GenUiRenderSnapshot?
+        get() = renderedContent?.snapshot
+
     init {
         addView(
             scrollView,
             LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT),
         )
+        composeView.setContent {
+            renderedContent?.let { content ->
+                key(content.identity) {
+                    GenUiContentImpl(
+                        document = content.document,
+                        onAction = { action -> this@GenUiView.onAction(action) },
+                        showSources = showSources,
+                        onSourcePreviewChanged = ::onSourcePreviewChanged,
+                        embeddedMode = embeddedModeState,
+                        surfaceKey = content.snapshot?.surfaceKey,
+                        interactionEnabled = content.snapshot?.isFinal ?: true,
+                    )
+                }
+            }
+        }
     }
 
     fun render(document: GenUiDocument) {
@@ -85,15 +111,28 @@ class GenUiView(
         hasRenderedContent = true
         updateBackgroundColor()
         if (!embeddedMode) scrollView.scrollTo(0, 0)
-        composeView.setContent {
-            GenUiContentImpl(
-                document = document,
-                onAction = { action -> this@GenUiView.onAction(action) },
-                showSources = showSources,
-                onSourcePreviewChanged = ::onSourcePreviewChanged,
-                embeddedMode = embeddedModeState,
-            )
+        renderedContent = RenderedContent(document, null, ++contentIdentity)
+        requestLayout()
+    }
+
+    /**
+     * Applies an accepted snapshot on the main thread without remounting the
+     * current surface or resetting its scroll/source disclosure state.
+     * Older revisions and a preview arriving after finalization are ignored.
+     */
+    fun renderSnapshot(snapshot: GenUiRenderSnapshot) {
+        val current = currentRenderSnapshot
+        if (!shouldAcceptRenderSnapshot(current, snapshot)) return
+        if (current?.surfaceKey != snapshot.surfaceKey) {
+            contentIdentity++
+            previewRevision++
+            previewScrollPosition = null
+            if (!embeddedMode) scrollView.scrollTo(0, 0)
         }
+        invalidateContentSizeReport()
+        hasRenderedContent = true
+        updateBackgroundColor()
+        renderedContent = RenderedContent(snapshot.document, snapshot, contentIdentity)
         requestLayout()
     }
 
@@ -106,7 +145,7 @@ class GenUiView(
         previewScrollPosition = null
         hasRenderedContent = false
         invalidateContentSizeReport()
-        composeView.setContent {}
+        renderedContent = null
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -199,4 +238,12 @@ class GenUiView(
             }
         }
     }
+}
+
+internal fun shouldAcceptRenderSnapshot(current: GenUiRenderSnapshot?, incoming: GenUiRenderSnapshot): Boolean {
+    if (current == null || current.surfaceKey != incoming.surfaceKey) return true
+    if (current.isFinal && !incoming.isFinal) return false
+    if (incoming.attempt != current.attempt) return incoming.attempt > current.attempt
+    return incoming.revision > current.revision ||
+        (incoming.revision == current.revision && incoming.isFinal && !current.isFinal)
 }

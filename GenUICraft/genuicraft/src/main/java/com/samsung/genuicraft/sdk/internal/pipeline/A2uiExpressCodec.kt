@@ -16,18 +16,18 @@ import com.google.gson.JsonPrimitive
 internal object A2uiExpressCodec {
     private const val OPEN = "<a2ui>"
     private const val CLOSE = "</a2ui>"
-    private const val MAX_INPUT_CHARS = 120_000
-    private const val MAX_STATEMENTS = 1_024
-    private const val MAX_ELEMENTS = 1_024
-    private const val MAX_EXPRESSION_DEPTH = 64
+    internal const val MAX_INPUT_CHARS = 120_000
+    internal const val MAX_STATEMENTS = 1_024
+    internal const val MAX_ELEMENTS = 1_024
+    internal const val MAX_EXPRESSION_DEPTH = 64
 
     fun looksLike(text: String?): Boolean {
         val value = text?.trim().orEmpty()
         return value.contains(OPEN) || value.lineSequence().any { it.trimStart().startsWith("root=") || it.trimStart().startsWith("root =") }
     }
 
-    fun encode(flatSpec: JsonObject): String {
-        val source = CanonicalGraphIdRewriter.rewrite(flatSpec, shorten = true, reserveRoot = true)
+    fun encode(flatSpec: JsonObject, shortenIds: Boolean = true): String {
+        val source = CanonicalGraphIdRewriter.rewrite(flatSpec, shorten = shortenIds, reserveRoot = true)
         val lines = mutableListOf(OPEN)
         source.get("state")?.takeIf { it.isJsonObject && it.asJsonObject.size() > 0 }
             ?.let { lines += "$/=${it}" }
@@ -113,6 +113,13 @@ internal object A2uiExpressCodec {
         require(text.length <= MAX_INPUT_CHARS) {
             "A2UI Express input exceeds $MAX_INPUT_CHARS characters."
         }
+        return decodeStatements(statements(text))
+    }
+
+    /** Shared strict statement parser; streaming callers retain unfinished syntax separately. */
+    internal fun decodeStatements(statements: List<String>, requireRoot: Boolean = true): JsonObject {
+        require(statements.size <= MAX_STATEMENTS) { "Too many A2UI Express statements." }
+        require(statements.sumOf { it.length } <= MAX_INPUT_CHARS) { "A2UI Express input is too large." }
         val state = JsonObject()
         val elements = JsonObject()
         var inlineCounter = 0
@@ -225,7 +232,7 @@ internal object A2uiExpressCodec {
             return id
         }
 
-        statements(text).forEach { statement ->
+        statements.forEach { statement ->
             val (lhs, rhs) = splitAssignment(statement)
             val parser = Parser(rhs)
             val value = parser.parseValue()
@@ -243,12 +250,19 @@ internal object A2uiExpressCodec {
                 materialize(lhs, call)
             }
         }
-        require(elements.has("root")) { "A2UI Express requires reserved root component." }
+        require(!requireRoot || elements.has("root")) { "A2UI Express requires reserved root component." }
         return JsonObject().apply {
             addProperty("root", "root")
             add("state", state)
             add("elements", elements)
         }
+    }
+
+    /** Parse an already closed literal prefix with the exact production expression grammar. */
+    internal fun literalPrefix(source: String): Pair<JsonElement, Int> {
+        val parser = Parser(source)
+        val value = expressionJson(parser.parseValue())
+        return value to parser.position
     }
 
     private val actionPositional = mapOf(
@@ -541,7 +555,7 @@ internal object A2uiExpressCodec {
         return out
     }
 
-    private fun splitAssignment(statement: String): Pair<String, String> {
+    internal fun splitAssignment(statement: String): Pair<String, String> {
         var depth = 0
         var index = 0
         var inString = false
@@ -628,6 +642,7 @@ internal object A2uiExpressCodec {
 
     private class Parser(private val source: String) {
         private var index = 0
+        val position: Int get() = index
         private var expressionDepth = 0
         fun requireComplete() { skipWhitespace(); require(index == source.length) { "Trailing A2UI Express syntax at $index." } }
         fun parseValue(): Expr {

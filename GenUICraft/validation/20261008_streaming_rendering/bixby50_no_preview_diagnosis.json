@@ -1,0 +1,216 @@
+{
+  "schema_version": 1,
+  "evidence": "Read-only diagnosis of saved raw-output replay, not a device latency or painted-frame measurement.",
+  "replay_report": "bixby50_replay.json",
+  "corpus": "GenUICraft/validation/20260930_r32_bixby50_gpu_fp32",
+  "mtp_selection": "on",
+  "replay_chunk_characters": 32,
+  "cases_total": 50,
+  "early_preview_cases": 32,
+  "no_preview_cases": 18,
+  "no_preview_terminal_generated_dsl_repair_accepted": 14,
+  "no_preview_terminal_rejected": 4,
+  "fenced_or_bom_wrappers_among_no_preview_cases": 0,
+  "recommendation": "Retain strict live parsing. None of these cases is fixed by fence or BOM normalization; leave root/type inference and unbound-state salvage to terminal repair.",
+  "categories": [
+    {
+      "category": "completed_state_then_unfinished_root",
+      "count": 11,
+      "case_ids": [
+        "BXP-006",
+        "BXP-024",
+        "BXP-029",
+        "BXP-030",
+        "BXP-032",
+        "BXP-037",
+        "BXP-044",
+        "BXP-045",
+        "BXP-048",
+        "BXP-049",
+        "BXP-050"
+      ],
+      "reason": "State values are complete, but root references and component signatures never arrive. Live display would require inventing presentation or hierarchy."
+    },
+    {
+      "category": "unfinished_root_only",
+      "count": 4,
+      "case_ids": [
+        "BXP-018",
+        "BXP-027",
+        "BXP-033",
+        "BXP-036"
+      ],
+      "reason": "Only a 59-character unfinished root child list is present. No complete visible component or state exists; final baseline rejects all four."
+    },
+    {
+      "category": "unfinished_state_without_root",
+      "count": 1,
+      "case_ids": [
+        "BXP-010"
+      ],
+      "reason": "The state literal is truncated and there is no root or Table signature. Terminal generated-content salvage succeeds; live preview holds."
+    },
+    {
+      "category": "bare_component_without_root_assignment",
+      "count": 1,
+      "case_ids": [
+        "BXP-038"
+      ],
+      "reason": "A complete bare Text call has no root assignment. Naming or promoting it during streaming would change the strict assignment contract."
+    },
+    {
+      "category": "unsupported_root_component",
+      "count": 1,
+      "case_ids": [
+        "BXP-040"
+      ],
+      "reason": "The root uses unsupported ColumnWave rather than a catalog component; the final Button action is also truncated. Live preview does not guess a component type."
+    }
+  ],
+  "cases": [
+    {
+      "case_id": "BXP-006",
+      "category": "completed_state_then_unfinished_root",
+      "source": "GenUICraft/validation/20260930_r32_bixby50_gpu_fp32/devices/fold7/batches/cases_006_010_mtp_on/BXP-006/output.express",
+      "raw_characters": 843,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-024",
+      "category": "completed_state_then_unfinished_root",
+      "source": "GenUICraft/validation/20260930_r32_bixby50_gpu_fp32/devices/fold7/batches/cases_021_025_mtp_on/BXP-024/output.express",
+      "raw_characters": 712,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-029",
+      "category": "completed_state_then_unfinished_root",
+      "source": "GenUICraft/validation/20260930_r32_bixby50_gpu_fp32/devices/fold7/batches/cases_026_030_mtp_on/BXP-029/output.express",
+      "raw_characters": 1071,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-030",
+      "category": "completed_state_then_unfinished_root",
+      "source": "GenUICraft/validation/20260930_r32_bixby50_gpu_fp32/devices/fold7/batches/cases_026_030_mtp_on/BXP-030/output.express",
+      "raw_characters": 1714,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-032",
+      "category": "completed_state_then_unfinished_root",
+      "source": "GenUICraft/validation/20260930_r32_bixby50_gpu_fp32/devices/fold7/batches/cases_031_035_mtp_on/BXP-032/output.express",
+      "raw_characters": 1450,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-037",
+      "category": "completed_state_then_unfinished_root",
+      "source": "GenUICraft/validation/20260930_r32_bixby50_gpu_fp32/devices/fold7/batches/cases_036_040_mtp_on/BXP-037/output.express",
+      "raw_characters": 2469,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-044",
+      "category": "completed_state_then_unfinished_root",
+      "source": "GenUICraft/validation/20260930_r32_bixby50_gpu_fp32/devices/fold7/batches/cases_041_045_mtp_on/BXP-044/output.express",
+      "raw_characters": 672,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-045",
+      "category": "completed_state_then_unfinished_root",
+      "source": "GenUICraft/validation/20260930_r32_bixby50_gpu_fp32/devices/fold7/batches/cases_041_045_mtp_on/BXP-045/output.express",
+      "raw_characters": 458,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-048",
+      "category": "completed_state_then_unfinished_root",
+      "source": "GenUICraft/validation/20260930_r32_bixby50_gpu_fp32/devices/fold7/batches/cases_046_050_mtp_on/BXP-048/output.express",
+      "raw_characters": 470,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-049",
+      "category": "completed_state_then_unfinished_root",
+      "source": "GenUICraft/validation/20260930_r32_bixby50_gpu_fp32/devices/fold7/batches/cases_046_050_mtp_on/BXP-049/output.express",
+      "raw_characters": 1578,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-050",
+      "category": "completed_state_then_unfinished_root",
+      "source": "GenUICraft/validation/20260930_r32_bixby50_gpu_fp32/devices/fold7/batches/cases_046_050_mtp_on/BXP-050/output.express",
+      "raw_characters": 783,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-018",
+      "category": "unfinished_root_only",
+      "source": "GenUICraft/validation/20260930_r32_bixby50_gpu_fp32/devices/fold7/batches/cases_016_020_mtp_on/BXP-018/output.express",
+      "raw_characters": 59,
+      "baseline_accepted": false,
+      "baseline_repair_kind": null
+    },
+    {
+      "case_id": "BXP-027",
+      "category": "unfinished_root_only",
+      "source": "GenUICraft/validation/20260930_r32_bixby50_gpu_fp32/devices/fold7/batches/cases_026_030_mtp_on/BXP-027/output.express",
+      "raw_characters": 59,
+      "baseline_accepted": false,
+      "baseline_repair_kind": null
+    },
+    {
+      "case_id": "BXP-033",
+      "category": "unfinished_root_only",
+      "source": "GenUICraft/validation/20260930_r32_bixby50_gpu_fp32/devices/fold7/batches/cases_031_035_mtp_on/BXP-033/output.express",
+      "raw_characters": 59,
+      "baseline_accepted": false,
+      "baseline_repair_kind": null
+    },
+    {
+      "case_id": "BXP-036",
+      "category": "unfinished_root_only",
+      "source": "GenUICraft/validation/20260930_r32_bixby50_gpu_fp32/devices/fold7/batches/cases_036_040_mtp_on/BXP-036/output.express",
+      "raw_characters": 59,
+      "baseline_accepted": false,
+      "baseline_repair_kind": null
+    },
+    {
+      "case_id": "BXP-010",
+      "category": "unfinished_state_without_root",
+      "source": "GenUICraft/validation/20260930_r32_bixby50_gpu_fp32/devices/fold7/batches/cases_006_010_mtp_on/BXP-010/output.express",
+      "raw_characters": 6614,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-038",
+      "category": "bare_component_without_root_assignment",
+      "source": "GenUICraft/validation/20260930_r32_bixby50_gpu_fp32/devices/fold7/batches/cases_036_040_mtp_on/BXP-038/output.express",
+      "raw_characters": 184,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    },
+    {
+      "case_id": "BXP-040",
+      "category": "unsupported_root_component",
+      "source": "GenUICraft/validation/20260930_r32_bixby50_gpu_fp32/devices/fold7/batches/cases_036_040_mtp_on/BXP-040/output.express",
+      "raw_characters": 3487,
+      "baseline_accepted": true,
+      "baseline_repair_kind": "GENERATED_DSL_REPAIR"
+    }
+  ]
+}

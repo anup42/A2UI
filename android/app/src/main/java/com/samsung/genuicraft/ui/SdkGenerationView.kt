@@ -14,6 +14,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
@@ -45,6 +46,8 @@ import com.samsung.genuicraft.sdk.GenUiAction
 import com.samsung.genuicraft.sdk.GenUiContent
 import com.samsung.genuicraft.sdk.GenUiDocument
 import com.samsung.genuicraft.sdk.GenUiRepairKind
+import com.samsung.genuicraft.sdk.GenUiRenderSnapshot
+import com.samsung.genuicraft.sdk.GenUiStreamingContent
 import kotlinx.coroutines.delay
 
 internal data class SdkGenerationTrace(
@@ -54,6 +57,11 @@ internal data class SdkGenerationTrace(
     val repairKind: GenUiRepairKind? = null,
     val error: String? = null,
     val warnings: List<String> = emptyList(),
+    val streamingRenderingEnabled: Boolean = true,
+    val previewSnapshotCount: Int = 0,
+    val firstPreviewElapsedMs: Long? = null,
+    val firstPreviewFrameElapsedMs: Long? = null,
+    val latestReadyComponentCount: Int = 0,
 )
 
 internal data class SdkGenerationAttempt(
@@ -84,13 +92,16 @@ private class CodeAutoScrollSnapshot(var text: String)
 internal fun SdkGenerationWorkspace(
     trace: SdkGenerationTrace,
     document: GenUiDocument?,
+    snapshot: GenUiRenderSnapshot? = null,
     modifier: Modifier = Modifier,
     metrics: @Composable () -> Unit = {},
+    onSnapshotPresented: (GenUiRenderSnapshot) -> Unit = {},
     onAction: (GenUiAction) -> Unit,
 ) {
-    val initialTab = if (document != null &&
-        (trace.phase == SdkGenerationPhase.COMPLETE || trace.attempts.isEmpty())
-    ) {
+    val generating = trace.phase == SdkGenerationPhase.GENERATING ||
+        trace.phase == SdkGenerationPhase.REPAIRING
+    val previewAvailable = document != null || snapshot != null || generating
+    val initialTab = if (previewAvailable) {
         WorkspaceTab.PREVIEW
     } else {
         WorkspaceTab.IR
@@ -107,22 +118,20 @@ internal fun SdkGenerationWorkspace(
         val phaseChanged = lastHandledPhase != trace.phase.name
         val documentChanged = autoSelection.document !== document
         when {
-            phaseChanged && (
-                trace.phase == SdkGenerationPhase.GENERATING ||
-                    trace.phase == SdkGenerationPhase.REPAIRING
-                ) -> selectedTabName = WorkspaceTab.IR.name
+            phaseChanged && trace.phase == SdkGenerationPhase.GENERATING ->
+                selectedTabName = WorkspaceTab.PREVIEW.name
             document != null &&
                 trace.phase != SdkGenerationPhase.GENERATING &&
                 trace.phase != SdkGenerationPhase.REPAIRING &&
                 (documentChanged ||
                     (phaseChanged && trace.phase == SdkGenerationPhase.COMPLETE)) ->
                 selectedTabName = WorkspaceTab.PREVIEW.name
-            documentChanged && document == null -> selectedTabName = WorkspaceTab.IR.name
+            documentChanged && !previewAvailable -> selectedTabName = WorkspaceTab.IR.name
         }
         lastHandledPhase = trace.phase.name
         autoSelection.document = document
     }
-    val activeTab = if (selectedTab == WorkspaceTab.PREVIEW && document == null) {
+    val activeTab = if (selectedTab == WorkspaceTab.PREVIEW && !previewAvailable) {
         WorkspaceTab.IR
     } else {
         selectedTab
@@ -159,14 +168,14 @@ internal fun SdkGenerationWorkspace(
                         .semantics { contentDescription = "IR output" },
                     text = { Text("Inspect IR") },
                 )
-                if (document != null) {
+                if (previewAvailable) {
                     Tab(
                         selected = activeTab == WorkspaceTab.PREVIEW,
                         onClick = { selectedTabName = WorkspaceTab.PREVIEW.name },
                         modifier = Modifier
                             .testTag("sdk_preview_tab")
                             .semantics { contentDescription = "Preview rendered UI" },
-                        text = { Text("Preview") },
+                        text = { Text(if (generating) "Live preview" else "Preview") },
                     )
                 }
             }
@@ -175,7 +184,7 @@ internal fun SdkGenerationWorkspace(
                 WorkspaceTab.IR -> tabStateHolder.SaveableStateProvider(WorkspaceTab.IR.name) {
                     IrWorkspace(trace, compact, metrics)
                 }
-                WorkspaceTab.PREVIEW -> document?.let { output ->
+                WorkspaceTab.PREVIEW -> {
                     tabStateHolder.SaveableStateProvider(WorkspaceTab.PREVIEW.name) {
                         Column(
                             modifier = Modifier
@@ -185,11 +194,49 @@ internal fun SdkGenerationWorkspace(
                                 .padding(top = 10.dp, bottom = 16.dp),
                             verticalArrangement = Arrangement.spacedBy(10.dp),
                         ) {
-                            GenUiContent(
-                                document = output,
-                                modifier = Modifier.fillMaxWidth(),
-                                onAction = onAction,
-                            )
+                            when {
+                                snapshot != null -> {
+                                    LaunchedEffect(snapshot.surfaceKey, snapshot.revision) {
+                                        withFrameNanos { }
+                                        onSnapshotPresented(snapshot)
+                                    }
+                                    GenUiStreamingContent(
+                                        snapshot = snapshot,
+                                        modifier = Modifier.fillMaxWidth().testTag("sdk_native_live_preview"),
+                                        onAction = onAction,
+                                    )
+                                }
+                                document != null -> GenUiContent(
+                                    document = document,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    onAction = onAction,
+                                )
+                                generating -> Row(
+                                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                ) {
+                                    CircularProgressIndicator()
+                                    Text(
+                                        if (trace.streamingRenderingEnabled) {
+                                            "Waiting for the first UI component…"
+                                        } else {
+                                            "Generating UI…"
+                                        },
+                                        style = MaterialTheme.typography.bodyMedium,
+                                    )
+                                }
+                            }
+                            if (trace.firstPreviewElapsedMs != null) {
+                                Text(
+                                    "First UI ${trace.firstPreviewElapsedMs} ms · " +
+                                        "${trace.latestReadyComponentCount} components · " +
+                                        "${trace.previewSnapshotCount} preview updates",
+                                    modifier = Modifier.testTag("sdk_streaming_render_metrics"),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
                             metrics()
                         }
                     }
