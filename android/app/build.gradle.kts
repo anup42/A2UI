@@ -567,7 +567,7 @@ tasks.matching { task ->
 
 dependencies {
     // Consume the published AAR, so device validation exercises the same artifact as Bixby.
-    implementation("com.samsung.genuicraft:genuicraft:0.6.15")
+    implementation("com.samsung.genuicraft:genuicraft:0.6.17")
     val composeBom = platform("androidx.compose:compose-bom:2024.10.01")
 
     implementation("androidx.core:core-ktx:1.15.0")

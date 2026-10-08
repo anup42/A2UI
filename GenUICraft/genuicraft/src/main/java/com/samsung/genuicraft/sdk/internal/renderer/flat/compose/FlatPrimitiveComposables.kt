@@ -485,6 +485,13 @@ internal fun RenderStack(
         isRoot = activePath == setOf(elementId),
         direction = direction,
         isRepeated = repeatScope != null || repeatedChildScopes != null,
+    ) ?: planFlatContainerTextSections(
+        elementId = elementId,
+        children = children,
+        elements = elements,
+        isRoot = activePath == setOf(elementId),
+        direction = direction,
+        isRepeated = repeatScope != null || repeatedChildScopes != null,
     )
     val passiveSummaryRoot = textSections == null && activePath == setOf(elementId) &&
         direction == "vertical" && repeatScope == null && repeatedChildScopes == null &&
