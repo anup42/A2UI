@@ -76,6 +76,7 @@ internal val FLAT_ELEMENT_RENDERERS: Map<String, FlatElementRenderer> = mapOf(
         RenderDirectTable(c.props, c.state, c.onOpenUrl, c.modifier,
             identicalLiteralKeyValueRows = identicalPassiveKeyValueRowIndexes(table, ancestors, repeated),
             sparseProse = sparseProseTableProfile(table, ancestors, repeated),
+            timeline = timelineTableProfile(table, c.state, ancestors, repeated),
         )
     },
     "formula" to { c -> RenderFormula(c.props, c.modifier) },

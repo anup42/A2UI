@@ -283,6 +283,7 @@ internal fun RenderDirectTable(
     modifier: Modifier = Modifier,
     identicalLiteralKeyValueRows: Set<Int> = emptySet(),
     sparseProse: SparseProseTableProfile? = null,
+    timeline: TimelineTableProfile? = null,
 ) {
     val configuration = LocalConfiguration.current
     val screenWidthDp = configuration.screenWidthDp
@@ -297,6 +298,10 @@ internal fun RenderDirectTable(
     if (sparseProse != null && sparseProse.headers == headers &&
         sparseProse.originalRows.map { row -> row.map(String::trim) } == table.rows) {
         RenderSparseProseTable(sparseProse, tableModifier)
+        return
+    }
+    if (timeline != null && timelineMatchesResolved(timeline, table)) {
+        RenderTimelineTable(timeline, tableModifier)
         return
     }
     // Narrow sightseeing comparisons retain every source cell in cards and expose the authored grid.
