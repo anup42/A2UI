@@ -48,6 +48,8 @@ LEGACY_REPLAY_CHECK_NAMES = frozenset({"instrumentationPassed", "singleSelectedC
 VIEWPORT_REPLAY_CHECK_NAMES = LEGACY_REPLAY_CHECK_NAMES | {"requestedViewportTableSweeps"}
 REPLAY_CHECK_NAMES = VIEWPORT_REPLAY_CHECK_NAMES | {"requestedTabViews"}
 BEFORE_RENDER_FAILURE_CHECKS = frozenset({"renderedWithoutIssues", "allTableColumnsObserved"})
+EXPRESS_REPAIR_ONLY = "express_repair_only"
+EXPRESS_REPAIR_CHECK_NAMES = frozenset({"requestedRepairMode", "noSourceFallback", "repairedArtifactHashes"})
 
 
 def require(condition, message):
@@ -221,6 +223,8 @@ def before_replay_overrides(receipt, allow_render_failures=False):
         if request in receipt:
             require(type(receipt[request]) is bool, f"{request} must be an explicit boolean")
             expected = expected | {check}
+    if receipt.get("source", {}).get("replayMode") == EXPRESS_REPAIR_ONLY:
+        expected = expected | EXPRESS_REPAIR_CHECK_NAMES
     require(isinstance(checks, dict) and set(checks) == expected,
             "Replay receipt must contain exactly the expected check names for its recorded request schema")
     require(all(value is True or value is False for value in checks.values()), "Before checks must be explicit booleans")
@@ -234,6 +238,60 @@ def before_replay_overrides(receipt, allow_render_failures=False):
     require(receipt.get("status") == "failed" and receipt.get("automatedChecksSatisfied") is False,
             "A waived before receipt must retain its failed status and failed checks")
     return failed
+
+
+def express_repair_evidence(root, case_dir, source, config, report, summary):
+    """Verify generated-only repair artifacts; the source-integrity audit is diagnostic."""
+    specifications = (("raw", "source.output.express", "sourceExpressSha256"),
+                      ("recoveredExpress", "recovered.output.express", "recoveredExpressSha256"),
+                      ("recoveredJson", "recovered.output.a2ui.json", "recoveredJsonSha256"))
+    artifacts = {}
+    for label, filename, reported in specifications:
+        path = case_dir / filename
+        artifacts[label] = {"path": path.relative_to(root).as_posix(),
+                            "sha256": digest(path) if path.is_file() else None,
+                            "reportedSha256": report.get(reported)}
+    kind = report.get("repairKind")
+    recovered_json = case_dir / "recovered.output.a2ui.json"
+    try:
+        json_present = isinstance(read(recovered_json), (list, dict))
+    except (ValueError, OSError):
+        json_present = False
+    checks = {
+        "requestedRepairMode": all(value.get("replayMode") == EXPRESS_REPAIR_ONLY and
+            value.get("kind") == "generated_dsl_repair_no_fallback" for value in (config, report, summary)) and
+            report.get("generatedDslRepairAccepted") is True,
+        "noSourceFallback": kind in {"NONE", "STRUCTURAL", "GENERATED_DSL_REPAIR"} and
+            summary.get("sourceTextFallbacks") == 0 and summary.get("repairCounts") == {kind: 1} and
+            summary.get("repairRejected") == 0 and summary.get("renderFailures") == 0,
+        "repairedArtifactHashes": json_present and artifacts["raw"]["sha256"] == source["sha256"] and
+            all(value["sha256"] is not None and value["sha256"] == value["reportedSha256"] for value in artifacts.values())}
+    return checks, artifacts
+
+
+def receipt_express_repair_complete(root, receipt):
+    if receipt.get("source", {}).get("replayMode") != EXPRESS_REPAIR_ONLY:
+        return True
+    try:
+        source = receipt["source"]
+        archived = root / source["archivedPath"]
+        require(digest(archived) == source["sha256"], "Archived raw Express changed")
+        artifacts = archived.parents[2] / "artifacts"
+        checks, recorded = express_repair_evidence(root, artifacts / case_id(receipt["case"]), source,
+            read(artifacts / "replay_config.json"), receipt["result"], receipt["summary"])
+        return all(value is True for value in checks.values()) and recorded == receipt.get("repairArtifacts")
+    except (ValueError, KeyError, TypeError, OSError):
+        return False
+
+
+def express_repair_comparison(before, after):
+    baseline = before["repairArtifacts"]
+    current = after["repairArtifacts"]
+    return {"scope": "Same raw generated Express; shared repair and renderer outputs are compared. Recovered outputs may differ; this is not a renderer-only or source-fidelity guarantee.",
+        "sameRawInput": before["source"]["sha256"] == after["source"]["sha256"],
+        "sameRecoveredExpress": baseline["recoveredExpress"]["sha256"] == current["recoveredExpress"]["sha256"],
+        "sameRecoveredJson": baseline["recoveredJson"]["sha256"] == current["recoveredJson"]["sha256"],
+        "beforeRepairKind": before["result"].get("repairKind"), "afterRepairKind": after["result"].get("repairKind")}
 
 
 def authored_tab_targets(source):
@@ -406,6 +464,7 @@ def pinned_before_evidence(root, after, before_path, before):
     """Verify a comparison baseline without turning its render failures into passes."""
     try:
         before_replay_overrides(after)  # Every after check remains mandatory.
+        require(receipt_express_repair_complete(root, after), "After generated-repair evidence is incomplete")
         require(receipt_tab_views_complete(root, after), "Requested after tab evidence is incomplete")
         source, baseline = after["source"], before["source"]
         require(source.get("pinnedBeforeReceipt") == before_path.relative_to(root).as_posix() and
@@ -416,6 +475,7 @@ def pinned_before_evidence(root, after, before_path, before):
         require(archived.is_file() and digest(archived) == baseline["sha256"], "Archived before input changed")
         override = source.get("beforeRenderFailureOverride")
         failed = before_replay_overrides(before, allow_render_failures=override is not None)
+        require(receipt_express_repair_complete(root, before), "Before generated-repair evidence is incomplete")
         require(receipt_tab_views_complete(root, before), "Requested before tab evidence is incomplete")
         if failed:
             require(isinstance(override, dict) and override.get("enabled") is True and
@@ -439,11 +499,15 @@ def choose_source(root, args):
         archived = root / before["source"]["archivedPath"]
         require(archived.is_file() and digest(archived) == before["source"]["sha256"], "Archived before source bytes changed")
         require(receipt_tab_views_complete(root, before), "Requested before tab evidence is incomplete")
+        require(receipt_express_repair_complete(root, before), "Before generated-repair evidence is incomplete")
     source = args.source.resolve() if args.source else (root / before["source"]["archivedPath"] if before else None)
     require(source is not None and source.is_file(), "Before replay requires --source pointing to an existing final artifact")
     require(source.suffix.lower() in (".json", ".express"), "--source must be a final .json or .express artifact")
-    value = {"originalPath": str(source), "sha256": digest(source),
-             "replayMode": "json" if source.suffix.lower() == ".json" else "express"}
+    inferred = "json" if source.suffix.lower() == ".json" else "express"
+    mode = getattr(args, "replay_mode", None) or (before["source"]["replayMode"] if before else inferred)
+    require(mode in ("json", "express", EXPRESS_REPAIR_ONLY), "Unsupported replay mode")
+    require((mode == "json") == (source.suffix.lower() == ".json"), "Replay mode and source format differ")
+    value = {"originalPath": str(source), "sha256": digest(source), "replayMode": mode}
     if before:
         require(value["sha256"] == before["source"]["sha256"] and value["replayMode"] == before["source"]["replayMode"],
                 "After replay must use exactly the same accepted document bytes and format as before")
@@ -463,7 +527,8 @@ def choose_source(root, args):
     if args.source_info:
         value["callerSuppliedProvenance"] = read(args.source_info)
         value["callerSuppliedProvenanceSha256"] = digest(args.source_info)
-    value["documentOrigin"] = "Caller-selected saved final output; model provenance is not inferred from its filename."
+    value["documentOrigin"] = ("Saved raw generated Express, replayed through shared generated-only repair without source fallback; repaired document hashes are recorded separately."
+        if mode == EXPRESS_REPAIR_ONLY else "Caller-selected saved final output; model provenance is not inferred from its filename.")
     return source, value
 
 
@@ -566,6 +631,17 @@ def collect(args):
                                    (artifacts / args.case / (capture["name"] + ".xml")).is_file() for capture in captures),
                                "verticalEndObserved": report.get("verticalEndObserved") is True and report.get("verticalLimitReached") is False,
                                "allTableColumnsObserved": all(table.get("missingColumns") == [] for table in report.get("tables", []))})
+            if args.action == "replay" and receipt["source"]["replayMode"] == EXPRESS_REPAIR_ONLY:
+                repair_checks, repaired = express_repair_evidence(root, artifacts / args.case, receipt["source"], config, report, summary)
+                checks.update(repair_checks)
+                receipt["repairArtifacts"] = repaired
+                receipt["sourceFidelityAudit"] = {"enforced": False, "status": "not_established",
+                    "evaluated": report.get("sourceIntegrityEvaluated"), "diagnosticAccepted": report.get("sourceIntegrityAccepted"),
+                    "warnings": ([report["sourceIntegrityFailure"]] if report.get("sourceIntegrityFailure") else []),
+                    "scope": "Diagnostic source-text audit does not alter generated-only output or establish factual/source fidelity."}
+                if args.phase == "after":
+                    baseline = read(root / receipt["source"]["pinnedBeforeReceipt"])
+                    receipt["repairComparison"] = express_repair_comparison(baseline, receipt)
             receipt["checks"] = checks
             receipt["documentHashes"] = {path.relative_to(root).as_posix(): digest(path)
                                          for path in sorted(artifacts.rglob("*")) if path.is_file() and path.suffix in (".json", ".express")}
@@ -624,6 +700,12 @@ def build_report(root):
         log = path.parent / "instrumentation.txt"
         metadata = (f'<p class="attempt-meta">{link(path, "Receipt, checks and provenance")} · '
                     f'{link(log, "Instrumentation log") if log.exists() else "Instrumentation did not start"}</p>')
+        if (receipt.get("source") or {}).get("replayMode") == EXPRESS_REPAIR_ONLY:
+            repaired = receipt.get("repairArtifacts") or {}
+            values = ["Raw Express SHA-256: " + str(receipt["source"].get("sha256")),
+                "Recovered JSON SHA-256: " + str(repaired.get("recoveredJson", {}).get("sha256")),
+                (receipt.get("repairComparison") or {}).get("scope", "Generated-only repair plus renderer capture; no source fallback or source-fidelity certification.")]
+            metadata += '<p class="issues"><strong>Saved raw Express repair replay:</strong> ' + html.escape(" · ".join(values)) + "</p>"
         override = (receipt.get("source") or {}).get("beforeRenderFailureOverride")
         if override:
             metadata += ('<p class="issues"><strong>Explicit before-render baseline waiver:</strong> ' +
@@ -859,6 +941,8 @@ def parser():
             command.add_argument("--allow-before-render-failures", action="store_true",
                 help="After replay only: allow a preserved baseline failing only render/column checks; never waive after checks")
             command.add_argument("--source", type=Path)
+            command.add_argument("--replay-mode", choices=("json", "express", EXPRESS_REPAIR_ONLY),
+                help="Default: infer source format, or inherit the pinned before mode. express_repair_only keeps exact raw bytes and forbids source fallback.")
             command.add_argument("--source-info", type=Path)
             command.add_argument("--max-vertical-swipes", type=int, default=30)
             command.add_argument("--max-horizontal-swipes", type=int, default=8)

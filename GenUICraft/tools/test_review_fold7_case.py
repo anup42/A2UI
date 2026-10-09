@@ -415,5 +415,191 @@ class BeforeRenderFailureGateTest(unittest.TestCase):
         self.assertFalse(review.pinned_before_evidence(self.root, after, self.before_path, self.before))
 
 
+    def repair_fixture(self, phase="before", recovered="First repaired output", kind="GENERATED_DSL_REPAIR"):
+        target = self.root / f"BXP-018/{phase}/r01"
+        raw = target / "input/BXP-018/output.express"
+        raw.parent.mkdir(parents=True, exist_ok=True)
+        raw.write_bytes(b'<a2ui>root=Text("Unchanged raw")</a2ui>')
+        case_dir = target / "artifacts/BXP-018"
+        case_dir.mkdir(parents=True, exist_ok=True)
+        (case_dir / "source.output.express").write_bytes(raw.read_bytes())
+        (case_dir / "recovered.output.express").write_text(recovered)
+        (case_dir / "recovered.output.a2ui.json").write_text(json.dumps([{"repairFixture": recovered}]))
+        source = {"sha256": review.digest(raw), "replayMode": review.EXPRESS_REPAIR_ONLY,
+            "archivedPath": raw.relative_to(self.root).as_posix()}
+        config = {"replayMode": review.EXPRESS_REPAIR_ONLY, "kind": "generated_dsl_repair_no_fallback"}
+        report = dict(config, generatedDslRepairAccepted=True, repairKind=kind, sourceExpressSha256=review.digest(raw),
+            recoveredExpressSha256=review.digest(case_dir / "recovered.output.express"),
+            recoveredJsonSha256=review.digest(case_dir / "recovered.output.a2ui.json"), sourceIntegrityAccepted=False)
+        summary = dict(config, sourceTextFallbacks=0, repairCounts={kind: 1}, repairRejected=0, renderFailures=0)
+        (target / "artifacts/replay_config.json").write_text(json.dumps(config))
+        checks, artifacts = review.express_repair_evidence(self.root, case_dir, source, config, report, summary)
+        receipt = {"case": "BXP-018", "phase": phase, "attempt": "r01", "startedAtUtc": "2026-10-09",
+            "source": source, "result": report, "summary": summary, "repairArtifacts": artifacts,
+            "repeatTableSweepsPerViewport": False, "verifyTabViews": False,
+            "status": "collected", "automatedChecksSatisfied": True,
+            "checks": dict({key: True for key in review.REPLAY_CHECK_NAMES}, **checks)}
+        path = target / "receipt.json"
+        path.write_text(json.dumps(receipt))
+        return path, receipt, case_dir, config
+
+    def test_repair_only_mode_requires_raw_express_and_after_inherits_the_pinned_mode(self):
+        path, before, _, _ = self.repair_fixture()
+        args = SimpleNamespace(case="BXP-018", phase="after", source=None, source_info=None,
+            allow_before_render_failures=False, replay_mode=None)
+        raw, source = review.choose_source(self.root, args)
+        self.assertEqual("output.express", raw.name)
+        self.assertEqual(review.EXPRESS_REPAIR_ONLY, source["replayMode"])
+        self.assertEqual(review.digest(path), source["pinnedBeforeReceiptSha256"])
+        args.replay_mode = "express"
+        with self.assertRaises(ValueError): review.choose_source(self.root, args)
+        args.phase = "before"; args.source = self.source; args.replay_mode = review.EXPRESS_REPAIR_ONLY
+        with self.assertRaises(ValueError): review.choose_source(self.root, args)
+        parsed = review.parser().parse_args(["replay", "--case", "BXP-046", "--phase", "before",
+            "--replay-mode", "express_repair_only"])
+        self.assertEqual(review.EXPRESS_REPAIR_ONLY, parsed.replay_mode)
+
+    def test_repair_only_evidence_accepts_nonfallback_kinds_and_rejects_bad_hashes_or_policy(self):
+        for kind in ("NONE", "STRUCTURAL", "GENERATED_DSL_REPAIR"):
+            _, receipt, _, _ = self.repair_fixture(kind=kind)
+            self.assertTrue(review.receipt_express_repair_complete(self.root, receipt))
+            self.assertFalse(receipt["result"]["sourceIntegrityAccepted"])
+        for mutation in ("fallback", "wrong_mode", "rejected", "fallback_count", "missing_recovery", "raw_changed", "recovered_changed"):
+            with self.subTest(mutation=mutation):
+                _, receipt, case_dir, config = self.repair_fixture()
+                report, summary = receipt["result"], receipt["summary"]
+                if mutation == "fallback": report["repairKind"] = "SOURCE_TEXT_FALLBACK"
+                if mutation == "wrong_mode": config["replayMode"] = "express_repair"
+                if mutation == "rejected": report["generatedDslRepairAccepted"] = False
+                if mutation == "fallback_count": summary["sourceTextFallbacks"] = 1
+                if mutation == "missing_recovery": (case_dir / "recovered.output.a2ui.json").unlink()
+                if mutation == "raw_changed": (case_dir / "source.output.express").write_bytes(b"Changed raw")
+                if mutation == "recovered_changed": (case_dir / "recovered.output.express").write_bytes(b"Changed repaired output")
+                checks, _ = review.express_repair_evidence(self.root, case_dir, receipt["source"], config, report, summary)
+                self.assertFalse(all(checks.values()))
+
+    def test_same_raw_comparison_retains_different_repaired_hashes_and_never_waives_repair_failures(self):
+        before_path, before, _, _ = self.repair_fixture("before", recovered="Older compiler output")
+        _, after, case_dir, _ = self.repair_fixture("after", recovered="Newer compiler output")
+        after["source"].update(pinnedBeforeReceipt=before_path.relative_to(self.root).as_posix(),
+            pinnedBeforeReceiptSha256=review.digest(before_path))
+        comparison = review.express_repair_comparison(before, after)
+        self.assertTrue(comparison["sameRawInput"])
+        self.assertFalse(comparison["sameRecoveredExpress"])
+        self.assertFalse(comparison["sameRecoveredJson"])
+        self.assertTrue(review.pinned_before_evidence(self.root, after, before_path, before))
+        for check in review.EXPRESS_REPAIR_CHECK_NAMES:
+            broken = json.loads(json.dumps(before))
+            broken["checks"][check] = False; broken["status"] = "failed"; broken["automatedChecksSatisfied"] = False
+            with self.assertRaises(ValueError): review.before_replay_overrides(broken, True)
+            broken = json.loads(json.dumps(after)); broken["checks"][check] = False
+            self.assertFalse(review.pinned_before_evidence(self.root, broken, before_path, before))
+        (case_dir / "recovered.output.a2ui.json").write_text("[]")
+        self.assertTrue(all(after["checks"].values()))
+        self.assertFalse(review.pinned_before_evidence(self.root, after, before_path, before))
+
+
+    def progress_fixture(self, repair_mode=True):
+        before_path, before, _, _ = self.repair_fixture("before", recovered="Before repaired output")
+        after_path, after, after_case, _ = self.repair_fixture("after", recovered="After repaired output")
+        native = self.root / "native_generation/generated_r1/BXP-018"
+        native.mkdir(parents=True, exist_ok=True)
+        raw = native / "output.express"; raw.write_bytes((self.root / before["source"]["archivedPath"]).read_bytes())
+        final = native / "a2ui.json"; final.write_text('[{"prepared": "original final"}]')
+        (native / "result.json").write_text(json.dumps({"rawStrictValid": False, "repairKind": "GENERATED_DSL_REPAIR"}))
+        if not repair_mode:
+            for receipt, path in ((before, before_path), (after, after_path)):
+                staged = path.parent / "input/BXP-018/output.a2ui.json"; staged.write_bytes(final.read_bytes())
+                receipt["source"].update(replayMode="json", sha256=review.digest(final), archivedPath=staged.relative_to(self.root).as_posix())
+                for check in review.EXPRESS_REPAIR_CHECK_NAMES: del receipt["checks"][check]
+        before_path.write_text(json.dumps(before))
+        after["source"].update(pinnedBeforeReceipt=before_path.relative_to(self.root).as_posix(), pinnedBeforeReceiptSha256=review.digest(before_path))
+        capture = after_case / "initial.png"; capture.write_bytes(b"host-only fixture")
+        xml = after_case / "initial.xml"; xml.write_text("<hierarchy/>")
+        after["capturedFiles"] = [{"path": p.relative_to(self.root).as_posix(), "sha256": review.digest(p)} for p in (capture, xml)]
+        if repair_mode: after["repairComparison"] = review.express_repair_comparison(before, after)
+        after_path.write_text(json.dumps(after))
+        manifest = {"cases": [{"id": "BXP-018", "runId": "generated_r1", "recordedGenerationStatus": "valid",
+            "raw": "generated_r1/BXP-018/output.express", "rawSha256": review.digest(raw),
+            "final": "generated_r1/BXP-018/a2ui.json", "finalSha256": review.digest(final), "result": "generated_r1/BXP-018/result.json"}],
+            "priorValidationReferences": {"cases": []}}
+        (self.root / "native_generation/manifest.json").write_text(json.dumps(manifest))
+        (self.root / "review_findings.json").write_text('{"cases": {}}')
+        annotation = {"status": "accepted", "notes": ["Explicit fixture review"],
+            "reviewedAfterReceipt": after_path.relative_to(self.root).as_posix(), "reviewedAfterReceiptSha256": review.digest(after_path),
+            "sourceSha256": after["source"]["sha256"]}
+        (self.root / "BXP-018/review.json").write_text(json.dumps(annotation))
+        corpus = self.root / "corpus.jsonl"
+        corpus.write_text("\n".join(json.dumps({"id": f"BXP-{index:03}", "domain": "generic"}) for index in range(1, 51)))
+        path = Path(__file__).resolve().parents[1] / "validation/20261009_fold7_visual_review/refresh_progress.py"
+        spec = importlib.util.spec_from_file_location("repair_progress_tests", path)
+        progress = importlib.util.module_from_spec(spec); spec.loader.exec_module(progress)
+        progress.REVIEW = self.root; progress.WORKSPACE = review.ROOT; progress.CORPUS = corpus; progress._receipt_checks = review
+        return progress, manifest, before_path, after_path, after, final
+
+    def test_progress_repair_receipt_selects_manifest_raw_and_keeps_original_final_separate(self):
+        progress, _, before_path, after_path, _, final = self.progress_fixture()
+        original = {path: review.digest(path) for path in (before_path, after_path, final)}
+        result = progress.update(self.root / "progress_out")
+        record = next(c for c in result["cases"] if c["id"] == "BXP-018")
+        self.assertEqual("accepted", record["visualStatus"])
+        self.assertEqual(review.EXPRESS_REPAIR_ONLY, record["selectedSource"]["format"])
+        self.assertEqual([review.digest(final)], [v["sha256"] for v in record["preparedInputs"]])
+        self.assertEqual(1, result["availableCurrentModelDocuments"])
+        self.assertEqual(1, result["casesWithVerifiedRepairOutputs"])
+        self.assertNotEqual(record["selectedSource"]["sha256"], record["repairedOutput"]["sha256"])
+        self.assertNotEqual(review.digest(final), record["repairedOutput"]["sha256"])
+        self.assertFalse(record["repairComparison"]["sameRecoveredJson"])
+        self.assertTrue(record["acceptanceChecks"]["sourceMatchesManifestPinnedRaw"])
+        self.assertTrue(record["acceptanceChecks"]["recoveredDocumentHashesMatch"])
+        self.assertTrue(all(review.digest(path) == digest for path, digest in original.items()))
+
+    def test_progress_legacy_json_receipt_stays_canonical_without_selecting_raw(self):
+        progress, _, _, _, _, final = self.progress_fixture(repair_mode=False)
+        result = progress.update(self.root / "progress_out")
+        record = next(c for c in result["cases"] if c["id"] == "BXP-018")
+        self.assertEqual("accepted", record["visualStatus"])
+        self.assertEqual(review.digest(final), record["selectedSource"]["sha256"])
+        self.assertIsNone(record["repairedOutput"])
+        self.assertNotIn("sourceMatchesManifestPinnedRaw", record["acceptanceChecks"])
+        self.assertEqual(0, result["casesWithVerifiedRepairOutputs"])
+        self.assertEqual(1, result["availableCurrentModelDocuments"])
+
+    def test_progress_rejects_manifest_raw_hash_or_case_path_mismatch_without_json_fallback(self):
+        for mutation in ("wrong_hash", "wrong_case_path", "missing_raw"):
+            with self.subTest(mutation=mutation):
+                progress, manifest, _, _, _, final = self.progress_fixture()
+                raw = self.root / "native_generation" / manifest["cases"][0]["raw"]
+                if mutation == "wrong_hash": manifest["cases"][0]["rawSha256"] = "0" * 64
+                if mutation == "wrong_case_path":
+                    other = self.root / "native_generation/generated_r1/BXP-019/output.express"
+                    other.parent.mkdir(parents=True, exist_ok=True); other.write_bytes(raw.read_bytes())
+                    manifest["cases"][0]["raw"] = "generated_r1/BXP-019/output.express"
+                if mutation == "missing_raw": raw.unlink()
+                (self.root / "native_generation/manifest.json").write_text(json.dumps(manifest))
+                result = progress.update(self.root / "progress_out")
+                record = next(c for c in result["cases"] if c["id"] == "BXP-018")
+                self.assertIsNone(record["selectedSource"])
+                self.assertIsNone(record["repairedOutput"])
+                self.assertNotEqual("accepted", record["visualStatus"])
+                self.assertEqual([review.digest(final)], [v["sha256"] for v in record["preparedInputs"]])
+                self.assertEqual(1, result["availableCurrentModelDocuments"])
+
+    def test_progress_never_credits_raw_as_prepared_final_and_rechecks_repaired_artifact(self):
+        progress, _, _, _, after, final = self.progress_fixture()
+        prepared = [{"path": "canonical", "sha256": review.digest(final), "format": "json"}]
+        raw = [{"path": "raw", "sha256": after["source"]["sha256"], "format": review.EXPRESS_REPAIR_ONLY}]
+        ordinary = {"source": {"replayMode": "express", "sha256": raw[0]["sha256"]}}
+        self.assertEqual(prepared[0], progress.select_saved_source(ordinary, prepared, raw))
+        self.assertNotEqual(raw[0], progress.select_saved_source(ordinary, prepared, raw))
+        (self.root / after["repairArtifacts"]["recoveredJson"]["path"]).write_text("[]")
+        result = progress.update(self.root / "progress_out")
+        record = next(c for c in result["cases"] if c["id"] == "BXP-018")
+        self.assertIsNone(record["repairedOutput"])
+        self.assertFalse(record["acceptanceChecks"]["recoveredDocumentHashesMatch"])
+        self.assertNotEqual("accepted", record["visualStatus"])
+        self.assertEqual(1, result["availableCurrentModelDocuments"])
+
+
 if __name__ == "__main__":
     unittest.main()
