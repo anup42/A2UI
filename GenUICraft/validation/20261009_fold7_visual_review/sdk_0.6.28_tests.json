@@ -1,0 +1,236 @@
+{
+  "sdkVersion": "0.6.28",
+  "variant": "release",
+  "scope": "Ordered duplicate table field recovery, exact reachable040 rows, guarded and ambiguous declarations, strict compilation",
+  "suites": [
+    {
+      "suite": {
+        "name": "com.samsung.genuicraft.sdk.GenUiCompilerTest",
+        "tests": "21",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-10-09T05:04:13",
+        "hostname": "NOTEBOOK-PC",
+        "time": "0.808"
+      },
+      "tests": [
+        {
+          "name": "compileWireIsDeterministicAcrossRepeatedCompilation",
+          "classname": "com.samsung.genuicraft.sdk.GenUiCompilerTest",
+          "time": "0.147"
+        },
+        {
+          "name": "generatedDslSalvageNormalizesNarrowHybridColumnsAndStillHonorsLimits",
+          "classname": "com.samsung.genuicraft.sdk.GenUiCompilerTest",
+          "time": "0.123"
+        },
+        {
+          "name": "boundedRepairRejectsArbitrarySuffixesMultipleDocumentsAndTruncationWithoutSource",
+          "classname": "com.samsung.genuicraft.sdk.GenUiCompilerTest",
+          "time": "0.001"
+        },
+        {
+          "name": "blankInputReportsAnActionableError",
+          "classname": "com.samsung.genuicraft.sdk.GenUiCompilerTest",
+          "time": "0.001"
+        },
+        {
+          "name": "strictBoundaryRejectsMarkdownProseLegacyAndTrailingDocuments",
+          "classname": "com.samsung.genuicraft.sdk.GenUiCompilerTest",
+          "time": "0.009"
+        },
+        {
+          "name": "strictlyValidButSourceIncompleteOutputIsRejectedBeforeFallback",
+          "classname": "com.samsung.genuicraft.sdk.GenUiCompilerTest",
+          "time": "0.068"
+        },
+        {
+          "name": "fullCompileFailureAfterSyntaxNormalizationContinuesToSourceFallback",
+          "classname": "com.samsung.genuicraft.sdk.GenUiCompilerTest",
+          "time": "0.003"
+        },
+        {
+          "name": "strictlyValidButInventedVisibleWordingIsRejectedBeforeFallback",
+          "classname": "com.samsung.genuicraft.sdk.GenUiCompilerTest",
+          "time": "0.003"
+        },
+        {
+          "name": "generatedDslSalvageCanRetainCompleteVisibleLiteralsFromOtherwiseBrokenState",
+          "classname": "com.samsung.genuicraft.sdk.GenUiCompilerTest",
+          "time": "0.008"
+        },
+        {
+          "name": "recoveryBoundsExpressionAndReferenceDepthWithoutOverflowing",
+          "classname": "com.samsung.genuicraft.sdk.GenUiCompilerTest",
+          "time": "0.012"
+        },
+        {
+          "name": "boundedRepairRemovesOnlyAnExactFenceAndKeepsLiteralBytes",
+          "classname": "com.samsung.genuicraft.sdk.GenUiCompilerTest",
+          "time": "0.001"
+        },
+        {
+          "name": "wireReplayKeepsOpenUrlExecutableForTheHost",
+          "classname": "com.samsung.genuicraft.sdk.GenUiCompilerTest",
+          "time": "0.061"
+        },
+        {
+          "name": "sourceFallbackCompilesAndPreservesAllBixby50Inputs",
+          "classname": "com.samsung.genuicraft.sdk.GenUiCompilerTest",
+          "time": "0.346"
+        },
+        {
+          "name": "inventedAccessibilityWordingIsRejectedBeforeFallback",
+          "classname": "com.samsung.genuicraft.sdk.GenUiCompilerTest",
+          "time": "0.002"
+        },
+        {
+          "name": "compileExpressProducesBothStrictRepresentationsAndKeepsCatalogElements",
+          "classname": "com.samsung.genuicraft.sdk.GenUiCompilerTest",
+          "time": "0.001"
+        },
+        {
+          "name": "repairIsOptInAndSourceFallbackIsExplicitAndLossless",
+          "classname": "com.samsung.genuicraft.sdk.GenUiCompilerTest",
+          "time": "0.002"
+        },
+        {
+          "name": "recoveryRejectsBlankOrOversizedInputsBeforeParsing",
+          "classname": "com.samsung.genuicraft.sdk.GenUiCompilerTest",
+          "time": "0.008"
+        },
+        {
+          "name": "generatedDslSalvageIsExplicitAndCanRunWithoutSourceFallback",
+          "classname": "com.samsung.genuicraft.sdk.GenUiCompilerTest",
+          "time": "0.005"
+        },
+        {
+          "name": "boundedRepairAcceptsVisibleCardOnlyProgramsBehindFenceOrBom",
+          "classname": "com.samsung.genuicraft.sdk.GenUiCompilerTest",
+          "time": "0.001"
+        },
+        {
+          "name": "boundedRepairCanNormalizeAnIncompleteClosingTagWithoutChangingContent",
+          "classname": "com.samsung.genuicraft.sdk.GenUiCompilerTest",
+          "time": "0.001"
+        },
+        {
+          "name": "strictlyValidButMeaningChangingWordOrderIsRejectedBeforeFallback",
+          "classname": "com.samsung.genuicraft.sdk.GenUiCompilerTest",
+          "time": "0.001"
+        }
+      ]
+    },
+    {
+      "suite": {
+        "name": "com.samsung.genuicraft.sdk.GenUiDuplicateTableRecoveryTest",
+        "tests": "18",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-10-09T05:04:14",
+        "hostname": "NOTEBOOK-PC",
+        "time": "0.114"
+      },
+      "tests": [
+        {
+          "name": "everyReservedDollarExpressionKeyInParentPropsBlocksProjectionRecursively",
+          "classname": "com.samsung.genuicraft.sdk.GenUiDuplicateTableRecoveryTest",
+          "time": "0.017"
+        },
+        {
+          "name": "exact040FixturePreservesAllMissingEvidenceLiteralsAndLeavesStateUntouched",
+          "classname": "com.samsung.genuicraft.sdk.GenUiDuplicateTableRecoveryTest",
+          "time": "0.035"
+        },
+        {
+          "name": "flatBindingCellsLabelsMetadataAndParentsAreNotLiteralized",
+          "classname": "com.samsung.genuicraft.sdk.GenUiDuplicateTableRecoveryTest",
+          "time": "0.002"
+        },
+        {
+          "name": "repeatedEqualCellsAndRepeatedRowsRemainRepeated",
+          "classname": "com.samsung.genuicraft.sdk.GenUiDuplicateTableRecoveryTest",
+          "time": "0.001"
+        },
+        {
+          "name": "columnUnitsLabelsAndKnownRootPlacementArePreserved",
+          "classname": "com.samsung.genuicraft.sdk.GenUiDuplicateTableRecoveryTest",
+          "time": "0.001"
+        },
+        {
+          "name": "quotedHeadersCommentsAndRawTripleStringsCannotCreateTableDefinitions",
+          "classname": "com.samsung.genuicraft.sdk.GenUiDuplicateTableRecoveryTest",
+          "time": "0.001"
+        },
+        {
+          "name": "unequalOccurrenceCountsOrDifferentKeyOrderAreNotGuessed",
+          "classname": "com.samsung.genuicraft.sdk.GenUiDuplicateTableRecoveryTest",
+          "time": "0.001"
+        },
+        {
+          "name": "semicolonIdentityConflictsAreRejectedWhileQuotedAndCommentedIdentitiesAreIgnored",
+          "classname": "com.samsung.genuicraft.sdk.GenUiDuplicateTableRecoveryTest",
+          "time": "0.002"
+        },
+        {
+          "name": "duplicateOrMissingLabelsAndIndirectColumnMetadataAreNotReinterpreted",
+          "classname": "com.samsung.genuicraft.sdk.GenUiDuplicateTableRecoveryTest",
+          "time": "0.001"
+        },
+        {
+          "name": "explicitColumnSlotsPreserveUnequalLiteralsWithoutInventingFieldKeys",
+          "classname": "com.samsung.genuicraft.sdk.GenUiDuplicateTableRecoveryTest",
+          "time": "0.001"
+        },
+        {
+          "name": "conflictingIncompleteOpaqueAndNonCallIdentitiesCannotEstablishStaticParents",
+          "classname": "com.samsung.genuicraft.sdk.GenUiDuplicateTableRecoveryTest",
+          "time": "0.003"
+        },
+        {
+          "name": "incompleteValuesWrongClosersAndUnparsedTailsRemainUnchanged",
+          "classname": "com.samsung.genuicraft.sdk.GenUiDuplicateTableRecoveryTest",
+          "time": "0.0"
+        },
+        {
+          "name": "existingMalformedTableFragmentSuppressionIsNotReversed",
+          "classname": "com.samsung.genuicraft.sdk.GenUiDuplicateTableRecoveryTest",
+          "time": "0.012"
+        },
+        {
+          "name": "quotedGapParentsReachTheTableWhileBareGapParentsRemainOpaque",
+          "classname": "com.samsung.genuicraft.sdk.GenUiDuplicateTableRecoveryTest",
+          "time": "0.002"
+        },
+        {
+          "name": "ordinaryUniqueKeyTablesAndGlobalDuplicateStateRemainUnchanged",
+          "classname": "com.samsung.genuicraft.sdk.GenUiDuplicateTableRecoveryTest",
+          "time": "0.0"
+        },
+        {
+          "name": "boundNestedActionGuardRepeatAndUnknownCellsOrMetadataAreRejected",
+          "classname": "com.samsung.genuicraft.sdk.GenUiDuplicateTableRecoveryTest",
+          "time": "0.002"
+        },
+        {
+          "name": "elementInputDepthAndReaderBudgetsDoNotAuthorizeBroaderRecovery",
+          "classname": "com.samsung.genuicraft.sdk.GenUiDuplicateTableRecoveryTest",
+          "time": "0.028"
+        },
+        {
+          "name": "guardedOpaqueModalTabAndOrphanPlacementDoesNotPromoteATable",
+          "classname": "com.samsung.genuicraft.sdk.GenUiDuplicateTableRecoveryTest",
+          "time": "0.003"
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "tests": 39,
+    "skipped": 0,
+    "failures": 0,
+    "errors": 0
+  }
+}

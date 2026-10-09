@@ -34,8 +34,9 @@ internal object A2uiExpressGeneralRepair {
     fun candidates(input: String): List<Candidate> {
         val values = linkedMapOf<String, Candidate>()
         var complete: Candidate? = null
-        normalizedCompleteDocument(input)?.let { (document, normalizationChanges) ->
-            repairDecodedGraph(document, normalizationChanges)?.let { candidate ->
+        val projected = A2uiDuplicateTableRecovery.prepare(input)
+        normalizedCompleteDocument(projected.input)?.let { (document, normalizationChanges) ->
+            repairDecodedGraph(document, projected.changes + normalizationChanges)?.let { candidate ->
                 if (!hasUnresolvedDataBindings(candidate.express)) complete = candidate
             }
         }
@@ -45,7 +46,9 @@ internal object A2uiExpressGeneralRepair {
             ?.let { values.putIfAbsent(it.express, it) }
         // These are complementary sources of generated content, not competing candidates. Returning
         // the first valid leaf used to discard every state row and the other damaged components.
-        salvageGeneratedContent(input)?.let { candidate -> values.putIfAbsent(candidate.express, candidate) }
+        salvageGeneratedContent(projected.input)?.let { candidate ->
+            values.putIfAbsent(candidate.express, candidate.copy(changes = (projected.changes + candidate.changes).distinct()))
+        }
         complete?.let { values.putIfAbsent(it.express, it) }
         return values.values.toList()
     }
