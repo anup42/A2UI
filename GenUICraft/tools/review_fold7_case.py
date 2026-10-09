@@ -33,6 +33,7 @@ import sys
 import time
 from urllib.parse import quote
 import uuid
+import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_OUTPUT = ROOT / "GenUICraft/validation/20261009_fold7_visual_review"
@@ -44,7 +45,8 @@ MODEL = f"/sdcard/Android/data/{PACKAGE}/files/sdk_models/model-fp16-corrected.l
 MODEL_SHA256 = "7f01bdf1c6ba9bdf658e57c75001fc35a42edad88238bc5dab0a5f7dcf3de373"
 LEGACY_REPLAY_CHECK_NAMES = frozenset({"instrumentationPassed", "singleSelectedCase", "frozenCorpus", "noInference",
     "sameAcceptedInput", "renderedWithoutIssues", "capturesComplete", "verticalEndObserved", "allTableColumnsObserved"})
-REPLAY_CHECK_NAMES = LEGACY_REPLAY_CHECK_NAMES | {"requestedViewportTableSweeps"}
+VIEWPORT_REPLAY_CHECK_NAMES = LEGACY_REPLAY_CHECK_NAMES | {"requestedViewportTableSweeps"}
+REPLAY_CHECK_NAMES = VIEWPORT_REPLAY_CHECK_NAMES | {"requestedTabViews"}
 BEFORE_RENDER_FAILURE_CHECKS = frozenset({"renderedWithoutIssues", "allTableColumnsObserved"})
 
 
@@ -212,12 +214,13 @@ def latest_receipt(root, selected, phase):
 
 def before_replay_overrides(receipt, allow_render_failures=False):
     checks = receipt.get("checks", {})
-    # Immutable older receipts predate the viewport-sweep request and its check.
-    has_viewport_sweep_request = "repeatTableSweepsPerViewport" in receipt
-    if has_viewport_sweep_request:
-        require(type(receipt["repeatTableSweepsPerViewport"]) is bool,
-                "Viewport sweep request must be an explicit boolean")
-    expected = REPLAY_CHECK_NAMES if has_viewport_sweep_request else LEGACY_REPLAY_CHECK_NAMES
+    # Immutable receipts retain exactly the checks for their recorded requests.
+    expected = LEGACY_REPLAY_CHECK_NAMES
+    for request, check in (("repeatTableSweepsPerViewport", "requestedViewportTableSweeps"),
+                           ("verifyTabViews", "requestedTabViews")):
+        if request in receipt:
+            require(type(receipt[request]) is bool, f"{request} must be an explicit boolean")
+            expected = expected | {check}
     require(isinstance(checks, dict) and set(checks) == expected,
             "Replay receipt must contain exactly the expected check names for its recorded request schema")
     require(all(value is True or value is False for value in checks.values()), "Before checks must be explicit booleans")
@@ -233,10 +236,113 @@ def before_replay_overrides(receipt, allow_render_failures=False):
     return failed
 
 
+def authored_tab_targets(source):
+    require(source.suffix.lower() == ".json", "--verify-tab-views requires saved canonical JSON input")
+    payload = read(source)
+    messages = payload if isinstance(payload, list) else [payload]
+    groups, labels = [], []
+    for message in messages:
+        components = message.get("updateComponents", {}).get("components", []) if isinstance(message, dict) else []
+        for node in components:
+            if not isinstance(node, dict) or node.get("component") != "Tabs":
+                continue
+            group_id, tabs = node.get("id"), node.get("tabs")
+            require(isinstance(group_id, str) and group_id and isinstance(tabs, list) and tabs,
+                    "Tab verification requires authored tab IDs and nonempty definitions")
+            authored = []
+            for tab in tabs:
+                require(isinstance(tab, dict), "Invalid authored tab definition")
+                label = tab.get("title") or tab.get("label")
+                child = next((tab[key] for key in ("child", "content", "id", "element")
+                              if isinstance(tab.get(key), str) and tab[key].strip()), None)
+                require(isinstance(label, str) and label.strip() and child is not None,
+                        "Tab verification requires literal labels and child references")
+                authored.append((label, child)); labels.append(label)
+            groups.append((group_id, authored))
+    require(groups and 1 <= len(labels) <= 12 and len(set(labels)) == len(labels) and
+            len({group_id for group_id, _ in groups}) == len(groups),
+            "Tab verification requires 1..12 unique authored labels and unique tab IDs")
+    return groups
+
+
+def tab_view_evidence_complete(source, case_dir, config, report):
+    """Verify traversal and capture evidence; authored tab content meaning is not a quality claim."""
+    try:
+        require(config.get("verifyTabViews") is True and report.get("tabViewsVerified") is True,
+                "Requested tab traversal was not completed")
+        groups = authored_tab_targets(source)
+        evidence, captures = report.get("tabViewEvidence"), report.get("captures")
+        require(isinstance(evidence, list) and len(evidence) == sum(len(tabs) for _, tabs in groups) and
+                isinstance(captures, list), "Authored tab state evidence is incomplete")
+        by_name = {capture["name"]: capture for capture in captures}
+        require(len(by_name) == len(captures), "Capture names must be unique")
+        def captured(name):
+            require(isinstance(name, str) and re.fullmatch(r"[A-Za-z0-9_-]{1,120}", name), "Invalid tab capture name")
+            capture = by_name[name]
+            require(capture.get("screenshot") is True and all((case_dir / (name + suffix)).is_file()
+                    for suffix in (".png", ".xml")), "Tab capture PNG/XML is missing")
+            return capture
+        def selected(name, labels):
+            captured(name)
+            return {node.get("text") for node in ET.parse(case_dir / (name + ".xml")).iter("node")
+                    if node.get("package") == PACKAGE and node.get("clickable") == "true" and
+                    node.get("selected") == "true" and node.get("text") in labels}
+        offset = 0
+        for group_index, (group_id, tabs) in enumerate(groups, 1):
+            labels = {label for label, _ in tabs}
+            prefix = f"tabs_{group_index}"
+            first_selected = f"{prefix}_1_selected"
+            original_captures = []
+            for capture in captures:
+                if capture["name"] == first_selected: break
+                if capture["name"].startswith((prefix + "_top_", prefix + "_locate_")):
+                    original_captures.append(capture["name"])
+            require(original_captures, "Original selected tab was not captured")
+            original = selected(original_captures[-1], labels)
+            require(len(original) == 1, "Original selected tab is ambiguous")
+            for tab_index, (label, child) in enumerate(tabs):
+                state = evidence[offset]; offset += 1
+                require(state.get("tabsId") == group_id and type(state.get("authoredTabIndex")) is int and
+                        state["authoredTabIndex"] == tab_index and state.get("selectedLabel") == label and
+                        state.get("authoredChild") == child and state.get("selectedStateObserved") is True and
+                        state.get("scrollEndObserved") is True, "An authored tab was not selected or fully traversed")
+                pages = state.get("pages")
+                require(isinstance(pages, list) and len(pages) >= 2 and
+                        pages[0].get("capture") == f"{prefix}_{tab_index + 1}_selected",
+                        "Selected tab capture pages are missing")
+                require(selected(pages[0]["capture"], labels) == {label}, "Selected-tab XML disagrees with the requested state")
+                for page in pages:
+                    capture = captured(page["capture"])
+                    texts = page.get("visibleTexts")
+                    require(page.get("selectedLabel") == label and capture.get("requestedTabLabel") == label and
+                            isinstance(texts, list) and all(isinstance(text, str) for text in texts) and
+                            texts == capture.get("visibleTexts"), "Selected tab text evidence is incomplete")
+            restored = captured(prefix + "_restored")
+            require(restored.get("requestedTabLabel") in original and selected(prefix + "_restored", labels) == original,
+                    "The original selected tab was not restored")
+        return True
+    except (ValueError, KeyError, TypeError, AttributeError, OSError, ET.ParseError):
+        return False
+
+
+def receipt_tab_views_complete(root, receipt):
+    if receipt.get("verifyTabViews") is not True:
+        return True
+    try:
+        source = root / receipt["source"]["archivedPath"]
+        require(digest(source) == receipt["source"]["sha256"], "Archived tab input changed")
+        artifacts = source.parents[2] / "artifacts"
+        return tab_view_evidence_complete(source, artifacts / case_id(receipt["case"]),
+                                          read(artifacts / "replay_config.json"), receipt["result"])
+    except (ValueError, KeyError, TypeError, OSError):
+        return False
+
+
 def pinned_before_evidence(root, after, before_path, before):
     """Verify a comparison baseline without turning its render failures into passes."""
     try:
         before_replay_overrides(after)  # Every after check remains mandatory.
+        require(receipt_tab_views_complete(root, after), "Requested after tab evidence is incomplete")
         source, baseline = after["source"], before["source"]
         require(source.get("pinnedBeforeReceipt") == before_path.relative_to(root).as_posix() and
                 source.get("pinnedBeforeReceiptSha256") == digest(before_path), "Before receipt pin changed")
@@ -246,6 +352,7 @@ def pinned_before_evidence(root, after, before_path, before):
         require(archived.is_file() and digest(archived) == baseline["sha256"], "Archived before input changed")
         override = source.get("beforeRenderFailureOverride")
         failed = before_replay_overrides(before, allow_render_failures=override is not None)
+        require(receipt_tab_views_complete(root, before), "Requested before tab evidence is incomplete")
         if failed:
             require(isinstance(override, dict) and override.get("enabled") is True and
                     override.get("overriddenChecks") == failed and override.get("beforeStatus") == "failed" and
@@ -267,6 +374,7 @@ def choose_source(root, args):
         overridden = before_replay_overrides(before, allow_before)
         archived = root / before["source"]["archivedPath"]
         require(archived.is_file() and digest(archived) == before["source"]["sha256"], "Archived before source bytes changed")
+        require(receipt_tab_views_complete(root, before), "Requested before tab evidence is incomplete")
     source = args.source.resolve() if args.source else (root / before["source"]["archivedPath"] if before else None)
     require(source is not None and source.is_file(), "Before replay requires --source pointing to an existing final artifact")
     require(source.suffix.lower() in (".json", ".express"), "--source must be a final .json or .express artifact")
@@ -302,6 +410,8 @@ def collect(args):
     require(not target.exists(), f"Preserve existing attempt: {target}; select a new --attempt")
     corpus_row(args.case)
     source_pair = choose_source(root, args) if args.action == "replay" else None
+    if args.action == "replay" and args.verify_tab_views:
+        authored_tab_targets(source_pair[0])  # Reject unsupported/ambiguous input before any device operation.
     adb = Adb(args.adb, args.serial)
     with operation_lock(root, args.case, args.action):
         target.mkdir(parents=True)
@@ -313,6 +423,7 @@ def collect(args):
                    "inferenceAttempted": args.action == "generate"}
         if args.action == "replay":
             receipt["repeatTableSweepsPerViewport"] = args.repeat_table_sweeps_per_viewport
+            receipt["verifyTabViews"] = args.verify_tab_views
         save(target / "receipt.json", receipt)
         try:
             receipt["provenance"] = provenance(adb, args, args.action == "generate")
@@ -345,6 +456,7 @@ def collect(args):
                     "replayMode": receipt["source"]["replayMode"], "maxVerticalSwipes": args.max_vertical_swipes,
                     "maxHorizontalSwipes": args.max_horizontal_swipes, "renderFontScale": "1.0", "renderDark": "false",
                     "repeatTableSweepsPerViewport": str(args.repeat_table_sweeps_per_viewport).lower(),
+                    "verifyTabViews": str(args.verify_tab_views).lower(),
                 })
             instrument(adb, command, remote, target, args.timeout, receipt)
             artifacts = target / "artifacts"
@@ -379,6 +491,8 @@ def collect(args):
                 key = "sourceJsonSha256" if receipt["source"]["replayMode"] == "json" else "sourceExpressSha256"
                 captures = report.get("captures", [])
                 checks.update({"noInference": summary.get("modelCalls") == 0 and config.get("inferenceEvaluated") is False,
+                               "requestedTabViews": not args.verify_tab_views or
+                                   tab_view_evidence_complete(staged, artifacts / args.case, config, report),
                                "requestedViewportTableSweeps": not args.repeat_table_sweeps_per_viewport or
                                    (config.get("repeatTableSweepsPerViewport") is True and report.get("repeatTableSweepsPerViewport") is True),
                                "sameAcceptedInput": report.get(key) == receipt["source"]["sha256"],
@@ -686,6 +800,8 @@ def parser():
             command.add_argument("--max-horizontal-swipes", type=int, default=8)
             command.add_argument("--repeat-table-sweeps-per-viewport", action="store_true",
                 help="Sweep visible tables to both horizontal endpoints at every vertical viewport; default is one sweep per table")
+            command.add_argument("--verify-tab-views", action="store_true",
+                help="Saved canonical JSON only: select every authored tab, capture pages and verify restoration; content quality still needs visual review")
     return result
 
 

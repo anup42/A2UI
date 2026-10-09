@@ -27,11 +27,13 @@ class BeforeRenderFailureGateTest(unittest.TestCase):
         self.args = SimpleNamespace(case="BXP-018", phase="after", source=None, source_info=None,
             allow_before_render_failures=False, output=self.root, action="replay", attempt="r01",
             adb="unused", serial="R3CY30QFWLP", max_vertical_swipes=30, max_horizontal_swipes=8,
-            repeat_table_sweeps_per_viewport=False, timeout=30)
+            repeat_table_sweeps_per_viewport=False, verify_tab_views=False, timeout=30)
         self.write_before()
 
-    def write_before(self, failed=(), repeat_sweeps=None):
-        checks = review.LEGACY_REPLAY_CHECK_NAMES if repeat_sweeps is None else review.REPLAY_CHECK_NAMES
+    def write_before(self, failed=(), repeat_sweeps=None, verify_tabs=None):
+        checks = review.LEGACY_REPLAY_CHECK_NAMES if repeat_sweeps is None else review.VIEWPORT_REPLAY_CHECK_NAMES
+        if verify_tabs is not None:
+            checks = checks | {"requestedTabViews"}
         self.before = {"case": "BXP-018", "phase": "before", "attempt": "r01", "startedAtUtc": "2026-10-09",
             "status": "failed" if failed else "collected", "automatedChecksSatisfied": not bool(failed),
             "checks": {key: key not in failed for key in checks},
@@ -39,6 +41,8 @@ class BeforeRenderFailureGateTest(unittest.TestCase):
                 "sha256": review.digest(self.source), "replayMode": "json"}}
         if repeat_sweeps is not None:
             self.before["repeatTableSweepsPerViewport"] = repeat_sweeps
+        if verify_tabs is not None:
+            self.before["verifyTabViews"] = verify_tabs
         self.save_before()
 
     def save_before(self):
@@ -48,6 +52,7 @@ class BeforeRenderFailureGateTest(unittest.TestCase):
         _, source = review.choose_source(self.root, self.args)
         return {"status": "collected", "automatedChecksSatisfied": True, "source": source,
             "repeatTableSweepsPerViewport": self.args.repeat_table_sweeps_per_viewport,
+            "verifyTabViews": self.args.verify_tab_views,
             "checks": {key: True for key in review.REPLAY_CHECK_NAMES}}
 
     def test_passing_baseline_needs_no_flag_and_pins_exact_receipt(self):
@@ -104,9 +109,12 @@ class BeforeRenderFailureGateTest(unittest.TestCase):
         parsed = review.parser().parse_args(["replay", "--case", "BXP-018", "--phase", "after", "--allow-before-render-failures"])
         self.assertTrue(parsed.allow_before_render_failures)
         self.assertFalse(parsed.repeat_table_sweeps_per_viewport)
+        self.assertFalse(parsed.verify_tab_views)
         opted_in = review.parser().parse_args(["replay", "--case", "BXP-029", "--phase", "after",
             "--repeat-table-sweeps-per-viewport"])
         self.assertTrue(opted_in.repeat_table_sweeps_per_viewport)
+        tabs = review.parser().parse_args(["replay", "--case", "BXP-035", "--phase", "after", "--verify-tab-views"])
+        self.assertTrue(tabs.verify_tab_views)
 
     def test_reporting_requires_exact_override_receipt_pin_source_hash_and_after_checks(self):
         self.write_before(review.BEFORE_RENDER_FAILURE_CHECKS)
@@ -137,6 +145,7 @@ class BeforeRenderFailureGateTest(unittest.TestCase):
             def file_hash(self, *args): return source_digest
         def instrument(adb, invocation, remote, target, timeout, receipt):
             self.assertEqual("false", invocation[invocation.index("repeatTableSweepsPerViewport") + 1])
+            self.assertEqual("false", invocation[invocation.index("verifyTabViews") + 1])
             artifacts = target / "artifacts"; case = artifacts / "BXP-018"; case.mkdir(parents=True)
             (case / "initial.png").write_bytes(b"fixture"); (case / "initial.xml").write_text("<hierarchy/>")
             report = {"id": "BXP-018", "sourceJsonSha256": source_digest, "status": "rendered",
@@ -167,6 +176,8 @@ class BeforeRenderFailureGateTest(unittest.TestCase):
                     with self.subTest(after_flag=after_flag):
                         self.args.repeat_table_sweeps_per_viewport = after_flag is True
                         after = self.after()
+                        del after["verifyTabViews"]
+                        del after["checks"]["requestedTabViews"]
                         if after_flag is None:
                             del after["repeatTableSweepsPerViewport"]
                             del after["checks"]["requestedViewportTableSweeps"]
@@ -217,6 +228,128 @@ class BeforeRenderFailureGateTest(unittest.TestCase):
                 self.assertFalse(review.pinned_before_evidence(self.root, after, self.before_path, self.before))
                 after = json.loads(json.dumps(valid)); del after["repeatTableSweepsPerViewport"]
                 self.assertFalse(review.pinned_before_evidence(self.root, after, self.before_path, self.before))
+
+    def tab_fixture(self, case_dir=None):
+        self.source.write_text(json.dumps([{"updateComponents": {"components": [
+            {"id": "d", "component": "Tabs", "tabs": [
+                {"title": "Week 1", "child": "e"}, {"title": "Week 2", "child": "f"}]},
+            {"id": "e", "component": "Text", "text": "First authored content"},
+            {"id": "f", "component": "Text", "text": "Second authored content"}]}}]))
+        case_dir = case_dir or self.root / "states"
+        case_dir.mkdir(parents=True, exist_ok=True)
+        captures, evidence = [], []
+        def capture(name, label, requested=True):
+            texts = ["Week 1", "Week 2", "Content for " + label]
+            data = {"name": name, "screenshot": True, "visibleTexts": texts}
+            if requested: data["requestedTabLabel"] = label
+            captures.append(data)
+            (case_dir / (name + ".png")).write_bytes(b"fixture")
+            (case_dir / (name + ".xml")).write_text('<hierarchy>' + ''.join(
+                f'<node package="{review.PACKAGE}" text="{tab}" clickable="true" selected="{str(tab == label).lower()}"/>'
+                for tab in ("Week 1", "Week 2")) + '</hierarchy>')
+            return {"capture": name, "selectedLabel": label, "visibleTexts": texts}
+        capture("tabs_1_top_1", "Week 1", requested=False)
+        for index, (label, child) in enumerate((('Week 1', 'e'), ('Week 2', 'f'))):
+            prefix = f"tabs_1_{index + 1}"
+            if index: capture(prefix + "_top_1", "Week 1")
+            pages = [capture(prefix + "_selected", label), capture(prefix + "_vertical_1", label)]
+            evidence.append({"tabsId": "d", "authoredTabIndex": index, "selectedLabel": label,
+                "authoredChild": child, "selectedStateObserved": True, "scrollEndObserved": True, "pages": pages})
+        capture("tabs_1_restored", "Week 1")
+        return self.source, case_dir, {"verifyTabViews": True}, {
+            "tabViewsVerified": True, "tabViewEvidence": evidence, "captures": captures}
+
+    def test_tab_evidence_proves_all_authored_states_pages_and_restoration(self):
+        source, case_dir, config, report = self.tab_fixture()
+        self.assertTrue(review.tab_view_evidence_complete(source, case_dir, config, report))
+        self.assertEqual([('d', [('Week 1', 'e'), ('Week 2', 'f')])], review.authored_tab_targets(source))
+        for mutation in ("missing_state", "wrong_label", "wrong_child", "not_selected", "not_at_end",
+                         "missing_pages", "missing_text", "config_ignored", "not_verified", "wrong_restore",
+                         "selected_xml", "restored_xml", "missing_png", "missing_xml"):
+            with self.subTest(mutation=mutation):
+                source, case_dir, config, report = self.tab_fixture()
+                state = report["tabViewEvidence"][0]
+                if mutation == "missing_state": report["tabViewEvidence"].pop()
+                if mutation == "wrong_label": state["selectedLabel"] = "Week 2"
+                if mutation == "wrong_child": state["authoredChild"] = "f"
+                if mutation == "not_selected": state["selectedStateObserved"] = False
+                if mutation == "not_at_end": state["scrollEndObserved"] = False
+                if mutation == "missing_pages": state["pages"] = state["pages"][:1]
+                if mutation == "missing_text": state["pages"][0]["visibleTexts"] = []
+                if mutation == "config_ignored": config["verifyTabViews"] = False
+                if mutation == "not_verified": report["tabViewsVerified"] = False
+                if mutation == "wrong_restore": report["captures"][-1]["requestedTabLabel"] = "Week 2"
+                if mutation in ("selected_xml", "restored_xml"):
+                    name = "tabs_1_1_selected" if mutation == "selected_xml" else "tabs_1_restored"
+                    (case_dir / (name + ".xml")).write_text((case_dir / "tabs_1_2_selected.xml").read_text())
+                if mutation in ("missing_png", "missing_xml"):
+                    suffix = ".png" if mutation == "missing_png" else ".xml"
+                    (case_dir / ("tabs_1_2_selected" + suffix)).unlink()
+                self.assertFalse(review.tab_view_evidence_complete(source, case_dir, config, report))
+
+    def test_tab_flag_preserves_exact_prior_receipt_schemas_and_cannot_be_waived(self):
+        for repeat in (None, False, True):
+            for tabs in (None, False):
+                with self.subTest(repeat=repeat, tabs=tabs):
+                    self.write_before(repeat_sweeps=repeat, verify_tabs=tabs)
+                    self.assertEqual([], review.before_replay_overrides(self.before))
+        self.write_before({"requestedTabViews"}, verify_tabs=True)
+        with self.assertRaises(ValueError): review.before_replay_overrides(self.before, True)
+        for invalid in (None, 0, 1, "false"):
+            self.write_before(verify_tabs=False)
+            self.before["verifyTabViews"] = invalid
+            with self.assertRaises(ValueError): review.before_replay_overrides(self.before)
+        self.write_before(verify_tabs=False)
+        del self.before["checks"]["requestedTabViews"]
+        with self.assertRaises(ValueError): review.before_replay_overrides(self.before)
+        self.write_before()
+        self.before["checks"]["requestedTabViews"] = True
+        with self.assertRaises(ValueError): review.before_replay_overrides(self.before)
+
+    def test_tab_optin_rejects_unsupported_or_ambiguous_input_before_device_access(self):
+        source, _, _, _ = self.tab_fixture()
+        payload = review.read(source)
+        payload[0]["updateComponents"]["components"][0]["tabs"][1]["title"] = "Week 1"
+        source.write_text(json.dumps(payload))
+        with self.assertRaises(ValueError): review.authored_tab_targets(source)
+        self.source = self.root / "output.express"
+        self.source.write_text('<a2ui>root=Text("Saved Express")</a2ui>')
+        self.write_before()
+        self.args.verify_tab_views = True
+        with patch.object(review, "Adb") as adb:
+            with self.assertRaises(ValueError): review.collect(self.args)
+            adb.assert_not_called()
+
+    def test_collect_records_failure_when_requested_tab_state_is_omitted(self):
+        self.tab_fixture()
+        self.write_before()
+        self.args.verify_tab_views = True
+        source_digest = review.digest(self.source)
+        class FakeAdb:
+            def __init__(self, *args): pass
+            def absent(self, *args): pass
+            def command(self, *args, **kwargs): return ""
+            def file_hash(self, *args): return source_digest
+        def instrument(adb, invocation, remote, target, timeout, receipt):
+            self.assertEqual("true", invocation[invocation.index("verifyTabViews") + 1])
+            artifacts = target / "artifacts"
+            _, _, config, report = self.tab_fixture(artifacts / self.args.case)
+            report.update({"id": self.args.case, "sourceJsonSha256": source_digest, "status": "rendered",
+                "issues": [], "verticalEndObserved": True, "verticalLimitReached": False, "tables": []})
+            report["tabViewEvidence"].pop()
+            config.update({"cases": [self.args.case], "corpusSha256": review.digest(review.CORPUS), "inferenceEvaluated": False})
+            (artifacts / "replay_results.json").write_text(json.dumps([report]))
+            (artifacts / "replay_config.json").write_text(json.dumps(config))
+            (artifacts / "replay_summary.json").write_text(json.dumps({"modelCalls": 0}))
+            receipt["instrumentationPassed"] = True
+        with patch.object(review, "Adb", FakeAdb), patch.object(review, "provenance", return_value={}), \
+                patch.object(review, "instrument", side_effect=instrument), patch.object(review, "build_report"):
+            with self.assertRaises(ValueError): review.collect(self.args)
+        failed = review.read(self.root / "BXP-018/after/r01/receipt.json")
+        self.assertTrue(failed["verifyTabViews"])
+        self.assertEqual("failed", failed["status"])
+        self.assertEqual(["requestedTabViews"], [key for key, value in failed["checks"].items() if value is False])
+        self.assertFalse(review.pinned_before_evidence(self.root, failed, self.before_path, self.before))
 
 
 if __name__ == "__main__":
