@@ -8,7 +8,7 @@ plugins {
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 group = "com.samsung.genuicraft"
-version = "0.6.26"
+version = "0.6.27"
 
 android {
     namespace = "com.samsung.genuicraft.sdk"

@@ -501,12 +501,85 @@ internal fun responsiveScheduleCardContent(
     )
 }
 
+@Composable
+private fun CompactDayActivityScheduleCard(
+    content: DayActivityScheduleCardContent,
+    headers: List<String>,
+    row: List<String>
+) {
+    val fontScale = LocalDensity.current.fontScale
+    Card(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp)
+            .semantics(mergeDescendants = true) {
+                contentDescription = tableRowAccessibilitySummary(headers, row)
+            },
+        shape = RoundedCornerShape(16.dp),
+        colors = flatSpecCardColors(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        border = flatSpecCardBorder()
+    ) {
+        BoxWithConstraints(Modifier.fillMaxWidth().padding(12.dp)) {
+            if (shouldStackDayActivitySchedule(maxWidth.value, fontScale)) {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    CompactScheduleDayTag(content.day)
+                    CompactScheduleActivity(content)
+                }
+            } else {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.Top
+                ) {
+                    CompactScheduleDayTag(content.day)
+                    CompactScheduleActivity(content, Modifier.weight(1f))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun CompactScheduleDayTag(day: String) {
+    Surface(
+        shape = RoundedCornerShape(GenUiTokens.RadiusPill),
+        color = MaterialTheme.colorScheme.primaryContainer
+    ) {
+        Text(
+            text = day,
+            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
+        )
+    }
+}
+
+@Composable
+private fun CompactScheduleActivity(content: DayActivityScheduleCardContent, modifier: Modifier = Modifier) {
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(3.dp)) {
+        Text(
+            text = content.activityLabel,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = parseBoldMarkdown(content.activity),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+    }
+}
+
 // moved from FlatSpecRenderer.kt (ResponsiveScheduleRowCard)
 @Composable
 internal fun ResponsiveScheduleRowCard(
     headers: List<String>,
     row: List<String>
 ) {
+    val dayActivity = dayActivityScheduleCardContent(headers, row)
+    if (dayActivity != null) {
+        CompactDayActivityScheduleCard(dayActivity, headers, row)
+        return
+    }
     if (looksLikeTravelItineraryTable(headers)) {
         TravelItineraryDayCard(headers = headers, row = row)
         return

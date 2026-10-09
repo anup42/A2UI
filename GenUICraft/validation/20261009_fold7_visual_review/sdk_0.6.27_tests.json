@@ -1,0 +1,136 @@
+{
+  "sdkVersion": "0.6.27",
+  "variant": "release",
+  "scope": "Compact literal Day/Activity schedule routing, exact saved 036 content, accessibility and existing explicit table presentation",
+  "suites": [
+    {
+      "suite": {
+        "name": "com.samsung.genuicraft.sdk.internal.renderer.ExplicitTablePresentationTest",
+        "tests": "13",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-10-09T04:45:52",
+        "hostname": "NOTEBOOK-PC",
+        "time": "0.172"
+      },
+      "tests": [
+        {
+          "name": "ranked text entities keep every cell when two other columns look numeric",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.ExplicitTablePresentationTest",
+          "time": "0.109"
+        },
+        {
+          "name": "component schedule card mode bypasses grid while explicit direct table still uses it",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.ExplicitTablePresentationTest",
+          "time": "0.033"
+        },
+        {
+          "name": "genuine multi-column metrics retain labels and all numeric fields",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.ExplicitTablePresentationTest",
+          "time": "0.005"
+        },
+        {
+          "name": "generic repaired restaurant and bank tables honor requested entity cards",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.ExplicitTablePresentationTest",
+          "time": "0.005"
+        },
+        {
+          "name": "explicit two-column table retains meaning and units instead of key-value cards",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.ExplicitTablePresentationTest",
+          "time": "0.002"
+        },
+        {
+          "name": "direct schedule card request bypasses grid and retains every labeled field",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.ExplicitTablePresentationTest",
+          "time": "0.005"
+        },
+        {
+          "name": "explicit summary table keeps rows even when legacy itinerary suppression would match",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.ExplicitTablePresentationTest",
+          "time": "0.001"
+        },
+        {
+          "name": "wide displays use a grid and explicit value normalization is consistent",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.ExplicitTablePresentationTest",
+          "time": "0.001"
+        },
+        {
+          "name": "single column generated fragments retain title label and every row value",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.ExplicitTablePresentationTest",
+          "time": "0.003"
+        },
+        {
+          "name": "process cards remain available when table is not explicitly requested",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.ExplicitTablePresentationTest",
+          "time": "0.002"
+        },
+        {
+          "name": "explicit weather table wins while requested and default weather cards remain cards",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.ExplicitTablePresentationTest",
+          "time": "0.003"
+        },
+        {
+          "name": "implicit generic key-value presentation remains unchanged",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.ExplicitTablePresentationTest",
+          "time": "0.001"
+        },
+        {
+          "name": "explicit one column table retains the grid request",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.ExplicitTablePresentationTest",
+          "time": "0.001"
+        }
+      ]
+    },
+    {
+      "suite": {
+        "name": "com.samsung.genuicraft.sdk.internal.renderer.FlatDayActivityScheduleTest",
+        "tests": "6",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-10-09T04:45:52",
+        "hostname": "NOTEBOOK-PC",
+        "time": "0.008"
+      },
+      "tests": [
+        {
+          "name": "task label citations whitespace punctuation and multiline body remain literal",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.FlatDayActivityScheduleTest",
+          "time": "0.002"
+        },
+        {
+          "name": "saved 036 stays on schedule cards and preserves all seven complete activities",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.FlatDayActivityScheduleTest",
+          "time": "0.004"
+        },
+        {
+          "name": "025 multi-column study and 035 fitness schedules retain every original field",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.FlatDayActivityScheduleTest",
+          "time": "0.0"
+        },
+        {
+          "name": "small available width and large fonts stack while normal wide cards stay compact",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.FlatDayActivityScheduleTest",
+          "time": "0.0"
+        },
+        {
+          "name": "URLs and unresolved flat or express bindings keep their existing route",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.FlatDayActivityScheduleTest",
+          "time": "0.0"
+        },
+        {
+          "name": "extra incomplete unknown and nonliteral day fields keep their existing route",
+          "classname": "com.samsung.genuicraft.sdk.internal.renderer.FlatDayActivityScheduleTest",
+          "time": "0.0"
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "tests": 19,
+    "skipped": 0,
+    "failures": 0,
+    "errors": 0
+  }
+}
