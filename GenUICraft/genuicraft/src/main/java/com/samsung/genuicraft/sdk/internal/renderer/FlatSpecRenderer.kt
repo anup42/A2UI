@@ -308,7 +308,7 @@ internal fun nativeTableStickyFirstColumn(headers: List<String>, horizontalScrol
     horizontalScrollEnabled && (headers.size >= 4 || (headers.size == 3 &&
         normalizeTableHeaderForMatch(headers.first()) in setOf(
             "term", "level", "feature", "factor", "point", "criterion", "criteria", "item", "name", "type", "category",
-            "option", "model", "route", "restaurant", "date", "day", "chemistry"
+            "option", "model", "route", "restaurant", "date", "day", "chemistry", "food"
         )))
 
 /** Keep a complete value column readable inside the actual host width, without truncating cells. */

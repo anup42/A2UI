@@ -564,7 +564,9 @@ internal fun RenderAdaptiveTableGrid(
     val scrollState = rememberScrollState()
     BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
         val availableWidthDp = maxWidth.value.toInt().coerceAtLeast(1)
-        val columnMinWidthsDp = tableViewportColumnWidthsDp(estimatedWidths, availableWidthDp, stickyFirstColumn)
+        val columnMinWidthsDp = nutritionTableColumnWidthsDp(
+            headers, rows, availableWidthDp, LocalDensity.current.fontScale,
+        ) ?: tableViewportColumnWidthsDp(estimatedWidths, availableWidthDp, stickyFirstColumn)
         val minTableWidth = columnMinWidthsDp.sum().dp
         val scrollViewportDp = availableWidthDp - if (stickyFirstColumn) columnMinWidthsDp.first() else 0
         if (horizontalScrollEnabled && stickyFirstColumn && headers.size > 1) {
