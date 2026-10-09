@@ -270,6 +270,64 @@ def authored_tab_targets(source):
     return groups
 
 
+def observed_selected_tab_labels(xml_path, labels):
+    """Resolve split Compose labels through bounded owners inside a compact tab strip."""
+    tree = ET.parse(xml_path)
+    parents = {child: parent for parent in tree.iter() for child in parent}
+    def bounds(node):
+        match = re.fullmatch(r"\[(-?\d+),(-?\d+)\]\[(-?\d+),(-?\d+)\]", node.get("bounds", ""))
+        return tuple(map(int, match.groups())) if match else None
+    def contains(outer, inner):
+        return outer and inner and outer[0] <= inner[0] and outer[1] <= inner[1] and outer[2] >= inner[2] and outer[3] >= inner[3]
+    def enabled(node):
+        return node.get("package") == PACKAGE and node.get("enabled") != "false"
+    visible = []
+    for label in tree.iter("node"):
+        text, area = label.get("text"), bounds(label)
+        if text not in labels or not enabled(label) or not area or area[2] - area[0] <= 16 or area[3] - area[1] <= 16:
+            continue
+        path = [label]
+        for _ in range(4):
+            parent = parents.get(path[-1])
+            if parent is None: break
+            path.append(parent)
+        visible.append((text, area, path))
+    def full_fit(strip):
+        if strip.get("class") != "android.view.View": return False
+        siblings = []
+        for text, area, path in visible:
+            for depth, owner in enumerate(path[:3]):
+                control = bounds(owner)
+                if depth + 1 < len(path) and path[depth + 1] is strip and enabled(owner) and \
+                        owner.get("class") == "android.view.View" and (owner.get("clickable") == "true" or owner.get("selected") == "true") and \
+                        contains(control, area) and control[3] - control[1] <= (area[3] - area[1]) * 3:
+                    siblings.append((text, owner, control)); break
+        if len(siblings) < 2 or len({text for text, _, _ in siblings}) != len(siblings) or \
+                len({id(owner) for _, owner, _ in siblings}) != len(siblings) or \
+                sum(owner.get("selected") == "true" for _, owner, _ in siblings) != 1:
+            return False
+        areas = sorted(area for _, _, area in siblings)
+        return all(abs(area[1] - areas[0][1]) <= 2 and abs(area[3] - areas[0][3]) <= 2 for area in areas) and \
+            all(left[2] <= right[0] + 2 for left, right in zip(areas, areas[1:]))
+    result = set()
+    for text, area, path in visible:
+        for owner_depth, owner in enumerate(path[:3]):
+            control = bounds(owner)
+            if not enabled(owner) or (owner.get("clickable") != "true" and owner.get("selected") != "true") or \
+                    not contains(control, area) or control[3] - control[1] > (area[3] - area[1]) * 3:
+                continue
+            for strip_depth in range(owner_depth + 1, min(owner_depth + 3, len(path))):
+                strip = path[strip_depth]
+                container = bounds(strip)
+                strip_observed = strip.get("scrollable") == "true" or strip.get("class") == "android.widget.HorizontalScrollView" or \
+                    (strip_depth == owner_depth + 1 and owner.get("class") == "android.view.View" and full_fit(strip))
+                if enabled(strip) and strip_observed and \
+                        contains(container, control) and container[2] - container[0] > control[2] - control[0] and \
+                        container[3] - container[1] <= (control[3] - control[1]) * 2 and owner.get("selected") == "true":
+                    result.add(text)
+    return result
+
+
 def tab_view_evidence_complete(source, case_dir, config, report):
     """Verify traversal and capture evidence; authored tab content meaning is not a quality claim."""
     try:
@@ -289,9 +347,7 @@ def tab_view_evidence_complete(source, case_dir, config, report):
             return capture
         def selected(name, labels):
             captured(name)
-            return {node.get("text") for node in ET.parse(case_dir / (name + ".xml")).iter("node")
-                    if node.get("package") == PACKAGE and node.get("clickable") == "true" and
-                    node.get("selected") == "true" and node.get("text") in labels}
+            return observed_selected_tab_labels(case_dir / (name + ".xml"), labels)
         offset = 0
         for group_index, (group_id, tabs) in enumerate(groups, 1):
             labels = {label for label, _ in tabs}

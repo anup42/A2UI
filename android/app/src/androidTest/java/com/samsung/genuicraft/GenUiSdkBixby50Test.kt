@@ -627,9 +627,20 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
                         require(labels.distinct().size == labels.size) { "Repeated tab labels require a separately scoped manual review." }
                         val evidence = mutableListOf<Map<String, Any>>()
                         fun control(label: String): UiObject2? {
-                            val matches = device.findObjects(By.pkg(context.packageName).text(label).clickable(true)).filter {
-                                it.isEnabled && it.visibleBounds.width() > 16 && it.visibleBounds.height() > 16 &&
-                                    Rect.intersects(it.visibleBounds, viewport.get())
+                            val visible = labels.flatMap { authored ->
+                                device.findObjects(By.pkg(context.packageName).text(authored)).filter { text ->
+                                    val bounds = text.visibleBounds
+                                    text.isEnabled && bounds.width() > 16 && bounds.height() > 16 &&
+                                        Rect.intersects(bounds, viewport.get())
+                                }.map { authored to replayUiTabPath(it) }
+                            }
+                            val paths = visible.map { (text, path) -> text to path.map(::replayUiTabNode) }
+                            val matches = visible.indices.mapNotNull { index ->
+                                if (visible[index].first != label) return@mapNotNull null
+                                val path = paths[index].second
+                                val match = replayTabControlMatch(path[0].bounds, path, paths, labels.toSet())
+                                    ?: return@mapNotNull null
+                                visible[index].second[match.ownerDepth]
                             }
                             require(matches.size <= 1) { "Ambiguous visible tab control: $label" }
                             return matches.singleOrNull()
@@ -666,14 +677,13 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
                                 control(label)?.let { return it }
                                 for (towardsEnd in listOf(true, false)) {
                                     for (step in 1..maxHorizontal.coerceAtMost(4)) {
-                                        val anchors = group.tabs.mapNotNull { control(it.label)?.visibleBounds }
-                                        val strip = current.firstOrNull { node ->
-                                            node.className == "android.widget.HorizontalScrollView" && anchors.any {
-                                                it.centerY() > node.bounds.top && it.centerY() < node.bounds.bottom
-                                            }
+                                        val strip = group.tabs.mapNotNull { control(it.label) }.firstNotNullOfOrNull { owner ->
+                                            val path = replayUiTabPath(owner)
+                                            replayTabControlMatch(owner.visibleBounds, path.map(::replayUiTabNode))
+                                                ?.let { path[it.stripDepth].visibleBounds }
                                         } ?: error("No observed horizontal tab strip can reveal $label.")
                                         val before = fingerprint(current)
-                                        require(swipeHorizontal(strip.bounds, strip.bounds.centerY(), towardsEnd)) { "Horizontal tab-strip gesture failed." }
+                                        require(swipeHorizontal(strip, strip.centerY(), towardsEnd)) { "Horizontal tab-strip gesture failed." }
                                         current = capture("${searchPrefix}_${if (towardsEnd) "end" else "start"}_$step")
                                         control(label)?.let { return it }
                                         if (fingerprint(current) == before) break
@@ -685,7 +695,7 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
                                 if (tabIndex > 0) resetVertical("${prefix}_${tabIndex + 1}")
                                 val tabPrefix = "${prefix}_${tabIndex + 1}"
                                 requestedTabLabel = tab.label
-                                locate(tab.label, "${tabPrefix}_strip").click()
+                                locate(tab.label, "${tabPrefix}_strip").let { if (!it.isSelected) it.click() }
                                 instrumentation.waitForIdleSync()
                                 Thread.sleep(300)
                                 current = capture("${tabPrefix}_selected")
@@ -722,7 +732,7 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
                             }
                             resetVertical("${prefix}_restore")
                             requestedTabLabel = original.label
-                            locate(original.label, "${prefix}_restore_strip").click()
+                            locate(original.label, "${prefix}_restore_strip").let { if (!it.isSelected) it.click() }
                             Thread.sleep(300)
                             current = capture("${prefix}_restored")
                             require(control(original.label)?.isSelected == true) { "Original selected tab was not restored." }
@@ -853,6 +863,90 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
         val rowSource: String, val rowCount: Int, val dataIssue: String?)
     private data class ReplayTab(val label: String, val child: String)
     private data class ReplayTabs(val id: String, val tabs: List<ReplayTab>)
+    private data class ReplayTabPathNode(val bounds: Rect, val className: String, val enabled: Boolean,
+        val clickable: Boolean, val selected: Boolean, val scrollable: Boolean)
+    private data class ReplayTabControlMatch(val ownerDepth: Int, val stripDepth: Int)
+
+    private fun replayUiTabPath(text: UiObject2): List<UiObject2> = buildList {
+        var node: UiObject2? = text
+        repeat(5) {
+            node?.let { add(it); node = it.parent }
+        }
+    }
+
+    private fun replayUiTabNode(node: UiObject2) = ReplayTabPathNode(node.visibleBounds, node.className,
+        node.isEnabled, node.isClickable, node.isSelected, node.isScrollable)
+
+    /** Compose can put label text below the clickable/selected tab semantic owner. */
+    private fun replayTabControlMatch(labelBounds: Rect, path: List<ReplayTabPathNode>,
+        visiblePaths: List<Pair<String, List<ReplayTabPathNode>>> = emptyList(), authoredLabels: Set<String> = emptySet()): ReplayTabControlMatch? {
+        if (labelBounds.width() <= 16 || labelBounds.height() <= 16) return null
+        for (ownerDepth in 0 until minOf(3, path.size)) {
+            val owner = path[ownerDepth]
+            if (!owner.enabled || (!owner.clickable && !owner.selected) || !owner.bounds.contains(labelBounds) ||
+                owner.bounds.height() > labelBounds.height() * 3) continue
+            for (stripDepth in ownerDepth + 1 until minOf(ownerDepth + 3, path.size)) {
+                val strip = path[stripDepth]
+                if (strip.enabled &&
+                    strip.bounds.contains(owner.bounds) && strip.bounds.width() > owner.bounds.width() &&
+                    strip.bounds.height() <= owner.bounds.height() * 2 &&
+                    (strip.scrollable || strip.className == "android.widget.HorizontalScrollView" ||
+                        (stripDepth == ownerDepth + 1 && owner.className == "android.view.View" &&
+                            replayFullFitTabStrip(strip, visiblePaths, authoredLabels)))) {
+                    return ReplayTabControlMatch(ownerDepth, stripDepth)
+                }
+            }
+        }
+        return null
+    }
+
+    private fun replayFullFitTabStrip(strip: ReplayTabPathNode,
+        paths: List<Pair<String, List<ReplayTabPathNode>>>, authoredLabels: Set<String>): Boolean {
+        if (strip.className != "android.view.View") return false
+        val siblings = paths.mapNotNull { (label, path) ->
+            if (label !in authoredLabels || path.isEmpty()) return@mapNotNull null
+            val text = path[0]
+            (0 until minOf(3, path.size - 1)).firstNotNullOfOrNull { depth ->
+                val owner = path[depth]
+                val parent = path[depth + 1]
+                if (text.bounds.width() > 16 && text.bounds.height() > 16 && owner.enabled &&
+                    owner.className == "android.view.View" && (owner.clickable || owner.selected) &&
+                    owner.bounds.contains(text.bounds) && owner.bounds.height() <= text.bounds.height() * 3 &&
+                    parent.enabled && parent.className == strip.className && parent.bounds == strip.bounds &&
+                    strip.bounds.contains(owner.bounds)) label to owner else null
+            }
+        }.distinctBy { it.first to it.second.bounds }
+        if (siblings.size < 2 || siblings.map { it.first }.distinct().size != siblings.size ||
+            siblings.count { it.second.selected } != 1) return false
+        val owners = siblings.map { it.second.bounds }.sortedBy { it.left }
+        return owners.all { kotlin.math.abs(it.top - owners[0].top) <= 2 && kotlin.math.abs(it.bottom - owners[0].bottom) <= 2 } &&
+            owners.zipWithNext().all { (left, right) -> left.right <= right.left + 2 }
+    }
+
+    private fun replayTabPathsFromXml(xml: String, packageName: String): List<Pair<String, List<ReplayTabPathNode>>> {
+        val parser = Xml.newPullParser().apply { setInput(xml.reader()) }
+        val stack = mutableListOf<ReplayTabPathNode>()
+        val result = mutableListOf<Pair<String, List<ReplayTabPathNode>>>()
+        val boundsPattern = Regex("\\[(-?\\d+),(-?\\d+)]\\[(-?\\d+),(-?\\d+)]")
+        while (parser.eventType != XmlPullParser.END_DOCUMENT) {
+            if (parser.name == "node" && parser.eventType == XmlPullParser.START_TAG) {
+                val match = boundsPattern.matchEntire(parser.getAttributeValue(null, "bounds").orEmpty())
+                val coordinates = match?.groupValues?.drop(1)?.map(String::toInt)
+                val node = ReplayTabPathNode(if (coordinates == null) Rect() else Rect(coordinates[0], coordinates[1], coordinates[2], coordinates[3]),
+                    parser.getAttributeValue(null, "class").orEmpty(),
+                    parser.getAttributeValue(null, "package") == packageName && parser.getAttributeValue(null, "enabled") != "false",
+                    parser.getAttributeValue(null, "clickable") == "true", parser.getAttributeValue(null, "selected") == "true",
+                    parser.getAttributeValue(null, "scrollable") == "true")
+                val text = parser.getAttributeValue(null, "text").orEmpty()
+                if (text.isNotBlank() && node.enabled) result += text to (listOf(node) + stack.asReversed().take(4))
+                stack += node
+            } else if (parser.name == "node" && parser.eventType == XmlPullParser.END_TAG) {
+                stack.removeAt(stack.lastIndex)
+            }
+            parser.next()
+        }
+        return result
+    }
 
     /** Screenshots are fresh independently; accessibility caches can retain a previous case. */
     private fun dumpFreshHierarchy(device: UiDevice, file: File) {
@@ -953,7 +1047,10 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
         // Table cells can repeat a tab's title. Require an actual selected clickable control
         // inside a strip-sized observed scroll container, rather than a matching text alone.
         return nodes.any { control ->
-            control.clickable && control.selected && control.text in authoredLabels &&
+            control.selected && (control.text in authoredLabels || nodes.any { label ->
+                label.text in authoredLabels && control.bounds.contains(label.bounds) &&
+                    control.bounds.height() <= label.bounds.height() * 3
+            }) &&
                 scroller.bounds.contains(control.bounds) &&
                 scroller.bounds.height() <= control.bounds.height() * 2
         }
@@ -1014,6 +1111,77 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
         assertFalse(replayIsObservedTabStrip(nodes[2], nodes, labels))
         assertFalse(replayIsObservedTabStrip(nodes[0], nodes.map { it.copy(selected = false) }, labels))
         assertFalse(replayIsObservedTabStrip(nodes[0], nodes, setOf("Different authored tab")))
+    }
+
+    @Test fun replayTabSelectionResolvesSplitComposeSemanticsAndRejectsTableLabels() {
+        val paths = replayTabPathsFromXml("""<hierarchy>
+            <node package="com.samsung.genuicraft" class="android.view.View" scrollable="true" bounds="[58,593][1022,719]">
+              <node package="com.samsung.genuicraft" class="android.view.View" selected="true" clickable="false" bounds="[195,593][431,719]">
+                <node package="com.samsung.genuicraft" class="android.widget.TextView" text="Week 1" clickable="false" selected="false" bounds="[244,625][383,686]"/>
+              </node>
+              <node package="com.samsung.genuicraft" class="android.view.View" selected="false" clickable="true" bounds="[431,593][667,719]">
+                <node package="com.samsung.genuicraft" class="android.widget.TextView" text="Week 2" clickable="false" selected="false" bounds="[480,625][619,686]"/>
+              </node>
+            </node>
+            <node package="com.samsung.genuicraft" class="android.widget.HorizontalScrollView" scrollable="true" bounds="[58,745][1022,2040]">
+              <node package="com.samsung.genuicraft" class="android.view.View" clickable="true" bounds="[58,745][1022,1462]">
+                <node package="com.samsung.genuicraft" class="android.widget.TextView" text="Week 1" bounds="[95,824][250,880]"/>
+              </node>
+            </node>
+        </hierarchy>""", "com.samsung.genuicraft")
+        val first = paths[0].second
+        val second = paths[1].second
+        assertEquals(ReplayTabControlMatch(1, 2), replayTabControlMatch(first[0].bounds, first))
+        assertTrue(first[1].selected)
+        assertFalse(first[1].clickable)
+        assertEquals(ReplayTabControlMatch(1, 2), replayTabControlMatch(second[0].bounds, second))
+        assertTrue(second[1].clickable)
+        assertFalse(second[1].selected)
+        assertEquals(null, replayTabControlMatch(paths[2].second[0].bounds, paths[2].second))
+        assertEquals(null, replayTabControlMatch(first[0].bounds, first.map { it.copy(selected = false, clickable = false) }))
+        assertEquals(null, replayTabControlMatch(first[0].bounds, first.mapIndexed { index, node ->
+            if (index == 2) node.copy(scrollable = false) else node
+        }))
+    }
+
+    @Test fun replayFullFitTabStripRequiresAuthoredSiblingOwnersAndOneSelection() {
+        val paths = replayTabPathsFromXml("""<hierarchy>
+          <node package="com.samsung.genuicraft" class="android.widget.ScrollView" scrollable="true" bounds="[16,126][1064,2520]">
+            <node package="com.samsung.genuicraft" class="android.view.View" bounds="[58,593][1022,719]">
+              <node package="com.samsung.genuicraft" class="android.view.View" scrollable="false" bounds="[58,593][1002,719]">
+                <node package="com.samsung.genuicraft" class="android.view.View" selected="true" clickable="false" bounds="[58,593][294,719]">
+                  <node package="com.samsung.genuicraft" class="android.widget.TextView" text="Week 1" bounds="[107,625][246,686]"/>
+                </node>
+                <node package="com.samsung.genuicraft" class="android.view.View" clickable="true" bounds="[294,593][530,719]">
+                  <node package="com.samsung.genuicraft" class="android.widget.TextView" text="Week 2" bounds="[343,625][482,686]"/>
+                </node>
+                <node package="com.samsung.genuicraft" class="android.view.View" clickable="true" bounds="[530,593][766,719]">
+                  <node package="com.samsung.genuicraft" class="android.widget.TextView" text="Week 3" bounds="[579,625][718,686]"/>
+                </node>
+                <node package="com.samsung.genuicraft" class="android.view.View" clickable="true" bounds="[766,593][1002,719]">
+                  <node package="com.samsung.genuicraft" class="android.widget.TextView" text="Week 4" bounds="[815,625][954,686]"/>
+                </node>
+              </node>
+            </node>
+            <node package="com.samsung.genuicraft" class="android.view.View" clickable="true" selected="true" bounds="[58,745][1022,1462]">
+              <node package="com.samsung.genuicraft" text="Week 1" bounds="[95,824][250,880]"/>
+            </node>
+          </node>
+        </hierarchy>""", "com.samsung.genuicraft")
+        val labels = setOf("Week 1", "Week 2", "Week 3", "Week 4")
+        paths.take(4).forEach { (_, path) ->
+            assertEquals(ReplayTabControlMatch(1, 2), replayTabControlMatch(path[0].bounds, path, paths, labels))
+        }
+        assertEquals(null, replayTabControlMatch(paths[4].second[0].bounds, paths[4].second, paths, labels))
+        val first = paths[0].second
+        fun altered(transform: (ReplayTabPathNode) -> ReplayTabPathNode) = paths.map { (label, path) -> label to path.map(transform) }
+        assertEquals(null, replayTabControlMatch(first[0].bounds, first, altered { it.copy(selected = false) }, labels))
+        assertEquals(null, replayTabControlMatch(first[0].bounds, first,
+            altered { if (it.clickable) it.copy(selected = true) else it }, labels))
+        assertEquals(null, replayTabControlMatch(first[0].bounds, first,
+            altered { if (it.clickable || it.selected) it.copy(className = "android.widget.Button") else it }, labels))
+        assertEquals(null, replayTabControlMatch(first[0].bounds, first, paths.take(1), labels))
+        assertEquals(null, replayTabControlMatch(first[0].bounds, first, paths, setOf("Week 1")))
     }
 
     @Test fun replayHorizontalEndpointRequiresStableCoordinatesDespiteCompleteLogicalText() {

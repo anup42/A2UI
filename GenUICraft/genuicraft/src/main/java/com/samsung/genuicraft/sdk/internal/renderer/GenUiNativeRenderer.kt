@@ -2365,7 +2365,7 @@ object GenUiNativeRenderer {
         val selectedTab = tabItems[selectedIndex]
 
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            ScrollableTabRow(selectedTabIndex = selectedIndex) {
+            ScrollableTabRow(selectedTabIndex = selectedIndex, edgePadding = 0.dp) {
                 tabItems.forEachIndexed { index, item ->
                     Tab(
                         selected = selectedIndex == index,

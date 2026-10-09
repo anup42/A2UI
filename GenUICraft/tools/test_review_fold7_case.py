@@ -244,9 +244,15 @@ class BeforeRenderFailureGateTest(unittest.TestCase):
             if requested: data["requestedTabLabel"] = label
             captures.append(data)
             (case_dir / (name + ".png")).write_bytes(b"fixture")
-            (case_dir / (name + ".xml")).write_text('<hierarchy>' + ''.join(
-                f'<node package="{review.PACKAGE}" text="{tab}" clickable="true" selected="{str(tab == label).lower()}"/>'
-                for tab in ("Week 1", "Week 2")) + '</hierarchy>')
+            (case_dir / (name + ".xml")).write_text(
+                f'<hierarchy><node package="{review.PACKAGE}" class="android.view.View" scrollable="true" bounds="[0,0][600,100]">' + ''.join(
+                    f'<node package="{review.PACKAGE}" class="android.view.View" clickable="{str(tab != label).lower()}" '
+                    f'selected="{str(tab == label).lower()}" bounds="[{index * 250},0][{(index + 1) * 250},100]">'
+                    f'<node package="{review.PACKAGE}" class="android.widget.TextView" text="{tab}" clickable="false" selected="false" '
+                    f'bounds="[{index * 250 + 30},25][{index * 250 + 200},75]"/></node>'
+                    for index, tab in enumerate(("Week 1", "Week 2"))) + '</node>' +
+                f'<node package="{review.PACKAGE}" class="android.view.View" clickable="true" selected="true" bounds="[0,200][600,700]">'
+                f'<node package="{review.PACKAGE}" text="Week 1" bounds="[20,240][190,290]"/></node></hierarchy>')
             return {"capture": name, "selectedLabel": label, "visibleTexts": texts}
         capture("tabs_1_top_1", "Week 1", requested=False)
         for index, (label, child) in enumerate((('Week 1', 'e'), ('Week 2', 'f'))):
@@ -287,6 +293,43 @@ class BeforeRenderFailureGateTest(unittest.TestCase):
                     suffix = ".png" if mutation == "missing_png" else ".xml"
                     (case_dir / ("tabs_1_2_selected" + suffix)).unlink()
                 self.assertFalse(review.tab_view_evidence_complete(source, case_dir, config, report))
+
+    def test_selected_tab_xml_resolves_split_semantics_and_excludes_identical_table_labels(self):
+        _, case_dir, _, _ = self.tab_fixture()
+        labels = {"Week 1", "Week 2"}
+        self.assertEqual({"Week 1"}, review.observed_selected_tab_labels(case_dir / "tabs_1_1_selected.xml", labels))
+        self.assertEqual({"Week 2"}, review.observed_selected_tab_labels(case_dir / "tabs_1_2_selected.xml", labels))
+        merged = case_dir / "merged.xml"
+        merged.write_text(f'<hierarchy><node package="{review.PACKAGE}" class="android.widget.HorizontalScrollView" bounds="[0,0][600,100]">'
+            f'<node package="{review.PACKAGE}" text="Week 1" selected="true" clickable="true" bounds="[0,0][250,100]"/>'
+            f'<node package="{review.PACKAGE}" text="Week 2" selected="false" clickable="true" bounds="[250,0][500,100]"/>'
+            '</node></hierarchy>')
+        self.assertEqual({"Week 1"}, review.observed_selected_tab_labels(merged, labels))
+        merged.write_text(merged.read_text().replace('bounds="[0,0][600,100]"', 'bounds="[0,0][600,900]"'))
+        self.assertEqual(set(), review.observed_selected_tab_labels(merged, labels))
+
+    def test_full_fit_tab_strip_requires_authored_sibling_owners_and_one_selection(self):
+        import xml.etree.ElementTree as ET
+        _, case_dir, _, _ = self.tab_fixture()
+        path = case_dir / "full_fit.xml"
+        text = (case_dir / "tabs_1_1_selected.xml").read_text().replace('scrollable="true"', 'scrollable="false"')
+        path.write_text(text)
+        labels = {"Week 1", "Week 2"}
+        self.assertEqual({"Week 1"}, review.observed_selected_tab_labels(path, labels))
+        for mutation in ("no_selection", "two_selected", "row_buttons", "single_owner", "duplicate_labels", "overlapping_owners"):
+            with self.subTest(mutation=mutation):
+                root = ET.fromstring(text)
+                strip = root.find("node")
+                first, second = list(strip)
+                if mutation == "no_selection": first.set("selected", "false")
+                if mutation == "two_selected": second.set("selected", "true")
+                if mutation == "row_buttons":
+                    first.set("class", "android.widget.Button"); second.set("class", "android.widget.Button")
+                if mutation == "single_owner": strip.remove(second)
+                if mutation == "duplicate_labels": second.find("node").set("text", "Week 1")
+                if mutation == "overlapping_owners": second.set("bounds", "[200,0][500,100]")
+                path.write_text(ET.tostring(root, encoding="unicode"))
+                self.assertEqual(set(), review.observed_selected_tab_labels(path, labels))
 
     def test_tab_flag_preserves_exact_prior_receipt_schemas_and_cannot_be_waived(self):
         for repeat in (None, False, True):

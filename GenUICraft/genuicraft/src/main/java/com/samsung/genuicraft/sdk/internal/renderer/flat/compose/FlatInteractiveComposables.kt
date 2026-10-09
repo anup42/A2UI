@@ -241,7 +241,7 @@ internal fun RenderTabs(
     var selectedIndex by remember(tabs, activeTabId) { mutableIntStateOf(initialIndex) }
 
     Column(modifier = modifier.fillMaxWidth()) {
-        ScrollableTabRow(selectedTabIndex = selectedIndex) {
+        ScrollableTabRow(selectedTabIndex = selectedIndex, edgePadding = 0.dp) {
             tabs.forEachIndexed { index, tabAny ->
                 val tab = tabAny as? Map<*, *> ?: return@forEachIndexed
                 val title = (tab["title"]?.toString() ?: tab["label"]?.toString()).orEmpty().ifBlank { "Tab ${index + 1}" }
