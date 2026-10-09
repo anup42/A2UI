@@ -779,6 +779,8 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
                         mapOf(
                             "id" to table.id, "columns" to table.columns,
                             "rowSource" to table.rowSource, "sourceRows" to table.rowCount,
+                            "columnSource" to table.columnSource,
+                            "unprojectedRowFields" to table.unprojectedRowFields,
                             "sourceCells" to table.cells.size, "dataResolutionIssue" to table.dataIssue,
                             "observedHeaders" to seenHeaders[index].sorted().map { table.columns[it] },
                             "observedRepresentativeCells" to seenCells[index].sorted().map { table.cells[it].value }.distinct(),
@@ -870,7 +872,9 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
         val parentId: Int = -1)
     private data class ReplayCell(val row: Int, val column: Int, val value: String)
     private data class ReplayTable(val id: String, val columns: List<String>, val cells: List<ReplayCell>,
-        val rowSource: String, val rowCount: Int, val dataIssue: String?)
+        val rowSource: String, val rowCount: Int, val dataIssue: String?,
+        val columnSource: String = "explicit_columns",
+        val unprojectedRowFields: List<Map<String, Any>> = emptyList())
     private data class ReplayTab(val label: String, val child: String)
     private data class ReplayTabs(val id: String, val tabs: List<ReplayTab>)
     private data class ReplayTabPathNode(val bounds: Rect, val className: String, val enabled: Boolean,
@@ -1284,18 +1288,52 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
                 value.isJsonObject -> {
                     val node = value.asJsonObject
                     if (string(node.get("component")) == "Table") {
-                        val columns = node.getAsJsonArray("columns")?.map { column ->
-                            if (column.isJsonObject) {
-                                val definition = column.asJsonObject
-                                string(definition.get("label")).ifBlank { string(definition.get("key")) }
-                            } else string(column)
-                        }.orEmpty()
-                        val keys = node.getAsJsonArray("columns")?.map { column ->
-                            if (column.isJsonObject) string(column.asJsonObject.get("key")) else string(column)
-                        }.orEmpty()
                         val statePath = string(node.get("statePath"))
                         val rawRows = if (statePath.isNotBlank()) stateValue(statePath) else node.get("rows")
                         val rows = rawRows?.takeIf { it.isJsonArray }?.asJsonArray?.toList().orEmpty()
+                        // The SDK accepts list-shaped columns; an object map falls back to row keys,
+                        // including any supplied source field. Do not reinterpret the map as a list.
+                        val definitions = node.get("columns")?.takeIf { it.isJsonArray }?.asJsonArray?.toList().orEmpty()
+                        val inferredKeys = rows.firstOrNull { it.isJsonObject }?.asJsonObject
+                            ?.entrySet()?.map { it.key }.orEmpty()
+                        val inferredSize = rows.firstOrNull { it.isJsonArray }?.asJsonArray?.size() ?: 0
+                        val columnSource = when {
+                            definitions.isNotEmpty() -> "explicit_columns"
+                            inferredKeys.isNotEmpty() -> "first_object_row_keys"
+                            inferredSize > 0 -> "first_array_row_indices"
+                            else -> "unresolved"
+                        }
+                        val keys = when (columnSource) {
+                            "explicit_columns" -> definitions.map { column ->
+                                if (column.isJsonObject) string(column.asJsonObject.get("key"))
+                                    .ifBlank { string(column.asJsonObject.get("label")) } else string(column)
+                            }
+                            "first_object_row_keys" -> inferredKeys
+                            else -> (0 until inferredSize).map(Int::toString)
+                        }
+                        val columns = when (columnSource) {
+                            "explicit_columns" -> definitions.map { column ->
+                                if (column.isJsonObject) {
+                                    val definition = column.asJsonObject
+                                    string(definition.get("label")).ifBlank { string(definition.get("key")) }
+                                } else string(column)
+                            }
+                            "first_object_row_keys" -> inferredKeys.map { key ->
+                                key.trim().replace(Regex("[_./]"), " ").replace(Regex("\\s+"), " ")
+                                    .trim().split(' ').joinToString(" ") { token ->
+                                        token.lowercase().replaceFirstChar { it.titlecase() }
+                                    }
+                            }
+                            else -> (0 until inferredSize).map { "Column " + (it + 1) }
+                        }
+                        // These exact supplied values are diagnostics, not projected-cell coverage.
+                        val unprojectedRowFields = rows.flatMapIndexed { rowIndex, row ->
+                            row.takeIf { it.isJsonObject }?.asJsonObject?.entrySet()?.mapNotNull { entry ->
+                                string(entry.value).takeIf { entry.key !in keys && it.isNotBlank() }?.let {
+                                    mapOf<String, Any>("row" to rowIndex + 1, "key" to entry.key, "value" to it)
+                                }
+                            }.orEmpty()
+                        }
                         var nonScalarCells = 0
                         val cells = rows.flatMapIndexed { rowIndex, row ->
                             columns.indices.mapNotNull { index ->
@@ -1312,9 +1350,10 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
                             if (statePath.isBlank()) "inline_rows" else "statePath:$statePath", rows.size,
                             when {
                                 rawRows?.isJsonArray != true -> "Table rows did not resolve to an array; coverage is not established."
+                                columns.isEmpty() && rows.isNotEmpty() -> "Table columns did not resolve; coverage is not established."
                                 nonScalarCells > 0 -> "$nonScalarCells non-scalar supplied cells require manual coverage review."
                                 else -> null
-                            })
+                            }, columnSource, unprojectedRowFields)
                     }
                     node.entrySet().forEach { visit(it.value) }
                 }
@@ -1322,6 +1361,51 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
         }
         visit(payload)
         return result
+    }
+
+    private fun replayTimelineColumnFixture(columns: String): String = """[
+        {"updateComponents":{"components":[{"id":"e","component":"Table","columns":$columns,"statePath":"/timeline_rows"}]}},
+        {"updateDataModel":{"path":"/","value":{"timeline_rows":[
+            {"year":"1336","event":"Vijayanagara was founded, and Hampi became its capital","source":"[1]"},
+            {"year":"14th to 16th centuries","event":"the city expanded into a major capital with temples, royal spaces, markets, roads, and waterworks","source":""},
+            {"year":"1565","event":"the city was conquered, pillaged, and abandoned after the Battle of Talikota and the Deccan confederacy\u2019s victory","source":""}
+        ]}}}
+    ]"""
+
+    @Test fun replayCoverageMapColumnsUsesActualRowKeyFallbackIncludingCitation() {
+        // Exact BXP-048 row values and map-shaped column declaration.
+        val table = replayTableTargets(replayTimelineColumnFixture("""{"year":"year","event":"event"}""")).single()
+        assertEquals("first_object_row_keys", table.columnSource)
+        assertEquals(listOf("Year", "Event", "Source"), table.columns)
+        assertEquals(3, table.rowCount)
+        assertEquals(7, table.cells.size)
+        assertEquals(listOf("1336", "14th to 16th centuries", "1565"),
+            table.cells.filter { it.column == 0 }.map { it.value })
+        assertEquals(listOf(ReplayCell(0, 2, "[1]")), table.cells.filter { it.column == 2 })
+        assertEquals(emptyList<Map<String, Any>>(), table.unprojectedRowFields)
+        assertEquals(null, table.dataIssue)
+    }
+
+    @Test fun replayCoverageExplicitListKeepsProjectionAndReportsUnprojectedCitation() {
+        val table = replayTableTargets(replayTimelineColumnFixture(
+            """[{"key":"year","label":"Year"},{"key":"event","label":"Event"}]""")).single()
+        assertEquals("explicit_columns", table.columnSource)
+        assertEquals(listOf("Year", "Event"), table.columns)
+        assertEquals(6, table.cells.size)
+        assertFalse(table.cells.any { it.value == "[1]" })
+        assertEquals(listOf(mapOf<String, Any>("row" to 1, "key" to "source", "value" to "[1]")),
+            table.unprojectedRowFields)
+        assertEquals(null, table.dataIssue)
+    }
+
+    @Test fun replayCoverageMapColumnsOnPositionalRowsInfersOnlyActualCellPositions() {
+        val table = replayTableTargets("""{"updateComponents":{"components":[
+            {"id":"t","component":"Table","columns":{"unused":"mapping"},"rows":[["A","[7]"],["B",""]]}
+        ]}}""").single()
+        assertEquals("first_array_row_indices", table.columnSource)
+        assertEquals(listOf("Column 1", "Column 2"), table.columns)
+        assertEquals(listOf(ReplayCell(0, 0, "A"), ReplayCell(0, 1, "[7]"), ReplayCell(1, 0, "B")), table.cells)
+        assertEquals(null, table.dataIssue)
     }
 
     @Test fun replayCoverageResolvesEveryStateBackedCellAndMatchesFormattedValues() {
