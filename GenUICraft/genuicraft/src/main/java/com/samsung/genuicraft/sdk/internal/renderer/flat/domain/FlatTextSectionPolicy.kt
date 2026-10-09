@@ -22,7 +22,7 @@ internal fun planFlatTextSections(
     if (nodes.any { node ->
             !isPlainSectionDivider(node) && (!node.type.equals("text", true) || node.children.isNotEmpty() ||
                 !isPassiveTextSectionElement(node) || literalSectionText(node) == null)
-        }) return null
+        }) return planMixedTextSections(elementId, parent, children, nodes, elements)
 
     val sections = mutableListOf<FlatTextSection>()
     var headingId: String? = null
@@ -62,13 +62,81 @@ internal fun planFlatTextSections(
     return sections
 }
 
+/** Keep authored tables in place while grouping only complete literal heading/body runs. */
+private fun planMixedTextSections(
+    elementId: String,
+    parent: FlatElement,
+    children: List<String>,
+    nodes: List<FlatElement>,
+    elements: Map<String, FlatElement>,
+): List<FlatTextSection>? {
+    if (!isPlainMixedSectionContainer(parent)) return null
+    val visited = mutableSetOf(elementId)
+    fun unchangedTableSibling(id: String, node: FlatElement): Boolean {
+        if (!visited.add(id) || !isPassiveTextSectionElement(node)) return false
+        return when (node.type.lowercase()) {
+            "table" -> node.children.isEmpty()
+            "stack", "column" -> {
+                if (!isPlainMixedSectionContainer(node)) return false
+                val childId = node.children.singleOrNull() ?: return false
+                val child = elements[childId] ?: return false
+                unchangedTableSibling(childId, child)
+            }
+            else -> false
+        }
+    }
+    children.zip(nodes).forEach { (id, node) ->
+        if (node.type.equals("text", true)) {
+            if (!visited.add(id) || !isPlainMixedSectionText(node)) return null
+        } else if (!unchangedTableSibling(id, node)) return null
+    }
+
+    val sections = mutableListOf<FlatTextSection>()
+    var index = 0
+    while (index < children.size) {
+        val heading = nodes[index]
+        var end = index + 1
+        if (isTextSectionHeading(heading)) {
+            while (end < children.size && nodes[end].type.equals("text", true) &&
+                sectionVariant(nodes[end]) in setOf("", "body", "caption", "label")) end++
+        }
+        if (end > index + 1) {
+            sections += FlatTextSection(children[index], children.subList(index, end).toList())
+        } else {
+            sections += FlatTextSection(null, listOf(children[index]))
+        }
+        index = end
+    }
+    return sections.takeIf { plan -> plan.count { it.headingId != null } >= 2 }
+}
+
+private fun isPlainMixedSectionContainer(node: FlatElement): Boolean =
+    isPassiveTextSectionElement(node) && node.props.keys.all {
+        it in setOf("direction", "gap", "padding", "paddingHorizontal", "paddingVertical")
+    } && node.props.values.all { value ->
+        value == null || value is Number || (value is String && !value.contains("{{"))
+    } && (node.props["direction"] == null || node.props["direction"]?.toString()?.equals("vertical", true) == true)
+
+private fun isPlainMixedSectionText(node: FlatElement): Boolean =
+    node.children.isEmpty() && isPassiveTextSectionElement(node) &&
+        node.props.keys.all { it in setOf("text", "variant", "typography") } &&
+        literalSectionText(node)?.isNotBlank() == true &&
+        listOf("variant", "typography").all { key ->
+            node.props[key] == null || (node.props[key] is String && !node.props[key].toString().contains("{{"))
+        }
+
+private fun sectionVariant(node: FlatElement): String =
+    (node.props["variant"] ?: node.props["typography"])?.toString()?.lowercase().orEmpty()
+
 private fun isPassiveTextSectionElement(element: FlatElement): Boolean =
     element.repeat == null && element.visible == null && element.on.isNullOrEmpty() && element.watch.isNullOrEmpty() &&
         listOf("action", "actions", "onClick", "onTap", "onSubmit", "href").none { element.props[it] != null }
 
 private fun literalSectionText(element: FlatElement): String? =
     (element.props["text"] ?: element.props["title"] ?: element.props["label"] ?:
-        element.props["content"] ?: element.props["value"]) as? String
+        element.props["content"] ?: element.props["value"]).let { value ->
+        (value as? String)?.takeUnless { it.contains("{{") }
+    }
 
 private fun isPlainSectionDivider(element: FlatElement): Boolean =
     element.type.equals("divider", true) && element.props.isEmpty() && element.children.isEmpty() &&

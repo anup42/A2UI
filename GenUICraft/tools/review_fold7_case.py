@@ -239,10 +239,15 @@ def before_replay_overrides(receipt, allow_render_failures=False):
 def authored_tab_targets(source):
     require(source.suffix.lower() == ".json", "--verify-tab-views requires saved canonical JSON input")
     payload = read(source)
+    require(isinstance(payload, (list, dict)), "Tab verification requires canonical JSON messages")
     messages = payload if isinstance(payload, list) else [payload]
     groups, labels = [], []
     for message in messages:
-        components = message.get("updateComponents", {}).get("components", []) if isinstance(message, dict) else []
+        require(isinstance(message, dict), "Invalid canonical JSON message")
+        update = message.get("updateComponents", {})
+        require(isinstance(update, dict) and isinstance(update.get("components", []), list),
+                "Invalid canonical component update")
+        components = update.get("components", [])
         for node in components:
             if not isinstance(node, dict) or node.get("component") != "Tabs":
                 continue
@@ -310,6 +315,9 @@ def tab_view_evidence_complete(source, case_dir, config, report):
                 require(isinstance(pages, list) and len(pages) >= 2 and
                         pages[0].get("capture") == f"{prefix}_{tab_index + 1}_selected",
                         "Selected tab capture pages are missing")
+                require([page.get("capture") for page in pages] == [f"{prefix}_{tab_index + 1}_selected"] +
+                        [f"{prefix}_{tab_index + 1}_vertical_{step}" for step in range(1, len(pages))],
+                        "Selected tab traversal pages are incomplete or repeated")
                 require(selected(pages[0]["capture"], labels) == {label}, "Selected-tab XML disagrees with the requested state")
                 for page in pages:
                     capture = captured(page["capture"])

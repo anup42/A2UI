@@ -264,7 +264,7 @@ class BeforeRenderFailureGateTest(unittest.TestCase):
         self.assertTrue(review.tab_view_evidence_complete(source, case_dir, config, report))
         self.assertEqual([('d', [('Week 1', 'e'), ('Week 2', 'f')])], review.authored_tab_targets(source))
         for mutation in ("missing_state", "wrong_label", "wrong_child", "not_selected", "not_at_end",
-                         "missing_pages", "missing_text", "config_ignored", "not_verified", "wrong_restore",
+                         "missing_pages", "repeated_page", "missing_text", "config_ignored", "not_verified", "wrong_restore",
                          "selected_xml", "restored_xml", "missing_png", "missing_xml"):
             with self.subTest(mutation=mutation):
                 source, case_dir, config, report = self.tab_fixture()
@@ -275,6 +275,7 @@ class BeforeRenderFailureGateTest(unittest.TestCase):
                 if mutation == "not_selected": state["selectedStateObserved"] = False
                 if mutation == "not_at_end": state["scrollEndObserved"] = False
                 if mutation == "missing_pages": state["pages"] = state["pages"][:1]
+                if mutation == "repeated_page": state["pages"][1] = state["pages"][0]
                 if mutation == "missing_text": state["pages"][0]["visibleTexts"] = []
                 if mutation == "config_ignored": config["verifyTabViews"] = False
                 if mutation == "not_verified": report["tabViewsVerified"] = False
@@ -350,6 +351,25 @@ class BeforeRenderFailureGateTest(unittest.TestCase):
         self.assertEqual("failed", failed["status"])
         self.assertEqual(["requestedTabViews"], [key for key, value in failed["checks"].items() if value is False])
         self.assertFalse(review.pinned_before_evidence(self.root, failed, self.before_path, self.before))
+
+    def test_pinned_tab_receipt_rechecks_xml_even_when_all_recorded_checks_pass(self):
+        self.tab_fixture()
+        self.write_before()
+        self.args.verify_tab_views = True
+        after = self.after()
+        target = self.root / "BXP-018/after/r01"
+        staged = target / "input/BXP-018/output.a2ui.json"
+        staged.parent.mkdir(parents=True)
+        staged.write_bytes(self.source.read_bytes())
+        after["case"] = self.args.case
+        after["source"]["archivedPath"] = staged.relative_to(self.root).as_posix()
+        _, case_dir, config, report = self.tab_fixture(target / "artifacts/BXP-018")
+        (target / "artifacts/replay_config.json").write_text(json.dumps(config))
+        after["result"] = report
+        self.assertTrue(review.pinned_before_evidence(self.root, after, self.before_path, self.before))
+        (case_dir / "tabs_1_restored.xml").write_text((case_dir / "tabs_1_2_selected.xml").read_text())
+        self.assertTrue(all(after["checks"].values()))
+        self.assertFalse(review.pinned_before_evidence(self.root, after, self.before_path, self.before))
 
 
 if __name__ == "__main__":
