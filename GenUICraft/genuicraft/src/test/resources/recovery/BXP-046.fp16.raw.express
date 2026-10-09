@@ -1,0 +1,25 @@
+<a2ui>
+$/={mechanism_details:[{part1:"Gene therapy treats disease by delivering a therapeutic gene, or by replacing, supplementing, or silencing a faulty gene; it does not necessarily cut the genome at a specific DNA sequence.",source:"[2][14]"},{part2:"CRISPR gene editing uses a guide RNA to bring a Cas nuclease to a chosen DNA site, where it creates a double-strand break; repair by NHEJ often disrupts a gene, while HDR can make a precise sequence change.",source:"[2][14]"}],delivery_details:[{part1:"Gene therapy commonly uses viral vectors, especially adeno-associated virus and lentiviral systems, because they efficiently carry therapeutic DNA into cells.",source:""},{part2:"This delivery approach can cause immunogenic toxicity and, with integrating vectors, insertional oncogenesis.",source:""},{part3:"CRISPR can be delivered by viral vectors, lipid nanoparticles, or by direct delivery of Cas protein and guide RNA as a ribonucleoprotein complex; the core challenge is getting the editing machinery into the right cells long enough to act."}]}
+root=Column([a,g,l,t,z,af],"lg")
+a={mechanism_details:[{part1:"Gene therapy treats disease by delivering a therapeutic gene, or by replacing, supplementing, or silencing a faulty gene; it does not necessarily cut the genome at a specific DNA sequence.",source:"[2][14]"},{part2:"CRISPR gene editing uses a guide RNA to bring a Cas nuclease to a chosen DNA site, where it creates a double-strand break; repair by NHEJ often disrupts a gene, while HDR can make a precise sequence change.",source:"[2][14]"}]}
+g=Card([h])
+h=Column([i,j,k],**sm**)
+i=Text("Delivery methods","h2")
+j=Text("Gene therapy commonly uses viral vectors, especially adeno-associated virus and lentiviral systems, because they efficiently carry therapeutic DNA into cells.",source:""},k=Table(columns=[{key:"part1",label:"Mechanism"},{key:"part2",label:"CRISPR Mechanism"}],rows=[{part1:"Gene therapy treats disease by delivering a therapeutic gene, or by replacing, supplementing, or silencing a faulty gene; it does not necessarily cut the genome at a specific DNA sequence.",part2:"CRISPR gene editing uses a guide RNA to bring a Cas nuclease to a chosen DNA site, where it creates a double-strand break; repair by NHEJ often disrupts a gene, while HDR can make a precise sequence change."}],domain="generic",preferredPresentation="table")
+l=Card([m])
+m=Column([n,o,p,q],**sm**)
+n=Text("Established clinical examples","h2")
+o=Text("Approved gene therapy includes several established products for inherited disease and hematologic disorders, such as AAV-based gene replacement and lentiviral ex vivo modification; these are now standard clinical categories rather than experimental concepts.",source:""},p=Text("Approved CRISPR-based therapy is now also a reality: ex vivo CRISPR editing of patient cells has reached clinical approval in some regions for severe hemoglobin disorders, showing that CRISPR is no longer limited to research.",source:""},q=Text("By contrast, germline CRISPR editing of embryos or reproductive cells is not an approved clinical treatment and remains broadly restricted.",source:"[3][10]"]
+t=Card([u])
+u=Column([v,w,x,y],**sm**)
+v=Text("Limitations","h2")
+w=Text("Gene therapy may give durable benefit, but it can be limited by immune responses, vector size constraints, and imperfect control of where and how strongly the added gene is expressed.",source:""},x=Text("CRISPR offers site-specific editing, but limitations include off-target edits, incomplete editing, dependence on repair pathways, and difficulty achieving uniform correction in all target cells.",source:""},y=Text("Both approaches face major delivery barriers, but CRISPR adds an extra layer of risk because a cut can create unintended DNA changes rather than simply adding a gene.",source:"[13]"]
+z=Card([aa])
+aa=Column([ab,ac,ad,ae],**sm**)
+ab=Text("Ethical questions","h2")
+ac=Text("For somatic treatments, ethics focuses mainly on safety, efficacy, informed consent, and fair access.",source:"[6][7]"},ad=Text("For germline editing, the concerns become sharper: future people cannot consent, edits may be inherited, and there are worries about unpredictable harms, enhancement uses, and eugenics.",source:"[8][12]"},ae=Text("Broader concerns also include justice, affordability, regulation, and whether powerful editing tools will widen health inequities.",source:"[1]"]
+af=Card([ag])
+ag=Column([ah,ai,aj],**sm**)
+ah=Text("Approved vs. experimental","h2")
+ai=Text("Approved today: conventional gene therapies and some somatic CRISPR therapies.",source:""},aj=Text("Experimental or highly restricted: embryo editing, germline editing, enhancement applications, and many in vivo CRISPR programs still in trials.",source:""},ak=Text("Current data on long-term safety and population-level effects remain limited, so many advanced CRISPR applications are still under close study rather than routine care.",source:"")
+</a2ui>

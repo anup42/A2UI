@@ -280,7 +280,9 @@ internal fun RenderDirectTable(
     props: Map<String, Any?>,
     state: Map<String, Any?>,
     onOpenUrl: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    identicalLiteralKeyValueRows: Set<Int> = emptySet(),
+    sparseProse: SparseProseTableProfile? = null,
 ) {
     val configuration = LocalConfiguration.current
     val screenWidthDp = configuration.screenWidthDp
@@ -292,6 +294,11 @@ internal fun RenderDirectTable(
     val table = previewRoute.model(incomingTable, isFinal)
     val headers = table.columns.map { column -> column.label }
     val tableModifier = applyStackModifier(modifier, props, "vertical")
+    if (sparseProse != null && sparseProse.headers == headers &&
+        sparseProse.originalRows.map { row -> row.map(String::trim) } == table.rows) {
+        RenderSparseProseTable(sparseProse, tableModifier)
+        return
+    }
     // Narrow sightseeing comparisons retain every source cell in cards and expose the authored grid.
     val sightseeing = if (screenWidthDp < 600) sightseeingTableProfile(headers, table.rows) else null
     if (sightseeing != null) {
@@ -455,7 +462,8 @@ internal fun RenderDirectTable(
             headers = headers,
             rows = table.rows,
             title = props["title"]?.toString(),
-            modifier = tableModifier
+            modifier = tableModifier,
+            identicalLiteralRows = identicalLiteralKeyValueRows,
         )
         return
     }
@@ -656,7 +664,8 @@ internal fun RenderDirectTable(
             headers = headers,
             rows = table.rows,
             title = props["title"]?.toString(),
-            modifier = tableModifier
+            modifier = tableModifier,
+            identicalLiteralRows = identicalLiteralKeyValueRows,
         )
         AdaptiveTablePresentation.ITINERARY_CARDS -> RenderTravelItineraryTable(
             headers = headers,

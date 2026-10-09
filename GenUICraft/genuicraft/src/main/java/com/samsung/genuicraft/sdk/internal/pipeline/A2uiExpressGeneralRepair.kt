@@ -35,8 +35,10 @@ internal object A2uiExpressGeneralRepair {
         val values = linkedMapOf<String, Candidate>()
         var complete: Candidate? = null
         val projected = A2uiDuplicateTableRecovery.prepare(input)
-        normalizedCompleteDocument(projected.input)?.let { (document, normalizationChanges) ->
-            repairDecodedGraph(document, projected.changes + normalizationChanges)?.let { candidate ->
+        val prepared = A2uiDeclaredTextRecovery.prepare(projected.input, MAX_CALLS, MAX_LITERAL_CHARS, MAX_LITERAL_LENGTH)
+        val preparationChanges = (projected.changes + prepared.changes).distinct()
+        normalizedCompleteDocument(prepared.input)?.let { (document, normalizationChanges) ->
+            repairDecodedGraph(document, preparationChanges + normalizationChanges)?.let { candidate ->
                 if (!hasUnresolvedDataBindings(candidate.express)) complete = candidate
             }
         }
@@ -46,8 +48,8 @@ internal object A2uiExpressGeneralRepair {
             ?.let { values.putIfAbsent(it.express, it) }
         // These are complementary sources of generated content, not competing candidates. Returning
         // the first valid leaf used to discard every state row and the other damaged components.
-        salvageGeneratedContent(projected.input)?.let { candidate ->
-            values.putIfAbsent(candidate.express, candidate.copy(changes = (projected.changes + candidate.changes).distinct()))
+        salvageGeneratedContent(prepared.input, prepared.allowLiteralOnlyFallback)?.let { candidate ->
+            values.putIfAbsent(candidate.express, candidate.copy(changes = (preparationChanges + candidate.changes).distinct()))
         }
         complete?.let { values.putIfAbsent(it.express, it) }
         return values.values.toList()
@@ -385,7 +387,7 @@ internal object A2uiExpressGeneralRepair {
         return Candidate(canonical, changes.distinct() + "Recovered a complete generated DSL graph without source fallback.")
     }
 
-    private fun salvageGeneratedContent(input: String): Candidate? {
+    private fun salvageGeneratedContent(input: String, allowLiteralOnlyFallback: Boolean): Candidate? {
         val body = repairBody(input) ?: return null
         if (body.lineSequence().take(MAX_LINES + 1).count() > MAX_LINES) return null
         val statements = recoveryStatements(body)
@@ -434,7 +436,9 @@ internal object A2uiExpressGeneralRepair {
         // Loose literals from damaged calls are noisy and often duplicate the structured state or
         // surviving components. Do not append them as an "Additional recovered text" section.
         // If no structured content survived at all, literal-only recovery remains the last resort.
-        if (accepted.isEmpty()) return salvageVisibleStringLiterals(input)
+        // The declared-Text policy affects only this candidate's last-resort loose literals.
+        // Accepted generated state and component graphs still follow the same merge path below.
+        if (accepted.isEmpty()) return if (allowLiteralOnlyFallback) salvageVisibleStringLiterals(input) else null
         val merged = mergeRecoveredGraphs(accepted) ?: return null
         val canonical = runCatching { A2uiExpressCodec.encode(merged) }.getOrNull() ?: return null
         return Candidate(

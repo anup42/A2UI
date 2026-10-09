@@ -69,7 +69,15 @@ internal val FLAT_ELEMENT_RENDERERS: Map<String, FlatElementRenderer> = mapOf(
             c.repeatedChildScopes, c.onOpenUrl, c.onSetState, c.onAction, c.activePath, c.modifier
         )
     },
-    "table" to { c -> RenderDirectTable(c.props, c.state, c.onOpenUrl, c.modifier) },
+    "table" to { c ->
+        val table = c.elements[c.elementId]
+        val ancestors = c.activePath.filter { it != c.elementId }.map { c.elements[it] }
+        val repeated = c.repeatScope != null || c.repeatedChildScopes != null
+        RenderDirectTable(c.props, c.state, c.onOpenUrl, c.modifier,
+            identicalLiteralKeyValueRows = identicalPassiveKeyValueRowIndexes(table, ancestors, repeated),
+            sparseProse = sparseProseTableProfile(table, ancestors, repeated),
+        )
+    },
     "formula" to { c -> RenderFormula(c.props, c.modifier) },
     "chart" to { c -> RenderChart(c.props, c.state, c.modifier) },
     "codeblock" to { c ->

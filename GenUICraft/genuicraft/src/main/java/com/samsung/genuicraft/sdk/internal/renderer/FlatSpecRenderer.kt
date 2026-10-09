@@ -5771,7 +5771,8 @@ internal fun RenderKeyValueTablePanel(
     headers: List<String>,
     rows: List<List<String>>,
     title: String? = null,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    identicalLiteralRows: Set<Int> = emptySet(),
 ) {
     if (rows.isEmpty()) return
     val panelTitle = title?.trim()?.takeIf { it.isNotBlank() }
@@ -5806,6 +5807,21 @@ internal fun RenderKeyValueTablePanel(
                 val label = row.getOrNull(0).orEmpty().trim().ifBlank { tableHeaderLabel(headers, 0) }
                 val value = row.getOrNull(1).orEmpty().trim()
                 if (label.isBlank() && value.isBlank()) return@forEachIndexed
+                val singleText = singleIdenticalKeyValueRowText(headers, row, index, identicalLiteralRows)
+                if (singleText != null) {
+                    if (proseRows && index > 0) HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f))
+                    Text(
+                        text = parseBoldMarkdown(singleText),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp)
+                            .semantics(mergeDescendants = true) {
+                                // Both authored column identities remain represented by the one shared value.
+                                contentDescription = tableRowAccessibilitySummary(headers, row, index)
+                            },
+                    )
+                    return@forEachIndexed
+                }
                 if (proseRows) {
                     if (index > 0) HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f))
                     Column(

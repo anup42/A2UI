@@ -395,6 +395,7 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
                     val seenHeaders = tables.map { mutableSetOf<Int>() }
                     val seenCells = tables.map { mutableSetOf<Int>() }
                     val describedCells = tables.map { mutableSetOf<Int>() }
+                    val splitCellEvidence = mutableListOf<Map<String, Any>>()
                     val sweptTables = mutableSetOf<Int>()
                     val horizontalTables = mutableSetOf<Int>()
                     val viewportTableSweeps = mutableListOf<Map<String, Any>>()
@@ -461,7 +462,14 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
                                 if (texts.any { replayContains(it, table.columns[column]) }) seenHeaders[tableIndex] += column
                             }
                             table.cells.forEachIndexed { cellIndex, cell ->
-                                if (texts.any { replayContains(it, cell.value) }) seenCells[tableIndex] += cellIndex
+                                if (texts.any { replayContains(it, cell.value) }) {
+                                    seenCells[tableIndex] += cellIndex
+                                } else if (replayDisplaysSplitCell(nodes, table, cell)) {
+                                    seenCells[tableIndex] += cellIndex
+                                    splitCellEvidence += mapOf("capture" to label, "tableId" to table.id,
+                                        "row" to cell.row + 1, "column" to table.columns[cell.column],
+                                        "scope" to "Complete ordered bullet text nodes in the same observed row and labeled field; pixel legibility requires visual review.")
+                                }
                                 if (descriptions.any { replayContains(it, cell.value) }) describedCells[tableIndex] += cellIndex
                             }
                         }
@@ -785,6 +793,7 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
                         )
                     }
                     report.add("tables", gson.toJsonTree(tableReports)); report.add("captures", gson.toJsonTree(captures))
+                    if (splitCellEvidence.isNotEmpty()) report.add("splitCellEvidence", gson.toJsonTree(splitCellEvidence))
                     report.addProperty("repeatTableSweepsPerViewport", repeatTableSweepsPerViewport)
                     if (repeatTableSweepsPerViewport) {
                         report.add("viewportTableSweeps", gson.toJsonTree(viewportTableSweeps))
@@ -857,7 +866,8 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
 
     private class GeneratedDslRepairRejected(message: String) : IllegalArgumentException(message)
     private data class ReplayNode(val text: String, val className: String, val bounds: Rect,
-        val description: String, val fullyVisible: Boolean, val clickable: Boolean, val selected: Boolean)
+        val description: String, val fullyVisible: Boolean, val clickable: Boolean, val selected: Boolean,
+        val parentId: Int = -1)
     private data class ReplayCell(val row: Int, val column: Int, val value: String)
     private data class ReplayTable(val id: String, val columns: List<String>, val cells: List<ReplayCell>,
         val rowSource: String, val rowCount: Int, val dataIssue: String?)
@@ -1015,11 +1025,56 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
             .findAll(normalized).map { it.value }.toList()
     }
 
+    /** Mirror compactBulletItems' authored-field gate, but never discard an unobserved short clause. */
+    private fun replayBulletFragments(label: String, value: String): List<String> {
+        val header = label.trim().lowercase(Locale.ROOT).replace(Regex("[^a-z0-9]+"), " ").trim()
+        if (listOf("task", "deliverable", "requirement", "checklist", "step", "action")
+                .none { header.contains(it) } || !value.contains(';')) return emptyList()
+        val parts = value.removePrefix("\u001EGenUICraftLiteral:v1:").split(';').map { it.trim().trim('.', ';') }
+        return parts.takeIf { it.size >= 2 && it.all { part -> part.length >= 6 && replayTokens(part).isNotEmpty() } }.orEmpty()
+    }
+
+    /** A split cell needs observed row identity and direct, ordered field siblings in one capture. */
+    private fun replayDisplaysSplitCell(nodes: List<ReplayNode>, table: ReplayTable, cell: ReplayCell): Boolean {
+        val label = table.columns.getOrNull(cell.column) ?: return false
+        val parts = replayBulletFragments(label, cell.value)
+        val identity = table.cells.firstOrNull { it.row == cell.row && it.column == 0 } ?: return false
+        if (parts.isEmpty() || cell.column == 0) return false
+        fun sameText(actual: String, expected: String): Boolean =
+            replayCellIdentity(expected).isNotEmpty() && replayCellIdentity(actual) == replayCellIdentity(expected)
+        return nodes.filter { it.parentId >= 0 }.groupBy { it.parentId }.values.count { siblings ->
+            // Description supplies row metadata only; every credited value comes from displayed text.
+            if (siblings.none { it.description.startsWith("Row ${cell.row + 1}. ") }) return@count false
+            val texts = siblings.filter { it.text.isNotBlank() }
+            val rowIdentityObserved = texts.zipWithNext().any { (header, value) ->
+                header.fullyVisible && value.fullyVisible && sameText(header.text, table.columns[0]) &&
+                    sameText(value.text, identity.value)
+            }
+            if (!rowIdentityObserved) return@count false
+            val labels = texts.indices.filter { sameText(texts[it].text, label) }
+            if (labels.size != 1) return@count false
+            val start = labels.single()
+            if (!texts[start].fullyVisible || start + parts.size >= texts.size) return@count false
+            val bullets = texts.subList(start + 1, start + 1 + parts.size)
+            if (texts.getOrNull(start + 1 + parts.size)?.text?.trimStart()?.startsWith("\u2022") == true) return@count false
+            bullets.withIndex().all { (index, node) ->
+                node.fullyVisible && node.text.trimStart().startsWith("\u2022") &&
+                    sameText(node.text.trimStart().removePrefix("\u2022").trim(), parts[index])
+            } && (listOf(texts[start]) + bullets).zipWithNext().all { (above, below) ->
+                below.bounds.top >= above.bounds.bottom - 2
+            }
+        } == 1
+    }
+
     private fun replayNodes(xml: String, packageName: String, viewport: Rect): List<ReplayNode> {
         val parser = Xml.newPullParser().apply { setInput(xml.reader()) }
         val nodes = mutableListOf<ReplayNode>()
+        val parents = mutableListOf<Int>()
+        var nextId = 0
         val boundsPattern = Regex("\\[(-?\\d+),(-?\\d+)]\\[(-?\\d+),(-?\\d+)]")
         while (parser.eventType != XmlPullParser.END_DOCUMENT) {
+            val parentId = parents.lastOrNull() ?: -1
+            if (parser.eventType == XmlPullParser.START_TAG && parser.name == "node") parents += nextId++
             if (parser.eventType == XmlPullParser.START_TAG && parser.name == "node" &&
                 parser.getAttributeValue(null, "package") == packageName &&
                 parser.getAttributeValue(null, "visible-to-user") != "false") {
@@ -1033,10 +1088,11 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
                             parser.getAttributeValue(null, "class").orEmpty(), bounds,
                             parser.getAttributeValue(null, "content-desc").orEmpty(), fullyVisible,
                             parser.getAttributeValue(null, "clickable") == "true",
-                            parser.getAttributeValue(null, "selected") == "true")
+                            parser.getAttributeValue(null, "selected") == "true", parentId)
                     }
                 }
             }
+            if (parser.eventType == XmlPullParser.END_TAG && parser.name == "node") parents.removeAt(parents.lastIndex)
             parser.next()
         }
         return nodes
@@ -1307,6 +1363,69 @@ root=Table(columns=[{key:"date",label:"Date"},{key:"high",label:"High (°C)"},{k
         assertEquals("Distinct source groups must not collide as empty token lists", 4,
             citations.map(::replayCellIdentity).distinct().size)
         assertEquals(replayCellIdentity("[1] [3][4] [9]"), replayCellIdentity("[1][3][4][9]"))
+    }
+
+    @Test fun replayCoverageJoinsOnlyCompleteOrderedBulletsInTheirAuthoredRowAndField() {
+        val vietnam = "Passport scan required for the application; source notes at least 6 months validity and 2 blank pages[20]"
+        val sriLanka = "Tourist ETA is applied online using passport bio-page details; the application guidance requires the passport details exactly as in the travel document [4]"
+        val vietnamCell = ReplayCell(1, 1, vietnam)
+        val sriLankaCell = ReplayCell(2, 1, sriLanka)
+        val table = ReplayTable("b", listOf("Country", "Passport requirement"), listOf(
+            ReplayCell(1, 0, "Vietnam"), vietnamCell, ReplayCell(2, 0, "Sri Lanka"), sriLankaCell), "inline_rows", 3, null)
+        fun escaped(value: String) = value.replace("&", "&amp;").replace("\"", "&quot;").replace("<", "&lt;")
+        fun row(index: Int, country: String, value: String, bullets: List<String>): String {
+            // Row 2 label/bullet geometry comes from the real BXP-041 vertical_1 XML.
+            val offset = (index - 1) * 868
+            fun text(value: String, top: Int, bottom: Int) =
+                """<node package="com.samsung.genuicraft" class="android.widget.TextView" text="${escaped(value)}" bounds="[90,${top + offset}][990,${bottom + offset}]"/>"""
+            return """<node package="com.samsung.genuicraft" class="android.view.View" bounds="[58,${443 + offset}][1022,${1290 + offset}]">
+                <node package="com.samsung.genuicraft" class="android.view.View" content-desc="Row ${index + 1}. Country: $country. Passport requirement: ${escaped(value)}" bounds="[58,${443 + offset}][1022,${1290 + offset}]"/>
+                ${text("Country", 469, 503)}${text(country, 508, 557)}${text("Passport requirement", 931, 965)}
+                ${bullets.mapIndexed { i, item -> if (i == 0) text("\u2022 $item", 970, 1010)
+                    else text("\u2022 $item", 1018 + (i - 1) * 101, 1111 + (i - 1) * 101) }.joinToString("")}
+            </node>"""
+        }
+        val viewport = Rect(16, 126, 1064, 2394)
+        fun nodes(vararg rows: String, bounds: Rect = viewport) = replayNodes(
+            "<hierarchy>${rows.joinToString("")}</hierarchy>", "com.samsung.genuicraft", bounds)
+        val vietnamRow = row(1, "Vietnam", vietnam, vietnam.split(';').map(String::trim))
+        val sriLankaRow = row(2, "Sri Lanka", sriLanka, sriLanka.split(';').map(String::trim))
+        val observed = nodes(vietnamRow, sriLankaRow)
+        assertTrue(replayDisplaysSplitCell(observed, table, vietnamCell))
+        assertTrue(replayDisplaysSplitCell(observed, table, sriLankaCell))
+        assertFalse("Whole-node matching alone must still fail for the split source cell",
+            observed.any { replayContains(it.text, vietnam) })
+        val secondBullet = observed.single { it.text.startsWith("\u2022 source notes") }
+        val otherRowParent = observed.single { it.text == "Sri Lanka" }.parentId
+        assertFalse("A description with the full value is not display evidence",
+            replayDisplaysSplitCell(observed.filterNot { it == secondBullet }, table, vietnamCell))
+        assertFalse("Fragments from different row owners must not be combined", replayDisplaysSplitCell(
+            observed.map { if (it == secondBullet) it.copy(parentId = otherRowParent) else it }, table, vietnamCell))
+        assertFalse("A partially visible bullet must not satisfy coverage",
+            replayDisplaysSplitCell(nodes(vietnamRow, bounds = Rect(16, 126, 1064, 1090)), table, vietnamCell))
+        assertFalse("Another field label must not satisfy Passport requirement", replayDisplaysSplitCell(
+            observed.map { if (it.text == "Passport requirement") it.copy(text = "Rules checked") else it }, table, vietnamCell))
+        assertFalse("Whole numeric tokens must not be relaxed", replayDisplaysSplitCell(
+            observed.map { if (it == secondBullet) it.copy(text = it.text.replace("6 months", "60 months")) else it }, table, vietnamCell))
+        assertFalse("The row metadata must agree", replayDisplaysSplitCell(
+            observed.map { if (it.parentId == secondBullet.parentId) it.copy(description = it.description.replace("Row 2.", "Row 1.")) else it }, table, vietnamCell))
+        assertFalse("Reordered fragments must fail", replayDisplaysSplitCell(
+            nodes(row(1, "Vietnam", vietnam, vietnam.split(';').map(String::trim).reversed())), table, vietnamCell))
+        val repeated = "Keep 20 files [1][3]; Keep 20 files [1][3]"
+        val repeatedCell = vietnamCell.copy(value = repeated)
+        val repeatedTable = table.copy(cells = listOf(ReplayCell(1, 0, "Vietnam"), repeatedCell))
+        assertTrue(replayDisplaysSplitCell(nodes(row(1, "Vietnam", repeated, repeated.split(';').map(String::trim))), repeatedTable, repeatedCell))
+        listOf(listOf("Keep 20 files [1][3]"), listOf("Keep 20 files [1][3]", "Keep 20.5 files [1][3]"),
+            listOf("Keep 20 files [1][3]", "Keep [20] files [1][3]"),
+            listOf("Keep 20 files [1][3]", "Keep 20 files [1][3]", "Keep 20 files [1][3]")).forEach { bullets ->
+            assertFalse("Missing, changed, or extra repeated bullet was incorrectly credited: $bullets",
+                replayDisplaysSplitCell(nodes(row(1, "Vietnam", repeated, bullets)), repeatedTable, repeatedCell))
+        }
+        assertEquals(emptyList<String>(), replayBulletFragments("Published fee", "Pay USD 20; Pay USD 25"))
+        assertEquals("A short supplied clause cannot be silently dropped", emptyList<String>(),
+            replayBulletFragments("Passport requirement", "Passport scan required; no; Bring two pages"))
+        assertEquals("Citation-only fragments cannot become empty matches", emptyList<String>(),
+            replayBulletFragments("Passport requirement", "[1][3]; [4][9]"))
     }
 
     /** Experimental input-only scaffold; acceptance still uses the AAR's unchanged validators. */
