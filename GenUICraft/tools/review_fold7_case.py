@@ -899,15 +899,19 @@ def annotate(args):
     review = {"status": args.status, "notes": args.note or [], "reviewer": args.reviewer, "updatedAtUtc": utc()}
     if args.notes_file:
         review["notes"].append(args.notes_file.read_text(encoding="utf-8-sig"))
-    if args.status == "accepted":
+    has_after = any((directory / "after").glob("*/receipt.json"))
+    if args.status == "accepted" or (args.status == "needs_work" and has_after):
         path, receipt = latest_receipt(root, args.case, "after")
-        require(receipt.get("automatedChecksSatisfied") is True and receipt.get("status") == "collected",
-                "The newest after attempt did not satisfy every check; it cannot receive an accepted visual review")
-        require(bool(review["notes"]), "An explicit accepted visual review requires notes describing what was checked")
+        if args.status == "accepted":
+            require(receipt.get("automatedChecksSatisfied") is True and receipt.get("status") == "collected",
+                    "The newest after attempt did not satisfy every check; it cannot receive an accepted visual review")
+            require(bool(review["notes"]), "An explicit accepted visual review requires notes describing what was checked")
         review["reviewedAfterReceipt"] = path.relative_to(root).as_posix()
         review["reviewedAfterReceiptSha256"] = digest(path)
         review["sourceSha256"] = receipt["source"]["sha256"]
-        review["scope"] = "Explicit visual review of the referenced after captures; source fidelity is not certified."
+        review["scope"] = ("Explicit visual review of the referenced after captures; source fidelity is not certified."
+                           if args.status == "accepted" else
+                           "Explicit needs_work review of the referenced after attempt; automated checks need not pass and source fidelity is not certified.")
     save(directory / "review.json", review)
     build_report(root)
     print(f"Recorded visual review {args.status} for {args.case}")

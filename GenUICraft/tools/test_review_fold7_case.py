@@ -601,5 +601,74 @@ class BeforeRenderFailureGateTest(unittest.TestCase):
         self.assertEqual(1, result["availableCurrentModelDocuments"])
 
 
+class AnnotationReceiptProvenanceTest(unittest.TestCase):
+    def setUp(self):
+        scratch = review.ROOT / ".tmp"
+        scratch.mkdir(exist_ok=True)
+        temporary = tempfile.TemporaryDirectory(prefix="f7_annotation_", dir=scratch)
+        self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name)
+        self.directory = self.root / "BXP-040"
+        self.directory.mkdir()
+        self.args = SimpleNamespace(output=self.root, case="BXP-040", status="needs_work",
+            note=["Readable recovery; duplicate sections still need work."], notes_file=None, reviewer="codex")
+
+    def receipt(self, attempt, started, status="collected", passed=True):
+        path = self.directory / "after" / attempt / "receipt.json"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        value = {"case": "BXP-040", "phase": "after", "attempt": attempt, "startedAtUtc": started,
+            "status": status, "automatedChecksSatisfied": passed,
+            "checks": {"renderedWithoutIssues": passed}, "source": {"sha256": attempt.ljust(64, "0")}}
+        review.save(path, value)
+        return path, value
+
+    def annotate(self):
+        with patch.object(review, "build_report"):
+            review.annotate(self.args)
+        return review.read(self.directory / "review.json")
+
+    def test_needs_work_pins_newest_failed_after_without_mutating_receipts(self):
+        old_path, _ = self.receipt("r01", "2026-10-09T01:00:00Z")
+        new_path, newest = self.receipt("r02", "2026-10-09T02:00:00Z", status="failed", passed=False)
+        original = {path: path.read_bytes() for path in (old_path, new_path)}
+        result = self.annotate()
+        self.assertEqual("needs_work", result["status"])
+        self.assertEqual(self.args.note, result["notes"])
+        self.assertEqual(new_path.relative_to(self.root).as_posix(), result["reviewedAfterReceipt"])
+        self.assertEqual(review.digest(new_path), result["reviewedAfterReceiptSha256"])
+        self.assertEqual(newest["source"]["sha256"], result["sourceSha256"])
+        self.assertIn("automated checks need not pass", result["scope"])
+        self.assertEqual(original, {path: path.read_bytes() for path in original})
+
+    def test_needs_work_before_only_has_no_invented_after_provenance(self):
+        result = self.annotate()
+        self.assertEqual("needs_work", result["status"])
+        for field in ("reviewedAfterReceipt", "reviewedAfterReceiptSha256", "sourceSha256"):
+            self.assertNotIn(field, result)
+
+    def test_accepted_still_rejects_newest_failed_or_incomplete_after(self):
+        self.args.status = "accepted"
+        self.receipt("r01", "2026-10-09T01:00:00Z")
+        for status, passed in (("failed", False), ("collected", False), ("failed", True), ("running", True)):
+            with self.subTest(status=status, passed=passed):
+                path, _ = self.receipt("r02", "2026-10-09T02:00:00Z", status=status, passed=passed)
+                original = path.read_bytes()
+                with self.assertRaises(ValueError): self.annotate()
+                self.assertEqual(original, path.read_bytes())
+                self.assertFalse((self.directory / "review.json").exists())
+
+    def test_accepted_requires_notes_and_pins_passing_after(self):
+        self.args.status = "accepted"
+        path, receipt = self.receipt("r01", "2026-10-09T01:00:00Z")
+        self.args.note = []
+        with self.assertRaises(ValueError): self.annotate()
+        self.args.note = ["All after captures inspected."]
+        result = self.annotate()
+        self.assertEqual(path.relative_to(self.root).as_posix(), result["reviewedAfterReceipt"])
+        self.assertEqual(review.digest(path), result["reviewedAfterReceiptSha256"])
+        self.assertEqual(receipt["source"]["sha256"], result["sourceSha256"])
+        self.assertNotIn("automated checks need not pass", result["scope"])
+
+
 if __name__ == "__main__":
     unittest.main()
