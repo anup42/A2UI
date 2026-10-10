@@ -21,7 +21,8 @@ from ir_training.common.progress import Progress, log
 from ir_training.export import gemma4_mixed248
 from ir_training.train.resume_contract import resolve_export_training_lineage
 
-PROFILES = {"e2b": {"gemma4", "gemma4_text"}, "270m": {"gemma3", "gemma3_text"}}
+PROFILES = {"e2b": {"gemma4", "gemma4_text"}, "270m": {"gemma3", "gemma3_text"},
+            "1b": {"gemma3_text"}}
 VARIANTS = ("w32", "w16", "w8", "w4")
 OPTIONAL_VARIANTS = ("w248",)
 W16_RECIPE = "weight_only_fp16"
@@ -32,7 +33,7 @@ E2B_W4_RECIPE_PATH = Path(__file__).resolve().parents[3] / "configs/export/gemma
 
 def deployment_variants(profile: str, selected: tuple[str, ...] | None = None) -> dict[str, dict[str, Any]]:
     if profile not in PROFILES:
-        raise ValueError("Deployment profile must be e2b or 270m")
+        raise ValueError("Deployment profile must be e2b, 270m or 1b")
     supported = {
         "w32": {"weight_bits": 32, "kind": "fp32", "recipe": "none", "experimental": False},
         "w16": {"weight_bits": 16, "kind": "fp16", "recipe": W16_RECIPE, "experimental": True},
@@ -47,7 +48,9 @@ def deployment_variants(profile: str, selected: tuple[str, ...] | None = None) -
             "official_graph": False, "official_qat": False,
             "activation_contract": "dynamic_FLOAT32_not_official_static_A8",
         }
-    names = VARIANTS if selected is None else selected
+    names = (("w8",) if profile == "1b" else VARIANTS) if selected is None else selected
+    if profile == "1b" and names != ("w8",):
+        raise ValueError("Gemma 3 1B full-QAT export requires exactly W8")
     if not names or isinstance(names, str) or len(set(names)) != len(names):
         raise ValueError("Select a nonempty list of unique export variants")
     if any(name not in supported for name in names):
@@ -358,6 +361,10 @@ def _probe_exporter(*, profile: str, model_dir: Path, cache_length: int = 8192,
     """
     variants = deployment_variants(profile, selected_variants)
     local_config = _json(model_dir / "config.json")
+    if profile == "1b":
+        from ir_training.qat.gemma3_full_qat_contract import validate_gemma3_1b_model_config
+
+        validate_gemma3_1b_model_config(local_config)
     model_type = local_config.get("model_type")
     if model_type not in PROFILES[profile]:
         raise ValueError(f"Profile {profile} cannot export model_type={model_type!r}")
@@ -457,11 +464,16 @@ def verify_checkpoint_source(training_config: Path, checkpoint: Path, profile: s
     if type(metadata.get("checkpoint_step")) is not int or metadata["checkpoint_step"] <= 0:
         raise ValueError("Selected checkpoint has no positive optimizer-step provenance")
     full_qat_contract = None
+    gemma3_full_qat_contract = None
     qat_or_mobile = bool(
         config.get("qat", {}).get("enabled")
         or config.get("model", {}).get("mobile_training_seed_manifest")
     )
-    if qat_or_mobile:
+    if profile == "1b":
+        from ir_training.qat.gemma3_full_qat_contract import verify_gemma3_full_qat_checkpoint
+
+        gemma3_full_qat_contract = verify_gemma3_full_qat_checkpoint(config, metadata, checkpoint)
+    elif qat_or_mobile:
         # This is the sole dense-export exception to the historical rejection
         # above.  The contract module owns the exact workflow, FP32/full-model
         # scope, checkpoint inventory and QAT-metadata checks.  In particular,
@@ -519,6 +531,8 @@ def verify_checkpoint_source(training_config: Path, checkpoint: Path, profile: s
     return {**{key: value for key, value in binding.items() if key != "preparation"}, "base_model_dir": str(base),
             "checkpoint_kind": metadata["checkpoint_kind"], "files": expected,
             "full_qat_contract": full_qat_contract,
+            **({"gemma3_full_qat_contract": gemma3_full_qat_contract}
+               if gemma3_full_qat_contract is not None else {}),
             "training_metadata_sha256": file_sha256(checkpoint / "training_metadata.json")}
 
 
@@ -587,8 +601,10 @@ def prepare_deployment_checkpoint(*, profile: str, training_config: Path, checkp
                    "merged_model_dir": str(output_dir.resolve()), "template_parity": template_parity,
                    "official_retained_scale_export": False, "mtp_exported": False,
                    "full_qat_contract": binding.get("full_qat_contract"),
-                   "qat_aware_training": binding.get("full_qat_contract") is not None,
+                   "qat_aware_training": (binding.get("full_qat_contract") is not None
+                                          or binding.get("gemma3_full_qat_contract") is not None),
                    "quantization_export_contract": (
+                       "dynamic_w8_qat_fresh_graph" if binding.get("gemma3_full_qat_contract") is not None else
                        "dynamic_ptq_fresh_graph"
                        if binding.get("full_qat_contract") is not None
                        else "dense_deployment"
@@ -694,6 +710,14 @@ def validate_deployment_export_output(plan: dict[str, Any], variant: str) -> dic
     source = Path(plan["merged_model_dir"]) / "deployment_source.json"
     if file_sha256(source) != report.get("source_manifest_sha256"):
         raise ValueError("Export source manifest differs from merged checkpoint")
+    if plan["profile"] == "1b":
+        _verify_gemma3_export_source(_json(source), variant)
+        if (report.get("gemma3_full_qat_contract") != _json(source).get("gemma3_full_qat_contract")
+                or report.get("recipe") != "dynamic_wi8_afp32"
+                or report.get("official_retained_scale_export") is not False
+                or report.get("mtp_exported") is not False
+                or report.get("runtime_gpu_tested") is not False):
+            raise ValueError("Gemma 3 W8 export report differs from the bound full-QAT contract")
     files = [str(artifact), str(manifest_path), str(inspection_path)]
     recipe_file = report.get("quantization_recipe_file")
     if variant == "w248" and not isinstance(recipe_file, dict):
@@ -729,6 +753,21 @@ def validate_deployment_export_output(plan: dict[str, Any], variant: str) -> dic
             "files": files}
 
 
+def _verify_gemma3_export_source(source: dict[str, Any], variant: str) -> None:
+    from ir_training.qat.gemma3_full_qat_contract import WORKFLOW
+
+    contract = source.get("gemma3_full_qat_contract") or {}
+    if (variant != "w8" or source.get("profile") != "1b" or source.get("full_qat_contract") is not None
+            or contract.get("verified") is not True or contract.get("workflow") != WORKFLOW
+            or contract.get("quantization_recipe") != "dynamic_wi8_afp32"
+            or contract.get("all_parameters_trainable") is not True
+            or contract.get("embedding_included") is not True
+            or contract.get("official_graph_transplant") is not False
+            or source.get("qat_aware_training") is not True
+            or source.get("quantization_export_contract") != "dynamic_w8_qat_fresh_graph"):
+        raise ValueError("Gemma 3 W8 deployment lacks verified full-QAT source provenance")
+
+
 def convert_deployment_variant(*, profile: str, variant: str, model_dir: Path, output_dir: Path,
                                cache_length: int = 8192) -> dict[str, Any]:
     spec = deployment_variants(profile, (variant,))[variant]
@@ -737,6 +776,8 @@ def convert_deployment_variant(*, profile: str, variant: str, model_dir: Path, o
     source = _json(model_dir / "deployment_source.json")
     if source.get("profile") != profile or source.get("official_retained_scale_export") is not False:
         raise ValueError("Deployment model lacks matching dense source provenance")
+    if profile == "1b":
+        _verify_gemma3_export_source(source, variant)
     if source.get("full_qat_contract") is not None:
         if variant != "w248":
             raise ValueError("All-parameter QAT dense export supports only W248")
@@ -840,6 +881,8 @@ def convert_deployment_variant(*, profile: str, variant: str, model_dir: Path, o
               "runtime_gpu_tested": False, "actual_precision": actual_precision,
               "inspection_sha256": file_sha256(output_dir / "package_inspection.json"),
               "official_retained_scale_export": False, "mtp_exported": False}
+    if profile == "1b":
+        result["gemma3_full_qat_contract"] = source["gemma3_full_qat_contract"]
     if recipe_file is not None:
         result["quantization_recipe_file"] = recipe_file
     if serialization_report is not None:

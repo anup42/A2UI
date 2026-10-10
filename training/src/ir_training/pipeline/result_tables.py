@@ -13,8 +13,9 @@ from typing import Any
 
 from ir_training.common.progress import log
 
-DEPLOYMENT_LABELS = ("checkpoint_best", "checkpoint_final", "merged", "w32", "w16", "w8", "w4")
+CHECKPOINT_LABELS = ("checkpoint_best", "checkpoint_final", "merged")
 LITERT_LABELS = ("w32", "w16", "w8", "w4")
+DEPLOYMENT_LABELS = (*CHECKPOINT_LABELS, *LITERT_LABELS)
 REWARD_METRIC = "generation_reward_v5_4_avg"
 UNIQUE_REWARD_METRIC = "unique_source_generation_reward_v5_4_avg"
 STRICT_METRIC = "schema_valid_strict_rate"
@@ -28,6 +29,19 @@ def _cell(value: Any) -> str:
 
 def _mapping(value: Any) -> Mapping[str, Any]:
     return value if isinstance(value, Mapping) else {}
+
+
+def _deployment_variants(state: Mapping[str, Any]) -> tuple[str, ...]:
+    """Use planned variants; historical/partial manifests keep their old layout."""
+    plan = _mapping(state.get("plan"))
+    configured = _mapping(_mapping(plan.get("export")).get("variants"))
+    names = tuple(name for name in configured if isinstance(name, str) and name)
+    if not names:
+        return LITERT_LABELS
+    # Preserve the established ordering across JSON round trips, which may sort
+    # mapping keys. Additional planned variants remain visible without a code change.
+    return (*(name for name in LITERT_LABELS if name in names),
+            *(name for name in names if name not in LITERT_LABELS))
 
 
 def _cohorts(state: Mapping[str, Any], *, deployment: bool = False) -> list[tuple[str, int]]:
@@ -171,8 +185,8 @@ def render_experiment_results(state: Mapping[str, Any]) -> str:
         lines.extend(["", "Bixby50 uses source-response scoring; no reference IR."])
     if state.get("error"):
         lines.extend(["", f"Failure: {_cell(state['error'])}"])
-    lines.extend(["", "After repair uses the Android trained profile; raw checkpoint/trial selection is unchanged. "
-                  "Not run means repair was not configured; not measured means no repair evidence exists."])
+    lines.extend(["", ("After repair uses the Android trained profile; raw checkpoint/trial selection is unchanged. "
+                      "Not run means repair was not configured; not measured means no repair evidence exists.")])
     lines.extend(["", "Unknown means missing/nonfinite evidence, not zero. Full metrics and artifacts remain in experiments_manifest.json and comparison.json (when complete)."])
     return "\n".join(lines) + "\n"
 
@@ -183,12 +197,13 @@ def render_deployment_results(state: Mapping[str, Any], *, tuning_state: Mapping
     active = state.get("active_stage")
     failed = state.get("status") == "failed"
     skip_litert_evaluation = _mapping(state.get("plan")).get("skip_litert_evaluation") is True
+    litert_labels = _deployment_variants(state)
     cohorts = _cohorts(state, deployment=True)
     rows = []
-    for label in DEPLOYMENT_LABELS:
+    for label in (*CHECKPOINT_LABELS, *litert_labels):
         for cohort, count in cohorts:
             key = f"{label}_{cohort}"
-            if skip_litert_evaluation and label in LITERT_LABELS:
+            if skip_litert_evaluation and label in litert_labels:
                 # An intentional omission is neither missing evidence nor a
                 # successful evaluation. Never surface stale runtime scores
                 # under a plan that explicitly disables native inference.
@@ -219,16 +234,16 @@ def render_deployment_results(state: Mapping[str, Any], *, tuning_state: Mapping
                      "After repair reward", "After repair strict %"), rows), "",
              ("Evaluated means inference/scoring completed, not a quality-threshold pass. Unknown means missing/nonfinite evidence, not zero. "
              "Not reported means no verified result is available; consult the manifest/logs for attempted stages.")]
-    lines.extend(["", "After repair uses the Android trained profile over the same full cohort, including rejected outputs. "
+    lines.extend(["", ("After repair uses the Android trained profile over the same full cohort, including rejected outputs. "
                   "Raw checkpoint selection is unchanged. Not run means repair was not configured; "
-                  "not measured means no repair evidence exists."])
+                  "not measured means no repair evidence exists.")])
     if skip_litert_evaluation:
-        lines[4:4] = ["Mode: checkpoint testing plus export-only LiteRT variants (--skip-litert-evaluation). "
+        lines[4:4] = [("Mode: checkpoint testing plus export-only LiteRT variants (--skip-litert-evaluation). "
                       "Native runtime not validated: Vulkan preflight and LiteRT-LM inference/scoring were skipped by request. "
-                      "Artifact validation does not establish runtime compatibility or model quality.", ""]
+                      "Artifact validation does not establish runtime compatibility or model quality."), ""]
         exports = _mapping(state.get("exports"))
         export_rows = []
-        for label in LITERT_LABELS:
+        for label in litert_labels:
             if _mapping(exports.get(label)):
                 status = "exported; artifact validated"
             elif active == f"export_{label}":
@@ -239,8 +254,8 @@ def render_deployment_results(state: Mapping[str, Any], *, tuning_state: Mapping
         lines.extend(["", "LiteRT export artifacts (separate from runtime evaluation):", "",
                       _table(("Variant", "Export status"), export_rows)])
     if any(name == "bixby50" for name, _ in cohorts):
-        lines.extend(["", "Bixby50 is a held-out test cohort, never used for tuning/checkpoint selection. "
-                      "Bixby50 uses source-response scoring; no reference IR."])
+        lines.extend(["", ("Bixby50 is a held-out test cohort, never used for tuning/checkpoint selection. "
+                          "Bixby50 uses source-response scoring; no reference IR.")])
     if active and failed:
         lines.extend(["", f"Stopped at: {_cell(active)}."])
     if state.get("error"):

@@ -43,6 +43,60 @@ def test_deployment_includes_all_fourteen_slots_and_correct_weighting():
     assert "quality-threshold pass" in text
 
 
+@pytest.mark.parametrize("skip_litert", [False, True])
+def test_one_b_reports_only_planned_w8_variant_and_ignores_stale_others(skip_litert):
+    cohorts = {"golden32": {"rows": 32}, "golden35": {"rows": 35}, "bixby50": {"rows": 50}}
+    state = {
+        "status": "complete",
+        "plan": {"export": {"profile": "1b", "variants": {"w8": {}}},
+                 "training": {"goldens": cohorts}, "skip_litert_evaluation": skip_litert},
+        "results": {f"{label}_{cohort}": evaluation(spec["rows"])
+                    for label in module.DEPLOYMENT_LABELS for cohort, spec in cohorts.items()},
+        "exports": {name: {"status": "complete"} for name in module.LITERT_LABELS},
+    }
+    before = deepcopy(state)
+    text = module.render_deployment_results(state)
+    table_rows = [line for line in text.splitlines() if line.startswith("| ")]
+    labels = [line.split("|")[1].strip() for line in table_rows]
+    for label in (*module.CHECKPOINT_LABELS, "w8"):
+        assert labels.count(label) == 3
+    assert not {"w32", "w16", "w4", "W32", "W16", "W4"}.intersection(labels)
+    assert text.count("| evaluated") == (9 if skip_litert else 12)
+    assert sum("skipped by request" in row for row in table_rows) == (3 if skip_litert else 0)
+    if skip_litert:
+        assert labels.count("W8") == 1
+        assert text.count("exported; artifact validated") == 1
+        assert "Native runtime not validated" in text
+    else:
+        assert "LiteRT export artifacts" not in text
+    assert state == before
+
+
+@pytest.mark.parametrize("export_plan", [None, {}, {"variants": None}, {"variants": {}}, {"variants": []}])
+def test_missing_or_partial_variant_plan_keeps_legacy_layout(export_plan):
+    state = {"plan": {"export": export_plan}, "status": "failed"}
+    rows = [line for line in module.render_deployment_results(state).splitlines() if line.startswith("| ")]
+    labels = [line.split("|")[1].strip() for line in rows]
+    for label in module.DEPLOYMENT_LABELS:
+        assert labels.count(label) == 2
+
+
+def test_additional_planned_variant_is_reported_without_phantom_defaults():
+    state = {"plan": {"export": {"variants": {"w248": {}}}},
+             "status": "failed", "active_stage": "export_w248"}
+    text = module.render_deployment_results(state)
+    assert text.count("blocked: export failed") == 2
+    labels = [line.split("|")[1].strip() for line in text.splitlines() if line.startswith("| ")]
+    assert labels.count("w248") == 2
+    assert not set(module.LITERT_LABELS).intersection(labels)
+
+
+def test_planned_legacy_variant_order_is_stable_after_sorted_json_round_trip():
+    state = {"plan": {"export": {"variants": {name: {} for name in module.LITERT_LABELS}}}}
+    assert module.render_deployment_results(state) == module.render_deployment_results(
+        json.loads(json.dumps(state, sort_keys=True)))
+
+
 def test_deployment_failure_does_not_invent_remaining_scores():
     state = {"status": "failed", "active_stage": "w32_golden32", "error": "missing Vulkan",
              "results": {"checkpoint_best_golden32": evaluation(32)}}

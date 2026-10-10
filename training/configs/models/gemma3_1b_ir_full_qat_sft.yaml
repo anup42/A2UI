@@ -1,0 +1,84 @@
+run:
+  id: gemma3_1b_ir_full_qat_sft
+  dataset_format: a2ui_express_v1
+  purpose: gemma3_1b_full_qat_v1
+model:
+  family: gemma
+  model_id: google/gemma-3-1b-it
+  model_loader: auto_causal_lm
+  tokenizer_loader: auto_tokenizer
+  trust_remote_code: false
+  load_in_4bit: false
+  dtype: bfloat16
+  device_map: none
+  max_context_tokens: 32768
+  max_output_tokens: 2048
+training:
+  # The shared full-finetune loader keeps all optimizer parameters in FP32;
+  # bfloat16 selects AMP compute, not reduced-precision master weights.
+  method: full_finetune_qat
+  trainer_backend: hf
+  disable_cudnn_sdpa: true
+  backward_preflight: true
+  epochs: 1
+  learning_rate: 0.000005
+  weight_decay: 0.01
+  optim: adamw_torch_fused
+  per_device_train_batch_size: 1
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 32
+  expected_effective_batch_size: 32
+  gradient_checkpointing: true
+  gradient_checkpointing_kwargs: {use_reentrant: false}
+  ddp_broadcast_buffers: false
+  ddp_find_unused_parameters: false
+  require_ddp_for_multi_gpu: true
+  mixed_precision: auto
+  warmup_ratio: 0.03
+  max_seq_length: 4096
+  overflow_policy: error
+  eval_strategy: steps
+  eval_steps: 500
+  save_steps: 500
+  logging_steps: 10
+  save_total_limit: 2
+  report_to: tensorboard
+  max_grad_norm: 1.0
+  seed: 42
+  forward_smoke_check_rows: 4
+qat:
+  enabled: true
+  profile: gemma3_1b_wi8_afp32_full_finetune
+  quantizer: ste_ai_edge
+  scale_mode: dynamic
+  eps: 1.0e-9
+  quantize_embeddings: true
+  exclude_modules: []
+  weight_bits: 8
+  activation_bits: 32
+  weight_symmetric: true
+  activation_symmetric: true
+  weight_per_channel: true
+  weight_axis: 0
+  group_size: null
+  only_base_layers: true
+  effective_merged_weight: true
+  final_quantization: dynamic_wi8_afp32
+  final_runtime_validation_required: true
+golden_eval:
+  enabled: true
+  max_rows: 32
+  required_rows: 32
+  require_exact_rows: true
+  require_unique_rows: true
+  max_input_tokens: 5120
+  max_new_tokens: 2048
+  metric_version: v5_4
+  trigger: evaluate
+  interval: 2
+  evaluate_at_end: true
+  use_cache: true
+  metric_for_best_model: unique_source_generation_reward_v5_4_avg
+  greater_is_better: true
+  save_best_checkpoint: true
+  stop_strings: ['</a2ui>']

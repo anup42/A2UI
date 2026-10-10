@@ -1,0 +1,6 @@
+# Dedicated Gemma 3 full-QAT training/HF-evaluation environment; not the converter.
+# Same Trainer/Accelerate API pair as the existing full-parameter lane.
+# Install the appropriate CUDA PyTorch wheel on the training host first.
+-r requirements-training.txt
+transformers==5.16.1
+accelerate==1.15.0

@@ -50,7 +50,7 @@ class GoldenTrainingOptions:
     eval_steps: int = 500
     golden_every_steps: int = 1000
     max_seq_length: int = 4096
-    max_input_tokens: int = 4096
+    max_input_tokens: int | None = None
     max_new_tokens: int = 2048
     tensorboard_root: str = "/tensorboard"
     tensorboard_detail: str = "minimal"
@@ -81,6 +81,14 @@ class GoldenTrainingOptions:
     evaluate_bixby50: bool = True
     token_cache: bool = True
     token_cache_dir: Path | None = None
+
+    def __post_init__(self) -> None:
+        # Keep legacy defaults intact. The new 1B profile is exclusively full
+        # QAT and separates supervised context from final evaluation prompts.
+        if self.max_input_tokens is None:
+            object.__setattr__(self, "max_input_tokens", 5120 if self.profile == "1b" else 4096)
+        if self.profile == "1b":
+            object.__setattr__(self, "qat", True)
 
 
 def sha256(path: Path) -> str:
@@ -166,8 +174,8 @@ def build_plan(options: GoldenTrainingOptions, *, preparation_only: bool = False
     resolve_prepare_workers(options.prepare_workers)
     if not math.isfinite(options.progress_seconds) or options.progress_seconds <= 0:
         raise ValueError("--progress-seconds must be positive")
-    if options.profile not in {"e2b", "270m"} or (options.qat and options.profile != "270m"):
-        raise ValueError("Profiles are e2b dense LoRA and 270m full SFT; --qat is only for 270m. Official E2B retained-scale QAT uses its separate launcher.")
+    if options.profile not in {"e2b", "270m", "1b"} or (options.qat and options.profile == "e2b"):
+        raise ValueError("Profiles are e2b dense LoRA, 270m full SFT/optional QAT, and 1b full QAT. Official E2B retained-scale QAT uses its separate launcher.")
     if sum(value is not None for value in (options.input_dir, options.source_run_dir, options.prepared_input_dir)) > 1:
         raise ValueError("Choose only one of --input-dir, --source-run-dir or --prepared-input-dir")
     if options.prepared_input_dir and options.augmentation != "none":
@@ -180,9 +188,9 @@ def build_plan(options: GoldenTrainingOptions, *, preparation_only: bool = False
         raise ValueError("Token budgets must be positive")
     # Review recipes intentionally bind one context limit through preparation,
     # preflight and standalone inference. Do not silently rewrite just one side.
-    if not preparation_only and options.max_input_tokens != options.max_seq_length:
+    if not preparation_only and options.profile != "1b" and options.max_input_tokens != options.max_seq_length:
         raise ValueError("This launcher requires --max-input-tokens == --max-seq-length")
-    if preparation_only and options.max_seq_length > (8192 if options.profile == "e2b" else 32768):
+    if (preparation_only or options.profile == "1b") and options.max_seq_length > (8192 if options.profile == "e2b" else 32768):
         raise ValueError("Training sequence budget exceeds the selected recipe context")
     if options.max_input_tokens + options.max_new_tokens > (8192 if options.profile == "e2b" else 32768):
         raise ValueError("Prompt plus generation budget exceeds the selected recipe context")
@@ -190,6 +198,9 @@ def build_plan(options: GoldenTrainingOptions, *, preparation_only: bool = False
     if not (model / "config.json").is_file() or not (model / "tokenizer_config.json").is_file() or (not tokenizer_only and not any(model.glob("*.safetensors"))):
         required = "config.json and tokenizer_config.json" if tokenizer_only else "local dense HF safetensors, config.json and tokenizer_config.json"
         raise ValueError(f"--model-dir must contain {required}; no files are downloaded")
+    if options.profile == "1b":
+        from ir_training.qat.gemma3_full_qat_contract import validate_local_gemma3_1b_config
+        validate_local_gemma3_1b_config(model / "config.json")
     source = Path(values["prepared_input_dir"] or values["input_dir"] or values["source_run_dir"])
     if values["prepared_input_dir"]:
         from ir_training.data.prepared_input import prepared_input_files
@@ -232,7 +243,7 @@ def build_plan(options: GoldenTrainingOptions, *, preparation_only: bool = False
                    *(["best_bixby50"] if options.evaluate_bixby50 else []),
                    "final_golden32", *(["final_golden35"] if options.evaluate_golden35 else []),
                    *(["final_bixby50"] if options.evaluate_bixby50 else []), "scorecard"],
-        "model_training": "270m W8 QAT" if options.qat else ("dense E2B LoRA SFT" if options.profile == "e2b" else "270m full SFT"),
+        "model_training": f"{options.profile} W8 full QAT" if options.profile == "1b" else ("270m W8 QAT" if options.qat else ("dense E2B LoRA SFT" if options.profile == "e2b" else "270m full SFT")),
         "exports_performed": False, "automatic_model_downloads": False,
         "golden35_role": "final evaluation only; never checkpoint selection" if options.evaluate_golden35 else "reserved, not evaluated in development trial",
         "bixby50_role": "source-only final holdout; never checkpoint selection" if options.evaluate_bixby50 else "reserved, not evaluated in development trial",
@@ -440,6 +451,8 @@ def configure_command(plan: dict[str, Any]) -> list[str]:
             command.extend(["--" + name.replace("_", "-"), str(values[name])])
     if values["qat"]:
         command.append("--qat")
+    if values["profile"] == "1b":
+        command.extend(["--max-input-tokens", str(values["max_input_tokens"])])
     command.append("--gradient-checkpointing" if values["gradient_checkpointing"] else "--no-gradient-checkpointing")
     command.append("--token-cache" if values["token_cache"] else "--no-token-cache")
     command.extend(["--token-cache-dir", values["token_cache_dir"], "--tensorboard-detail", values["tensorboard_detail"]])
@@ -570,10 +583,14 @@ def run_pipeline(options: GoldenTrainingOptions, *, execute: bool = False, prepa
         if previous_plan != plan:
             raise ValueError("Workflow options or prompt contract changed; do not reuse the run")
         with Progress("Verify completed stages before continuation", unit="stage", interval=options.progress_seconds):
-            for completed_stage in state["completed"].values():
+            for completed_name, completed_stage in state["completed"].items():
                 for path, digest in completed_stage["files"].items():
                     if not Path(path).is_file() or sha256(Path(path)) != digest:
                         raise ValueError(f"Completed-stage artifact changed: {path}")
+                if options.profile == "1b" and completed_name.startswith(("best_", "final_")):
+                    results = [Path(path) for path in completed_stage["files"] if Path(path).name == "evaluation_result.json"]
+                    if len(results) != 1 or json.loads(results[0].read_text(encoding="utf-8")).get("qat_applied") is not True:
+                        raise ValueError(f"Gemma 3 full-QAT evaluation lacks QAT-on evidence: {completed_name}")
         if state.get("active_stage") in {"prepare", "augment", "configure", "training"}:
             raise ValueError("An interrupted preparation/configuration/training stage needs explicit recovery; this launcher will not restart its optimizer silently. Inspect the stage log and saved training config.")
         receipt_path = output / "preparation_receipt.json"
@@ -678,6 +695,8 @@ def run_pipeline(options: GoldenTrainingOptions, *, execute: bool = False, prepa
                 value = json.loads(result.read_text(encoding="utf-8"))
                 if value.get("row_count") != plan["goldens"][cohort]["rows"]:
                     raise ValueError(f"Incomplete {name} evaluation")
+                if options.profile == "1b" and value.get("qat_applied") is not True:
+                    raise ValueError(f"Gemma 3 full-QAT evaluation lacks QAT-on evidence: {name}")
                 return [result, destination / "aggregate_metrics.json", destination / "predictions.jsonl", destination / "scored_predictions.jsonl"]
             stage(name, evaluate)
     def scorecard() -> list[Path]:

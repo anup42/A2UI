@@ -69,6 +69,7 @@ def build_golden_set_eval_callback(
     resume_checkpoint: str | Path | None = None,
     resume_relocate_best: bool = False,
     zero3_trainer: Any | None = None,
+    clear_generation_cache_on_save: bool = False,
 ) -> Any | None:
     if not enabled:
         return None
@@ -414,6 +415,7 @@ def build_golden_set_eval_callback(
                         model=model, tokenizer=tokenizer,
                         checkpoint_dir=resolved_best_checkpoint_dir,
                         event_dir=event_dir, best_info=best_info,
+                        clear_generation_cache_on_save=clear_generation_cache_on_save,
                     )
                 self.best_checkpoint_saved = True
                 self.best_checkpoint_path = resolved_best_checkpoint_dir
@@ -1074,9 +1076,25 @@ def _save_best_golden_checkpoint(
     checkpoint_dir: Path,
     event_dir: Path,
     best_info: dict[str, Any],
+    clear_generation_cache_on_save: bool = False,
 ) -> None:
     checkpoint_dir.mkdir(parents=True, exist_ok=True)
-    _unwrap_model(model).save_pretrained(str(checkpoint_dir))
+    model_to_save = _unwrap_model(model)
+    generation_config = (
+        getattr(model_to_save, "generation_config", None)
+        if clear_generation_cache_on_save else None
+    )
+    missing = object()
+    cache_implementation = getattr(generation_config, "cache_implementation", missing)
+    if cache_implementation is not missing:
+        # The 1B full-QAT training cache stays disabled; only serialization
+        # must omit a cache implementation that requires use_cache=True.
+        generation_config.cache_implementation = None
+    try:
+        model_to_save.save_pretrained(str(checkpoint_dir))
+    finally:
+        if cache_implementation is not missing:
+            generation_config.cache_implementation = cache_implementation
     tokenizer.save_pretrained(str(checkpoint_dir))
     for name in ("predictions.jsonl", "scored_predictions.jsonl", "aggregate_metrics.json"):
         source = event_dir / name

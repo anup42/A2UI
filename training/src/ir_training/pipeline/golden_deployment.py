@@ -1,7 +1,7 @@
 """Golden/Bixby training, optional screening, and recoverable GPU deployment tests.
 
-No automatic retries or CPU-inference fallback. By default completion requires
-all twelve LiteRT evaluations. Explicit export-only mode retains checkpoint
+No automatic retries or CPU-inference fallback. Completion requires all selected
+LiteRT variant evaluations. Explicit export-only mode retains checkpoint
 tests and export validation, but makes no native-runtime success claim.
 """
 from __future__ import annotations
@@ -111,8 +111,11 @@ def build_deployment_plan(options: GoldenDeploymentOptions) -> dict[str, Any]:
     for name in ("model_dir", "input_dir", "source_run_dir"):
         if outer["options"][name] and output.is_relative_to(Path(outer["options"][name])):
             raise ValueError("Deployment output must be outside model/source inputs")
-    if base.qat:
+    gemma3_full_qat = base.profile == "1b" and base.qat
+    if base.qat and not gemma3_full_qat:
         raise ValueError("This full deployment workflow exports dense SFT checkpoints; retained-scale/QAT export remains in its separate pipeline")
+    if gemma3_full_qat and options.tune:
+        raise ValueError("Gemma 3 1B full QAT does not use the dense/LoRA screening workflow; run explicit independent experiments")
     if not base.evaluate_golden35:
         raise ValueError("Full deployment requires Golden35 after final training; tuning defers it internally")
     if not base.evaluate_bixby50:
@@ -183,6 +186,10 @@ def build_deployment_plan(options: GoldenDeploymentOptions) -> dict[str, Any]:
         plan["gpu_policy"]["litert_evaluation"] = "skipped by request; no native inference or CPU fallback"
         plan["runtime_preflight_scope"] = "Skipped by request; Vulkan/LiteRT runtime is not required or validated."
         plan["experimental"] = "W16 and W4 require explicit acknowledgement and validated export; native runtime compatibility remains untested."
+    if gemma3_full_qat:
+        plan["workflow"] = "gemma3_1b_full_qat_w8_deployment_v1"
+        plan["experimental"] = "Public Gemma 3 fresh-graph INT8 export; no official fixed-topology transplant or MTP. Real conversion and native testing remain required."
+        plan["gpu_policy"]["training"] = "single GPU or replicated DDP; FP32 master weights, BF16-capable AMP, microbatch 1 by default; local backward preflight does not certify optimizer/NCCL headroom"
     return plan
 
 
@@ -223,8 +230,11 @@ def _checkpoint_step(checkpoint: Path) -> int:
     return step
 
 
-def _evaluation(path: Path, count: int, *, artifact: Path, litert: bool = False) -> tuple[dict, list[Path]]:
+def _evaluation(path: Path, count: int, *, artifact: Path, litert: bool = False,
+                required_qat: bool = False) -> tuple[dict, list[Path]]:
     result = _json(path / "evaluation_result.json")
+    if required_qat and result.get("qat_applied") is not True:
+        raise ValueError(f"Gemma 3 full-QAT checkpoint evaluation must apply QAT: {path}")
     if result.get("row_count") != count:
         raise ValueError(f"Incomplete {count}-row evaluation: {path}")
     key = "model" if litert else "checkpoint"
@@ -287,7 +297,8 @@ def _restore_results(state: dict, plan: dict) -> None:
             paths = [Path(path) for path in entry["files"] if Path(path).name == "evaluation_result.json"]
             if len(paths) != 1:
                 raise ValueError(f"Cannot identify retained evaluation result: {key}")
-            result, _ = _evaluation(paths[0].parent, count, artifact=artifact, litert=label.startswith("w"))
+            result, _ = _evaluation(paths[0].parent, count, artifact=artifact, litert=label.startswith("w"),
+                                    required_qat=plan["export"]["profile"] == "1b" and not label.startswith("w"))
             if state.get("results", {}).get(key) != result:
                 raise ValueError(f"Retained summary differs from its bound evaluation: {key}")
             restored[key] = result
@@ -314,7 +325,9 @@ def run_deployment(options: GoldenDeploymentOptions, *, execute: bool = False,
     plan = build_deployment_plan(options)
     if not execute:
         return {**plan, "status": "plan_only", "training_executed": False}
-    if not options.allow_experimental_formats:
+    if not options.allow_experimental_formats and any(
+        spec["experimental"] for spec in plan["export"]["variants"].values()
+    ):
         raise ValueError("All four formats include experimental W16/W4. Read the deployment runbook, then explicitly pass --allow-experimental-formats")
     with deployment_lock(Path(plan["output_dir"])):
         return _run_deployment_locked(options, plan, command_runner=command_runner,
@@ -410,8 +423,9 @@ def _run_deployment_locked(options, plan, *, command_runner, pipeline_runner,
         factory = writer_factory or _summary_writer_factory()
         writer = factory(log_dir=plan["tensorboard_dir"])
         if options.skip_litert_evaluation:
+            variants = "/".join(plan["export"]["variants"]).upper()
             notice = ("--skip-litert-evaluation: training, checkpoint/merged HF tests on all three cohorts, "
-                      "and W32/W16/W8/W4 exports remain required. Vulkan/native preflight and "
+                      f"and {variants} exports remain required. Vulkan/native preflight and "
                       "LiteRT inference are skipped; exported variants are NOT runtime validated.")
             log(notice)
             writer.add_text("deployment/evaluation_scope", notice, 0)
@@ -539,7 +553,8 @@ def _run_deployment_locked(options, plan, *, command_runner, pipeline_runner,
                     results = [Path(p) for p in entry["files"] if Path(p).name == "evaluation_result.json"]
                     if len(results) != 1 or sha256(results[0]) != entry["files"][str(results[0])]:
                         raise ValueError("Training evaluation evidence is not hash-bound")
-                    evaluated, files = _evaluation(results[0].parent, count, artifact=checkpoint)
+                    evaluated, files = _evaluation(results[0].parent, count, artifact=checkpoint,
+                                                    required_qat=base.profile == "1b")
                     log_result(f"checkpoint_{role}", cohort, evaluated, _checkpoint_step(checkpoint))
                     evidence.extend(files)
             return evidence
@@ -568,7 +583,8 @@ def _run_deployment_locked(options, plan, *, command_runner, pipeline_runner,
                 argv[argv.index("--evaluation-name") + 1] = f"merged_{cohort}"
                 argv.extend(["--step", str(step)])
                 command(argv, log_path(f"merged_{cohort}"), eval_env)
-                evaluated, paths = _evaluation(destination, count, artifact=Path(export["merged_model_dir"]))
+                evaluated, paths = _evaluation(destination, count, artifact=Path(export["merged_model_dir"]),
+                                                required_qat=base.profile == "1b")
                 log_result("merged", cohort, evaluated, step)
                 return paths
             stage(f"merged_{cohort}", evaluate_merged)

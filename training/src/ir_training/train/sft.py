@@ -90,6 +90,15 @@ def train_sft(
         is_full_qat, verify_full_model_inventory, verify_full_qat_coverage,
     )
     all_parameter_qat = is_full_qat(config)
+    from ir_training.qat.gemma3_full_qat_contract import (
+        is_gemma3_full_qat,
+        validate_gemma3_full_qat_config,
+        verify_gemma3_full_qat_scope,
+    )
+    gemma3_full_qat = is_gemma3_full_qat(config)
+    gemma3_qat_coverage = {}
+    if gemma3_full_qat:
+        validate_gemma3_full_qat_config(config)
     sharded_training = all_parameter_qat and training_cfg.get("distributed_backend", "ddp") == "sharded"
     zero_stage = 2
     if sharded_training:
@@ -633,6 +642,8 @@ def train_sft(
             qat_controller = prepare_qat_model(model, config)
             if all_parameter_qat:
                 full_qat_coverage = verify_full_qat_coverage(model, qat_controller.summary())
+            if gemma3_full_qat:
+                gemma3_qat_coverage = verify_gemma3_full_qat_scope(model, qat_controller.summary())
             _require_trainable_qat_scope(qat_cfg, qat_controller)
             saturation_monitor = getattr(
                 qat_controller, "saturation_monitor", None
@@ -769,7 +780,7 @@ def train_sft(
                 prior_selection = full_optimizer_preflight["probe"]["selection"]
                 if prior_selection.get("longest_sequence_length") != selection["longest_length"]:
                     raise ValueError("Sharded preflight no longer matches the longest prepared row")
-        elif qat_controller is None or all_parameter_qat:
+        elif qat_controller is None or all_parameter_qat or gemma3_full_qat:
             from ir_training.train.backward_preflight import run_backward_preflight
             backward_preflight_report = run_backward_preflight(
                 model=model, tokenizer=tokenizer, dataset=tokenized_dataset["train"],
@@ -783,6 +794,8 @@ def train_sft(
                 "reason": "QAT observer/scale state requires its separate backward-preflight contract; existing QAT gates remain active",
             }
             print(f"Training backward preflight: {backward_preflight_report}", flush=True)
+        if gemma3_full_qat and backward_preflight_report.get("status") != "passed":
+            raise ValueError("Gemma 3 1B full QAT requires a successful live CUDA backward preflight")
         # Each rank still validates exact tensors and runs live model probes.
         # Release earlier views; with caching the text view holds only the
         # bounded greedy probe and the tensors remain shared memory-mapped data.
@@ -844,6 +857,7 @@ def train_sft(
                 "full_parameter_scope": full_parameter_scope,
                 "full_model_inventory": full_model_inventory,
                 "full_qat_coverage": full_qat_coverage,
+                **({"gemma3_qat_coverage": gemma3_qat_coverage} if gemma3_full_qat else {}),
                 "full_optimizer_preflight": full_optimizer_preflight,
                 "numeric_preflight": numeric_preflight_report,
                 "token_cache": token_cache_report,
@@ -887,6 +901,7 @@ def train_sft(
         tensorboard_root=tensorboard_root,
         tensorboard_run_id=str(run_cfg.get("id") or output_dir.name),
         resume_checkpoint=resolved_resume_checkpoint,
+        **({"clear_generation_cache_on_save": True} if gemma3_full_qat else {}),
         **({"zero3_trainer": trainer} if sharded_training and zero_stage == 3 else {}),
     )
     if golden_callback is not None:
@@ -903,6 +918,7 @@ def train_sft(
         **({"full_finetune_precision": full_finetune_precision} if full_finetune_precision is not None else {}),
         "full_model_inventory": full_model_inventory,
         "full_qat_coverage": full_qat_coverage,
+        **({"gemma3_qat_coverage": gemma3_qat_coverage} if gemma3_full_qat else {}),
         "full_optimizer_preflight": full_optimizer_preflight,
         "effective_batch_size": effective_batch,
         "initialization_seed": initialization_seed,
@@ -1012,7 +1028,12 @@ def train_sft(
         save_zero3_checkpoint(trainer, final_adapter, tokenizer=tokenizer)
     if _trainer_is_world_process_zero(trainer):
         if not (sharded_training and zero_stage == 3):
-            trainer.model.save_pretrained(str(final_adapter))
+            if gemma3_full_qat:
+                # Reuse the checked serialization-only generation-cache fix;
+                # training still disables cache, including during checkpointing.
+                trainer.save_model(str(final_adapter))
+            else:
+                trainer.model.save_pretrained(str(final_adapter))
         tokenizer.save_pretrained(str(final_adapter))
         if config_path is not None:
             shutil.copy2(config_path, output_dir / "config.yaml")
@@ -3688,6 +3709,7 @@ def _build_optional_golden_callback(
     tensorboard_run_id: str | None = None,
     resume_checkpoint: Path | None = None,
     zero3_trainer: Any | None = None,
+    clear_generation_cache_on_save: bool = False,
 ) -> Any | None:
     if not bool(golden_eval_cfg.get("enabled", False)):
         return None
@@ -3763,6 +3785,7 @@ def _build_optional_golden_callback(
         evaluate_at_end=bool(golden_eval_cfg.get("evaluate_at_end", True)),
         use_cache=bool(golden_eval_cfg.get("use_cache", True)),
         resume_checkpoint=resume_checkpoint,
+        clear_generation_cache_on_save=clear_generation_cache_on_save,
         **({"resume_relocate_best": True} if training_cfg.get("resume_policy") in {
             "retained_mobile_horizon_extension_v1", "full_parameter_qat_continuation_v1",
         } else {}),

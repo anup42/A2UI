@@ -42,7 +42,7 @@ def test_export_only_discloses_nine_evaluations_and_twelve_skips():
     skipped = [row for row in rows if "skipped by request" in row]
     assert len(skipped) == 12
     for row in skipped:
-        assert row.count("n/a") == 4
+        assert row.count("n/a") == 6  # Includes both after-repair columns.
         assert "unknown" not in row and "0.0000" not in row and "failed" not in row
     assert "Native runtime not validated" in report
     assert "Vulkan preflight and LiteRT-LM inference/scoring were skipped by request" in report

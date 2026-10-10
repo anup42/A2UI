@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Train (optionally tune), evaluate and export/test W32/W16/W8/W4 on GPU."""
+"""Train/evaluate/export/test on GPU: E2B/270M multi-format or 1B full-QAT W8."""
 from __future__ import annotations
 
 import json
@@ -15,12 +15,14 @@ from ir_training.pipeline.golden_training import GoldenTrainingOptions
 from run_golden_training import build_parser
 
 
-def main() -> int:
+def build_deployment_parser(*, required_profile: str | None = None):
     parser = build_parser(for_deployment=True)
     parser.description = __doc__
+    if required_profile is not None:
+        parser.set_defaults(profile=required_profile)
     parser.add_argument("--exporter-python", type=Path, required=True, help="Absolute Python in isolated compatible LiteRT Torch export environment")
     parser.add_argument("--runtime-python", type=Path, help="Absolute Python with pinned litert-lm-api GPU runtime; required unless --skip-litert-evaluation")
-    parser.add_argument("--skip-litert-evaluation", action="store_true", help="Train, test checkpoints/merged HF on Golden32/Golden35/Bixby50, and export all four variants; skip Vulkan/native-runtime preflight and LiteRT inference. Default tests every variant.")
+    parser.add_argument("--skip-litert-evaluation", action="store_true", help="Train, test checkpoints/merged HF on Golden32/Golden35/Bixby50, and export selected variants (1B: W8 only); skip Vulkan/native-runtime preflight and LiteRT inference. Default tests every selected variant.")
     parser.add_argument("--tune", action="store_true", help="Sequential equal-step Golden32 trials, lock settings, then fresh full training; no screening Golden35/Bixby50")
     parser.add_argument("--trial-steps", type=int, default=1000)
     parser.add_argument("--trials-file", type=Path)
@@ -32,7 +34,14 @@ def main() -> int:
     parser.add_argument("--case-timeout-seconds", type=float, default=600, help="LiteRT per-case progress deadline")
     parser.add_argument("--load-timeout-seconds", type=float, default=1800, help="LiteRT model-load deadline")
     parser.add_argument("--resume-run", action="store_true", help="Explicit post-training recovery in the same output directory; verify and reuse completed stages, never restart training/tuning")
-    values = vars(parser.parse_args())
+    return parser
+
+
+def main(argv: list[str] | None = None, *, required_profile: str | None = None) -> int:
+    parser = build_deployment_parser(required_profile=required_profile)
+    values = vars(parser.parse_args(argv))
+    if required_profile is not None and values["profile"] != required_profile:
+        parser.error(f"This entrypoint requires --profile {required_profile}")
     execute = values.pop("execute")
     keys = ("exporter_python", "runtime_python", "tune", "trial_steps", "trials_file", "include_augmentation",
             "allow_experimental_formats", "cache_length", "stage_timeout_seconds", "generation_timeout_seconds",

@@ -14,7 +14,7 @@ from ir_training.pipeline.golden_training import GoldenTrainingOptions, run_pipe
 
 def build_parser(*, for_deployment: bool = False) -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--profile", choices=("e2b", "270m"), default="e2b")
+    parser.add_argument("--profile", choices=("e2b", "270m", "1b"), default="e2b")
     parser.add_argument("--model-dir", type=Path, required=True, help="Local dense HF model and tokenizer; never downloaded automatically")
     parser.add_argument("--output-dir", type=Path, required=True, help="Fresh full deployment folder; no automatic restart" if for_deployment else "New run folder; existing folders require --continue-run")
     source = parser.add_mutually_exclusive_group()
@@ -47,7 +47,8 @@ def build_parser(*, for_deployment: bool = False) -> argparse.ArgumentParser:
     parser.add_argument("--eval-steps", type=int, default=500)
     parser.add_argument("--golden-every-steps", type=int, default=1000)
     parser.add_argument("--max-seq-length", type=int, default=4096)
-    parser.add_argument("--max-input-tokens", type=int, default=4096)
+    parser.add_argument("--max-input-tokens", type=int, default=None,
+                        help="Evaluation prompt limit: 5120 for 1B; 4096 for existing profiles")
     parser.add_argument("--max-new-tokens", type=int, default=2048)
     parser.add_argument("--microbatch", type=int)
     parser.add_argument("--effective-batch", type=int)
@@ -61,7 +62,7 @@ def build_parser(*, for_deployment: bool = False) -> argparse.ArgumentParser:
     parser.add_argument("--tensorboard-root", default=os.environ.get("A2UI_TENSORBOARD_ROOT") or "/tensorboard")
     parser.add_argument("--tensorboard-detail", choices=("minimal", "full"), default=os.environ.get("A2UI_TENSORBOARD_DETAIL") or "minimal", help="Minimal (default): headline training/Golden/runtime metrics and HParams; full: all diagnostic charts and JSON text. Disk artifacts remain complete.")
     if not for_deployment:
-        parser.add_argument("--qat", action="store_true", help="270M only: initialize from a local full SFT checkpoint and train W8 QAT. E2B official QAT remains separate.")
+        parser.add_argument("--qat", action="store_true", help="270M: enable full-model W8 QAT; 1B: already enabled by default. E2B official QAT remains separate.")
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--execute", action="store_true", help="Execute the complete training, export and GPU evaluation plan" if for_deployment else "Explicitly prepare, preflight, train and evaluate on this host")
     if not for_deployment:

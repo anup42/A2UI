@@ -97,15 +97,15 @@ def build_gpu_profile(
     microbatch: int | None = None, effective_batch: int | None = None,
     dataloader_workers: int | None = None, cpu_count: int | None = None,
 ) -> dict[str, Any]:
-    if model not in {"e2b", "270m"}:
-        raise ValueError("GPU profiles support e2b and 270m.")
+    if model not in {"e2b", "270m", "1b"}:
+        raise ValueError("GPU profiles support e2b, 270m and 1b.")
     selected = select_devices(inventory, devices)
     world_size = len(selected)
     if world_size <= 0:
         raise ValueError("A training launch requires at least one visible GPU.")
     h100 = all("H100" in device["name"].upper() and device["total_memory_bytes"] >= 70 * 1024**3 for device in selected)
     native_bf16 = all(device["compute_capability"][0] >= 8 for device in selected)
-    effective = int(effective_batch if effective_batch is not None else (32 if h100 else 16))
+    effective = int(effective_batch if effective_batch is not None else (32 if h100 or model == "1b" else 16))
     if effective <= 0 or effective % world_size:
         raise ValueError("Effective batch must be positive and divisible by selected GPU count; supply --effective-batch for this host.")
     # E2B's large vocabulary makes full-sequence logits and FP32 loss much

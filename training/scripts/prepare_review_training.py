@@ -148,13 +148,26 @@ def build_config(args: argparse.Namespace) -> tuple[dict, dict]:
     import os
     from ir_training.train.gpu_profile import build_gpu_profile, detect_cuda_devices
 
-    profile = "gemma4_e2b_a2ui_express_review_sft.yaml" if args.profile == "e2b" else "gemma3_270m_a2ui_express_review_sft.yaml"
+    profiles = {"e2b": "gemma4_e2b_a2ui_express_review_sft.yaml",
+                "270m": "gemma3_270m_a2ui_express_review_sft.yaml",
+                "1b": "gemma3_1b_ir_full_qat_sft.yaml"}
+    profile = profiles[args.profile]
     config = copy.deepcopy(load_yaml(ROOT / "configs/models" / profile))
     model_dir, dataset, golden = args.model_dir.resolve(strict=True), args.dataset_dir.resolve(strict=True), args.golden_file.resolve(strict=True)
     if not (model_dir / "config.json").is_file() or not any(model_dir.glob("*.safetensors")):
         raise ValueError("--model-dir must contain the dense HF model config and safetensors weights.")
     if not (model_dir / "tokenizer_config.json").is_file():
         raise ValueError("The local model bundle must include its tokenizer and chat template.")
+    if args.profile == "1b":
+        from ir_training.qat.gemma3_full_qat_contract import validate_local_gemma3_1b_config
+        validate_local_gemma3_1b_config(model_dir / "config.json")
+    max_input_tokens = getattr(args, "max_input_tokens", None)
+    if max_input_tokens is None:
+        max_input_tokens = 5120 if args.profile == "1b" else args.max_seq_length
+    if max_input_tokens <= 0 or args.max_seq_length <= 0:
+        raise ValueError("Training and evaluation token budgets must be positive")
+    if args.profile != "1b" and max_input_tokens != args.max_seq_length:
+        raise ValueError("Independent --max-input-tokens is supported by the new 1B profile; keep existing profile limits identical")
     gpu_profile = build_gpu_profile(
         detect_cuda_devices(), model=args.profile, devices=getattr(args, "devices", "auto"),
         microbatch=getattr(args, "microbatch", None), effective_batch=getattr(args, "effective_batch", None),
@@ -207,7 +220,7 @@ def build_config(args: argparse.Namespace) -> tuple[dict, dict]:
         if args.profile != "e2b":
             raise ValueError("--qv-baseline is an E2B LoRA ablation")
         config["lora"].update(r=16, alpha=16, target_modules=r"model\.(?:language_model\.)?layers\.\d+\.self_attn\.(q|v)_proj(?:\.linear)?")
-    if args.qat:
+    if args.qat and args.profile != "1b":
         if args.profile != "270m":
             raise ValueError("E2B mobile QAT requires the separate retained-scale launcher and verified seed contract.")
         training.update(method="full_finetune_qat", learning_rate=0.000005)
@@ -221,13 +234,13 @@ def build_config(args: argparse.Namespace) -> tuple[dict, dict]:
     max_new_tokens = int(getattr(args, "max_new_tokens", 2048))
     if max_new_tokens <= 0:
         raise ValueError("--max-new-tokens must be positive.")
-    config["golden_eval"].update(split_path=str(golden), output_dir=str(run_dir / "golden_eval"), max_input_tokens=args.max_seq_length,
+    config["golden_eval"].update(split_path=str(golden), output_dir=str(run_dir / "golden_eval"), max_input_tokens=max_input_tokens,
                                  max_new_tokens=max_new_tokens, tensorboard=True)
     config["model"]["max_output_tokens"] = max_new_tokens
-    if args.max_seq_length + config["golden_eval"]["max_new_tokens"] > config["model"]["max_context_tokens"]:
+    if max_input_tokens + config["golden_eval"]["max_new_tokens"] > config["model"]["max_context_tokens"] or args.max_seq_length > config["model"]["max_context_tokens"]:
         raise ValueError("Prompt + generation budget exceeds model context")
     validate_sft_recipe(config)
-    if args.qat:
+    if args.qat or args.profile == "1b":
         from ir_training.qat.workflow import validate_qat_config
         errors = [issue.message for issue in validate_qat_config(config) if issue.severity == "error"]
         if errors:
@@ -235,7 +248,7 @@ def build_config(args: argparse.Namespace) -> tuple[dict, dict]:
     validate_effective_batch(training, world_size)
     golden35 = getattr(args, "golden35_file", None)
     bixby50 = getattr(args, "bixby50_file", None)
-    report = verify_prepared(dataset, golden, max_sequence=args.max_seq_length, max_prompt=args.max_seq_length,
+    report = verify_prepared(dataset, golden, max_sequence=args.max_seq_length, max_prompt=max_input_tokens,
                              golden35=golden35.resolve(strict=True) if golden35 is not None else None,
                              bixby50=bixby50.resolve(strict=True) if bixby50 is not None else None)
     if "final_evaluation_datasets" in report:
@@ -257,7 +270,7 @@ def build_config(args: argparse.Namespace) -> tuple[dict, dict]:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--profile", choices=("e2b", "270m"), required=True)
+    parser.add_argument("--profile", choices=("e2b", "270m", "1b"), required=True)
     for name in ("model-dir", "dataset-dir", "golden-file", "output-dir"):
         parser.add_argument("--" + name, type=Path, required=True)
     parser.add_argument("--run-id", help="Optional run identity for TensorBoard; defaults to the output directory name. Use the parent pipeline run ID for nested fit directories.")
@@ -275,6 +288,7 @@ def main() -> None:
     parser.add_argument("--eval-steps", type=int, default=500, help="Validation-loss and checkpoint cadence in optimizer updates.")
     parser.add_argument("--golden-every-steps", type=int, default=1000, help="Full Golden generation cadence; must be divisible by --eval-steps. Final weights are always evaluated.")
     parser.add_argument("--max-seq-length", type=int, default=4096)
+    parser.add_argument("--max-input-tokens", type=int, help="Evaluation prompt budget; 1B defaults to 5120, existing profiles retain the training sequence limit")
     parser.add_argument("--epochs", type=float, default=1)
     parser.add_argument("--learning-rate", type=float, help="Override profile learning rate (SFT 2e-5; 270M QAT 5e-6)")
     parser.add_argument("--weight-decay", type=float, help="Override profile weight decay (0.01)")

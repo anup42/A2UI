@@ -1,5 +1,11 @@
 ﻿# Response-to-IR Training
 
+For **Gemma 3 1B full-parameter W8 QAT, INT8 LiteRT-LM export and native GPU
+Golden32/Golden35/Bixby50 testing**, use
+[`run_gemma3_1b_full_qat_pipeline.py`](scripts/run_gemma3_1b_full_qat_pipeline.py).
+See the [1B commands, defaults and validation limits](docs/GEMMA3_1B_FULL_QAT.md).
+This reuses the shared trainer/exporter/evaluator; it is not a 270M topology transplant.
+
 For **E2B mobile-seed QAT, best-checkpoint Golden32/Golden35/Bixby50 tests,
 and an official-layout mobile LiteRT-LM export with MTP off**, use
 [`run_official_mobile_pipeline.py`](scripts/run_official_mobile_pipeline.py)
