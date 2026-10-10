@@ -1,4 +1,4 @@
-"""Prepare the pinned rank-64 FP16 test model with bounded target and MTP RoPE.
+"""Prepare a SHA-pinned compatible E2B model with bounded target and MTP RoPE.
 
 The FP16 GPU runtime also needs the matching float-intermediate Q/DQ policy.
 This command only changes RoPE graph operators. It copies every original model
@@ -46,6 +46,7 @@ from ir_training.export.litertlm_inspector import _FlatBufferReader, _metadata_f
 
 EXPECTED_SOURCE_SHA = "de60d19c8e1ef06ed1032212d0d4ae5d9b0ec105db72db34a988453004e63e62"
 TRANSFORM_VERSION = "pinned-r64-rope-target-mtp-8192-v1"
+NEW_EXPORT_TRANSFORM_VERSION = "e2b-rope-target-mtp-8192-v2"
 PRECISION_POLICY = "genuicraft-fp16-rope-qdq-v1"
 MAX_FRONT_SIZE = 64 * 1024 * 1024
 SECTIONS = {
@@ -263,6 +264,8 @@ def main() -> None:
     parser.add_argument("source", type=Path)
     parser.add_argument("output", type=Path)
     parser.add_argument("--plan-only", action="store_true")
+    parser.add_argument("--expected-source-sha256", default=EXPECTED_SOURCE_SHA,
+                        help="Independently recorded source SHA; structural/weight checks still apply.")
     args = parser.parse_args()
     source = args.source.resolve()
     if args.output.is_symlink():
@@ -275,8 +278,13 @@ def main() -> None:
     if not output.parent.is_dir():
         raise FileNotFoundError(f"Output parent does not exist: {output.parent}")
     source_sha = digest_file(source)
-    if source_sha != EXPECTED_SOURCE_SHA:
+    expected_source_sha = args.expected_source_sha256.lower()
+    if (len(expected_source_sha) != 64 or any(char not in "0123456789abcdef" for char in expected_source_sha)):
+        raise ValueError("Expected source SHA must be 64 hexadecimal characters")
+    if source_sha != expected_source_sha:
         raise ValueError(f"Refusing unpinned source hash {source_sha}")
+    transform_version = (TRANSFORM_VERSION if source_sha == EXPECTED_SOURCE_SHA
+                         else NEW_EXPORT_TRANSFORM_VERSION)
     with source.open("rb") as file, mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ) as mapped:
         reader = _FlatBufferReader(mapped)
         header_end = struct.unpack_from("<Q", mapped, 24)[0]
@@ -338,7 +346,7 @@ def main() -> None:
             raise ValueError("Output size differs from planned package size")
         manifest = {
             "schema_version": 1,
-            "transform_version": TRANSFORM_VERSION,
+            "transform_version": transform_version,
             "precision_policy": PRECISION_POLICY,
             "max_context_tokens": MAX_POS,
             "target_rope_corrected": True,

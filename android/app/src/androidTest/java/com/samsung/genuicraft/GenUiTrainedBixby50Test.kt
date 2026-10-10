@@ -418,7 +418,7 @@ class GenUiTrainedBixby50Test {
         caseDir: File,
     ): RenderCapture {
         scenario.onActivity { activity ->
-            activity.showDocument(document, "$caseId · trained E2B v10 W4 · $elapsedMs ms")
+            activity.showDocument(document, "$caseId · trained E2B · $elapsedMs ms")
             activity.showGenerationMetrics(output, elapsedMs)
         }
         instrumentation.waitForIdleSync()

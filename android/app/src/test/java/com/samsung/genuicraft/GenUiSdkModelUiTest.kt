@@ -4,6 +4,8 @@ import com.samsung.genuicraft.sdk.GenUiModelOutput
 import com.samsung.genuicraft.sdk.GenUiPrompt
 import com.samsung.genuicraft.sdk.GenUiProvider
 import com.samsung.genuicraft.sdk.provider.Gemma4GpuPrecision
+import java.io.File
+import java.security.MessageDigest
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.cancelAndJoin
@@ -137,6 +139,8 @@ class GenUiSdkModelUiTest {
         val original = temporaryFolder.newFile("gemma4_e2b_a2ui_mobile.litertlm").apply {
             writeBytes(byteArrayOf(1, 2, 3))
         }
+        val preparedBytes = byteArrayOf(4, 5, 6, 7)
+        val profile = correctedProfile(original, preparedBytes)
         val fp32 = selectTrainedE2bModel(
             original.absolutePath, InferenceBackendSettings.TrainedE2bGpuPrecision.FP32,
         )
@@ -146,21 +150,24 @@ class GenUiSdkModelUiTest {
 
         val corrected = selectTrainedE2bModel(
             original.absolutePath, InferenceBackendSettings.TrainedE2bGpuPrecision.FP16_CORRECTED,
+            listOf(profile),
         )
         assertFalse(corrected.readiness.usable)
         assertEquals(CORRECTED_FP16_MODEL_FILE_NAME, java.io.File(corrected.modelPath).name)
 
         val correctedFile = temporaryFolder.newFile(CORRECTED_FP16_MODEL_FILE_NAME).apply {
-            writeBytes(byteArrayOf(4, 5, 6, 7))
+            writeBytes(preparedBytes)
         }
         assertFalse(selectTrainedE2bModel(
             original.absolutePath, InferenceBackendSettings.TrainedE2bGpuPrecision.FP16_CORRECTED,
+            listOf(profile),
         ).readiness.usable)
 
-        val manifest = java.io.File("${correctedFile.absolutePath}.fp16.json")
-        manifest.writeText(correctedManifest(modelBytes = correctedFile.length(), drafterCorrected = false))
+        val manifest = File("${correctedFile.absolutePath}.fp16.json")
+        manifest.writeText(correctedManifest(profile, correctedFile.length(), drafterCorrected = false))
         val ready = selectTrainedE2bModel(
             original.absolutePath, InferenceBackendSettings.TrainedE2bGpuPrecision.FP16_CORRECTED,
+            listOf(profile),
         )
         assertEquals(correctedFile.absolutePath, ready.modelPath)
         assertEquals(Gemma4GpuPrecision.FP16_CORRECTED, ready.gpuPrecision)
@@ -168,15 +175,75 @@ class GenUiSdkModelUiTest {
         assertFalse(ready.mtpSupported)
         assertTrue(ready.readiness.message.contains("MTP unavailable"))
 
-        manifest.writeText(correctedManifest(modelBytes = correctedFile.length() + 1L))
+        manifest.writeText(correctedManifest(profile, correctedFile.length() + 1L))
         assertFalse(selectTrainedE2bModel(
             original.absolutePath, InferenceBackendSettings.TrainedE2bGpuPrecision.FP16_CORRECTED,
+            listOf(profile),
         ).readiness.usable)
 
-        manifest.writeText(correctedManifest(modelBytes = correctedFile.length(), drafterCorrected = true))
+        manifest.writeText(correctedManifest(profile, correctedFile.length(), drafterCorrected = true))
         assertTrue(selectTrainedE2bModel(
             original.absolutePath, InferenceBackendSettings.TrainedE2bGpuPrecision.FP16_CORRECTED,
+            listOf(profile),
         ).mtpSupported)
+    }
+
+    @Test
+    fun correctedFp16RejectsLegacySiblingForNewOriginalOfSameSize() {
+        val oldOriginal = temporaryFolder.newFile("gemma4_e2b_a2ui_mobile.litertlm").apply {
+            writeBytes(byteArrayOf(1, 2, 3))
+        }
+        val newOriginal = temporaryFolder.newFile("e2b_qat_grpo_20261009.litertlm").apply {
+            writeBytes(byteArrayOf(8, 9, 0))
+        }
+        val preparedBytes = byteArrayOf(4, 5, 6, 7)
+        val oldProfile = correctedProfile(oldOriginal, preparedBytes)
+        val newProfile = correctedProfile(
+            newOriginal, byteArrayOf(10, 11, 12), transform = "e2b-rope-target-mtp-8192-v2",
+        )
+        val prepared = temporaryFolder.newFile(CORRECTED_FP16_MODEL_FILE_NAME).apply { writeBytes(preparedBytes) }
+        File("${prepared.absolutePath}.fp16.json").writeText(correctedManifest(oldProfile, prepared.length()))
+
+        assertTrue(selectTrainedE2bModel(
+            oldOriginal.absolutePath, InferenceBackendSettings.TrainedE2bGpuPrecision.FP16_CORRECTED,
+            listOf(oldProfile, newProfile),
+        ).readiness.usable)
+        assertFalse(selectTrainedE2bModel(
+            newOriginal.absolutePath, InferenceBackendSettings.TrainedE2bGpuPrecision.FP16_CORRECTED,
+            listOf(oldProfile, newProfile),
+        ).readiness.usable)
+    }
+
+    @Test
+    fun correctedFp16RejectsManifestIdentityChangesAndUnverifiedProfile() {
+        val original = temporaryFolder.newFile("e2b_qat_grpo_20261009.litertlm").apply {
+            writeBytes(byteArrayOf(8, 9, 0))
+        }
+        val prepared = temporaryFolder.newFile(CORRECTED_FP16_MODEL_FILE_NAME).apply {
+            writeBytes(byteArrayOf(10, 11, 12))
+        }
+        val profile = correctedProfile(original, prepared.readBytes(), "e2b-rope-target-mtp-8192-v2")
+        val manifest = File("${prepared.absolutePath}.fp16.json")
+        manifest.writeText(correctedManifest(profile, prepared.length()))
+        fun usable(candidate: CorrectedFp16Profile = profile) = selectTrainedE2bModel(
+            original.absolutePath, InferenceBackendSettings.TrainedE2bGpuPrecision.FP16_CORRECTED,
+            listOf(candidate),
+        ).readiness.usable
+
+        assertTrue(usable())
+        manifest.writeText(correctedManifest(profile.copy(sourceSha256 = "a".repeat(64)), prepared.length()))
+        assertFalse(usable())
+        manifest.writeText(correctedManifest(profile.copy(modelSha256 = "b".repeat(64)), prepared.length()))
+        assertFalse(usable())
+        manifest.writeText(correctedManifest(profile.copy(transformVersion = "wrong-transform"), prepared.length()))
+        assertFalse(usable())
+        manifest.writeText(correctedManifest(profile, prepared.length()))
+        assertFalse(usable(profile.copy(modelSha256 = "")))
+        assertFalse(selectTrainedE2bModel(
+            File(temporaryFolder.root, "missing.litertlm").absolutePath,
+            InferenceBackendSettings.TrainedE2bGpuPrecision.FP16_CORRECTED,
+            listOf(profile),
+        ).readiness.usable)
     }
 
     @Test
@@ -269,15 +336,36 @@ class GenUiSdkModelUiTest {
         assertTrue(config.enableMetrics)
     }
 
-    private fun correctedManifest(modelBytes: Long, drafterCorrected: Boolean = false): String = """
+    private fun sha256(bytes: ByteArray): String = MessageDigest.getInstance("SHA-256")
+        .digest(bytes).joinToString("") { "%02x".format(it) }
+
+    private fun correctedProfile(
+        original: File,
+        preparedBytes: ByteArray,
+        transform: String = "pinned-r64-rope-target-mtp-8192-v1",
+    ) = CorrectedFp16Profile(
+        originalFileNames = setOf(original.name),
+        sourceSha256 = sha256(original.readBytes()),
+        sourceBytes = original.length(),
+        transformVersion = transform,
+        modelSha256 = sha256(preparedBytes),
+    )
+
+    private fun correctedManifest(
+        profile: CorrectedFp16Profile,
+        modelBytes: Long,
+        drafterCorrected: Boolean = false,
+    ): String = """
         {
           "schema_version": 1,
           "precision_policy": "genuicraft-fp16-rope-qdq-v1",
           "max_context_tokens": 8192,
           "target_rope_corrected": true,
           "drafter_rope_corrected": $drafterCorrected,
-          "source_sha256": "${"a".repeat(64)}",
-          "model_sha256": "${"b".repeat(64)}",
+          "source_sha256": "${profile.sourceSha256}",
+          "source_bytes": ${profile.sourceBytes},
+          "transform_version": "${profile.transformVersion}",
+          "model_sha256": "${profile.modelSha256}",
           "model_bytes": $modelBytes
         }
     """.trimIndent()

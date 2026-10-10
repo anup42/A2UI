@@ -62,6 +62,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.samsung.genuicraft.inference.OnDeviceModelCatalog
 import com.samsung.genuicraft.inference.OnDeviceModelDownloader
+import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -851,8 +852,19 @@ private fun SettingsScreen(
                                     )
                                 }
                                 OnDeviceModelCatalog.visibleEntries.forEach { entry ->
-                                    val downloaded = onDeviceModelRefreshKey.let { entry.isDownloaded(context) }
-                                    val selected = downloaded && onDeviceModelPath == entry.localPath(context)
+                                    val selectedFile = File(onDeviceModelPath)
+                                    val selectedFileUsable = entry.matchesSelection(onDeviceModelPath) &&
+                                        selectedFile.isAbsolute && selectedFile.isFile && selectedFile.canRead() &&
+                                        selectedFile.length() >= entry.minimumFileSizeBytes
+                                    val entryModelPath = OnDeviceModelCatalog.visibleSelectionPath(
+                                        onDeviceModelPath, entry.localPath(context), selectedFileUsable,
+                                    )
+                                    val downloaded = onDeviceModelRefreshKey.let {
+                                        val entryModelFile = File(entryModelPath)
+                                        entryModelFile.isFile && entryModelFile.canRead() &&
+                                            entryModelFile.length() >= entry.minimumFileSizeBytes
+                                    }
+                                    val selected = downloaded && onDeviceModelPath == entryModelPath
                                     val isDownloading = onDeviceDownloading[entry.id] == true
                                     val progress = onDeviceDownloadProgress[entry.id]
                                     Card(
@@ -872,7 +884,7 @@ private fun SettingsScreen(
                                                 modifier = Modifier
                                                     .fillMaxWidth()
                                                     .clickable(enabled = downloaded) {
-                                                        onDeviceModelPath = entry.localPath(context)
+                                                        onDeviceModelPath = entryModelPath
                                                         InferenceBackendSettings.setOnDeviceModelPath(context, onDeviceModelPath)
                                                     },
                                                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -883,7 +895,7 @@ private fun SettingsScreen(
                                                     enabled = downloaded,
                                                     onClick = if (downloaded) {
                                                         {
-                                                            onDeviceModelPath = entry.localPath(context)
+                                                            onDeviceModelPath = entryModelPath
                                                             InferenceBackendSettings.setOnDeviceModelPath(context, onDeviceModelPath)
                                                         }
                                                     } else {
@@ -932,7 +944,7 @@ private fun SettingsScreen(
                                                         (downloaded || entry.isDownloadable),
                                                     onClick = {
                                                         if (downloaded) {
-                                                            onDeviceModelPath = entry.localPath(context)
+                                                            onDeviceModelPath = entryModelPath
                                                             InferenceBackendSettings.setOnDeviceModelPath(context, onDeviceModelPath)
                                                         } else {
                                                             onDeviceDownloadError = null

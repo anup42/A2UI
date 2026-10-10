@@ -1,4 +1,4 @@
-"""Independently verify the pinned target+MTP FP16 RoPE model package.
+"""Independently verify a SHA-pinned target+MTP FP16 RoPE model package.
 
 Checks the SHA-bound source and output, every original weight buffer, complete
 verbatim copies of both rewritten sections, all untouched package sections,
@@ -32,6 +32,7 @@ from ir_training.export.litertlm_inspector import _FlatBufferReader, _metadata_f
 
 SOURCE_SHA = "de60d19c8e1ef06ed1032212d0d4ae5d9b0ec105db72db34a988453004e63e62"
 TRANSFORM_VERSION = "pinned-r64-rope-target-mtp-8192-v1"
+NEW_EXPORT_TRANSFORM_VERSION = "e2b-rope-target-mtp-8192-v2"
 PRECISION_POLICY = "genuicraft-fp16-rope-qdq-v1"
 MAX_POS = 8192
 ALIGN = 16384
@@ -344,15 +345,20 @@ def verify_section(source_map: mmap.mmap, output_map: mmap.mmap,
         new_view.release()
 
 
-def verify(source: Path, output: Path) -> dict:
+def verify(source: Path, output: Path, expected_source_sha: str = SOURCE_SHA) -> dict:
     source = source.resolve()
     output = output.resolve()
     require(source != output and source.is_file() and output.is_file(),
             "Expected two existing, distinct model files")
     manifest_path = Path(str(output) + ".fp16.json")
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    expected_source_sha = expected_source_sha.lower()
+    require(len(expected_source_sha) == 64 and all(char in "0123456789abcdef" for char in expected_source_sha),
+            "Expected source SHA must be 64 hexadecimal characters")
+    transform_version = (TRANSFORM_VERSION if expected_source_sha == SOURCE_SHA
+                         else NEW_EXPORT_TRANSFORM_VERSION)
     require(manifest.get("schema_version") == 1 and
-            manifest.get("transform_version") == TRANSFORM_VERSION and
+            manifest.get("transform_version") == transform_version and
             manifest.get("precision_policy") == PRECISION_POLICY and
             manifest.get("max_context_tokens") == MAX_POS and
             manifest.get("target_rope_corrected") is True and
@@ -363,8 +369,8 @@ def verify(source: Path, output: Path) -> dict:
             output.stat().st_size % ALIGN == 0,
             "FP16 manifest size or output alignment differs")
     source_sha = sha256_file(source)
-    require(source_sha == SOURCE_SHA == manifest.get("source_sha256"),
-            "Source SHA differs from pinned rank-64 checkpoint")
+    require(source_sha == expected_source_sha == manifest.get("source_sha256"),
+            "Source SHA differs from independently pinned export")
     output_sha = sha256_file(output)
     require(output_sha == manifest.get("model_sha256"),
             "Output SHA differs from manifest")
@@ -429,8 +435,9 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("source", type=Path)
     parser.add_argument("output", type=Path)
+    parser.add_argument("--expected-source-sha256", default=SOURCE_SHA)
     args = parser.parse_args()
-    print(json.dumps(verify(args.source, args.output), indent=2))
+    print(json.dumps(verify(args.source, args.output, args.expected_source_sha256), indent=2))
 
 
 if __name__ == "__main__":

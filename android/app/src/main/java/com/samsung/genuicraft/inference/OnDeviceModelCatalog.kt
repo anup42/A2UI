@@ -24,6 +24,7 @@ object OnDeviceModelCatalog {
         val usesTrainedSdkConverter: Boolean = false,
         val stage3TrainingPromptPrefix: String? = null,
         val additionalLocalRelativePaths: List<String> = emptyList(),
+        val additionalAcceptedFileNames: List<String> = emptyList(),
         val minimumFileSizeBytes: Long = 1L,
     ) {
         val isDownloadable: Boolean
@@ -60,6 +61,7 @@ object OnDeviceModelCatalog {
             return buildList {
                 add(fileName)
                 additionalLocalRelativePaths.forEach { add(File(it).name) }
+                addAll(additionalAcceptedFileNames)
             }.distinct()
         }
 
@@ -110,6 +112,7 @@ object OnDeviceModelCatalog {
                 "sdk_models/gemma4_e2b_a2ui_mobile.litertlm",
                 "sdk_models/e2b_v10_w4.litertlm",
             ),
+            additionalAcceptedFileNames = listOf("e2b_qat_grpo_20261009.litertlm"),
             minimumFileSizeBytes = 2_500_000_000L,
         ),
         Entry(
@@ -272,8 +275,14 @@ object OnDeviceModelCatalog {
             visibleEntries.any { it.id == selectedEntry.id } &&
             selectedEntry.isDownloaded(context)
         ) {
-            // Canonicalize a stored ID or alias to the installed file that Settings will display.
-            return selectedEntry.localPath(context)
+            // Keep an explicitly selected installed model when another alias is also present.
+            // A stored ID or missing file still resolves to the catalog's installed path.
+            val selectedFile = File(storedSelection.trim())
+            return visibleSelectionPath(
+                storedSelection,
+                selectedEntry.localPath(context),
+                selectedFile.isFile && selectedFile.canRead(),
+            )
         }
         val availableVisibleEntryIds = visibleEntries
             .filter { it.isDownloaded(context) }
@@ -281,5 +290,18 @@ object OnDeviceModelCatalog {
         return migrationTargetForSelection(storedSelection, availableVisibleEntryIds)
             ?.localPath(context)
             ?: storedSelection.trim()
+    }
+
+    internal fun visibleSelectionPath(
+        storedSelection: String,
+        catalogInstalledPath: String,
+        selectedFileReadable: Boolean,
+    ): String {
+        val selectedPath = storedSelection.trim()
+        return if (File(selectedPath).isAbsolute && selectedFileReadable) {
+            selectedPath
+        } else {
+            catalogInstalledPath
+        }
     }
 }

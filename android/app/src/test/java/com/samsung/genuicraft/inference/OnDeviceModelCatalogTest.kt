@@ -1,5 +1,6 @@
 package com.samsung.genuicraft.inference
 
+import java.io.File
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -44,6 +45,9 @@ class OnDeviceModelCatalogTest {
         assertEquals("gemma4_e2b_a2ui_mobile", canonical.id)
         assertEquals(canonical, v10Alias)
         assertEquals(canonical, OnDeviceModelCatalog.entryForModelPath("gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm"))
+        assertEquals(canonical, OnDeviceModelCatalog.entryForModelPath(
+            "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_models/grpo_20261009/e2b_qat_grpo_20261009.litertlm",
+        ))
         assertEquals("gemma4_e2b_a2ui_mobile.litertlm", canonical.fileName)
         assertEquals(8_192, canonical.maxContextTokens)
         assertEquals(2_048, canonical.maxOutputTokens)
@@ -123,6 +127,38 @@ class OnDeviceModelCatalogTest {
                 "gemma4_e2b_a2ui_mobile",
                 available,
             ),
+        )
+    }
+
+    @Test
+    fun readableExplicitGrpoPathIsNotReplacedByInstalledLegacyModel() {
+        val selected = File(System.getProperty("java.io.tmpdir"),
+            "qat_grpo_20261009/e2b_qat_grpo_20261009.litertlm").absolutePath
+        val catalogInstalled = File(System.getProperty("java.io.tmpdir"),
+            "gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm").absolutePath
+
+        assertEquals(
+            selected,
+            OnDeviceModelCatalog.visibleSelectionPath(selected, catalogInstalled, selectedFileReadable = true),
+        )
+    }
+
+    @Test
+    fun retainedModelIdOrUnavailableExplicitPathStillUsesInstalledCatalogModel() {
+        val selected = File(System.getProperty("java.io.tmpdir"),
+            "qat_grpo_20261009/e2b_qat_grpo_20261009.litertlm").absolutePath
+        val catalogInstalled = File(System.getProperty("java.io.tmpdir"),
+            "gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm").absolutePath
+
+        assertEquals(
+            catalogInstalled,
+            OnDeviceModelCatalog.visibleSelectionPath(
+                "gemma4_e2b_a2ui_mobile", catalogInstalled, selectedFileReadable = true,
+            ),
+        )
+        assertEquals(
+            catalogInstalled,
+            OnDeviceModelCatalog.visibleSelectionPath(selected, catalogInstalled, selectedFileReadable = false),
         )
     }
 }
