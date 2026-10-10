@@ -25,6 +25,20 @@ def validate_qat_grpo_config(config: dict[str, Any]) -> None:
     )
     validate_contract(config)
     training, grpo = config.get("training") or {}, config.get("grpo") or {}
+    from ir_training.train.grpo_experiment import QualityPolicy, SELECTOR
+    for name in ("validation_max_rows", "audit_every_steps"):
+        if type(grpo.get(name, 0)) is not int or grpo.get(name, 0) < 0:
+            raise ValueError(f"grpo.{name} must be a nonnegative integer")
+    quality = grpo.get("quality_control") or {}
+    if quality.get("enabled", False):
+        QualityPolicy(**(quality.get("policy") or {}))
+        golden = config.get("golden_eval") or {}
+        if (not golden.get("enabled") or golden.get("trigger") != "evaluate"
+                or golden.get("interval", 1) != 1 or not golden.get("evaluate_at_end", True)
+                or not golden.get("save_best_checkpoint", True)
+                or golden.get("metric_for_best_model") != SELECTOR
+                or golden.get("greater_is_better", True) is not True):
+            raise ValueError("GRPO quality control requires Golden evaluation every validation event and at end")
     if training.get("method") != "qat_lora_grpo" or (config.get("run") or {}).get("purpose") != "qat_lora_grpo_v1":
         raise ValueError("QAT GRPO requires its explicit method and run purpose")
     if grpo.get("family") not in {"e2b", "270m"}:
@@ -376,7 +390,9 @@ def make_qat_rollout(bundle: QATGRPOModel, output: str, *, audit_limit: int):
     def rollout(prompts: list[str], trainer: Any) -> dict[str, Any]:
         assert_qat_policy_active(trainer.model, bundle.controller)
         with trainer.accelerator.autocast():
-            return shared(prompts, trainer)
+            result = shared(prompts, trainer)
+        result["grpo_rollout_mode"] = ["train" if trainer.model.training else "eval"] * len(result["completion_ids"])
+        return result
 
     return rollout
 
@@ -451,6 +467,17 @@ def train_qat_grpo(config: dict[str, Any], config_path: Path, *, dependency_pref
             for index, row in enumerate(split):
                 if row["prompt_provenance"]["prompt_tokens"] > max_prompt:
                     raise ValueError(f"Prepared {name}[{index}] exceeds GRPO prompt budget; truncation is forbidden")
+        from ir_training.train.grpo_experiment import validation_subset_indices
+        if eval_data is not None and grpo.get("validation_max_rows", 0):
+            indices = validation_subset_indices(eval_data, grpo["validation_max_rows"],
+                                                bundle.metadata["initialization_seed"])
+            subset_report = {"full_rows": len(eval_data), "selected_indices": indices,
+                "source_ids": [eval_data[index]["source_id"] for index in indices],
+                "full_split_sha256": hashlib.sha256((dataset_dir / "val.jsonl").read_bytes()).hexdigest(),
+                "scope": "periodic RL validation only; complete split retained on disk"}
+            (output / f"grpo_validation_subset.rank{rank}.json").write_text(
+                json.dumps(subset_report, indent=2), encoding="utf-8")
+            eval_data = eval_data.select(indices)
         initial_lineage = bundle.metadata["grpo"]["source_lineage"]
         numeric = run_qat_grpo_preflight(bundle, train_data, max_seq_length=min(context, int(training["max_seq_length"])))
         preflight_path = output / f"grpo_preflight.rank{rank}.json"
@@ -471,6 +498,8 @@ def train_qat_grpo(config: dict[str, Any], config_path: Path, *, dependency_pref
         reward_path = resolve_path(grpo.get("reward_config", "../dataset/configs/genui_metric_v5_4.yaml"), training_root())
         reward = make_qat_grpo_reward(load_reward_config_v5_4(reward_path), model_checkpoint=grpo["sft_checkpoint"])
         reward = audited_reward(reward, str(output), rank, audit_limit=int(grpo.get("audit_rollout_limit", 256)))
+        from ir_training.train.grpo_experiment import periodic_reward_audit
+        reward = periodic_reward_audit(reward, output, rank, grpo.get("audit_every_steps", 0))
         bundle.metadata["grpo"]["reward"] = {"version": QAT_GRPO_REWARD_VERSION, "config": _file_identity(reward_path)}
         eval_batch = training.get("per_device_eval_batch_size") or generations // math.gcd(generations, world_size)
         if eval_data is not None and eval_batch * world_size % generations:
@@ -547,6 +576,22 @@ def train_qat_grpo(config: dict[str, Any], config_path: Path, *, dependency_pref
             tensorboard_root=sft._resolve_training_tensorboard_root(training), tensorboard_run_id=str(run.get("id") or output.name))
         if golden is not None:
             trainer.add_callback(golden)
+        quality_callback = None
+        if (grpo.get("quality_control") or {}).get("enabled", False):
+            from ir_training.train.grpo_experiment import QualityPolicy, make_quality_callback
+            golden_cfg = dict(config["golden_eval"])
+            baseline_dir = output / "sft_starting_baseline"
+            baseline_cfg = {**golden_cfg, "output_dir": str(baseline_dir),
+                "save_best_checkpoint": False, "log_to_trainer": False}
+            baseline = sft._build_optional_golden_callback(golden_eval_cfg=baseline_cfg,
+                base=training_root(), output_dir=output, adapter=bundle.adapter, tokenizer=bundle.tokenizer,
+                model_cfg=config["model"], training_cfg=training)
+            quality_callback = make_quality_callback(accelerator=trainer.accelerator,
+                baseline_callback=baseline, golden_callback=golden, baseline_dir=baseline_dir,
+                golden_dir=resolve_path(golden_cfg.get("output_dir", output / "golden_eval"), training_root()),
+                output=output, config_path=config_path,
+                policy=QualityPolicy(**((grpo["quality_control"].get("policy")) or {})))
+            trainer.add_callback(quality_callback)
         trainer.add_callback(build_checkpoint_provenance_callback(output_dir=output, metadata=metadata,
             tokenizer=bundle.tokenizer, generation_eos_ids=eos_ids, config_path=config_path,
             golden_summary_provider=golden.summary if golden is not None else None))
@@ -559,6 +604,8 @@ def train_qat_grpo(config: dict[str, Any], config_path: Path, *, dependency_pref
 
         trainer.add_callback(SelectedHealthProvenance())
         trainer.train()
+        if quality_callback is not None:
+            bundle.metadata["grpo"]["quality_gate"] = quality_callback.finalize()
         final_dir = output / "final_adapter"
         # SFT restores fake-quant forwards for final PEFT serialization as well.
         bundle.controller.restore()

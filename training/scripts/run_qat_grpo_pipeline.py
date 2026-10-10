@@ -22,10 +22,15 @@ def main(argv=None) -> int:
         parser.add_argument(f"--{name}", type=Path)
     parser.add_argument("--devices", default="auto")
     for name, default in (("max-steps", 200), ("num-generations", 4), ("microbatch", 1), ("effective-batch", 32),
-                          ("max-seq-length", 4096), ("max-input-tokens", 5120), ("max-new-tokens", 2048),
-                          ("golden-every-steps", 50), ("seed", 42), ("prepare-workers", 0)):
+                          ("max-seq-length", 6144), ("max-input-tokens", 5120), ("max-new-tokens", 2048),
+                          ("golden-every-steps", 50), ("validation-max-rows", 32),
+                          ("early-stopping-patience", 3), ("audit-every-steps", 25), ("seed", 42), ("prepare-workers", 0)):
         parser.add_argument(f"--{name}", type=int, default=default)
     parser.add_argument("--learning-rate", type=float, default=1e-6)
+    parser.add_argument("--min-retained-fraction", type=float, default=0.5,
+                        help="Fail preparation below this train/val retention fraction; never truncate facts.")
+    parser.add_argument("--quality-min-delta", type=float, default=0.5,
+                        help="Minimum unique-source Golden32 gain in 0..100 points for promotion.")
     parser.add_argument("--tensorboard-root", default="/tensorboard")
     parser.add_argument("--stage-timeout-seconds", type=float, default=172800)
     parser.add_argument("--generation-timeout-seconds", type=float, default=7200)
