@@ -18,6 +18,9 @@ from typing import Any
 from ir_training.common.bounded_command import run_bounded_command
 from ir_training.common.config import load_yaml, resolve_path, training_root
 from ir_training.common.progress import log
+from ir_training.train.grpo_experiment import (
+    QualityPolicy, check_preparation_retention, validate_token_budgets, verify_quality_gate,
+)
 from ir_training.pipeline import official_mobile
 from ir_training.pipeline.golden_training import (
     GOLDENS,
@@ -53,10 +56,15 @@ class QATGRPOOptions:
     num_generations: int = 4
     microbatch: int = 1
     effective_batch: int = 32
-    max_seq_length: int = 4096
+    max_seq_length: int = 6144
     max_input_tokens: int = 5120
     max_new_tokens: int = 2048
     golden_every_steps: int = 50
+    min_retained_fraction: float = 0.5
+    validation_max_rows: int = 32
+    early_stopping_patience: int = 3
+    quality_min_delta: float = 0.5
+    audit_every_steps: int = 25
     seed: int = 42
     prepare_workers: int = 0
     tensorboard_root: str = "/tensorboard"
@@ -99,9 +107,16 @@ def build_plan(options: QATGRPOOptions) -> dict:
         options.stage_timeout_seconds, options.generation_timeout_seconds, options.progress_seconds,
     )):
         raise ValueError("Timeouts and progress intervals must be positive and finite")
+    QualityPolicy(patience=options.early_stopping_patience, min_delta=options.quality_min_delta)
+    if (isinstance(options.min_retained_fraction, bool)
+            or not math.isfinite(options.min_retained_fraction)
+            or not 0 <= options.min_retained_fraction <= 1):
+        raise ValueError("min_retained_fraction must be finite and between 0 and 1")
+    for name in ("validation_max_rows", "audit_every_steps"):
+        if type(getattr(options, name)) is not int or getattr(options, name) < 0:
+            raise ValueError(f"{name} must be a nonnegative integer")
     context = 8192 if options.family == "e2b" else 32768
-    if max(options.max_seq_length, options.max_input_tokens) + options.max_new_tokens + 1 > context:
-        raise ValueError("Prompt + completion + GRPO stop sentinel exceeds model context")
+    validate_token_budgets(options.max_seq_length, options.max_input_tokens, options.max_new_tokens, context)
     if options.max_new_tokens > 4096:
         raise ValueError("Native quality probe supports at most 4096 output tokens")
     values = asdict(options)
@@ -212,10 +227,15 @@ def training_config(plan: dict, profile: dict, prepared: dict) -> dict:
     config["grpo"] = {
         "family": values["family"], "sft_checkpoint": values["sft_checkpoint"],
         "sft_training_config": values["sft_config"], "num_generations": values["num_generations"],
-        "max_prompt_length": values["max_seq_length"], "max_completion_length": values["max_new_tokens"],
+        "max_prompt_length": values["max_input_tokens"], "max_completion_length": values["max_new_tokens"],
         "beta": 0.0, "loss_type": "dr_grpo", "scale_rewards": "batch",
         "temperature": 0.8, "top_p": 1.0, "top_k": 0, "num_iterations": 1,
         "reward_policy": "qat_source_fidelity_v1", "health": {"window_steps": 20},
+        "validation_max_rows": values.get("validation_max_rows", 32),
+        "audit_every_steps": values.get("audit_every_steps", 25),
+        "quality_control": {"enabled": True, "policy": {
+            "patience": values.get("early_stopping_patience", 3),
+            "min_delta": values.get("quality_min_delta", 0.5), "max_guard_drop": 0.0}},
     }
     config["model"].update(tokenizer_source=values["model_dir"],
                            chat_template_kwargs=prepared["tokenizer"].get("chat_template_kwargs") or {},
@@ -313,7 +333,10 @@ def run_stage(plan: dict, stage: str) -> list[Path]:
         return [output / "assets_verified.json"]
     if stage == "prepare":
         prepare_data(plan["preparation"])
-        return [output / "data_audit.json", *_files(Path(paths["prepared"]))]
+        coverage = check_preparation_retention(_json(output / "data_audit.json"),
+                                               values.get("min_retained_fraction", 0.5))
+        _write(output / "grpo_data_coverage.json", coverage)
+        return [output / "data_audit.json", output / "grpo_data_coverage.json", *_files(Path(paths["prepared"]))]
     if stage == "configure":
         from ir_training.train.gpu_profile import build_gpu_profile, detect_cuda_devices
         official_mobile._scripts()
@@ -368,7 +391,8 @@ def run_stage(plan: dict, stage: str) -> list[Path]:
                 or (metadata.get("best_golden_eval") or {}).get("metric") != official_mobile.SELECTOR
                 or (metadata.get("training") or {}).get("method") != "qat_lora_grpo"):
             raise ValueError("GRPO did not publish a bound Golden32-selected QAT adapter")
-        return _files(Path(paths["best_checkpoint"]))
+        quality_files = verify_quality_gate(output / "training", Path(paths["best_checkpoint"]), Path(paths["config"]))
+        return [*_files(Path(paths["best_checkpoint"])), *quality_files]
     if stage.startswith("best_"):
         from ir_training.pipeline.golden_deployment import _evaluation
         cohort = stage.removeprefix("best_")

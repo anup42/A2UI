@@ -95,7 +95,7 @@ def test_plan_is_read_only_and_keeps_family_export_contract(options, monkeypatch
     assert plan["mtp"]["official_section_preserved"] == (options.family == "e2b")
     assert "evaluate_official_mobile_native.py" in result["native_quality_command"][1]
     assert "--execute" not in result["native_quality_command"]
-    assert plan["options"]["max_seq_length"] == 4096
+    assert plan["options"]["max_seq_length"] == 6144
     assert plan["options"]["max_input_tokens"] == 5120
     assert len(plan["source_adapter_files"]) == 3
 
@@ -190,7 +190,10 @@ def test_new_config_keeps_qat_lora_and_separates_train_eval_budgets(options):
     assert config["model"]["tokenizer_source"] == str(options.model_dir)
     assert config["training"]["method"] == "qat_lora_grpo"
     assert config["training"]["learning_rate"] == 1e-6
-    assert config["training"]["max_seq_length"] == config["grpo"]["max_prompt_length"] == 4096
+    assert config["training"]["max_seq_length"] == 6144
+    assert config["grpo"]["max_prompt_length"] == 5120
+    assert config["grpo"]["quality_control"]["enabled"] is True
+    assert config["grpo"]["validation_max_rows"] == 32
     assert config["golden_eval"]["max_input_tokens"] == 5120
     assert config["grpo"]["max_completion_length"] == 2048
     assert config["grpo"]["num_generations"] == 4
@@ -276,8 +279,14 @@ def test_training_stage_uses_qat_runner_and_validates_selected_adapter(options, 
             "training": {"method": "qat_lora_grpo"},
         })
 
+    quality_calls = []
+    def quality_gate(output, checkpoint, config_path):
+        quality_calls.append((output, checkpoint, config_path))
+        return [write(output / "grpo_quality_gate.json", {"fixture": True})]
+    monkeypatch.setattr(workflow, "verify_quality_gate", quality_gate)
     monkeypatch.setattr(workflow, "_run", run)
     workflow.run_stage(plan, "training")
+    assert quality_calls == [(options.output_dir / "training", Path(plan["paths"]["best_checkpoint"]), config)]
     command, stage, kwargs = calls[0]
     assert stage == "training" and kwargs["gpu"] is True
     assert ("torch.distributed.run" in command) == (world_size > 1)
