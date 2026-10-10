@@ -558,12 +558,14 @@ private fun CompactScheduleActivity(content: DayActivityScheduleCardContent, mod
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(3.dp)) {
         Text(
             text = content.activityLabel,
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+            color = MaterialTheme.colorScheme.primary
         )
         Text(
             text = parseBoldMarkdown(content.activity),
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.bodyMedium.copy(
+                fontWeight = if (content.activity.length <= 88) FontWeight.SemiBold else FontWeight.Medium
+            ),
             color = MaterialTheme.colorScheme.onSurface
         )
     }

@@ -204,26 +204,37 @@ internal object NativeWeatherUiRenderer {
         sanitizeDisplayText: (String) -> String,
         weatherTemperatureText: (WeatherRow) -> String,
     ) {
+        // A forecast-wide accent does not imply a condition that the source did not supply.
+        val palette = weatherHeroPalette(null)
+        val dark = isSystemInDarkTheme()
+        val highAccent = if (dark) Color(0xFFFFD394) else Color(0xFF964400)
+        val lowAccent = if (dark) Color(0xFFA4E1FF) else Color(0xFF155DAA)
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(GenUiTokens.RadiusXl),
-            colors = genUiCardColors(GenUiCardTone.Neutral),
-            border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor()),
+            colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+            border = BorderStroke(GenUiTokens.BorderMd, palette.tileBorder),
         ) {
             Column(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.fillMaxWidth()
+                    .background(Brush.linearGradient(palette.gradient))
+                    .padding(horizontal = 12.dp, vertical = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 MarkdownText(
                     text = "Forecast",
                     style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = palette.mutedContent,
                 )
-                rows.forEachIndexed { index, row ->
+                rows.forEach { row ->
                     val precipitationIndex = NativeWeatherPresentationPolicy.precipitationIndex(row.metrics)
                     val precipitation = row.metrics.getOrNull(precipitationIndex)
                     Column(
-                        modifier = Modifier.fillMaxWidth().semantics(mergeDescendants = true) {
+                        modifier = Modifier.fillMaxWidth()
+                            .clip(RoundedCornerShape(14.dp))
+                            .background(palette.tileContainer)
+                            .padding(horizontal = 8.dp, vertical = 8.dp)
+                            .semantics(mergeDescendants = true) {
                             contentDescription = NativeWeatherPresentationPolicy.accessibilityDescription(row)
                         },
                         verticalArrangement = Arrangement.spacedBy(6.dp),
@@ -240,39 +251,57 @@ internal object NativeWeatherUiRenderer {
                                 MarkdownText(
                                     text = sanitizeDisplayText(row.period),
                                     style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-                                    color = MaterialTheme.colorScheme.onSurface,
+                                    color = palette.content,
                                 )
                                 row.date?.takeIf { it.isNotBlank() && it != row.period }?.let { date ->
                                     MarkdownText(
                                         text = sanitizeDisplayText(date),
                                         style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        color = palette.mutedContent,
                                     )
                                 }
                             }
                             row.high?.takeIf { it.isNotBlank() }?.let { high ->
-                                WeatherForecastMetric("High", sanitizeDisplayText(high), Modifier.weight(0.8f))
+                                WeatherForecastMetric("High", sanitizeDisplayText(high), Modifier.weight(0.8f),
+                                    contentColor = highAccent, labelColor = palette.mutedContent)
                             }
                             row.low?.takeIf { it.isNotBlank() }?.let { low ->
-                                WeatherForecastMetric("Low", sanitizeDisplayText(low), Modifier.weight(0.8f))
+                                WeatherForecastMetric("Low", sanitizeDisplayText(low), Modifier.weight(0.8f),
+                                    contentColor = lowAccent, labelColor = palette.mutedContent)
                             }
                             if (row.high.isNullOrBlank() && row.low.isNullOrBlank()) {
                                 WeatherForecastMetric(
                                     "Temperature", sanitizeDisplayText(weatherTemperatureText(row)), Modifier.weight(0.8f),
+                                    contentColor = palette.content, labelColor = palette.mutedContent,
                                 )
                             }
                             precipitation?.let { (label, value) ->
                                 WeatherForecastMetric(
                                     sanitizeDisplayText(label), sanitizeDisplayText(value), Modifier.weight(1f),
                                     prominent = false,
+                                    contentColor = if (dark) Color(0xFFC6F6FF) else weatherRainAccent(false),
+                                    labelColor = palette.mutedContent,
                                 )
+                            }
+                        }
+                        precipitation?.second?.let { value ->
+                            NativeWeatherPresentationPolicy.precipitationFraction(sanitizeDisplayText(value))?.let { fraction ->
+                                Box(Modifier.fillMaxWidth().height(3.dp).clip(RoundedCornerShape(3.dp))
+                                    .background(palette.content.copy(alpha = 0.10f))) {
+                                    if (fraction > 0f) {
+                                        Spacer(Modifier.fillMaxWidth(fraction).height(3.dp)
+                                            .background(Brush.horizontalGradient(listOf(
+                                                weatherRainAccent(dark), if (dark) Color(0xFF5EEAD4) else Color(0xFF0D9488),
+                                            ))))
+                                    }
+                                }
                             }
                         }
                         row.condition?.takeIf { it.isNotBlank() }?.let { condition ->
                             MarkdownText(
                                 text = sanitizeDisplayText(condition),
                                 style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                color = palette.mutedContent,
                             )
                         }
                         val extraMetrics = row.metrics.filterIndexed { metricIndex, _ -> metricIndex != precipitationIndex }
@@ -284,15 +313,9 @@ internal object NativeWeatherUiRenderer {
                             MarkdownText(
                                 text = listOf(label, value).filter { it.isNotBlank() }.joinToString(": "),
                                 style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                color = palette.mutedContent,
                             )
                         }
-                    }
-                    if (index < rows.lastIndex) {
-                        Spacer(
-                            Modifier.fillMaxWidth().height(1.dp)
-                                .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f)),
-                        )
                     }
                 }
             }
@@ -305,18 +328,20 @@ internal object NativeWeatherUiRenderer {
         value: String,
         modifier: Modifier = Modifier,
         prominent: Boolean = true,
+        contentColor: Color = if (prominent) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.primary,
+        labelColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     ) {
         Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(2.dp)) {
             MarkdownText(
                 text = label,
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = labelColor,
             )
             MarkdownText(
                 text = value,
                 style = if (prominent) MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
                     else MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-                color = if (prominent) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.primary,
+                color = contentColor,
             )
         }
     }

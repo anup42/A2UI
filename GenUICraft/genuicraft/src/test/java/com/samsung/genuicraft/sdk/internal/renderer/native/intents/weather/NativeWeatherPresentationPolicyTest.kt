@@ -4,9 +4,20 @@ import com.samsung.genuicraft.sdk.internal.renderer.native.WeatherRow
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Assert.assertNull
 import org.junit.Test
 
 class NativeWeatherPresentationPolicyTest {
+    @Test
+    fun rainRailUsesOnlyExplicitBoundedPercentages() {
+        assertEquals(0.57f, NativeWeatherPresentationPolicy.precipitationFraction("57% [14]")!!, 0.0001f)
+        assertEquals(0f, NativeWeatherPresentationPolicy.precipitationFraction("0%")!!, 0.0001f)
+        assertEquals(1f, NativeWeatherPresentationPolicy.precipitationFraction("100%")!!, 0.0001f)
+        listOf("0.2 mm", "55–65%", "about 55%", "101%", "-1%", "").forEach {
+            assertNull(NativeWeatherPresentationPolicy.precipitationFraction(it))
+        }
+    }
+
     @Test
     fun firstStreamingForecastRowAndLaterRowsUseTheSamePanel() {
         val first = WeatherRow("Wed, Sep 9", null, null, "31°C", "20°C", null, emptyList())
