@@ -4,11 +4,13 @@ import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.lifecycle.ViewModelProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.samsung.genuicraft.sdk.GenUiModelOutput
 import com.samsung.genuicraft.sdk.GenUiPrompt
 import com.samsung.genuicraft.sdk.GenUiProvider
+import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.CompletableDeferred
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -23,6 +25,49 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class SdkProgressiveRenderingStateTest {
     @get:Rule val compose = createAndroidComposeRule<GenUiSdkDemoActivity>()
+
+    @Test
+    fun textAndUiSwitchDuringOneGenerationAndFinalResultOpensInUi() {
+        val provider = PausedProvider()
+        val model = start(provider, path = "progressive-view-switch-provider",
+            viewMode = SdkStreamingViewMode.TEXT)
+        try {
+            awaitPreview(model)
+            compose.onNodeWithTag("sdk_streaming_text_option").assertIsSelected()
+            compose.onNodeWithTag("sdk_ir_tab").assertIsSelected()
+            compose.onNodeWithTag("sdk_generated_ir_1").assertExists()
+            compose.onNodeWithText("root=Column([title,detail])", substring = true).assertExists()
+            compose.onNodeWithTag("sdk_native_live_preview").assertDoesNotExist()
+            assertEquals(1, provider.calls.get())
+
+            compose.onNodeWithTag("sdk_streaming_ui_option").performClick().assertIsSelected()
+            compose.onNodeWithTag("sdk_preview_tab").assertIsSelected()
+            compose.onNodeWithText(PREVIEW_TEXT).assertExists()
+            assertEquals(1, provider.calls.get())
+
+            compose.onNodeWithTag("sdk_streaming_text_option").performClick().assertIsSelected()
+            compose.onNodeWithTag("sdk_ir_tab").assertIsSelected()
+            compose.activityRule.scenario.recreate()
+            compose.onNodeWithTag("sdk_streaming_text_option").assertIsSelected()
+            compose.onNodeWithTag("sdk_ir_tab").assertIsSelected()
+            assertEquals(1, provider.calls.get())
+
+            provider.finish.complete(Unit)
+            compose.waitUntil(15_000) { !model.working }
+            compose.onNodeWithTag("sdk_preview_tab").assertIsSelected()
+            compose.onNodeWithText(FINAL_TEXT).assertExists()
+            assertEquals(1, provider.calls.get())
+            compose.onNodeWithTag("sdk_ir_tab").performClick().assertIsSelected()
+            compose.onNodeWithText("detail=Text(\"$FINAL_TEXT\")", substring = true).assertExists()
+        } finally {
+            provider.finish.complete(Unit)
+            compose.runOnUiThread {
+                compose.activity.getSharedPreferences("genuicraft_sdk_demo", 0).edit()
+                    .putString(PREFERENCE_STREAMING_VIEW_MODE, SdkStreamingViewMode.UI.name)
+                    .apply()
+            }
+        }
+    }
 
     @Test
     fun nativePreviewSurvivesRecreationAndFinalResultReplacesIt() {
@@ -93,6 +138,8 @@ class SdkProgressiveRenderingStateTest {
             assertTrue(model.working)
             assertNull(model.renderSnapshot)
             assertEquals(0, model.generationTrace.previewSnapshotCount)
+            compose.onNodeWithText("This run started without live previews", substring = true)
+                .assertExists()
             disabledProvider.finish.complete(Unit)
             compose.waitUntil(15_000) { !model.working }
             assertEquals(SdkGenerationPhase.COMPLETE, model.generationTrace.phase)
@@ -109,7 +156,12 @@ class SdkProgressiveRenderingStateTest {
         provider: PausedProvider,
         streaming: Boolean = true,
         path: String = "progressive-state-provider",
+        viewMode: SdkStreamingViewMode = SdkStreamingViewMode.UI,
     ): GenUiSdkDemoViewModel {
+        compose.onNodeWithTag(
+            if (viewMode == SdkStreamingViewMode.TEXT) "sdk_streaming_text_option"
+            else "sdk_streaming_ui_option"
+        ).performClick()
         lateinit var model: GenUiSdkDemoViewModel
         compose.runOnUiThread {
             model = ViewModelProvider(compose.activity)[GenUiSdkDemoViewModel::class.java]
@@ -134,8 +186,10 @@ class SdkProgressiveRenderingStateTest {
     private class PausedProvider(private val fail: Boolean = false) : GenUiProvider {
         override val id = "progressive-state-test"
         val finish = CompletableDeferred<Unit>()
+        val calls = AtomicInteger()
         override suspend fun generate(prompt: GenUiPrompt) = generate(prompt) {}
         override suspend fun generate(prompt: GenUiPrompt, onPartialText: (String) -> Unit): GenUiModelOutput {
+            calls.incrementAndGet()
             val prefix = "<a2ui>\nroot=Column([title,detail])\ntitle=Text(\"$PREVIEW_TEXT\")\n"
             onPartialText(prefix)
             finish.await()

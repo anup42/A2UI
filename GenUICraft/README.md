@@ -43,7 +43,7 @@ dependencyResolutionManagement {
     }
 }
 // consumer module
-implementation("com.samsung.genuicraft:genuicraft:0.6.0")
+implementation("com.samsung.genuicraft:genuicraft:0.6.35")
 ```
 
 Version 0.5.0 removes the remote server provider and its public configuration API.
@@ -59,6 +59,18 @@ See the [streaming-rendering validation](validation/20261008_streaming_rendering
 for SDK/device tests, the saved-output replay, five native paired comparisons,
 byte-hash parity, and timing limitations; the [gallery](validation/20261008_streaming_rendering/index.html)
 shows the captured live and final native UI.
+
+Version 0.6.35 shows a fully closed component before its trailing newline arrives,
+uses the latest cumulative output after preview throttling, and prevents pending
+action bindings from delaying visible preview content. Previews still require the
+authored root and complete visual values; unfinished values are not repaired or
+guessed. Final conversion retains the existing validation and recovery policy.
+Inline `Table(columns=..., rows=...)` calls can display fully closed rows once
+the columns are available, then grow as more complete rows arrive. The original
+model program stays untouched; late display metadata is applied when available.
+The SDK test page offers **Streaming text** and **Streaming UI** before and during
+generation. Switching views reuses the same inference run; completion opens the
+final rendered UI. The selected view survives rotation and theme changes.
 
 Version 0.5.7 recognizes combined flight-time ranges such as `04:40–07:10` in
 the shared native flight-card route, including explicit AM/PM and next-day offsets.

@@ -3,6 +3,7 @@ package com.samsung.genuicraft
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -33,6 +34,30 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class GenUiSdkConfigurationStateTest {
     @get:Rule val compose = createAndroidComposeRule<GenUiSdkDemoActivity>()
+
+    @Test
+    fun choosingStreamingUiBeforeRunEnablesLivePreviewsIfSettingsHadDisabledThem() {
+        val preferences = compose.activity.getSharedPreferences("genuicraft_sdk_demo", 0)
+        try {
+            compose.onNodeWithTag("sdk_settings_button").performClick()
+            val switch = compose.onNodeWithTag("sdk_streaming_ui_switch")
+            if (switch.fetchSemanticsNode().config[SemanticsProperties.ToggleableState] ==
+                ToggleableState.On
+            ) {
+                switch.performClick()
+            }
+            compose.onNodeWithText("Done").performClick()
+            assertFalse(preferences.getBoolean(PREFERENCE_STREAMING_UI_ENABLED, true))
+
+            compose.onNodeWithTag("sdk_streaming_text_option").performClick().assertIsSelected()
+            compose.onNodeWithTag("sdk_streaming_ui_option").performClick().assertIsSelected()
+            assertTrue(preferences.getBoolean(PREFERENCE_STREAMING_UI_ENABLED, false))
+        } finally {
+            preferences.edit().putBoolean(PREFERENCE_STREAMING_UI_ENABLED, true)
+                .putString(PREFERENCE_STREAMING_VIEW_MODE, SdkStreamingViewMode.UI.name)
+                .apply()
+        }
+    }
 
     @Test
     fun selectedSampleEditedInputAndOpenSettingsSurviveRecreation() {
@@ -82,8 +107,15 @@ class GenUiSdkConfigurationStateTest {
                     providerFactory = { provider },
                 )
             }
-            compose.waitUntil(10_000) { retained.generationTrace.attempts.firstOrNull()?.rawText?.isNotEmpty() == true }
+            // The provider emits two cumulative callbacks back-to-back, then stalls. The second
+            // must reach Streaming text without waiting for another provider callback.
+            compose.waitUntil(10_000) {
+                retained.generationTrace.attempts.firstOrNull()?.rawText == raw.take(120)
+            }
+            assertEquals(1, provider.calls.get())
             val partial = retained.generationTrace.attempts.single().rawText
+            compose.onNodeWithTag("sdk_streaming_text_option").performClick().assertIsSelected()
+            compose.onNodeWithTag("sdk_ir_tab").assertIsSelected()
             val originalActivity = compose.activity
             compose.activityRule.scenario.recreate()
             compose.runOnUiThread {
@@ -92,6 +124,8 @@ class GenUiSdkConfigurationStateTest {
                 assertTrue(retained.working)
                 assertEquals(partial, retained.generationTrace.attempts.single().rawText)
             }
+            compose.onNodeWithTag("sdk_streaming_text_option").assertIsSelected()
+            compose.onNodeWithTag("sdk_ir_tab").assertIsSelected()
 
             compose.runOnUiThread { compose.activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE }
             compose.waitUntil(10_000) { compose.activity.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE }
@@ -102,7 +136,8 @@ class GenUiSdkConfigurationStateTest {
                 (compose.activity.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == targetNightMask
             }
             assertRetainedSession(retained, provider)
-            compose.onNodeWithTag("sdk_preview_tab").assertIsSelected()
+            compose.onNodeWithTag("sdk_streaming_text_option").assertIsSelected()
+            compose.onNodeWithTag("sdk_ir_tab").assertIsSelected()
 
             provider.finish.complete(Unit)
             compose.waitUntil(15_000) { !retained.working }
@@ -134,6 +169,11 @@ class GenUiSdkConfigurationStateTest {
             provider.finish.complete(Unit)
             device.executeShellCommand("cmd uimode night $originalNightMode")
             compose.runOnUiThread { compose.activity.requestedOrientation = originalOrientation }
+            compose.runOnUiThread {
+                compose.activity.getSharedPreferences("genuicraft_sdk_demo", 0).edit()
+                    .putString(PREFERENCE_STREAMING_VIEW_MODE, SdkStreamingViewMode.UI.name)
+                    .apply()
+            }
             compose.activityRule.scenario.close()
         }
         assertEquals("The retained provider must be closed only when leaving the page", 1, provider.closes.get())
@@ -145,6 +185,7 @@ class GenUiSdkConfigurationStateTest {
             assertSame(expected, ViewModelProvider(compose.activity)[GenUiSdkDemoViewModel::class.java])
             assertTrue(expected.working)
         }
+        compose.onNodeWithTag("sdk_streaming_text_option").assertIsSelected()
         assertEquals(1, provider.calls.get())
         assertEquals(0, provider.closes.get())
     }
@@ -162,6 +203,7 @@ class GenUiSdkConfigurationStateTest {
         override suspend fun generate(prompt: GenUiPrompt, onPartialText: (String) -> Unit): GenUiModelOutput {
             calls.incrementAndGet()
             onPartialText(raw.take(100))
+            onPartialText(raw.take(120))
             finish.await()
             onPartialText(raw)
             return GenUiModelOutput(raw, "lifecycle-test/streaming", 438, GenUiGenerationMetrics(3394, 438, 40.0))

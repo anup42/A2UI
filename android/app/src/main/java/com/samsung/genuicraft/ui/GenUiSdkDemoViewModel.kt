@@ -34,8 +34,14 @@ internal class GenUiSdkDemoViewModel(application: Application) : AndroidViewMode
     private var activeProviderKey: String? = null
     private var activeJob: Job? = null
     private val streamHandler = Handler(Looper.getMainLooper())
+    private var pendingPartialFlush: Runnable? = null
     private var generationRunId = 0L
     private var conversionStartedAtMs = 0L
+
+    private fun clearPendingPartialFlush() {
+        pendingPartialFlush?.let(streamHandler::removeCallbacks)
+        pendingPartialFlush = null
+    }
 
     private fun postGenerationUpdate(runId: Long, update: () -> Unit) {
         val guardedUpdate = {
@@ -83,6 +89,7 @@ internal class GenUiSdkDemoViewModel(application: Application) : AndroidViewMode
 
     fun cancelGeneration() {
         activeJob?.cancel()
+        clearPendingPartialFlush()
         renderSnapshot = null
         generationMetrics = null
         generationTrace = generationTrace.copy(phase = SdkGenerationPhase.CANCELLED)
@@ -105,6 +112,7 @@ internal class GenUiSdkDemoViewModel(application: Application) : AndroidViewMode
         },
     ) {
         if (working) return
+        clearPendingPartialFlush()
         workspaceRevision++
         document = null
         renderSnapshot = null
@@ -156,6 +164,7 @@ internal class GenUiSdkDemoViewModel(application: Application) : AndroidViewMode
                 var runtimeForRun: String? = null
                 var finalSnapshotForRun: GenUiRenderSnapshot? = null
                 var lastPartialAtMs = 0L
+                var latestPartialText = ""
                 val session = GenUiSession(
                     getApplication<Application>(),
                     provider,
@@ -165,24 +174,53 @@ internal class GenUiSdkDemoViewModel(application: Application) : AndroidViewMode
                 ).also { captureForRun = it }
                 val observer = GenUiGenerationObserver(
                     onAttemptStarted = { number ->
-                        lastPartialAtMs = 0L
                         postGenerationUpdate(runId) {
+                            clearPendingPartialFlush()
+                            lastPartialAtMs = 0L
+                            latestPartialText = ""
+                            if (renderSnapshot?.attempt != null && renderSnapshot?.attempt != number) {
+                                renderSnapshot = null
+                                generationTrace = generationTrace.copy(latestReadyComponentCount = 0)
+                            }
                             updateGenerationAttempt(number, "", complete = false)
                             status = "Generating IR · attempt $number"
                         }
                     },
                     onPartialText = { number, rawText ->
-                        val now = SystemClock.elapsedRealtime()
-                        if (lastPartialAtMs == 0L || now - lastPartialAtMs >= 75L) {
-                            lastPartialAtMs = now
-                            postGenerationUpdate(runId) {
+                        postGenerationUpdate(runId) {
+                            val attempt = generationTrace.attempts.lastOrNull()
+                            if (attempt?.number != number || attempt.complete ||
+                                generationTrace.phase != SdkGenerationPhase.GENERATING
+                            ) return@postGenerationUpdate
+                            latestPartialText = rawText
+                            val now = SystemClock.elapsedRealtime()
+                            val remainingMs = 75L - (now - lastPartialAtMs)
+                            if (lastPartialAtMs == 0L || remainingMs <= 0L) {
+                                clearPendingPartialFlush()
+                                lastPartialAtMs = now
                                 updateGenerationAttempt(number, rawText, complete = false)
+                            } else if (pendingPartialFlush == null) {
+                                val flush = Runnable {
+                                    pendingPartialFlush = null
+                                    postGenerationUpdate(runId) {
+                                        val current = generationTrace.attempts.lastOrNull()
+                                        if (current?.number == number && !current.complete &&
+                                            generationTrace.phase == SdkGenerationPhase.GENERATING
+                                        ) {
+                                            lastPartialAtMs = SystemClock.elapsedRealtime()
+                                            updateGenerationAttempt(number, latestPartialText, complete = false)
+                                        }
+                                    }
+                                }
+                                pendingPartialFlush = flush
+                                streamHandler.postDelayed(flush, remainingMs)
                             }
                         }
                     },
                     onAttemptCompleted = { number, output ->
                         runtimeForRun = output.runtime
                         postGenerationUpdate(runId) {
+                            clearPendingPartialFlush()
                             updateGenerationAttempt(number, output.text, complete = true)
                             lastRuntime = output.runtime
                             status = "Validating and repairing IR…"
@@ -275,6 +313,7 @@ internal class GenUiSdkDemoViewModel(application: Application) : AndroidViewMode
                 )
                 status = "Generation failed"
             } finally {
+                clearPendingPartialFlush()
                 captureForRun?.let { capture ->
                     generationTrace = generationTrace.copy(
                         attempts = capture.attemptSnapshots.map {

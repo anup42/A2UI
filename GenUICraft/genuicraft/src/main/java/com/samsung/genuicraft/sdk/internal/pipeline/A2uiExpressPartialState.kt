@@ -3,12 +3,71 @@ package com.samsung.genuicraft.sdk.internal.pipeline
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 
-/**
- * Completed rows from an unfinished state literal, restricted to known Table/Chart bindings.
- * Each row crosses the production literal parser and must be followed by ',' or ']'.
- * No component signature, column, visibility, or presentation is inferred from state data.
- */
+/** Completed rows from unfinished state literals and named inline Table calls. */
 internal object A2uiExpressPartialState {
+    /**
+     * A provisional inline Table built only from closed columns and closed row literals.
+     * The returned assignment is parsed again by the production component codec; it is never
+     * committed as a model statement. Every other completed named argument is retained verbatim
+     * so visibility/repeat guards cannot be bypassed by the provisional projection.
+     */
+    fun inlineTable(statement: String): String? {
+        val (lhs, rhs) = runCatching { A2uiExpressCodec.splitAssignment(statement) }.getOrNull()
+            ?: return null
+        if (lhs.startsWith('$') || !lhs.matches(Regex("[A-Za-z_][A-Za-z0-9_]*"))) return null
+        var index = rhs.indexOfFirst { !it.isWhitespace() }
+        if (index < 0 || !rhs.startsWith("Table", index)) return null
+        index += "Table".length
+        index = rhs.skipWhitespace(index)
+        if (rhs.getOrNull(index) != '(') return null
+        index += 1
+        val reader = Reader(rhs, emptySet())
+        val keys = mutableSetOf<String>()
+        var columns: JsonArray? = null
+        var rows: JsonArray? = null
+        val closedArgs = linkedMapOf<String, String>()
+        while (index < rhs.length) {
+            index = rhs.skipWhitespace(index)
+            if (rhs.getOrNull(index) == ')') return null // The complete call takes the normal path.
+            val beginning = index
+            if (rhs.getOrNull(index)?.isLetter() != true && rhs.getOrNull(index) != '_') break
+            index += 1
+            while (rhs.getOrNull(index)?.let { it.isLetterOrDigit() || it == '_' } == true) index += 1
+            val key = rhs.substring(beginning, index)
+            if (!keys.add(key)) return null
+            index = rhs.skipWhitespace(index)
+            if (rhs.getOrNull(index) != '=') break
+            index = rhs.skipWhitespace(index + 1)
+            if (key == "rows") {
+                val parsed = reader.rows(index, allowClosedCompositeAtEnd = true, compositeOnly = true) ?: break
+                if (parsed.values.size() > 0) rows = parsed.values
+                index = parsed.end ?: break
+            } else {
+                val valueStart = index
+                val parsed = runCatching { A2uiExpressCodec.literalPrefix(rhs.substring(index)) }.getOrNull() ?: break
+                val end = rhs.skipWhitespace(index + parsed.second)
+                val boundary = rhs.getOrNull(end)
+                if (boundary !in listOf(',', ')', null)) break
+                // Numbers and bare scalar prefixes may still grow before a separator arrives.
+                if (boundary == null && !rhs.selfDelimitedValue(valueStart)) break
+                if (key == "columns") columns = parsed.first.takeIf { it.isJsonArray }?.asJsonArray
+                else closedArgs[key] = rhs.substring(valueStart, index + parsed.second).trim()
+                index = end
+            }
+            index = rhs.skipWhitespace(index)
+            when (rhs.getOrNull(index)) {
+                ',' -> index += 1
+                ')' -> return null // Full statement must retain all its generated arguments.
+                null -> break
+                else -> break
+            }
+        }
+        val readyColumns = columns?.takeIf { it.size() > 0 } ?: return null
+        val readyRows = rows?.takeIf { it.size() > 0 } ?: return null
+        val knownArgs = closedArgs.entries.joinToString("") { (key, value) -> ",$key=$value" }
+        return "$lhs=Table(columns=$readyColumns,rows=$readyRows$knownArgs)"
+    }
+
     fun arrays(statement: String, wantedPaths: Set<String>): Map<String, JsonArray> {
         if (wantedPaths.isEmpty() || !statement.trimStart().startsWith('$')) return emptyMap()
         val (lhs, rhs) = runCatching { A2uiExpressCodec.splitAssignment(statement) }.getOrNull()
@@ -23,6 +82,17 @@ internal object A2uiExpressPartialState {
         return reader.arrays
     }
 
+    private fun String.skipWhitespace(start: Int): Int {
+        var index = start
+        while (index < length && this[index].isWhitespace()) index += 1
+        return index
+    }
+
+    private fun String.selfDelimitedValue(start: Int): Boolean =
+        getOrNull(start) in listOf('"', '[', '{') || startsWith("r\"", start, ignoreCase = true)
+
+    private data class Rows(val values: JsonArray, val end: Int?)
+
     private class Reader(private val text: String, private val wanted: Set<String>) {
         val arrays = linkedMapOf<String, JsonArray>()
 
@@ -36,36 +106,42 @@ internal object A2uiExpressPartialState {
             runCatching { A2uiExpressCodec.literalPrefix(text.substring(start)) }
                 .getOrNull()?.let { (value, length) -> value to (start + length) }
 
+        fun rows(start: Int, allowClosedCompositeAtEnd: Boolean = false, compositeOnly: Boolean = false): Rows? {
+            if (text.getOrNull(start) != '[') return null
+            val values = JsonArray()
+            var index = whitespace(start + 1)
+            if (text.getOrNull(index) == ']') return Rows(values, index + 1)
+            while (index < text.length) {
+                val parsed = literal(index) ?: break
+                if (compositeOnly && !parsed.first.isJsonArray && !parsed.first.isJsonObject) break
+                val next = whitespace(parsed.second)
+                val boundary = text.getOrNull(next)
+                if (boundary != ',' && boundary != ']') {
+                    // A closed composite row cannot gain more cells/fields in a valid continuation.
+                    if (allowClosedCompositeAtEnd && boundary == null &&
+                        (parsed.first.isJsonArray || parsed.first.isJsonObject)) {
+                        require(values.size() < A2uiExpressCodec.MAX_ELEMENTS) { "Streaming row limit." }
+                        values.add(parsed.first)
+                    }
+                    break
+                }
+                require(values.size() < A2uiExpressCodec.MAX_ELEMENTS) { "Streaming row limit." }
+                values.add(parsed.first)
+                if (boundary == ']') return Rows(values, next + 1)
+                index = whitespace(next + 1)
+                if (text.getOrNull(index) == ']') return Rows(values, index + 1)
+            }
+            return Rows(values, null)
+        }
+
         fun walk(start: Int, path: String, depth: Int): Int? {
             require(depth < A2uiExpressCodec.MAX_EXPRESSION_DEPTH) { "Express state nesting limit." }
             var index = whitespace(start)
             if (index >= text.length) return null
             if (text[index] == '[' && path in wanted) {
-                val rows = JsonArray()
-                index = whitespace(index + 1)
-                if (text.getOrNull(index) == ']') {
-                    arrays[path] = rows
-                    return index + 1
-                }
-                while (index < text.length) {
-                    val parsed = literal(index) ?: break
-                    val next = whitespace(parsed.second)
-                    val boundary = text.getOrNull(next)
-                    if (boundary != ',' && boundary != ']') break
-                    require(rows.size() < A2uiExpressCodec.MAX_ELEMENTS) { "Streaming row limit." }
-                    rows.add(parsed.first)
-                    if (boundary == ']') {
-                        arrays[path] = rows
-                        return next + 1
-                    }
-                    index = whitespace(next + 1)
-                    if (text.getOrNull(index) == ']') {
-                        arrays[path] = rows
-                        return index + 1
-                    }
-                }
-                if (rows.size() > 0) arrays[path] = rows
-                return null
+                val parsed = rows(index) ?: return null
+                if (parsed.values.size() > 0 || parsed.end != null) arrays[path] = parsed.values
+                return parsed.end
             }
             if (text[index] != '{') return literal(index)?.second
             index = whitespace(index + 1)

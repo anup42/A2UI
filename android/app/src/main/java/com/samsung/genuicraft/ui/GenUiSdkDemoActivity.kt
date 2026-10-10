@@ -34,6 +34,7 @@ import kotlinx.coroutines.launch
 private const val PREFERENCE_TOKEN_METRICS_ENABLED = "token_metrics_enabled"
 private const val PREFERENCE_GEMMA_MODEL_SOURCE = "gemma_model_source"
 internal const val PREFERENCE_STREAMING_UI_ENABLED = "streaming_ui_enabled"
+internal const val PREFERENCE_STREAMING_VIEW_MODE = "streaming_view_mode"
 
 /** The demo uses the published SDK AAR; it does not call the app's legacy pipeline. */
 class GenUiSdkDemoActivity : ComponentActivity() {
@@ -106,6 +107,15 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                 }
                 var streamingUiEnabled by rememberSaveable {
                     mutableStateOf(preferences.getBoolean(PREFERENCE_STREAMING_UI_ENABLED, true))
+                }
+                var streamingViewMode by rememberSaveable {
+                    mutableStateOf(SdkStreamingViewMode.fromPreference(
+                        preferences.getString(PREFERENCE_STREAMING_VIEW_MODE, null)
+                    ))
+                }
+                val selectStreamingViewMode: (SdkStreamingViewMode) -> Unit = { mode ->
+                    streamingViewMode = mode
+                    preferences.edit().putString(PREFERENCE_STREAMING_VIEW_MODE, mode.name).apply()
                 }
                 var trainedGpuPrecision by rememberSaveable {
                     mutableStateOf(InferenceBackendSettings.getTrainedE2bGpuPrecision(this@GenUiSdkDemoActivity))
@@ -266,6 +276,65 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                 maxLines = 1,
                                 overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                             )
+                        }
+                        Surface(
+                            modifier = Modifier.fillMaxWidth()
+                                .testTag("sdk_streaming_view_selector"),
+                            shape = MaterialTheme.shapes.medium,
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                            ) {
+                                Text(
+                                    if (working) "Live generation view" else "View for next generation",
+                                    style = MaterialTheme.typography.titleSmall,
+                                )
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                ) {
+                                    FilterChip(
+                                        selected = streamingViewMode == SdkStreamingViewMode.TEXT,
+                                        onClick = {
+                                            selectStreamingViewMode(SdkStreamingViewMode.TEXT)
+                                        },
+                                        modifier = Modifier.weight(1f)
+                                            .testTag("sdk_streaming_text_option"),
+                                        label = { Text("Streaming text") },
+                                    )
+                                    FilterChip(
+                                        selected = streamingViewMode == SdkStreamingViewMode.UI,
+                                        onClick = {
+                                            selectStreamingViewMode(SdkStreamingViewMode.UI)
+                                            if (!working && !streamingUiEnabled) {
+                                                streamingUiEnabled = true
+                                                preferences.edit()
+                                                    .putBoolean(PREFERENCE_STREAMING_UI_ENABLED, true)
+                                                    .apply()
+                                            }
+                                        },
+                                        modifier = Modifier.weight(1f)
+                                            .testTag("sdk_streaming_ui_option"),
+                                        label = { Text("Streaming UI") },
+                                    )
+                                }
+                                if (working && !generationTrace.streamingRenderingEnabled) {
+                                    Text(
+                                        "This run started without live previews. The final UI " +
+                                            "will appear when generation finishes.",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    )
+                                } else if (!working && !streamingUiEnabled) {
+                                    Text(
+                                        "Live previews are off in Settings. Tap Streaming UI " +
+                                            "before starting to enable switching during the run.",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    )
+                                }
+                            }
                         }
                         val managedReadyFile =
                             (managedModelState as? SdkGemmaModelDownload.State.Ready)?.file
@@ -614,6 +683,8 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                 trace = generationTrace,
                                 document = document,
                                 snapshot = screen.renderSnapshot,
+                                streamingViewMode = streamingViewMode,
+                                onStreamingViewModeChange = selectStreamingViewMode,
                                 modifier = Modifier.weight(if (editorVisible) 0.3f else 1f).fillMaxWidth(),
                                 metrics = {
                                     if (tokenMetricsEnabled) {
@@ -647,9 +718,10 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                             ) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Column(Modifier.weight(1f)) {
-                                        Text("Stream UI", style = MaterialTheme.typography.titleSmall)
+                                        Text("Generate live previews", style = MaterialTheme.typography.titleSmall)
                                         Text(
-                                            "Show native components while the model generates the answer.",
+                                            "Prepare native preview updates during generation. " +
+                                                "Turning this off waits for the final UI.",
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                                         )

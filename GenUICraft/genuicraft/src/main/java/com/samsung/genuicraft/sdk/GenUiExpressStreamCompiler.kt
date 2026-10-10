@@ -45,8 +45,20 @@ internal class GenUiExpressStreamCompiler {
             val scan = A2uiExpressStreamScanner.scan(rawText, requireNotNull(offset))
             scan.statements.forEach(::consume)
             offset = scan.nextOffset
-            if (!graph.getAsJsonObject("elements").has("root")) return null
-            val candidate = graph.deepCopy()
+            // A component call ending at the current snapshot boundary is already a complete
+            // expression. Project it now, but do not commit it: the next callback still scans the
+            // original suffix and the real delimiter will consume the statement exactly once.
+            fun decodedTail(tail: String): JsonObject? =
+                runCatching { A2uiExpressCodec.decodeStatements(statements + tail, requireRoot = false) }
+                    .getOrNull()
+            val closed = closedComponentTail(scan.tail)?.let(::decodedTail)
+            val inline = if (closed == null) A2uiExpressPartialState.inlineTable(scan.tail)
+                ?.takeIf { tail ->
+                    val id = runCatching { A2uiExpressCodec.splitAssignment(tail).first }.getOrNull()
+                    id != null && id !in assignedIds
+                }?.let(::decodedTail) else null
+            val candidate = closed ?: inline ?: graph.deepCopy()
+            if (!candidate.getAsJsonObject("elements").has("root")) return null
             ensureAcyclic(candidate)
             val arrayPaths = boundArrayPaths(candidate)
             A2uiExpressPartialState.arrays(scan.tail, arrayPaths).forEach { (path, rows) ->
@@ -89,6 +101,15 @@ internal class GenUiExpressStreamCompiler {
             graph = A2uiExpressCodec.decodeStatements(statements + statement, requireRoot = false)
         }
         statements += statement
+    }
+
+    private fun closedComponentTail(tail: String): String? {
+        val statement = tail.trim()
+        if (!statement.endsWith(')')) return null
+        val assignment = runCatching { A2uiExpressCodec.splitAssignment(statement) }.getOrNull()
+            ?: return null
+        if (assignment.first.startsWith('$') || assignment.first in assignedIds) return null
+        return statement
     }
 
     private fun ensureAcyclic(source: JsonObject) {
@@ -146,7 +167,13 @@ internal class GenUiExpressStreamCompiler {
             val original = elements.get(id)?.takeIf { it.isJsonObject }?.asJsonObject ?: return null
             val visible = original.get("visible")
             if (visible?.isJsonPrimitive == true && visible.asJsonPrimitive.isBoolean && !visible.asBoolean) return null
-            if (!bindingsReady(original, state, itemScope)) return null
+            // Preview actions are inert. They must neither delay visible content while their
+            // state targets are pending nor escape into a provisional document.
+            val visual = original.deepCopy().apply {
+                remove("on")
+                remove("watch")
+            }
+            if (!bindingsReady(visual, state, itemScope)) return null
             if (visible?.isJsonObject == true && visible.asJsonObject.keySet().all {
                     it in setOf("path", "\$state", "\$bindState")
                 }) {
@@ -164,7 +191,7 @@ internal class GenUiExpressStreamCompiler {
             val atomic = repeat != null || type in setOf("Tabs", "Modal")
             val children = JsonArray()
             val projected = JsonObject()
-            var hasContent = ownContent(type, props)
+            var hasContent = ownContent(type, props, state, itemScope || repeat != null)
             val childBranches = mutableMapOf<String, Branch?>()
             fun resolve(target: String): Branch? = childBranches.getOrPut(target) { branch(target, itemScope || repeat != null) }
             original.getAsJsonArray("children").forEach { child ->
@@ -176,12 +203,12 @@ internal class GenUiExpressStreamCompiler {
                     hasContent = hasContent || ready.hasContent
                 }
             }
-            RendererReferenceSemantics.references(original).filter { it.kind != "child" }.forEach { reference ->
+            RendererReferenceSemantics.references(visual).filter { it.kind != "child" }.forEach { reference ->
                 val ready = resolve(reference.targetId) ?: return null
                 ready.elements.entrySet().forEach { (key, value) -> projected.add(key, value) }
                 hasContent = hasContent || ready.hasContent
             }
-            val element = original.deepCopy().apply { add("children", children) }
+            val element = visual.apply { add("children", children) }
             projected.add(id, element)
             val local = JsonObject().apply {
                 addProperty("root", id)
@@ -192,7 +219,9 @@ internal class GenUiExpressStreamCompiler {
             return Branch(projected, hasContent).also { memo[key] = it }
         }
         val root = branch("root") ?: return null
-        if (!root.hasContent) return null
+        // Once a visible revision exists, a later completed visibility guard may remove its
+        // last child. Publish the now-empty real root to clear stale provisional content.
+        if (!root.hasContent && previousWire == null) return null
         return JsonObject().apply {
             addProperty("root", "root")
             add("state", state.deepCopy())
@@ -233,11 +262,20 @@ internal class GenUiExpressStreamCompiler {
         }
     }
 
-    private fun ownContent(type: String?, props: JsonObject): Boolean = when (type) {
+    private fun ownContent(type: String?, props: JsonObject, state: JsonObject, itemScope: Boolean): Boolean = when (type) {
         "Stack", "Divider", "Tabs", "Modal" -> false
-        "Card" -> listOf("title", "subtitle").any { !props.text(it).isNullOrBlank() }
+        "Card" -> listOf("title", "subtitle").any { hasDisplayValue(props.get(it), state, itemScope) }
+        "Text" -> hasDisplayValue(props.get("text"), state, itemScope)
         "List" -> props.get("items")?.takeIf { it.isJsonArray }?.asJsonArray?.size()?.let { it > 0 } == true
         else -> true
+    }
+
+    private fun hasDisplayValue(raw: JsonElement?, state: JsonObject, itemScope: Boolean): Boolean {
+        if (itemScope && raw?.isJsonObject == true && raw.asJsonObject.keySet().any {
+                it in setOf("\$item", "\$bindItem", "\$index")
+            }) return true
+        val value = bindingPath(raw)?.let { atPath(state, it) } ?: raw
+        return value?.isJsonPrimitive == true && value.asString.isNotBlank()
     }
 
     private fun bindingPath(value: JsonElement?): String? {

@@ -12,6 +12,58 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class GenUiExpressStreamCompilerTest {
+    @Test fun closedTextCallPreviewsBeforeDelimiterWithoutCommittingTheTail() {
+        val compiler = GenUiExpressStreamCompiler()
+        val raw = "<a2ui>\nroot=Column([heading,later])\nheading=Text(\"Ready now\")"
+        val early = compiler.accept(raw)!!
+        assertEquals(listOf("heading"), children(early))
+        assertEquals(setOf("root", "heading"), graph(early).getAsJsonObject("elements").keySet())
+        assertValid(early)
+        assertNull(compiler.accept(raw + " // comment still streaming"))
+        assertNull(compiler.accept(raw + " // comment still streaming\n"))
+        val later = compiler.accept(raw + " // comment still streaming\nlater=Text(\"Added later\")")!!
+        assertEquals(listOf("heading", "later"), children(later))
+        assertEquals("Ready now", graph(later).getAsJsonObject("elements")
+            .getAsJsonObject("heading").getAsJsonObject("props").get("text").asString)
+        assertValid(later)
+    }
+
+    @Test fun closedRootTextCanBeTheFirstPreviewWithoutANewline() {
+        val compiler = GenUiExpressStreamCompiler()
+        val raw = "<a2ui>\nroot=Text(\"First content\")"
+        val preview = compiler.accept(raw)!!
+        assertEquals(setOf("root"), graph(preview).getAsJsonObject("elements").keySet())
+        assertNull(compiler.accept(raw + ";"))
+        assertValid(preview)
+    }
+
+    @Test fun rootLateWaitsForExplicitReachabilityAndKeepsDetachedComponentsOut() {
+        val compiler = GenUiExpressStreamCompiler()
+        val prefix = "<a2ui>\ndetached=Text(\"Unused\")\nheading=Text(\"Used\")\n"
+        assertNull(compiler.accept(prefix))
+        val preview = compiler.accept(prefix + "root=Column([heading])")!!
+        assertEquals(setOf("root", "heading"), graph(preview).getAsJsonObject("elements").keySet())
+        assertFalse(preview.document.express.contains("Unused"))
+        assertValid(preview)
+    }
+
+    @Test fun blankTextDoesNotBecomeAContentOnlyPreview() {
+        val compiler = GenUiExpressStreamCompiler()
+        val raw = "<a2ui>\nroot=Column([blank,actual])\nblank=Text(\"  \")\n"
+        assertNull(compiler.accept(raw))
+        val preview = compiler.accept(raw + "actual=Text(\"Visible\")")!!
+        assertEquals(listOf("blank", "actual"), children(preview))
+        assertValid(preview)
+    }
+
+    @Test fun boundCardTitleCountsAsContentWhenItsStateIsReady() {
+        val compiler = GenUiExpressStreamCompiler()
+        val raw = "<a2ui>\n${'$'}/title=\"Summary\"\nroot=Card([],title={path:\"/title\"})"
+        val preview = compiler.accept(raw)!!
+        assertEquals(setOf("root"), graph(preview).getAsJsonObject("elements").keySet())
+        assertValid(preview)
+    }
+
     @Test fun forwardReferencesGainChildrenInOriginalOrderWithStableIds() {
         val compiler = GenUiExpressStreamCompiler()
         var raw = "<a2ui>\nroot=Column([first_heading,later_card])\n"
@@ -100,14 +152,140 @@ class GenUiExpressStreamCompilerTest {
         assertFalse(preview.document.express.contains("Not a row"))
     }
 
-    @Test fun inlineRowsWaitForEntireTableCallIncludingLateMetadata() {
+    @Test fun inlineRowsPreviewBeforeTableClosesAndLateMetadataUpdatesTheSameId() {
         val compiler = GenUiExpressStreamCompiler()
         val prefix = "<a2ui>\nroot=Column([table])\ntable=Table(columns=[\"Name\"],rows=[[\"First\"],[\"Second\"]]"
-        assertNull(compiler.accept(prefix))
+        val early = compiler.accept(prefix)!!
+        assertEquals(2, graph(early).getAsJsonObject("elements").getAsJsonObject("table")
+            .getAsJsonObject("props").getAsJsonArray("rows").size())
+        assertEquals(setOf("root", "table"), graph(early).getAsJsonObject("elements").keySet())
         val preview = compiler.accept(prefix + ",domain=\"weather\",preferredPresentation=\"cards\")\n")!!
         val props = graph(preview).getAsJsonObject("elements").getAsJsonObject("table").getAsJsonObject("props")
         assertEquals("weather", props.get("domain").asString)
         assertEquals("cards", props.get("preferredPresentation").asString)
+        assertValid(early)
+        assertValid(preview)
+    }
+
+    @Test fun inlineTableStreamsOnlyClosedRowsAcrossEveryCharacterSplit() {
+        val compiler = GenUiExpressStreamCompiler()
+        val unfinished = "<a2ui>\nroot=Column([table])\n" +
+            "table=Table(columns=[{key:\"city\",label:\"City\"}],rows=[[\"Ben"
+        for (end in 1..unfinished.length) {
+            assertNull("A partial cell or row was displayed at character $end", compiler.accept(unfinished.substring(0, end)))
+        }
+        val first = unfinished + "galuru\"]"
+        val one = compiler.accept(first)!!
+        assertEquals(1, graph(one).getAsJsonObject("elements").getAsJsonObject("table")
+            .getAsJsonObject("props").getAsJsonArray("rows").size())
+        assertFalse(one.document.express.contains("Delhi"))
+        val unfinishedSecond = first + ",[\"Del"
+        assertNull(compiler.accept(unfinishedSecond))
+        val second = unfinishedSecond + "hi\"]"
+        val two = compiler.accept(second)!!
+        assertEquals(2, graph(two).getAsJsonObject("elements").getAsJsonObject("table")
+            .getAsJsonObject("props").getAsJsonArray("rows").size())
+        val full = second + "],title=\"Forecast\",domain=\"weather\")\n</a2ui>"
+        val finalPreview = compiler.accept(full)!!
+        assertEquals("Forecast", graph(finalPreview).getAsJsonObject("elements")
+            .getAsJsonObject("table").getAsJsonObject("props").get("title").asString)
+        assertEquals(GenUiCompiler.compile(full), GenUiCompiler.compile(finalPreview.document.express))
+        assertValid(one)
+        assertValid(two)
+        assertValid(finalPreview)
+    }
+
+    @Test fun inlineTableWaitsForColumnsWhenTheyFollowRows() {
+        val compiler = GenUiExpressStreamCompiler()
+        val raw = "<a2ui>\nroot=Column([table])\ntable=Table(rows=[[\"First\"]],columns="
+        assertNull(compiler.accept(raw))
+        val preview = compiler.accept(raw + "[\"Name\"]")!!
+        assertEquals(1, graph(preview).getAsJsonObject("elements").getAsJsonObject("table")
+            .getAsJsonObject("props").getAsJsonArray("rows").size())
+        assertValid(preview)
+    }
+
+    @Test fun unfinishedCellEndingInParenthesisDoesNotMaskClosedEarlierRow() {
+        val compiler = GenUiExpressStreamCompiler()
+        val raw = "<a2ui>\nroot=Column([table])\n" +
+            "table=Table(columns=[\"Name\"],rows=[[\"First\"],[\"unfinished)"
+        val preview = compiler.accept(raw)!!
+        val rows = graph(preview).getAsJsonObject("elements").getAsJsonObject("table")
+            .getAsJsonObject("props").getAsJsonArray("rows")
+        assertEquals(1, rows.size())
+        assertEquals("First", rows[0].asJsonArray[0].asString)
+        assertFalse(preview.document.express.contains("unfinished"))
+        assertValid(preview)
+    }
+
+    @Test fun inlineTableKeepsClosedDisplayMetadataAndWaitsForRoot() {
+        val table = "table=Table(title=\"Forecast\",domain=\"weather\",columns=[\"City\"]," +
+            "/* known rows */rows=[[r\"\"\"First line\nSecond line\"\"\"]"
+        val rootFirst = GenUiExpressStreamCompiler()
+        val early = rootFirst.accept("<a2ui>\nroot=Column([table])\n" + table)!!
+        val earlyProps = graph(early).getAsJsonObject("elements").getAsJsonObject("table").getAsJsonObject("props")
+        assertEquals("Forecast", earlyProps.get("title").asString)
+        assertEquals("weather", earlyProps.get("domain").asString)
+        assertValid(early)
+
+        val compiler = GenUiExpressStreamCompiler()
+        val tail = "<a2ui>\n" + table
+        assertNull(compiler.accept(tail))
+        val ready = compiler.accept(tail + "])\nroot=Column([table])")!!
+        val props = graph(ready).getAsJsonObject("elements").getAsJsonObject("table").getAsJsonObject("props")
+        assertEquals("Forecast", props.get("title").asString)
+        assertEquals("weather", props.get("domain").asString)
+        assertValid(ready)
+    }
+
+    @Test fun inlineTableRetainsKnownVisibilityGuards() {
+        val hidden = GenUiExpressStreamCompiler()
+        val hiddenRaw = "<a2ui>\nroot=Column([table])\n" +
+            "table=Table(visible=false,columns=[\"Name\"],rows=[[\"Secret\"]"
+        assertNull(hidden.accept(hiddenRaw))
+
+        val unresolved = GenUiExpressStreamCompiler()
+        val table = "table=Table(visible={path:\"/show\"},columns=[\"Name\"],rows=[[\"Secret\"]"
+        val conditional = "<a2ui>\nroot=Column([table])\n" + table
+        assertNull(unresolved.accept(conditional))
+
+        val falseState = GenUiExpressStreamCompiler()
+        val stateBefore = "<a2ui>\n${'$'}/show=false\nroot=Column([table])\n"
+        assertNull(falseState.accept(stateBefore + table))
+
+        val trueState = GenUiExpressStreamCompiler()
+        val ready = trueState.accept(stateBefore.replace("show=false", "show=true") + table.replace("Secret", "Shown"))!!
+        assertEquals(1, graph(ready).getAsJsonObject("elements").getAsJsonObject("table")
+            .getAsJsonObject("props").getAsJsonArray("rows").size())
+        assertValid(ready)
+    }
+
+    @Test fun lateCompletedVisibilityGuardClearsPreviouslyShownTable() {
+        val compiler = GenUiExpressStreamCompiler()
+        val first = "<a2ui>\nroot=Column([table])\n" +
+            "table=Table(columns=[\"Name\"],rows=[[\"Secret\"]"
+        val shown = compiler.accept(first)!!
+        assertEquals(listOf("table"), children(shown))
+        val hidden = compiler.accept(first + "],visible=false,title=\"")!!
+        assertEquals(emptyList<String>(), children(hidden))
+        assertEquals(setOf("root"), graph(hidden).getAsJsonObject("elements").keySet())
+        assertFalse(hidden.document.express.contains("Secret"))
+        assertValid(hidden)
+    }
+
+    @Test fun scalarNamedArgumentWaitsForSeparatorInsteadOfFreezingNumericPrefix() {
+        val compiler = GenUiExpressStreamCompiler()
+        val raw = "<a2ui>\nroot=Column([table])\n" +
+            "table=Table(columns=[\"Name\"],rows=[[\"First\"]],primaryColumn=1"
+        val early = compiler.accept(raw)!!
+        assertFalse(graph(early).getAsJsonObject("elements").getAsJsonObject("table")
+            .getAsJsonObject("props").has("primaryColumn"))
+        val settled = compiler.accept(raw + "0,title=\"Ready\"")!!
+        val props = graph(settled).getAsJsonObject("elements").getAsJsonObject("table").getAsJsonObject("props")
+        assertEquals(10, props.get("primaryColumn").asInt)
+        assertEquals("Ready", props.get("title").asString)
+        assertValid(early)
+        assertValid(settled)
     }
 
     @Test fun falseAndPendingVisibilityNeverPromoteHiddenChildrenOrOrphans() {
@@ -130,19 +308,21 @@ class GenUiExpressStreamCompilerTest {
         assertEquals(listOf("conditional", "safe"), children(shown))
     }
 
-    @Test fun modalWaitsForNonChildDependenciesAndActionBindings() {
+    @Test fun modalWaitsForNonChildDependenciesWhilePreviewActionsStayInert() {
         val compiler = GenUiExpressStreamCompiler()
         var raw = "<a2ui>\nroot=Column([title,dialog,action])\ntitle=Text(\"Title\")\n" +
             "dialog=Modal(trigger=trigger,content=body)\ntrigger=Button(\"Open\")\n" +
             "action=Button(\"Set\",onPress=setState(\"/answer\",true))\n"
         val first = compiler.accept(raw)!!
-        assertEquals(listOf("title"), children(first))
+        assertEquals(listOf("title", "action"), children(first))
+        assertFalse(graph(first).getAsJsonObject("elements").getAsJsonObject("action").has("on"))
         raw += "body=Text(\"Dialog body\")\n"
         val second = compiler.accept(raw)!!
-        assertEquals(listOf("title", "dialog"), children(second))
+        assertEquals(listOf("title", "dialog", "action"), children(second))
         raw += "${'$'}/answer=false\n"
         val third = compiler.accept(raw)!!
         assertEquals(listOf("title", "dialog", "action"), children(third))
+        assertFalse(graph(third).getAsJsonObject("elements").getAsJsonObject("action").has("on"))
         assertValid(third)
     }
 

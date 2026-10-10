@@ -15,6 +15,7 @@ internal class GenUiPreviewCoordinator(
     private val sources: List<GenUiSource>,
     private val onSnapshot: (GenUiRenderSnapshot) -> Unit,
     private val startedNanos: Long = System.nanoTime(),
+    private val updateIntervalMs: Long = UPDATE_INTERVAL_MS,
 ) {
     private data class Input(val attempt: Int, val raw: String)
     private val key = UUID.randomUUID().toString()
@@ -27,17 +28,26 @@ internal class GenUiPreviewCoordinator(
         var parsedAttempt = 0
         var compiler = GenUiExpressStreamCompiler()
         var lastPublicationNanos = 0L
-        for (update in input) {
+        for (queued in input) {
+            var update = queued
+            if (stopped || update.attempt != currentAttempt) continue
+            val since = (System.nanoTime() - lastPublicationNanos) / 1_000_000
+            if (update.attempt == parsedAttempt && lastPublicationNanos != 0L && since < updateIntervalMs) {
+                delay(updateIntervalMs - since)
+            }
+            // Native output is cumulative. After a throttle, compile the latest available
+            // snapshot rather than publishing an older prefix and delaying the useful content.
+            while (true) {
+                val newer = input.tryReceive().getOrNull() ?: break
+                update = newer
+            }
+            // A delayed/coalesced revision must not escape a replaced attempt.
             if (stopped || update.attempt != currentAttempt) continue
             if (update.attempt != parsedAttempt) {
                 compiler = GenUiExpressStreamCompiler()
                 parsedAttempt = update.attempt
                 lastPublicationNanos = 0L
             }
-            val since = (System.nanoTime() - lastPublicationNanos) / 1_000_000
-            if (lastPublicationNanos != 0L && since < UPDATE_INTERVAL_MS) delay(UPDATE_INTERVAL_MS - since)
-            // A delayed/coalesced revision must not escape a replaced attempt.
-            if (stopped || update.attempt != currentAttempt) continue
             val preview = runCatching { compiler.accept(update.raw) }.getOrNull() ?: continue
             if (stopped || update.attempt != currentAttempt) continue
             val document = runCatching { SourceAttribution.preview(preview.document, sources) }

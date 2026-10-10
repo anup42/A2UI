@@ -80,6 +80,15 @@ internal enum class SdkGenerationPhase {
     CANCELLED,
 }
 
+internal enum class SdkStreamingViewMode {
+    TEXT, UI;
+
+    companion object {
+        fun fromPreference(value: String?): SdkStreamingViewMode =
+            entries.firstOrNull { it.name == value } ?: UI
+    }
+}
+
 private enum class WorkspaceTab { IR, PREVIEW }
 
 private class WorkspaceAutoSelectionSnapshot(
@@ -93,6 +102,8 @@ internal fun SdkGenerationWorkspace(
     trace: SdkGenerationTrace,
     document: GenUiDocument?,
     snapshot: GenUiRenderSnapshot? = null,
+    streamingViewMode: SdkStreamingViewMode = SdkStreamingViewMode.UI,
+    onStreamingViewModeChange: (SdkStreamingViewMode) -> Unit = {},
     modifier: Modifier = Modifier,
     metrics: @Composable () -> Unit = {},
     onSnapshotPresented: (GenUiRenderSnapshot) -> Unit = {},
@@ -101,25 +112,37 @@ internal fun SdkGenerationWorkspace(
     val generating = trace.phase == SdkGenerationPhase.GENERATING ||
         trace.phase == SdkGenerationPhase.REPAIRING
     val previewAvailable = document != null || snapshot != null || generating
-    val initialTab = if (previewAvailable) {
-        WorkspaceTab.PREVIEW
-    } else {
-        WorkspaceTab.IR
+    val initialTab = when {
+        generating && streamingViewMode == SdkStreamingViewMode.TEXT -> WorkspaceTab.IR
+        previewAvailable -> WorkspaceTab.PREVIEW
+        else -> WorkspaceTab.IR
     }
     var selectedTabName by rememberSaveable { mutableStateOf(initialTab.name) }
     // A run can complete while Android is between the old and recreated Activity.
     var lastHandledPhase by rememberSaveable { mutableStateOf(trace.phase.name) }
+    var lastHandledViewMode by rememberSaveable { mutableStateOf(streamingViewMode.name) }
     val selectedTab = WorkspaceTab.valueOf(selectedTabName)
     val autoSelection = remember {
         WorkspaceAutoSelectionSnapshot(document)
     }
     val documentIdentity = document?.let { System.identityHashCode(it) }
-    LaunchedEffect(trace.phase, documentIdentity) {
+    LaunchedEffect(trace.phase, documentIdentity, streamingViewMode) {
         val phaseChanged = lastHandledPhase != trace.phase.name
+        val viewModeChanged = lastHandledViewMode != streamingViewMode.name
         val documentChanged = autoSelection.document !== document
         when {
             phaseChanged && trace.phase == SdkGenerationPhase.GENERATING ->
-                selectedTabName = WorkspaceTab.PREVIEW.name
+                selectedTabName = if (streamingViewMode == SdkStreamingViewMode.TEXT) {
+                    WorkspaceTab.IR.name
+                } else {
+                    WorkspaceTab.PREVIEW.name
+                }
+            viewModeChanged && generating ->
+                selectedTabName = if (streamingViewMode == SdkStreamingViewMode.TEXT) {
+                    WorkspaceTab.IR.name
+                } else {
+                    WorkspaceTab.PREVIEW.name
+                }
             document != null &&
                 trace.phase != SdkGenerationPhase.GENERATING &&
                 trace.phase != SdkGenerationPhase.REPAIRING &&
@@ -129,6 +152,7 @@ internal fun SdkGenerationWorkspace(
             documentChanged && !previewAvailable -> selectedTabName = WorkspaceTab.IR.name
         }
         lastHandledPhase = trace.phase.name
+        lastHandledViewMode = streamingViewMode.name
         autoSelection.document = document
     }
     val activeTab = if (selectedTab == WorkspaceTab.PREVIEW && !previewAvailable) {
@@ -162,7 +186,10 @@ internal fun SdkGenerationWorkspace(
             ) {
                 Tab(
                     selected = activeTab == WorkspaceTab.IR,
-                    onClick = { selectedTabName = WorkspaceTab.IR.name },
+                    onClick = {
+                        selectedTabName = WorkspaceTab.IR.name
+                        if (generating) onStreamingViewModeChange(SdkStreamingViewMode.TEXT)
+                    },
                     modifier = Modifier
                         .testTag("sdk_ir_tab")
                         .semantics { contentDescription = "IR output" },
@@ -171,7 +198,10 @@ internal fun SdkGenerationWorkspace(
                 if (previewAvailable) {
                     Tab(
                         selected = activeTab == WorkspaceTab.PREVIEW,
-                        onClick = { selectedTabName = WorkspaceTab.PREVIEW.name },
+                        onClick = {
+                            selectedTabName = WorkspaceTab.PREVIEW.name
+                            if (generating) onStreamingViewModeChange(SdkStreamingViewMode.UI)
+                        },
                         modifier = Modifier
                             .testTag("sdk_preview_tab")
                             .semantics { contentDescription = "Preview rendered UI" },
