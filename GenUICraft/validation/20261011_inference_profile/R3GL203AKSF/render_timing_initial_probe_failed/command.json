@@ -1,0 +1,23 @@
+[
+  "C:\\Users\\anupk\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe",
+  "-s",
+  "R3GL203AKSF",
+  "shell",
+  "am",
+  "instrument",
+  "-w",
+  "-r",
+  "-e",
+  "class",
+  "com.samsung.genuicraft.InferenceRenderTimingProbeTest#measureSavedFinalRendering",
+  "-e",
+  "inputDir",
+  "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_inference_bottleneck/controls_warm_mtp_on",
+  "-e",
+  "outputDir",
+  "render_controls_on",
+  "-e",
+  "repeats",
+  "2",
+  "com.samsung.genuicraft.test/androidx.test.runner.AndroidJUnitRunner"
+]

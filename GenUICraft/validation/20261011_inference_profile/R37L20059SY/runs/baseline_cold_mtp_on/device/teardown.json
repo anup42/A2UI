@@ -1,0 +1,26 @@
+[
+  {
+    "label": "001_BXP-003",
+    "providerConstructionMs": 7.571197,
+    "finishMetricsMs": 1856.408749,
+    "finishMetricsError": null,
+    "sessionMetrics": {
+      "drafterAcceptanceRate": 0.819892,
+      "speculativeDecodingEnabled": true
+    },
+    "closeAndAwaitMs": 1.625885,
+    "closeError": null
+  },
+  {
+    "label": "002_BXP-003",
+    "providerConstructionMs": 4.535521,
+    "finishMetricsMs": 2400.315781,
+    "finishMetricsError": null,
+    "sessionMetrics": {
+      "drafterAcceptanceRate": 0.819892,
+      "speculativeDecodingEnabled": true
+    },
+    "closeAndAwaitMs": 0.721718,
+    "closeError": null
+  }
+]

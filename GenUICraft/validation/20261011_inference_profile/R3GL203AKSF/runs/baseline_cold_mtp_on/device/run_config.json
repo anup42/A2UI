@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "kind": "trained_e2b_inference_bottleneck_probe",
+  "modelPath": "/storage/emulated/0/Android/data/com.samsung.genuicraft/files/sdk_models/qat_grpo_20261009/model-fp16-corrected.litertlm",
+  "modelBytes": 2682454016,
+  "gpuPrecision": "FP16_CORRECTED",
+  "mtpRequested": true,
+  "streamingRenderingEnabled": true,
+  "reuseEngine": false,
+  "cases": [
+    "BXP-003"
+  ],
+  "repeats": 2,
+  "measuredOrder": [
+    "BXP-003",
+    "BXP-003"
+  ],
+  "warmupCase": null,
+  "caseTimeoutMs": 360000,
+  "cooldownMs": 15000,
+  "thermalCooldownTimeoutMs": 90000,
+  "corpusSha256": "fc46aa381957bed206f9e0f53e28edbb21b5096ca093985ad184fda73faaea0a",
+  "promptSha256": "96803a39869fb21f9f58a0f0adccab6f7746a32f124dc9da83d7df62a9f7ccb8",
+  "promptContractSha256": "005ef700eee29a4429c895ac6c86580003c43d0ad35e67cbb92a9d4cf0e8c1d2",
+  "profile": "TRAINED_E2B_V10_W4",
+  "maxContextTokens": 8192,
+  "maxOutputTokens": 2048,
+  "temperature": 0.0,
+  "thinkingEnabled": false,
+  "sourceFallbackEnabled": false,
+  "generatedDslRepairEnabled": true,
+  "device": {
+    "manufacturer": "samsung",
+    "model": "SM-F776U",
+    "sdkInt": 37,
+    "fingerprint": "samsung/b8qsqw/b8q:17/CP4A.261105.026/F776USQU3BZJ5_OYN3BZJ5:userdebug/test-keys"
+  },
+  "timingBoundary": "convert wall includes native generation, SDK preview/repair and callbacks; file writes and thermal sampling occur outside it",
+  "previewBoundary": "first SDK preview callback; no screen paint measurement",
+  "callbackWorkBoundary": "probe callback body only; SDK preview compilation is included in conversion wall time"
+}

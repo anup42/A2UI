@@ -1,0 +1,12 @@
+{
+  "minimumDelayMs": 15000,
+  "thermalTimeoutMs": 90000,
+  "elapsedMs": 15006.472703,
+  "thermalWaitMs": 2.74349,
+  "thermalBefore": 0,
+  "thermalAfter": 0,
+  "thermalReady": true,
+  "timedOut": false,
+  "thermalStatusUnavailable": false,
+  "thermalSamples": 1
+}

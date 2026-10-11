@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "wallSeconds": 724.7999455928802,
+  "pullExit": 0,
+  "arm": {
+    "mtp": true,
+    "streaming": false,
+    "reuse": true,
+    "cases": "BXP-001,BXP-003,BXP-031",
+    "repeats": 2
+  },
+  "serial": "R37L20059SY",
+  "startedAtEpochMs": 1791688725793
+}

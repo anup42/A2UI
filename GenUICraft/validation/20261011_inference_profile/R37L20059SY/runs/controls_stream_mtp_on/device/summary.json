@@ -1,0 +1,88 @@
+{
+  "completed": 4,
+  "total": 4,
+  "successful": 4,
+  "coldRequests": 0,
+  "warmRequests": 4,
+  "warmup": {
+    "id": "BXP-001",
+    "warmup": true,
+    "cooldown": null,
+    "status": "complete",
+    "error": null,
+    "conversionWallMs": 45185.864514,
+    "providerTotalMs": 45109.171494,
+    "conversionMinusProviderMsApprox": 76.6930199999988,
+    "conversionElapsedMs": 45159,
+    "attemptCount": 1,
+    "repairKind": "NONE",
+    "runtime": "LiteRT-LM/Gemma4/GPU+FP16_CORRECTED+MTP",
+    "firstPartialCallbackMs": 38952.400715,
+    "firstPreviewCallbackMs": 41024.318891,
+    "firstReadyPreviewCallbackMs": 41024.318891,
+    "partialCallbackCount": 62,
+    "previewSnapshotCount": 6,
+    "readyPreviewSnapshotCount": 6,
+    "callbackBodyWorkMs": 0.726357,
+    "engineInitializedForRequest": true,
+    "nativeMetrics": {
+      "decodeTokensPerSecond": 30.3060302867548,
+      "engineInitializationSeconds": 35.082609049,
+      "engineInitializedForRequest": true,
+      "inputTokens": 3174,
+      "nativeInitializationPhaseSeconds": 52.12557774,
+      "outputTokens": 214,
+      "prefillTokensPerSecond": 1120.93827130073,
+      "timeToFirstTokenSeconds": 2.86455319025
+    },
+    "attempts": [
+      {
+        "number": 1,
+        "complete": true,
+        "providerElapsedNanos": 45109171494,
+        "runtime": "LiteRT-LM/Gemma4/GPU+FP16_CORRECTED+MTP",
+        "renderedPromptSha256": "ff0804511f69c3abbf9e38701afd1992230c86d94cace7896e21ed37b241b9d8",
+        "finishReason": "COMPLETED",
+        "metrics": {
+          "decodeTokensPerSecond": 30.3060302867548,
+          "engineInitializationSeconds": 35.082609049,
+          "engineInitializedForRequest": true,
+          "inputTokens": 3174,
+          "nativeInitializationPhaseSeconds": 52.12557774,
+          "outputTokens": 214,
+          "prefillTokensPerSecond": 1120.93827130073,
+          "timeToFirstTokenSeconds": 2.86455319025
+        }
+      }
+    ],
+    "deviceBefore": {
+      "epochMs": 1791690261643,
+      "thermalStatus": 4,
+      "batteryTemperatureC": 39.1,
+      "batteryLevel": 97,
+      "plugged": 2
+    },
+    "deviceAfter": {
+      "epochMs": 1791690306831,
+      "thermalStatus": 3,
+      "batteryTemperatureC": 39.1,
+      "batteryLevel": 97,
+      "plugged": 2
+    }
+  },
+  "teardown": [
+    {
+      "label": "shared",
+      "providerConstructionMs": 4.118281,
+      "finishMetricsMs": 2568.086978,
+      "finishMetricsError": null,
+      "sessionMetrics": {
+        "drafterAcceptanceRate": 0.816436,
+        "speculativeDecodingEnabled": true
+      },
+      "closeAndAwaitMs": 2.556042,
+      "closeError": null
+    }
+  ],
+  "runComplete": true
+}

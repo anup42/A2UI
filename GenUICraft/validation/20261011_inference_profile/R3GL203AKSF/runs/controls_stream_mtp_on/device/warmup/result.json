@@ -1,0 +1,66 @@
+{
+  "id": "BXP-001",
+  "warmup": true,
+  "cooldown": null,
+  "status": "complete",
+  "error": null,
+  "conversionWallMs": 15245.939525,
+  "providerTotalMs": 15212.466505,
+  "conversionMinusProviderMsApprox": 33.47301999999945,
+  "conversionElapsedMs": 15236,
+  "attemptCount": 1,
+  "repairKind": "NONE",
+  "runtime": "LiteRT-LM/Gemma4/GPU+FP16_CORRECTED+MTP",
+  "firstPartialCallbackMs": 12156.80312,
+  "firstPreviewCallbackMs": 13160.445047,
+  "firstReadyPreviewCallbackMs": 13160.445047,
+  "partialCallbackCount": 62,
+  "previewSnapshotCount": 6,
+  "readyPreviewSnapshotCount": 6,
+  "callbackBodyWorkMs": 0.315213,
+  "engineInitializedForRequest": true,
+  "nativeMetrics": {
+    "decodeTokensPerSecond": 60.714526118274996,
+    "engineInitializationSeconds": 10.162975257,
+    "engineInitializedForRequest": true,
+    "inputTokens": 3174,
+    "nativeInitializationPhaseSeconds": 16.947635568,
+    "outputTokens": 214,
+    "prefillTokensPerSecond": 2119.224385774794,
+    "timeToFirstTokenSeconds": 1.514188283
+  },
+  "attempts": [
+    {
+      "number": 1,
+      "complete": true,
+      "providerElapsedNanos": 15212466505,
+      "runtime": "LiteRT-LM/Gemma4/GPU+FP16_CORRECTED+MTP",
+      "renderedPromptSha256": "ff0804511f69c3abbf9e38701afd1992230c86d94cace7896e21ed37b241b9d8",
+      "finishReason": "COMPLETED",
+      "metrics": {
+        "decodeTokensPerSecond": 60.714526118274996,
+        "engineInitializationSeconds": 10.162975257,
+        "engineInitializedForRequest": true,
+        "inputTokens": 3174,
+        "nativeInitializationPhaseSeconds": 16.947635568,
+        "outputTokens": 214,
+        "prefillTokensPerSecond": 2119.224385774794,
+        "timeToFirstTokenSeconds": 1.514188283
+      }
+    }
+  ],
+  "deviceBefore": {
+    "epochMs": 1791689966362,
+    "thermalStatus": 1,
+    "batteryTemperatureC": 34.7,
+    "batteryLevel": 98,
+    "plugged": 2
+  },
+  "deviceAfter": {
+    "epochMs": 1791689981609,
+    "thermalStatus": 2,
+    "batteryTemperatureC": 34.7,
+    "batteryLevel": 98,
+    "plugged": 2
+  }
+}

@@ -1,0 +1,8 @@
+[
+  {
+    "hostEpochMs": 1791689646880,
+    "serial": "R37L20059SY",
+    "action": "Display turned off for headless controls after warm_mtp_on",
+    "reason": "Same 886-token case rose from 14.21s at thermal1 to25.67s at thermal2to4. Flip8 was already dozing. No thermal protection or GPU clock override applied."
+  }
+]

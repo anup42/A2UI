@@ -1,0 +1,77 @@
+{
+  "id": "BXP-003",
+  "warmup": false,
+  "cooldown": {
+    "minimumDelayMs": 15000,
+    "thermalTimeoutMs": 90000,
+    "elapsedMs": 15004.094109,
+    "thermalWaitMs": 2.816458,
+    "thermalBefore": 0,
+    "thermalAfter": 0,
+    "thermalReady": true,
+    "timedOut": false,
+    "thermalStatusUnavailable": false,
+    "thermalSamples": 1
+  },
+  "status": "complete",
+  "error": null,
+  "conversionWallMs": 12567.187651,
+  "providerTotalMs": 12518.621454,
+  "conversionMinusProviderMsApprox": 48.5661970000001,
+  "conversionElapsedMs": 12559,
+  "attemptCount": 1,
+  "repairKind": "NONE",
+  "runtime": "LiteRT-LM/Gemma4/GPU+FP16_CORRECTED+MTP",
+  "firstPartialCallbackMs": 7121.849008,
+  "firstPreviewCallbackMs": 8026.130778,
+  "firstReadyPreviewCallbackMs": 8026.130778,
+  "partialCallbackCount": 123,
+  "previewSnapshotCount": 9,
+  "readyPreviewSnapshotCount": 9,
+  "callbackBodyWorkMs": 0.559687,
+  "engineInitializedForRequest": true,
+  "nativeMetrics": {
+    "decodeTokensPerSecond": 71.05552108465365,
+    "engineInitializationSeconds": 4.815429061,
+    "engineInitializedForRequest": true,
+    "inputTokens": 3394,
+    "nativeInitializationPhaseSeconds": 9.703432445,
+    "outputTokens": 428,
+    "prefillTokensPerSecond": 2038.5227390058087,
+    "timeToFirstTokenSeconds": 1.6790046475
+  },
+  "attempts": [
+    {
+      "number": 1,
+      "complete": true,
+      "providerElapsedNanos": 12518621454,
+      "runtime": "LiteRT-LM/Gemma4/GPU+FP16_CORRECTED+MTP",
+      "renderedPromptSha256": "2b2bd3cd0bcccfe1e1f94b34d02f9c245b111ba08d2d1794ad78705ff923871c",
+      "finishReason": "COMPLETED",
+      "metrics": {
+        "decodeTokensPerSecond": 71.05552108465365,
+        "engineInitializationSeconds": 4.815429061,
+        "engineInitializedForRequest": true,
+        "inputTokens": 3394,
+        "nativeInitializationPhaseSeconds": 9.703432445,
+        "outputTokens": 428,
+        "prefillTokensPerSecond": 2038.5227390058087,
+        "timeToFirstTokenSeconds": 1.6790046475
+      }
+    }
+  ],
+  "deviceBefore": {
+    "epochMs": 1791688555984,
+    "thermalStatus": 0,
+    "batteryTemperatureC": 32.0,
+    "batteryLevel": 99,
+    "plugged": 2
+  },
+  "deviceAfter": {
+    "epochMs": 1791688568552,
+    "thermalStatus": 0,
+    "batteryTemperatureC": 32.0,
+    "batteryLevel": 99,
+    "plugged": 2
+  }
+}

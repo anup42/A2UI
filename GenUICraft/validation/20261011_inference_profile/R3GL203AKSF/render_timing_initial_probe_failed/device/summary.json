@@ -1,0 +1,11 @@
+{
+  "firstActivityLaunch": "activity_launch.json",
+  "requestedRenders": 6,
+  "recordedRenders": 6,
+  "failedChecks": [
+    "BXP-001 repeat 2: showDocument failed: IllegalStateException: Activity did not retain the compiled document",
+    "BXP-003 repeat 2: showDocument failed: IllegalStateException: Activity did not retain the compiled document",
+    "BXP-031 repeat 2: showDocument failed: IllegalStateException: Activity did not retain the compiled document"
+  ],
+  "observationLimit": "accessibility-visible status label, not rendered-pixel timestamp"
+}

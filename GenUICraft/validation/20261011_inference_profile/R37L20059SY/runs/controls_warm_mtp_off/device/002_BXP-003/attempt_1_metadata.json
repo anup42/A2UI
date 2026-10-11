@@ -1,0 +1,18 @@
+{
+  "complete": true,
+  "providerElapsedNanos": 12569981089,
+  "runtime": "LiteRT-LM/Gemma4/GPU+FP16_CORRECTED",
+  "renderedPromptSha256": "2b2bd3cd0bcccfe1e1f94b34d02f9c245b111ba08d2d1794ad78705ff923871c",
+  "finishReason": "COMPLETED",
+  "finishDetail": null,
+  "metrics": {
+    "decodeTokensPerSecond": 38.92469035914417,
+    "engineInitializationSeconds": null,
+    "engineInitializedForRequest": false,
+    "inputTokens": 3394,
+    "nativeInitializationPhaseSeconds": null,
+    "outputTokens": 414,
+    "prefillTokensPerSecond": 1774.00648043731,
+    "timeToFirstTokenSeconds": 1.9388741755
+  }
+}

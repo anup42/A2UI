@@ -1,0 +1,77 @@
+{
+  "id": "BXP-001",
+  "warmup": false,
+  "cooldown": {
+    "minimumDelayMs": 15000,
+    "thermalTimeoutMs": 90000,
+    "elapsedMs": 105208.300325,
+    "thermalWaitMs": 90207.165122,
+    "thermalBefore": 2,
+    "thermalAfter": 2,
+    "thermalReady": false,
+    "timedOut": true,
+    "thermalStatusUnavailable": false,
+    "thermalSamples": 91
+  },
+  "status": "complete",
+  "error": null,
+  "conversionWallMs": 4248.321249,
+  "providerTotalMs": 4213.236561,
+  "conversionMinusProviderMsApprox": 35.084687999999915,
+  "conversionElapsedMs": 4240,
+  "attemptCount": 1,
+  "repairKind": "NONE",
+  "runtime": "LiteRT-LM/Gemma4/GPU+FP16_CORRECTED+MTP",
+  "firstPartialCallbackMs": 1556.089427,
+  "firstPreviewCallbackMs": null,
+  "firstReadyPreviewCallbackMs": null,
+  "partialCallbackCount": 62,
+  "previewSnapshotCount": 0,
+  "readyPreviewSnapshotCount": 0,
+  "callbackBodyWorkMs": 0.668848,
+  "engineInitializedForRequest": false,
+  "nativeMetrics": {
+    "decodeTokensPerSecond": 77.28772167186699,
+    "engineInitializationSeconds": null,
+    "engineInitializedForRequest": false,
+    "inputTokens": 3174,
+    "nativeInitializationPhaseSeconds": null,
+    "outputTokens": 214,
+    "prefillTokensPerSecond": 2227.3258455237146,
+    "timeToFirstTokenSeconds": 1.43796590475
+  },
+  "attempts": [
+    {
+      "number": 1,
+      "complete": true,
+      "providerElapsedNanos": 4213236561,
+      "runtime": "LiteRT-LM/Gemma4/GPU+FP16_CORRECTED+MTP",
+      "renderedPromptSha256": "ff0804511f69c3abbf9e38701afd1992230c86d94cace7896e21ed37b241b9d8",
+      "finishReason": "COMPLETED",
+      "metrics": {
+        "decodeTokensPerSecond": 77.28772167186699,
+        "engineInitializationSeconds": null,
+        "engineInitializedForRequest": false,
+        "inputTokens": 3174,
+        "nativeInitializationPhaseSeconds": null,
+        "outputTokens": 214,
+        "prefillTokensPerSecond": 2227.3258455237146,
+        "timeToFirstTokenSeconds": 1.43796590475
+      }
+    }
+  ],
+  "deviceBefore": {
+    "epochMs": 1791689198674,
+    "thermalStatus": 2,
+    "batteryTemperatureC": 37.0,
+    "batteryLevel": 98,
+    "plugged": 2
+  },
+  "deviceAfter": {
+    "epochMs": 1791689202923,
+    "thermalStatus": 2,
+    "batteryTemperatureC": 37.0,
+    "batteryLevel": 98,
+    "plugged": 2
+  }
+}

@@ -1,0 +1,14 @@
+[
+  {
+    "label": "shared",
+    "providerConstructionMs": 1.824011,
+    "finishMetricsMs": 3552.369165,
+    "finishMetricsError": null,
+    "sessionMetrics": {
+      "drafterAcceptanceRate": 0.866006,
+      "speculativeDecodingEnabled": true
+    },
+    "closeAndAwaitMs": 5.697865,
+    "closeError": null
+  }
+]

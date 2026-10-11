@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "inputDir": "/storage/emulated/0/Android/data/com.samsung.genuicraft/files/sdk_inference_bottleneck/controls_warm_mtp_on",
+  "outputDir": "/storage/emulated/0/Android/data/com.samsung.genuicraft/files/sdk_render_timing/render_controls_v2",
+  "caseIds": [
+    "BXP-001",
+    "BXP-003",
+    "BXP-031"
+  ],
+  "repeats": 2,
+  "observationTimeoutMs": 15000,
+  "measurement": "UiAutomator unique-status-label observation is a polling upper bound, not pixel paint",
+  "firstActivityLaunch": "first launch in this instrumentation process; process-cold is not guaranteed",
+  "screenshots": "one per case after the measured interval"
+}

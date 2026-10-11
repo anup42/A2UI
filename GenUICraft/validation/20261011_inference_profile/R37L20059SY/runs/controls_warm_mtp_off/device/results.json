@@ -1,0 +1,464 @@
+[
+  {
+    "id": "BXP-001",
+    "warmup": false,
+    "cooldown": {
+      "minimumDelayMs": 15000,
+      "thermalTimeoutMs": 90000,
+      "elapsedMs": 105231.770689,
+      "thermalWaitMs": 90230.901893,
+      "thermalBefore": 4,
+      "thermalAfter": 2,
+      "thermalReady": false,
+      "timedOut": true,
+      "thermalStatusUnavailable": false,
+      "thermalSamples": 91
+    },
+    "status": "complete",
+    "error": null,
+    "conversionWallMs": 6776.602966,
+    "providerTotalMs": 6732.11958,
+    "conversionMinusProviderMsApprox": 44.48338600000079,
+    "conversionElapsedMs": 6760,
+    "attemptCount": 1,
+    "repairKind": "NONE",
+    "runtime": "LiteRT-LM/Gemma4/GPU+FP16_CORRECTED",
+    "firstPartialCallbackMs": 1494.909374,
+    "firstPreviewCallbackMs": null,
+    "firstReadyPreviewCallbackMs": null,
+    "partialCallbackCount": 212,
+    "previewSnapshotCount": 0,
+    "readyPreviewSnapshotCount": 0,
+    "callbackBodyWorkMs": 1.219589,
+    "engineInitializedForRequest": false,
+    "nativeMetrics": {
+      "decodeTokensPerSecond": 40.205326641740626,
+      "engineInitializationSeconds": null,
+      "engineInitializedForRequest": false,
+      "inputTokens": 3174,
+      "nativeInitializationPhaseSeconds": null,
+      "outputTokens": 214,
+      "prefillTokensPerSecond": 2290.980216651763,
+      "timeToFirstTokenSeconds": 1.410305503
+    },
+    "attempts": [
+      {
+        "number": 1,
+        "complete": true,
+        "providerElapsedNanos": 6732119580,
+        "runtime": "LiteRT-LM/Gemma4/GPU+FP16_CORRECTED",
+        "renderedPromptSha256": "ff0804511f69c3abbf9e38701afd1992230c86d94cace7896e21ed37b241b9d8",
+        "finishReason": "COMPLETED",
+        "metrics": {
+          "decodeTokensPerSecond": 40.205326641740626,
+          "engineInitializationSeconds": null,
+          "engineInitializedForRequest": false,
+          "inputTokens": 3174,
+          "nativeInitializationPhaseSeconds": null,
+          "outputTokens": 214,
+          "prefillTokensPerSecond": 2290.980216651763,
+          "timeToFirstTokenSeconds": 1.410305503
+        }
+      }
+    ],
+    "deviceBefore": {
+      "epochMs": 1791689613271,
+      "thermalStatus": 2,
+      "batteryTemperatureC": 38.3,
+      "batteryLevel": 98,
+      "plugged": 2
+    },
+    "deviceAfter": {
+      "epochMs": 1791689620049,
+      "thermalStatus": 2,
+      "batteryTemperatureC": 38.3,
+      "batteryLevel": 98,
+      "plugged": 2
+    }
+  },
+  {
+    "id": "BXP-003",
+    "warmup": false,
+    "cooldown": {
+      "minimumDelayMs": 15000,
+      "thermalTimeoutMs": 90000,
+      "elapsedMs": 105222.868345,
+      "thermalWaitMs": 90221.591163,
+      "thermalBefore": 2,
+      "thermalAfter": 2,
+      "thermalReady": false,
+      "timedOut": true,
+      "thermalStatusUnavailable": false,
+      "thermalSamples": 91
+    },
+    "status": "complete",
+    "error": null,
+    "conversionWallMs": 12655.167704,
+    "providerTotalMs": 12569.981089,
+    "conversionMinusProviderMsApprox": 85.18661499999871,
+    "conversionElapsedMs": 12645,
+    "attemptCount": 1,
+    "repairKind": "NONE",
+    "runtime": "LiteRT-LM/Gemma4/GPU+FP16_CORRECTED",
+    "firstPartialCallbackMs": 2042.978698,
+    "firstPreviewCallbackMs": null,
+    "firstReadyPreviewCallbackMs": null,
+    "partialCallbackCount": 412,
+    "previewSnapshotCount": 0,
+    "readyPreviewSnapshotCount": 0,
+    "callbackBodyWorkMs": 2.409566,
+    "engineInitializedForRequest": false,
+    "nativeMetrics": {
+      "decodeTokensPerSecond": 38.92469035914417,
+      "engineInitializationSeconds": null,
+      "engineInitializedForRequest": false,
+      "inputTokens": 3394,
+      "nativeInitializationPhaseSeconds": null,
+      "outputTokens": 414,
+      "prefillTokensPerSecond": 1774.00648043731,
+      "timeToFirstTokenSeconds": 1.9388741755
+    },
+    "attempts": [
+      {
+        "number": 1,
+        "complete": true,
+        "providerElapsedNanos": 12569981089,
+        "runtime": "LiteRT-LM/Gemma4/GPU+FP16_CORRECTED",
+        "renderedPromptSha256": "2b2bd3cd0bcccfe1e1f94b34d02f9c245b111ba08d2d1794ad78705ff923871c",
+        "finishReason": "COMPLETED",
+        "metrics": {
+          "decodeTokensPerSecond": 38.92469035914417,
+          "engineInitializationSeconds": null,
+          "engineInitializedForRequest": false,
+          "inputTokens": 3394,
+          "nativeInitializationPhaseSeconds": null,
+          "outputTokens": 414,
+          "prefillTokensPerSecond": 1774.00648043731,
+          "timeToFirstTokenSeconds": 1.9388741755
+        }
+      }
+    ],
+    "deviceBefore": {
+      "epochMs": 1791689725288,
+      "thermalStatus": 2,
+      "batteryTemperatureC": 38.3,
+      "batteryLevel": 98,
+      "plugged": 2
+    },
+    "deviceAfter": {
+      "epochMs": 1791689737944,
+      "thermalStatus": 3,
+      "batteryTemperatureC": 38.3,
+      "batteryLevel": 98,
+      "plugged": 2
+    }
+  },
+  {
+    "id": "BXP-031",
+    "warmup": false,
+    "cooldown": {
+      "minimumDelayMs": 15000,
+      "thermalTimeoutMs": 90000,
+      "elapsedMs": 105224.026106,
+      "thermalWaitMs": 90223.049913,
+      "thermalBefore": 3,
+      "thermalAfter": 2,
+      "thermalReady": false,
+      "timedOut": true,
+      "thermalStatusUnavailable": false,
+      "thermalSamples": 91
+    },
+    "status": "complete",
+    "error": null,
+    "conversionWallMs": 39141.48509,
+    "providerTotalMs": 38933.754464,
+    "conversionMinusProviderMsApprox": 207.73062600000412,
+    "conversionElapsedMs": 39131,
+    "attemptCount": 1,
+    "repairKind": "NONE",
+    "runtime": "LiteRT-LM/Gemma4/GPU+FP16_CORRECTED",
+    "firstPartialCallbackMs": 2435.788281,
+    "firstPreviewCallbackMs": null,
+    "firstReadyPreviewCallbackMs": null,
+    "partialCallbackCount": 924,
+    "previewSnapshotCount": 0,
+    "readyPreviewSnapshotCount": 0,
+    "callbackBodyWorkMs": 6.181526,
+    "engineInitializedForRequest": false,
+    "nativeMetrics": {
+      "decodeTokensPerSecond": 25.298866166519236,
+      "engineInitializationSeconds": null,
+      "engineInitializedForRequest": false,
+      "inputTokens": 3719,
+      "nativeInitializationPhaseSeconds": null,
+      "outputTokens": 926,
+      "prefillTokensPerSecond": 1621.8184888857597,
+      "timeToFirstTokenSeconds": 2.33263241
+    },
+    "attempts": [
+      {
+        "number": 1,
+        "complete": true,
+        "providerElapsedNanos": 38933754464,
+        "runtime": "LiteRT-LM/Gemma4/GPU+FP16_CORRECTED",
+        "renderedPromptSha256": "e35090fbdc718645d9cce3837a1f5a6913418ed0b939f84407c44b6bc923ffc1",
+        "finishReason": "COMPLETED",
+        "metrics": {
+          "decodeTokensPerSecond": 25.298866166519236,
+          "engineInitializationSeconds": null,
+          "engineInitializedForRequest": false,
+          "inputTokens": 3719,
+          "nativeInitializationPhaseSeconds": null,
+          "outputTokens": 926,
+          "prefillTokensPerSecond": 1621.8184888857597,
+          "timeToFirstTokenSeconds": 2.33263241
+        }
+      }
+    ],
+    "deviceBefore": {
+      "epochMs": 1791689843195,
+      "thermalStatus": 2,
+      "batteryTemperatureC": 38.9,
+      "batteryLevel": 97,
+      "plugged": 2
+    },
+    "deviceAfter": {
+      "epochMs": 1791689882337,
+      "thermalStatus": 4,
+      "batteryTemperatureC": 38.9,
+      "batteryLevel": 97,
+      "plugged": 2
+    }
+  },
+  {
+    "id": "BXP-001",
+    "warmup": false,
+    "cooldown": {
+      "minimumDelayMs": 15000,
+      "thermalTimeoutMs": 90000,
+      "elapsedMs": 105314.203085,
+      "thermalWaitMs": 90313.235747,
+      "thermalBefore": 4,
+      "thermalAfter": 2,
+      "thermalReady": false,
+      "timedOut": true,
+      "thermalStatusUnavailable": false,
+      "thermalSamples": 91
+    },
+    "status": "complete",
+    "error": null,
+    "conversionWallMs": 6901.151924,
+    "providerTotalMs": 6848.12958,
+    "conversionMinusProviderMsApprox": 53.022343999999975,
+    "conversionElapsedMs": 6888,
+    "attemptCount": 1,
+    "repairKind": "NONE",
+    "runtime": "LiteRT-LM/Gemma4/GPU+FP16_CORRECTED",
+    "firstPartialCallbackMs": 1631.256457,
+    "firstPreviewCallbackMs": null,
+    "firstReadyPreviewCallbackMs": null,
+    "partialCallbackCount": 212,
+    "previewSnapshotCount": 0,
+    "readyPreviewSnapshotCount": 0,
+    "callbackBodyWorkMs": 1.224514,
+    "engineInitializedForRequest": false,
+    "nativeMetrics": {
+      "decodeTokensPerSecond": 40.23233824903873,
+      "engineInitializationSeconds": null,
+      "engineInitializedForRequest": false,
+      "inputTokens": 3174,
+      "nativeInitializationPhaseSeconds": null,
+      "outputTokens": 214,
+      "prefillTokensPerSecond": 2118.6417555914645,
+      "timeToFirstTokenSeconds": 1.522985262
+    },
+    "attempts": [
+      {
+        "number": 1,
+        "complete": true,
+        "providerElapsedNanos": 6848129580,
+        "runtime": "LiteRT-LM/Gemma4/GPU+FP16_CORRECTED",
+        "renderedPromptSha256": "ff0804511f69c3abbf9e38701afd1992230c86d94cace7896e21ed37b241b9d8",
+        "finishReason": "COMPLETED",
+        "metrics": {
+          "decodeTokensPerSecond": 40.23233824903873,
+          "engineInitializationSeconds": null,
+          "engineInitializedForRequest": false,
+          "inputTokens": 3174,
+          "nativeInitializationPhaseSeconds": null,
+          "outputTokens": 214,
+          "prefillTokensPerSecond": 2118.6417555914645,
+          "timeToFirstTokenSeconds": 1.522985262
+        }
+      }
+    ],
+    "deviceBefore": {
+      "epochMs": 1791689987682,
+      "thermalStatus": 2,
+      "batteryTemperatureC": 38.9,
+      "batteryLevel": 97,
+      "plugged": 2
+    },
+    "deviceAfter": {
+      "epochMs": 1791689994587,
+      "thermalStatus": 2,
+      "batteryTemperatureC": 39.2,
+      "batteryLevel": 97,
+      "plugged": 2
+    }
+  },
+  {
+    "id": "BXP-003",
+    "warmup": false,
+    "cooldown": {
+      "minimumDelayMs": 15000,
+      "thermalTimeoutMs": 90000,
+      "elapsedMs": 105295.898189,
+      "thermalWaitMs": 90294.893664,
+      "thermalBefore": 2,
+      "thermalAfter": 2,
+      "thermalReady": false,
+      "timedOut": true,
+      "thermalStatusUnavailable": false,
+      "thermalSamples": 91
+    },
+    "status": "complete",
+    "error": null,
+    "conversionWallMs": 11915.479527,
+    "providerTotalMs": 11850.049422,
+    "conversionMinusProviderMsApprox": 65.43010499999946,
+    "conversionElapsedMs": 11903,
+    "attemptCount": 1,
+    "repairKind": "NONE",
+    "runtime": "LiteRT-LM/Gemma4/GPU+FP16_CORRECTED",
+    "firstPartialCallbackMs": 1751.863801,
+    "firstPreviewCallbackMs": null,
+    "firstReadyPreviewCallbackMs": null,
+    "partialCallbackCount": 412,
+    "previewSnapshotCount": 0,
+    "readyPreviewSnapshotCount": 0,
+    "callbackBodyWorkMs": 2.000889,
+    "engineInitializedForRequest": false,
+    "nativeMetrics": {
+      "decodeTokensPerSecond": 40.53064863329273,
+      "engineInitializationSeconds": null,
+      "engineInitializedForRequest": false,
+      "inputTokens": 3394,
+      "nativeInitializationPhaseSeconds": null,
+      "outputTokens": 414,
+      "prefillTokensPerSecond": 2123.9818614877795,
+      "timeToFirstTokenSeconds": 1.62261476975
+    },
+    "attempts": [
+      {
+        "number": 1,
+        "complete": true,
+        "providerElapsedNanos": 11850049422,
+        "runtime": "LiteRT-LM/Gemma4/GPU+FP16_CORRECTED",
+        "renderedPromptSha256": "2b2bd3cd0bcccfe1e1f94b34d02f9c245b111ba08d2d1794ad78705ff923871c",
+        "finishReason": "COMPLETED",
+        "metrics": {
+          "decodeTokensPerSecond": 40.53064863329273,
+          "engineInitializationSeconds": null,
+          "engineInitializedForRequest": false,
+          "inputTokens": 3394,
+          "nativeInitializationPhaseSeconds": null,
+          "outputTokens": 414,
+          "prefillTokensPerSecond": 2123.9818614877795,
+          "timeToFirstTokenSeconds": 1.62261476975
+        }
+      }
+    ],
+    "deviceBefore": {
+      "epochMs": 1791690099909,
+      "thermalStatus": 2,
+      "batteryTemperatureC": 39.1,
+      "batteryLevel": 97,
+      "plugged": 2
+    },
+    "deviceAfter": {
+      "epochMs": 1791690111825,
+      "thermalStatus": 2,
+      "batteryTemperatureC": 39.1,
+      "batteryLevel": 97,
+      "plugged": 2
+    }
+  },
+  {
+    "id": "BXP-031",
+    "warmup": false,
+    "cooldown": {
+      "minimumDelayMs": 15000,
+      "thermalTimeoutMs": 90000,
+      "elapsedMs": 105276.658605,
+      "thermalWaitMs": 90275.750851,
+      "thermalBefore": 2,
+      "thermalAfter": 2,
+      "thermalReady": false,
+      "timedOut": true,
+      "thermalStatusUnavailable": false,
+      "thermalSamples": 91
+    },
+    "status": "complete",
+    "error": null,
+    "conversionWallMs": 37185.3716,
+    "providerTotalMs": 37010.935246,
+    "conversionMinusProviderMsApprox": 174.43635399999766,
+    "conversionElapsedMs": 37162,
+    "attemptCount": 1,
+    "repairKind": "NONE",
+    "runtime": "LiteRT-LM/Gemma4/GPU+FP16_CORRECTED",
+    "firstPartialCallbackMs": 1980.959374,
+    "firstPreviewCallbackMs": null,
+    "firstReadyPreviewCallbackMs": null,
+    "partialCallbackCount": 924,
+    "previewSnapshotCount": 0,
+    "readyPreviewSnapshotCount": 0,
+    "callbackBodyWorkMs": 5.602602,
+    "engineInitializedForRequest": false,
+    "nativeMetrics": {
+      "decodeTokensPerSecond": 26.341410078489297,
+      "engineInitializationSeconds": null,
+      "engineInitializedForRequest": false,
+      "inputTokens": 3719,
+      "nativeInitializationPhaseSeconds": null,
+      "outputTokens": 926,
+      "prefillTokensPerSecond": 2045.7569557047066,
+      "timeToFirstTokenSeconds": 1.85587204875
+    },
+    "attempts": [
+      {
+        "number": 1,
+        "complete": true,
+        "providerElapsedNanos": 37010935246,
+        "runtime": "LiteRT-LM/Gemma4/GPU+FP16_CORRECTED",
+        "renderedPromptSha256": "e35090fbdc718645d9cce3837a1f5a6913418ed0b939f84407c44b6bc923ffc1",
+        "finishReason": "COMPLETED",
+        "metrics": {
+          "decodeTokensPerSecond": 26.341410078489297,
+          "engineInitializationSeconds": null,
+          "engineInitializedForRequest": false,
+          "inputTokens": 3719,
+          "nativeInitializationPhaseSeconds": null,
+          "outputTokens": 926,
+          "prefillTokensPerSecond": 2045.7569557047066,
+          "timeToFirstTokenSeconds": 1.85587204875
+        }
+      }
+    ],
+    "deviceBefore": {
+      "epochMs": 1791690217136,
+      "thermalStatus": 2,
+      "batteryTemperatureC": 39.1,
+      "batteryLevel": 97,
+      "plugged": 2
+    },
+    "deviceAfter": {
+      "epochMs": 1791690254322,
+      "thermalStatus": 4,
+      "batteryTemperatureC": 39.1,
+      "batteryLevel": 97,
+      "plugged": 2
+    }
+  }
+]

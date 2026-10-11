@@ -1,0 +1,35 @@
+{
+  "completed": 2,
+  "total": 2,
+  "successful": 2,
+  "coldRequests": 2,
+  "warmRequests": 0,
+  "warmup": null,
+  "teardown": [
+    {
+      "label": "001_BXP-003",
+      "providerConstructionMs": 2.054583,
+      "finishMetricsMs": 656.333906,
+      "finishMetricsError": null,
+      "sessionMetrics": {
+        "drafterAcceptanceRate": 0.819892,
+        "speculativeDecodingEnabled": true
+      },
+      "closeAndAwaitMs": 1.19151,
+      "closeError": null
+    },
+    {
+      "label": "002_BXP-003",
+      "providerConstructionMs": 2.013073,
+      "finishMetricsMs": 713.191718,
+      "finishMetricsError": null,
+      "sessionMetrics": {
+        "drafterAcceptanceRate": 0.819892,
+        "speculativeDecodingEnabled": true
+      },
+      "closeAndAwaitMs": 1.026407,
+      "closeError": null
+    }
+  ],
+  "runComplete": true
+}

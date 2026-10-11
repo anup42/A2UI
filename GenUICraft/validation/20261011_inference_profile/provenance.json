@@ -1,0 +1,101 @@
+{
+  "capturedUtc": "2026-10-11T03:24:29.904210+00:00",
+  "sdkVersion": "0.6.35",
+  "runtime": "LiteRT-LM Android 0.16.1",
+  "modelSha256": "26aa7eedbdfc4fe80321edc7a24aa1cfe85057739e03ffb1b7de7ac5bdb8fdb3",
+  "modelBytes": 2682454016,
+  "modelManifest": {
+    "schema_version": 1,
+    "transform_version": "e2b-rope-target-mtp-8192-v2",
+    "precision_policy": "genuicraft-fp16-rope-qdq-v1",
+    "max_context_tokens": 8192,
+    "target_rope_corrected": true,
+    "drafter_rope_corrected": true,
+    "source_sha256": "1fefbea8a1b6d526d33fe5fba6cf4b212f8c81d3226710972516b432419eacdc",
+    "source_bytes": 2588147712,
+    "model_sha256": "26aa7eedbdfc4fe80321edc7a24aa1cfe85057739e03ffb1b7de7ac5bdb8fdb3",
+    "model_bytes": 2682454016,
+    "coverage": {
+      "target": {
+        "graphs": [
+          "decode",
+          "prefill_1024",
+          "prefill_128",
+          "verify"
+        ],
+        "replaced_sin_cos": 16,
+        "original_weight_buffers": 657,
+        "original_weight_bytes": 777983384
+      },
+      "drafter": {
+        "graphs": [
+          "main"
+        ],
+        "replaced_sin_cos": 4,
+        "original_weight_buffers": 75,
+        "original_weight_bytes": 40779664
+      }
+    },
+    "table_sha256": {
+      "tf_lite_prefill_decode/cos_128": "2636a8da9c6b7d4ddb9951f4309cba048ee94083fd09b3ec29a18fa4c69f4ebd",
+      "tf_lite_prefill_decode/cos_256": "308391b0b7332993f22137d5755b8e97f82682a4f6c93be12e02003b8f09297d",
+      "tf_lite_prefill_decode/sin_128": "be7be33fea134936b069df976e3deb9d9c0c4a20b3b77c49f1188c5fc2682bf1",
+      "tf_lite_prefill_decode/sin_256": "78bc781685e9e124a02c9b4554e1ced34b084c1bf65a3720a4dad11009f7ac52",
+      "tf_lite_mtp_drafter/cos_128": "2636a8da9c6b7d4ddb9951f4309cba048ee94083fd09b3ec29a18fa4c69f4ebd",
+      "tf_lite_mtp_drafter/cos_256": "308391b0b7332993f22137d5755b8e97f82682a4f6c93be12e02003b8f09297d",
+      "tf_lite_mtp_drafter/sin_128": "be7be33fea134936b069df976e3deb9d9c0c4a20b3b77c49f1188c5fc2682bf1",
+      "tf_lite_mtp_drafter/sin_256": "78bc781685e9e124a02c9b4554e1ced34b084c1bf65a3720a4dad11009f7ac52"
+    }
+  },
+  "apkSha256": "230cd44b7d9c9052cc96f34289ce054e4df13123fdf30c5dc7b462930688db93",
+  "testApkSha256": "a6e4e9d31933daa0aaadc648bb1fbf15172e9a4fb7879f68056653fda60beab8",
+  "devices": [
+    {
+      "serial": "R37L20059SY",
+      "model": "SM-F971B",
+      "soc": "SM8850",
+      "android": "17",
+      "buildType": "eng",
+      "savedUiSettings": {
+        "streaming_ui_enabled": "true",
+        "token_metrics_enabled": "true",
+        "streaming_view_mode": "UI",
+        "trained_e2b_v10_w4_model_path": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_models/qat_grpo_20261009/e2b_qat_grpo_20261009.litertlm",
+        "e2b_mtp_enabled": "true",
+        "on_device_model_path": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_models/qat_grpo_20261009/e2b_qat_grpo_20261009.litertlm",
+        "trained_e2b_gpu_precision": "fp16_corrected"
+      }
+    },
+    {
+      "serial": "R3GL203AKSF",
+      "model": "SM-F776U",
+      "soc": "SM8850",
+      "android": "17",
+      "buildType": "userdebug",
+      "savedUiSettings": {}
+    }
+  ],
+  "testConfiguration": "Explicit same trained E2B corrected FP16 model, GPU, metrics true, thinking false; UI saved selection is not changed by headless probe.",
+  "newProductionChanges": false,
+  "postRunModelHashVerification": [
+    {
+      "serial": "R37L20059SY",
+      "sha256": "26aa7eedbdfc4fe80321edc7a24aa1cfe85057739e03ffb1b7de7ac5bdb8fdb3"
+    },
+    {
+      "serial": "R3GL203AKSF",
+      "sha256": "26aa7eedbdfc4fe80321edc7a24aa1cfe85057739e03ffb1b7de7ac5bdb8fdb3"
+    }
+  ],
+  "finalizedUtc": "2026-10-11T03:58:54.851967+00:00",
+  "completedMeasuredRequests": 36,
+  "excludedStartupWarmups": 6,
+  "successfulFinalRenderChecks": 12,
+  "renderProbeTestApkSha256": "f81e990061dbaa356c48bd0d964e9c3e7b6f238dd96f52786ac65a74810bb30c",
+  "renderProbeCorrection": "Initial Flip replay used referential identity for a structurally equal document; fixed test to value equality and reran. Initial failure preserved separately; no production change.",
+  "renderScreenshotsReviewed": [
+    "weather BXP-001",
+    "train BXP-003",
+    "checklist BXP-031"
+  ]
+}

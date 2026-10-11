@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "wallSeconds": 619.3842778205872,
+  "pullExit": 0,
+  "arm": {
+    "mtp": false,
+    "streaming": false,
+    "reuse": true,
+    "cases": "BXP-001,BXP-003,BXP-031",
+    "repeats": 2
+  },
+  "serial": "R3GL203AKSF",
+  "startedAtEpochMs": 1791688633942
+}

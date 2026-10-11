@@ -1,0 +1,7 @@
+{
+  "firstActivityLaunch": "activity_launch.json",
+  "requestedRenders": 6,
+  "recordedRenders": 6,
+  "failedChecks": [],
+  "observationLimit": "accessibility-visible status label, not rendered-pixel timestamp"
+}
