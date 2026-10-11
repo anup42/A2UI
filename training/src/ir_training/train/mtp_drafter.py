@@ -13,16 +13,19 @@ downloads a checkpoint and never starts training.
 from __future__ import annotations
 
 import hashlib
+import inspect
 import json
 import math
+import os
 import random
 import re
 from collections.abc import Mapping
+from contextlib import ExitStack, nullcontext
 from dataclasses import replace
 from pathlib import Path
 from typing import Any
 
-from ir_training.common.config import resolve_path, training_root
+from ir_training.common.config import load_yaml, resolve_path, training_root
 from ir_training.eval.tensorboard_logging import resolve_tensorboard_root
 from ir_training.mtp.drafter_contract import (
     OFFICIAL_GEMMA4_E2B_ASSISTANT,
@@ -42,6 +45,172 @@ from ir_training.qat.fake_quant import (
 
 class MTPDrafterTrainingError(RuntimeError):
     """Raised when the public drafter workflow cannot run safely."""
+
+
+OFFICIAL_MOBILE_MTP_PURPOSE = "official_mobile_mtp_training_v1"
+
+
+def _official_mobile(config: dict[str, Any]) -> bool:
+    return _section(config, "run").get("purpose") == OFFICIAL_MOBILE_MTP_PURPOSE
+
+
+def _official_target_config(config: dict[str, Any]) -> dict[str, Any]:
+    target = _section(config, "target")
+    path = resolve_path(str(target.get("training_config") or ""), training_root())
+    if not path.is_file():
+        raise MTPDrafterTrainingError("Official MTP requires the resolved target training config")
+    resolved = load_yaml(path)
+    qat = _section(resolved, "qat")
+    if not (qat.get("enabled") is True and qat.get("scale_mode") == "retained_mobile"
+            and qat.get("expected_effective_lora_modules") == 205
+            and qat.get("expected_frozen_activation_modules") == 70
+            and qat.get("simulate_frozen_activations") is True
+            and qat.get("require_lora_trainable_scope") is True):
+        raise MTPDrafterTrainingError("Official MTP requires the unchanged 205-LoRA/70-frozen retained QAT contract")
+    training = _section(config, "training")
+    if (training.get("require_cuda") is not True
+            or training.get("overflow_policy") != "error"
+            or training.get("mixed_precision") != "bf16"):
+        raise MTPDrafterTrainingError("Official MTP requires CUDA, BF16 compute, and overflow_policy=error")
+    model = _section(resolved, "model")
+    if training.get("chat_template_kwargs", {}) != (model.get("chat_template_kwargs") or {}):
+        raise MTPDrafterTrainingError("MTP chat template kwargs differ from target training")
+    if str(target.get("tokenizer_id_or_path") or "") != str(model.get("tokenizer_source") or ""):
+        raise MTPDrafterTrainingError("MTP tokenizer must be the target training tokenizer")
+    if not target.get("adapter_checkpoint"):
+        raise MTPDrafterTrainingError("Official MTP requires the selected target adapter checkpoint")
+    return resolved
+
+
+def official_mobile_source_bindings(config: dict[str, Any]) -> dict[str, str]:
+    """Hash local conditioning inputs; recompute before and after adaptation."""
+    if not _official_mobile(config):
+        raise MTPDrafterTrainingError("Source bindings require the explicit official MTP purpose")
+    resolved = _official_target_config(config)
+    base = training_root()
+    target, run = (_section(config, name) for name in ("target", "run"))
+    model = _section(resolved, "model")
+    paths = {resolve_path(str(target["training_config"]), base)}
+    for key in ("mobile_training_seed_manifest", "mobile_qparams_contract"):
+        path = resolve_path(str(model.get(key) or ""), base)
+        if not path.is_file():
+            raise MTPDrafterTrainingError(f"Required MTP target binding missing: {key}")
+        paths.add(path)
+    for value in (model.get("model_source"), target.get("adapter_checkpoint"), target.get("model_id_or_path")):
+        directory = resolve_path(str(value or ""), base)
+        if not directory.is_dir():
+            raise MTPDrafterTrainingError(f"Required MTP checkpoint directory missing: {directory}")
+        files = [item for item in directory.iterdir() if item.is_file()]
+        if not any(item.suffix == ".safetensors" for item in files):
+            raise MTPDrafterTrainingError(f"MTP checkpoint has no safetensors: {directory}")
+        paths.update(files)
+    prepared = resolve_path(str(run["dataset_dir"]), base)
+    for name in ("train.jsonl", "val.jsonl", "manifest.json"):
+        path = prepared / name
+        if not path.is_file():
+            raise MTPDrafterTrainingError(f"Required MTP data binding missing: {path}")
+        paths.add(path)
+    return {str(path.resolve()): _sha256(path) for path in sorted(paths)}
+
+
+def probe_official_mobile_mtp_environment() -> dict[str, Any]:
+    """No weights loaded/downloaded: verify runtime API and complete cached assistant."""
+    try:
+        import torch
+        from huggingface_hub import snapshot_download
+        from transformers import (
+            Gemma4AssistantForCausalLM,
+            Gemma4ForCausalLM,
+            Gemma4TextModel,
+        )
+        from transformers.models.gemma4.modeling_gemma4 import (
+            Gemma4CausalLMOutputWithPast,
+        )
+
+        if not torch.cuda.is_available() or not torch.cuda.is_bf16_supported():
+            raise MTPDrafterTrainingError("Official MTP training requires a CUDA GPU with native BF16")
+        target_parameters = inspect.signature(Gemma4ForCausalLM.forward).parameters
+        assistant_parameters = inspect.signature(Gemma4AssistantForCausalLM.forward).parameters
+        if ("logits_to_keep" not in target_parameters
+                or "shared_kv_states" not in Gemma4CausalLMOutputWithPast.__annotations__
+                or "shared_kv_states" not in assistant_parameters
+                or not callable(Gemma4TextModel.forward)):
+            raise MTPDrafterTrainingError("Installed Transformers lacks the required Gemma4 shared-KV/assistant API")
+        snapshot = Path(snapshot_download(OFFICIAL_GEMMA4_E2B_ASSISTANT, local_files_only=True))
+        if not (snapshot / "config.json").is_file():
+            raise MTPDrafterTrainingError("Cached official assistant config is missing")
+        cached_config = json.loads((snapshot / "config.json").read_text(encoding="utf-8"))
+        if (cached_config.get("model_type") != "gemma4_assistant"
+                or (cached_config.get("text_config") or {}).get("num_hidden_layers") != 4):
+            raise MTPDrafterTrainingError("Cached official assistant does not declare the four-layer Gemma4 contract")
+        index = snapshot / "model.safetensors.index.json"
+        if index.is_file():
+            names = set(json.loads(index.read_text(encoding="utf-8")).get("weight_map", {}).values())
+        else:
+            names = {"model.safetensors"}
+        if not names or any(Path(name).is_absolute() or ".." in Path(name).parts
+                            or not (snapshot / name).is_file() or (snapshot / name).stat().st_size == 0 for name in names):
+            raise MTPDrafterTrainingError("Cached official assistant weights are incomplete")
+        return {"passed": True, "model_loaded": False, "downloaded": False,
+                "assistant_snapshot": str(snapshot), "assistant_weight_files": sorted(names),
+                "shared_kv_api": True, "logits_to_keep": True}
+    except (ImportError, OSError, ValueError) as exc:
+        raise MTPDrafterTrainingError(
+            "Official MTP requires compatible Transformers and the complete cached "
+            f"{OFFICIAL_GEMMA4_E2B_ASSISTANT}. Download it explicitly on the training host first. {exc}"
+        ) from exc
+
+
+def _load_official_target(config: dict[str, Any], device: Any) -> tuple[Any, Any, Any]:
+    """Load the original seed + frozen selected LoRA, never QAT-wrap dense merge."""
+    from peft import PeftModel
+
+    from ir_training.models.registry import create_adapter
+    from ir_training.qat.fake_quant import prepare_qat_model
+    from ir_training.train.prepared_binding import verify_tokenizer_binding
+
+    resolved = _official_target_config(config)
+    model_config = dict(_section(resolved, "model"))
+    model_config["device_map"] = None
+    adapter = create_adapter(model_config)
+    tokenizer = adapter.load_tokenizer()
+    verify_tokenizer_binding(resolve_path(config["run"]["dataset_dir"], training_root()),
+                             tokenizer, model_config, required=True)
+    target = PeftModel.from_pretrained(adapter.load_model(),
+                                      config["target"]["adapter_checkpoint"], is_trainable=False)
+    base = target.get_base_model()
+    if base.__class__.__name__ != "Gemma4ForCausalLM" or getattr(base.config, "model_type", None) != "gemma4_text":
+        raise MTPDrafterTrainingError("Official MTP requires the reconstructed Gemma4Text causal target")
+    for parameter in target.parameters():
+        parameter.requires_grad_(False)
+    target.eval().to(device)
+    controller = prepare_qat_model(target, resolved)
+    try:
+        summary = controller.summary()
+        if (summary.get("true_fake_quant") is not True
+                or summary.get("wrapped_effective_lora_count") != 205
+                or summary.get("frozen_activation_module_count") != 70
+                or (summary.get("trainable_scope") or {}).get("all_parameters_frozen") is not True):
+            raise MTPDrafterTrainingError("Frozen target retained QAT scope is not exactly 205 + 70")
+    except BaseException:
+        controller.restore()
+        raise
+    return target, tokenizer, controller
+
+
+def _check_finite_gradients(model: Any) -> None:
+    from ir_training.train.tensor_checks import tensor_finite_and_nonzero
+
+    any_nonzero = False
+    for name, parameter in model.named_parameters():
+        if not parameter.requires_grad or parameter.grad is None:
+            continue
+        finite, nonzero = tensor_finite_and_nonzero(parameter.grad)
+        if not finite:
+            raise MTPDrafterTrainingError(f"MTP gradient is nonfinite: {name}")
+        any_nonzero = any_nonzero or nonzero
+    if not any_nonzero:
+        raise MTPDrafterTrainingError("MTP backward produced no nonzero trainable gradients")
 
 
 def _section(config: dict[str, Any], name: str) -> dict[str, Any]:
@@ -144,6 +313,13 @@ def build_drafter_training_plan(
         )
     if not train_path.is_file():
         issues.append({"code": "train_split_missing", "path": str(train_path)})
+    if _official_mobile(config):
+        try:
+            _official_target_config(config)
+        except (OSError, ValueError, MTPDrafterTrainingError) as exc:
+            issues.append({"code": "official_mobile_target_contract", "message": str(exc)})
+        if not val_path.is_file():
+            issues.append({"code": "official_mtp_validation_required", "path": str(val_path)})
 
     method = str(training_cfg.get("method") or "")
     if method != "target_conditioned_autoregressive_qat":
@@ -497,7 +673,10 @@ def _longest_common_prefix(left: list[int], right: list[int]) -> int:
     return length
 
 
-def _encode_row(row: dict[str, Any], tokenizer: Any, max_length: int) -> dict[str, list[int]]:
+def _encode_row(
+    row: dict[str, Any], tokenizer: Any, max_length: int, *,
+    overflow_policy: str | None = None, chat_template_kwargs: dict[str, Any] | None = None,
+) -> dict[str, list[int]]:
     if isinstance(row.get("input_ids"), list):
         input_ids = _token_list(row["input_ids"])
         if not isinstance(row.get("labels"), list):
@@ -516,6 +695,7 @@ def _encode_row(row: dict[str, Any], tokenizer: Any, max_length: int) -> dict[st
                 messages,
                 tokenize=True,
                 add_generation_prompt=False,
+                **(chat_template_kwargs or {}),
             )
         )
         last_message = messages[-1]
@@ -534,6 +714,7 @@ def _encode_row(row: dict[str, Any], tokenizer: Any, max_length: int) -> dict[st
                     prompt_messages,
                     tokenize=True,
                     add_generation_prompt=True,
+                    **(chat_template_kwargs or {}),
                 )
             )
             prompt_length = _longest_common_prefix(prompt_ids, full_ids)
@@ -546,6 +727,10 @@ def _encode_row(row: dict[str, Any], tokenizer: Any, max_length: int) -> dict[st
             "Encoded drafter row must have equal input/label lengths of at least two."
         )
     if len(input_ids) > max_length:
+        if overflow_policy == "error":
+            raise MTPDrafterTrainingError(
+                f"MTP row {row.get('id')} has {len(input_ids)} tokens, exceeding {max_length}; no truncation permitted"
+            )
         # Retain the supervised suffix and as much prompt context as fits.
         supervised = next(
             (index for index, label in enumerate(labels) if label >= 0),
@@ -588,6 +773,7 @@ def _rollout_loss(
     anchors: list[int],
     draft_steps: int,
     device: Any,
+    efficient_target: bool = False,
 ) -> Any:
     import torch
     from torch.nn import functional
@@ -603,6 +789,7 @@ def _rollout_loss(
             output_hidden_states=True,
             return_shared_kv_states=True,
             use_cache=False,
+            **({"logits_to_keep": 1} if efficient_target else {}),
         )
         hidden_states = getattr(target_outputs, "hidden_states", None)
         all_shared_kv_states = getattr(target_outputs, "shared_kv_states", None)
@@ -685,6 +872,15 @@ def train_mtp_drafter(
     target_model_override: str | Path | None = None,
 ) -> dict[str, Any]:
     """Execute the opt-in public target-conditioned drafter QAT workflow."""
+    with ExitStack() as cleanup:
+        return _train_mtp_drafter_impl(config, config_path=config_path,
+                                       target_model_override=target_model_override, cleanup=cleanup)
+
+
+def _train_mtp_drafter_impl(
+    config: dict[str, Any], *, config_path: str | Path,
+    target_model_override: str | Path | None, cleanup: ExitStack,
+) -> dict[str, Any]:
 
     plan = build_drafter_training_plan(
         config,
@@ -712,6 +908,16 @@ def train_mtp_drafter(
 
     training_cfg = _section(config, "training")
     model_cfg = _section(config, "model")
+    official = _official_mobile(config)
+    source_bindings: dict[str, str] = {}
+    target_qat: dict[str, Any] = {}
+    if official:
+        if int(os.environ.get("WORLD_SIZE", "1")) != 1:
+            raise MTPDrafterTrainingError("Official MTP adaptation currently requires a single process/GPU")
+        if target_model_override is not None and str(Path(target_model_override).resolve()) != str(Path(config["target"]["model_id_or_path"]).resolve()):
+            raise MTPDrafterTrainingError("Official MTP target override cannot change the bound merged checkpoint")
+        probe_official_mobile_mtp_environment()
+        source_bindings = official_mobile_source_bindings(config)
     seed = int(training_cfg.get("seed", 42))
     output_dir = Path(plan["output_dir"])
     if output_dir.exists() and any(output_dir.iterdir()):
@@ -730,6 +936,8 @@ def train_mtp_drafter(
         ),
         mixed_precision=mixed_precision,
     )
+    if official and (accelerator.num_processes != 1 or accelerator.device.type != "cuda"):
+        raise MTPDrafterTrainingError("Official MTP requires one CUDA process; CPU/distributed fallback is forbidden")
     set_seed(seed, device_specific=True)
     torch_dtype = {
         "bf16": torch.bfloat16,
@@ -741,18 +949,24 @@ def train_mtp_drafter(
         "trust_remote_code": bool(model_cfg.get("trust_remote_code", False)),
         "low_cpu_mem_usage": True,
     }
-    tokenizer = AutoTokenizer.from_pretrained(
-        plan["target"]["tokenizer_id_or_path"],
-        trust_remote_code=bool(model_cfg.get("trust_remote_code", False)),
-        use_fast=True,
-    )
-    target = AutoModelForCausalLM.from_pretrained(
-        plan["target"]["model_id_or_path"], **load_kwargs
-    )
+    if official:
+        target, tokenizer, target_controller = _load_official_target(config, accelerator.device)
+        cleanup.callback(target_controller.restore)
+        target_qat = target_controller.summary()
+    else:
+        tokenizer = AutoTokenizer.from_pretrained(
+            plan["target"]["tokenizer_id_or_path"],
+            trust_remote_code=bool(model_cfg.get("trust_remote_code", False)),
+            use_fast=True,
+        )
+        target = AutoModelForCausalLM.from_pretrained(
+            plan["target"]["model_id_or_path"], **load_kwargs
+        )
+    assistant_load_kwargs = {**load_kwargs, "torch_dtype": torch.float32, "local_files_only": True} if official else load_kwargs
     assistant = AutoModelForCausalLM.from_pretrained(
-        plan["assistant"]["base_model_id_or_path"], **load_kwargs
+        plan["assistant"]["base_model_id_or_path"], **assistant_load_kwargs
     )
-    if "Gemma4" not in target.__class__.__name__:
+    if not official and "Gemma4" not in target.__class__.__name__:
         raise MTPDrafterTrainingError(
             "Target must load as a Gemma 4 causal LM with shared-KV outputs; "
             f"observed {target.__class__.__name__}."
@@ -769,7 +983,11 @@ def train_mtp_drafter(
         parameter.requires_grad_(False)
     target.to(accelerator.device)
     trainable = _deployment_trainable_parameters(assistant)
-    qat_controller = DrafterQATController(config).prepare(assistant)
+    if official and any(parameter.dtype != torch.float32 for parameter in trainable.values()):
+        raise MTPDrafterTrainingError("Official MTP requires FP32 trainable assistant master weights")
+    qat_controller = DrafterQATController(config)
+    cleanup.callback(qat_controller.restore)
+    qat_controller.prepare(assistant)
     qat_summary = qat_controller.summary()
 
     max_length = int(training_cfg.get("max_seq_length", 2048))
@@ -788,7 +1006,9 @@ def train_mtp_drafter(
             return len(self.rows)
 
         def __getitem__(self, index: int) -> dict[str, list[int]]:
-            return _encode_row(self.rows[index], tokenizer, max_length)
+            return _encode_row(self.rows[index], tokenizer, max_length,
+                               **({"overflow_policy": "error", "chat_template_kwargs": training_cfg.get("chat_template_kwargs", {})}
+                                  if official else {}))
 
     def collate(rows: list[dict[str, list[int]]]) -> dict[str, list[int]]:
         if len(rows) != 1:
@@ -838,6 +1058,8 @@ def train_mtp_drafter(
         num_training_steps=total_updates,
     )
     if validation_loader is None:
+        if official:
+            raise MTPDrafterTrainingError("Official MTP requires nonempty held-out validation data")
         assistant, optimizer, train_loader, scheduler = accelerator.prepare(
             assistant, optimizer, train_loader, scheduler
         )
@@ -881,15 +1103,19 @@ def train_mtp_drafter(
                     positions_per_sequence=positions_per_sequence,
                     rng=evaluation_rng,
                 )
-                loss = _rollout_loss(
-                    target_model=target,
-                    assistant_model=assistant,
-                    input_ids=row["input_ids"],
-                    labels=row["labels"],
-                    anchors=anchors,
-                    draft_steps=draft_steps,
-                    device=accelerator.device,
-                )
+                with accelerator.autocast() if official else nullcontext():
+                    loss = _rollout_loss(
+                        target_model=target,
+                        assistant_model=assistant,
+                        input_ids=row["input_ids"],
+                        labels=row["labels"],
+                        anchors=anchors,
+                        draft_steps=draft_steps,
+                        device=accelerator.device,
+                        **({"efficient_target": True} if official else {}),
+                    )
+                if official and not bool(torch.isfinite(loss).item()):
+                    raise MTPDrafterTrainingError("MTP validation loss is nonfinite")
                 losses.append(accelerator.gather_for_metrics(loss.detach()).mean())
         assistant.train()
         return (
@@ -920,18 +1146,26 @@ def train_mtp_drafter(
                     rng=rng,
                 )
                 with accelerator.accumulate(assistant):
-                    loss = _rollout_loss(
-                        target_model=target,
-                        assistant_model=assistant,
-                        input_ids=row["input_ids"],
-                        labels=row["labels"],
-                        anchors=anchors,
-                        draft_steps=draft_steps,
-                        device=accelerator.device,
-                    )
+                    with accelerator.autocast() if official else nullcontext():
+                        loss = _rollout_loss(
+                            target_model=target,
+                            assistant_model=assistant,
+                            input_ids=row["input_ids"],
+                            labels=row["labels"],
+                            anchors=anchors,
+                            draft_steps=draft_steps,
+                            device=accelerator.device,
+                            **({"efficient_target": True} if official else {}),
+                        )
+                    if official and not bool(torch.isfinite(loss).item()):
+                        raise MTPDrafterTrainingError("MTP training loss is nonfinite")
                     accelerator.backward(loss)
                     if accelerator.sync_gradients:
-                        accelerator.clip_grad_norm_(assistant.parameters(), max_grad_norm)
+                        if official:
+                            _check_finite_gradients(assistant)
+                        gradient_norm = accelerator.clip_grad_norm_(assistant.parameters(), max_grad_norm)
+                        if official and not bool(torch.isfinite(gradient_norm).item()):
+                            raise MTPDrafterTrainingError("MTP gradient norm is nonfinite")
                     optimizer.step()
                     scheduler.step()
                     optimizer.zero_grad(set_to_none=True)
@@ -953,6 +1187,8 @@ def train_mtp_drafter(
                     break
             train_loss = sum(epoch_losses) / max(len(epoch_losses), 1)
             validation_loss = evaluate()
+            if official and not math.isfinite(validation_loss):
+                raise MTPDrafterTrainingError("Official MTP selection requires finite held-out validation loss")
             selection_loss = validation_loss if math.isfinite(validation_loss) else train_loss
             history.append(
                 {
@@ -992,6 +1228,8 @@ def train_mtp_drafter(
             writer.close()
 
     accelerator.wait_for_everyone()
+    if official and official_mobile_source_bindings(config) != source_bindings:
+        raise MTPDrafterTrainingError("Official MTP source bindings changed during training")
     result = {
         **plan,
         "training_executed": True,
@@ -1000,6 +1238,9 @@ def train_mtp_drafter(
         "history": history,
         "qat_runtime": qat_summary,
         "tensorboard_log_dir": str(tensorboard_log_dir),
+        **({"source_bindings": source_bindings, "target_qat": target_qat,
+            "purpose": OFFICIAL_MOBILE_MTP_PURPOSE, "assistant_master_dtype": "float32",
+            "selection_metric": "held_out_completion_cross_entropy"} if official else {}),
     }
     if accelerator.is_main_process:
         config_hash = _sha256(Path(config_path).expanduser().resolve())
@@ -1033,6 +1274,8 @@ def train_mtp_drafter(
                 "tensorboard_log_dir": str(tensorboard_log_dir),
                 "checkpoint_files": _checkpoint_manifest(checkpoint),
                 "history": history,
+                **({"source_bindings": source_bindings, "target_qat": target_qat,
+                    "purpose": OFFICIAL_MOBILE_MTP_PURPOSE, "assistant_master_dtype": "float32"} if official else {}),
             }
             (checkpoint / "mtp_drafter_training_metadata.json").write_text(
                 json.dumps(metadata, indent=2, ensure_ascii=False) + "\n",

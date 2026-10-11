@@ -102,6 +102,10 @@ class OfficialMobileOptions:
     benchmark_android: bool = False
     adb: str = "adb"
     serial: str | None = None
+    train_mtp: bool = False
+    mtp_epochs: int = 1
+    mtp_steps: int | None = None
+    mtp_learning_rate: float = 1e-5
 
 
 def _json(path: Path) -> dict:
@@ -120,6 +124,8 @@ def _scripts() -> None:
 def build_plan(options: OfficialMobileOptions) -> dict[str, Any]:
     """Offline plan: no CUDA probe, downloads, model load, or filesystem writes."""
     values = asdict(options)
+    from ir_training.pipeline.official_mobile_mtp import normalize_options
+    normalize_options(values)
     for key in ("model_dir", "input_dir", "source_safetensors", "official_litertlm",
                 "output_dir", "preparation_cache_dir", "resume_from_checkpoint", "android_repair_runtime"):
         if values[key] is not None:
@@ -256,7 +262,7 @@ def build_plan(options: OfficialMobileOptions) -> dict[str, Any]:
         "mobile_config": output / "configs/mobile_deployment.yaml",
         "android_report": output / "android_gpu/target_only/android_litertlm_gpu_parity_report.json",
     }
-    return {
+    plan = {
         "schema_version": 1, "workflow": WORKFLOW, "options": values,
         "preparation": preparation, "resume": resume, "paths": {key: str(path) for key, path in paths.items()},
         "stages": ["assets", "prepare", *(["augment"] if not resume and options.augmentation != "none" else []), "configure", "no_op_export", "preflight", "training",
@@ -274,6 +280,10 @@ def build_plan(options: OfficialMobileOptions) -> dict[str, Any]:
             "frozen_w8_activation_modules": 70, "native_kv_cache_simulated": False,
             "native_numeric_parity_verified": False},
     }
+    if options.train_mtp:
+        from ir_training.pipeline.official_mobile_mtp import extend_plan
+        return extend_plan(plan)
+    return plan
 
 
 def training_config(plan: dict, profile: dict, preparation_report: dict) -> dict:
@@ -344,7 +354,7 @@ def training_config(plan: dict, profile: dict, preparation_report: dict) -> dict
         stop_strings=["</a2ui>"], metric_log_prefix="golden32", tensorboard_evaluation_name="periodic_golden32",
         best_checkpoint_dir=paths["best_checkpoint"])
     config["final_evaluation_datasets"] = copy.deepcopy(preparation_report["final_evaluation_datasets"])
-    # There is no assistant/drafter training branch in this workflow.
+    # Optional drafter training is a later, separate phase, never a target loss.
     config.pop("qat_mtp", None)
     validate_sft_recipe(config)
     validate_effective_batch(training, profile["world_size"])
@@ -363,6 +373,9 @@ def mobile_export_config(plan: dict) -> dict:
     pipeline["retained_scale_export"].update(output_dir=paths["export_dir"], report=paths["export_report"],
                                              official_artifact_sha256=OFFICIAL_LITERTLM_SHA256)
     pipeline["android"].update(output_dir=str(Path(values["output_dir"]) / "android_gpu"))
+    if plan.get("mtp", {}).get("training") is True:
+        from ir_training.pipeline.official_mobile_mtp import configure_export
+        configure_export(config, plan)
     return config
 
 
@@ -449,7 +462,13 @@ def _configure(plan: dict) -> list[Path]:
     log(f"GPU profile: {profile['world_size']} ranks; microbatch {profile['microbatch']}; "
         f"accumulation {profile['gradient_accumulation_steps']}; global batch {profile['effective_batch_size']}; "
         f"CPU data workers {profile['total_dataloader_workers']}")
-    return [source, paths["resolved_config"], paths["launch_plan"], prepared_report, deployment_config]
+    files = [source, paths["resolved_config"], paths["launch_plan"], prepared_report, deployment_config]
+    if plan.get("mtp", {}).get("training") is True:
+        from ir_training.pipeline.official_mobile_mtp import drafter_config
+        assistant_config = Path(plan["paths"]["mtp_config"])
+        _yaml(assistant_config, drafter_config(plan))
+        files.append(assistant_config)
+    return files
 
 
 def evaluation_command(plan: dict, cohort: str) -> list[str]:
@@ -474,6 +493,7 @@ def evaluation_command(plan: dict, cohort: str) -> list[str]:
 def _mobile_command(plan: dict, stage: str) -> list[str]:
     values, paths = plan["options"], plan["paths"]
     flags = {"merge": "--execute-merge", "export": "--execute-retained-scale-export",
+             "mtp_training": "--execute-drafter-training",
              "android_benchmark": "--validate-android-gpu"}
     python = values["exporter_python"] if stage == "export" else sys.executable
     command = [python, str(training_root() / "scripts/run_gemma4_e2b_mobile_mtp.py"),
@@ -497,11 +517,19 @@ def benchmark_command(plan: dict) -> list[str]:
 
 def native_quality_command(plan: dict) -> list[str]:
     """Separate post-export gate; never needs Vulkan on the training host."""
+    if plan.get("mtp", {}).get("training") is True:
+        raise ValueError("The existing native Golden/Bixby evaluator is target-only; trained MTP is not supported")
     values = plan["options"]
     output = Path(values["output_dir"])
     return [sys.executable, str(training_root() / "scripts/evaluate_official_mobile_native.py"),
             "--run-dir", str(output), "--output-dir", str(output.parent / f"{output.name}_native_quality"),
             "--adb", values["adb"], "--serial", values["serial"] or "<ANDROID_SERIAL>"]
+
+
+def mtp_benchmark_command(plan: dict) -> list[str]:
+    command = benchmark_command(plan)
+    command[command.index("--output-dir") + 1] = str(Path(plan["options"]["output_dir"]) / "android_gpu/mtp_on")
+    return [*command, "--mtp", "--max-mtp-success-rate-drop", "0.10", "--mtp-max-decode-overshoot", "4"]
 
 
 def no_op_export_command(plan: dict) -> list[str]:
@@ -640,7 +668,8 @@ def _assets(plan: dict) -> list[Path]:
     result = output / "mobile_assets_verified.json"
     _write(result, {"seed": report, "qparams": qparams, "official_inputs": inputs,
                     "published_activation_scales": published_a8,
-                    "mtp_training": False, "mtp_inference": False})
+                    "mtp_training": plan.get("mtp", {}).get("training") is True,
+                    "mtp_inference": plan.get("mtp", {}).get("inference") is True})
     # Verify imports, schema APIs and static official graph decoding before
     # expensive training. This does not prove kernel/runtime compatibility.
     environment_report = output / "logs/export_environment.json"
@@ -660,6 +689,13 @@ def run_stage(plan: dict, stage: str) -> list[Path]:
     values, paths = plan["options"], plan["paths"]
     output = Path(values["output_dir"])
     if stage == "assets":
+        if plan.get("mtp", {}).get("training") is True:
+            from ir_training.train.mtp_drafter import (
+                probe_official_mobile_mtp_environment,
+            )
+            report = output / "mtp_environment.json"
+            _write(report, probe_official_mobile_mtp_environment())
+            return [*_assets(plan), report]
         return _assets(plan)
     if stage == "prepare":
         if plan.get("resume"):
@@ -743,7 +779,28 @@ def run_stage(plan: dict, stage: str) -> list[Path]:
         if result.get("qat_applied") is not True:
             raise ValueError("Best checkpoint was not evaluated with retained-scale QAT active")
         return evidence
+    if stage == "mtp_training":
+        if plan.get("mtp", {}).get("training") is not True:
+            raise ValueError("Drafter training requires --train-mtp")
+        from ir_training.pipeline.official_mobile_mtp import verify_mtp_training
+        env = _environment(plan, gpu=True)
+        # The target has finished DDP. The existing drafter loop is deliberately
+        # single-process: no untested sampler/scheduler or effective-batch change.
+        selected = env.get("CUDA_VISIBLE_DEVICES", "").split(",")[0].strip()
+        if not selected:
+            raise ValueError("MTP training requires a selected CUDA GPU")
+        env["CUDA_VISIBLE_DEVICES"] = selected
+        for key in ("RANK", "LOCAL_RANK", "WORLD_SIZE", "LOCAL_WORLD_SIZE", "MASTER_ADDR", "MASTER_PORT"):
+            env.pop(key, None)
+        run_bounded_command(_mobile_command(plan, stage), output / "logs/mtp_training_worker.log", env,
+                            timeout_seconds=values["stage_timeout_seconds"],
+                            progress_seconds=values["progress_seconds"], emit_heartbeat=False)
+        return verify_mtp_training(plan)
     if stage in {"merge", "export", "android_benchmark"}:
+        trained_mtp = plan.get("mtp", {}).get("training") is True
+        if stage == "export" and trained_mtp:
+            from ir_training.pipeline.official_mobile_mtp import verify_mtp_training
+            verify_mtp_training(plan)
         env = _environment(plan)
         # CPU merge/export avoids a full dense base landing on GPU0. No Vulkan
         # or desktop LiteRT GPU dependency is needed for this export-only route.
@@ -762,6 +819,16 @@ def run_stage(plan: dict, stage: str) -> list[Path]:
             if report.get("passed") is not True or report.get("executed") is not True:
                 raise ValueError("Retained-scale exporter did not pass")
             runtime = output / "deployment_runtime.json"
+            if trained_mtp:
+                from ir_training.pipeline.official_mobile_mtp import verify_mtp_export
+                evidence = verify_mtp_export(plan)
+                _write(runtime, {"model": paths["litertlm"], "model_sha256": sha256(Path(paths["litertlm"])),
+                    "required_mtp_enabled": True, "assistant_trained": True,
+                    "mtp_training_report": paths["mtp_training_report"], "mtp_export_report": paths["mtp_export_report"],
+                    "native_quality_evaluated": False, "speed_parity_measured_at_export": False,
+                    "native_quality_command": None, "native_quality_validation": plan["native_quality_validation"],
+                    "benchmark_command": benchmark_command(plan), "mtp_benchmark_command": mtp_benchmark_command(plan)})
+                return [*evidence, runtime]
             _write(runtime, {"model": paths["litertlm"], "model_sha256": sha256(Path(paths["litertlm"])),
                 "required_mtp_enabled": False, "official_drafter_present_but_not_validated_for_this_target": True,
                 "native_quality_evaluated": False, "speed_parity_measured_at_export": False,
@@ -772,6 +839,10 @@ def run_stage(plan: dict, stage: str) -> list[Path]:
         from ir_training.eval.android_gpu_report import load_android_gpu_parity_report
         load_android_gpu_parity_report(paths["android_report"], expected_mtp=False,
             expected_official_artifact=values["official_litertlm"], expected_candidate_artifact=paths["litertlm"])
+        if trained_mtp:
+            load_android_gpu_parity_report(paths["mtp_android_report"], expected_mtp=True, require_mtp_acceptance=True,
+                expected_official_artifact=values["official_litertlm"], expected_candidate_artifact=paths["litertlm"])
+            return [Path(paths["android_report"]), Path(paths["mtp_android_report"])]
         return [Path(paths["android_report"])]
     raise ValueError(f"Unsupported pipeline stage: {stage}")
 
@@ -797,9 +868,14 @@ def _summary(state: dict) -> str:
         "Not run means repair was not configured; not measured means no repair evidence exists.",
         "Bixby50 has source responses but no reference IR: source-grounded reward/validity, not reference-match accuracy.", "",
         f"LiteRT-LM export: {'verified official layout' if 'export' in state['completed'] else 'not completed'}.",
-        f"MTP: disabled; unused official drafter bytes preserved. Artifact: {plan['paths']['litertlm']}",
-        f"Device speed parity: {'passed target-only benchmark (within 10%)' if 'android_benchmark' in state['completed'] else 'not measured'}.",
-        "Native LiteRT golden/Bixby scores require the separate native_quality_command.json handoff (plan-only until --execute).",
+        (f"MTP: opt-in assistant {'trained and exported' if 'export' in state['completed'] else 'not yet exported'}; native quality unverified. Artifact: {plan['paths']['litertlm']}"
+         if plan.get("mtp", {}).get("training") is True else
+         f"MTP: disabled; unused official drafter bytes preserved. Artifact: {plan['paths']['litertlm']}"),
+        (f"Device speed parity: {'passed paired target-only/MTP acceptance and throughput gates' if 'android_benchmark' in state['completed'] else 'not measured'}."
+         if plan.get("mtp", {}).get("training") is True else
+         f"Device speed parity: {'passed target-only benchmark (within 10%)' if 'android_benchmark' in state['completed'] else 'not measured'}."),
+        (plan["native_quality_validation"] if plan.get("mtp", {}).get("training") is True else
+         "Native LiteRT golden/Bixby scores require the separate native_quality_command.json handoff (plan-only until --execute)."),
         *(["", f"Failure: {state['error']}"] if state.get("error") else []), "",
     ])
 
@@ -820,8 +896,14 @@ def run_pipeline(options: OfficialMobileOptions, *, execute: bool = False,
         manifest = output / "official_mobile_manifest.json"
         _write(output / "benchmark_command.json", {"command": benchmark_command(plan), "mtp": False,
                "note": "Run on a host with the app + instrumentation installed. Speed is unverified until this passes."})
-        _write(output / "native_quality_command.json", {"command": native_quality_command(plan), "mtp": False,
-               "execute": False, "note": "Separate Android quality gate. Review plan, set serial, then append --execute. No desktop Vulkan required."})
+        if plan.get("mtp", {}).get("training") is True:
+            _write(output / "mtp_benchmark_command.json", {"command": mtp_benchmark_command(plan), "mtp": True,
+                   "note": "Run BOTH target-only and MTP-on gates; no quality or speed claim until validated."})
+            _write(output / "native_quality_command.json", {"command": None, "mtp": True, "execute": False,
+                   "supported": False, "note": plan["native_quality_validation"]})
+        else:
+            _write(output / "native_quality_command.json", {"command": native_quality_command(plan), "mtp": False,
+                   "execute": False, "note": "Separate Android quality gate. Review plan, set serial, then append --execute. No desktop Vulkan required."})
         try:
             for index, stage in enumerate(plan["stages"], 1):
                 state["active_stage"] = stage
@@ -880,6 +962,10 @@ def worker(plan_path: Path, stage: str) -> None:
         if name == "no_op_export":
             _verify_bindings(receipt.get("files") or {})
         if stage in {"merge", "export"} and (name == "training" or name.startswith("best_")):
+            _verify_bindings(receipt.get("files") or {})
+        if (plan.get("mtp", {}).get("training") is True and stage in {"mtp_training", "export"}
+                and (name in {"assets", "prepare", "augment", "configure", "merge", "mtp_training"}
+                     or (stage == "mtp_training" and (name == "training" or name.startswith("best_"))))):
             _verify_bindings(receipt.get("files") or {})
     files = run_stage(plan, stage)
     if sha256(plan_path) != plan_digest:

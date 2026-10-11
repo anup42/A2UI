@@ -3,9 +3,11 @@
 This runbook defines a separate pipeline for training the official Gemma 4 E2B
 mobile seed, selecting one checkpoint on Golden32, evaluating that locked
 checkpoint on Golden32, Golden35, and Bixby50, and exporting it into the exact
-released mixed-precision LiteRT-LM topology. MTP inference stays disabled. The
-released MTP section remains in the package byte-for-byte but is not trained,
-replaced, or used by the runtime gates in this workflow.
+released mixed-precision LiteRT-LM topology. By default, MTP inference stays
+disabled: the released MTP section remains in the package byte-for-byte but is
+not trained, replaced, or used by the runtime gates. The separate `--train-mtp`
+option below adds experimental assistant adaptation after the unchanged target
+training and selection stages; omitting it preserves the existing workflow.
 
 The entry point is `training/scripts/run_official_mobile_pipeline.py`. It is
 plan-only unless `--execute` is passed. Every execution requires a fresh
@@ -53,7 +55,7 @@ The final target is the released mobile `wNa8o8` layout:
 - the official static A8 input/output quantization parameters, including all
   1,220 mutable fully-connected alias-edge records;
 - unchanged section order, graph structure, quantization layout, execution
-  contract, package metadata, frozen buffers, and MTP section.
+  contract, package metadata, frozen buffers, and (by default) MTP section.
 
 The merged BF16 Hugging Face checkpoint is only an export intermediate. It is
 not the mobile artifact. The generic LiteRT Torch/absolute-max conversion path
@@ -439,6 +441,78 @@ python training/scripts/run_official_mobile_pipeline.py \
   --execute
 ```
 
+## Optional MTP assistant training
+
+Add `--train-mtp` to an otherwise unchanged official-mobile command to train
+the assistant as a **separate sequential stage**, not a joint target/MTP loss:
+
+1. Train the same retained-scale QAT LoRA target and select it on Golden32.
+2. Evaluate the locked target on Golden32, Golden35, and Bixby50, then merge it.
+3. Freeze that selected target and adapt the matching public assistant using
+   only the prepared training/validation data. Golden and Bixby rows are not
+   used for assistant optimization or assistant checkpoint selection.
+4. Export the target through the existing retained-scale exporter; inject the
+   assistant's 23 supported trained matrices through the existing official MTP
+   topology exporter. Preserve the fine-tuned target and all bytes outside the
+   MTP section during this second export step.
+
+The target LoRA config, 205-projection scope, retained scales, mandatory gates,
+Golden selection, and optimizer-resume behavior do not change. The assistant
+has its own generated config, checkpoint, training report, and export report
+under the fresh run directory. Its initialization is Google's matching public
+`google/gemma-4-E2B-it-qat-q4_0-unquantized-assistant`; make that checkpoint
+available in the training host's Hugging Face cache before executing the
+offline pipeline. Plan-only execution never downloads or trains a model.
+
+Example from the repository root, using the same input paths as a target-only
+run and a **new** output directory:
+
+```bash
+python training/scripts/run_official_mobile_pipeline.py \
+  --model-dir /absolute/path/mobile-seed \
+  --source-safetensors /absolute/path/packed-mobile/model.safetensors \
+  --official-litertlm /absolute/path/official-mobile.litertlm \
+  --input-dir /absolute/path/source-bound-train-val \
+  --output-dir /absolute/path/fresh-qat-lora-mtp-run \
+  --exporter-python "$EXPORT_PY" \
+  --devices auto \
+  --epochs 2 --learning-rate 1e-5 \
+  --max-seq-length 4096 --max-input-tokens 5120 --max-new-tokens 2048 \
+  --train-mtp --mtp-epochs 1 --mtp-learning-rate 1e-5
+```
+
+Review the plan, then repeat with `--execute`. Optional `--mtp-steps N` caps
+assistant optimizer updates independently of target `--steps`. Defaults are
+one assistant epoch, no explicit assistant-step cap, and assistant LR `1e-5`.
+Changing an MTP-specific knob without `--train-mtp` is rejected rather than
+silently ignored. The assistant stage runs on the first selected GPU in one
+process, after target DDP training has finished. This branch adds training time
+and has its own GPU memory requirements; no speedup or memory fit is implied
+by the target preflight.
+
+This is an **experimental public teacher-forced completion cross-entropy
+objective**, with four autoregressive draft positions and QAT for the 23
+deployable assistant matrices. It is not Google's private distillation recipe.
+The public assistant's frozen constants are not substituted for the released
+package's frozen constants, so export structure alone cannot establish draft
+acceptance or runtime accuracy.
+
+An explicit `--resume-from-checkpoint` still resumes only the target Trainer
+state. If `--train-mtp` is supplied for that continuation, assistant adaptation
+starts fresh from the official assistant against the newly selected target.
+Assistant optimizer/RNG resume is not supported; never reuse a non-empty
+assistant output directory or claim it resumed with the target.
+
+The generated handoff includes paired target-only and MTP-enabled Android
+benchmarks; both, including draft acceptance and measured throughput, must pass
+before making an MTP speed claim. `--benchmark-android --serial SERIAL` runs
+the paired gates explicitly. The existing separate Android Golden/Bixby
+quality evaluator accepts only no-MTP runs. An enabled MTP run therefore omits
+that incompatible native-quality command and records the unsupported status;
+HF holdout results are **not** native MTP quality results. Native MTP Golden/
+Bixby quality remains a separate validation gap until that evaluator is
+extended. Disabling the flag retains the original native-quality handoff.
+
 ## Controlled QAT-LoRA experiments: Run A, Run B, and Run C
 
 The same official-mobile entry point supports these **fresh** experiments:
@@ -758,7 +832,7 @@ Retain predictions, scored predictions, aggregate metrics, raw/stopped decode
 diagnostics, prompt/tokenizer hashes, TensorBoard events, and a final scorecard.
 Do not repair generated IDs or malformed model output during capability scoring.
 
-## Export and MTP-off contract
+## Default export and MTP-off contract
 
 The retained-scale export is valid only when all of these are proven:
 
@@ -796,12 +870,14 @@ invalid header ranges and differing inventory section identities still fail
 closed. This is a reader-contract correction, not a change to model artifacts,
 retained scales, graph checks or the byte-exact no-op requirement.
 
-The generated deployment config represents MTP as runtime-disabled,
+Without `--train-mtp`, the generated deployment config represents MTP as runtime-disabled,
 official-preserved, and unused.
 The package intentionally still contains `tf_lite_mtp_drafter`; absence of the
 section would change the official topology. Do not run drafter training, inject
 assistant weights, pass an MTP runtime flag, or make an MTP acceptance/speed
-claim in this workflow.
+claim in the default workflow. The explicit trained-MTP branch above first
+applies this unchanged target gate to an intermediate package, then requires
+its separately bound trained-drafter export and final-package gates.
 
 Graph equivalence is a potential promotion blocker. The target weight bytes are
 expected to differ, so full target-section hash equality is neither possible nor
@@ -811,6 +887,8 @@ inspector cannot decode an execution contract completely, or any graph/layout
 hash changes, stop; package parseability and matching file size are insufficient.
 
 ## Separate Android native quality evaluation
+
+This section applies only when `--train-mtp` was omitted.
 
 Host Hugging Face evaluation and native LiteRT quality are deliberately separate.
 After the complete pipeline succeeds, plan the native run into a fresh sibling
@@ -916,7 +994,10 @@ A run is eligible for review only when:
 - Golden35 and Bixby50 were not used for selection;
 - the retained-scale exporter report passed every gate and the final package
   was atomically published to a fresh path;
-- the official MTP section is byte-exact and runtime MTP is disabled;
+- for the default lane, the official MTP section is byte-exact and runtime MTP
+  is disabled; for `--train-mtp`, the assistant export is separately hash-bound,
+  all official topology/package-preservation gates pass, and any MTP performance
+  claim has paired Android target-only/MTP-on acceptance and throughput reports;
 - host graph-equivalence validation passed;
 - any claimed native LiteRT quality result has a separate passing fresh-sibling
   native-quality report with exact coverage for all three cohorts;
