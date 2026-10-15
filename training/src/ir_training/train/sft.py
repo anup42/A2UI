@@ -901,7 +901,7 @@ def train_sft(
         tensorboard_root=tensorboard_root,
         tensorboard_run_id=str(run_cfg.get("id") or output_dir.name),
         resume_checkpoint=resolved_resume_checkpoint,
-        **({"clear_generation_cache_on_save": True} if gemma3_full_qat else {}),
+        **({"clear_generation_cache_on_save": True} if full_finetune else {}),
         **({"zero3_trainer": trainer} if sharded_training and zero_stage == 3 else {}),
     )
     if golden_callback is not None:
@@ -1028,7 +1028,7 @@ def train_sft(
         save_zero3_checkpoint(trainer, final_adapter, tokenizer=tokenizer)
     if _trainer_is_world_process_zero(trainer):
         if not (sharded_training and zero_stage == 3):
-            if gemma3_full_qat:
+            if full_finetune:
                 # Reuse the checked serialization-only generation-cache fix;
                 # training still disables cache, including during checkpointing.
                 trainer.save_model(str(final_adapter))
@@ -3002,12 +3002,22 @@ class _CausalLMDataCollator:
         _validate_padded_input_id_tensor(batch["input_ids"], self.input_vocab_size, self.tokenizer)
         _validate_padded_sequence_length(batch["input_ids"], self.max_position_embeddings)
         provided_labels = [feature.get("labels") for feature in features]
+        if any(labels is not None for labels in provided_labels) and not all(
+            labels is not None for labels in provided_labels
+        ):
+            raise ValueError("Completion-only labels must be present for every batch row.")
         if all(labels is not None for labels in provided_labels):
             labels = torch.full_like(batch["input_ids"], -100)
             for row_index, row_labels in enumerate(provided_labels):
-                values = torch.tensor(list(row_labels), dtype=labels.dtype)
-                length = min(values.numel(), labels.shape[1])
-                labels[row_index, :length] = values[:length]
+                values = torch.tensor(list(row_labels), dtype=labels.dtype, device=labels.device)
+                length = values.numel()
+                if length != len(features[row_index]["input_ids"]) or length > labels.shape[1]:
+                    raise ValueError("Completion-only labels must match the unpadded input length.")
+                start = labels.shape[1] - length if getattr(self.tokenizer, "padding_side", "right") == "left" else 0
+                labels[row_index, start:start + length] = values
+            attention_mask = batch.get("attention_mask")
+            if attention_mask is not None:
+                labels.masked_fill_(attention_mask == 0, -100)
         else:
             labels = batch["input_ids"].clone()
             attention_mask = batch.get("attention_mask")

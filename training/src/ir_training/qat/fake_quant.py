@@ -1430,17 +1430,26 @@ def _validate_effective_lora_wrapper(
 
 
 def _effective_lora_weight(module: Any, adapter_names: tuple[str, ...]) -> Any:
+    import torch
+
     base_weight = module.base_layer.weight
     effective_weight = base_weight
-    for adapter in adapter_names:
-        delta = module.get_delta_weight(adapter)
-        if tuple(delta.shape) != tuple(base_weight.shape):
-            raise ValueError(
-                f"LoRA delta shape {tuple(delta.shape)} does not match base weight "
-                f"shape {tuple(base_weight.shape)} for adapter {adapter!r}."
-            )
-        delta = delta.to(device=base_weight.device, dtype=base_weight.dtype)
-        effective_weight = effective_weight + delta
+    # Export calls PEFT's default merge outside AMP. Linear.merge adds the
+    # native adapter delta in place: promote the addition, then round the sum
+    # to the stored base dtype for EACH adapter. Pre-rounding the delta, or
+    # letting training autocast downcast its matmul, changes deployed weights.
+    # Keep this out of place so the frozen base is not mutated and gradients
+    # still flow through both adapter factors and the final dtype conversion.
+    with torch.autocast(device_type=base_weight.device.type, enabled=False):
+        for adapter in adapter_names:
+            delta = module.get_delta_weight(adapter)
+            if tuple(delta.shape) != tuple(base_weight.shape):
+                raise ValueError(
+                    f"LoRA delta shape {tuple(delta.shape)} does not match base weight "
+                    f"shape {tuple(base_weight.shape)} for adapter {adapter!r}."
+                )
+            delta = delta.to(device=base_weight.device)
+            effective_weight = (effective_weight + delta).to(dtype=base_weight.dtype)
     return effective_weight
 
 

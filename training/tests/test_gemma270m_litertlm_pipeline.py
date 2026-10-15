@@ -13,6 +13,33 @@ from ir_training.common.config import load_yaml
 from ir_training.pipeline.gemma270m_litertlm import build_pipeline_plan
 
 
+def test_merge_uses_configured_local_base_and_tokenizer(tmp_path, monkeypatch):
+    import yaml
+    from ir_training.pipeline import gemma270m_litertlm as pipeline
+
+    config = load_yaml(ROOT / "configs/pipelines/gemma3_270m_qat_litertlm.yaml")
+    training = load_yaml(ROOT / "configs/models/gemma3_270m_ir_qat_sft.yaml")
+    training["model"].update(model_source=str(tmp_path / "local-base"),
+                             tokenizer_source=str(tmp_path / "local-tokenizer"))
+    training_path = tmp_path / "training.yaml"
+    training_path.write_text(yaml.safe_dump(training), encoding="utf-8")
+    checkpoint = tmp_path / "adapter"
+    checkpoint.mkdir()
+    (checkpoint / "adapter_config.json").write_text("{}", encoding="utf-8")
+    config["pipeline"].update(training_config=str(training_path), output_dir=str(tmp_path / "output"))
+    config["pipeline"]["source"]["merged_model_dir"] = str(tmp_path / "merged")
+    observed = {}
+
+    def merge(**kwargs):
+        observed.update(kwargs)
+        return Path(kwargs["output_dir"])
+
+    monkeypatch.setattr(pipeline, "merge_lora_adapter", merge)
+    pipeline.run_pipeline(config, best_checkpoint_override=checkpoint, execute_merge=True)
+    assert observed["base_model_source"] == training["model"]["model_source"]
+    assert observed["processor_model_id"] == training["model"]["tokenizer_source"]
+
+
 def test_gemma270m_plan_selects_best_checkpoint_and_disables_mtp():
     config_path = ROOT / "configs" / "pipelines" / "gemma3_270m_qat_litertlm.yaml"
     config = load_yaml(config_path)

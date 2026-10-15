@@ -11,6 +11,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 from ir_training.common.config import load_yaml
+from ir_training.data.audit_filter import _identity_keys, _identity_keys_overlap, _row_identity_keys
+from ir_training.data.source_namespace import source_namespace
 from ir_training.train.recipe import optimizer_steps, validate_effective_batch, validate_sft_recipe
 
 
@@ -34,7 +36,9 @@ def source_identity(row: dict) -> tuple[str, str]:
     if not source:
         raise ValueError("Prepared row is missing canonical response_text.")
     metadata = row.get("metadata") if isinstance(row.get("metadata"), dict) else {}
-    query = row.get("query_id") or metadata.get("query_id") or row.get("source_id")
+    source_id = str(row.get("source_id") or metadata.get("source_id") or "")
+    query = (source_id if source_namespace(source_id) else
+             row.get("query_id") or metadata.get("query_id") or source_id)
     if not query:
         raise ValueError("Prepared row is missing its query/source ID.")
     return str(query), hashlib.sha256(" ".join(source.split()).encode()).hexdigest()
@@ -71,15 +75,16 @@ def verify_prepared(
         path = dataset / f"{name}.jsonl"
         if sha256(path) != (splits.get(name) or {}).get("output_sha256"):
             raise ValueError(f"Prepared {name} hash differs from its manifest.")
-        identities = [source_identity(row) for row in rows(path)]
+        prepared_rows = list(rows(path))
+        identities = [source_identity(row) for row in prepared_rows]
         if not identities:
             raise ValueError(f"Empty {name} split")
         counts[name] = len(identities)
-        ids = {query for query, _ in identities if query}
+        ids = set().union(*(_row_identity_keys(row) for row in prepared_rows))
         sources = {source for _, source in identities}
         if name == "train":
             train_ids, train_sources = ids, sources
-        elif ids & train_ids or sources & train_sources:
+        elif _identity_keys_overlap(ids, train_ids) or sources & train_sources:
             raise ValueError("Train/val overlap by query ID or normalized response text; rebuild splits before training.")
         else:
             val_ids, val_sources = ids, sources
@@ -105,12 +110,13 @@ def verify_prepared(
     required_unique = 31 if (benchmark or {}).get("benchmark_kind") == "explicit_repeated_case" else 32
     if len(gold) != 32 or len(set(identities)) != required_unique or len({key for key, _ in identities}) != required_unique or len({source for _, source in identities}) != required_unique:
         raise ValueError(f"Golden32 requires exactly {required_unique} unique query IDs and sources in this benchmark revision.")
-    if any((query and query in train_ids) or source in train_sources for query, source in identities):
+    golden_ids = set().union(*(_row_identity_keys(row) for row in gold))
+    if _identity_keys_overlap(golden_ids, train_ids) or any(source in train_sources for _, source in identities):
         raise ValueError("Golden32 overlaps training by query ID or normalized source response.")
-    if any(query in val_ids or source in val_sources for query, source in identities):
+    if _identity_keys_overlap(golden_ids, val_ids) or any(source in val_sources for _, source in identities):
         raise ValueError("Golden32 overlaps validation. Filter the ordinary validation split against reserved Golden cohorts first.")
     for excluded in (benchmark or {}).get("excluded_sources", []):
-        if excluded.get("query_id") in train_ids | val_ids or excluded.get("response_sha256") in train_sources | val_sources:
+        if _identity_keys_overlap(_identity_keys(excluded), train_ids | val_ids) or excluded.get("response_sha256") in train_sources | val_sources:
             raise ValueError("Replaced Golden source is still reserved and must not enter train/val.")
     gt = golden_manifest.get("tokenizer") or {}
     if any(gt.get(key) != tokenizer.get(key) for key in ("vocabulary_sha256", "chat_template_sha256", "chat_template_kwargs")):

@@ -1085,7 +1085,7 @@ def build_pipeline_plan(
         step="<checkpoint-step>",
     )
 
-    return {
+    plan = {
         "schema_version": 1,
         "pipeline_id": pipeline_id,
         "run_id": run_id,
@@ -1195,6 +1195,8 @@ def build_pipeline_plan(
             "Every LiteRT-LM artifact must pass the full Golden-32 run through the configured external runtime; device/delegation checks remain separate promotion evidence.",
         ],
     }
+    _restore_w8_artifact_selection(plan)
+    return plan
 
 
 def _run_command(command: list[str], log_path: Path, *, cwd: Path, environment: dict[str, str] | None = None) -> None:
@@ -1377,6 +1379,10 @@ def _export_format(
     plan: dict[str, Any], name: str, *, allow_experimental: bool
 ) -> None:
     format_plan = plan["formats"][name]
+    if format_plan["artifact_source"] != "public_export":
+        raise Gemma270MMultiformatError(
+            "This run has selected the official Q8 artifact; use a fresh run for public W8 export."
+        )
     if not format_plan["enabled"]:
         raise Gemma270MMultiformatError(f"formats.{name}.enabled=false")
     if format_plan["requires_explicit_opt_in"] and not allow_experimental:
@@ -1421,12 +1427,13 @@ def _merge(plan: dict[str, Any]) -> None:
     model = _section(training_config, "model")
     merge_lora_adapter(
         base_model_id=str(model.get("model_id") or ""),
+        base_model_source=model.get("model_source"),
         adapter_dir=checkpoint,
         output_dir=output,
         model_loader=str(model.get("model_loader") or "auto_causal_lm"),
         dtype=str(model.get("dtype") or "bfloat16"),
         trust_remote_code=bool(model.get("trust_remote_code", False)),
-        processor_model_id=str(model.get("model_id") or ""),
+        processor_model_id=str(model.get("tokenizer_source") or model.get("model_source") or model.get("model_id") or ""),
         training_config_path=plan["training"]["resolved_config"],
     )
     plan["merge"]["output_ready"] = (output / "config.json").is_file()
@@ -1434,7 +1441,7 @@ def _merge(plan: dict[str, Any]) -> None:
 
 
 def _use_official_q8_for_w8(plan: dict[str, Any]) -> None:
-    """Route every W8 consumer in this invocation to the official artifact."""
+    """Keep official-Q8 evidence separate from earlier public-W8 evaluation."""
 
     artifact = Path(plan["official_q8"]["artifact"])
     if not artifact.is_file():
@@ -1451,6 +1458,15 @@ def _use_official_q8_for_w8(plan: dict[str, Any]) -> None:
 
     evaluation_command = w8["evaluation"]["command"]
     evaluation_command[evaluation_command.index("--model") + 1] = str(artifact)
+    evaluation_dir = Path(w8["evaluation"]["output_dir"]).parent / "w8_official_q8"
+    evaluation_name = "litertlm_w8_official_q8"
+    w8["evaluation"].update(
+        output_dir=str(evaluation_dir),
+        aggregate=str(evaluation_dir / "aggregate_metrics.json"),
+        evaluation_name=evaluation_name,
+    )
+    evaluation_command[evaluation_command.index("--output-dir") + 1] = str(evaluation_dir)
+    evaluation_command[evaluation_command.index("--evaluation-name") + 1] = evaluation_name
 
     package_validation = w8["package_validation"]
     package_validation["artifact"] = str(artifact)
@@ -1464,6 +1480,44 @@ def _use_official_q8_for_w8(plan: dict[str, Any]) -> None:
         raise Gemma270MMultiformatError(
             "Could not bind the W8 package-inspection command to the official Q8 artifact."
         )
+    package_validation["report"] = str(evaluation_dir / "package_inspection.json")
+    package_command[package_command.index("--output") + 1] = package_validation["report"]
+
+
+def _save_w8_artifact_selection(plan: dict[str, Any]) -> None:
+    """Bind the explicit official-Q8 choice across later evaluation invocations."""
+    artifact = Path(plan["official_q8"]["artifact"])
+    record = {
+        "schema_version": 1,
+        "run_id": plan["run_id"],
+        "training_config_sha256": plan["training"]["resolved_config_sha256"],
+        "artifact": str(artifact.resolve()),
+        "artifact_sha256": _sha256(artifact),
+    }
+    path = Path(plan["output_dir"]) / "w8_artifact_selection.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_suffix(".json.partial")
+    temporary.write_text(json.dumps(record, indent=2), encoding="utf-8")
+    temporary.replace(path)
+
+
+def _restore_w8_artifact_selection(plan: dict[str, Any]) -> None:
+    path = Path(plan["output_dir"]) / "w8_artifact_selection.json"
+    if not path.exists():
+        return
+    record = json.loads(path.read_text(encoding="utf-8"))
+    artifact = Path(plan["official_q8"]["artifact"])
+    if (
+        not isinstance(record, dict)
+        or record.get("schema_version") != 1
+        or record.get("run_id") != plan["run_id"]
+        or record.get("training_config_sha256") != plan["training"]["resolved_config_sha256"]
+        or record.get("artifact") != str(artifact.resolve())
+        or not artifact.is_file()
+        or record.get("artifact_sha256") != _sha256(artifact)
+    ):
+        raise Gemma270MMultiformatError("Saved official Q8 artifact selection is missing, changed or belongs to another training run.")
+    _use_official_q8_for_w8(plan)
 
 
 def _scorecard_entry(
@@ -1583,7 +1637,7 @@ def write_final_scorecard(
                 aggregate_path=Path(item["evaluation"]["aggregate"]),
                 artifact=Path(item["artifact"]),
                 metric_name=metric_name,
-                evaluation_name=f"litertlm_{name}",
+                evaluation_name=item["evaluation"]["evaluation_name"],
                 run_id=plan["run_id"],
                 required_rows=required_rows,
                 tensorboard_run_dir=tensorboard_run_dir,
@@ -1805,6 +1859,7 @@ def run_pipeline(
         )
         official_artifact = Path(plan["official_q8"]["artifact"])
         _use_official_q8_for_w8(plan)
+        _save_w8_artifact_selection(plan)
         plan["official_q8"]["executed"] = True
         plan["official_q8"]["artifact_sha256"] = _sha256(official_artifact)
         plan["official_q8"]["artifact_size_bytes"] = official_artifact.stat().st_size
@@ -1827,7 +1882,7 @@ def run_pipeline(
                 )
             _run_command(
                 plan["formats"][name]["package_validation"]["command"],
-                logs_dir / f"inspect_litertlm_{name}.log",
+                logs_dir / f"inspect_{plan['formats'][name]['evaluation']['evaluation_name']}.log",
                 cwd=repo_root(),
             )
             package_report = Path(
@@ -1864,7 +1919,7 @@ def run_pipeline(
                     plan["formats"][name]["evaluation"]["command"],
                     Path(plan["training"]["best_checkpoint"]),
                 ),
-                logs_dir / f"evaluate_litertlm_{name}.log",
+                logs_dir / f"evaluate_{plan['formats'][name]['evaluation']['evaluation_name']}.log",
                 cwd=repo_root(),
             )
             plan["formats"][name]["evaluation"]["executed"] = True

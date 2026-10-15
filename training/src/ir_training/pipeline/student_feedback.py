@@ -110,7 +110,7 @@ def new_output(output: Path, *protected: Path) -> None:
 
 def checked_prepared(directory: Path):
     """Reserve val, named holdouts and canonical/replaced sources transitively."""
-    from ir_training.data.audit_filter import _identity_keys, _source_hashes, load_reserved_cohorts
+    from ir_training.data.audit_filter import _identity_keys_overlap, _row_identity_keys, _source_hashes, load_reserved_cohorts
     from ir_training.data.golden_replacement import source_identity_record
     from ir_training.eval.prepared_contract import checked_preparation_manifest
     from ir_training.common.config import repo_root
@@ -151,11 +151,11 @@ def checked_prepared(directory: Path):
         if not row_id or not identity.get("source_id") or row_id in ids:
             raise ValueError("Feedback requires unique prepared row IDs and source identities")
         ids.add(row_id)
-        keys, hashes = _identity_keys(identity), _source_hashes(row)
+        keys, hashes = _row_identity_keys(row), _source_hashes(row)
         augmentation = row.get("metadata", {}).get("augmentation") or {}
         # Include donor lineage even when a variant's source text/IDs differ.
         keys |= {str(augmentation[key]) for key in ("donor_id", "source_group_id") if augmentation.get(key)}
-        blocked.append(bool(keys & reserved["identities"] or hashes & reserved["responses"])
+        blocked.append(bool(_identity_keys_overlap(keys, reserved["identities"]) or hashes & reserved["responses"])
                        or row.get("evaluation_only") is True or row.get("reference_available") is False)
         for key in sorted({"id:" + k for k in keys} | {"text:" + h for h in hashes}):
             if key in owners:

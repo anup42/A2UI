@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import sys
 import types
 from pathlib import Path
@@ -22,7 +23,7 @@ def _digest_tree(path: Path) -> dict[str, str]:
     }
 
 
-def _fixture(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+def _fixture(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, *, full_model=False):
     monkeypatch.setitem(
         sys.modules, "transformers", types.SimpleNamespace(TrainerCallback=object)
     )
@@ -44,11 +45,13 @@ def _fixture(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr(callbacks, "evaluate_predictions", evaluate)
 
     class Model:
+        payload = b"prior-best"
+
         def save_pretrained(self, directory):
             target = Path(directory)
             target.mkdir(parents=True, exist_ok=True)
-            (target / "adapter_config.json").write_text("{}")
-            (target / "adapter_model.safetensors").write_bytes(b"prior-best")
+            (target / ("config.json" if full_model else "adapter_config.json")).write_text("{}")
+            (target / ("pytorch_model.bin" if full_model else "adapter_model.safetensors")).write_bytes(self.payload)
 
     class Tokenizer:
         chat_template = "fixed-template"
@@ -115,8 +118,9 @@ def test_default_resume_keeps_existing_best_location(tmp_path, monkeypatch):
 def test_relocation_rejects_missing_or_mutated_previous_best(
     tmp_path, monkeypatch, damage
 ):
-    build, _, checkpoint, old_best = _fixture(tmp_path, monkeypatch)
-    adapter = old_best / "adapter_model.safetensors"
+    build, _, checkpoint, _ = _fixture(tmp_path, monkeypatch)
+    saved = json.loads((checkpoint / "golden_callback_state.json").read_text())
+    adapter = Path(saved["best_checkpoint_snapshot"]) / "adapter_model.safetensors"
     if damage == "missing":
         adapter.unlink()
     else:
@@ -125,6 +129,104 @@ def test_relocation_rejects_missing_or_mutated_previous_best(
     with pytest.raises(ValueError, match="missing or changed"):
         build(tmp_path / "continuation", resume=checkpoint, relocate=True)
     assert not (tmp_path / "continuation/best_golden_checkpoint").exists()
+
+
+def test_old_checkpoint_keeps_its_selected_best_after_later_improvement(tmp_path, monkeypatch):
+    build, model, checkpoint, old_best = _fixture(tmp_path, monkeypatch)
+    saved = json.loads((checkpoint / "golden_callback_state.json").read_text())
+    snapshot = Path(saved["best_checkpoint_snapshot"])
+    original_snapshot = _digest_tree(snapshot)
+    resumed = build(checkpoint.parent, resume=checkpoint)
+    monkeypatch.setattr(callbacks, "evaluate_predictions", lambda **_: {"overall_score": 60.0})
+    model.payload = b"new-best"
+    state = SimpleNamespace(global_step=20, epoch=2.0)
+    resumed.on_evaluate(None, state, None, model=model)
+    assert (old_best / "adapter_model.safetensors").read_bytes() == b"new-best"
+    assert _digest_tree(snapshot) == original_snapshot
+    next_checkpoint = checkpoint.parent / "checkpoint-20"
+    next_checkpoint.mkdir()
+    resumed.on_save(SimpleNamespace(output_dir=checkpoint.parent), state, None)
+
+    # The old checkpoint must recover its own best, not the later improved one.
+    earlier = build(tmp_path / "earlier-resume", resume=checkpoint, relocate=True)
+    assert earlier.summary()["step"] == 10
+    assert earlier.summary()["metric_value"] == 42.0
+    assert (Path(earlier.summary()["checkpoint_dir"]) / "adapter_model.safetensors").read_bytes() == b"prior-best"
+    later = build(tmp_path / "later-resume", resume=next_checkpoint)
+    assert later.summary()["step"] == 20
+    assert later.summary()["metric_value"] == 60.0
+    # A non-relocating rewind may read the frozen best, but improvement must
+    # write the new run's public alias, never overwrite that frozen source.
+    rewind_output = tmp_path / "rewind"
+    rewind = build(rewind_output, resume=checkpoint)
+    assert Path(rewind.summary()["checkpoint_dir"]) == snapshot
+    model.payload = b"rewind-improved"
+    rewind.on_evaluate(None, SimpleNamespace(global_step=15, epoch=1.5), None, model=model)
+    assert Path(rewind.summary()["checkpoint_dir"]) == rewind_output / "best_golden_checkpoint"
+    assert _digest_tree(snapshot) == original_snapshot
+
+
+def test_same_best_snapshot_is_reused_and_changed_snapshot_is_rejected(tmp_path, monkeypatch):
+    build, _, checkpoint, _ = _fixture(tmp_path, monkeypatch)
+    resumed = build(checkpoint.parent, resume=checkpoint)
+    saved = json.loads((checkpoint / "golden_callback_state.json").read_text())
+    snapshot = Path(saved["best_checkpoint_snapshot"])
+    before = _digest_tree(snapshot)
+    copy_calls = []
+    monkeypatch.setattr(callbacks.shutil, "copy2", lambda *a, **kw: copy_calls.append(a))
+    next_checkpoint = checkpoint.parent / "checkpoint-20"
+    next_checkpoint.mkdir()
+    state = SimpleNamespace(global_step=20, epoch=2.0)
+    resumed.on_save(SimpleNamespace(output_dir=checkpoint.parent), state, None)
+    assert copy_calls == []
+    assert _digest_tree(snapshot) == before
+    second = json.loads((next_checkpoint / "golden_callback_state.json").read_text())
+    assert second["best_checkpoint_snapshot"] == saved["best_checkpoint_snapshot"]
+    (snapshot / "adapter_model.safetensors").write_bytes(b"tampered")
+    with pytest.raises(ValueError, match="snapshot is missing or changed"):
+        resumed.on_save(SimpleNamespace(output_dir=checkpoint.parent), state, None)
+
+
+def test_legacy_selector_state_without_snapshot_is_still_hash_verified(tmp_path, monkeypatch):
+    build, _, checkpoint, old_best = _fixture(tmp_path, monkeypatch)
+    state_path = checkpoint / "golden_callback_state.json"
+    saved = json.loads(state_path.read_text())
+    saved.pop("best_checkpoint_snapshot")
+    state_path.write_text(json.dumps(saved))
+    resumed = build(tmp_path / "legacy-resume", resume=checkpoint)
+    assert resumed.summary()["checkpoint_dir"] == str(old_best)
+    (old_best / "adapter_model.safetensors").write_bytes(b"tampered")
+    with pytest.raises(ValueError, match="missing or changed"):
+        build(tmp_path / "legacy-resume", resume=checkpoint)
+
+
+def test_resumed_frozen_best_cannot_be_rebound_after_tampering(tmp_path, monkeypatch):
+    build, _, checkpoint, old_best = _fixture(tmp_path, monkeypatch)
+    saved = json.loads((checkpoint / "golden_callback_state.json").read_text())
+    snapshot = Path(saved["best_checkpoint_snapshot"])
+    (old_best / "adapter_model.safetensors").write_bytes(b"later-best")
+    output = tmp_path / "resumed"
+    resumed = build(output, resume=checkpoint)
+    assert Path(resumed.summary()["checkpoint_dir"]) == snapshot
+    (snapshot / "adapter_model.safetensors").write_bytes(b"tampered")
+    (output / "checkpoint-20").mkdir(parents=True)
+    with pytest.raises(ValueError, match="missing or changed before snapshot"):
+        resumed.on_save(SimpleNamespace(output_dir=output), SimpleNamespace(global_step=20), None)
+
+
+@pytest.mark.parametrize("full_model,extra", [
+    (False, "adapter_model.bin"),
+    (True, "model.safetensors"),
+    (True, "model.safetensors.index.json"),
+])
+def test_resume_rejects_unbound_added_weights_or_index(tmp_path, monkeypatch, full_model, extra):
+    build, _, checkpoint, old_best = _fixture(tmp_path, monkeypatch, full_model=full_model)
+    saved = json.loads((checkpoint / "golden_callback_state.json").read_text())
+    snapshot = Path(saved["best_checkpoint_snapshot"])
+    for directory in (snapshot, old_best):
+        (directory / extra).write_bytes(b"unbound payload can override loader selection")
+    with pytest.raises(ValueError, match="snapshot is missing or changed"):
+        build(tmp_path / "resume", resume=checkpoint)
 
 
 def test_relocation_rejects_existing_destination_without_touching_source(

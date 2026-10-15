@@ -135,14 +135,27 @@ def build_golden_set_eval_callback(
             self.best_metric_epoch: float | None = None
             self.best_checkpoint_saved = False
             self.best_checkpoint_path = resolved_best_checkpoint_dir
+            self.best_checkpoint_files: list[dict[str, Any]] | None = None
             self.last_completed_step: int | None = None
             if resume_checkpoint is not None:
                 self._restore_state(Path(resume_checkpoint))
 
         def _state_payload(self) -> dict[str, Any]:
             best_manifest = None
+            snapshot_path = None
             if self.best_checkpoint_saved:
-                best_manifest = _checkpoint_adapter_manifest(self.best_checkpoint_path, role="best_golden")
+                # The public best directory is overwritten on improvement.
+                # Bind saved Trainer states to a separate byte-verified snapshot
+                # so resuming an earlier checkpoint retains its own selection.
+                snapshot_path = _snapshot_golden_best(
+                    source=self.best_checkpoint_path,
+                    destination=resolved_best_checkpoint_dir.with_name(
+                        resolved_best_checkpoint_dir.name + "_snapshots"
+                    ) / f"step-{self.best_metric_step}",
+                    expected_files=self.best_checkpoint_files,
+                )
+                best_manifest = _checkpoint_adapter_manifest(snapshot_path, role="best_golden")
+                self.best_checkpoint_files = best_manifest["files"]
             return {
                 "schema_version": 1,
                 "contract": callback_contract,
@@ -150,6 +163,7 @@ def build_golden_set_eval_callback(
                 "last_completed_step": self.last_completed_step,
                 "best": self.summary(),
                 "best_checkpoint_manifest": best_manifest,
+                "best_checkpoint_snapshot": str(snapshot_path) if snapshot_path is not None else None,
             }
 
         def _restore_state(self, checkpoint: Path) -> None:
@@ -171,10 +185,34 @@ def build_golden_set_eval_callback(
                 manifest = saved.get("best_checkpoint_manifest") or {}
                 candidates = [Path(best["checkpoint_dir"]), checkpoint.parent / Path(best["checkpoint_dir"]).name]
                 entries = manifest.get("files") or []
-                matched = next((candidate for candidate in candidates if entries and all(
-                    (candidate / entry["path"]).is_file()
-                    and _sha256_file(candidate / entry["path"]) == entry["sha256"]
-                    for entry in entries)), None)
+
+                def matches(candidate: Path) -> bool:
+                    if not (bool(entries) and not candidate.is_symlink() and all(
+                        isinstance(entry, dict) and isinstance(entry.get("path"), str)
+                        and Path(entry["path"]).name == entry["path"]
+                        and (candidate / entry["path"]).is_file()
+                        and not (candidate / entry["path"]).is_symlink()
+                        and _sha256_file(candidate / entry["path"]) == entry.get("sha256")
+                        for entry in entries
+                    )):
+                        return False
+                    # Added weight shards/indexes can change HF loader choice
+                    # even when every originally bound file is unchanged.
+                    try:
+                        actual = _checkpoint_adapter_manifest(candidate, role="best_golden")["files"]
+                    except RuntimeError:
+                        return False
+                    return actual == entries
+
+                snapshot_value = saved.get("best_checkpoint_snapshot")
+                if snapshot_value:
+                    snapshot = Path(snapshot_value)
+                    snapshot_candidates = [snapshot, checkpoint.parent / snapshot.parent.name / snapshot.name]
+                    frozen = next((candidate for candidate in snapshot_candidates if matches(candidate)), None)
+                    if frozen is None:
+                        raise ValueError("Previously frozen Golden resume snapshot is missing or changed.")
+                    candidates.append(frozen)
+                matched = next((candidate for candidate in candidates if matches(candidate)), None)
                 if matched is None:
                     raise ValueError("Previously selected Golden checkpoint is missing or changed; retain its original files when resuming.")
                 if resume_relocate_best:
@@ -186,6 +224,7 @@ def build_golden_set_eval_callback(
                 else:
                     self.best_checkpoint_path = matched
                 self.best_checkpoint_saved = True
+                self.best_checkpoint_files = entries
 
         def on_save(self, args: Any, state: Any, control: Any, **kwargs: Any) -> Any:
             if _distributed_context()[0] == 0:
@@ -419,6 +458,7 @@ def build_golden_set_eval_callback(
                     )
                 self.best_checkpoint_saved = True
                 self.best_checkpoint_path = resolved_best_checkpoint_dir
+                self.best_checkpoint_files = None
             if zero3_trainer is not None:
                 publication_error: Exception | None = None
                 if rank == 0:
@@ -834,6 +874,45 @@ def _atomic_copy_file(source: Path, destination: Path) -> None:
     temporary.replace(destination)
 
 
+def _snapshot_golden_best(
+    *, source: Path, destination: Path,
+    expected_files: list[dict[str, Any]] | None = None,
+) -> Path:
+    """Freeze one selected model per step; never overwrite saved resume weights.
+
+    Called by world rank zero only. A copy (not a hard link) is required because
+    future save_pretrained calls may truncate/rewrite files in the public alias.
+    """
+    if source.is_symlink() or destination.is_symlink():
+        raise ValueError("Golden resume snapshots must not use symlinked directories.")
+    source = source.resolve(strict=True)
+    destination = destination.resolve(strict=False)
+    expected = _checkpoint_adapter_manifest(source, role="best_golden")["files"]
+    if expected_files is not None and expected != expected_files:
+        raise ValueError("Previously selected Golden checkpoint is missing or changed before snapshot save.")
+    if destination.exists():
+        if destination.is_symlink() or any(item.is_symlink() for item in destination.iterdir()):
+            raise ValueError("Golden resume snapshot must not contain symlinks.")
+        actual = _checkpoint_adapter_manifest(destination, role="best_golden")["files"]
+        if actual != expected:
+            raise ValueError("Previously frozen Golden resume snapshot is missing or changed.")
+        return destination
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    temporary = Path(tempfile.mkdtemp(prefix=f".{destination.name}-", dir=destination.parent))
+    try:
+        for entry in source.iterdir():
+            if entry.is_symlink() or not entry.is_file():
+                raise ValueError("Golden snapshot source must contain top-level regular files only.")
+            shutil.copy2(entry, temporary / entry.name)
+        if _checkpoint_adapter_manifest(temporary, role="best_golden")["files"] != expected:
+            raise RuntimeError("Golden resume snapshot copy verification failed.")
+        temporary.replace(destination)
+    finally:
+        if temporary.exists():
+            shutil.rmtree(temporary)
+    return destination
+
+
 def _relocate_verified_best_checkpoint(
     *, source: Path, destination: Path, expected_manifest: dict[str, Any]
 ) -> Path:
@@ -1087,7 +1166,7 @@ def _save_best_golden_checkpoint(
     missing = object()
     cache_implementation = getattr(generation_config, "cache_implementation", missing)
     if cache_implementation is not missing:
-        # The 1B full-QAT training cache stays disabled; only serialization
+        # The full-finetuning cache stays disabled; only serialization
         # must omit a cache implementation that requires use_cache=True.
         generation_config.cache_implementation = None
     try:

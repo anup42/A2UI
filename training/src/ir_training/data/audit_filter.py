@@ -12,12 +12,57 @@ from ir_training.common.parallel import ordered_bounded_map
 
 from ir_training.data.express_preparation import PreparationError, _token_lengths, prepare_row
 from ir_training.data.golden_replacement import read_rows_strict, response_text, source_identity_record
+from ir_training.data.source_namespace import scoped_source_id, source_namespace
 from ir_training.data.url_preprocess import preprocess_training_urls
 from ir_training.train.prepared_binding import value_sha256
 
+_LEGACY_UNSCOPED = "legacy-unscoped-v1:"
+
 
 def _identity_keys(record: Mapping[str, Any]) -> set[str]:
-    return {str(record.get(key)) for key in ("source_id", "query_id", "response_id", "row_id") if record.get(key)}
+    namespace = source_namespace(str(record.get("source_id") or ""))
+    if namespace is None:
+        # Existing pinned benchmarks and explicitly global IDs are unchanged.
+        identities = {str(record.get(key)) for key in ("source_id", "query_id", "response_id", "row_id") if record.get(key)}
+        origin = str(record.get("source_path") or "")
+        if not origin:
+            # build_pairs' canonical row ID preserves the source path even in
+            # older excluded-source manifests that do not retain metadata.
+            parts = str(record.get("row_id") or "").rsplit(":", 2)
+            if len(parts) == 3 and parts[0].endswith(".jsonl") and parts[2] == "a2ui_express_v1":
+                origin = parts[0]
+        if not origin:
+            # An old query with no recoverable origin cannot safely be assumed
+            # unrelated to a newly scoped query of the same name.
+            identities.update(_LEGACY_UNSCOPED + str(record[key])
+                              for key in ("source_id", "query_id", "response_id") if record.get(key))
+            return identities
+        namespace = source_namespace(scoped_source_id(origin, "identity"))
+    else:
+        identities = {str(record[key]) for key in ("source_id", "row_id") if record.get(key)}
+    for key in ("query_id", "response_id"):
+        value = str(record.get(key) or "")
+        if value:
+            identities.add(value if source_namespace(value) else f"{namespace}:{value}")
+    return identities
+
+
+def _identity_keys_overlap(left: set[str], right: set[str]) -> bool:
+    """Match scoped aliases exactly, except ambiguous legacy IDs fail closed."""
+    if left & right:
+        return True
+    for scoped, other in ((left, right), (right, left)):
+        for value in scoped:
+            namespace = source_namespace(value)
+            if namespace and _LEGACY_UNSCOPED + value[len(namespace) + 1:] in other:
+                return True
+    return False
+
+
+def _row_identity_keys(row: Mapping[str, Any]) -> set[str]:
+    metadata = row.get("metadata") if isinstance(row.get("metadata"), dict) else {}
+    return _identity_keys({**source_identity_record(row),
+                           "source_path": row.get("source_path") or metadata.get("source_path")})
 
 
 def _source_hashes(row: Mapping[str, Any]) -> set[str]:
@@ -39,8 +84,7 @@ def load_reserved_cohorts(paths: Iterable[Path], manifests: Iterable[Path] = ())
         if not rows:
             raise ValueError(f"Reserved cohort is empty: {path}")
         for row in rows:
-            record = source_identity_record(row)
-            identities.update(_identity_keys(record))
+            identities.update(_row_identity_keys(row))
             responses.update(_source_hashes(row))
         evidence.append({"path": str(path), "sha256": hashlib.sha256(path.read_bytes()).hexdigest(), "rows": len(rows)})
         adjacent = path.parent / "benchmark_manifest.json"
@@ -77,7 +121,7 @@ def _filter_candidate(row, *, reserved, require_source_identities):
         except ValueError as exc:
             raise PreparationError("missing_source_response", str(exc)) from exc
         missing_identity = not identity["source_id"]
-        if _identity_keys(identity) & reserved["identities"] or _source_hashes(row) & reserved["responses"]:
+        if _identity_keys_overlap(_row_identity_keys(row), reserved["identities"]) or _source_hashes(row) & reserved["responses"]:
             raise PreparationError("reserved_evaluation_source", "Source occurs in a reserved evaluation cohort or its replaced-source exclusions")
         if require_source_identities and missing_identity:
             raise PreparationError("missing_source_identity", "Recover original Stage 2/3 identity before training")

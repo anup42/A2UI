@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from ir_training.common.config import resolve_path, training_root
+from ir_training.common.config import load_yaml, resolve_path, training_root
 from ir_training.models.hf_loading import load_hf_model
 from ir_training.qat.mobile_qparams import (
     decode_activation_scale_f32,
@@ -1050,6 +1050,19 @@ def _training_provenance(
     config_bytes = resolved_config.read_bytes()
     config_sha256 = hashlib.sha256(config_bytes).hexdigest()
     config = load_yaml(resolved_config)
+    metadata_path = adapter_path / "training_metadata.json"
+    if metadata_path.is_file():
+        metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+        resume_contract = metadata.get("resume_contract") or {}
+        bound_bases = [identity for identity in (
+            resume_contract.get("local_base_identity"), metadata.get("local_base_identity"),
+        ) if identity is not None]
+        if bound_bases:
+            from ir_training.train.resume_contract import local_base_identity
+
+            current_base = local_base_identity(config)
+            if any(current_base != identity for identity in bound_bases):
+                raise ValueError("Merge local base bytes differ from the training checkpoint")
     from ir_training.train.mobile_resume import enabled as continuation_enabled
     from ir_training.train.mobile_resume import verify_export_lineage
     if continuation_enabled(config):
@@ -1184,6 +1197,11 @@ def merge_lora_adapter(
     base = training_root()
     adapter_path = resolve_path(adapter_dir, base)
     out_dir = resolve_path(output_dir, base)
+    if base_model_source is None and training_config_path is not None:
+        # The bound training configuration is authoritative even for callers
+        # that do not repeat --base-model-source on the merge command line.
+        configured_model = load_yaml(resolve_path(training_config_path, base)).get("model") or {}
+        base_model_source = configured_model.get("model_source")
     model_source = (
         resolve_path(base_model_source, base)
         if base_model_source is not None
@@ -1235,12 +1253,15 @@ def merge_lora_adapter(
         except Exception:  # noqa: BLE001 - fall back to the declared base below
             processor_saved = False
     if not processor_saved:
-        processor_source = processor_model_id or base_model_id
+        processor_source = processor_model_id or str(model_source)
+        local_processor_source = resolve_path(processor_source, base)
+        if local_processor_source.is_dir():
+            processor_source = str(local_processor_source)
         try:
             processor = AutoProcessor.from_pretrained(processor_source, trust_remote_code=trust_remote_code)
             processor.save_pretrained(str(out_dir))
         except Exception:  # noqa: BLE001 - some model families expose only a tokenizer
-            tokenizer = AutoTokenizer.from_pretrained(base_model_id, trust_remote_code=trust_remote_code)
+            tokenizer = AutoTokenizer.from_pretrained(processor_source, trust_remote_code=trust_remote_code)
             tokenizer.save_pretrained(str(out_dir))
 
     adapter_files = _adapter_file_records(adapter_path)

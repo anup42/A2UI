@@ -1,9 +1,9 @@
 """Exercise the real explicit-repeat artifact through CPU preparation and launch checks."""
-from copy import deepcopy
 import importlib.util
 import json
-from pathlib import Path
 import sys
+from copy import deepcopy
+from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
@@ -12,8 +12,12 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 from ir_training.data.express_preparation import TASK_PREFIX, prepare_splits
 from ir_training.data.golden_replacement import read_rows_strict, serialize_rows
+from ir_training.data.source_namespace import scoped_source_id
 from ir_training.eval.compare_to_baseline import repeated_benchmark_scores
-from ir_training.eval.golden_set import benchmark_contract_for_split, load_fixed_golden_rows
+from ir_training.eval.golden_set import (
+    benchmark_contract_for_split,
+    load_fixed_golden_rows,
+)
 
 
 class FixtureTokenizer:
@@ -103,6 +107,30 @@ def test_repeat_launch_rejects_validation_and_replaced_source_leakage(prepared_r
         expected = "still reserved"
     with pytest.raises(ValueError, match=expected):
         _launch_preparer().verify_prepared(directory, split, max_sequence=4096, max_prompt=4096)
+
+
+@pytest.mark.parametrize("excluded", [False, True])
+def test_repeat_launch_rejects_scoped_sibling_of_legacy_reserved_query(prepared_repeat, excluded):
+    directory, manifest = prepared_repeat
+    split = directory / "golden32.jsonl"
+    golden_bytes = split.read_bytes()
+    if excluded:
+        record = manifest["splits"]["golden32"]["benchmark"]["excluded_sources"][0]
+        origin = record["row_id"].rsplit(":", 2)[0]
+        query_id = record["query_id"]
+        expected = "still reserved"
+    else:
+        record = read_rows_strict(split)[0]
+        origin = record["metadata"]["source_path"]
+        query_id = record["metadata"]["query_id"]
+        expected = "overlaps training"
+    train_rows = read_rows_strict(directory / "train.jsonl")
+    train_rows[0]["source_id"] = scoped_source_id(origin, query_id)
+    train_rows[0]["metadata"].update(query_id=query_id, source_path=origin)
+    _rewrite_manifest_bound_split(directory, "train", train_rows)
+    with pytest.raises(ValueError, match=expected):
+        _launch_preparer().verify_prepared(directory, split, max_sequence=4096, max_prompt=4096)
+    assert split.read_bytes() == golden_bytes
 
 
 def test_real_repeat_score_averages_donor_before_unique_source_macro(prepared_repeat):

@@ -22,7 +22,8 @@ from ir_training.common.bounded_command import run_bounded_command
 from ir_training.common.config import repo_root
 from ir_training.common.progress import log
 from ir_training.data.audit_filter import (
-    _identity_keys,
+    _identity_keys_overlap,
+    _row_identity_keys,
     _source_hashes,
     audit_and_filter_rows,
     load_reserved_cohorts,
@@ -149,12 +150,12 @@ def _select_donors(source: Path, manifest: dict, reserved: dict, options: dict):
         identity = source_identity_record(row)
         if not identity["source_id"] or not identity["row_id"] or identity["row_id"] in original_ids:
             raise ValueError("Semantic augmentation requires unique row IDs and source identities")
-        keys, hashes = _identity_keys(identity), _source_hashes(row)
+        keys, hashes = _row_identity_keys(row), _source_hashes(row)
         index = len(parents)
         parents.append(index)
         row_ids.append(identity["row_id"])
         group_ids.append(identity["source_id"])
-        blocked.append(bool(keys & reserved["identities"] or hashes & reserved["responses"]))
+        blocked.append(bool(_identity_keys_overlap(keys, reserved["identities"]) or hashes & reserved["responses"]))
         original_ids.add(identity["row_id"])
         source_hashes.update(hashes)
         original_tokens += row["metadata"]["express_preparation"]["tokenization"]["sequence_tokens"]
@@ -259,9 +260,9 @@ def _candidate_rows(generated: Path, donors: list[dict], originals: set[str], so
                 or candidate.get("completion") != completion):
             raise ValueError("Augmentation candidate is not fully admitted by Stage 3")
         # Check the producer's identities before replacing them with local row IDs.
-        raw_identities = _identity_keys(source_identity_record(candidate))
+        raw_identities = _row_identity_keys(candidate)
         raw_identities.update(str(candidate[key]) for key in ("ui_id", "row_id") if candidate.get(key))
-        if raw_identities & reserved["identities"]:
+        if _identity_keys_overlap(raw_identities, reserved["identities"]):
             raise ValueError("Augmentation candidate has a reserved heldout source identity")
         hashes = _source_hashes({"response_text": source})
         if hashes & seen_sources:

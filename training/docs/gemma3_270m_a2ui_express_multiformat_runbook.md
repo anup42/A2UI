@@ -318,10 +318,14 @@ python training/scripts/run_gemma270m_a2ui_express_multiformat.py \
 ```
 
 That command makes the official-topology candidate the W8 evaluation artifact
-for package inspection, Golden evaluation, and the W8 scorecard entry in that
-invocation. It assumes the other four required final results (checkpoint plus
-W32/W16/W4) already exist. It does not make the W32/W16/W4 public exports
-official.
+for package inspection, Golden evaluation, and the W8 scorecard entry. Official
+Q8 evidence uses its own `evaluation/litertlm/w8_official_q8/` directory and
+`litertlm_w8_official_q8` log/TensorBoard identity, preserving earlier public-W8
+results. A hash-bound `w8_artifact_selection.json` preserves this choice for
+later invocations with the same run ID; changed artifact bytes or training
+configuration fail closed. Use a fresh run ID to export public W8 again.
+The command assumes the other four required final results (checkpoint plus
+W32/W16/W4) already exist. It does not make the W32/W16/W4 public exports official.
 
 ## Outputs and acceptance
 

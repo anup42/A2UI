@@ -319,7 +319,10 @@ def repository_boundaries(monkeypatch, tmp_path):
                 ids |= keys(identity(r)); responses |= hashes(r)
             evidence.append({"path": str(path), "sha256": pipeline.sha_file(path)})
         return {"identities": ids, "responses": responses, "evidence": evidence}
-    module("ir_training.data.audit_filter", _identity_keys=keys, _source_hashes=hashes, load_reserved_cohorts=reserved)
+    module("ir_training.data.audit_filter", _identity_keys=keys,
+           _row_identity_keys=lambda r: keys(identity(r)),
+           _identity_keys_overlap=lambda left, right: bool(left & right),
+           _source_hashes=hashes, load_reserved_cohorts=reserved)
     module("ir_training.data.golden_replacement", source_identity_record=identity)
     module("ir_training.eval.prepared_contract", checked_preparation_manifest=lambda p: json.loads((p / "manifest.json").read_text()))
     module("ir_training.common.config", repo_root=lambda: tmp_path, load_yaml=lambda p: json.loads(Path(p).read_text()))
@@ -389,7 +392,14 @@ def test_output_cannot_overwrite_or_nest_under_inputs(repository_boundaries, tmp
     pipeline.new_output(output, source)
     with pytest.raises(FileExistsError):
         pipeline.new_output(output, source)
-    (tmp_path / "link").symlink_to(source, target_is_directory=True)
+    try:
+        (tmp_path / "link").symlink_to(source, target_is_directory=True)
+    except NotImplementedError:
+        pytest.skip("Symlinks are not supported on this platform")
+    except OSError as exc:
+        if sys.platform == "win32" and getattr(exc, "winerror", None) == 1314:
+            pytest.skip("Windows symlink creation requires an unavailable privilege")
+        raise
     with pytest.raises(ValueError, match="symlink"):
         pipeline.inventory(tmp_path / "link")
 

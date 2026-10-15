@@ -25,7 +25,7 @@ def validate_qat_grpo_config(config: dict[str, Any]) -> None:
     )
     validate_contract(config)
     training, grpo = config.get("training") or {}, config.get("grpo") or {}
-    from ir_training.train.grpo_experiment import QualityPolicy, SELECTOR
+    from ir_training.train.grpo_experiment import SELECTOR, QualityPolicy
     for name in ("validation_max_rows", "audit_every_steps"):
         if type(grpo.get(name, 0)) is not int or grpo.get(name, 0) < 0:
             raise ValueError(f"grpo.{name} must be a nonnegative integer")
@@ -140,6 +140,7 @@ def load_qat_grpo_model(config: dict[str, Any], *, config_path: Path | None = No
     )
     from ir_training.train.lora_targets import bind_retained_mobile_peft_targets
     from ir_training.train.qat_grpo_contract import verify_sft_adapter_lineage
+    from ir_training.train.resume_contract import local_base_identity
 
     sft._stabilize_torch_runtime()
     model_cfg, training = dict(config["model"]), config["training"]
@@ -149,6 +150,7 @@ def load_qat_grpo_model(config: dict[str, Any], *, config_path: Path | None = No
     lineage = verify_sft_adapter_lineage(config)
     if lineage.get("verified") is not True:
         raise ValueError(f"SFT adapter provenance failed before loading: {lineage}")
+    base_identity = local_base_identity(config)
     seed = verify_configured_mobile_training_seed(model_cfg, base=training_root(), require_materialized=True)
     if not seed.get("verified"):
         raise ValueError("QAT GRPO original mobile seed identity verification failed")
@@ -189,6 +191,8 @@ def load_qat_grpo_model(config: dict[str, Any], *, config_path: Path | None = No
         "grpo": {"schema_version": 1, "algorithm": "grpo", "family": config["grpo"]["family"],
                  "source_lineage": lineage, "beta": 0.0},
     }
+    if base_identity is not None:
+        metadata["local_base_identity"] = base_identity
     if config_path is not None:
         metadata.update(config_path=str(config_path), training_config_sha256=hashlib.sha256(config_path.read_bytes()).hexdigest())
     return QATGRPOModel(config, model, tokenizer, adapter, metadata, eos_ids)
@@ -594,7 +598,10 @@ def train_qat_grpo(config: dict[str, Any], config_path: Path, *, dependency_pref
             trainer.add_callback(golden)
         quality_callback = None
         if (grpo.get("quality_control") or {}).get("enabled", False):
-            from ir_training.train.grpo_experiment import QualityPolicy, make_quality_callback
+            from ir_training.train.grpo_experiment import (
+                QualityPolicy,
+                make_quality_callback,
+            )
             golden_cfg = dict(config["golden_eval"])
             baseline_dir = output / "sft_starting_baseline"
             baseline_cfg = {**golden_cfg, "output_dir": str(baseline_dir),

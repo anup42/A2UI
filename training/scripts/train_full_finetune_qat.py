@@ -218,6 +218,7 @@ def _build_golden_eval_callback(
     model_cfg: dict[str, Any],
     training_cfg: dict[str, Any],
     trainer: Any,
+    resume_checkpoint: Path | None = None,
 ) -> Any | None:
     golden_cfg = config.get("golden_eval")
     if not isinstance(golden_cfg, dict) or not bool(golden_cfg.get("enabled", False)):
@@ -279,6 +280,7 @@ def _build_golden_eval_callback(
         best_checkpoint_dir=best_checkpoint_dir,
         metric_logger=getattr(trainer, "log", None),
         metric_log_prefix=str(golden_cfg.get("metric_log_prefix", "golden")),
+        resume_checkpoint=resume_checkpoint,
     )
     if _is_zero():
         _print(
@@ -503,6 +505,7 @@ def main() -> int:
         _write_json(task_root / "run_metadata.json", start_metadata)
         shutil.copy2(config_path, task_root / "training_config.yaml")
 
+    resume = Path(args.resume_from_checkpoint).expanduser().resolve() if args.resume_from_checkpoint else None
     golden_callback = _build_golden_eval_callback(
         config=config,
         output_dir=output_dir,
@@ -511,6 +514,7 @@ def main() -> int:
         model_cfg=model_cfg,
         training_cfg=training_cfg,
         trainer=trainer,
+        resume_checkpoint=resume,
     )
     if golden_callback is not None:
         trainer.add_callback(golden_callback)
@@ -527,9 +531,8 @@ def main() -> int:
         )
     )
 
-    resume = args.resume_from_checkpoint or None
     try:
-        result = trainer.train(resume_from_checkpoint=resume)
+        result = trainer.train(resume_from_checkpoint=str(resume) if resume is not None else None)
     finally:
         qat_controller.restore()
     trainer.save_state()

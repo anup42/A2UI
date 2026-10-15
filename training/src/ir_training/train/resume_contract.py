@@ -19,6 +19,49 @@ def file_sha256(path: Path) -> str:
     return result.hexdigest()
 
 
+def local_base_identity(config: dict[str, Any]) -> dict[str, Any] | None:
+    """Bind local HF base bytes, not just a reusable Hub label or directory name.
+
+    Retained-mobile seeds have their own mandatory manifest verification. Keep
+    their existing resume contract unchanged. Remote Hub IDs are not resolved
+    here: this check must not download a second copy of the model.
+    """
+    model = config.get("model") or {}
+    if model.get("mobile_training_seed_manifest"):
+        return None
+    source = model.get("model_source")
+    if source:
+        root = resolve_path(source, training_root()).resolve(strict=True)
+    else:
+        model_id = model.get("model_id")
+        if not model_id or not Path(model_id).is_dir():
+            return None
+        root = Path(model_id).resolve(strict=True)
+    if not root.is_dir() or not (root / "config.json").is_file():
+        raise ValueError(f"Local resume base lacks config.json: {root}")
+    weights = sorted({
+        path for pattern in ("model*.safetensors", "pytorch_model*.bin")
+        for path in root.glob(pattern) if path.is_file()
+    })
+    if not weights:
+        raise ValueError(f"Local resume base lacks HF model weights: {root}")
+    files = {path.name: path for path in weights}
+    for name in ("config.json", "generation_config.json",
+                 "model.safetensors.index.json", "pytorch_model.bin.index.json"):
+        path = root / name
+        if path.is_file():
+            files[name] = path
+        if path.is_file() and name.endswith(".index.json"):
+            index = json.loads(path.read_text(encoding="utf-8"))
+            weight_map = index.get("weight_map")
+            if not isinstance(weight_map, dict) or not weight_map:
+                raise ValueError(f"Invalid base weight index: {path}")
+            for shard in weight_map.values():
+                if not isinstance(shard, str) or shard not in files:
+                    raise ValueError(f"Missing or unsupported base weight shard: {shard!r}")
+    return {"version": 1, "files": {name: file_sha256(path) for name, path in sorted(files.items())}}
+
+
 def build_resume_contract(config: dict[str, Any], dataset_dir: Path, *, effective_batch: int) -> dict[str, Any]:
     training = config.get("training") or {}
     fields = {name: training.get(name, default) for name, default in {
@@ -31,13 +74,17 @@ def build_resume_contract(config: dict[str, Any], dataset_dir: Path, *, effectiv
     # absent, but bind the sampler RNG for recipes that explicitly configure it.
     if "data_seed" in training:
         fields["data_seed"] = training["data_seed"]
-    return {
+    contract = {
         "version": 1, "recipe": fields, "effective_batch_size": effective_batch,
         "model_id": (config.get("model") or {}).get("model_id"),
         "lora": config.get("lora") or {}, "qat": config.get("qat") or {},
         "splits": {name: file_sha256(dataset_dir / f"{name}.jsonl") for name in ("train", "val") if (dataset_dir / f"{name}.jsonl").is_file()},
         "loss_normalization": "mean_supervised_tokens_per_microbatch_then_mean_microbatches",
     }
+    identity = local_base_identity(config)
+    if identity is not None:
+        contract.update(version=2, local_base_identity=identity)
+    return contract
 
 
 def verify_resume_contract(checkpoint: Path, expected: dict[str, Any], *, config: dict | None = None) -> dict[str, Any]:

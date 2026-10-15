@@ -346,6 +346,8 @@ def build_pipeline_plan(
         },
         "merge": {
             "base_model_id": model_id,
+            "base_model_source": model_cfg.get("model_source"),
+            "processor_model_id": model_cfg.get("tokenizer_source") or model_cfg.get("model_source") or model_id,
             "adapter_dir": str(best_checkpoint),
             "merged_model_dir": str(merged_model_dir),
             "training_qat_mode": "effective_merged_weight",
@@ -503,12 +505,13 @@ def run_pipeline(
             )
         merged = merge_lora_adapter(
             base_model_id=str(plan["merge"]["base_model_id"]),
+            base_model_source=plan["merge"]["base_model_source"],
             adapter_dir=checkpoint,
             output_dir=merged_destination,
             model_loader="auto_causal_lm",
             dtype="bfloat16",
             trust_remote_code=False,
-            processor_model_id=str(plan["merge"]["base_model_id"]),
+            processor_model_id=str(plan["merge"]["processor_model_id"]),
             training_config_path=plan["training"]["config"],
         )
         plan["merge"]["merged_model_dir"] = str(merged)

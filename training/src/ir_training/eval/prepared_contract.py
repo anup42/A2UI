@@ -11,11 +11,11 @@ from typing import Any
 from ir_training.common.config import load_yaml
 from ir_training.common.progress import Progress, fingerprint_file, log
 from ir_training.data.audit_filter import (
-    _identity_keys,
+    _identity_keys_overlap,
+    _row_identity_keys,
     _source_hashes,
     load_reserved_cohorts,
 )
-from ir_training.data.golden_replacement import source_identity_record
 from ir_training.eval.golden_set import (
     benchmark_contract_for_split,
     load_fixed_golden_rows,
@@ -127,7 +127,7 @@ def verify_reserved_train_validation(dataset: Path, goldens: list[Path]) -> None
                     row = json.loads(line)
                     if not isinstance(row, dict):
                         raise ValueError(f"{name}:{number}: expected a JSON object")
-                    if _identity_keys(source_identity_record(row)) & reserved["identities"] or _source_hashes(row) & reserved["responses"]:
+                    if _identity_keys_overlap(_row_identity_keys(row), reserved["identities"]) or _source_hashes(row) & reserved["responses"]:
                         raise ValueError(f"Reserved Golden source overlaps {name}; excluded cases and raw/URL-masked variants must not enter train/val.")
                     progress.advance()
 

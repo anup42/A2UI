@@ -144,6 +144,15 @@ def test_real_trainer_keeps_small_updates_and_reload_in_fp32(tiny_full_model, tm
     monkeypatch.setattr(sft, "_resolve_training_dtype", lambda _dtype: "bfloat16")
     original_create = sft.create_adapter
     observed = []
+    serialization_cache_states = []
+    golden_save_policies = []
+    original_golden_callback = sft._build_optional_golden_callback
+
+    def golden_callback(**kwargs):
+        golden_save_policies.append(kwargs.get("clear_generation_cache_on_save"))
+        return original_golden_callback(**kwargs)
+
+    monkeypatch.setattr(sft, "_build_optional_golden_callback", golden_callback)
 
     def create_adapter(model_config):
         adapter = original_create(model_config)
@@ -155,6 +164,22 @@ def test_real_trainer_keeps_small_updates_and_reload_in_fp32(tiny_full_model, tm
             assert all(p.dtype == torch.float32 for p in model.parameters())
             assert torch.equal(model.model.norm.weight, residual)
             assert all(not b.is_floating_point() or b.dtype == torch.float32 for b in model.buffers())
+            # Like Gemma's inherited hybrid cache, any explicit cache backend
+            # conflicts with training use_cache=False during serialization.
+            # Dynamic cache also runs on this small local Llama fixture.
+            model.generation_config.cache_implementation = "dynamic"
+            original_save = model.save_pretrained
+
+            def save_pretrained(*args, **kwargs):
+                serialization_cache_states.append((
+                    model.generation_config.cache_implementation,
+                    model.generation_config.use_cache,
+                ))
+                assert model.generation_config.cache_implementation is None
+                assert model.generation_config.use_cache is False
+                return original_save(*args, **kwargs)
+
+            model.save_pretrained = save_pretrained
             observed.append(model)
             return model
 
@@ -167,6 +192,9 @@ def test_real_trainer_keeps_small_updates_and_reload_in_fp32(tiny_full_model, tm
         assert cpu_amp_arguments == [(True, False)], "The CPU harness must retain real BF16 AMP"
     assert len(observed) == 1
     model = observed[0]
+    assert len(serialization_cache_states) == 3, "Two Trainer checkpoints and the final dense model"
+    assert golden_save_policies == [True], "270M/generic full-QAT needs the same safe best-save policy as 1B"
+    assert model.generation_config.cache_implementation == "dynamic"
     assert model.model.embed_tokens.weight is model.lm_head.weight
     updated = model.model.norm.weight.detach()
     assert not torch.equal(updated, residual), "Real AdamW must update the trainable norm"

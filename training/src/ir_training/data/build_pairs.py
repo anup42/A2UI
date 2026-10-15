@@ -29,6 +29,7 @@ from ir_training.data.reference_binding import (
     bind_source_target_references,
     ground_preprocessed_references,
 )
+from ir_training.data.source_namespace import scoped_source_id
 from ir_training.data.splits import stratified_split
 from ir_training.data.url_preprocess import (
     ROLE_SCOPED_BINDING,
@@ -268,8 +269,7 @@ def prepare_dataset(
             source_id = str(
                 genui.get("source_id")
                 or response.get("source_id")
-                or query_id
-                or response_id
+                or scoped_source_id(source_key, str(query_id or response_id))
             )
             contract = genui.get("source_contract") or response.get("source_contract") or {}
             family_id = str(genui.get("scenario_family_id") or response.get("scenario_family_id")
@@ -313,6 +313,7 @@ def prepare_dataset(
     # Assign immutable source groups before encoding or validating any active
     # completion target. This remains true even if a future config adds more
     # derived candidates or target views.
+    _assign_split_groups(prepared_sources)
     source_splits = stratified_split(
         prepared_sources,
         train_ratio=float(split_cfg.get("train", 0.96)),
@@ -320,7 +321,7 @@ def prepare_dataset(
         test_ratio=float(split_cfg.get("test", 0.02)),
         stratify_key=str(split_cfg.get("stratify_by", "intent_bucket")),
         seed=int(run_cfg.get("seed", 42)),
-        group_key="scenario_family_id",
+        group_key="split_group_id",
     )
     split_by_source_object = {
         id(row): split_name
@@ -720,6 +721,33 @@ def _source_payload(genui: Mapping[str, Any]) -> Any:
         if value is not None:
             return value
     return None
+
+
+def _assign_split_groups(rows: list[dict[str, Any]]) -> None:
+    """Keep explicit families and identical normalized sources in one split.
+
+    Linking is transitive: two families sharing one response must also keep
+    their other augmentation siblings together. Public family IDs are unchanged.
+    """
+    parents: dict[str, str] = {}
+    seen_sources: dict[str, str] = {}
+
+    def root(key: str) -> str:
+        parents.setdefault(key, key)
+        while parents[key] != key:
+            parents[key] = parents[parents[key]]
+            key = parents[key]
+        return key
+
+    for row in rows:
+        family = str(row["scenario_family_id"])
+        content = " ".join(str(row["response_text"]).split())
+        digest = hashlib.sha256(content.encode("utf-8")).hexdigest()
+        previous = seen_sources.setdefault(digest, family)
+        left, right = root(family), root(previous)
+        parents[max(left, right)] = min(left, right)
+    for row in rows:
+        row["split_group_id"] = root(str(row["scenario_family_id"]))
 
 
 def _stable_source_key(path: Path, base: Path) -> str:

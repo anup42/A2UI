@@ -404,6 +404,7 @@ def test_official_q8_routes_evaluation_inspection_and_scorecard_artifact(
 ):
     plan = _plan()
     public_artifact = plan["formats"]["w8"]["artifact"]
+    public_evaluation = copy.deepcopy(plan["formats"]["w8"]["evaluation"])
     official_artifact = tmp_path / "official-q8.litertlm"
     official_artifact.write_bytes(b"official q8")
     plan["official_q8"]["artifact"] = str(official_artifact)
@@ -420,6 +421,86 @@ def test_official_q8_routes_evaluation_inspection_and_scorecard_artifact(
     assert w8["package_validation"]["artifact"] == str(official_artifact)
     assert str(official_artifact) in w8["package_validation"]["command"]
     assert public_artifact not in w8["package_validation"]["command"]
+    assert w8["evaluation"]["output_dir"] != public_evaluation["output_dir"]
+    assert w8["evaluation"]["evaluation_name"] == "litertlm_w8_official_q8"
+    assert Path(w8["package_validation"]["report"]).parent == Path(w8["evaluation"]["output_dir"])
+
+
+def test_official_q8_selection_survives_replanning_and_rejects_changed_bytes(tmp_path):
+    from ir_training.pipeline import gemma270m_multiformat as pipeline
+
+    config = load_yaml(CONFIG_PATH)
+    config["pipeline"]["output_dir"] = str(tmp_path / "output")
+    plan = build_pipeline_plan(config, config_path=CONFIG_PATH)
+    artifact = Path(plan["official_q8"]["artifact"])
+    artifact.parent.mkdir(parents=True)
+    artifact.write_bytes(b"official Q8 fixture")
+    pipeline._save_w8_artifact_selection(plan)
+    rebuilt = build_pipeline_plan(config, config_path=CONFIG_PATH)
+    assert rebuilt["formats"]["w8"]["artifact"] == str(artifact)
+    assert rebuilt["formats"]["w8"]["evaluation"]["evaluation_name"] == "litertlm_w8_official_q8"
+    with pytest.raises(Gemma270MMultiformatError, match="fresh run"):
+        _export_format(rebuilt, "w8", allow_experimental=False)
+    artifact.write_bytes(b"changed Q8 fixture")
+    with pytest.raises(Gemma270MMultiformatError, match="Saved official Q8"):
+        build_pipeline_plan(config, config_path=CONFIG_PATH)
+
+
+def test_multiformat_merge_uses_resolved_local_base(tmp_path, monkeypatch):
+    from ir_training.pipeline import gemma270m_multiformat as pipeline
+
+    training_config = {"model": {"model_id": "google/gemma-3-270m-it",
+                                "model_source": str(tmp_path / "local-base")}}
+    path = tmp_path / "training.yaml"
+    path.write_text(yaml.safe_dump(training_config), encoding="utf-8")
+    checkpoint = tmp_path / "adapter"
+    checkpoint.mkdir()
+    (checkpoint / "adapter_config.json").write_text("{}", encoding="utf-8")
+    (checkpoint / "adapter_model.safetensors").write_bytes(b"adapter fixture")
+    plan = {"training": {"resolved_config": str(path), "best_checkpoint": str(checkpoint)},
+            "merge": {"output_dir": str(tmp_path / "merged")}}
+    captured = {}
+    monkeypatch.setattr(pipeline, "merge_lora_adapter", lambda **kwargs: captured.update(kwargs))
+    pipeline._merge(plan)
+    assert captured["base_model_source"] == training_config["model"]["model_source"]
+    assert captured["processor_model_id"] == training_config["model"]["model_source"]
+
+
+def test_official_followup_does_not_overwrite_public_w8_logs(tmp_path, monkeypatch):
+    from ir_training.pipeline import gemma270m_multiformat as pipeline
+
+    config = load_yaml(CONFIG_PATH)
+    config["pipeline"]["output_dir"] = str(tmp_path / "output")
+    plan = build_pipeline_plan(config, config_path=CONFIG_PATH, formats=["w8"])
+    plan["official_q8"]["enabled"] = True
+    official = Path(plan["official_q8"]["artifact"])
+    official.parent.mkdir(parents=True)
+    official.write_bytes(b"official Q8 fixture")
+    logs = Path(plan["output_dir"]) / "logs"
+    logs.mkdir()
+    for name in ("inspect_litertlm_w8.log", "evaluate_litertlm_w8.log"):
+        (logs / name).write_text("earlier public W8 result", encoding="utf-8")
+    observed = []
+
+    def command_runner(command, log_path, **kwargs):
+        assert not log_path.exists()
+        observed.append(log_path.name)
+        log_path.write_text("new stage result", encoding="utf-8")
+        if "--include-hashes" in command:
+            report = Path(command[command.index("--output") + 1])
+            report.parent.mkdir(parents=True, exist_ok=True)
+            report.write_text(json.dumps({"graphs": [_precision_graph("w8")]}), encoding="utf-8")
+
+    monkeypatch.setattr(pipeline, "build_pipeline_plan", lambda *a, **kw: plan)
+    monkeypatch.setattr(pipeline, "_require_execution_inputs", lambda *_: None)
+    monkeypatch.setattr(pipeline, "_materialize_resolved_training_config", lambda *_: None)
+    monkeypatch.setattr(pipeline, "_validate_plan_golden", lambda *_: {})
+    monkeypatch.setattr(pipeline, "_require_litertlm_runner_ready", lambda *_: None)
+    monkeypatch.setattr(pipeline, "_with_checkpoint_step", lambda command, *_: command)
+    monkeypatch.setattr(pipeline, "_run_command", command_runner)
+    pipeline.run_pipeline(config, execute_official_q8=True, evaluate_litertlm=True)
+    assert observed == ["official_q8_export.log", "inspect_litertlm_w8_official_q8.log", "evaluate_litertlm_w8_official_q8.log"]
+    assert (logs / "evaluate_litertlm_w8.log").read_text() == "earlier public W8 result"
 
 
 def test_scorecard_requires_and_compares_checkpoint_and_all_variants(tmp_path: Path):
