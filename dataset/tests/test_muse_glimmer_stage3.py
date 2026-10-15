@@ -3,9 +3,11 @@
 import importlib.util
 import json
 import logging
+import os
 import sys
 from pathlib import Path
 from threading import Lock
+from types import SimpleNamespace
 
 import pytest
 
@@ -377,6 +379,34 @@ def test_completed_cycle_does_not_add_timing_rows(tmp_path, monkeypatch):
     assert not (run / "generation_timing.jsonl").exists()
 
 
+@pytest.mark.parametrize("platform", ["posix", "nt"])
+def test_completed_cycle_background_report_uses_platform_and_zero_generation(tmp_path, monkeypatch, platform):
+    from pipeline import aggregate_background
+
+    run = cyclic_repo(tmp_path, monkeypatch)
+    row = json.dumps({"gen": {"model": muse.MODEL_ID, "reasoning_source": "message.reasoning_content"},
+                      "reasoning_text": "Plan UI"}) + "\n"
+    for name in ("queries.jsonl", "responses.jsonl", "genui.jsonl"):
+        (run / name).write_text(row, encoding="utf-8")
+    original = (run / "genui.jsonl").read_bytes()
+    monkeypatch.setenv("GENUI_STAGE3_AGGREGATE_WORK_DIR", str(tmp_path / "workers"))
+    monkeypatch.setattr(muse, "os", SimpleNamespace(name=platform, environ=os.environ))
+    monkeypatch.setattr(muse, "probe", lambda args: None)
+    calls = []
+    waits = []
+    monkeypatch.setattr(muse.subprocess, "call", lambda command, **kwargs: calls.append(command) or 0)
+    monkeypatch.setattr(aggregate_background, "wait_for_aggregate", lambda **kwargs: waits.append(kwargs))
+    args = muse.parse_args(["cycle", "--gpus", "4", "--run-id", "muse", "--cycle-size", "1", "--total", "1"])
+    muse.cycle(args)
+    assert len(calls) == len(waits) == (1 if platform == "posix" else 0)
+    if calls:
+        assert calls[0][calls[0].index("--stage") + 1] == "3"
+        assert calls[0][calls[0].index("--max_genui_total") + 1] == "0"
+        assert waits[0]["genui_path"] == run / "genui.jsonl"
+    assert (run / "genui.jsonl").read_bytes() == original
+    assert not (run / "generation_timing.jsonl").exists()
+
+
 def test_cycle_fails_if_stage_returns_without_new_records(tmp_path, monkeypatch):
     cyclic_repo(tmp_path, monkeypatch)
     monkeypatch.setattr(muse, "probe", lambda args: None)
@@ -623,6 +653,7 @@ def test_stage3_regenerates_cache_without_exact_raw_reasoning(tmp_path, monkeypa
 
 
 def test_stage3_retries_only_batch_item_missing_muse_reasoning(monkeypatch, muse_stage3):
+    monkeypatch.setenv("GENUI_STAGE3_ROLLING_DISPATCH", "0")
     results = [muse_http_response(None), muse_http_response("\n Batch success. \n"),
                muse_http_response("\n Retry success. \n")]
     requests = []
@@ -648,6 +679,7 @@ def test_stage3_retries_only_batch_item_missing_muse_reasoning(monkeypatch, muse
 
 @pytest.mark.parametrize("retry_enabled", [False, True])
 def test_stage3_batch_missing_reasoning_respects_retry_limits(monkeypatch, muse_stage3, retry_enabled):
+    monkeypatch.setenv("GENUI_STAGE3_ROLLING_DISPATCH", "0")
     monkeypatch.setenv("LOCAL_VLLM_RETRY_RESULT_ERRORS", "1" if retry_enabled else "0")
     monkeypatch.setenv("LOCAL_VLLM_RETRY_MAX_SECONDS", "1")
     requests = []

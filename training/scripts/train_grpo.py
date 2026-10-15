@@ -229,7 +229,44 @@ def load_training_dataset(
     prepared_rows = [prepare(row) for row in rows()]
     if not prepared_rows:
         raise ValueError("Training dataset has no rows")
-    return Dataset.from_list(prepared_rows)
+    # PyArrow string offsets are 32-bit. The complete V11 prompts and targets
+    # can exceed 2 GiB across this in-memory table, so infer the nested schema
+    # with string payloads erased, then store every string as large_string.
+    import pyarrow as pa
+
+    def without_text(value: Any) -> Any:
+        if isinstance(value, str):
+            return ""
+        if isinstance(value, list):
+            return [without_text(item) for item in value]
+        if isinstance(value, dict):
+            return {key: without_text(item) for key, item in value.items()}
+        return value
+
+    schema_dataset = Dataset.from_list([without_text(row) for row in prepared_rows])
+
+    def use_large_strings(dtype: Any) -> Any:
+        if pa.types.is_string(dtype):
+            return pa.large_string()
+        if pa.types.is_struct(dtype):
+            return pa.struct([field.with_type(use_large_strings(field.type)) for field in dtype])
+        if pa.types.is_list(dtype) or pa.types.is_large_list(dtype) or pa.types.is_fixed_size_list(dtype):
+            field = dtype.value_field.with_type(use_large_strings(dtype.value_type))
+            if pa.types.is_fixed_size_list(dtype):
+                return pa.list_(field, dtype.list_size)
+            return pa.large_list(field) if pa.types.is_large_list(dtype) else pa.list_(field)
+        return dtype
+
+    # Rebuild the schema without the old Hugging Face feature metadata, which
+    # still describes 32-bit strings. Arrow types also work with datasets 2.x,
+    # where nested lists do not use the newer datasets.features.List class.
+    schema = pa.schema([
+        field.with_type(use_large_strings(field.type)) for field in schema_dataset.data.schema
+    ])
+    del schema_dataset
+    # Dataset.from_list(features=...) first infers untyped Arrow arrays and only
+    # then casts, so it can overflow before reaching a large_string feature.
+    return Dataset(pa.Table.from_pylist(prepared_rows, schema=schema))
 
 
 def split_by_source_model_time(dataset: Dataset, eval_fraction: float, seed: int) -> DatasetDict:

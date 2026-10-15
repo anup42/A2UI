@@ -374,3 +374,65 @@ def test_mocked_runner_writes_export_verifiable_selected_checkpoint(tmp_path, mo
     assert report["verified"], report
     assert json.loads((output / "checkpoint-2/training_metadata.json").read_text())["grpo"]["health"]["optimizer_steps"] == 2
     assert not hasattr(model, "_a2ui_qat_controller")
+
+
+def test_backward_probe_honors_gradient_checkpointing_config(monkeypatch):
+    torch = pytest.importorskip("torch")
+    import ir_training.train.qat_grpo as runtime
+    from ir_training.train import sft
+
+    class Model(torch.nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.embedding = torch.nn.Embedding(8, 4)
+            self.head = torch.nn.Linear(4, 8)
+            self.checkpoint_kwargs = None
+
+        def gradient_checkpointing_enable(self, *, gradient_checkpointing_kwargs):
+            self.checkpoint_kwargs = gradient_checkpointing_kwargs
+
+        def forward(self, input_ids, attention_mask=None):
+            return {"logits": self.head(self.embedding(input_ids))}
+
+    class Collator:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def __call__(self, rows):
+            return {
+                "input_ids": torch.tensor([[1, 2, 3]], dtype=torch.long),
+                "attention_mask": torch.ones((1, 3), dtype=torch.long),
+                "labels": torch.tensor([[-100, 2, 3]], dtype=torch.long),
+            }
+
+    model = Model()
+    monkeypatch.setattr(runtime, "assert_qat_policy_active", lambda model, controller: None)
+    monkeypatch.setattr(sft, "_CausalLMDataCollator", Collator)
+    monkeypatch.setattr(sft, "_require_model_input_vocab_size", lambda model: 8)
+    monkeypatch.setattr(sft, "_require_model_label_vocab_size", lambda model: 8)
+    monkeypatch.setattr(sft, "_model_input_device", lambda model: torch.device("cpu"))
+    monkeypatch.setattr(sft, "_extract_logits", lambda outputs: outputs["logits"])
+    bundle = QATGRPOModel(
+        config={
+            "training": {
+                "gradient_checkpointing": True,
+                "gradient_checkpointing_kwargs": {"use_reentrant": False},
+            }
+        },
+        model=model,
+        tokenizer=object(),
+        adapter=object(),
+        metadata={},
+        generation_eos_ids=[],
+        controller=object(),
+    )
+
+    report = runtime._backward_probe(
+        bundle,
+        {"prompt_text": "x", "completion_text": "y", "text": "xy"},
+        max_seq_length=8,
+    )
+
+    assert report["status"] == "passed"
+    assert report["nonzero_gradient_tensors"] > 0
+    assert model.checkpoint_kwargs == {"use_reentrant": False}

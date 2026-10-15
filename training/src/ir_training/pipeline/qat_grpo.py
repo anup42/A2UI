@@ -150,9 +150,10 @@ def build_plan(options: QATGRPOOptions) -> dict:
     if source_config.get("training", {}).get("method") != "qat_lora_sft":
         raise ValueError("Start from a verified QAT LoRA SFT adapter, not a full/dense checkpoint")
     source_model = source_config.get("model", {})
-    if not Path(source_model.get("model_source") or "").is_absolute():
-        raise ValueError("The original resolved SFT config must bind an absolute local model_source")
-    original_source = resolve_path(source_model.get("model_source") or source_model.get("model_id", ""), training_root())
+    bound_source = source_model.get("model_source") or source_model.get("model_id") or ""
+    if not Path(bound_source).is_absolute():
+        raise ValueError("The original resolved SFT config must bind an absolute local base source")
+    original_source = resolve_path(bound_source, training_root())
     if original_source.resolve() != Path(values["model_dir"]):
         raise ValueError("model-dir must be the original local base bound by the SFT config")
     metadata = _json(Path(values["sft_checkpoint"]) / "training_metadata.json")

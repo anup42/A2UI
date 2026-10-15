@@ -565,6 +565,7 @@ def cycle(args: argparse.Namespace) -> None:
     print(f"Cyclic Muse generation: run={args.run_id} total={args.total} "
           f"cycle_size={args.cycle_size} queries_per_intent={queries_per_intent} "
           f"reasoning={args.reasoning_strength}", flush=True)
+    stage3_ran = False
     while min(counts.values()) < args.total:
         completed_floor = min(counts.values())
         target = min(args.total, (completed_floor // args.cycle_size + 1) * args.cycle_size)
@@ -584,6 +585,21 @@ def cycle(args: argparse.Namespace) -> None:
                 if updated <= counts[stage]:
                     raise RuntimeError(f"Stage {stage} made no progress toward {target}; inspect the run before resuming")
                 counts[stage] = updated
+                stage3_ran = stage3_ran or stage == 3
+    background_dir = os.environ.get("GENUI_STAGE3_AGGREGATE_WORK_DIR")
+    if os.name == "posix" and background_dir:
+        if not stage3_ran:
+            # A completed run may predate background reporting. Refresh through
+            # Stage 3's canonical metric configuration without generating rows.
+            command = stage_command(args, 3, 0, queries_per_intent)
+            exit_code = subprocess.call(command, cwd=REPO_ROOT, env=client_env(args, 3))
+            if exit_code != 0:
+                raise RuntimeError(f"Stage 3 final aggregate refresh exited with code {exit_code}")
+        sys.path.insert(0, str(REPO_ROOT / "dataset" / "src"))
+        from pipeline.aggregate_background import wait_for_aggregate
+        print("Generation target reached; waiting for the complete final quality report", flush=True)
+        wait_for_aggregate(genui_path=paths[3], aggregates_path=run_dir / "aggregates.json",
+                           work_dir=background_dir)
     print(f"Cyclic Muse generation complete: queries={counts[1]} responses={counts[2]} "
           f"genui={counts[3]}", flush=True)
 

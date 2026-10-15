@@ -167,6 +167,48 @@ def test_grpo_loads_v11_null_then_string_metadata_without_changing_context(tmp_p
         assert actual["expected_ui_contract_source"] == "persisted"
 
 
+def test_grpo_loader_builds_large_strings_before_payload_inference(tmp_path, monkeypatch):
+    pytest.importorskip("datasets")
+    pa = pytest.importorskip("pyarrow")
+    marker = "SYNTHETIC_LONG_PAYLOAD"
+    completion = f'<a2ui>root=Text("{marker}")</a2ui>'
+    row = {
+        "id": "large-string-row", "response_text": marker, "completion": completion,
+        "messages": build_messages("system", marker, completion),
+        "metadata": {
+            "assets": [{"url": "https://example.test/a.png"}],
+            "expected_ui_contract_v5_4": {"units": [{"text": marker}]},
+            "expected_ui_contract_v5_4_source": "persisted",
+        },
+    }
+    source = tmp_path / "train.jsonl"
+    source.write_text(json.dumps(row) + "\n", encoding="utf-8")
+    original_array = pa.array
+
+    def reject_untyped_payload(data, *args, **kwargs):
+        # Reproduce the 32-bit offset failure without allocating multiple GiB.
+        # Dataset.from_list(features=...) still enters this untyped conversion.
+        dtype = kwargs.get("type", args[0] if args else None)
+        if (isinstance(data, list)
+                and any(isinstance(value, str) and marker in value for value in data)
+                and (dtype is None or pa.types.is_string(dtype))):
+            raise OverflowError("Simulated 32-bit string offset overflow")
+        return original_array(data, *args, **kwargs)
+
+    monkeypatch.setattr(pa, "array", reject_untyped_payload)
+    prepared = script().load_training_dataset(str(source), None, tokenizer=Tokenizer())
+    assert prepared[0]["completion"] == completion
+    assert prepared[0]["assets"] == row["metadata"]["assets"]
+    assert prepared[0]["expected_ui_contract"] == row["metadata"]["expected_ui_contract_v5_4"]
+    schema = prepared.data.schema
+    assert pa.types.is_large_string(schema.field("prompt").type)
+    assert pa.types.is_large_string(schema.field("completion").type)
+    assert pa.types.is_large_string(schema.field("prompt_message_roles").type.value_type)
+    assert pa.types.is_large_string(schema.field("assets").type.value_type.field("url").type)
+    units = schema.field("expected_ui_contract").type.field("units").type
+    assert pa.types.is_large_string(units.value_type.field("text").type)
+
+
 @pytest.mark.parametrize("payload, error", [
     (json.dumps({"response_text": "source", "completion": '<a2ui>root=Text("OK")</a2ui>'}) + "\ninvalid\n", json.JSONDecodeError),
     ('["not a row"]', TypeError),
@@ -208,8 +250,15 @@ def test_grpo_model_dispatch_materializes_direct_and_wrapped_linear_targets(monk
 def test_grpo_trainer_receives_materialized_model_without_init_kwargs():
     import ast
     tree = ast.parse(Path(script().__file__).read_text(encoding="utf-8-sig"))
-    calls = [node for node in ast.walk(tree) if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)]
-    trainer = next(call for call in calls if call.func.id == "GRPOTrainer")
+    calls = [node for node in ast.walk(tree) if isinstance(node, ast.Call)]
+    trainer = next(
+        call for call in calls
+        if isinstance(call.func, ast.Call)
+        and isinstance(call.func.func, ast.Name)
+        and call.func.func.id == "build_audited_grpo_trainer"
+        and call.func.args
+        and ast.unparse(call.func.args[0]) == "GRPOTrainer"
+    )
     assert ast.unparse(next(kw.value for kw in trainer.keywords if kw.arg == "model")) == "model"
-    config = next(call for call in calls if call.func.id == "make_grpo_config")
+    config = next(call for call in calls if isinstance(call.func, ast.Name) and call.func.id == "make_grpo_config")
     assert "model_init_kwargs" not in {kw.arg for kw in config.keywords}

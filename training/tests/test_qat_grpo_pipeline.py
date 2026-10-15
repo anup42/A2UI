@@ -147,8 +147,22 @@ def test_original_config_requires_resolved_absolute_base(options):
     config = load_yaml(options.sft_config)
     config["model"]["model_source"] = "models/relative-original-base"
     write(options.sft_config, config)
-    with pytest.raises(ValueError, match="absolute local model_source"):
+    with pytest.raises(ValueError, match="absolute local base source"):
         workflow.build_plan(options)
+
+
+def test_original_config_accepts_legacy_absolute_model_id(options):
+    config = load_yaml(options.sft_config)
+    config["model"].pop("model_source")
+    config["model"]["model_id"] = str(options.model_dir)
+    write(options.sft_config, config)
+    metadata_path = options.sft_checkpoint / "training_metadata.json"
+    metadata = json.loads(metadata_path.read_text())
+    metadata["training_config_sha256"] = workflow.sha256(options.sft_config)
+    write(metadata_path, metadata)
+    plan = workflow.build_plan(options)
+    assert plan["options"]["sft_config"] == str(options.sft_config)
+    assert plan["options"]["model_dir"] == str(options.model_dir)
 
 
 @pytest.mark.parametrize("valid_lineage", [False, True])

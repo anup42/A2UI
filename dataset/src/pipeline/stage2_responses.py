@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from concurrent.futures import Future, ThreadPoolExecutor, wait
+from collections import deque
+from concurrent.futures import FIRST_COMPLETED, Future, ThreadPoolExecutor, wait
 from datetime import datetime
 import math
 import json
@@ -1924,7 +1925,89 @@ def run_stage2(
             state["remaining"] -= 1
         return False
 
+    def _run_rolling_dispatch() -> None:
+        # Keep one request per query state in flight. Only this thread advances
+        # response IDs, applies deduplication and schedules output writes.
+        ordered_states = query_states
+        if group_by_intent:
+            intent_order = {}
+            for state in query_states:
+                intent_order.setdefault(state["intent_value"], len(intent_order))
+            ordered_states = sorted(query_states, key=lambda s: intent_order[s["intent_value"]])
+        ready = deque(ordered_states)
+        default_workers = min(query_batch_size, 4)
+        workers = default_workers
+        for name in ("LOCAL_VLLM_PARALLEL_REQUESTS", "LOCAL_VLLM_BATCH_PARALLELISM"):
+            try:
+                workers = int(os.environ.get(name, ""))
+            except ValueError:
+                pass
+        workers = max(1, min(query_batch_size, workers or default_workers))
+        logger.info("Stage2 rolling dispatch enabled workers=%s query_window=%s", workers, query_batch_size)
+        in_flight: dict[Future, dict] = {}
+        reserved = 0
+        completed = 0
+        with ThreadPoolExecutor(max_workers=workers, thread_name_prefix="stage2-generation") as executor:
+            def _refill() -> None:
+                nonlocal reserved
+                while ready and len(in_flight) < workers:
+                    available = None if max_total is None else max_total - total_created - reserved
+                    if available is not None and available <= 0:
+                        return
+                    state = ready.popleft()
+                    entry = _prepare_entry(state)
+                    if entry is None:
+                        continue
+                    # Reserve output slots before submission, so concurrent
+                    # completions cannot overrun the stage's requested total.
+                    if available is not None and entry["batch"] > available and in_flight:
+                        ready.appendleft(state)
+                        return
+                    future = executor.submit(_generate_single_entry, entry)
+                    in_flight[future] = entry
+                    reserved += entry["batch"]
+
+            _refill()
+            while in_flight:
+                done, _ = wait(in_flight, return_when=FIRST_COMPLETED)
+                for future in done:
+                    entry = in_flight.pop(future)
+                    reserved -= entry["batch"]
+                    generated = future.result()
+                    completed += 1
+                    if generated is None:
+                        _consume_failure(entry)
+                    elif _consume_generated(entry, *generated):
+                        for pending_future in in_flight:
+                            pending_future.cancel()
+                        return
+                    if entry["state"]["remaining"] > 0:
+                        ready.appendleft(entry["state"])
+                    # Refill from the whole remaining query queue, without
+                    # waiting for the slowest request in a fixed batch.
+                    _refill()
+                    if completed % workers == 0 or not in_flight:
+                        logger.info(
+                            "Stage2 rolling progress completed_requests=%s created=%s in_flight=%s pending_queries=%s",
+                            completed, total_created, len(in_flight), len(ready),
+                        )
+
+    local_http = (
+        adapter.spec.provider == "local"
+        and str(adapter.spec.endpoint or "").lower().startswith(("http://", "https://"))
+        and (
+            not getattr(adapter, "_strict_offline_mode", lambda: False)()
+            or os.environ.get("LOCAL_ALLOW_HTTP_ENDPOINT", "").strip().lower() in {"1", "true", "yes", "on"}
+        )
+    )
+    rolling_dispatch = (
+        use_query_batch and local_http
+        and os.environ.get("STAGE2_ROLLING_DISPATCH", "1").strip().lower() in {"1", "true", "yes", "on"}
+    )
     try:
+        if rolling_dispatch:
+            _run_rolling_dispatch()
+            return
         while True:
             if max_total is not None and total_created >= max_total:
                 logger.info("Stage2 reached max_total=%s", max_total)

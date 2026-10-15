@@ -205,6 +205,22 @@ def _backward_probe(bundle: QATGRPOModel, row: dict[str, Any], *, max_seq_length
         label_vocab_size=sft._require_model_label_vocab_size(model), max_position_embeddings=max_seq_length)
     batch = {key: value.to(sft._model_input_device(model)) for key, value in collator([row]).items()}
     labels = batch.pop("labels")
+    training_cfg = bundle.config.get("training") or {}
+    gradient_checkpointing = training_cfg.get("gradient_checkpointing", False)
+    if type(gradient_checkpointing) is not bool:
+        raise ValueError("training.gradient_checkpointing must be a boolean.")
+    if gradient_checkpointing:
+        checkpoint_kwargs = training_cfg.get("gradient_checkpointing_kwargs", {"use_reentrant": False})
+        if not isinstance(checkpoint_kwargs, dict):
+            raise ValueError("training.gradient_checkpointing_kwargs must be an object.")
+        enabler = getattr(model, "gradient_checkpointing_enable", None)
+        if not callable(enabler):
+            raise ValueError("Configured gradient checkpointing is unsupported by the QAT GRPO model.")
+        enabler(gradient_checkpointing_kwargs=dict(checkpoint_kwargs))
+    else:
+        for module in model.modules():
+            if hasattr(module, "gradient_checkpointing"):
+                module.gradient_checkpointing = False
     was_training = model.training
     model.train()
     model.zero_grad(set_to_none=True)

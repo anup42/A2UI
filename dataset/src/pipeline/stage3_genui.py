@@ -8,6 +8,7 @@ import re
 import hashlib
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from itertools import zip_longest
+from queue import SimpleQueue
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -1108,6 +1109,27 @@ def run_stage3(
     def _write_aggregates(reason: str = "") -> None:
         if not aggregates_path:
             return
+        background_dir = os.getenv("GENUI_STAGE3_AGGREGATE_WORK_DIR")
+        if os.name == "posix" and background_dir:
+            try:
+                from pipeline.aggregate_background import schedule_aggregate
+
+                receipt = schedule_aggregate(
+                    genui_path=genui_path, responses_path=responses_path,
+                    aggregates_path=aggregates_path,
+                    aggregate_weights=aggregate_weights,
+                    metric_kwargs={
+                        "metric_version": metric_mode, "v4_config": v4_config,
+                        "v5_config": v5_2_config, "v5_1_config": v5_1_config,
+                        "v5_0_config": v5_0_config, "v5_3_config": v5_3_config,
+                        "v5_4_config": v5_4_config,
+                    },
+                    work_dir=background_dir,
+                )
+                logger.info("Stage3 full aggregates queued in background: %s", receipt)
+                return
+            except Exception as exc:
+                logger.warning("Stage3 background aggregate scheduling failed; computing synchronously: %s", exc)
         try:
             rows = list(iter_jsonl(genui_path))
             if response_text_by_id:
@@ -2466,6 +2488,9 @@ def run_stage3(
         except Exception as exc:
             _record_generation_error(task, str(exc))
             return
+        _consume_generated_result(task, result)
+
+    def _consume_generated_result(task: dict[str, Any], result) -> None:
         if result.error:
             _record_generation_error(task, result.error, result.raw)
             return
@@ -2653,7 +2678,56 @@ def run_stage3(
                 result.reasoning_tokens,
             )
 
+    # Keep HTTP requests flowing while the main thread validates and writes
+    # completions. The bounded lookahead prevents unbounded result memory;
+    # all cache, quality, repair and JSONL writes retain the existing path.
+    local_http = (
+        adapter.spec.provider == "local"
+        and str(adapter.spec.endpoint or "").lower().startswith(("http://", "https://"))
+        and (
+            not getattr(adapter, "_strict_offline_mode", lambda: False)()
+            or os.environ.get("LOCAL_ALLOW_HTTP_ENDPOINT", "").strip().lower()
+            in {"1", "true", "yes", "on"}
+        )
+    )
+    rolling_dispatch = (
+        local_http and batch_size > 1
+        and os.environ.get("GENUI_STAGE3_ROLLING_DISPATCH", "1").strip().lower()
+        in {"1", "true", "yes", "on"}
+    )
+    rolling_workers = max(1, _env_int(
+        "LOCAL_VLLM_BATCH_PARALLELISM",
+        _env_int("LOCAL_VLLM_PARALLEL_REQUESTS", min(batch_size, 4)),
+    ))
+    rolling_buffer = max(rolling_workers, _env_int(
+        "GENUI_STAGE3_ROLLING_BUFFER", rolling_workers * 4,
+    ))
+    rolling_executor = None
+    rolling_tasks = {}
+    rolling_ids = set()
+    rolling_completed = SimpleQueue()
+
+    def _consume_rolling_one() -> None:
+        future = rolling_completed.get()
+        task = rolling_tasks.pop(future)
+        try:
+            result = future.result()
+        except Exception as exc:
+            _record_generation_error(task, str(exc))
+        else:
+            _consume_generated_result(task, result)
+        finally:
+            rolling_ids.discard(task["ui_id"])
+        if (total_created + total_failed) % rolling_workers == 0:
+            logger.info(
+                "Stage3 rolling progress created=%s failed=%s outstanding=%s workers=%s buffer=%s",
+                total_created, total_failed, len(rolling_tasks), rolling_workers, rolling_buffer,
+            )
+
     try:
+        if rolling_dispatch:
+            rolling_executor = ThreadPoolExecutor(max_workers=rolling_workers)
+            logger.info("Stage3 rolling dispatch enabled workers=%s buffer=%s", rolling_workers, rolling_buffer)
         for response in iter_jsonl(responses_path):
             if stop:
                 break
@@ -2674,6 +2748,12 @@ def run_stage3(
             for c_idx in range(1, candidates_per_response + 1):
                 if stop:
                     break
+                if rolling_dispatch:
+                    while rolling_tasks and (
+                        len(rolling_tasks) >= rolling_buffer
+                        or (max_total is not None and total_created + len(rolling_tasks) >= max_total)
+                    ):
+                        _consume_rolling_one()
                 if max_total is not None:
                     remaining = max_total - total_created
                     if remaining <= 0:
@@ -2684,7 +2764,7 @@ def run_stage3(
                         break
 
                 ui_id = _make_ui_id(query_id, n_idx, c_idx, active_ir_format)
-                if ui_id in existing_ids:
+                if ui_id in existing_ids or (rolling_dispatch and ui_id in rolling_ids):
                     continue
 
                 source_quality = response.get("source_quality") or {}
@@ -2802,6 +2882,13 @@ def run_stage3(
                     )
                     continue
 
+                if rolling_dispatch:
+                    rolling_ids.add(ui_id)
+                    future = rolling_executor.submit(_generate_single_result, task)
+                    rolling_tasks[future] = task
+                    future.add_done_callback(rolling_completed.put)
+                    continue
+
                 if not use_batch:
                     if use_parallel:
                         pending.append(task)
@@ -2815,10 +2902,14 @@ def run_stage3(
                 if len(pending) >= batch_size:
                     _flush_pending()
 
+        while rolling_tasks:
+            _consume_rolling_one()
         _flush_pending()
         if total_failed > 0:
             logger.warning("Stage3 completed with generation failures=%s created=%s", total_failed, total_created)
         else:
             logger.info("Stage3 completed created=%s", total_created)
     finally:
+        if rolling_executor is not None:
+            rolling_executor.shutdown(wait=True, cancel_futures=True)
         _write_aggregates()
