@@ -14,7 +14,8 @@ def file_hash(path: Path) -> str:
 
 def probe_implementation() -> dict[str, str]:
     return {name: hashlib.sha256(Path(__file__).with_name(name).read_text(encoding="utf-8").encode()).hexdigest() for name in
-            ("grpo_probe.py", "qat_grpo.py", "grpo_runtime.py", "qat_grpo_reward.py")}
+            ("grpo_probe.py", "qat_grpo.py", "grpo_runtime.py", "qat_grpo_reward.py",
+             "qat_objectives.py", "qat_rehearsal.py", "qat_dpo.py", "qat_posttrain_data.py")}
 
 
 def longest_prompt_indices(rows: Any, count: int) -> list[int]:
@@ -83,7 +84,8 @@ def verify_local_probe_device(path: Path, torch: Any, device: Any) -> None:
         raise ValueError("GRPO runtime probe was not executed on matching GPU hardware")
 
 
-def run_disposable_probe(trainer: Any, *, output: Path, config_path: Path, selected_rows: list[dict]) -> dict:
+def run_disposable_probe(trainer: Any, *, output: Path, config_path: Path, selected_rows: list[dict],
+                         objective: str = "grpo") -> dict:
     import torch
     from transformers import TrainerCallback
 
@@ -96,6 +98,11 @@ def run_disposable_probe(trainer: Any, *, output: Path, config_path: Path, selec
               "passed": False, "optimizer_steps": 0, "selected_rows": selected_rows,
               "scope": "two disposable real GRPO updates; not an exhaustive worst-case completion guarantee",
               "checkpoints_written": False}
+    if objective != "grpo":
+        if objective not in {"grpo_sft", "dpo"}:
+            raise ValueError("Unknown QAT post-training probe objective")
+        report.update(objective=objective,
+                      scope=f"two disposable real {objective} updates; not an exhaustive worst-case memory guarantee")
     report["device"] = device_identity(torch, device)
     minimum_free = 1.0
 

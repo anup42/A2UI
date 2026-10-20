@@ -79,6 +79,10 @@ class QATGRPOOptions:
     adb: str = "adb"
     serial: str | None = None
     defer_native_eval: bool = False
+    objective: str = "grpo"
+    sft_rehearsal_weight: float | None = None
+    dpo_preferences: Path | None = None
+    dpo_beta: float | None = None
 
 
 def _json(path: Path) -> dict:
@@ -92,15 +96,60 @@ def _files(directory: Path) -> list[Path]:
     return sorted(path for path in directory.rglob("*") if path.is_file())
 
 
+def _objective_options(options: QATGRPOOptions) -> dict[str, Any]:
+    """Opt-in objectives never alter the ordinary GRPO/SFT recipe."""
+    if options.objective not in {"grpo", "grpo_sft", "dpo"}:
+        raise ValueError("objective must be grpo, grpo_sft or dpo")
+    if options.sft_rehearsal_weight is not None and options.objective != "grpo_sft":
+        raise ValueError("sft-rehearsal-weight is only valid with objective=grpo_sft")
+    if (options.dpo_preferences is not None or options.dpo_beta is not None) and options.objective != "dpo":
+        raise ValueError("dpo-preferences and dpo-beta are only valid with objective=dpo")
+    if options.objective == "grpo":
+        return {}
+    if options.objective == "grpo_sft":
+        weight = 0.1 if options.sft_rehearsal_weight is None else options.sft_rehearsal_weight
+        if isinstance(weight, bool) or not math.isfinite(weight) or weight <= 0:
+            raise ValueError("sft-rehearsal-weight must be positive and finite")
+        return {"objective": "grpo_sft", "rehearsal": {"weight": weight}}
+    if options.dpo_preferences is None:
+        raise ValueError("objective=dpo requires --dpo-preferences")
+    if options.rollout_qat_weight_cache:
+        raise ValueError("objective=dpo does not support rollout-qat-weight-cache")
+    beta = 0.1 if options.dpo_beta is None else options.dpo_beta
+    if isinstance(beta, bool) or not math.isfinite(beta) or beta <= 0:
+        raise ValueError("dpo-beta must be positive and finite")
+    preferences = options.dpo_preferences.expanduser().resolve(strict=True)
+    if not preferences.is_file():
+        raise ValueError("dpo-preferences must name a JSONL file")
+    return {"objective": "dpo", "dpo": {
+        "preferences": str(preferences), "beta": beta,
+        "preferences_sha256": sha256(preferences),
+    }}
+
+
+def _verify_preference_binding(plan: dict) -> None:
+    """Fail before stage work if the separately prepared preference source drifts."""
+    if plan["options"].get("objective", "grpo") != "dpo":
+        return
+    path = str(Path(plan["options"]["dpo_preferences"]).resolve())
+    bindings = plan.get("preference_files")
+    if not isinstance(bindings, dict) or set(bindings) != {path}:
+        raise ValueError("DPO plan requires an exact preference source hash binding")
+    official_mobile._verify_bindings(bindings)
+
+
 def build_plan(options: QATGRPOOptions) -> dict:
     """No downloads, model loading, GPU probing or output writes."""
     if options.family not in {"e2b", "270m"}:
         raise ValueError("--family must be e2b or 270m")
+    objective = _objective_options(options)
     if (options.input_dir is None) == (options.prepared_input_dir is None):
         raise ValueError("Choose exactly one input-dir or prepared-input-dir")
     if options.max_steps < 20:
         raise ValueError("GRPO requires at least one complete 20-update health window")
-    if options.num_generations < 2 or options.effective_batch % options.num_generations:
+    if options.objective != "dpo" and (
+        options.num_generations < 2 or options.effective_batch % options.num_generations
+    ):
         raise ValueError("Effective completion batch must be divisible by num-generations >= 2")
     if min(options.microbatch, options.effective_batch, options.golden_every_steps) < 1:
         raise ValueError("Batch and evaluation cadence must be positive")
@@ -142,6 +191,8 @@ def build_plan(options: QATGRPOOptions) -> dict:
     required += [Path(values["sft_checkpoint"]) / name for name in (
         "adapter_config.json", "adapter_model.safetensors", "training_metadata.json",
     )]
+    if options.objective == "dpo":
+        required.append(Path(values["dpo_preferences"]))
     if options.family == "e2b":
         if options.source_safetensors is None:
             raise ValueError("E2B requires the pinned --source-safetensors")
@@ -192,7 +243,7 @@ def build_plan(options: QATGRPOOptions) -> dict:
     template270 = load_yaml(training_root() / "configs/pipelines/gemma3_270m_qat_litertlm.yaml")
     official_hash = (official_mobile.OFFICIAL_LITERTLM_SHA256 if options.family == "e2b"
                      else template270["pipeline"]["exact_topology"]["official_artifact_sha256"])
-    return {
+    result = {
         "schema_version": 1, "workflow": WORKFLOW, "options": values,
         "preparation": prep, "paths": {key: str(value) for key, value in paths.items()},
         "stages": ["assets", "prepare", "configure", *(["no_op_export"] if options.family == "e2b" else []),
@@ -206,17 +257,25 @@ def build_plan(options: QATGRPOOptions) -> dict:
         "mtp": {"training": False, "inference": False, "official_section_preserved": options.family == "e2b"},
         "native_quality_status": "required; explicitly deferred" if options.defer_native_eval else "required after export",
     }
+    if objective:
+        result["algorithm"] = options.objective
+        result["effective_batch_unit"] = "preference_pairs" if options.objective == "dpo" else "generated_completions"
+    if options.objective == "dpo":
+        result["preference_files"] = {objective["dpo"]["preferences"]: objective["dpo"]["preferences_sha256"]}
+    return result
 
 
 def training_config(plan: dict, profile: dict, prepared: dict) -> dict:
     values, paths = plan["options"], plan["paths"]
+    if values.get("objective", "grpo") == "dpo":
+        _verify_preference_binding(plan)
     if sha256(Path(values["sft_config"])) != plan["source_config_sha256"]:
         raise ValueError("Source SFT config changed since planning")
     config = copy.deepcopy(load_yaml(values["sft_config"]))
     from ir_training.train.gpu_profile import apply_gpu_profile
     if profile["dtype"] != "bfloat16":
         raise ValueError("QAT GRPO requires native BF16 GPUs")
-    if profile["effective_batch_size"] % values["num_generations"]:
+    if values.get("objective", "grpo") != "dpo" and profile["effective_batch_size"] % values["num_generations"]:
         raise ValueError("Effective completion batch must divide into complete GRPO groups")
     apply_gpu_profile(config, profile)
     output = Path(values["output_dir"])
@@ -259,6 +318,20 @@ def training_config(plan: dict, profile: dict, prepared: dict) -> dict:
             "patience": values.get("early_stopping_patience", 3),
             "min_delta": values.get("quality_min_delta", 0.5), "max_guard_drop": 0.0}},
     }
+    if values.get("objective", "grpo") == "grpo_sft":
+        config["grpo"].update(objective="grpo_sft", rehearsal={
+            "weight": 0.1 if values.get("sft_rehearsal_weight") is None else values["sft_rehearsal_weight"],
+        })
+    elif values.get("objective", "grpo") == "dpo":
+        preference_path = str(Path(values["dpo_preferences"]).resolve())
+        config["grpo"].update(objective="dpo", dpo={
+            "preferences": preference_path,
+            "beta": 0.1 if values.get("dpo_beta") is None else values["dpo_beta"],
+            "preferences_sha256": plan["preference_files"][preference_path],
+        })
+        # These batches count chosen/rejected preference pairs, never rollout
+        # groups. Golden generation remains the shared deterministic callback.
+        training["per_device_eval_batch_size"] = 1
     config["model"].update(tokenizer_source=values["model_dir"],
                            chat_template_kwargs=prepared["tokenizer"].get("chat_template_kwargs") or {},
                            max_output_tokens=values["max_new_tokens"])
@@ -346,6 +419,7 @@ def run_stage(plan: dict, stage: str) -> list[Path]:
     values, paths = plan["options"], plan["paths"]
     output = Path(values["output_dir"])
     official_mobile._verify_bindings(plan["source_adapter_files"])
+    _verify_preference_binding(plan)
     if sha256(Path(values["sft_config"])) != plan["source_config_sha256"]:
         raise ValueError("Input SFT config changed")
     if stage == "assets":
@@ -406,7 +480,7 @@ def run_stage(plan: dict, stage: str) -> list[Path]:
         _run(plan, [sys.executable, str(training_root() / "scripts/train_qat_grpo.py"),
                     "--config", paths["config"], "--dependency-preflight-only"],
              "dependency_preflight", gpu=True)
-        return _files(output / "configs")
+        return [*_files(output / "configs"), *(Path(path) for path in plan.get("preference_files", {}))]
     if stage == "no_op_export":
         _run(plan, official_mobile.no_op_export_command(plan), stage, cpu=True)
         official_mobile._require_no_op_export(plan)
@@ -431,6 +505,10 @@ def run_stage(plan: dict, stage: str) -> list[Path]:
                 or (metadata.get("best_golden_eval") or {}).get("metric") != official_mobile.SELECTOR
                 or (metadata.get("training") or {}).get("method") != "qat_lora_grpo"):
             raise ValueError("GRPO did not publish a bound Golden32-selected QAT adapter")
+        if values.get("objective", "grpo") != "grpo" and (
+            (metadata.get("grpo") or {}).get("algorithm") != values["objective"]
+        ):
+            raise ValueError("Selected QAT adapter algorithm differs from the planned objective")
         quality_files = verify_quality_gate(output / "training", Path(paths["best_checkpoint"]), Path(paths["config"]))
         return [*_files(Path(paths["best_checkpoint"])), *quality_files]
     if stage.startswith("best_"):

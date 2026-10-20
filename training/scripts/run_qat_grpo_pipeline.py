@@ -23,6 +23,14 @@ def main(argv=None) -> int:
     parser.add_argument("--continue-run", type=Path,
                         help="Verify and continue post-training stages only; never optimizer resume.")
     parser.add_argument("--family", choices=("e2b", "270m"))
+    parser.add_argument("--objective", choices=("grpo", "grpo_sft", "dpo"),
+                        help="Default grpo; opt in to supervised rehearsal or offline QAT DPO.")
+    parser.add_argument("--sft-rehearsal-weight", type=float,
+                        help="Positive supervised-loss weight; grpo_sft only (default 0.1).")
+    parser.add_argument("--dpo-preferences", type=Path,
+                        help="Offline source-bound chosen/rejected JSONL; required for dpo.")
+    parser.add_argument("--dpo-beta", type=float,
+                        help="Positive DPO temperature; dpo only (default 0.1).")
     for name in ("model-dir", "sft-config", "sft-checkpoint", "output-dir", "official-litertlm", "exporter-python",
                  "input-dir", "prepared-input-dir", "source-safetensors"):
         parser.add_argument(f"--{name}", type=Path)
@@ -69,10 +77,20 @@ def main(argv=None) -> int:
         if args.output_dir is None:
             parser.error("--rerun-from requires a fresh --output-dir")
         supplied = list(sys.argv[1:] if argv is None else argv)
-        allowed = {"--rerun-from", "--output-dir", "--input-dir", "--defer-native-eval", "--execute"}
+        allowed = {"--rerun-from", "--output-dir", "--input-dir", "--defer-native-eval", "--execute",
+                   "--objective", "--sft-rehearsal-weight", "--dpo-preferences", "--dpo-beta"}
         if any(token.split("=", 1)[0] not in allowed for token in supplied if token.startswith("--")):
             parser.error("Rerun preserves original hyperparameters; use a new explicit plan to change them")
         options = options_from_previous_run(args.rerun_from, args.output_dir, args.input_dir)
+        if args.objective is not None and args.objective != options.objective:
+            # Switching objective is a fresh branch from original SFT, not
+            # continuation of the previous objective or its stale options.
+            options = replace(options, objective=args.objective, sft_rehearsal_weight=None,
+                              dpo_preferences=None, dpo_beta=None)
+        changes = {name: getattr(args, name) for name in (
+            "sft_rehearsal_weight", "dpo_preferences", "dpo_beta"
+        ) if getattr(args, name) is not None}
+        options = replace(options, **changes)
         if args.defer_native_eval:
             options = replace(options, defer_native_eval=True)
         print(json.dumps(run_pipeline(options, execute=args.execute), indent=2))
@@ -86,6 +104,7 @@ def main(argv=None) -> int:
     values.pop("plan_file")
     values.pop("rerun_from")
     values.pop("continue_run")
+    values["objective"] = values["objective"] or "grpo"
     result = run_pipeline(QATGRPOOptions(**values), execute=execute)
     print(json.dumps(result, indent=2))
     return 0

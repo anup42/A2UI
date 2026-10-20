@@ -133,6 +133,11 @@ def verify_post_training_continuation(output_dir: str | Path) -> dict[str, Any]:
     if _read(contract_path) != build_continuation_contract(plan):
         raise ValueError("GRPO code, reward implementation, or immutable plan changed; continuation is unsafe")
     official_mobile._verify_bindings(plan["source_adapter_files"])
+    if plan["options"].get("objective", "grpo") == "dpo":
+        from ir_training.pipeline.qat_grpo import _verify_preference_binding
+        _verify_preference_binding(plan)
+        if not set(plan["preference_files"]).issubset(completed["configure"]["files"]):
+            raise ValueError("Continuation requires the sealed DPO preference source")
     if _sha(Path(plan["options"]["sft_config"])) != plan["source_config_sha256"]:
         raise ValueError("Source SFT configuration changed")
     if _sha(Path(plan["options"]["official_litertlm"])) != plan["official_artifact_sha256"]:
@@ -194,7 +199,7 @@ def options_from_previous_run(old_run: str | Path, new_output: str | Path,
     values.update(input_dir=raw, prepared_input_dir=None, output_dir=output,
                   rollout_microbatch=1, rollout_qat_weight_cache=False)
     for key in ("model_dir", "sft_config", "sft_checkpoint", "official_litertlm", "exporter_python",
-                "source_safetensors"):
+                "source_safetensors", "dpo_preferences"):
         if values.get(key) is not None:
             values[key] = Path(values[key])
     return QATGRPOOptions(**values)

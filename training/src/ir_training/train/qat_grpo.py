@@ -24,6 +24,8 @@ def validate_qat_grpo_config(config: dict[str, Any]) -> None:
         validate_qat_grpo_config as validate_contract,
     )
     validate_contract(config)
+    from ir_training.train.qat_objectives import validate_objective
+    mode = validate_objective(config)
     training, grpo = config.get("training") or {}, config.get("grpo") or {}
     from ir_training.train.grpo_runtime import validate_rollout_options
     validate_rollout_options(grpo)
@@ -64,6 +66,8 @@ def validate_qat_grpo_config(config: dict[str, Any]) -> None:
     if training.get("logging_steps", 1) != 1:
         raise ValueError("QAT GRPO health monitoring requires logging_steps=1")
     for key, default in (("num_generations", 4), ("max_prompt_length", 4096), ("max_completion_length", 2048)):
+        if mode == "dpo" and key == "num_generations":
+            continue
         value = grpo.get(key, default)
         if type(value) is not int or value < (2 if key == "num_generations" else 1):
             raise ValueError(f"grpo.{key} has an invalid value")
@@ -193,6 +197,11 @@ def load_qat_grpo_model(config: dict[str, Any], *, config_path: Path | None = No
         "grpo": {"schema_version": 1, "algorithm": "grpo", "family": config["grpo"]["family"],
                  "source_lineage": lineage, "beta": 0.0},
     }
+    from ir_training.train.qat_objectives import implementation_identity, objective
+    mode = objective(config)
+    if mode != "grpo":
+        metadata["grpo"].update(algorithm=mode, objective=mode,
+                               objective_implementation=implementation_identity(mode))
     if base_identity is not None:
         metadata["local_base_identity"] = base_identity
     if config_path is not None:
@@ -315,11 +324,22 @@ def build_qat_grpo_trainer(base_trainer: Any, bundle: QATGRPOModel) -> Any:
 
         def _generate_and_score_completions(self, *args: Any, **kwargs: Any) -> Any:
             assert_qat_policy_active(self.model, bundle.controller)
-            return super()._generate_and_score_completions(*args, **kwargs)
+            result = super()._generate_and_score_completions(*args, **kwargs)
+            if self.model.training and hasattr(self, "_a2ui_rehearsal_bank"):
+                from ir_training.train.qat_rehearsal import attach_rehearsal_indices
+                inputs = args[0] if args else kwargs["inputs"]
+                return attach_rehearsal_indices(result, inputs, self._a2ui_rehearsal_bank)
+            return result
 
         def compute_loss(self, model: Any, *args: Any, **kwargs: Any) -> Any:
             assert_qat_policy_active(model, bundle.controller)
-            return super().compute_loss(model, *args, **kwargs)
+            loss = super().compute_loss(model, *args, **kwargs)
+            if model.training and hasattr(self, "_a2ui_rehearsal_bank"):
+                from ir_training.train.qat_rehearsal import add_rehearsal_loss
+                inputs = args[0] if args else kwargs["inputs"]
+                return add_rehearsal_loss(self, model, inputs, loss, self._a2ui_rehearsal_bank,
+                                         bundle.config["grpo"]["rehearsal"]["weight"])
+            return loss
 
         def save_model(self, output_dir: str | None = None, _internal_call: bool = False) -> Any:
             # Same generation-config serialization compatibility as checked SFT.
@@ -449,6 +469,11 @@ def train_qat_grpo(config: dict[str, Any], config_path: Path, *, dependency_pref
                    runtime_preflight_only: bool = False) -> dict[str, Any]:
     """Run GRPO then write the same PEFT checkpoints consumed by shared export."""
     validate_qat_grpo_config(config)
+    from ir_training.train.qat_objectives import objective
+    if objective(config) == "dpo":
+        from ir_training.train.qat_dpo import train_qat_dpo
+        return train_qat_dpo(config, config_path, dependency_preflight_only=dependency_preflight_only,
+                             runtime_preflight_only=runtime_preflight_only)
     from ir_training.common.config import resolve_path, training_root
     from ir_training.generation_policy import preserve_generation_eos
     from ir_training.train import sft
@@ -578,6 +603,19 @@ def train_qat_grpo(config: dict[str, Any], config_path: Path, *, dependency_pref
         reward = with_coverage(reward, output, rank)
         bundle.metadata["grpo"]["reward"] = {"version": QAT_GRPO_REWARD_VERSION, "config": _file_identity(reward_path),
             "implementation": reward_implementation_identity(reward_path)}
+        rehearsal_bank = None
+        if objective(config) == "grpo_sft":
+            from ir_training.train.qat_posttrain_data import build_rehearsal_bank
+            rehearsal_bank, rehearsal_manifest = build_rehearsal_bank(
+                train_data, bundle.tokenizer, max_prompt_length=max_prompt,
+                max_completion_length=max_completion,
+                max_sequence_length=min(context, int(training["max_seq_length"])),
+                reward_config=load_reward_config_v5_4(reward_path),
+                forbidden_rows=datasets.get("val", ()))
+            rehearsal_path = output / f"rehearsal_admission.rank{rank}.json"
+            rehearsal_path.write_text(json.dumps(rehearsal_manifest, indent=2), encoding="utf-8")
+            bundle.metadata["grpo"]["rehearsal"] = {"weight": grpo["rehearsal"]["weight"],
+                "admission": _file_identity(rehearsal_path), "policy": "completion_ce_per_sample_v1"}
         eval_batch = training.get("per_device_eval_batch_size") or generations // math.gcd(generations, world_size)
         if eval_data is not None and eval_batch * world_size % generations:
             raise ValueError("Global GRPO evaluation batch must be divisible by num_generations")
@@ -622,6 +660,8 @@ def train_qat_grpo(config: dict[str, Any], config_path: Path, *, dependency_pref
                 rollout_func=make_qat_rollout(bundle, str(output),
                     audit_limit=int(grpo.get("audit_rollout_limit", 256))))
         eos_ids = preserve_generation_eos(trainer.model, bundle.tokenizer, extra_eos_ids=bundle.generation_eos_ids)
+        if rehearsal_bank is not None:
+            trainer._a2ui_rehearsal_bank = rehearsal_bank
         trainer.generation_config.eos_token_id = list(eos_ids)
         trainer.generation_kwargs["eos_token_id"] = list(eos_ids)
         assert_qat_policy_active(trainer.model, bundle.controller)
@@ -631,7 +671,8 @@ def train_qat_grpo(config: dict[str, Any], config_path: Path, *, dependency_pref
             "runtime_preflight_only": runtime_preflight_only}, indent=2, default=str), encoding="utf-8")
         if runtime_preflight_only:
             from ir_training.train.grpo_probe import run_disposable_probe
-            return run_disposable_probe(trainer, output=output, config_path=config_path, selected_rows=probe_rows)
+            return run_disposable_probe(trainer, output=output, config_path=config_path, selected_rows=probe_rows,
+                                        objective=objective(config))
         health = make_health_callback(trainer.accelerator, str(output), thresholds)
         trainer.add_callback(health)
         if bundle.controller.saturation_monitor is not None:

@@ -158,6 +158,23 @@ def inspect_qat_grpo_run(run_dir: str | Path) -> dict[str, Any]:
     if not required_paths.issubset(paths):
         raise ValueError("GRPO plan lacks required artifact paths")
     config = load_yaml(paths["config"])
+    from ir_training.train.qat_objectives import objective
+    mode = objective(config)
+    if values.get("objective", "grpo") != mode or (
+        mode != "grpo" and plan.get("algorithm") != mode
+    ):
+        raise ValueError("QAT native plan and config disagree on the training objective")
+    preference_binding = {}
+    if mode == "dpo":
+        settings = (config.get("grpo") or {}).get("dpo") or {}
+        preference_path = values.get("dpo_preferences")
+        digest = settings.get("preferences_sha256")
+        if (not isinstance(preference_path, str) or not preference_path
+                or settings.get("preferences") != preference_path
+                or not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest)
+                or plan.get("preference_files") != {preference_path: digest}):
+            raise ValueError("DPO native inspection requires the exact planned preference identity")
+        preference_binding = {preference_path: digest}
     runtime_probe_required = (config.get("grpo") or {}).get("runtime_preflight_required", False)
     if type(runtime_probe_required) is not bool:
         raise ValueError("GRPO runtime preflight requirement must be an explicit boolean")
@@ -190,6 +207,13 @@ def inspect_qat_grpo_run(run_dir: str | Path) -> dict[str, Any]:
         elif stage.startswith("best_"):
             result = native.read_json(run / "evaluations" / stage / "evaluation_result.json")
             allowed_external = {str(result.get("tensorboard_record") or "")}
+        elif stage == "configure" and mode == "dpo":
+            # These bytes were checked on the training host. The Android-host
+            # copy must bind that exact historical input without reading an
+            # arbitrary path outside the copied run.
+            if any(files.get(path) != digest for path, digest in preference_binding.items()):
+                raise ValueError("DPO configure receipt does not bind the planned preference source")
+            allowed_external = set(preference_binding)
         normalized_allowed = {value.replace("\\", "/").casefold() for value in allowed_external}
         local = {}
         for value, digest in files.items():
@@ -242,6 +266,11 @@ def inspect_qat_grpo_run(run_dir: str | Path) -> dict[str, Any]:
     metadata_path = paths["best_checkpoint"] / "training_metadata.json"
     require_bound("training", metadata_path)
     metadata = native.read_json(metadata_path)
+    if mode != "grpo" and (
+        (metadata.get("grpo") or {}).get("algorithm") != mode
+        or (metadata.get("grpo") or {}).get("objective") != mode
+    ):
+        raise ValueError("Selected QAT adapter metadata differs from the planned training objective")
     if (metadata.get("training_config_sha256") != config_sha or metadata.get("checkpoint_role") != "best_golden"
             or (metadata.get("training") or {}).get("method") != "qat_lora_grpo"
             or not _golden_selection_binding(metadata, config)["verified"]
@@ -346,4 +375,5 @@ def inspect_qat_grpo_run(run_dir: str | Path) -> dict[str, Any]:
             "max_input_tokens": max_input, "max_new_tokens": max_new, "prepared_manifest": prepared_manifest,
             "prepared_manifest_sha256": native.file_sha256(prepared_root / "manifest.json"),
             "cohorts": cohorts, "receipt_bindings": receipts,
+            "objective": mode,
             "reward_implementation": (metadata.get("grpo") or {}).get("reward", {}).get("implementation")}

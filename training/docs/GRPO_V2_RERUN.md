@@ -99,7 +99,8 @@ without editing completed receipts. Code/config changes require a fresh rerun.
 Old unsealed runs must use `--rerun-from`. A plan that deferred native testing
 continues to defer it; execute the standalone device command instead of editing it.
 
-DPO, frozen-SFT-reference KL, mixed SFT rehearsal and dynamic group resampling
-remain separate research experiments. They are not silently enabled; the default
-objective stays Dr. GRPO, beta=0, one iteration per fresh rollout. Actual H100/DDP
+Offline QAT DPO and GRPO + SFT rehearsal are now separate opt-in objectives; see
+[QAT_POSTTRAIN_OPTIONS.md](QAT_POSTTRAIN_OPTIONS.md) for commands and input contracts.
+Frozen-SFT-reference KL and dynamic group resampling remain future experiments.
+The default objective stays Dr. GRPO, beta=0, one iteration per fresh rollout. Actual H100/DDP
 training, full export and Android execution must be validated on the target hosts.

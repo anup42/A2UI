@@ -2,6 +2,8 @@
 
 For the current GRPO-v2 fixes, fresh-SFT rerun command, rollout controls and
 safe post-training continuation, see [the updated run guide](GRPO_V2_RERUN.md).
+For opt-in GRPO + SFT rehearsal or offline QAT DPO from the same SFT adapter,
+see [QAT post-training options](QAT_POSTTRAIN_OPTIONS.md).
 
 `training/scripts/run_qat_grpo_pipeline.py` continues a verified **QAT LoRA SFT
 adapter** with GRPO for Gemma 4 E2B or Gemma 3 270M. It reuses the existing data

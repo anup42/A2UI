@@ -33,7 +33,7 @@ def write_rows(path, rows):
     path.write_text("".join(json.dumps(row) + "\n" for row in rows), encoding="utf-8")
 
 
-def fixture(tmp_path, monkeypatch, family, *, runtime_preflight=False):
+def fixture(tmp_path, monkeypatch, family, *, runtime_preflight=False, objective=None):
     run = tmp_path / "copied-run"
     run.mkdir()
     origin = "/training/grpo-run"
@@ -50,6 +50,13 @@ def fixture(tmp_path, monkeypatch, family, *, runtime_preflight=False):
     config["training"].update(method="qat_lora_grpo", max_seq_length=4096)
     config["model"]["max_output_tokens"] = 2048
     config["grpo"] = {"family": family, "sft_checkpoint": "/external/sft-adapter", "sft_training_config": "/external/sft.yaml"}
+    if objective:
+        config["grpo"]["objective"] = objective
+        if objective == "grpo_sft":
+            config["grpo"]["rehearsal"] = {"weight": 0.1}
+        elif objective == "dpo":
+            config["grpo"]["dpo"] = {"beta": 0.1, "preferences": "/external/preferences.jsonl",
+                                     "preferences_sha256": "e" * 64}
     if runtime_preflight:
         config["grpo"]["runtime_preflight_required"] = True
     config["golden_eval"].update(dataset_dir=old(paths["prepared"]), split="golden32", max_rows=32, required_rows=32,
@@ -81,6 +88,8 @@ def fixture(tmp_path, monkeypatch, family, *, runtime_preflight=False):
                 "training": {"method": "qat_lora_grpo"}, "golden_eval": config["golden_eval"],
                 "best_golden_eval": {"metric": SELECTOR, "metric_value": 80.0, "step": 20},
                 "adapter_checkpoints": [{"role": "best_golden", "files": adapter_files}]}
+    if objective:
+        metadata["grpo"] = {"algorithm": objective, "objective": objective}
     write(paths["best_checkpoint"] / "training_metadata.json", metadata)
     merge = {"training_method": "qat_lora_grpo", "training_config_sha256": config_sha,
              "adapter_dir": old(paths["best_checkpoint"]), "merged_model_dir": old(paths["merged"]), "adapter_files": adapter_files,
@@ -144,6 +153,12 @@ def fixture(tmp_path, monkeypatch, family, *, runtime_preflight=False):
             "paths": {key: old(value) for key, value in paths.items()}, "stages": [*stages, "native_quality"],
             "official_artifact_sha256": pinned, "mtp": {"training": False, "inference": False},
             "selection": {"cohort": "golden32", "metric": SELECTOR, "golden35_used": False, "bixby50_used": False}}
+    if objective:
+        plan["algorithm"] = objective
+        plan["options"]["objective"] = objective
+        if objective == "dpo":
+            plan["options"]["dpo_preferences"] = "/external/preferences.jsonl"
+            plan["preference_files"] = {"/external/preferences.jsonl": "e" * 64}
     write(run / "qat_grpo_plan.json", plan)
     digest = native.file_sha256(run / "qat_grpo_plan.json")
     roots = {"assets": [run / "assets_verified.json"], "prepare": list(paths["prepared"].glob("*")),
@@ -160,6 +175,8 @@ def fixture(tmp_path, monkeypatch, family, *, runtime_preflight=False):
             receipt["files"][f"/tensorboard/external-{stage[5:]}.json"] = "c" * 64
         if stage == "assets" and family == "e2b":
             receipt["files"]["/external/mobile.safetensors"] = "d" * 64
+        if stage == "configure" and objective == "dpo":
+            receipt["files"]["/external/preferences.jsonl"] = "e" * 64
         write(run / "stage_receipts" / f"{stage}.json", receipt)
         completed[stage] = receipt
     write(run / "qat_grpo_manifest.json", {"workflow": plan["workflow"], "plan": plan,

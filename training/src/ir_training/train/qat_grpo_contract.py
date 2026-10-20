@@ -34,6 +34,8 @@ def file_identity(path: str | Path) -> dict[str, Any]:
 
 
 def validate_qat_grpo_config(config: dict[str, Any]) -> None:
+    from ir_training.train.qat_objectives import validate_objective
+    validate_objective(config)
     model, training = config.get("model") or {}, config.get("training") or {}
     qat, lora, grpo = config.get("qat") or {}, config.get("lora") or {}, config.get("grpo") or {}
     if not is_qat_grpo(config) or (config.get("run") or {}).get("purpose") != WORKFLOW:
@@ -171,8 +173,10 @@ def verify_qat_grpo_provenance(config: dict[str, Any], metadata: dict[str, Any])
         reward = grpo.get("reward") or {}
         reward_path = resolve_path(config["grpo"].get("reward_config", "../dataset/configs/genui_metric_v5_4.yaml"), training_root())
         reward_identity = file_identity(reward_path)
+        from ir_training.train.qat_objectives import implementation_identity, objective
+        mode = objective(config)
         checks = {
-            "grpo_schema": grpo.get("schema_version") == 1 and grpo.get("algorithm") == "grpo"
+            "grpo_schema": grpo.get("schema_version") == 1 and grpo.get("algorithm") == mode
                 and grpo.get("family") == config["grpo"]["family"]
                 and (metadata.get("training") or {}).get("method") == METHOD,
             "canonical_reward_config_bound": bool(
@@ -207,6 +211,34 @@ def verify_qat_grpo_provenance(config: dict[str, Any], metadata: dict[str, Any])
                 reward.get("implementation") == reward_implementation_identity(reward_path))
         report["reward_implementation_binding"] = (
             "sha256_v1" if implementation_required else "legacy_unbound")
+        if mode != "grpo":
+            checks["objective_implementation_bound"] = (
+                grpo.get("objective") == mode
+                and grpo.get("objective_implementation") == implementation_identity(mode))
+        if mode == "grpo_sft":
+            from pipeline.genui_quality import load_reward_config_v5_4
+
+            from ir_training.train.qat_posttrain_data import verify_admission_manifest
+            rehearsal = grpo.get("rehearsal") or {}
+            admission = _load_identity(rehearsal.get("admission"))
+            checks["rehearsal_admission_bound"] = False
+            limits = {
+                "max_prompt_length": config["grpo"]["max_prompt_length"],
+                "max_completion_length": config["grpo"]["max_completion_length"],
+                "max_sequence_length": min(int(config["training"]["max_seq_length"]),
+                                           int(config["model"]["max_context_tokens"])),
+            }
+            verify_admission_manifest(admission, kind="grpo_sft_rehearsal",
+                                      reward_config=load_reward_config_v5_4(reward_path), expected_limits=limits)
+            checks["rehearsal_admission_bound"] = True
+            checks["rehearsal_objective_bound"] = (
+                rehearsal.get("weight") == config["grpo"]["rehearsal"]["weight"]
+                and rehearsal.get("policy") == "completion_ce_per_sample_v1")
+        if mode == "dpo":
+            from ir_training.train.qat_dpo import verify_dpo_evidence
+            checks.update(verify_dpo_evidence(config, metadata))
+            report.update(checks=checks, source_lineage=lineage, verified=all(checks.values()))
+            return report
         from ir_training.train.grpo_runtime import GRPOHealthMonitor, HealthThresholds
         thresholds = HealthThresholds(**(config["grpo"].get("health") or {}))
         health = grpo.get("health") or {}
