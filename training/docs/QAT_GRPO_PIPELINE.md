@@ -1,5 +1,8 @@
 # QAT LoRA GRPO with official LiteRT-LM export
 
+For the current GRPO-v2 fixes, fresh-SFT rerun command, rollout controls and
+safe post-training continuation, see [the updated run guide](GRPO_V2_RERUN.md).
+
 `training/scripts/run_qat_grpo_pipeline.py` continues a verified **QAT LoRA SFT
 adapter** with GRPO for Gemma 4 E2B or Gemma 3 270M. It reuses the existing data
 preparation, model adapters, QAT wrappers, checkpoint selection, LoRA merge,
@@ -120,6 +123,7 @@ On the Android host, preserve the bound run paths and artifacts and execute:
 python training/scripts/evaluate_official_mobile_native.py \
   --run-dir /runs/e2b-qat-grpo-smoke \
   --output-dir /runs/e2b-qat-grpo-smoke_native_quality \
+  --weights-config /runs/e2b-qat-grpo-smoke/configs/grpo_metric_weights.yaml \
   --adb /absolute/path/to/adb --serial ACTUAL_ANDROID_SERIAL --execute
 ```
 
@@ -151,8 +155,8 @@ current recipe uses `dr_grpo`, batch reward scaling, and one optimization
 iteration per sampled rollout. Golden checkpoint selection cannot begin before
 the first 20-update health window (`--golden-every-steps` must be at least 20).
 
-Training preparation uses a 4096-token sequence ceiling; the GRPO prompt ceiling
-is also 4096. Golden/native evaluation has an independent 5120-token input
+Training preparation defaults to a 6144-token reference sequence ceiling; the
+GRPO prompt ceiling is 5120. Golden/native evaluation uses the same 5120-token input
 ceiling, with 2048 output tokens by default. The runtime validates the actual
 prompt lengths, completion budget, and extra masked terminal token against the
 model context. It refuses prompt truncation. A length rejection should be fixed
@@ -166,7 +170,7 @@ them into development data; keep final evaluation separate from recipe tuning.
 
 ## Reward and learning evidence
 
-The `qat_source_fidelity_v1` training reward wraps existing grouped v5.4 scoring.
+The `qat_source_fidelity_v2` training reward wraps existing grouped v5.4 scoring.
 It uses the same renderer-visible evidence, source contracts, reference
 restoration, matching, and canonical caps as the established evaluator. It does
 not change canonical v5.4 scores and does not compare candidates with the SFT

@@ -25,6 +25,8 @@ def validate_qat_grpo_config(config: dict[str, Any]) -> None:
     )
     validate_contract(config)
     training, grpo = config.get("training") or {}, config.get("grpo") or {}
+    from ir_training.train.grpo_runtime import validate_rollout_options
+    validate_rollout_options(grpo)
     from ir_training.train.grpo_experiment import SELECTOR, QualityPolicy
     for name in ("validation_max_rows", "audit_every_steps"):
         if type(grpo.get(name, 0)) is not int or grpo.get(name, 0) < 0:
@@ -260,7 +262,8 @@ def run_qat_grpo_preflight(bundle: QATGRPOModel, rows: Sequence[Mapping[str, Any
     if len(rows) == 0:
         raise ValueError("QAT GRPO numeric probes need non-empty training rows")
     text_rows, token_rows = [], []
-    for index in range(min(len(rows), count)):
+    from ir_training.train.grpo_probe import longest_prompt_indices
+    for index in longest_prompt_indices(rows, min(len(rows), count)):
         row = rows[index]
         prompt, completion = str(row["prompt"]), str(row["completion"])
         text_rows.append({"prompt_text": prompt, "completion_text": completion, "text": prompt + completion})
@@ -287,6 +290,8 @@ def run_qat_grpo_preflight(bundle: QATGRPOModel, rows: Sequence[Mapping[str, Any
             zero_adapter_initialization={"required": False, "reason": "continued_from_trained_sft_adapter", "verified_zero_delta": False},
             greedy_generation=sft._compare_initial_greedy_reports(baseline_greedy, greedy, preflight_cfg=cfg, qat_enabled=True))
         report["backward"] = _backward_probe(bundle, token_rows[0], max_seq_length=max_seq_length)
+        if (bundle.config.get("grpo") or {}).get("rollout_qat_weight_cache", False):
+            report["rollout_cache_parity"] = _probe_rollout_cache(bundle, text_rows[0]["prompt_text"])
         bundle.metadata["numeric_preflight"] = report
         bundle.metadata["qat"] = bundle.controller.summary()
         bundle.metadata["grpo"]["source_lineage"] = verify_sft_adapter_lineage(bundle.config, numeric=report)
@@ -403,9 +408,32 @@ def verify_prepared_training_contract(config: dict[str, Any]) -> dict[str, Any]:
     return result
 
 
+def _probe_rollout_cache(bundle: QATGRPOModel, prompt: str) -> dict:
+    import torch
+
+    from ir_training.train.grpo_runtime import RolloutOptions, rollout_inference_scope
+    inputs = bundle.tokenizer(prompt, return_tensors="pt", add_special_tokens=False)
+    device = next(bundle.model.parameters()).device
+    inputs = {key: value[:, :128].to(device) for key, value in inputs.items()}
+    with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
+        with rollout_inference_scope(bundle.model, RolloutOptions()) as uncached:
+            expected = bundle.model(**inputs, use_cache=False).logits.detach().cpu()
+        with rollout_inference_scope(bundle.model, RolloutOptions(qat_weight_cache=True)) as cached:
+            for _ in range(2):
+                actual = bundle.model(**inputs, use_cache=False).logits.detach().cpu()
+                if not torch.equal(expected, actual):
+                    raise ValueError("GRPO cached/uncached QAT forward parity failed")
+    return {"exact_logits_equal": True, "probe_tokens": int(inputs["input_ids"].shape[1]),
+            "uncached": uncached, "cached": cached}
+
+
 def make_qat_rollout(bundle: QATGRPOModel, output: str, *, audit_limit: int):
-    from ir_training.train.grpo_runtime import make_express_rollout
-    shared = make_express_rollout(output, bundle.generation_eos_ids, audit_limit=audit_limit)
+    from ir_training.train.grpo_runtime import (
+        make_express_rollout,
+        validate_rollout_options,
+    )
+    shared = make_express_rollout(output, bundle.generation_eos_ids, audit_limit=audit_limit,
+        rollout_options=validate_rollout_options(bundle.config.get("grpo") or {}))
 
     def rollout(prompts: list[str], trainer: Any) -> dict[str, Any]:
         assert_qat_policy_active(trainer.model, bundle.controller)
@@ -417,7 +445,8 @@ def make_qat_rollout(bundle: QATGRPOModel, output: str, *, audit_limit: int):
     return rollout
 
 
-def train_qat_grpo(config: dict[str, Any], config_path: Path, *, dependency_preflight_only: bool = False) -> dict[str, Any]:
+def train_qat_grpo(config: dict[str, Any], config_path: Path, *, dependency_preflight_only: bool = False,
+                   runtime_preflight_only: bool = False) -> dict[str, Any]:
     """Run GRPO then write the same PEFT checkpoints consumed by shared export."""
     validate_qat_grpo_config(config)
     from ir_training.common.config import resolve_path, training_root
@@ -434,6 +463,10 @@ def train_qat_grpo(config: dict[str, Any], config_path: Path, *, dependency_pref
     from ir_training.train.prepared_binding import verify_tokenizer_binding
     training, grpo, run = config["training"], config["grpo"], config["run"]
     output = resolve_path(run["output_dir"], training_root())
+    if runtime_preflight_only:
+        if dependency_preflight_only:
+            raise ValueError("Choose dependency or runtime preflight, not both")
+        output = output.parent / "runtime_preflight"
     output.mkdir(parents=True, exist_ok=True)
     rank = max(0, int(os.environ.get("RANK", "0")))
     dependencies = dependency_report()
@@ -458,6 +491,16 @@ def train_qat_grpo(config: dict[str, Any], config_path: Path, *, dependency_pref
     if limit["max_optimizer_steps"] is not None and limit["max_optimizer_steps"] < thresholds.window_steps:
         raise ValueError("GRPO max_steps must cover at least one complete health window")
     world_size = max(1, int(os.environ.get("WORLD_SIZE", "1")))
+    from ir_training.train.grpo_probe import (
+        longest_prompt_indices,
+        runtime_arguments,
+        verify_probe_reports,
+    )
+    if grpo.get("runtime_preflight_required") and not runtime_preflight_only:
+        verify_probe_reports(output.parent / "runtime_preflight", config_path, world_size)
+        from ir_training.train.grpo_probe import verify_local_probe_device
+        verify_local_probe_device(output.parent / "runtime_preflight" / f"grpo_runtime_probe.rank{rank}.json",
+                                  torch, int(os.environ.get("LOCAL_RANK", "0")))
     generations = grpo.get("num_generations", 4)
     micro, accumulation = training["per_device_train_batch_size"], training["gradient_accumulation_steps"]
     effective_batch = micro * accumulation * world_size
@@ -476,8 +519,19 @@ def train_qat_grpo(config: dict[str, Any], config_path: Path, *, dependency_pref
                 datasets[name] = shared_data.load_training_dataset(str(path), None, tokenizer=bundle.tokenizer,
                     prompt_source="prepared", chat_template_kwargs=config["model"].get("chat_template_kwargs") or {})
         train_data, eval_data = datasets["train"], datasets.get("val")
+        from ir_training.train.grpo_coverage import dataset_coverage, with_coverage
+        (output / f"grpo_dataset_coverage.rank{rank}.json").write_text(
+            json.dumps({name: dataset_coverage(rows) for name, rows in datasets.items()}, indent=2), encoding="utf-8")
         if len(train_data) < effective_batch // generations:
             raise ValueError("Prepared train split is too small for a complete GRPO generation batch")
+        probe_rows = []
+        if runtime_preflight_only:
+            indices = longest_prompt_indices(train_data, effective_batch // generations)
+            probe_rows = [{"source_id": train_data[index]["source_id"],
+                           "prompt_tokens": train_data[index]["prompt_provenance"]["prompt_tokens"]}
+                          for index in indices]
+            train_data = train_data.select(indices)
+            eval_data = None
         max_prompt = grpo.get("max_prompt_length", 4096)
         max_completion = grpo.get("max_completion_length", 2048)
         context = sft._model_position_limit(bundle.model) or int(config["model"]["max_context_tokens"])
@@ -513,6 +567,7 @@ def train_qat_grpo(config: dict[str, Any], config_path: Path, *, dependency_pref
         from ir_training.train.qat_grpo_reward import (
             QAT_GRPO_REWARD_VERSION,
             make_qat_grpo_reward,
+            reward_implementation_identity,
         )
         ensure_v5_4_validation_ready()
         reward_path = resolve_path(grpo.get("reward_config", "../dataset/configs/genui_metric_v5_4.yaml"), training_root())
@@ -520,7 +575,9 @@ def train_qat_grpo(config: dict[str, Any], config_path: Path, *, dependency_pref
         reward = audited_reward(reward, str(output), rank, audit_limit=int(grpo.get("audit_rollout_limit", 256)))
         from ir_training.train.grpo_experiment import periodic_reward_audit
         reward = periodic_reward_audit(reward, output, rank, grpo.get("audit_every_steps", 0))
-        bundle.metadata["grpo"]["reward"] = {"version": QAT_GRPO_REWARD_VERSION, "config": _file_identity(reward_path)}
+        reward = with_coverage(reward, output, rank)
+        bundle.metadata["grpo"]["reward"] = {"version": QAT_GRPO_REWARD_VERSION, "config": _file_identity(reward_path),
+            "implementation": reward_implementation_identity(reward_path)}
         eval_batch = training.get("per_device_eval_batch_size") or generations // math.gcd(generations, world_size)
         if eval_data is not None and eval_batch * world_size % generations:
             raise ValueError("Global GRPO evaluation batch must be divisible by num_generations")
@@ -543,6 +600,7 @@ def train_qat_grpo(config: dict[str, Any], config_path: Path, *, dependency_pref
             max_grad_norm=float(training.get("max_grad_norm", 1.0)), weight_decay=float(training.get("weight_decay", 0.0)),
             **sft._training_precision_flags(bundle.metadata["model"]["dtype"], training))
         parameters = inspect.signature(GRPOConfig.__init__).parameters
+        kwargs.update(runtime_arguments(training, parameters, limit["max_optimizer_steps"]))
         sft._apply_training_data_seed(training, kwargs, parameters)
         # The prepared prompt scan above is authoritative on runtimes that have
         # removed max_prompt_length; no library truncation is permitted.
@@ -556,6 +614,8 @@ def train_qat_grpo(config: dict[str, Any], config_path: Path, *, dependency_pref
         if logging_dir is not None and "logging_dir" in parameters:
             kwargs["logging_dir"] = str(logging_dir)
         trainer_cls = build_qat_grpo_trainer(GRPOTrainer, bundle)
+        if runtime_preflight_only:
+            kwargs.update(max_steps=2, save_strategy="no", eval_strategy="no", report_to="none")
         with sft._training_tensorboard_environment(logging_dir):
             trainer = trainer_cls(model=bundle.model, args=GRPOConfig(**kwargs), reward_funcs=[reward],
                 train_dataset=train_data, eval_dataset=eval_data, processing_class=bundle.tokenizer,
@@ -565,6 +625,13 @@ def train_qat_grpo(config: dict[str, Any], config_path: Path, *, dependency_pref
         trainer.generation_config.eos_token_id = list(eos_ids)
         trainer.generation_kwargs["eos_token_id"] = list(eos_ids)
         assert_qat_policy_active(trainer.model, bundle.controller)
+        (output / f"grpo_runtime_config.rank{rank}.json").write_text(json.dumps({
+            "actual_trainer_arguments": trainer.args.to_dict(), "effective_completion_batch": effective_batch,
+            "rollout_microbatch_size": grpo.get("rollout_microbatch_size", 1),
+            "runtime_preflight_only": runtime_preflight_only}, indent=2, default=str), encoding="utf-8")
+        if runtime_preflight_only:
+            from ir_training.train.grpo_probe import run_disposable_probe
+            return run_disposable_probe(trainer, output=output, config_path=config_path, selected_rows=probe_rows)
         health = make_health_callback(trainer.accelerator, str(output), thresholds)
         trainer.add_callback(health)
         if bundle.controller.saturation_monitor is not None:

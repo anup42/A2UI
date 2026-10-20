@@ -137,6 +137,9 @@ def build_golden_set_eval_callback(
             self.best_checkpoint_path = resolved_best_checkpoint_dir
             self.best_checkpoint_files: list[dict[str, Any]] | None = None
             self.last_completed_step: int | None = None
+            # GRPO may install an explicit promotion predicate before training.
+            # None preserves the existing SFT/QAT scalar selector exactly.
+            self.checkpoint_eligibility: Callable[[dict[str, Any]], dict[str, Any]] | None = None
             if resume_checkpoint is not None:
                 self._restore_state(Path(resume_checkpoint))
 
@@ -421,6 +424,18 @@ def build_golden_set_eval_callback(
                 return
             if zero3_trainer is None and not _metric_improved(metric_value, self.best_metric_value, greater_is_better):
                 return
+
+            if self.checkpoint_eligibility is not None:
+                # This hook is used only by the replicated GRPO lane. Do not
+                # introduce rank-local decisions into collective ZeRO saves.
+                if zero3_trainer is not None:
+                    raise ValueError("Custom checkpoint eligibility is not supported for ZeRO-3")
+                eligibility = self.checkpoint_eligibility(aggregate)
+                if not isinstance(eligibility, dict) or type(eligibility.get("passed")) is not bool:
+                    raise ValueError("Checkpoint eligibility must return an explicit passed boolean")
+                aggregate["checkpoint_eligibility"] = eligibility
+                if not eligibility["passed"]:
+                    return
 
             self.best_metric_value = metric_value
             self.best_metric_step = int(getattr(state, "global_step", 0) or 0)

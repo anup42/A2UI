@@ -17,6 +17,40 @@ from typing import Any, Mapping, Sequence
 SELECTOR = "unique_source_generation_reward_v5_4_avg"
 GUARDS = ("unique_source_schema_valid_strict_rate", "unique_source_cap_v5_4_avg",
           "unique_source_fully_root_reachable_v5_4_avg")
+SCORER_IDENTITY_KEYS = ("metric_fingerprint", "reward_pipeline_fingerprint")
+
+
+def expected_scorer_identity(grpo: Mapping[str, Any]) -> dict[str, str]:
+    from ir_training.common.config import resolve_path, training_root
+    from ir_training.train.qat_grpo_reward import reward_implementation_identity
+
+    path = resolve_path(grpo.get("reward_config", "../dataset/configs/genui_metric_v5_4.yaml"), training_root())
+    identity = reward_implementation_identity(path)
+    if identity["metric_fingerprint"] != identity["evaluation_metric_fingerprint"]:
+        raise ValueError("GRPO reward and evaluation must use the same explicitly configured scorer")
+    return {key: identity[key] for key in SCORER_IDENTITY_KEYS}
+
+
+def verify_expected_scorer(aggregate: Mapping[str, Any], expected: Mapping[str, str]) -> None:
+    actual = aggregate.get("metric_identity_v5_4") or {}
+    if not isinstance(actual, Mapping) or any(actual.get(key) != value for key, value in expected.items()):
+        raise ValueError("GRPO evaluation does not bind the configured reward scorer implementation")
+
+
+def verify_comparable_aggregates(before: Mapping[str, Any], after: Mapping[str, Any],
+                                 *, require_scorer_identity: bool = False) -> None:
+    """Compare like-for-like evidence without accepting stale scorer outputs."""
+    for key in ("golden_set_sha256", "golden_set_rows", "unique_source_count"):
+        if before.get(key) is None or before.get(key) != after.get(key):
+            raise ValueError(f"GRPO baseline/selected cohort mismatch: {key}")
+    if require_scorer_identity:
+        before_identity, after_identity = before.get("metric_identity_v5_4") or {}, after.get("metric_identity_v5_4") or {}
+        for key in SCORER_IDENTITY_KEYS:
+            value = before_identity.get(key)
+            if not isinstance(value, str) or len(value) != 64 or any(c not in "0123456789abcdef" for c in value):
+                raise ValueError(f"GRPO baseline lacks canonical scorer identity: {key}")
+            if value != after_identity.get(key):
+                raise ValueError(f"GRPO baseline/selected scorer mismatch: {key}")
 
 
 def file_sha256(path: Path) -> str:
@@ -176,6 +210,11 @@ def make_quality_callback(*, accelerator: Any, baseline_callback: Any, golden_ca
     from transformers import TrainerCallback
     from ir_training.train.callbacks import _evaluation_label
     from ir_training.train.grpo_runtime import write_json_record
+    from ir_training.common.config import load_yaml
+
+    grpo = load_yaml(config_path).get("grpo", {})
+    require_scorer_identity = grpo.get("reward_implementation_binding") == "sha256_v1"
+    expected_identity = expected_scorer_identity(grpo) if require_scorer_identity else None
 
     def on_main(fn):
         payload = [None]
@@ -193,18 +232,32 @@ def make_quality_callback(*, accelerator: Any, baseline_callback: Any, golden_ca
 
     def read_metrics(path):
         aggregate = json.loads(path.read_text(encoding="utf-8"))
-        return quality_metrics(aggregate)
+        quality_metrics(aggregate)
+        if expected_identity is not None:
+            verify_expected_scorer(aggregate, expected_identity)
+        return aggregate
 
     def check_cohort(before, after):
         left = json.loads(before.read_text(encoding="utf-8"))
         right = json.loads(after.read_text(encoding="utf-8"))
-        for key in ("golden_set_sha256", "golden_set_rows", "unique_source_count"):
-            if left.get(key) is None or left.get(key) != right.get(key):
-                raise ValueError(f"GRPO baseline/selected cohort mismatch: {key}")
+        verify_comparable_aggregates(left, right, require_scorer_identity=require_scorer_identity)
 
     class QualityCallback(TrainerCallback):
         monitor = None
         baseline_path = None
+        baseline_aggregate = None
+
+        def checkpoint_eligibility(self, aggregate):
+            # Called on rank zero before Golden can overwrite the old adapter.
+            # Other ranks receive the same decision through the existing Golden
+            # evaluation failure handling and subsequent quality observation.
+            if self.monitor is None or self.baseline_aggregate is None:
+                raise RuntimeError("No fresh GRPO quality baseline was recorded")
+            verify_comparable_aggregates(self.baseline_aggregate, aggregate,
+                                         require_scorer_identity=require_scorer_identity)
+            if expected_identity is not None:
+                verify_expected_scorer(aggregate, expected_identity)
+            return self.monitor.promotion(aggregate)
 
         def on_train_begin(self, args, state, control, model=None, **kwargs):
             if int(state.global_step) != 0:
@@ -223,6 +276,7 @@ def make_quality_callback(*, accelerator: Any, baseline_callback: Any, golden_ca
                 np.random.set_state(numpy_state)
             self.baseline_path = baseline_dir / _evaluation_label("evaluate", state) / "aggregate_metrics.json"
             metrics = on_main(lambda: read_metrics(self.baseline_path))
+            self.baseline_aggregate = metrics
             self.monitor = QualityMonitor(metrics, policy)
             return control
 
@@ -236,6 +290,8 @@ def make_quality_callback(*, accelerator: Any, baseline_callback: Any, golden_ca
                 raise RuntimeError("GRPO quality control must run immediately after Golden evaluation")
             path = golden_dir / _evaluation_label("evaluate", state) / "aggregate_metrics.json"
             metrics = on_main(lambda: read_metrics(path))
+            verify_comparable_aggregates(self.baseline_aggregate, metrics,
+                                         require_scorer_identity=require_scorer_identity)
             decision = self.monitor.observe(step, metrics)
             on_main(lambda: write_json_record(output / "grpo_quality_history.jsonl", decision))
             if decision["should_stop"]:
@@ -258,19 +314,25 @@ def make_quality_callback(*, accelerator: Any, baseline_callback: Any, golden_ca
                 adapter_path = checkpoint / "adapter_model.safetensors"
                 check_cohort(self.baseline_path, aggregate_path)
                 decision = self.monitor.promotion(read_metrics(aggregate_path))
-                gate = {"schema_version": 1, **decision, "selected_step": int(selected["step"]),
+                scorer_identity = ({key: self.baseline_aggregate["metric_identity_v5_4"][key] for key in SCORER_IDENTITY_KEYS}
+                                   if require_scorer_identity else None)
+                gate = {"schema_version": 2 if require_scorer_identity else 1,
+                        **decision, "selected_step": int(selected["step"]),
                         "training_config_sha256": file_sha256(config_path),
                         "selected_adapter_sha256": file_sha256(adapter_path),
                         "selected_aggregate_sha256": file_sha256(aggregate_path),
                         "baseline_path": str(self.baseline_path),
                         "baseline_sha256": file_sha256(self.baseline_path),
+                        "scorer_identity": scorer_identity,
                         "scope": "development_screen_only; independent holdout and native QA still required"}
                 path = output / "grpo_quality_gate.json"
                 path.write_text(json.dumps(gate, indent=2, allow_nan=False) + "\n", encoding="utf-8")
                 return gate
             return on_main(write_gate)
 
-    return QualityCallback()
+    callback = QualityCallback()
+    golden_callback.checkpoint_eligibility = callback.checkpoint_eligibility
+    return callback
 
 
 def verify_quality_gate(output: Path, checkpoint: Path, config_path: Path) -> list[Path]:
@@ -284,12 +346,25 @@ def verify_quality_gate(output: Path, checkpoint: Path, config_path: Path) -> li
     if any(file_sha256(file) != gate.get(key) for file, key in bindings):
         raise ValueError("GRPO quality gate does not bind the current checkpoint/config/evidence")
     from ir_training.common.config import load_yaml
-    configured = load_yaml(config_path).get("grpo", {}).get("quality_control") or {}
+    grpo = load_yaml(config_path).get("grpo", {})
+    configured = grpo.get("quality_control") or {}
     policy = QualityPolicy(**(configured.get("policy") or {}))
     if configured.get("enabled") is not True or asdict(policy) != gate.get("policy"):
         raise ValueError("GRPO quality gate policy differs from the bound training config")
-    monitor = QualityMonitor(json.loads(baseline.read_text()), policy)
-    actual = monitor.promotion(json.loads(aggregate.read_text()))
+    baseline_metrics, selected_metrics = json.loads(baseline.read_text()), json.loads(aggregate.read_text())
+    require_scorer_identity = grpo.get("reward_implementation_binding") == "sha256_v1"
+    if require_scorer_identity:
+        expected_identity = expected_scorer_identity(grpo)
+        verify_expected_scorer(baseline_metrics, expected_identity)
+        verify_expected_scorer(selected_metrics, expected_identity)
+    verify_comparable_aggregates(baseline_metrics, selected_metrics,
+                                 require_scorer_identity=require_scorer_identity)
+    if require_scorer_identity and (gate.get("schema_version") != 2 or gate.get("scorer_identity") != {
+        key: baseline_metrics["metric_identity_v5_4"][key] for key in SCORER_IDENTITY_KEYS
+    }):
+        raise ValueError("GRPO quality gate does not bind canonical scorer identities")
+    monitor = QualityMonitor(baseline_metrics, policy)
+    actual = monitor.promotion(selected_metrics)
     if gate.get("passed") is not True or not actual["passed"]:
         raise ValueError("GRPO quality promotion blocked: " + ", ".join(actual["issues"]))
     return [path, baseline, aggregate]

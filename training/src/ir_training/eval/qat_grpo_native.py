@@ -42,6 +42,83 @@ _270M_GATES = {
     "official_execution_contract_ignoring_buffer_indices", "section_size_unchanged", "package_outside_target_byte_exact",
 }
 
+NATIVE_QUALITY_POLICY = {
+    "version": "hf_native_nonregression_v1",
+    "max_reward_drop_points": 0.0,
+    "max_guard_drop": 0.0,
+}
+
+
+def evaluate_native_quality_release(
+    binding: dict[str, Any],
+    native_aggregates: dict[str, dict[str, Any]],
+    checkpoint_aggregates: dict[str, dict[str, Any]],
+) -> dict[str, Any]:
+    """A post-export acceptance gate, never a checkpoint-selection signal.
+
+    Legacy GRPO artifacts without the explicit policy remain inspectable, but
+    execution success alone must not be called quality acceptance. Non-GRPO
+    callers never invoke this helper, preserving their existing behavior.
+    """
+    from ir_training.train.grpo_experiment import SCORER_IDENTITY_KEYS
+
+    configured = (binding["config"].get("grpo") or {}).get("native_quality_policy")
+    if configured is None:
+        return {"status": "not_configured", "accepted": None,
+                "reason": "legacy_run_has_no_declared_native_quality_policy",
+                "execution_success_is_not_quality_acceptance": True}
+    if not isinstance(configured, dict) or set(configured) != set(NATIVE_QUALITY_POLICY):
+        raise ValueError("GRPO native quality policy must be explicit and complete")
+    if configured.get("version") != NATIVE_QUALITY_POLICY["version"]:
+        raise ValueError("Unsupported GRPO native quality policy")
+    # This version intentionally does not offer a relaxed fidelity threshold.
+    for key in ("max_reward_drop_points", "max_guard_drop"):
+        value = configured[key]
+        if isinstance(value, bool) or not isinstance(value, (int, float)) or value != 0:
+            raise ValueError(f"GRPO native quality policy requires zero regression: {key}")
+    if set(native_aggregates) != set(native.COHORTS) or set(checkpoint_aggregates) != set(native.COHORTS):
+        raise ValueError("GRPO native quality gate requires every exact cohort")
+    reward_identity = binding.get("reward_implementation") or {}
+    if any(not isinstance(reward_identity.get(key), str) or not re.fullmatch(r"[0-9a-f]{64}", reward_identity[key])
+           for key in SCORER_IDENTITY_KEYS):
+        raise ValueError("GRPO native quality gate requires the trained reward implementation identity")
+    metrics = {
+        "generation_reward_v5_4_avg": 100.0,
+        "schema_valid_strict_rate": 1.0,
+        "cap_v5_4_avg": 1.0,
+        "fully_root_reachable_v5_4_avg": 1.0,
+    }
+    results, issues = {}, []
+    for cohort, count in native.COHORTS.items():
+        before, after = checkpoint_aggregates[cohort], native_aggregates[cohort]
+        if type(before.get("count")) is not int or before["count"] != count or after.get("count") != count:
+            raise ValueError(f"GRPO native quality coverage mismatch: {cohort}")
+        identities = [item.get("metric_identity_v5_4") or {} for item in (before, after)]
+        for key in SCORER_IDENTITY_KEYS:
+            left, right = (identity.get(key) for identity in identities)
+            if not isinstance(left, str) or not re.fullmatch(r"[0-9a-f]{64}", left) or left != right:
+                raise ValueError(f"GRPO native/checkpoint scorer mismatch: {cohort}/{key}")
+            if left != reward_identity[key]:
+                raise ValueError("GRPO native scorer differs from trained reward contract")
+        comparisons = {}
+        for metric, upper in metrics.items():
+            left, right = before.get(metric), after.get(metric)
+            if any(isinstance(value, bool) or not isinstance(value, (int, float))
+                   or not math.isfinite(value) or not 0 <= value <= upper for value in (left, right)):
+                raise ValueError(f"Missing/nonfinite GRPO native quality metric: {cohort}/{metric}")
+            passed = right + 1e-12 >= left
+            comparisons[metric] = {"checkpoint": left, "native": right,
+                                   "delta": right - left, "passed": passed}
+            if not passed:
+                issues.append(f"regressed:{cohort}/{metric}")
+        results[cohort] = {"rows": count, "metrics": comparisons,
+                           "scorer_identity": {key: identities[0][key] for key in SCORER_IDENTITY_KEYS}}
+    return {"schema_version": 1, "status": "passed" if not issues else "failed",
+            "accepted": not issues, "issues": issues, "policy": dict(configured),
+            "cohorts": results, "model_sha256": binding["model_sha256"],
+            "scope": "post_export_nonregression_vs_selected_hf; never_checkpoint_selection",
+            "execution_success_is_not_quality_acceptance": True}
+
 
 def _all_gates(value: Any, required: set[str]) -> bool:
     return bool(isinstance(value, dict) and required.issubset(value) and value
@@ -80,7 +157,12 @@ def inspect_qat_grpo_run(run_dir: str | Path) -> dict[str, Any]:
         required_paths.add("no_op_export_report")
     if not required_paths.issubset(paths):
         raise ValueError("GRPO plan lacks required artifact paths")
+    config = load_yaml(paths["config"])
+    runtime_probe_required = (config.get("grpo") or {}).get("runtime_preflight_required", False)
+    if type(runtime_probe_required) is not bool:
+        raise ValueError("GRPO runtime preflight requirement must be an explicit boolean")
     expected_stages = ["assets", "prepare", "configure", *(["no_op_export"] if family == "e2b" else []),
+                       *(["runtime_preflight"] if runtime_probe_required else []),
                        "training", *[f"best_{name}" for name in native.COHORTS], "merge", "export"]
     if plan.get("stages") != [*expected_stages, "native_quality"]:
         raise ValueError("GRPO plan must retain every training/export/native prerequisite")
@@ -127,12 +209,25 @@ def inspect_qat_grpo_run(run_dir: str | Path) -> dict[str, Any]:
         if receipts[stage].get(str(path)) != native.file_sha256(path):
             raise ValueError(f"{stage} receipt does not bind {path.name}")
 
-    config = load_yaml(paths["config"])
     validate_qat_grpo_config(config)
     if config["grpo"]["family"] != family:
         raise ValueError("GRPO config and plan disagree on model family")
     require_bound("configure", paths["config"])
     config_sha = native.file_sha256(paths["config"])
+    if runtime_probe_required:
+        from ir_training.train.grpo_probe import validate_probe_report
+
+        profile_path = paths.get("gpu_profile")
+        if profile_path is None:
+            raise ValueError("GRPO runtime preflight requires the bound GPU profile")
+        require_bound("configure", profile_path)
+        world_size = native.read_json(profile_path).get("world_size")
+        if type(world_size) is not int or world_size < 1:
+            raise ValueError("GRPO runtime preflight GPU profile lacks a positive world size")
+        for rank in range(world_size):
+            report_path = run / "runtime_preflight" / f"grpo_runtime_probe.rank{rank}.json"
+            require_bound("runtime_preflight", report_path)
+            validate_probe_report(native.read_json(report_path), paths["config"], world_size, rank)
     preparation_report = paths["config"].parent / "preparation_report.json"
     require_bound("configure", preparation_report)
     if native.read_json(preparation_report).get("training_config_sha256") != config_sha:
@@ -250,4 +345,5 @@ def inspect_qat_grpo_run(run_dir: str | Path) -> dict[str, Any]:
             "plan": plan, "manifest_path": manifest_path, "paths": paths, "config": config, "model_sha256": model_sha,
             "max_input_tokens": max_input, "max_new_tokens": max_new, "prepared_manifest": prepared_manifest,
             "prepared_manifest_sha256": native.file_sha256(prepared_root / "manifest.json"),
-            "cohorts": cohorts, "receipt_bindings": receipts}
+            "cohorts": cohorts, "receipt_bindings": receipts,
+            "reward_implementation": (metadata.get("grpo") or {}).get("reward", {}).get("implementation")}

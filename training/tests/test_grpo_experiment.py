@@ -212,7 +212,9 @@ def test_pipeline_config_keeps_reference_and_rollout_budgets_separate(monkeypatc
         max_seq_length=6144, max_input_tokens=5120, max_new_tokens=2048, golden_every_steps=25,
         model_dir="model")
     config = namespace["training_config"]({"options": values, "source_config_sha256": "original",
-        "paths": {"prepared": str(tmp_path / "prepared"), "best_checkpoint": str(tmp_path / "best")}},
+        "paths": {"prepared": str(tmp_path / "prepared"), "best_checkpoint": str(tmp_path / "best"),
+                  "reward_config": str(tmp_path / "grpo_reward.yaml"),
+                  "metric_weights": str(tmp_path / "grpo_metric_weights.yaml")}},
         {"dtype": "bfloat16", "effective_batch_size": 32, "world_size": 4},
         {"tokenizer": {}, "final_evaluation_datasets": {}})
     assert config["grpo"]["max_prompt_length"] == 5120

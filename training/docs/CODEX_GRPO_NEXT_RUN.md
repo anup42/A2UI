@@ -1,5 +1,9 @@
 # Codex handoff: next E2B GRPO experiment
 
+The current implementation and simpler `--rerun-from` command are documented in
+[GRPO_V2_RERUN.md](GRPO_V2_RERUN.md). Use the new scorer for both the fresh SFT
+baseline and GRPO candidate; historical scores are not directly comparable.
+
 Work only on `new_ir_changes_20260331` in `anup42/A2UI`. Read `AGENTS.md` and `training/docs/GRPO_RUN_REVIEW_20261010.md` first. These changes are CPU-tested experiment controls; they are NOT a GPU-qualified training result. Preserve the original run, SFT adapter/config, tokenizer, frozen evaluation cohorts, and all unrelated working-tree changes.
 
 ## 1. Sync and inspect
@@ -77,11 +81,11 @@ Before any long run, exercise the new callbacks under the real four-rank stack. 
 4. `grpo_periodic_rewards.rank*.jsonl` includes complete local batches at steps 0/25/50/etc., separately tagged train/eval, with `breakdown.qat_reward`. Group candidates from all ranks using source/prompt/step; do not infer late behavior from the first 256 candidates alone.
 5. `grpo_quality_history.jsonl` and `grpo_quality_gate.json` contain finite unique-source metrics and correctly bind config/adapter/aggregate/baseline hashes. The gate requires >0.5 quality points over fresh SFT and no loss of strict validity, CAP, or full root reachability. Patience counts eligible improvements, not healthy gradients. Patience 0 disables early stopping but does not bypass promotion.
 
-Use a separate smoke output directory. A quality gate rejection is a valid experiment outcome, not a reason to remove the check. The code still retains selected/final artifacts for diagnosis; automatic pipeline merge/export stops. The current scalar-best selector is intentionally unchanged, so a structurally regressed scalar-best candidate is conservatively rejected instead of silently swapped for a lower-scoring checkpoint.
+Use a separate smoke output directory. A quality gate rejection is a valid experiment outcome, not a reason to remove the check. The code still retains selected/final artifacts for diagnosis; automatic pipeline merge/export stops. GRPO now checks eligibility before replacing its best checkpoint, so an ineligible scalar maximum cannot erase a valid earlier candidate. Ordinary SFT selection is unchanged.
 
 ## 5. Diagnose remaining model errors without score inflation
 
-Keep `beta=0`, loss `dr_grpo`, reward `qat_source_fidelity_v1`, temperature 0.8, top_p=1, top_k=0, repetition_penalty=1, and one optimization iteration per fresh generation batch. Do not introduce top-k/grammar filtering unless likelihoods and importance correction are reviewed together. Do not enable KL by simply disabling the active adapter: that is not a frozen QAT SFT reference.
+Keep `beta=0`, loss `dr_grpo`, reward `qat_source_fidelity_v2`, temperature 0.8, top_p=1, top_k=0, repetition_penalty=1, and one optimization iteration per fresh generation batch. Do not introduce top-k/grammar filtering unless likelihoods and importance correction are reviewed together. Do not enable KL by simply disabling the active adapter: that is not a frozen QAT SFT reference.
 
 Inspect late-run strict-valid fraction, fidelity/precision/number/table penalties, actual within-prompt variance, truncation, and first-token errors. Compare the SFT and candidate policy with QAT-on/off using byte-identical prompts. Investigate the stray `Hungary` prefix/early EOS; do not blacklist that word or strip it from scored output. Check duplicate IDs, unresolved children, disconnected roots, and repetitive tails independently of schema validity.
 

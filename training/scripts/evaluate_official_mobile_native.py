@@ -160,6 +160,7 @@ def _artifact_bindings(output: Path) -> dict[str, str]:
         "gpu_delegation_evidence.json",
         "native_runtime_rows.jsonl",
         "comparison.json",
+        "native_quality_gate.json",
         "results.md",
         "instrumentation.log",
         "device_logcat.txt",
@@ -375,6 +376,12 @@ def execute(
                 detail="minimal",
             )
         comparisons = comparison_rows(binding, native_aggregates, checkpoint_aggregates)
+        release = None
+        if (binding.get("config", {}).get("training") or {}).get("method") == "qat_lora_grpo":
+            from ir_training.eval.qat_grpo_native import evaluate_native_quality_release
+            release = evaluate_native_quality_release(binding, native_aggregates, checkpoint_aggregates)
+            _write_json(output / "native_quality_gate.json", release)
+            state.update(execution_status="passed", quality_accepted=release["accepted"])
         _write_json(
             output / "comparison.json",
             {
@@ -388,7 +395,7 @@ def execute(
             render_results(
                 comparisons,
                 model_sha256=binding["model_sha256"],
-                report_status="passed",
+                report_status=release["status"] if release else "passed",
             ),
             encoding="utf-8",
             newline="\n",
@@ -398,6 +405,8 @@ def execute(
         )
         if cleanup.get("verified") is not True:
             raise RuntimeError("Device cleanup is not verified")
+        if release is not None and release["accepted"] is False:
+            raise RuntimeError("Native execution completed but GRPO quality acceptance failed; see native_quality_gate.json")
         state["completed_stages"].append("strict_v5_4_scoring")
         state.update(
             status="complete",

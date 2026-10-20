@@ -14,6 +14,7 @@ from ir_training.eval.metrics import (
     aggregate_scores,
     load_baseline_aggregate,
     load_dataset_weights,
+    load_grpo_evaluation_config,
     score_prediction,
 )
 
@@ -28,6 +29,9 @@ def evaluate_predictions(
 ) -> dict[str, Any]:
     rows_out: list[dict[str, Any]] = []
     predictions = list(read_jsonl(predictions_path))
+    # Only a generated GRPO weights document opts into its versioned scorer.
+    # Ordinary SFT/evaluation documents retain the canonical default exactly.
+    reward_config = load_grpo_evaluation_config(weights_config_path)
     if any(row.get("reference_available") is False or
            (isinstance(row.get("benchmark"), dict) and row["benchmark"].get("kind") == "source_only_holdout")
            for row in predictions):
@@ -98,6 +102,7 @@ def evaluate_predictions(
             assets=assets,
             expected_ui_contract=expected_ui_contract,
             expected_ui_contract_source=expected_ui_contract_source,
+            reward_config=reward_config,
         )
         out = dict(row)
         if restored_generated_text != generated_text:
@@ -111,7 +116,8 @@ def evaluate_predictions(
                 score_cache[text] = score_prediction(response_text, expected, text,
                     metric_version=metric_version, intent=intent, assets=assets,
                     expected_ui_contract=expected_ui_contract,
-                    expected_ui_contract_source=expected_ui_contract_source)
+                    expected_ui_contract_source=expected_ui_contract_source,
+                    reward_config=reward_config)
             return dict(score_cache[text])
         out["raw_metrics"] = score_variant(raw_text)
         out["serving_stopped_metrics"] = score_variant(stopped_text)

@@ -4,10 +4,12 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from dataclasses import replace
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
+sys.path.insert(0, str(ROOT.parent / "dataset" / "src"))
 
 from ir_training.pipeline.qat_grpo import QATGRPOOptions, run_pipeline, worker
 
@@ -16,11 +18,19 @@ def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--worker-stage", help=argparse.SUPPRESS)
     parser.add_argument("--plan-file", type=Path, help=argparse.SUPPRESS)
+    parser.add_argument("--rerun-from", type=Path,
+                        help="Reuse original SFT identities/options from this GRPO run; prepare raw data afresh.")
+    parser.add_argument("--continue-run", type=Path,
+                        help="Verify and continue post-training stages only; never optimizer resume.")
     parser.add_argument("--family", choices=("e2b", "270m"))
     for name in ("model-dir", "sft-config", "sft-checkpoint", "output-dir", "official-litertlm", "exporter-python",
                  "input-dir", "prepared-input-dir", "source-safetensors"):
         parser.add_argument(f"--{name}", type=Path)
     parser.add_argument("--devices", default="auto")
+    parser.add_argument("--rollout-microbatch", type=int, default=1,
+                        help="Generation candidates per rank/call; does not change the optimizer batch.")
+    parser.add_argument("--rollout-qat-weight-cache", action="store_true",
+                        help="Opt-in eval-only fake-quant weight cache; costs additional GPU memory.")
     for name, default in (("max-steps", 200), ("num-generations", 4), ("microbatch", 1), ("effective-batch", 32),
                           ("max-seq-length", 6144), ("max-input-tokens", 5120), ("max-new-tokens", 2048),
                           ("golden-every-steps", 50), ("validation-max-rows", 32),
@@ -46,6 +56,27 @@ def main(argv=None) -> int:
             parser.error("worker stage requires plan file")
         worker(args.plan_file, args.worker_stage)
         return 0
+    if args.continue_run:
+        from ir_training.pipeline.qat_grpo import continue_pipeline
+        supplied = list(sys.argv[1:] if argv is None else argv)
+        allowed = {"--continue-run", "--execute"}
+        if any(token.split("=", 1)[0] not in allowed for token in supplied if token.startswith("--")):
+            parser.error("--continue-run accepts only --execute; the saved plan is immutable")
+        print(json.dumps(continue_pipeline(args.continue_run, execute=args.execute), indent=2))
+        return 0
+    if args.rerun_from:
+        from ir_training.train.grpo_continuation import options_from_previous_run
+        if args.output_dir is None:
+            parser.error("--rerun-from requires a fresh --output-dir")
+        supplied = list(sys.argv[1:] if argv is None else argv)
+        allowed = {"--rerun-from", "--output-dir", "--input-dir", "--defer-native-eval", "--execute"}
+        if any(token.split("=", 1)[0] not in allowed for token in supplied if token.startswith("--")):
+            parser.error("Rerun preserves original hyperparameters; use a new explicit plan to change them")
+        options = options_from_previous_run(args.rerun_from, args.output_dir, args.input_dir)
+        if args.defer_native_eval:
+            options = replace(options, defer_native_eval=True)
+        print(json.dumps(run_pipeline(options, execute=args.execute), indent=2))
+        return 0
     for name in ("family", "model_dir", "sft_config", "sft_checkpoint", "output_dir", "official_litertlm", "exporter_python"):
         if getattr(args, name) is None:
             parser.error(f"--{name.replace('_', '-')} is required")
@@ -53,6 +84,8 @@ def main(argv=None) -> int:
     execute = values.pop("execute")
     values.pop("worker_stage")
     values.pop("plan_file")
+    values.pop("rerun_from")
+    values.pop("continue_run")
     result = run_pipeline(QATGRPOOptions(**values), execute=execute)
     print(json.dumps(result, indent=2))
     return 0

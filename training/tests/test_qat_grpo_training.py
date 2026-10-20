@@ -312,8 +312,13 @@ def test_mocked_runner_writes_export_verifiable_selected_checkpoint(tmp_path, mo
     monkeypatch.setattr(sft, "_build_optional_golden_callback", lambda **k: Golden())
 
     class Config:
-        def __init__(self, **kwargs):
+        def __init__(self, optim=None, lr_scheduler_type=None, tf32=False,
+                     dataloader_num_workers=0, dataloader_pin_memory=True,
+                     dataloader_persistent_workers=False, **kwargs):
             vars(self).update(kwargs)
+
+        def to_dict(self):
+            return dict(vars(self))
 
     class Trainer:
         def __init__(self, *, model, args, **kwargs):

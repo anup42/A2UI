@@ -15,13 +15,15 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", required=True)
     parser.add_argument("--dependency-preflight-only", action="store_true")
+    parser.add_argument("--runtime-preflight-only", action="store_true")
     args = parser.parse_args()
     from ir_training.common.config import load_yaml
     from ir_training.train.cuda_runtime import training_attention_policy
     from ir_training.train.qat_grpo import train_qat_grpo
     path = Path(args.config).resolve(strict=True)
     training_attention_policy(train_qat_grpo)(load_yaml(path), path,
-        dependency_preflight_only=args.dependency_preflight_only)
+        dependency_preflight_only=args.dependency_preflight_only,
+        runtime_preflight_only=args.runtime_preflight_only)
 
 
 if __name__ == "__main__":

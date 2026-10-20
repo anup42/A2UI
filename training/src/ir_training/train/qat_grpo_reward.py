@@ -19,11 +19,11 @@ import math
 import statistics
 from collections import defaultdict
 from collections.abc import Callable, Mapping, Sequence
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 from typing import Any
 
-QAT_GRPO_REWARD_VERSION = "qat_source_fidelity_v1"
+QAT_GRPO_REWARD_VERSION = "qat_source_fidelity_v2"
 
 # Renormalize only over source-applicable atomics. These are all source/output
 # matches, never completion length, component count, novelty, or group rank.
@@ -152,6 +152,18 @@ def map_qat_reward(result: Any) -> QATRewardBreakdown:
         if strict_valid else 0.0,
         "qat_quality",
     )
+    extraction = result.evidence.get("grpo_entity_extraction", {})
+    eligible = int(extraction.get("eligible_record_count", 0))
+    # A small preference among fully faithful candidates, never a Card-count
+    # bonus and never compensation for missing, duplicate, or invented facts.
+    if eligible and strict_valid and not reasons:
+        coverage = min(1.0, int(extraction.get("structured_record_count", 0)) / eligible)
+        multiplier = 0.98 + 0.02 * coverage
+        quality *= multiplier
+        components["source_conditioned_extraction"] = {
+            "eligible_records": eligible, "coverage": coverage,
+            "multiplier": multiplier, "fidelity_gate_passed": True,
+        }
     return QATRewardBreakdown(
         reward=2.0 * quality - 1.0, quality=quality, strict_valid=strict_valid,
         components=components, reasons=tuple(reasons),
@@ -183,10 +195,10 @@ def make_qat_grpo_reward(
         normalize_scalar_or_vector_text,
     )
 
-    cfg = coerce_reward_config_v5_4(config)
+    cfg = replace(coerce_reward_config_v5_4(config), grpo_entity_extraction=True)
     if cfg.unsupported_external_additions_policy != "penalize":
         raise ValueError("QAT GRPO requires unsupported_external_additions_policy=penalize")
-    policy_hash = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
+    policy_hash = hashlib.sha256(Path(__file__).read_text(encoding="utf-8").encode("utf-8")).hexdigest()
 
     def reward_function(
         completions: Sequence[Any], response_text: Sequence[str] | str,
@@ -241,4 +253,29 @@ def make_qat_grpo_reward(
     return reward_function
 
 
-__all__ = ["QAT_GRPO_REWARD_VERSION", "QATRewardBreakdown", "make_qat_grpo_reward", "map_qat_reward"]
+def reward_implementation_identity(config_path: str | Path | None = None) -> dict[str, str]:
+    """Portable identity of the effective scorer and training reward mapping."""
+    from pipeline.genui_quality.config_v5_4 import (
+        load_reward_config_v5_4,
+        load_v5_4_reward_config,
+    )
+    from pipeline.genui_quality.identity_v5_4 import (
+        metric_fingerprint_v5_4,
+        reward_pipeline_fingerprint_v5_4,
+    )
+    cfg = load_reward_config_v5_4(config_path) if config_path else load_v5_4_reward_config()
+    canonical = metric_fingerprint_v5_4(cfg)
+    cfg = replace(cfg, grpo_entity_extraction=True)
+    fingerprint = metric_fingerprint_v5_4(cfg)
+    return {
+        "binding_policy": "sha256_v1",
+        "reward_policy": QAT_GRPO_REWARD_VERSION,
+        "mapping_sha256": hashlib.sha256(Path(__file__).read_text(encoding="utf-8").encode("utf-8")).hexdigest(),
+        "metric_fingerprint": fingerprint,
+        "evaluation_metric_fingerprint": canonical,
+        "reward_pipeline_fingerprint": reward_pipeline_fingerprint_v5_4(fingerprint),
+    }
+
+
+__all__ = ["QAT_GRPO_REWARD_VERSION", "QATRewardBreakdown", "make_qat_grpo_reward", "map_qat_reward",
+           "reward_implementation_identity"]

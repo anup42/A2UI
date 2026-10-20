@@ -30,6 +30,7 @@ def score_prediction(
     assets: Any = None,
     expected_ui_contract: Mapping[str, Any] | None = None,
     expected_ui_contract_source: str | None = None,
+    reward_config: Any = None,
 ) -> dict[str, Any]:
     dataset_src = Path(__file__).resolve().parents[4] / "dataset" / "src"
     if str(dataset_src) not in sys.path:
@@ -134,6 +135,7 @@ def score_prediction(
                 assets=assets,
                 expected_ui_contract=expected_ui_contract,
                 expected_ui_contract_source=expected_ui_contract_source,
+                reward_config=reward_config,
             )
         )
     return metrics
@@ -236,6 +238,21 @@ def load_baseline_aggregate(path: str | Path | None) -> dict[str, Any] | None:
     return data if isinstance(data, dict) else None
 
 
+def load_grpo_evaluation_config(path: str | Path | None) -> dict | None:
+    """Read an explicit opt-in without changing legacy weight-file tolerance."""
+    if path is None or not Path(path).is_file():
+        return None
+    import yaml
+    try:
+        document = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
+    except (OSError, ValueError, yaml.YAMLError):
+        return None
+    config = document.get("grpo_reward_config") if isinstance(document, dict) else None
+    if config is not None and not isinstance(config, dict):
+        raise ValueError("grpo_reward_config must be an explicit scorer configuration")
+    return config
+
+
 def compute_training_overall_score(aggregate: dict[str, Any], weights: dict[str, float]) -> float:
     dataset_score = _dataset_compute_overall_score(aggregate, weights)
     if dataset_score is not None:
@@ -277,12 +294,16 @@ def _score_prediction_v5_4(
     assets: Any,
     expected_ui_contract: Mapping[str, Any] | None,
     expected_ui_contract_source: str | None,
+    reward_config: Any = None,
 ) -> dict[str, Any]:
     """Run the official v5.4 generation scorer and retain its artifact score."""
     dataset_src = Path(__file__).resolve().parents[4] / "dataset" / "src"
     if str(dataset_src) not in sys.path:
         sys.path.insert(0, str(dataset_src))
     from pipeline.genui_quality import generation_reward_v5_4  # type: ignore
+    if isinstance(reward_config, Mapping):
+        from pipeline.genui_quality.config_v5_4 import RewardConfigV54
+        reward_config = RewardConfigV54.from_mapping(reward_config)
 
     kwargs = {
         "intent": intent,
@@ -293,6 +314,7 @@ def _score_prediction_v5_4(
     generation = generation_reward_v5_4(
         generated_text,
         response_text,
+        config=reward_config,
         **kwargs,
     )
     identity = {

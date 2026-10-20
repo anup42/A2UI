@@ -7,21 +7,177 @@ or a supervised target. Raw model tokens remain in the diagnostics.
 """
 from __future__ import annotations
 
-from collections import deque
-from dataclasses import asdict, dataclass
 import hashlib
 import importlib
 import importlib.metadata
 import inspect
 import json
 import math
-from pathlib import Path
+from collections import deque
+from collections.abc import Mapping, Sequence
+from contextlib import contextmanager, nullcontext
+from dataclasses import asdict, dataclass
 from numbers import Real
-from typing import Any, Mapping, Sequence
+from pathlib import Path
+from typing import Any
 
-from ir_training.generation_policy import closing_sentinel_end, sha256_text, stop_express_completion
+from ir_training.generation_policy import (
+    closing_sentinel_end,
+    sha256_text,
+    stop_express_completion,
+)
 
 REVIEWED_TRL_VERSION = "0.29.1"
+
+
+@dataclass(frozen=True)
+class RolloutOptions:
+    """QAT-only generation memory controls, independent of optimizer batch size."""
+
+    microbatch_size: int = 1
+    qat_weight_cache: bool = False
+
+    def __post_init__(self) -> None:
+        if type(self.microbatch_size) is not int or self.microbatch_size < 1:
+            raise ValueError("GRPO rollout_microbatch_size must be a positive integer")
+        if type(self.qat_weight_cache) is not bool:
+            raise ValueError("GRPO rollout_qat_weight_cache must be a boolean")
+
+
+def validate_rollout_options(grpo_config: Mapping[str, Any]) -> RolloutOptions:
+    """Resolve explicit GRPO controls; never alter an SFT/QAT configuration."""
+    if not isinstance(grpo_config, Mapping):
+        raise TypeError("GRPO rollout configuration must be a mapping")
+    return RolloutOptions(
+        microbatch_size=grpo_config.get("rollout_microbatch_size", 1),
+        qat_weight_cache=grpo_config.get("rollout_qat_weight_cache", False),
+    )
+
+
+def rollout_batch_report(trainer: Any, prompt_count: int, options: RolloutOptions | None) -> dict[str, Any]:
+    """Report actual rollout geometry without conflating it with the loss batch."""
+    if type(prompt_count) is not int or prompt_count < 1:
+        raise ValueError("GRPO rollout requires at least one prompt")
+    chunk = min(options.microbatch_size, prompt_count) if options else prompt_count
+    args = trainer.args
+    micro = getattr(args, "per_device_train_batch_size", None)
+    accumulation = getattr(args, "gradient_accumulation_steps", None)
+    world = int(getattr(trainer.accelerator, "num_processes", 1))
+    effective = micro * accumulation * world if type(micro) is int and type(accumulation) is int else None
+    return {
+        "local_candidate_count": prompt_count,
+        "rollout_microbatch_size": options.microbatch_size if options else None,
+        "peak_simultaneous_candidates": chunk,
+        "generation_calls": (prompt_count + chunk - 1) // chunk,
+        "optimizer_microbatch_size": micro,
+        "gradient_accumulation_steps": accumulation,
+        "world_size": world,
+        "effective_completion_batch": effective,
+        "num_generations": getattr(trainer, "num_generations", None),
+        "qat_weight_cache_requested": bool(options and options.qat_weight_cache),
+        "candidate_order_preserved": True,
+        "sampling_note": "Chunking preserves the sampling distribution, not identical seeded samples across batch sizes.",
+    }
+
+
+def _rollout_memory_snapshot(device: Any) -> dict[str, Any]:
+    import torch
+
+    target = torch.device(device)
+    if target.type != "cuda":
+        return {"device": str(target), "cuda_measurements_available": False}
+    try:
+        free, total = torch.cuda.mem_get_info(target)
+        return {
+            "device": str(target), "cuda_measurements_available": True,
+            "allocated_bytes": torch.cuda.memory_allocated(target),
+            "reserved_bytes": torch.cuda.memory_reserved(target),
+            "free_bytes": free, "total_bytes": total,
+            "peak_allocated_bytes_since_last_external_reset": torch.cuda.max_memory_allocated(target),
+            "peak_reserved_bytes_since_last_external_reset": torch.cuda.max_memory_reserved(target),
+        }
+    except RuntimeError as exc:
+        # Diagnostics after a CUDA failure must not replace the original error.
+        return {"device": str(target), "cuda_measurements_available": False, "error": str(exc)}
+
+
+@contextmanager
+def rollout_inference_scope(model: Any, options: RolloutOptions):
+    """Temporarily evaluate QAT without changing training or compiled SRQ arithmetic.
+
+    Restore every submodule's exact mode, including heterogeneous frozen-module
+    modes. The controller bypasses caching while saturation telemetry is active.
+    The optional cache is disabled by default until measured on the real model.
+    """
+    import torch
+
+    modules = list(model.modules()) if callable(getattr(model, "modules", None)) else [model]
+    modes = [(module, bool(module.training)) for module in modules if hasattr(module, "training")]
+    controller = getattr(model, "_a2ui_qat_controller", None)
+    if options.qat_weight_cache and controller is None:
+        raise ValueError("QAT rollout weight caching requires the prepared QAT controller")
+    if controller is not None and getattr(controller, "_inference_cache_enabled", False):
+        raise RuntimeError("GRPO rollout cannot enter with a pre-existing QAT inference cache")
+    monitor = getattr(controller, "saturation_monitor", None)
+    monitoring = monitor is not None and getattr(monitor, "active", True)
+    enabled = bool(options.qat_weight_cache and getattr(model, "_a2ui_qat_inference_cache_enabled", True))
+    report: dict[str, Any] = {
+        "cache_requested": options.qat_weight_cache,
+        "cache_effective": enabled and not monitoring,
+        "saturation_monitor_active": bool(monitoring),
+        "compiled_srq": False,
+    }
+    scope = controller.inference_cache(enabled=enabled, compile_srq=False) if controller else nullcontext()
+    try:
+        if callable(getattr(model, "eval", None)):
+            model.eval()
+        else:
+            for module, _ in modes:
+                module.training = False
+        with torch.no_grad(), scope:
+            try:
+                yield report
+            finally:
+                if controller is not None:
+                    report["weight_cache"] = dict(controller.inference_cache_stats)
+    finally:
+        for module, previous in modes:
+            module.training = previous
+        if controller is not None:
+            report["cached_bytes_after_scope"] = controller.inference_cache_stats["cached_bytes"]
+
+
+def _tracked_rollout_stopping_criteria(tokenizer: Any, prompt_width: int, batch_size: int):
+    """Same scanner as serving, plus exact prefix evidence for normalization.
+
+    Reusing results from the actual generation calls avoids a second quadratic
+    prefix-decode pass. Unknown or skipped prefixes still take the original
+    exact fallback, so no prefix-stability assumption is made about tokenizers.
+    Only the opt-in QAT rollout uses this helper; shared serving is unchanged.
+    """
+    import torch
+    from transformers import StoppingCriteria, StoppingCriteriaList
+
+    checked: list[dict[int, bool]] = [{} for _ in range(batch_size)]
+
+    class TrackedEnvelopeCriteria(StoppingCriteria):
+        def __call__(self, input_ids: Any, scores: Any, **kwargs: Any) -> Any:
+            del scores, kwargs
+            if len(input_ids) != batch_size:
+                raise ValueError("GRPO stop-policy batch changed during generation")
+            length = int(input_ids.shape[1]) - prompt_width
+            if length < 1:
+                raise ValueError("GRPO stop-policy requires generated tokens")
+            done = []
+            for index, ids in enumerate(input_ids):
+                stopped = closing_sentinel_end(tokenizer.decode(ids[prompt_width:], skip_special_tokens=True)) is not None
+                if length in checked[index] and checked[index][length] != stopped:
+                    raise RuntimeError("GRPO generation rewrote an already-checked prefix")
+                checked[index][length] = stopped
+                done.append(stopped)
+            return torch.tensor(done, dtype=torch.bool, device=input_ids.device)
+
+    return StoppingCriteriaList([TrackedEnvelopeCriteria()]), checked
 
 
 def validate_runtime_features(config_class: Any, trainer_class: Any, version: str) -> None:
@@ -107,8 +263,8 @@ def prepared_prompt_messages(row: Mapping[str, Any]) -> list[dict[str, str]]:
         result.pop()
     if not result or result[-1]["role"] != "user":
         raise ValueError("Saved SFT prompt must end with the actual user request")
-    from ir_training.eval.generate import _extract_user_text, _extract_url_map
     from ir_training.data.url_preprocess import restore_url_placeholders
+    from ir_training.eval.generate import _extract_url_map, _extract_user_text
     source = str(_extract_user_text(dict(row)) or "").strip()
     marker = "Create A2UI Express v1 GenUI IR for this response:\n\n"
     final_source = result[-1]["content"].split(marker, 1)[-1]
@@ -138,7 +294,8 @@ def prompt_fingerprint(tokenizer: Any, prompt: str) -> dict[str, Any]:
 
 def normalize_rollout_completion(tokenizer: Any, generated_ids: Sequence[int], *,
                                  eos_token_ids: Sequence[int], pad_token_id: int,
-                                 max_new_tokens: int) -> dict[str, Any]:
+                                 max_new_tokens: int,
+                                 _checked_prefix_stops: Mapping[int, bool] | None = None) -> dict[str, Any]:
     """Preserve sampled IDs; add only a loss-masked runtime terminal sentinel.
 
     Scan prefixes to remove HF batch padding after a close tag or native EOS.
@@ -154,7 +311,10 @@ def normalize_rollout_completion(tokenizer: Any, generated_ids: Sequence[int], *
         if value in eos_token_ids:
             reason = "eos_token"
             break
-        if closing_sentinel_end(tokenizer.decode(ids, skip_special_tokens=True)) is not None:
+        known_stop = (_checked_prefix_stops or {}).get(len(ids))
+        stopped = (known_stop if known_stop is not None else
+                   closing_sentinel_end(tokenizer.decode(ids, skip_special_tokens=True)) is not None)
+        if stopped:
             reason = "closing_sentinel"
             break
     if not ids:
@@ -262,10 +422,18 @@ def write_json_record(path: Path, record: Mapping[str, Any]) -> None:
         handle.write(json.dumps(safe(record), ensure_ascii=False, allow_nan=False) + "\n")
 
 
-def make_express_rollout(output_dir: str, eos_token_ids: Sequence[int], *, audit_limit: int = 256):
+def make_express_rollout(output_dir: str, eos_token_ids: Sequence[int], *, audit_limit: int = 256,
+                         rollout_options: RolloutOptions | None = None):
     """Build the supported HF-only text rollout; no model is loaded here."""
-    from ir_training.generation_policy import build_stopping_criteria, generation_cache_scope, generation_diagnostics
-    from ir_training.train.grpo_audit import isolated_generation_config, rollout_generation_config
+    from ir_training.generation_policy import (
+        build_stopping_criteria,
+        generation_cache_scope,
+        generation_diagnostics,
+    )
+    from ir_training.train.grpo_audit import (
+        isolated_generation_config,
+        rollout_generation_config,
+    )
     audit_count = 0
 
     def rollout(prompts: list[str], trainer: Any) -> dict[str, Any]:
@@ -278,33 +446,70 @@ def make_express_rollout(output_dir: str, eos_token_ids: Sequence[int], *, audit
         if checkpoint_kwargs.get("use_reentrant") is not False:
             raise ValueError("Reviewed GRPO requires gradient_checkpointing_kwargs.use_reentrant=False")
         tokenizer = trainer.processing_class
-        encoded = tokenizer(prompts, padding=True, return_tensors="pt", add_special_tokens=False)
-        encoded = {key: value.to(trainer.accelerator.device) for key, value in encoded.items()
-                   if key in {"input_ids", "attention_mask"}}
-        width = encoded["input_ids"].shape[1]
+        batch_report = rollout_batch_report(trainer, len(prompts), rollout_options)
+        chunk_size = batch_report["peak_simultaneous_candidates"]
         generation_config = rollout_generation_config(trainer, eos_token_ids)
         was_checkpointing = bool(getattr(trainer.model, "is_gradient_checkpointing", False))
+        prompt_ids: list[list[int]] = []
+        rows: list[dict[str, Any]] = []
+        chunks: list[dict[str, Any]] = []
+        cache_report: dict[str, Any] = {}
+        mode = "train" if trainer.model.training else "eval"
+        rank = trainer.accelerator.process_index
+        succeeded = False
+        memory_before = _rollout_memory_snapshot(trainer.accelerator.device) if rollout_options else {}
         try:
             with unwrap_model_for_generation(trainer.model_wrapped, trainer.accelerator,
                                               generation_kwargs=None) as model, torch.no_grad():
-                with isolated_generation_config(model, generation_config), generation_cache_scope(model):
-                    generated = model.generate(
-                        **encoded, generation_config=generation_config,
-                        disable_compile=True, synced_gpus=False,
-                        stopping_criteria=build_stopping_criteria(tokenizer, width),
-                    )
+                inference = rollout_inference_scope(model, rollout_options) if rollout_options else nullcontext({})
+                with inference as cache_report, isolated_generation_config(model, generation_config), generation_cache_scope(model):
+                    for start in range(0, len(prompts), chunk_size):
+                        chunk_prompts = prompts[start:start + chunk_size]
+                        encoded = tokenizer(chunk_prompts, padding=True, return_tensors="pt", add_special_tokens=False)
+                        encoded = {key: value.to(trainer.accelerator.device) for key, value in encoded.items()
+                                   if key in {"input_ids", "attention_mask"}}
+                        width = encoded["input_ids"].shape[1]
+                        if rollout_options:
+                            criteria, checked = _tracked_rollout_stopping_criteria(tokenizer, width, len(chunk_prompts))
+                        else:
+                            criteria, checked = build_stopping_criteria(tokenizer, width), [None] * len(chunk_prompts)
+                        generated = model.generate(
+                            **encoded, generation_config=generation_config,
+                            disable_compile=True, synced_gpus=False,
+                            stopping_criteria=criteria,
+                        )
+                        if generated.ndim != 2 or generated.shape[0] != len(chunk_prompts):
+                            raise RuntimeError("GRPO generation returned a different number of candidates")
+                        if not bool(torch.equal(generated[:, :width], encoded["input_ids"])):
+                            raise RuntimeError("GRPO generation changed the input prefix")
+                        chunk_ids = [ids[mask.bool()].tolist() for ids, mask in
+                                     zip(encoded["input_ids"], encoded["attention_mask"], strict=True)]
+                        chunk_rows = [normalize_rollout_completion(tokenizer, ids.tolist(), eos_token_ids=eos_token_ids,
+                            pad_token_id=tokenizer.pad_token_id, max_new_tokens=trainer.max_completion_length,
+                            _checked_prefix_stops=prefix_stops)
+                            for ids, prefix_stops in zip(generated[:, width:], checked, strict=True)]
+                        prompt_ids.extend(chunk_ids)
+                        rows.extend(chunk_rows)
+                        chunks.append({"candidate_start": start, "candidate_count": len(chunk_prompts),
+                            "padded_prompt_tokens": width, "prompt_tokens": [len(ids) for ids in chunk_ids],
+                            "generated_tokens": [row["generated_tokens"] for row in chunk_rows],
+                            "memory": _rollout_memory_snapshot(trainer.accelerator.device) if rollout_options else {}})
+                        # Do not retain a previous chunk's GPU output/KV tensors.
+                        del generated, encoded
+                succeeded = True
         finally:
             # TRL 0.29.1 restores checkpointing without passing kwargs. Older
             # Transformers defaults can silently restore use_reentrant=True.
             if was_checkpointing:
                 trainer.model.gradient_checkpointing_enable(gradient_checkpointing_kwargs=checkpoint_kwargs)
-        prompt_ids = [ids[mask.bool()].tolist() for ids, mask in
-                      zip(encoded["input_ids"], encoded["attention_mask"], strict=True)]
-        rows = [normalize_rollout_completion(tokenizer, ids.tolist(), eos_token_ids=eos_token_ids,
-                pad_token_id=tokenizer.pad_token_id, max_new_tokens=trainer.max_completion_length)
-                for ids in generated[:, width:]]
-        mode = "train" if trainer.model.training else "eval"
-        rank = trainer.accelerator.process_index
+            if rollout_options:
+                write_json_record(Path(output_dir) / f"grpo_rollout_batches.rank{rank}.jsonl", {
+                    "step": int(trainer.state.global_step), "mode": mode, "rank": rank,
+                    "status": "passed" if succeeded else "failed", **batch_report,
+                    "completed_candidates": len(rows), "chunks": chunks, "qat_inference": cache_report,
+                    "memory_before": memory_before,
+                    "memory_after": _rollout_memory_snapshot(trainer.accelerator.device),
+                })
         for prompt, input_ids, row in zip(prompts, prompt_ids, rows, strict=True):
             if audit_count < audit_limit:
                 record = {"step": int(trainer.state.global_step), "mode": mode, "rank": rank,

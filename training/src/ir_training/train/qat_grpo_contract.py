@@ -41,6 +41,8 @@ def validate_qat_grpo_config(config: dict[str, Any]) -> None:
     family = grpo.get("family")
     if family not in {"e2b", "270m"}:
         raise ValueError("grpo.family must be e2b or 270m")
+    if grpo.get("reward_implementation_binding") not in {None, "sha256_v1"}:
+        raise ValueError("Unknown GRPO reward implementation binding contract")
     if qat.get("enabled") is not True or qat.get("effective_merged_weight") is not True:
         raise ValueError("QAT GRPO requires enabled effective merged-weight QAT")
     if qat.get("only_base_layers") is not True or lora.get("modules_to_save"):
@@ -197,6 +199,14 @@ def verify_qat_grpo_provenance(config: dict[str, Any], metadata: dict[str, Any])
                 and finite(backward.get("gradient_l2_norm"), positive=True)
                 and finite(backward.get("gradient_max_abs"), positive=True)),
         }
+        implementation_required = config["grpo"].get("reward_implementation_binding") == "sha256_v1"
+        if implementation_required:
+            from ir_training.train.qat_grpo_reward import reward_implementation_identity
+
+            checks["reward_implementation_bound"] = (
+                reward.get("implementation") == reward_implementation_identity(reward_path))
+        report["reward_implementation_binding"] = (
+            "sha256_v1" if implementation_required else "legacy_unbound")
         from ir_training.train.grpo_runtime import GRPOHealthMonitor, HealthThresholds
         thresholds = HealthThresholds(**(config["grpo"].get("health") or {}))
         health = grpo.get("health") or {}

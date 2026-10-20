@@ -18,9 +18,6 @@ from typing import Any
 from ir_training.common.bounded_command import run_bounded_command
 from ir_training.common.config import load_yaml, resolve_path, training_root
 from ir_training.common.progress import log
-from ir_training.train.grpo_experiment import (
-    QualityPolicy, check_preparation_retention, validate_token_budgets, verify_quality_gate,
-)
 from ir_training.pipeline import official_mobile
 from ir_training.pipeline.golden_training import (
     GOLDENS,
@@ -31,6 +28,12 @@ from ir_training.pipeline.golden_training import (
 )
 from ir_training.pipeline.golden_training import (
     build_plan as preparation_plan,
+)
+from ir_training.train.grpo_experiment import (
+    QualityPolicy,
+    check_preparation_retention,
+    validate_token_budgets,
+    verify_quality_gate,
 )
 
 WORKFLOW = "qat_lora_grpo_v1"
@@ -55,6 +58,8 @@ class QATGRPOOptions:
     learning_rate: float = 1e-6
     num_generations: int = 4
     microbatch: int = 1
+    rollout_microbatch: int = 1
+    rollout_qat_weight_cache: bool = False
     effective_batch: int = 32
     max_seq_length: int = 6144
     max_input_tokens: int = 5120
@@ -99,6 +104,9 @@ def build_plan(options: QATGRPOOptions) -> dict:
         raise ValueError("Effective completion batch must be divisible by num-generations >= 2")
     if min(options.microbatch, options.effective_batch, options.golden_every_steps) < 1:
         raise ValueError("Batch and evaluation cadence must be positive")
+    from ir_training.train.grpo_runtime import validate_rollout_options
+    validate_rollout_options({"rollout_microbatch_size": options.rollout_microbatch,
+                             "rollout_qat_weight_cache": options.rollout_qat_weight_cache})
     if options.golden_every_steps < 20:
         raise ValueError("Golden checkpoint selection must start after the 20-update GRPO health window")
     if not math.isfinite(options.learning_rate) or options.learning_rate <= 0:
@@ -178,6 +186,8 @@ def build_plan(options: QATGRPOOptions) -> dict:
         "no_op_export_report": output / "pretraining_noop_export.json",
         "deployment_config": output / "configs/deployment.yaml",
         "gpu_profile": output / "configs/gpu_profile.json",
+        "reward_config": output / "configs/grpo_reward.yaml",
+        "metric_weights": output / "configs/grpo_metric_weights.yaml",
     }
     template270 = load_yaml(training_root() / "configs/pipelines/gemma3_270m_qat_litertlm.yaml")
     official_hash = (official_mobile.OFFICIAL_LITERTLM_SHA256 if options.family == "e2b"
@@ -186,7 +196,7 @@ def build_plan(options: QATGRPOOptions) -> dict:
         "schema_version": 1, "workflow": WORKFLOW, "options": values,
         "preparation": prep, "paths": {key: str(value) for key, value in paths.items()},
         "stages": ["assets", "prepare", "configure", *(["no_op_export"] if options.family == "e2b" else []),
-                   "training", *[f"best_{name}" for name in GOLDENS], "merge", "export", "native_quality"],
+                   "runtime_preflight", "training", *[f"best_{name}" for name in GOLDENS], "merge", "export", "native_quality"],
         "source_config_sha256": sha256(Path(values["sft_config"])),
         "source_adapter_files": official_mobile._file_bindings(required[3:6]),
         "selection": {"cohort": "golden32", "metric": official_mobile.SELECTOR,
@@ -220,6 +230,11 @@ def training_config(plan: dict, profile: dict, prepared: dict) -> dict:
                     max_seq_length=values["max_seq_length"], logging_steps=1,
                     eval_steps=values["golden_every_steps"], save_steps=values["golden_every_steps"],
                     save_total_limit=2, report_to="tensorboard", logging_dir=str(output / "tensorboard/training"))
+    # Retained LoRA merge arithmetic is FP32 outside autocast; TF32 is not an
+    # unreviewed GPU-profile speed toggle for this policy.
+    training["tf32"] = False
+    from ir_training.eval.qat_grpo_native import NATIVE_QUALITY_POLICY
+    from ir_training.train.qat_grpo_reward import QAT_GRPO_REWARD_VERSION
     # Validation also samples complete GRPO groups across all ranks. This is
     # independent of the unchanged effective training-completion batch.
     training["per_device_eval_batch_size"] = values["num_generations"] // math.gcd(
@@ -231,7 +246,13 @@ def training_config(plan: dict, profile: dict, prepared: dict) -> dict:
         "max_prompt_length": values["max_input_tokens"], "max_completion_length": values["max_new_tokens"],
         "beta": 0.0, "loss_type": "dr_grpo", "scale_rewards": "batch",
         "temperature": 0.8, "top_p": 1.0, "top_k": 0, "num_iterations": 1,
-        "reward_policy": "qat_source_fidelity_v1", "health": {"window_steps": 20},
+        "reward_policy": QAT_GRPO_REWARD_VERSION, "health": {"window_steps": 20},
+        "reward_config": paths["reward_config"],
+        "reward_implementation_binding": "sha256_v1",
+        "native_quality_policy": dict(NATIVE_QUALITY_POLICY),
+        "runtime_preflight_required": True,
+        "rollout_microbatch_size": values.get("rollout_microbatch", 1),
+        "rollout_qat_weight_cache": values.get("rollout_qat_weight_cache", False),
         "validation_max_rows": values.get("validation_max_rows", 32),
         "audit_every_steps": values.get("audit_every_steps", 25),
         "quality_control": {"enabled": True, "policy": {
@@ -248,7 +269,7 @@ def training_config(plan: dict, profile: dict, prepared: dict) -> dict:
         metric_version="v5_4", metric_for_best_model=official_mobile.SELECTOR, greater_is_better=True,
         save_best_checkpoint=True, best_checkpoint_dir=paths["best_checkpoint"],
         output_dir=str(output / "evaluations/periodic_golden32"), stop_strings=["</a2ui>"],
-        weights_config=str(training_root().parent / "dataset/configs/run.yaml"))
+        weights_config=paths["metric_weights"])
     config["final_evaluation_datasets"] = copy.deepcopy(prepared["final_evaluation_datasets"])
     if values["family"] == "e2b":
         config.setdefault("preflight", {})["numeric_policy"] = "retained_mobile_safety_v1"
@@ -289,6 +310,8 @@ def native_command(plan: dict, *, execute: bool = False) -> list[str]:
     command = [sys.executable, str(training_root() / "scripts/evaluate_official_mobile_native.py"),
                "--run-dir", str(output), "--output-dir", str(output.parent / f"{output.name}_native_quality"),
                "--adb", values["adb"], "--serial", values["serial"] or "<ANDROID_SERIAL>"]
+    if "metric_weights" in plan["paths"]:
+        command += ["--weights-config", plan["paths"]["metric_weights"]]
     if execute:
         command.append("--execute")
     return command
@@ -349,6 +372,12 @@ def run_stage(plan: dict, stage: str) -> list[Path]:
         profile = build_gpu_profile(detect_cuda_devices(), model=values["family"], devices=values["devices"],
                                     microbatch=values["microbatch"], effective_batch=values["effective_batch"])
         config = training_config(plan, profile, prepared)
+        reward_config = load_yaml(training_root().parent / "dataset/configs/genui_metric_v5_4.yaml")
+        reward_config.setdefault("policies", {})["grpo_entity_extraction"] = True
+        weights = load_yaml(training_root().parent / "dataset/configs/run.yaml")
+        weights["grpo_reward_config"] = reward_config
+        official_mobile._yaml(Path(paths["reward_config"]), reward_config)
+        official_mobile._yaml(Path(paths["metric_weights"]), weights)
         from ir_training.train.qat_grpo_contract import verify_sft_adapter_lineage
         lineage = verify_sft_adapter_lineage(config)
         if lineage.get("verified") is not True:
@@ -359,6 +388,11 @@ def run_stage(plan: dict, stage: str) -> list[Path]:
                         model_files={p.name: sha256(p) for p in Path(values["model_dir"]).iterdir()
                                      if p.is_file() and p.suffix in {".json", ".safetensors", ".model", ".jinja"}})
         _write(Path(paths["config"]).parent / "preparation_report.json", prepared)
+        from ir_training.train.grpo_continuation import (
+            CONTRACT_NAME,
+            build_continuation_contract,
+        )
+        _write(Path(paths["config"]).parent / CONTRACT_NAME, build_continuation_contract(plan))
         if values["family"] == "270m":
             deployment = copy.deepcopy(load_yaml(training_root() / "configs/pipelines/gemma3_270m_qat_litertlm.yaml"))
             pipeline = deployment["pipeline"]
@@ -377,7 +411,7 @@ def run_stage(plan: dict, stage: str) -> list[Path]:
         _run(plan, official_mobile.no_op_export_command(plan), stage, cpu=True)
         official_mobile._require_no_op_export(plan)
         return [Path(paths["no_op_export_report"])]
-    if stage == "training":
+    if stage in {"runtime_preflight", "training"}:
         if values["family"] == "e2b":
             official_mobile._require_no_op_export(plan)
         profile = _json(Path(paths["gpu_profile"]))
@@ -385,7 +419,12 @@ def run_stage(plan: dict, stage: str) -> list[Path]:
         if profile["world_size"] > 1:
             command += ["-m", "torch.distributed.run", "--standalone", "--nproc_per_node", str(profile["world_size"])]
         command += [str(training_root() / "scripts/train_qat_grpo.py"), "--config", paths["config"]]
+        if stage == "runtime_preflight":
+            command += ["--runtime-preflight-only"]
         _run(plan, command, stage, gpu=True)
+        if stage == "runtime_preflight":
+            from ir_training.train.grpo_probe import verify_probe_reports
+            return verify_probe_reports(output / "runtime_preflight", Path(paths["config"]), profile["world_size"])
         metadata = _json(Path(paths["best_checkpoint"]) / "training_metadata.json")
         if (metadata.get("checkpoint_role") != "best_golden"
                 or metadata.get("training_config_sha256") != sha256(Path(paths["config"]))
@@ -397,7 +436,9 @@ def run_stage(plan: dict, stage: str) -> list[Path]:
     if stage.startswith("best_"):
         from ir_training.pipeline.golden_deployment import _evaluation
         cohort = stage.removeprefix("best_")
-        _run(plan, official_mobile.evaluation_command(plan, cohort), stage, gpu=True)
+        command = official_mobile.evaluation_command(plan, cohort)
+        command += ["--weights-config", paths["metric_weights"]]
+        _run(plan, command, stage, gpu=True)
         result, evidence = _evaluation(output / f"evaluations/{stage}", GOLDENS[cohort][1], artifact=Path(paths["best_checkpoint"]))
         if result.get("qat_applied") is not True:
             raise ValueError("Selected checkpoint was evaluated without QAT")
@@ -419,7 +460,7 @@ def run_stage(plan: dict, stage: str) -> list[Path]:
         _run(plan, native_command(plan, execute=True), stage)
         native_dir = output.parent / f"{output.name}_native_quality"
         report = _json(native_dir / "manifest.json")
-        if report.get("status") != "complete":
+        if report.get("status") != "complete" or report.get("quality_accepted") is not True:
             raise ValueError("Native quality evaluation did not complete")
         return _files(native_dir)
     raise ValueError(f"Unknown QAT GRPO stage: {stage}")
@@ -454,11 +495,31 @@ def run_pipeline(options: QATGRPOOptions, *, execute: bool = False, command_runn
     _write(plan_path, plan)
     digest = sha256(plan_path)
     state: dict[str, Any] = {"workflow": WORKFLOW, "plan": plan, "status": "running", "completed": {}}
-    manifest = output / MANIFEST_NAME
     _write(output / "native_quality_command.json", {"command": native_command(plan, execute=True), "native_test_passed": False})
+    return _execute_plan(plan, state, digest, command_runner)
+
+
+def continue_pipeline(output_dir: Path, *, execute: bool = False, command_runner=run_bounded_command) -> dict:
+    """Continue only verified post-training stages, never restart optimization."""
+    from ir_training.train.grpo_continuation import verify_post_training_continuation
+    verified = verify_post_training_continuation(output_dir)
+    if not execute:
+        return {"status": "continuation_plan_only", "pending_stages": verified["pending_stages"],
+                "native_quality_command": native_command(verified["plan"], execute=True)}
+    state = verified["state"]
+    state.update(status="running", error=None)
+    return _execute_plan(verified["plan"], state, verified["plan_sha256"], command_runner)
+
+
+def _execute_plan(plan: dict, state: dict, digest: str, command_runner) -> dict:
+    values = plan["options"]
+    output = Path(values["output_dir"])
+    plan_path, manifest = output / PLAN_NAME, output / MANIFEST_NAME
     try:
         for stage in plan["stages"]:
-            if stage == "native_quality" and options.defer_native_eval:
+            if stage in state["completed"]:
+                continue
+            if stage == "native_quality" and values["defer_native_eval"]:
                 state.update(status="awaiting_native_evaluation", active_stage=None)
                 break
             state["active_stage"] = stage
@@ -472,7 +533,7 @@ def run_pipeline(options: QATGRPOOptions, *, execute: bool = False, command_runn
                 env.pop("A2UI_CUDA_VISIBLE_DEVICES", None)
                 env.pop("A2UI_EXCLUDE_CUDA_DEVICES", None)
             command_runner(command, output / f"logs/{stage}.log", env,
-                           timeout_seconds=options.stage_timeout_seconds, progress_seconds=options.progress_seconds,
+                           timeout_seconds=values["stage_timeout_seconds"], progress_seconds=values["progress_seconds"],
                            emit_heartbeat=False)
             receipt = _json(output / f"stage_receipts/{stage}.json")
             if sha256(plan_path) != digest or receipt.get("plan_sha256") != digest or receipt.get("stage") != stage:

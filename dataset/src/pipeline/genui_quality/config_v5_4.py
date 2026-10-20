@@ -19,6 +19,8 @@ DEFAULT_CONFIG_PATH_V54 = (
 
 @dataclass
 class RewardConfigV54(RewardConfigV53):
+    # Opt-in training objective; canonical SFT/data/evaluation stays unchanged.
+    grpo_entity_extraction: bool = False
     accessibility_penalty_alpha: float = 0.03
     raw_fence_utility: float = 0.995
     raw_wrapper_utility: float = 0.990
@@ -26,6 +28,8 @@ class RewardConfigV54(RewardConfigV53):
 
     def __post_init__(self) -> None:
         super().__post_init__()
+        if type(self.grpo_entity_extraction) is not bool:
+            raise ValueError("grpo_entity_extraction must be a boolean")
         if not 0.0 <= self.accessibility_penalty_alpha <= 0.03:
             raise ValueError("accessibility_penalty_alpha must be in [0, 0.03]")
         for name in (
@@ -61,6 +65,7 @@ class RewardConfigV54(RewardConfigV53):
             else {}
         )
         payload.update(
+            grpo_entity_extraction=policies.get("grpo_entity_extraction", False),
             accessibility_penalty_alpha=float(
                 policies.get("accessibility_penalty_alpha", 0.03)
             ),

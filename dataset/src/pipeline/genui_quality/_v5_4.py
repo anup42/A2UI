@@ -79,6 +79,13 @@ from .source_contract_v5_4 import (
 from .validation_v5_4 import ensure_v5_4_validation_ready
 from .acceptance_v5_4 import ACCEPTANCE_POLICY_VERSION, training_acceptance_v5_4
 from .card_content_v5_4 import card_content_assignment_v5_4
+from .grpo_entity_content import (
+    GRPO_ENTITY_POLICY_VERSION,
+    certify_grpo_entity_output,
+    grpo_entity_assignment,
+    prepare_grpo_entity_source,
+)
+from .metrics_v5_3 import action_fidelity_v5_3
 
 
 ACCESSIBILITY_POLICY_VERSION = "penalty-only-1.0.0"
@@ -102,6 +109,7 @@ class PreparedSourceContextV54:
     reward_pipeline_fingerprint: str
     computed_registry_identity: Mapping[str, Any]
     preparation_time_ms: float
+    grpo_entity_records: tuple[Any, ...] = ()
 
 
 def _v5_3_compat_contract(
@@ -165,6 +173,9 @@ def prepare_source_context_v5_4(
     fingerprint = metric_fingerprint_v5_4(
         cfg, computed_registry=computed_registry
     )
+    entity_records = ()
+    if cfg.grpo_entity_extraction:
+        base, entity_records = prepare_grpo_entity_source(base)
     return PreparedSourceContextV54(
         source_text=str(source_text or ""),
         intent=intent,
@@ -187,6 +198,7 @@ def prepare_source_context_v5_4(
             computed_registry
         ),
         preparation_time_ms=(perf_counter() - started) * 1000.0,
+        grpo_entity_records=entity_records,
     )
 
 
@@ -270,14 +282,32 @@ def _score_one_v5_4(
         else normalize_and_validate_legacy_candidate_v5_4(completion, reference_map=reference_map)
     )
     matching_times: dict[str, float] = {}
+    base_prepared = prepared.base
+    entity_records = prepared.grpo_entity_records
+    entity_detail: dict[str, Any] = {}
 
     def collect(*args: Any, **kwargs: Any) -> Any:
         evidence_started = perf_counter()
         result = collect_output_evidence_v5_4(*args, **kwargs)
+        if entity_records:
+            entity_detail.update(certify_grpo_entity_output(entity_records, result))
         timings["dynamic_evidence_ms"] = (
             perf_counter() - evidence_started
         ) * 1000.0
         return result
+
+    def content_assignment(*args: Any) -> Any:
+        if entity_detail:
+            return grpo_entity_assignment(*args, entity_detail)
+        return card_content_assignment_v5_4(*args)
+
+    def actions(*args: Any, **kwargs: Any) -> Any:
+        value, detail = action_fidelity_v5_3(*args, **kwargs)
+        binding = entity_detail.get("action_binding_fidelity")
+        if value is not None and binding is not None:
+            value = min(value, binding)
+            detail["grpo_entity_action_binding"] = binding
+        return value, detail
 
     def roles(*args: Any, **kwargs: Any) -> Any:
         matching_started = perf_counter()
@@ -349,7 +379,7 @@ def _score_one_v5_4(
 
     base = _score_one(
         completion,
-        prepared.base,
+        base_prepared,
         render_ok=render_ok,
         computed_registry=computed_registry,
         evidence_collector=collect,
@@ -361,7 +391,8 @@ def _score_one_v5_4(
         normalization_result=normalization.boundary,
         matching_timing_callback=matching_timing,
         unsupported_additions_scorer=unsupported_additions,
-        content_assignment_grouper=card_content_assignment_v5_4,
+        content_assignment_grouper=content_assignment,
+        action_fidelity_scorer=actions,
     )
     accessibility_multiplier, accessibility = _accessibility_adjustment(
         base, prepared.config
@@ -392,6 +423,8 @@ def _score_one_v5_4(
         "utility": raw_utility,
     }
     evidence = dict(base.evidence)
+    if prepared.config.grpo_entity_extraction:
+        evidence["grpo_entity_extraction"] = entity_detail
     evidence["source"] = {
         **(
             dict(evidence.get("source") or {})
@@ -506,6 +539,8 @@ def _score_one_v5_4(
         raw_json_envelope=envelope,
         accessibility_conformance=accessibility,
         policy_versions={
+            **({"grpo_entity_extraction": GRPO_ENTITY_POLICY_VERSION}
+               if prepared.config.grpo_entity_extraction else {}),
             "ownership": OWNERSHIP_POLICY_VERSION,
             "renderer_effective_semantics": (
                 RENDERER_EFFECTIVE_SEMANTICS_VERSION

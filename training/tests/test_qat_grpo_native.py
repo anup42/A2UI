@@ -33,13 +33,15 @@ def write_rows(path, rows):
     path.write_text("".join(json.dumps(row) + "\n" for row in rows), encoding="utf-8")
 
 
-def fixture(tmp_path, monkeypatch, family):
+def fixture(tmp_path, monkeypatch, family, *, runtime_preflight=False):
     run = tmp_path / "copied-run"
     run.mkdir()
     origin = "/training/grpo-run"
     names = {"prepared": "prepared", "config": "configs/grpo.yaml", "best_checkpoint": "training/best_golden_checkpoint",
              "merged": "merged_best_hf", "export_report": "export/report.json", "litertlm": "export/model.litertlm",
              "no_op_export_report": "pretraining_noop_export.json"}
+    if runtime_preflight:
+        names["gpu_profile"] = "configs/gpu_profile.json"
     paths = {key: run / value for key, value in names.items()}
     old = lambda path: origin + "/" + path.relative_to(run).as_posix()
     source_name = "gemma4_e2b_mobile_seed_ir_qat_sft.yaml" if family == "e2b" else "gemma3_270m_ir_qat_sft.yaml"
@@ -48,12 +50,24 @@ def fixture(tmp_path, monkeypatch, family):
     config["training"].update(method="qat_lora_grpo", max_seq_length=4096)
     config["model"]["max_output_tokens"] = 2048
     config["grpo"] = {"family": family, "sft_checkpoint": "/external/sft-adapter", "sft_training_config": "/external/sft.yaml"}
+    if runtime_preflight:
+        config["grpo"]["runtime_preflight_required"] = True
     config["golden_eval"].update(dataset_dir=old(paths["prepared"]), split="golden32", max_rows=32, required_rows=32,
                                require_exact_rows=True, require_unique_rows=True,
                                split_path=old(paths["prepared"] / "golden32.jsonl"), metric_for_best_model=SELECTOR,
                                metric_version="v5_4", max_input_tokens=5120)
     write(paths["config"], config)
     config_sha = native.file_sha256(paths["config"])
+    if runtime_preflight:
+        from ir_training.train.grpo_probe import probe_implementation
+
+        write(paths["gpu_profile"], {"world_size": 2})
+        for rank in range(2):
+            write(run / "runtime_preflight" / f"grpo_runtime_probe.rank{rank}.json", {
+                "config_sha256": config_sha, "implementation": probe_implementation(),
+                "world_size": 2, "rank": rank, "optimizer_steps": 2, "passed": True,
+                "max_reserved_fraction": .7, "minimum_free_fraction": .3,
+            })
     write(paths["config"].parent / "preparation_report.json", {"training_config_sha256": config_sha})
     write(paths["prepared"] / "prompt_scaffolds.json", [{"scaffold": "synthetic"}])
     write(paths["prepared"] / "manifest.json", {
@@ -121,6 +135,7 @@ def fixture(tmp_path, monkeypatch, family):
               "tensorboard_record": f"/tensorboard/external-{name}.json"})
     write(run / "assets_verified.json", {"verified": True})
     stages = ["assets", "prepare", "configure", *(["no_op_export"] if family == "e2b" else []),
+              *(["runtime_preflight"] if runtime_preflight else []),
               "training", *[f"best_{name}" for name in native.COHORTS], "merge", "export"]
     plan = {"schema_version": 1, "workflow": "qat_lora_grpo_v1",
             "options": {"output_dir": origin, "family": family, "model_dir": "/external/base",
@@ -135,6 +150,8 @@ def fixture(tmp_path, monkeypatch, family):
              "configure": list(paths["config"].parent.glob("*")), "training": list(paths["best_checkpoint"].glob("*")),
              "merge": list(paths["merged"].glob("*")), "export": [paths["export_report"], paths["litertlm"]],
              "no_op_export": [paths["no_op_export_report"]]}
+    if runtime_preflight:
+        roots["runtime_preflight"] = list((run / "runtime_preflight").glob("*.json"))
     completed = {}
     for stage in stages:
         files = roots.get(stage) or list((run / "evaluations" / stage).glob("*"))

@@ -670,6 +670,13 @@ class _EvidenceInterpreterV54(_EvidenceInterpreterV53):
             if self._card_instances:
                 row["card_instance"] = self._card_instances[-1]
                 row["card_ancestors"] = tuple(self._card_instances)
+        if getattr(self.config, "grpo_entity_extraction", False):
+            for offset, row in enumerate(self.action_taxonomy[before["action_taxonomy"] :]):
+                action_index = before["actions"] + offset
+                if action_index < len(self.actions):
+                    row["label"] = self.actions[action_index].label
+                if self._card_instances:
+                    row["card_instance"] = self._card_instances[-1]
 
 
 @dataclass(frozen=True)

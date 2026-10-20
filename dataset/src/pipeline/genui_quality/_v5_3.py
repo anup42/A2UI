@@ -563,6 +563,7 @@ def _score_one(
     matching_timing_callback: Callable[[str, float], None] | None = None,
     unsupported_additions_scorer: Callable[..., Any] = unsupported_external_addition_precision_v5_3,
     content_assignment_grouper: Callable[..., Any] | None = None,
+    action_fidelity_scorer: Callable[..., Any] = action_fidelity_v5_3,
 ) -> RewardBreakdownV53:
     cfg = prepared.config
     normalization = (
@@ -771,7 +772,7 @@ def _score_one(
         )
     else:
         matching_started = perf_counter()
-        action_score, action_diagnostics = action_fidelity_v5_3(
+        action_score, action_diagnostics = action_fidelity_scorer(
             prepared.expected_actions,
             applicable_output_actions,
             aliases=source.asset_aliases,
