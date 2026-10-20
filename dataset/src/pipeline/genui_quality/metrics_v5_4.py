@@ -25,7 +25,7 @@ from .ownership_v5_4 import (
 )
 
 
-SCORING_POLICY_VERSION = "5.4.1"
+SCORING_POLICY_VERSION = "5.4.2"
 ROLE_MATCHING_POLICY_VERSION = "5.4.1"
 
 

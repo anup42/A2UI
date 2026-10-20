@@ -78,6 +78,7 @@ from .source_contract_v5_4 import (
 )
 from .validation_v5_4 import ensure_v5_4_validation_ready
 from .acceptance_v5_4 import ACCEPTANCE_POLICY_VERSION, training_acceptance_v5_4
+from .card_content_v5_4 import card_content_assignment_v5_4
 
 
 ACCESSIBILITY_POLICY_VERSION = "penalty-only-1.0.0"
@@ -360,6 +361,7 @@ def _score_one_v5_4(
         normalization_result=normalization.boundary,
         matching_timing_callback=matching_timing,
         unsupported_additions_scorer=unsupported_additions,
+        content_assignment_grouper=card_content_assignment_v5_4,
     )
     accessibility_multiplier, accessibility = _accessibility_adjustment(
         base, prepared.config

@@ -90,6 +90,7 @@ _SCORE_FILES = (
     "applicability_v5_3.py",
     "candidate_normalization.py",
     "candidate_normalization_v5_4.py",
+    "card_content_v5_4.py",
     "references_v5_4.py",
     "list_evidence_v5_4.py",
     "../list_items.py",

@@ -38,7 +38,7 @@ from .matching_v5_1 import PreparedTextBlock, prepare_text_block
 from .list_evidence_v5_4 import literal_list_evidence, parse_source_links, self_source_cue, source_heading
 
 
-EVIDENCE_POLICY_VERSION = "5.4.1"
+EVIDENCE_POLICY_VERSION = "5.4.2"
 DYNAMIC_SEMANTICS_VERSION = "a2ui-express-native-semantics-5.4.0"
 DYNAMIC_PARITY_VECTOR_VERSION = "3.0.0"
 COMPUTED_REGISTRY_IDENTITY_VERSION = "2.0.0"
@@ -282,6 +282,135 @@ class _EvidenceInterpreterV54(_EvidenceInterpreterV53):
         )
         self.effective_components: list[dict[str, Any]] = []
         self.source_section_nodes: set[str] = set()
+        # A template/component ID can be rendered repeatedly or shared by
+        # multiple parents. Content association must follow render occurrences,
+        # never merge all occurrences bearing the same component ID.
+        self._card_instances: list[str] = []
+        self._next_card_instance = 0
+        self._card_headers: dict[str, tuple[str, ...]] = {}
+        self._card_header_children: dict[str, tuple[str, ...]] = {}
+        self._source_cards: set[str] = set()
+
+    def _card_headers_may_be_intercepted(
+        self, children: tuple[str, ...], *, item: Any,
+        index: int | None, base_path: str | None,
+    ) -> bool:
+        """Conservative header gate for Android's early-return Card routes.
+
+        Source cues resolve direct child Text bindings. Email interception
+        scans descendant Text even when ``visible=false``. Thus ordinary
+        visible evidence cannot certify whether declared Card headers render.
+        This bounded scan grants no content credit and deliberately withholds
+        header credit when route resolution is uncertain.
+        """
+        texts: list[str] = []
+        pending = [(child, (), True) for child in reversed(children)]
+        while pending:
+            child_id, ancestors, direct = pending.pop()
+            if not self._consume_work(f"card_header_route.{child_id}"):
+                return True
+            child = self.elements.get(child_id)
+            if child_id in ancestors or not isinstance(child, Mapping):
+                return True
+            before_unknown = len(self.resolver.unknown)
+            props = self.resolver.resolve(
+                child.get("props") if isinstance(child.get("props"), Mapping) else {},
+                item=item, index=index, base_path=base_path,
+                path=f"card_header_route.{child_id}.props",
+            )
+            if len(self.resolver.unknown) != before_unknown or not isinstance(props, Mapping):
+                return True
+            token = str(child.get("type") or "").casefold()
+            if direct and self_source_cue(child_id, props):
+                return True
+            if direct and token == "table":
+                table = effective_table(props, self.state)
+                if any(self_source_cue("table", {"title": column.label}) for column in table.columns):
+                    return True
+            if token == "text":
+                values = [
+                    kotlin_string_v5_4(props[key]).strip()
+                    for key in ("text", "title", "label", "content", "value")
+                    if props.get(key) is not None and not isinstance(props[key], (Mapping, list))
+                ]
+                value = next((value for value in values if value), "")
+                if direct and any(source_heading(line) for line in value.splitlines()):
+                    return True
+                if value:
+                    texts.append(value)
+            pending.extend(
+                (child_id_next, (*ancestors, child_id), False)
+                for child_id_next in reversed(child.get("children") or [])
+                if isinstance(child_id_next, str)
+            )
+        return (
+            len(texts) >= 5
+            and any(
+                text.casefold().startswith("subject:")
+                and (text.partition(":")[2].strip() or position + 1 < len(texts))
+                for position, text in enumerate(texts)
+            )
+            and any(
+                text.casefold().startswith(("dear ", "hello ", "best regards", "sincerely", "regards", "thank you"))
+                for text in texts
+            )
+        )
+
+    def walk(
+        self,
+        element_id: str,
+        *,
+        item: Any = None,
+        index: int | None = None,
+        base_path: str | None = None,
+        active_path: tuple[str, ...] = (),
+    ) -> None:
+        raw = self.elements.get(element_id)
+        is_card = isinstance(raw, Mapping) and str(raw.get("type") or "").casefold() == "card"
+        start_visible = len(self.visible_blocks)
+        start_owned = len(self.block_ownership)
+        if is_card:
+            instance = f"card:{self._next_card_instance}:{element_id}"
+            self._next_card_instance += 1
+            self._card_instances.append(instance)
+        try:
+            super().walk(
+                element_id, item=item, index=index, base_path=base_path,
+                active_path=active_path,
+            )
+            if not is_card:
+                return
+            headers = self._card_headers.pop(instance, ())
+            children = self._card_header_children.pop(instance, ())
+            # Android's source-link/email Card routes return before ordinary
+            # declared headers. Never credit text hidden by those routes.
+            intercepted = headers and (
+                instance in self._source_cards
+                or self._card_headers_may_be_intercepted(
+                    children, item=item, index=index, base_path=base_path,
+                )
+            )
+            if headers and not intercepted:
+                self.visible_blocks[start_visible:start_visible] = headers
+                self.block_ownership[start_owned:start_owned] = [
+                    {
+                        "component_id": element_id,
+                        "component_type": "card",
+                        "card_instance": instance,
+                        "card_ancestors": tuple(self._card_instances),
+                        "owner": "generic_visible_content",
+                        "text": text,
+                    }
+                    for text in headers
+                ]
+                self.evidence_bytes += sum(len(text.encode("utf-8")) for text in headers)
+                if self.evidence_bytes > self.config.max_dynamic_evidence_bytes:
+                    self.truncated = True
+                    self.resolver._unknown("dynamic_evidence_byte_budget")
+        finally:
+            if is_card:
+                self._card_instances.pop()
+                self._source_cards.discard(instance)
 
     def _collect_element(
         self,
@@ -302,6 +431,16 @@ class _EvidenceInterpreterV54(_EvidenceInterpreterV53):
         }
         super()._collect_element(element_id, element, props)
         token = str(element.get("type") or "").casefold().replace("_", "")
+        if token == "card" and self._card_instances:
+            self._card_headers[self._card_instances[-1]] = tuple(
+                kotlin_string_v5_4(props[key]).strip()
+                for key in ("title", "subtitle")
+                if props.get(key) is not None and kotlin_string_v5_4(props[key]).strip()
+            )
+            self._card_header_children[self._card_instances[-1]] = tuple(
+                child for child in (element.get("children") or [props.get("child")])
+                if isinstance(child, str)
+            )
         children = element.get("children") or []
         if token in {"stack", "column", "row", "card"} and (
             self_source_cue(element_id, props)
@@ -311,6 +450,8 @@ class _EvidenceInterpreterV54(_EvidenceInterpreterV53):
                 for child in children if isinstance(self.elements.get(child), Mapping)
             ))
         ):
+            if token == "card" and self._card_instances:
+                self._source_cards.add(self._card_instances[-1])
             pending = list(children)
             while pending:
                 child = pending.pop()
@@ -523,6 +664,12 @@ class _EvidenceInterpreterV54(_EvidenceInterpreterV53):
                     "diagnostics": list(model.diagnostics),
                 }
             )
+
+        for row in self.block_ownership[before["ownership"] :]:
+            row["component_type"] = token
+            if self._card_instances:
+                row["card_instance"] = self._card_instances[-1]
+                row["card_ancestors"] = tuple(self._card_instances)
 
 
 @dataclass(frozen=True)

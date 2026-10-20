@@ -562,6 +562,7 @@ def _score_one(
     normalization_result: Any = None,
     matching_timing_callback: Callable[[str, float], None] | None = None,
     unsupported_additions_scorer: Callable[..., Any] = unsupported_external_addition_precision_v5_3,
+    content_assignment_grouper: Callable[..., Any] | None = None,
 ) -> RewardBreakdownV53:
     cfg = prepared.config
     normalization = (
@@ -641,9 +642,15 @@ def _score_one(
         )
     else:
         matching_started = perf_counter()
+        assignment_blocks = generic_output_blocks
+        grouping_detail = None
+        if content_assignment_grouper is not None:
+            assignment_blocks, grouping_detail = content_assignment_grouper(
+                prepared.content_blocks, evidence_result.evidence_ownership, generic_owner_names
+            )
         content_values, content_diagnostics = content_fidelity_v5_3(
             prepared.content_blocks,
-            generic_output_blocks,
+            assignment_blocks,
             expected_exact_index=prepared.content_exact_index,
             exact_dense_limit=cfg.max_assignment_size,
             max_edges=cfg.max_matching_edges,
@@ -653,6 +660,8 @@ def _score_one(
                 cfg.max_matching_sparse_relaxations
             ),
         )
+        if grouping_detail is not None:
+            content_diagnostics["card_field_grouping"] = grouping_detail
         if matching_timing_callback is not None:
             matching_timing_callback(
                 "content", (perf_counter() - matching_started) * 1000.0
