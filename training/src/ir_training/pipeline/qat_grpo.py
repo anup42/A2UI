@@ -11,7 +11,7 @@ import json
 import math
 import os
 import sys
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 from typing import Any
 
@@ -83,6 +83,49 @@ class QATGRPOOptions:
     sft_rehearsal_weight: float | None = None
     dpo_preferences: Path | None = None
     dpo_beta: float | None = None
+    dpo_learning_rate: float | None = None
+    dpo_max_steps: int | None = None
+    dpo_warmup_steps: int | None = None
+    dpo_warmup_ratio: float | None = None
+    dpo_golden_every_steps: int | None = None
+
+
+def _dpo_training_overrides(values: dict[str, Any]) -> dict[str, Any]:
+    """Resolve opt-in DPO schedules without overwriting inherited GRPO options."""
+    names = ("dpo_learning_rate", "dpo_max_steps", "dpo_warmup_steps",
+             "dpo_warmup_ratio", "dpo_golden_every_steps")
+    if not any(values.get(name) is not None for name in names):
+        return {}
+    if values.get("objective", "grpo") != "dpo":
+        raise ValueError("DPO training overrides are only valid with objective=dpo")
+    overrides = {}
+    rate = values.get("dpo_learning_rate")
+    if rate is not None:
+        if isinstance(rate, bool) or not isinstance(rate, (int, float)) or not math.isfinite(rate) or rate <= 0:
+            raise ValueError("dpo-learning-rate must be positive and finite")
+        overrides["learning_rate"] = rate
+    for name in ("max_steps", "golden_every_steps"):
+        value = values.get(f"dpo_{name}")
+        if value is not None:
+            if type(value) is not int or value < 20:
+                raise ValueError(f"dpo-{name.replace('_', '-')} must be an integer >= 20")
+            overrides[name] = value
+    steps, ratio = values.get("dpo_warmup_steps"), values.get("dpo_warmup_ratio")
+    if steps is not None and ratio is not None:
+        raise ValueError("Choose only one of dpo-warmup-steps and dpo-warmup-ratio")
+    max_steps = overrides.get("max_steps", values["max_steps"])
+    if ratio is not None:
+        if (isinstance(ratio, bool) or not isinstance(ratio, (int, float))
+                or not math.isfinite(ratio) or not 0 <= ratio < 1):
+            raise ValueError("dpo-warmup-ratio must be finite and in [0, 1)")
+        # Explicit steps work across Transformers versions, including versions
+        # without warmup_ratio. Keep the requested ratio in the immutable plan.
+        steps = math.ceil(max_steps * ratio)
+    if steps is not None:
+        if type(steps) is not int or not 0 <= steps < max_steps:
+            raise ValueError("dpo-warmup-steps must be an integer >= 0 and below max_steps")
+        overrides["warmup_steps"] = steps
+    return overrides
 
 
 def _json(path: Path) -> dict:
@@ -142,6 +185,9 @@ def build_plan(options: QATGRPOOptions) -> dict:
     """No downloads, model loading, GPU probing or output writes."""
     if options.family not in {"e2b", "270m"}:
         raise ValueError("--family must be e2b or 270m")
+    inherited_options = options
+    dpo_overrides = _dpo_training_overrides(asdict(options))
+    options = replace(options, **{key: value for key, value in dpo_overrides.items() if key != "warmup_steps"})
     objective = _objective_options(options)
     if (options.input_dir is None) == (options.prepared_input_dir is None):
         raise ValueError("Choose exactly one input-dir or prepared-input-dir")
@@ -176,7 +222,7 @@ def build_plan(options: QATGRPOOptions) -> dict:
     validate_token_budgets(options.max_seq_length, options.max_input_tokens, options.max_new_tokens, context)
     if options.max_new_tokens > 4096:
         raise ValueError("Native quality probe supports at most 4096 output tokens")
-    values = asdict(options)
+    values = asdict(inherited_options)
     for key, value in list(values.items()):
         if isinstance(value, Path):
             # Preserve venv interpreter symlinks.
@@ -262,11 +308,17 @@ def build_plan(options: QATGRPOOptions) -> dict:
         result["effective_batch_unit"] = "preference_pairs" if options.objective == "dpo" else "generated_completions"
     if options.objective == "dpo":
         result["preference_files"] = {objective["dpo"]["preferences"]: objective["dpo"]["preferences_sha256"]}
+    if dpo_overrides:
+        result["dpo_training_overrides"] = dpo_overrides
     return result
 
 
 def training_config(plan: dict, profile: dict, prepared: dict) -> dict:
     values, paths = plan["options"], plan["paths"]
+    dpo_overrides = _dpo_training_overrides(values)
+    if dpo_overrides != plan.get("dpo_training_overrides", {}):
+        raise ValueError("DPO training override record does not match the planned options")
+    values = {**values, **dpo_overrides}
     if values.get("objective", "grpo") == "dpo":
         _verify_preference_binding(plan)
     if sha256(Path(values["sft_config"])) != plan["source_config_sha256"]:
@@ -282,6 +334,10 @@ def training_config(plan: dict, profile: dict, prepared: dict) -> dict:
     config["run"].update(id=output.name, output_dir=str(output / "training"), dataset_dir=paths["prepared"],
                          prepared_manifest_required=True, dataset_format="a2ui_express_v1", purpose=WORKFLOW)
     training = config["training"]
+    if "warmup_steps" in dpo_overrides:
+        # Serialization is for the new run only; never edit checkpoint-bound SFT.
+        training.pop("warmup_ratio", None)
+        training["warmup_steps"] = dpo_overrides["warmup_steps"]
     for key in ("resume_from_checkpoint", "resume_policy", "resume_horizon", "deepspeed", "fsdp"):
         training.pop(key, None)
     training.update(method="qat_lora_grpo", trainer_backend="hf", refuse_resume=True,

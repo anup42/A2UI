@@ -31,6 +31,17 @@ def main(argv=None) -> int:
                         help="Offline source-bound chosen/rejected JSONL; required for dpo.")
     parser.add_argument("--dpo-beta", type=float,
                         help="Positive DPO temperature; dpo only (default 0.1).")
+    parser.add_argument("--dpo-learning-rate", type=float,
+                        help="DPO-only LR override, including with --rerun-from; otherwise inherit.")
+    parser.add_argument("--dpo-max-steps", type=int,
+                        help="DPO-only optimizer update cap (>=20); otherwise inherit.")
+    warmup = parser.add_mutually_exclusive_group()
+    warmup.add_argument("--dpo-warmup-steps", type=int,
+                        help="DPO-only warmup steps, including 0; replace inherited SFT warmup.")
+    warmup.add_argument("--dpo-warmup-ratio", type=float,
+                        help="DPO-only warmup fraction in [0,1); resolve to ceil(max_steps * ratio).")
+    parser.add_argument("--dpo-golden-every-steps", type=int,
+                        help="DPO-only evaluation/checkpoint cadence (>=20); otherwise inherit.")
     for name in ("model-dir", "sft-config", "sft-checkpoint", "output-dir", "official-litertlm", "exporter-python",
                  "input-dir", "prepared-input-dir", "source-safetensors"):
         parser.add_argument(f"--{name}", type=Path)
@@ -78,18 +89,28 @@ def main(argv=None) -> int:
             parser.error("--rerun-from requires a fresh --output-dir")
         supplied = list(sys.argv[1:] if argv is None else argv)
         allowed = {"--rerun-from", "--output-dir", "--input-dir", "--defer-native-eval", "--execute",
-                   "--objective", "--sft-rehearsal-weight", "--dpo-preferences", "--dpo-beta"}
+                   "--objective", "--sft-rehearsal-weight", "--dpo-preferences", "--dpo-beta",
+                   "--dpo-learning-rate", "--dpo-max-steps", "--dpo-warmup-steps",
+                   "--dpo-warmup-ratio", "--dpo-golden-every-steps"}
         if any(token.split("=", 1)[0] not in allowed for token in supplied if token.startswith("--")):
-            parser.error("Rerun preserves original hyperparameters; use a new explicit plan to change them")
+            parser.error("Rerun preserves original hyperparameters except explicit DPO overrides; "
+                         "use a new explicit plan for other changes")
         options = options_from_previous_run(args.rerun_from, args.output_dir, args.input_dir)
         if args.objective is not None and args.objective != options.objective:
             # Switching objective is a fresh branch from original SFT, not
             # continuation of the previous objective or its stale options.
             options = replace(options, objective=args.objective, sft_rehearsal_weight=None,
-                              dpo_preferences=None, dpo_beta=None)
+                              dpo_preferences=None, dpo_beta=None, dpo_learning_rate=None,
+                              dpo_max_steps=None, dpo_warmup_steps=None, dpo_warmup_ratio=None,
+                              dpo_golden_every_steps=None)
         changes = {name: getattr(args, name) for name in (
-            "sft_rehearsal_weight", "dpo_preferences", "dpo_beta"
+            "sft_rehearsal_weight", "dpo_preferences", "dpo_beta", "dpo_learning_rate",
+            "dpo_max_steps", "dpo_warmup_steps", "dpo_warmup_ratio", "dpo_golden_every_steps",
         ) if getattr(args, name) is not None}
+        if args.dpo_warmup_steps is not None:
+            changes["dpo_warmup_ratio"] = None
+        elif args.dpo_warmup_ratio is not None:
+            changes["dpo_warmup_steps"] = None
         options = replace(options, **changes)
         if args.defer_native_eval:
             options = replace(options, defer_native_eval=True)

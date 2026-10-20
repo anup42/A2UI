@@ -27,6 +27,8 @@ python -u training/scripts/run_qat_grpo_pipeline.py \
   --rerun-from "$OLD_E2B_RUN" \
   --output-dir /runs/e2b_qat_dpo_from_grpo_v1 \
   --objective dpo --dpo-preferences "$E2B_PREFERENCES/preferences.jsonl" \
+  --dpo-learning-rate 1e-6 --dpo-max-steps 100 \
+  --dpo-warmup-ratio 0.03 --dpo-golden-every-steps 25 \
   --dpo-beta 0.1 --defer-native-eval --execute
 ```
 
@@ -49,6 +51,8 @@ python -u training/scripts/run_qat_grpo_pipeline.py \
   --rerun-from "$OLD_270M_RUN" \
   --output-dir /runs/270m_qat_dpo_from_grpo_v1 \
   --objective dpo --dpo-preferences "$PREFERENCES_270M/preferences.jsonl" \
+  --dpo-learning-rate 2e-6 --dpo-max-steps 200 \
+  --dpo-warmup-ratio 0.03 --dpo-golden-every-steps 25 \
   --dpo-beta 0.1 --defer-native-eval --execute
 ```
 
@@ -61,6 +65,60 @@ effective batch automatically. See
 [QAT_POSTTRAIN_OPTIONS.md](QAT_POSTTRAIN_OPTIONS.md) for the existing training,
 export, and native-evaluation behavior. These commands do not change SFT or
 default GRPO behavior.
+
+## Explicit DPO pilot schedule
+
+The commands above explicitly replace only DPO's learning rate, optimizer-step
+cap, warmup, and evaluation/checkpoint cadence. These are conservative starting
+experiments, not model-specific validated optima:
+
+| Model | Learning rate | Step cap | Warmup | Golden32 selection |
+| --- | --- | --- | --- | --- |
+| E2B QAT LoRA DPO | `1e-6` | 100 | 3 steps | Every 25 steps |
+| Gemma 3 270M QAT LoRA DPO | `2e-6` | 200 | 6 steps | Every 25 steps |
+
+`--dpo-warmup-ratio 0.03` resolves to `ceil(0.03 * max_steps)` integer
+`warmup_steps` in the new generated config. It replaces an inherited SFT warmup
+(for example, 500 steps); it never edits the checkpoint-bound SFT config. To set
+an exact warmup instead, use `--dpo-warmup-steps 3`; `0` explicitly disables
+warmup. Supply only one warmup flag. A warmup that consumes the entire resolved
+training budget is rejected. Integer steps are used in the generated config so
+the recipe does not depend on a Trainer version accepting `warmup_ratio`.
+
+These flags are **opt-in and DPO-only**. Without them, existing commands retain
+their previous inherited behavior. `--rerun-from` still rejects the generic
+`--learning-rate`, `--max-steps`, and `--golden-every-steps` overrides, and
+`--continue-run` remains immutable; overrides always create a fresh DPO run from
+the original SFT adapter. The saved plan records both the requested DPO overrides
+and the resolved schedule separately from the ordinary inherited options. Thus,
+switching a later fresh run back to GRPO clears DPO overrides and restores its
+original non-DPO schedule rather than leaking the DPO pilot settings into GRPO.
+When replacing an inherited warmup type on a later DPO rerun, the explicit new
+type clears the other inherited type.
+
+Keep effective batch **32 preference pairs** for these pilots; the rerun inherits
+the original batch, seed, token limits, QAT contract, fidelity checks, and all
+other settings. Check the saved plan if the original run used a different batch.
+At batch 32, one epoch is approximately `admitted_pairs / 32` optimizer steps.
+Use the smaller of one epoch and the suggested cap for the first experiment,
+adjusting `--dpo-max-steps` explicitly. Do not use repeated passes through a tiny
+preference set just to reach the minimum 20-update health window; collect more
+training-only pairs instead. The pilot commands assume at least 3,200 pairs for
+E2B or 6,400 pairs for the 270M 200-step cap if limiting the first run to one epoch.
+
+Golden32 selects the checkpoint under the unchanged quality/fidelity gates.
+Golden35 and Bixby50 remain final-only. Successful training then runs the existing
+selected-checkpoint evaluation, merge, and LiteRT-LM export stages: E2B uses the
+official retained mixed-precision topology, and 270M uses the official INT8
+topology. `--defer-native-eval` postpones only the Android exported-model test,
+not HF evaluation or export. See the native-evaluation commands in
+[QAT_POSTTRAIN_OPTIONS.md](QAT_POSTTRAIN_OPTIONS.md); an export is not a native
+quality pass.
+
+For old runs created with prepared input only, add
+`--input-dir /absolute/path/to/original_raw_pairs` containing both `train.jsonl`
+and `val.jsonl`. Fresh preparation and source/preference provenance checks remain
+mandatory.
 
 ## Training-only input and strict fidelity
 

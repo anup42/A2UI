@@ -22,8 +22,10 @@ settings, not demonstrated optimal values or evidence of improved accuracy.
 
 Activate the existing reviewed training environment, then run from the repository
 root. `--rerun-from` reads the previous plan's **original SFT adapter**, never
-the previous GRPO best adapter. It preserves seed, learning rate, token budgets,
-effective batch and other hyperparameters, while preparing raw pairs afresh.
+the previous GRPO best adapter. It preserves seed, token budgets, effective batch
+and ordinary hyperparameters while preparing raw pairs afresh. DPO can explicitly
+override its learning rate, step cap, warmup and selection cadence using the
+DPO-only flags below; omitting them preserves the previous inherited behavior.
 Each output directory must be new. Nothing here launches Muse or creates data.
 
 For **E2B**, using the previous E2B GRPO plan:
@@ -41,6 +43,8 @@ python -u training/scripts/run_qat_grpo_pipeline.py \
   --rerun-from "$OLD_E2B_RUN" \
   --output-dir /runs/e2b_qat_dpo_v1 \
   --objective dpo --dpo-preferences /data/e2b_preferences.jsonl --dpo-beta 0.1 \
+  --dpo-learning-rate 1e-6 --dpo-max-steps 100 \
+  --dpo-warmup-ratio 0.03 --dpo-golden-every-steps 25 \
   --defer-native-eval --execute
 ```
 
@@ -59,6 +63,8 @@ python -u training/scripts/run_qat_grpo_pipeline.py \
   --rerun-from "$OLD_270M_RUN" \
   --output-dir /runs/270m_qat_dpo_v1 \
   --objective dpo --dpo-preferences /data/270m_preferences.jsonl --dpo-beta 0.1 \
+  --dpo-learning-rate 2e-6 --dpo-max-steps 200 \
+  --dpo-warmup-ratio 0.03 --dpo-golden-every-steps 25 \
   --defer-native-eval --execute
 ```
 
@@ -68,6 +74,15 @@ If the previous plan used only a prepared bundle, add
 to plain GRPO explicitly use `--objective grpo`; switching modes clears old
 mode-specific settings. Ordinary hyperparameter overrides on `--rerun-from`
 are still rejected rather than silently ignored.
+
+These DPO pilot schedules use 3/6 integer warmup steps respectively, replacing
+any inherited SFT warmup only in the new DPO config. Use either
+`--dpo-warmup-ratio` or `--dpo-warmup-steps` (including zero), never both.
+`--continue-run` cannot change schedules. The original SFT config/checkpoint and
+non-DPO options remain unchanged. See
+[the pilot schedule and pair-count guidance](DPO_PREFERENCES_FROM_GRPO.md#explicit-dpo-pilot-schedule)
+before choosing a step cap for a small preference set; these are starting
+experiments, not validated optimal settings.
 
 ## Start directly from SFT without a previous GRPO plan
 
