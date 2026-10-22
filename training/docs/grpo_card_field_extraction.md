@@ -46,9 +46,18 @@ new prompt. Normal token-budget checks still apply to the longer prompt.
 Evidence/scoring policy versions and the v5.4 source fingerprint include this
 fix. Re-evaluate both the SFT baseline and candidate checkpoints with the same
 new scorer before comparing scores; do not compare old and new scalar scores
-as if they used the same metric implementation. The QAT reward mapping itself
-has not changed. Already-running processes/checkpoints are not retroactively
-updated, and updating code alone does not retrain an existing model.
+as if they used the same metric implementation. Already-running processes and
+checkpoints are not retroactively updated, and updating code alone does not
+retrain an existing model.
+
+The QAT extraction preference reserves 2% of quality for every candidate whose
+source contains eligible entity records. Only strictly valid, fully faithful
+field extraction earns that reserve back. A candidate with a fidelity defect
+cannot escape the reserve and outrank an otherwise equivalent faithful response
+merely by omitting a record. Existing quality caps and fidelity checks remain
+authoritative; perfect faithful extraction scores are unchanged. This reward
+implementation change is bound by the recorded code fingerprint. Rebuild
+preferences or start a fresh run to use it; do not rewrite old run evidence.
 
 ## Regression coverage
 

@@ -12,6 +12,7 @@ sys.path.insert(0, str(ROOT / "dataset" / "src"))
 
 from ir_training.train.qat_grpo_reward import (
     make_qat_grpo_reward,
+    map_qat_reward,
     reward_implementation_identity,
 )
 from pipeline.genui_quality._v5_4 import (
@@ -71,6 +72,44 @@ def test_exact_extraction_is_preferred_to_whole_prose_and_duplicate_markdown():
     assert rows[1]["components"]["precision_guard"] == 1.0
     assert rows[1]["components"]["source_conditioned_extraction"]["coverage"] == 0.0
     assert rows[2]["components"]["applicable_fidelity"]["visible_content_multiset_fbeta"] < 1
+
+
+def test_omitting_one_record_cannot_escape_copied_prose_extraction_reserve():
+    # A small omission previously removed the 2% copied-prose penalty, making
+    # the incomplete UI score above the fully faithful one on longer sources.
+    records = [
+        f"Hotel {chr(65 + index // 26)}{chr(65 + index % 26)}: Goa; "
+        "Price: affordable; Rating: excellent"
+        for index in range(100)
+    ]
+    source = "\n".join("- " + record for record in records)
+
+    def copied_cards(items):
+        lines = ["root=Column([" + ",".join(f"c{i}" for i in range(len(items))) + "])"]
+        for index, text in enumerate(items):
+            lines += [f"c{index}=Card([t{index}])", f"t{index}=Text({json.dumps(text)})"]
+        return "<a2ui>" + "\n".join(lines) + "</a2ui>"
+
+    values, rows = score([copied_cards(records), copied_cards(records[:-1])], source)
+    assert rows[0]["components"]["source_fidelity"] == 1.0
+    assert rows[1]["components"]["source_fidelity"] < 1.0
+    assert values[0] > values[1]
+    assert all(row["components"]["extraction_reserve_multiplier"] == 0.98 for row in rows)
+    assert "source_conditioned_extraction" not in rows[1]["components"]
+
+
+def test_extraction_headroom_cannot_override_an_inherited_cap():
+    result = generation_reward_v5_4(cards(), SOURCE, config=replace(
+        load_v5_4_reward_config(), grpo_entity_extraction=True))
+    capped = replace(result, cap_0_1=0.5,
+                     active_caps=[{"name": "matching_uncertified", "cap": 0.5}])
+    mapped = map_qat_reward(capped)
+    assert mapped.quality <= 0.49
+    assert mapped.components["extraction_reserve_multiplier"] == 0.98
+    assert "source_conditioned_extraction" not in mapped.components
+    assert "cap:matching_uncertified" in mapped.reasons
+    assert result.cap_0_1 == 1.0
+    assert map_qat_reward(result).components["extraction_reserve_multiplier"] == 1.0
 
 
 def test_labeled_fields_can_reorder_but_entity_and_unlabeled_prefix_cannot():

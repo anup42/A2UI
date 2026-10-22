@@ -421,8 +421,9 @@ def test_mocked_dpo_runner_writes_bound_selected_checkpoint(tmp_path, monkeypatc
     class Arguments:
         def __init__(self, optim=None, lr_scheduler_type=None, tf32=False,
                      dataloader_num_workers=0, dataloader_pin_memory=True,
-                     dataloader_persistent_workers=False, **kwargs):
+                     dataloader_persistent_workers=False, warmup_steps=0, **kwargs):
             vars(self).update(kwargs)
+            self.warmup_steps = warmup_steps
 
         def to_dict(self):
             return dict(vars(self))
@@ -486,6 +487,8 @@ def test_mocked_dpo_runner_writes_bound_selected_checkpoint(tmp_path, monkeypatc
         assert not (output / "final_adapter").exists()
         return
     result = train_qat_dpo(config, config_path)
+    runtime = json.loads((output / "grpo_runtime_config.rank0.json").read_text(encoding="utf-8"))
+    assert runtime["actual_trainer_arguments"]["warmup_steps"] == 1
     assert result["checkpoint_step"] == 20
     saved = json.loads((selected / "training_metadata.json").read_text(encoding="utf-8"))
     assert saved["grpo"]["algorithm"] == "dpo"

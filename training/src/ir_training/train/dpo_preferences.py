@@ -141,14 +141,17 @@ def build_preferences(audit_paths: Iterable[Path], train_rows: Iterable[Mapping[
                     if record["rank"] != rank:
                         raise ValueError(f"{context}: audit rank does not match filename")
                     raw = record.get("raw_completion")
-                    if not isinstance(raw, str) or not raw.strip():
-                        raise ValueError(f"{context}: raw_completion must be nonempty text")
+                    if not isinstance(raw, str):
+                        raise ValueError(f"{context}: raw_completion must be text")  # noqa: TRY004
                     reason = record.get("termination_reason")
                     if reason in {"max_new_tokens", "unknown"}:
                         counts["excluded_unterminated"] += 1
                         continue
                     if reason not in {"eos_token", "closing_sentinel"}:
                         raise ValueError(f"{context}: missing/unknown termination_reason")
+                    if not raw.strip():
+                        counts["excluded_empty_completion"] += 1
+                        continue
                     candidates = groups.setdefault(source_id, {})
                     digest = _text_hash(raw)
                     if digest in candidates:

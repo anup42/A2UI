@@ -96,6 +96,14 @@ original non-DPO schedule rather than leaking the DPO pilot settings into GRPO.
 When replacing an inherited warmup type on a later DPO rerun, the explicit new
 type clears the other inherited type.
 
+An inherited DPO `warmup_ratio` is also converted to integer steps at runtime
+when the installed Trainer no longer accepts ratios. This requires a positive
+production `max_steps`; an unknown horizon fails clearly instead of silently
+disabling warmup. Explicit `warmup_steps`, including zero, take precedence.
+The disposable two-update DPO probe uses the production warmup horizon rather
+than recomputing the ratio against its shortened duration. Shared SFT and GRPO
+scheduler handling is unchanged.
+
 Keep effective batch **32 preference pairs** for these pilots; the rerun inherits
 the original batch, seed, token limits, QAT contract, fidelity checks, and all
 other settings. Check the saved plan if the original run used a different batch.
@@ -133,7 +141,10 @@ substitute; neither are source-free rollout logs or native evaluation outputs.
 Each raw completion is preserved unchanged: there is no tail stripping,
 reference substitution in the output, truncation, or repair. Only recorded
 `closing_sentinel`/`eos_token` termination is eligible; length-limited or
-unterminated outputs are excluded. Current v5.4 scoring is recomputed against
+unterminated outputs are excluded. Empty completed responses are also excluded
+and counted, rather than aborting an otherwise usable audit. Malformed audit
+fields and unsupported termination metadata still fail closed.
+Current v5.4 scoring is recomputed against
 the bound training source; old logged scores are not trusted. The highest-scoring
 strictly faithful candidate becomes the chosen response, paired with the
 highest-scoring lower-reward eligible alternative at the default gap of 0.01 on
@@ -144,8 +155,11 @@ but can never become the chosen supervised target. The small positive default
 also retains faithful list-to-card extraction improvements, whose mapped reward
 differences can be below 0.05; the absolute source-fidelity gates are unchanged.
 
-All pairs then pass the same strict DPO admission used at training startup. On
-success the output contains:
+All pairs then pass the same strict DPO admission used at training startup.
+Chosen and rejected responses must have distinct token sequences, not merely
+different strings; token-identical pairs provide no learnable preference and
+are rejected even when supplied outside the builder. On success the output
+contains:
 
 - `preferences.jsonl`: source-bound DPO input.
 - `preference_build_report.json`: counts, exclusions, and input evidence.

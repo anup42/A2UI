@@ -468,6 +468,8 @@ def prepare_dpo_pairs(pair_path: str | Path, train_rows: Iterable[Mapping[str, A
                 raise ValueError(f"{context} {name}: {exc}") from exc
             result.update({f"{name}_{key}": value for key, value in tokens.items() if key != "prompt_input_ids"})
             result["prompt_input_ids"] = tokens["prompt_input_ids"]
+        if result["chosen_input_ids"] == result["rejected_input_ids"]:
+            raise ValueError(f"{context}: chosen and rejected tokenize identically; no learnable preference")
         admitted.append(result)
         seen_pairs.add(unordered_binding)
         seen_ids.add(pair_id)

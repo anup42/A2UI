@@ -100,6 +100,28 @@ def test_verified_termination_reasons_are_supported(tmp_path, reason):
     assert preferences(tmp_path)[0]["chosen"] == GOOD
 
 
+@pytest.mark.parametrize("empty", ["", " \n\t"])
+def test_empty_eos_candidate_is_excluded_without_discarding_valid_pairs(tmp_path, empty):
+    report = build(tmp_path, [audit(GOOD), audit(BAD), audit(empty, termination_reason="eos_token")])
+    assert report["pairs"] == 1
+    assert report["counts"]["excluded_empty_completion"] == 1
+    assert preferences(tmp_path)[0]["chosen"] == GOOD
+    assert preferences(tmp_path)[0]["rejected"] == BAD
+
+
+@pytest.mark.parametrize("raw", [None, [], 0])
+def test_missing_or_nontext_completion_still_fails_audit_schema(tmp_path, raw):
+    with pytest.raises(ValueError, match="raw_completion must be text"):
+        build(tmp_path, [audit(GOOD), audit(BAD), audit(raw)])
+    assert not (tmp_path / "out" / "preferences.jsonl").exists()
+
+
+def test_empty_completion_does_not_hide_invalid_termination_schema(tmp_path):
+    with pytest.raises(ValueError, match="termination_reason"):
+        build(tmp_path, [audit(GOOD), audit(BAD), audit("", termination_reason="arbitrary")])
+    assert not (tmp_path / "out" / "preferences.jsonl").exists()
+
+
 @pytest.mark.parametrize("reason", ["max_new_tokens", "unknown"])
 def test_unterminated_candidates_are_not_supervised(tmp_path, reason):
     with pytest.raises(ValueError):

@@ -154,16 +154,23 @@ def map_qat_reward(result: Any) -> QATRewardBreakdown:
     )
     extraction = result.evidence.get("grpo_entity_extraction", {})
     eligible = int(extraction.get("eligible_record_count", 0))
-    # A small preference among fully faithful candidates, never a Card-count
-    # bonus and never compensation for missing, duplicate, or invented facts.
-    if eligible and strict_valid and not reasons:
-        coverage = min(1.0, int(extraction.get("structured_record_count", 0)) / eligible)
+    # Reserve extraction headroom for every candidate from an eligible source.
+    # Only fully faithful candidates can earn it back. Otherwise introducing a
+    # small fidelity defect would remove the 0.98 copied-prose multiplier and
+    # could increase reward. Invalid candidates still have zero quality, and
+    # this multiplier can never relax any fidelity guard or inherited cap.
+    if eligible:
+        faithful = strict_valid and not reasons
+        coverage = (min(1.0, int(extraction.get("structured_record_count", 0)) / eligible)
+                    if faithful else 0.0)
         multiplier = 0.98 + 0.02 * coverage
         quality *= multiplier
-        components["source_conditioned_extraction"] = {
-            "eligible_records": eligible, "coverage": coverage,
-            "multiplier": multiplier, "fidelity_gate_passed": True,
-        }
+        components["extraction_reserve_multiplier"] = multiplier
+        if faithful:
+            components["source_conditioned_extraction"] = {
+                "eligible_records": eligible, "coverage": coverage,
+                "multiplier": multiplier, "fidelity_gate_passed": True,
+            }
     return QATRewardBreakdown(
         reward=2.0 * quality - 1.0, quality=quality, strict_valid=strict_valid,
         components=components, reasons=tuple(reasons),

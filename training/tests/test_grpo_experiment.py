@@ -1,9 +1,10 @@
 """CPU controls/tests. Callback events are simulated; no GPU training claim."""
 from __future__ import annotations
+
 import importlib.util
 import json
-from pathlib import Path
 import sys
+from pathlib import Path
 from types import ModuleType, SimpleNamespace
 
 import pytest
@@ -11,9 +12,17 @@ import pytest
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "training/src"))
 from ir_training.train.grpo_experiment import (
-    GUARDS, SELECTOR, QualityMonitor, QualityPolicy, check_preparation_retention,
-    make_quality_callback, periodic_reward_audit, quality_metrics, validate_token_budgets,
-    validation_subset_indices, verify_quality_gate,
+    GUARDS,
+    SELECTOR,
+    QualityMonitor,
+    QualityPolicy,
+    check_preparation_retention,
+    make_quality_callback,
+    periodic_reward_audit,
+    quality_metrics,
+    validate_token_budgets,
+    validation_subset_indices,
+    verify_quality_gate,
 )
 
 
@@ -100,8 +109,8 @@ def test_periodic_audit_captures_late_complete_batch_without_changing_rewards(tm
         return [.5, -1.]
     wrapped = periodic_reward_audit(scorer, tmp_path, 0, 25)
     state = SimpleNamespace(global_step=150)
-    kwargs = dict(completions=["ok", "bad"], prompts=["p", "p"], source_id=["s", "s"],
-                  trainer_state=state, grpo_rollout_mode=["train", "train"])
+    kwargs = {"completions": ["ok", "bad"], "prompts": ["p", "p"], "source_id": ["s", "s"],
+                  "trainer_state": state, "grpo_rollout_mode": ["train", "train"]}
     assert wrapped(**kwargs) == [.5, -1.]
     assert wrapped(**kwargs, log_extra=lambda *args: None) == [.5, -1.]
     # Distinct eval mode at the same optimizer step must also be captured.
@@ -115,8 +124,9 @@ def test_periodic_audit_captures_late_complete_batch_without_changing_rewards(tm
 
 def test_quality_callback_event_order_rng_and_bound_promotion(tmp_path, monkeypatch, runtime_stub):
     torch = pytest.importorskip("torch")
-    import numpy as np
     import random
+
+    import numpy as np
     transformers = ModuleType("transformers")
     transformers.TrainerCallback = object
     monkeypatch.setitem(sys.modules, "transformers", transformers)
@@ -192,26 +202,21 @@ def test_failure_taxonomy_does_not_call_truncation_a_wrapper_only_bug():
 
 
 def test_pipeline_config_keeps_reference_and_rollout_budgets_separate(monkeypatch, tmp_path):
-    # Execute the actual pure configuration function without loading GPU/export dependencies.
-    import ast
-    import copy
-    import math
-    path = ROOT / "training/src/ir_training/pipeline/qat_grpo.py"
-    tree = ast.parse(path.read_text())
-    node = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == "training_config")
+    # Call the real pure configuration function, including its validation helpers.
+    from ir_training.pipeline import qat_grpo as pipeline
+
     gpu = ModuleType("ir_training.train.gpu_profile")
     gpu.apply_gpu_profile = lambda config, profile: None
     monkeypatch.setitem(sys.modules, gpu.__name__, gpu)
     source = {key: {} for key in ("run", "training", "model", "golden_eval")}
-    namespace = dict(copy=copy, math=math, Path=Path, sha256=lambda path: "original",
-                     load_yaml=lambda path: source, WORKFLOW="qat_lora_grpo_v1",
-                     training_root=lambda: ROOT / "training", official_mobile=SimpleNamespace(SELECTOR=SELECTOR))
-    exec(compile(ast.Module(body=[node], type_ignores=[]), str(path), "exec"), namespace)
-    values = dict(output_dir=str(tmp_path), sft_config="source.yaml", sft_checkpoint="adapter",
-        num_generations=4, family="e2b", max_steps=100, learning_rate=5e-7, seed=42,
-        max_seq_length=6144, max_input_tokens=5120, max_new_tokens=2048, golden_every_steps=25,
-        model_dir="model")
-    config = namespace["training_config"]({"options": values, "source_config_sha256": "original",
+    monkeypatch.setattr(pipeline, "sha256", lambda path: "original")
+    monkeypatch.setattr(pipeline, "load_yaml", lambda path: source)
+    monkeypatch.setattr(pipeline, "training_root", lambda: ROOT / "training")
+    values = {"output_dir": str(tmp_path), "sft_config": "source.yaml", "sft_checkpoint": "adapter",
+        "num_generations": 4, "family": "e2b", "max_steps": 100, "learning_rate": 5e-7, "seed": 42,
+        "max_seq_length": 6144, "max_input_tokens": 5120, "max_new_tokens": 2048, "golden_every_steps": 25,
+        "model_dir": "model"}
+    config = pipeline.training_config({"options": values, "source_config_sha256": "original",
         "paths": {"prepared": str(tmp_path / "prepared"), "best_checkpoint": str(tmp_path / "best"),
                   "reward_config": str(tmp_path / "grpo_reward.yaml"),
                   "metric_weights": str(tmp_path / "grpo_metric_weights.yaml")}},
@@ -219,6 +224,9 @@ def test_pipeline_config_keeps_reference_and_rollout_budgets_separate(monkeypatc
         {"tokenizer": {}, "final_evaluation_datasets": {}})
     assert config["grpo"]["max_prompt_length"] == 5120
     assert config["training"]["max_seq_length"] == 6144
+    assert config["training"]["learning_rate"] == values["learning_rate"] == 5e-7
+    assert config["training"]["max_steps"] == values["max_steps"] == 100
+    assert config["grpo"].get("objective", "grpo") == "grpo"
     assert config["grpo"]["quality_control"]["enabled"] is True
     assert config["grpo"]["validation_max_rows"] == 32
     assert source == {key: {} for key in source}  # original SFT configuration is immutable

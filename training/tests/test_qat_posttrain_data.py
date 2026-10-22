@@ -171,6 +171,15 @@ def test_tied_semantic_equivalents_not_preferences(tmp_path):
         prepare(pair_file(tmp_path, [pair]))
 
 
+def test_token_identical_targets_are_rejected_even_with_a_positive_text_reward_gap(tmp_path):
+    class CollapsingTokenizer(CharacterTokenizer):
+        def __call__(self, text, **kwargs):
+            return super().__call__(text.replace(BAD, GOOD), **kwargs)
+
+    with pytest.raises(ValueError, match="tokenize identically.*no learnable preference"):
+        prepare_dpo_pairs(pair_file(tmp_path), [row()], CollapsingTokenizer(), **LIMITS)
+
+
 @pytest.mark.parametrize("content", ["", "{broken", "[]", "null", '{"source_id":"a","source_id":"b"}'])
 def test_malformed_or_empty_input_never_silently_dropped(tmp_path, content):
     path = tmp_path / "pairs.jsonl"

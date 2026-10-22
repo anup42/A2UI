@@ -328,6 +328,36 @@ def collate_dpo_pairs(rows: list[dict]) -> dict:
     return {"pairs": rows}
 
 
+def dpo_warmup_arguments(training: dict, parameters: Any, *, max_steps: int | None,
+                         runtime_preflight_only: bool = False) -> dict:
+    """Keep inherited warmup on both old and new TrainingArguments APIs.
+
+    The disposable probe has only two updates, but must use the production
+    warmup horizon. Do not let its shorter duration turn a ratio into a different
+    initial schedule, or silently drop the ratio on newer Transformers builds.
+    """
+    if "warmup_steps" in training:
+        if "warmup_steps" not in parameters:
+            raise ValueError("Installed DPO TrainingArguments cannot apply warmup_steps")
+        return {"warmup_steps": training["warmup_steps"]}
+    ratio = training.get("warmup_ratio", .03)
+    if (isinstance(ratio, bool) or not isinstance(ratio, (int, float))
+            or not math.isfinite(ratio) or not 0 <= ratio < 1):
+        raise ValueError("DPO warmup_ratio must be finite and in [0, 1)")
+    if "warmup_ratio" in parameters and not runtime_preflight_only:
+        return {"warmup_ratio": ratio}
+    if "warmup_steps" not in parameters:
+        raise ValueError("Installed DPO TrainingArguments cannot apply resolved warmup_steps")
+    if ratio == 0:
+        return {"warmup_steps": 0}
+    if type(max_steps) is not int or max_steps <= 0:
+        raise ValueError("DPO warmup_ratio conversion requires an explicit positive production max_steps")
+    steps = math.ceil(max_steps * ratio)
+    if steps >= max_steps:
+        raise ValueError("DPO warmup must leave at least one production update after warmup")
+    return {"warmup_steps": steps}
+
+
 def train_qat_dpo(config: dict, config_path: Path, *, dependency_preflight_only=False,
                   runtime_preflight_only=False) -> dict:
     """Train from the same verified SFT adapter and publish shared export evidence."""
@@ -466,10 +496,8 @@ def train_qat_dpo(config: dict, config_path: Path, *, dependency_preflight_only=
             **sft._training_precision_flags(metadata["model"]["dtype"], training))
         kwargs.update(runtime_arguments(training, parameters, limit["max_optimizer_steps"]))
         sft._apply_training_data_seed(training, kwargs, parameters)
-        if "warmup_steps" in training:
-            kwargs["warmup_steps"] = training["warmup_steps"]
-        elif "warmup_ratio" in parameters:
-            kwargs["warmup_ratio"] = training.get("warmup_ratio", .03)
+        kwargs.update(dpo_warmup_arguments(training, parameters,
+            max_steps=limit["max_optimizer_steps"], runtime_preflight_only=runtime_preflight_only))
         logging_dir = sft._resolve_training_tensorboard_dir(training, run_id=str(run.get("id") or output.name))
         if logging_dir is not None and "logging_dir" in parameters:
             kwargs["logging_dir"] = str(logging_dir)
