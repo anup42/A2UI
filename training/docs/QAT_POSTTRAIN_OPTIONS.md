@@ -141,6 +141,11 @@ budget, for example `--max-steps 200 --golden-every-steps 50`.
 
 ## Preference data and fidelity
 
+For saved GRPO outputs, follow the
+[fresh preference rebuild and budget-aware DPO commands](DPO_PREFERENCES_FROM_GRPO.md#fresh-rerun-after-the-rewardadmission-fixes).
+They apply the current reward/admission fixes, revalidate the pair count, and
+start a fresh run from the original SFT adapter without using holdout outputs.
+
 Prepare DPO preferences **offline**, before launching training. JSONL rows use
 `source_id`, `chosen` and `rejected`; the latter two are completion strings, not
 full chat transcripts. The chosen completion must pass strict Express and
@@ -195,3 +200,32 @@ forward/backward graph, so its combined real-Trainer memory preflight is require
   Software tests are not measurements of multi-GPU memory, quality or Android
   latency. Compare against the same SFT seed and match actual training tokens or
   compute budget, not merely step counts across objectives.
+
+## Test the exported LiteRT-LM on Android
+
+The GPU-host examples intentionally use `--defer-native-eval`: selected-checkpoint
+HF evaluation and export still run, but Android quality is **pending**, not
+passed. On the host with the connected Android device and preinstalled matching
+app/instrumentation APKs, inspect the new run's `native_quality_command.json`.
+The equivalent standalone command for either E2B or 270M is:
+
+```bash
+DPO_RUN=/absolute/path/to/the_new_dpo_pipeline_output
+ANDROID_SERIAL=YOUR_CONNECTED_ANDROID_SERIAL
+
+python -u training/scripts/evaluate_official_mobile_native.py \
+  --run-dir "$DPO_RUN" \
+  --output-dir "${DPO_RUN}_native_quality" \
+  --weights-config "$DPO_RUN/configs/grpo_metric_weights.yaml" \
+  --adb adb --serial "$ANDROID_SERIAL" --execute
+```
+
+Use a new, disjoint native report directory. Keep the complete bound run bundle
+(not just the `.litertlm` file), preference/provenance evidence and required
+external artifacts accessible; do not rewrite hashes or receipts to move a run.
+Use the emitted command's scorer config, not generic default weights. This
+unchanged test covers Golden32, Golden35 and Bixby50 with MTP disabled and checks
+GPU delegation plus native quality gates. It does not install APKs or retrain
+the model. Standalone results are written to the native report directory; they
+do not rewrite the deferred training plan or turn `--continue-run` into an
+optimizer resume.
