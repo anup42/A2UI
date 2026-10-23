@@ -1,0 +1,87 @@
+{
+  "policy_version": "v11-regeneration-guard-20261023-v1",
+  "review_date": "2026-10-23",
+  "scope": "Known source defects confirmed in the v11 deep audit only. This is not a factuality certificate for unlisted sources. Sources must be separately reviewed/regenerated; Stage 3 must not silently correct them.",
+  "holds": [
+    {
+      "row_id": "archive-train-029794-b3474dd8222451f0",
+      "source_id": "archive-source-family-sha256:365601e748c147dfa8041a731b717e79b8757ea746daa1df69a5cc7315c6fc44",
+      "source_sha256": "a1466cddd41b17ada0147a1d41bc3cd6bb23fa1660f96bb49bac74eae59ede85",
+      "reason": "The source claims all recommendations meet 3+ brushing modes, while its Philips row/note says 1-2 or one mode.",
+      "audit_packet": "random_base_train.jsonl",
+      "audit_packet_index": 13
+    },
+    {
+      "row_id": "archive-train-004838-37034080b487d531",
+      "source_id": "archive-source-family-sha256:8a318f71cc7faf8157c46b27604b6f336b69f099124a3a53c38edc81407fea2b",
+      "source_sha256": "a76c849c15d088eb2aabd212f2820fdead5777b86545f0b2363b64aa3f2848bb",
+      "reason": "Revenue overview says $100,000 but category values $65,000+$24,000 total $89,000.",
+      "audit_packet": "random_base_train.jsonl",
+      "audit_packet_index": 16
+    },
+    {
+      "row_id": "archive-train-059691-861139921f7d4ecd",
+      "source_id": "archive-source-family-sha256:3b09baaec5ee658a4cbe59e8853db7061266c834ad2477357b161d3681770b4b",
+      "source_sha256": "9090826de14de91fe5655f6ce9a61b14de1fc7f7115547202d5c3086fb8a9056",
+      "reason": "The EUR1,400 apartment saves EUR350/EUR300 against EUR1,750/EUR1,700, not the stated EUR350-EUR400.",
+      "audit_packet": "random_base_train.jsonl",
+      "audit_packet_index": 48
+    },
+    {
+      "row_id": "archive-train-103550-20cfe6cd152302eb",
+      "source_id": "archive-source-family-sha256:11ddbb6f05c12c02402c5d28b56a01818aca00c03968fd071041719e7af3f780",
+      "source_sha256": "ef63dadb4b284cd51057b83b7a268bba06f39b4a8c07f21e720612d7460a6974",
+      "reason": "$25,000 with 15% annual reducing-balance depreciation yields $11,092.6328125 after five years, not $11,099.85.",
+      "audit_packet": "random_base_train.jsonl",
+      "audit_packet_index": 49
+    },
+    {
+      "row_id": "archive-train-038207-a96e6afa71525792",
+      "source_id": "archive-source-family-sha256:4579fe9c4735a2d5075978d8b451f7175a52e3875f7d9b23747bc9efa02f7ef1",
+      "source_sha256": "4579fe9c4735a2d5075978d8b451f7175a52e3875f7d9b23747bc9efa02f7ef1",
+      "reason": "Expense rows sum to $6,000 rather than $5,900; reducing $700 miscellaneous to $300 saves $400 rather than $250.",
+      "audit_packet": "random_base_val.jsonl",
+      "audit_packet_index": 3
+    },
+    {
+      "row_id": "archive-train-066952-d9e35c02040e01cf",
+      "source_id": "archive-source-family-sha256:cd44c72cdf0e844842d437def4c0e64ae7e2ba6a56629ac422271532933c05e1",
+      "source_sha256": "cd44c72cdf0e844842d437def4c0e64ae7e2ba6a56629ac422271532933c05e1",
+      "reason": "The source says the 20TB plan removes all future data-growth constraints despite its finite 20TB limit.",
+      "audit_packet": "random_base_val.jsonl",
+      "audit_packet_index": 28
+    },
+    {
+      "row_id": "dataset_muse_glimmer_100k_r8_2:u_006340_01:6253",
+      "source_id": "space-source-family-sha256:c8a2ce0d43a10ace53c035ed895b5ce4462b9be668798e19684fb04524c1b540",
+      "source_sha256": "27c1e7cd98e0cd2447dae71bbb6881d95c9cf521f92c92efe3b209eefd0b5fd8",
+      "reason": "Ingredient table specifies 15 ml oil (approximately 13g), but preparation steps use 10 ml + 5 ml + 5 ml = 20 ml.",
+      "audit_packet": "random_new_train.jsonl",
+      "audit_packet_index": 8
+    },
+    {
+      "row_id": "dataset_muse_glimmer_100k_r1:u_004863_01:4981",
+      "source_id": "space-source-family-sha256:6fa575ee447ad69d3d6babf22c1d23661a669ef6ecda838c436d62514f566eca",
+      "source_sha256": "75996067df441f88394a68d351d83920a47ebfafc992f04bc4876f4feaa3c1b8",
+      "reason": "Question allocation 8x1 + 8x2 + 4x3 totals 36 marks, not the claimed 40.",
+      "audit_packet": "random_new_train.jsonl",
+      "audit_packet_index": 12
+    },
+    {
+      "row_id": "dataset_muse_glimmer_100k_r2:u_004359_01:4106",
+      "source_id": "space-source-family-sha256:8a72f45165ce3440e359f7de92eb8f2da31c22913fc6bae59ee94a3bcb177ff2",
+      "source_sha256": "adb65e89f9dbffe50b15ff12be6c101a74ddcc2dfde95fe319c76729d53d200b",
+      "reason": "Query requires EUR420 per person; source Table changes to EUR380 while retaining EUR1,680 total for four.",
+      "audit_packet": "random_new_train.jsonl",
+      "audit_packet_index": 27
+    },
+    {
+      "row_id": "dataset_muse_glimmer_100k_r3:u_012602_01:10852",
+      "source_id": "space-source-family-sha256:c1442b5f3d7df642e90352588909851fb0539911f1d00f7d5ae3bbf35ec5ee0b",
+      "source_sha256": "3106a3749452e4881a8b586d1cedd1715bd37841107b6acaca48a78b4e5bc8b4",
+      "reason": "Detailed weekly study schedule totals 16.5 hours, exceeding the 15-hour maximum and contradicting the claimed 14 hours.",
+      "audit_packet": "random_new_val.jsonl",
+      "audit_packet_index": 32
+    }
+  ]
+}

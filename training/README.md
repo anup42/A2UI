@@ -1,5 +1,10 @@
 ﻿# Response-to-IR Training
 
+For **opt-in Muse regeneration of affected v11 labels into a new dataset**, see
+the [v11 regeneration commands and safety boundaries](docs/V11_REGENERATION.md).
+Generation runs separately from training; the original v11 and existing training
+defaults remain unchanged.
+
 For **Gemma 3 1B full-parameter W8 QAT, INT8 LiteRT-LM export and native GPU
 Golden32/Golden35/Bixby50 testing**, use
 [`run_gemma3_1b_full_qat_pipeline.py`](scripts/run_gemma3_1b_full_qat_pipeline.py).

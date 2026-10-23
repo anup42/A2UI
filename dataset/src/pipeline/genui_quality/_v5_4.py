@@ -85,6 +85,7 @@ from .grpo_entity_content import (
     grpo_entity_assignment,
     prepare_grpo_entity_source,
 )
+from .grpo_entity_formats import project_grpo_entity_tables
 from .metrics_v5_3 import action_fidelity_v5_3
 
 
@@ -290,6 +291,12 @@ def _score_one_v5_4(
         evidence_started = perf_counter()
         result = collect_output_evidence_v5_4(*args, **kwargs)
         if entity_records:
+            # Shared table headers may become record fields only after an
+            # exact, complete source-bound certificate. Existing source-table
+            # and chart contracts keep their dedicated canonical role path.
+            if not (base_prepared.applicability.table_fidelity
+                    or base_prepared.applicability.chart_roles):
+                result = project_grpo_entity_tables(entity_records, result)
             entity_detail.update(certify_grpo_entity_output(entity_records, result))
         timings["dynamic_evidence_ms"] = (
             perf_counter() - evidence_started

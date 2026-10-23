@@ -7,6 +7,7 @@ import time
 import re
 import hashlib
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from dataclasses import replace
 from itertools import zip_longest
 from queue import SimpleQueue
 from datetime import datetime
@@ -907,7 +908,13 @@ def run_stage3(
     ir_formats: list[str] | tuple[str, ...] | str | None = None,
     _active_ir_format: str | None = None,
     phase_invocation_id: str | None = None,
+    prompt_supplement_path: Path | None = None,
+    grpo_entity_extraction: bool = False,
 ) -> None:
+    if type(grpo_entity_extraction) is not bool:
+        raise ValueError("Stage 3 entity extraction policy must be an explicit boolean")
+    if grpo_entity_extraction and normalize_metric_mode(metric_version) not in {"v5_4", "dual"}:
+        raise ValueError("Stage 3 entity extraction policy requires v5_4 scoring")
     if _active_ir_format is None:
         resolved_formats = _normalize_stage3_ir_formats(ir_formats)
         if resolved_formats != (A2UI_EXPRESS_V1,):
@@ -924,8 +931,23 @@ def run_stage3(
         raise FileNotFoundError(f"Missing Stage 3 prompt for {active_ir_format}: {prompt_path}")
     if not schema_path.exists():
         raise FileNotFoundError(f"Missing Stage 3 schema for {active_ir_format}: {schema_path}")
+    base_prompt = load_prompt(prompt_path)
+    supplement_identity = None
+    if prompt_supplement_path is not None:
+        supplement_bytes = prompt_supplement_path.read_bytes()
+        supplement = supplement_bytes.decode("utf-8").strip()
+        if not supplement or "{response_text}" in supplement:
+            raise ValueError("Stage 3 prompt supplement must be nonempty and contain no source placeholder")
+        # Explicit callers only: retain the canonical catalog, Muse boundary,
+        # fidelity guidance and all existing validation. The composed text also
+        # participates in the existing system+user prompt cache key.
+        base_prompt = supplement + "\n\n" + base_prompt
+        supplement_identity = {
+            "prompt_file": prompt_supplement_path.name,
+            "prompt_sha256": hashlib.sha256(supplement_bytes).hexdigest(),
+        }
     prompt_template = compose_training_fidelity_prompt(
-        compose_stage3_prompt(load_prompt(prompt_path), adapter.spec)
+        compose_stage3_prompt(base_prompt, adapter.spec)
     )
     prompt_version = _extract_prompt_version(prompt_template, prompt_path)
     system_prompt, user_prompt_template = _prepare_prompt_context(prompt_template, adapter, logger)
@@ -967,6 +989,10 @@ def run_stage3(
         if metric_mode in {"v5_4", "dual"}
         else None
     )
+    if grpo_entity_extraction:
+        # Opt-in exact source/field projection; keep all canonical thresholds,
+        # roles, renderer, reference and acceptance checks unchanged.
+        v5_4_config = replace(v5_4_config, grpo_entity_extraction=True)
     v5_1_config = (
         load_v5_1_reward_config()
         if metric_mode in {"v5_1", "dual"}
@@ -2342,6 +2368,14 @@ def run_stage3(
             record["metrics"]["overall_score"] = sample_legacy_score
         record["generation_fidelity_audit"] = audit_training_fidelity(response_text, genui_json)
         record["gen"]["training_fidelity_guidance"] = guidance_identity()
+        if supplement_identity is not None:
+            record["gen"]["prompt_supplement"] = supplement_identity
+        if grpo_entity_extraction:
+            from pipeline.genui_quality.grpo_entity_content import (
+                GRPO_ENTITY_POLICY_VERSION,
+            )
+
+            record["gen"]["entity_extraction_policy"] = GRPO_ENTITY_POLICY_VERSION
         writer.append(record)
         existing_ids.add(ui_id)
         if sample_legacy_score is None and metric_mode == "legacy":
