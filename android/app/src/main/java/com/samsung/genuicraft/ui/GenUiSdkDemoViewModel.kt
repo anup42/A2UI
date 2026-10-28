@@ -26,6 +26,7 @@ internal class GenUiSdkDemoViewModel(application: Application) : AndroidViewMode
     var editorVisible by mutableStateOf(true)
     var generationMetrics by mutableStateOf<GenerationMetricsUiState?>(null)
     var lastRuntime by mutableStateOf<String?>(null)
+    var lastModel by mutableStateOf<String?>(null)
     var lastPrecision by mutableStateOf<String?>(null)
     var generationTrace by mutableStateOf(SdkGenerationTrace())
     var workspaceRevision by mutableStateOf(0L)
@@ -37,6 +38,22 @@ internal class GenUiSdkDemoViewModel(application: Application) : AndroidViewMode
     private var pendingPartialFlush: Runnable? = null
     private var generationRunId = 0L
     private var conversionStartedAtMs = 0L
+
+    init {
+        viewModelScope.launch {
+            GenUiEngineManager.retirementMetrics.collect { retired ->
+                val current = generationMetrics
+                if (current != null && retired?.engineId != null && current.engineId == retired.engineId) {
+                    generationMetrics = current.copy(
+                        drafterAcceptanceRate = retired.drafterAcceptanceRate,
+                        acceptanceScope = retired.acceptanceScope,
+                        retirementReason = retired.retirementReason,
+                        pendingRetirement = false,
+                    )
+                }
+            }
+        }
+    }
 
     private fun clearPendingPartialFlush() {
         pendingPartialFlush?.let(streamHandler::removeCallbacks)
@@ -68,6 +85,7 @@ internal class GenUiSdkDemoViewModel(application: Application) : AndroidViewMode
         workspaceRevision++
         generationMetrics = null
         lastRuntime = null
+        lastModel = null
         lastPrecision = null
         generationTrace = SdkGenerationTrace()
         renderSnapshot = null
@@ -104,10 +122,12 @@ internal class GenUiSdkDemoViewModel(application: Application) : AndroidViewMode
         mtpForRun: Boolean,
         gpuPrecisionForRun: Gemma4GpuPrecision = Gemma4GpuPrecision.FP32,
         streamingRenderingForRun: Boolean = true,
+        gemma270AcceleratorForRun: String = "CPU",
         // Injectable provider keeps lifecycle tests independent of network or native model timing.
         providerFactory: () -> GenUiProvider = {
             createSdkDemoProvider(
                 e2bModelChoiceForRun, modelPathForRun, metricsForRun, mtpForRun, gpuPrecisionForRun,
+                gemma270AcceleratorForRun,
             )
         },
     ) {
@@ -119,12 +139,15 @@ internal class GenUiSdkDemoViewModel(application: Application) : AndroidViewMode
         generationSourceText = source
         generationMetrics = null
         lastRuntime = null
-        lastPrecision = if (e2bModelChoiceForRun == E2bModelChoice.TRAINED_E2B_V10_W4) {
+        lastModel = e2bModelChoiceForRun.displayName
+        lastPrecision = if (e2bModelChoiceForRun.isTrainedE2b) {
             when (gpuPrecisionForRun) {
                 Gemma4GpuPrecision.MODEL_DEFAULT -> "Requested GPU model default"
                 Gemma4GpuPrecision.FP32 -> "Requested GPU FP32"
                 Gemma4GpuPrecision.FP16_CORRECTED -> "Requested GPU FP16 (corrected)"
             }
+        } else if (e2bModelChoiceForRun == E2bModelChoice.TRAINED_GEMMA3_270M) {
+            "INT8 weights · requested $gemma270AcceleratorForRun · MTP unsupported"
         } else null
         working = true
         editorVisible = false
@@ -144,6 +167,7 @@ internal class GenUiSdkDemoViewModel(application: Application) : AndroidViewMode
                     enableMetrics = metricsForRun,
                     enableMtp = mtpForRun,
                     gpuPrecision = gpuPrecisionForRun,
+                    gemma270Accelerator = gemma270AcceleratorForRun,
                 )
                 val provider = if (
                     providerKey == activeProviderKey &&
@@ -168,9 +192,12 @@ internal class GenUiSdkDemoViewModel(application: Application) : AndroidViewMode
                 val session = GenUiSession(
                     getApplication<Application>(),
                     provider,
-                    if (e2bModelChoiceForRun == E2bModelChoice.TRAINED_E2B_V10_W4)
-                        GenUiConversionProfile.TRAINED_E2B_V10_W4
-                    else GenUiConversionProfile.SOURCE_BOUND,
+                    when (e2bModelChoiceForRun) {
+                        E2bModelChoice.TRAINED_E2B_V10_W4,
+                        E2bModelChoice.TRAINED_E2B_PREVIOUS_R64 -> GenUiConversionProfile.TRAINED_E2B_V10_W4
+                        E2bModelChoice.TRAINED_GEMMA3_270M -> GenUiConversionProfile.TRAINED_GEMMA3_270M
+                        E2bModelChoice.OFFICIAL_E2B -> GenUiConversionProfile.SOURCE_BOUND
+                    },
                 ).also { captureForRun = it }
                 val observer = GenUiGenerationObserver(
                     onAttemptStarted = { number ->
@@ -265,7 +292,9 @@ internal class GenUiSdkDemoViewModel(application: Application) : AndroidViewMode
                                 it.document.express == result.document.express
                         }
                         editorVisible = false
-                        val stateLabel = if (result.repairKind == GenUiRepairKind.GENERATED_DSL_REPAIR) {
+                        val stateLabel = if (result.warnings.any { it.startsWith("Source fidelity warning:") }) {
+                            "Rendered · source mismatch"
+                        } else if (result.repairKind == GenUiRepairKind.GENERATED_DSL_REPAIR) {
                             "Recovered"
                         } else {
                             "Ready"
@@ -353,9 +382,14 @@ private fun createSdkDemoProvider(
     metricsForRun: Boolean,
     mtpForRun: Boolean,
     gpuPrecisionForRun: Gemma4GpuPrecision,
-): GenUiProvider =
+    gemma270AcceleratorForRun: String,
+): GenUiProvider = if (e2bModelChoiceForRun == E2bModelChoice.TRAINED_GEMMA3_270M) {
+    Gemma270MProvider(GenUiModelProfiles.trainedGemma270M(
+        modelPathForRun, enableMetrics = metricsForRun, accelerator = gemma270AcceleratorForRun,
+    ))
+} else {
     Gemma4Provider(
-        if (e2bModelChoiceForRun == E2bModelChoice.TRAINED_E2B_V10_W4) {
+        if (e2bModelChoiceForRun.isTrainedE2b) {
             trainedE2bW4Config(
                 modelPath = modelPathForRun,
                 enableMetrics = metricsForRun,
@@ -370,10 +404,15 @@ private fun createSdkDemoProvider(
             )
         },
     )
+}
 
 /** Formats SDK-owned native measurements for this view. */
-private fun GenUiSession.toUiState(reportedAttempts: Int, conversionElapsedMs: Long) =
-    GenerationMetricsUiState(
+private fun GenUiSession.toUiState(reportedAttempts: Int, conversionElapsedMs: Long): GenerationMetricsUiState {
+    val snapshot = generationSessionMetrics
+    val metrics = GenUiEngineManager.retirementMetrics.value?.takeIf {
+        snapshot?.engineId != null && it.engineId == snapshot.engineId
+    } ?: snapshot
+    return GenerationMetricsUiState(
         attempts = attemptSnapshots.map { attempt ->
             attempt.output?.toUiMetrics(attempt.elapsedNanos) ?: GenerationAttemptUiMetrics(
                 inputTokens = null, outputTokens = null,
@@ -382,6 +421,11 @@ private fun GenUiSession.toUiState(reportedAttempts: Int, conversionElapsedMs: L
         },
         reportedAttempts = reportedAttempts,
         conversionElapsedMs = conversionElapsedMs,
-        speculativeDecodingEnabled = generationSessionMetrics?.speculativeDecodingEnabled,
-        drafterAcceptanceRate = generationSessionMetrics?.drafterAcceptanceRate,
+        speculativeDecodingEnabled = metrics?.speculativeDecodingEnabled,
+        drafterAcceptanceRate = metrics?.drafterAcceptanceRate,
+        engineId = metrics?.engineId,
+        acceptanceScope = metrics?.acceptanceScope,
+        retirementReason = metrics?.retirementReason,
+        pendingRetirement = metrics?.pendingRetirement ?: false,
     )
+}

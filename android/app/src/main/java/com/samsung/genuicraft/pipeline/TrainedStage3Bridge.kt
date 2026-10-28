@@ -31,6 +31,16 @@ import kotlinx.coroutines.ensureActive
  * This adapter only selects host settings and maps the returned wire document to the app graph.
  */
 internal object TrainedStage3Bridge {
+    /** A request's native settings are captured before Stage 2 and reused for Stage 3. */
+    internal sealed interface PreparedModel {
+        data class Ready(
+            val config: Gemma4Config,
+            val selectedPrecision: InferenceBackendSettings.TrainedE2bGpuPrecision,
+            val selectedAccelerator: InferenceBackendSettings.Accelerator,
+        ) : PreparedModel
+        data class Unavailable(val message: String) : PreparedModel
+    }
+
     sealed interface Result {
         /** Wall time spent in the native provider call, excluding DSL validation and repair. */
         val generationElapsedMs: Long?
@@ -85,6 +95,52 @@ internal object TrainedStage3Bridge {
         gpuPrecision = gpuPrecision,
     )
 
+    internal fun prepareModel(context: Context, modelPath: String): PreparedModel = try {
+        val precision = InferenceBackendSettings.getTrainedE2bGpuPrecision(context)
+        val accelerator = InferenceBackendSettings.getOnDeviceAccelerator(context)
+        val enableMtp = InferenceBackendSettings.getOnDeviceMtpEnabled(context)
+        val selection = selectTrainedE2bModel(modelPath, precision)
+        if (!selection.readiness.usable) {
+            PreparedModel.Unavailable(selection.readiness.message)
+        } else {
+            PreparedModel.Ready(
+                config = configFor(
+                    modelPath = selection.modelPath,
+                    accelerator = accelerator,
+                    enableMtp = selection.mtpSupported && enableMtp,
+                    gpuPrecision = selection.gpuPrecision,
+                ),
+                selectedPrecision = precision,
+                selectedAccelerator = accelerator,
+            )
+        }
+    } catch (failure: Exception) {
+        PreparedModel.Unavailable(failure.message ?: failure.javaClass.simpleName)
+    }
+
+    /** Prepare native weights without generating a dummy turn or retaining any conversation state. */
+    suspend fun prewarm(context: Context, modelPath: String) {
+        prewarm(context, prepareModel(context, modelPath))
+    }
+
+    internal suspend fun prewarm(context: Context, preparedModel: PreparedModel) {
+        val config = when (preparedModel) {
+            is PreparedModel.Ready -> preparedModel.config
+            is PreparedModel.Unavailable -> error(preparedModel.message)
+        }
+        val session = GenUiSession(
+            context,
+            Gemma4Provider(config),
+            GenUiConversionProfile.TRAINED_E2B_V10_W4,
+        )
+        try {
+            coroutineContext.ensureActive()
+            session.prewarm()
+        } finally {
+            session.closeAndAwait()
+        }
+    }
+
     suspend fun convert(
         context: Context,
         modelPath: String,
@@ -94,42 +150,22 @@ internal object TrainedStage3Bridge {
         onRenderSnapshot: ((GenUiRenderSnapshot) -> Unit)? = null,
         onAttemptStarted: ((Int) -> Unit)? = null,
         enableStreamingRendering: Boolean = true,
+        preparedModel: PreparedModel? = null,
     ): Result {
-        val selection = selectTrainedE2bModel(
-            modelPath,
-            InferenceBackendSettings.getTrainedE2bGpuPrecision(context),
-        )
-        if (!selection.readiness.usable) {
-            return Result.Failure(
-                message = selection.readiness.message,
-                rawGeneratedText = null,
-                prompt = null,
-                inputTokens = null,
-                outputTokens = null,
-                outputTokensPerSecond = null,
-                runtimeBackend = null,
-                renderedPromptSha256 = null,
-            )
-        }
-        val config = runCatching {
-            configFor(
-                modelPath = selection.modelPath,
-                accelerator = InferenceBackendSettings.getOnDeviceAccelerator(context),
-                enableMtp = selection.mtpSupported &&
-                    InferenceBackendSettings.getOnDeviceMtpEnabled(context),
-                gpuPrecision = selection.gpuPrecision,
-            )
-        }.getOrElse { error ->
-            return Result.Failure(
-                message = error.message ?: error.javaClass.simpleName,
-                rawGeneratedText = null,
-                prompt = null,
-                inputTokens = null,
-                outputTokens = null,
-                outputTokensPerSecond = null,
-                runtimeBackend = null,
-                renderedPromptSha256 = null,
-            )
+        val config = when (val prepared = preparedModel ?: prepareModel(context, modelPath)) {
+            is PreparedModel.Ready -> prepared.config
+            is PreparedModel.Unavailable -> {
+                return Result.Failure(
+                    message = prepared.message,
+                    rawGeneratedText = null,
+                    prompt = null,
+                    inputTokens = null,
+                    outputTokens = null,
+                    outputTokensPerSecond = null,
+                    runtimeBackend = null,
+                    renderedPromptSha256 = null,
+                )
+            }
         }
 
         return try {

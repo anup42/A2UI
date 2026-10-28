@@ -8,6 +8,7 @@ import com.samsung.genuicraft.sdk.internal.pipeline.A2uiExpressCodec
 import com.samsung.genuicraft.sdk.internal.pipeline.A2uiExpressPartialState
 import com.samsung.genuicraft.sdk.internal.pipeline.A2uiExpressStreamScanner
 import com.samsung.genuicraft.sdk.internal.pipeline.A2uiWireCodec
+import com.samsung.genuicraft.sdk.internal.pipeline.EntityListPresentation
 import com.samsung.genuicraft.sdk.internal.pipeline.RendererReferenceSemantics
 
 internal data class GenUiStreamPreview(val document: GenUiDocument, val readyComponentCount: Int)
@@ -64,7 +65,9 @@ internal class GenUiExpressStreamCompiler {
             A2uiExpressPartialState.arrays(scan.tail, arrayPaths).forEach { (path, rows) ->
                 setPath(candidate.getAsJsonObject("state"), path, rows)
             }
-            val projection = project(candidate) ?: return null
+            // Adapt before projection removes actions/watches, so interactive lists stay lists
+            // in both preview and final output. Only closed literal item arrays are eligible.
+            val projection = project(EntityListPresentation.normalize(candidate).graph) ?: return null
             require(A2uiCanonicalGraph.validate(projection).isValid) { "Invalid Express preview projection." }
             val wire = A2uiWireCodec.encode(projection, shortenIds = false).toString()
             if (wire == previousWire) return null

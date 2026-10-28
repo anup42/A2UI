@@ -1,11 +1,12 @@
 package com.samsung.genuicraft
 
 import com.google.gson.JsonParser
+import com.google.gson.JsonObject
 import com.samsung.genuicraft.sdk.provider.Gemma4GpuPrecision
 import java.io.File
 import java.util.Locale
 
-/** The saved path names the original trained package. Corrected FP16 uses a prepared sibling. */
+/** Corrected FP16 accepts either an original package or a verified prepared package directly. */
 internal const val CORRECTED_FP16_MODEL_FILE_NAME = "model-fp16-corrected.litertlm"
 private const val CORRECTED_FP16_POLICY = "genuicraft-fp16-rope-qdq-v1"
 private const val CORRECTED_FP16_CONTEXT_TOKENS = 8_192
@@ -29,6 +30,7 @@ private val correctedFp16Profiles = listOf(
         originalFileNames = setOf(
             "gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm",
             "gemma4_e2b_a2ui_mobile.litertlm",
+            "gemma4_e2b_a2ui_previous_r64.litertlm",
             "e2b_v10_w4.litertlm",
         ),
         sourceSha256 = LEGACY_SOURCE_SHA256,
@@ -77,27 +79,31 @@ internal fun selectTrainedE2bModel(
         )
     }
 
-    val sourceReadiness = basicModelReadiness(originalModelPath, "Original trained E2B model")
-    if (!sourceReadiness.usable) {
-        return TrainedE2bModelSelection(
-            original.absolutePath,
-            Gemma4GpuPrecision.FP16_CORRECTED,
-            sourceReadiness,
-            mtpSupported = false,
-        )
+    val directPrepared = original.name.equals(CORRECTED_FP16_MODEL_FILE_NAME, ignoreCase = true)
+    val profile = if (directPrepared) null else {
+        val sourceReadiness = basicModelReadiness(originalModelPath, "Original trained E2B model")
+        if (!sourceReadiness.usable) {
+            return TrainedE2bModelSelection(
+                original.absolutePath,
+                Gemma4GpuPrecision.FP16_CORRECTED,
+                sourceReadiness,
+                mtpSupported = false,
+            )
+        }
+        val matched = profiles.firstOrNull { candidate ->
+            candidate.originalFileNames.any { it.equals(original.name, ignoreCase = true) }
+        }
+        if (matched == null || !SHA256_HEX.matches(matched.modelSha256)) {
+            return TrainedE2bModelSelection(
+                original.absolutePath,
+                Gemma4GpuPrecision.FP16_CORRECTED,
+                LocalModelReadiness(false, "No independently verified corrected FP16 package is available for this original model."),
+                mtpSupported = false,
+            )
+        }
+        matched
     }
-    val profile = profiles.firstOrNull { candidate ->
-        candidate.originalFileNames.any { it.equals(original.name, ignoreCase = true) }
-    }
-    if (profile == null || !SHA256_HEX.matches(profile.modelSha256)) {
-        return TrainedE2bModelSelection(
-            original.absolutePath,
-            Gemma4GpuPrecision.FP16_CORRECTED,
-            LocalModelReadiness(false, "No independently verified corrected FP16 package is available for this original model."),
-            mtpSupported = false,
-        )
-    }
-    val prepared = File(original.parentFile, CORRECTED_FP16_MODEL_FILE_NAME)
+    val prepared = if (directPrepared) original else File(original.parentFile, CORRECTED_FP16_MODEL_FILE_NAME)
     val modelReadiness = basicModelReadiness(
         prepared.absolutePath, "Corrected FP16 model", allowCorrectedName = true,
     )
@@ -128,22 +134,16 @@ internal fun selectTrainedE2bModel(
         )
     }
     val manifestData = runCatching { JsonParser.parseString(manifest.readText()).asJsonObject }.getOrNull()
-    val manifestValid = runCatching {
-        val drafterFlag = manifestData?.get("drafter_rope_corrected")
-        manifestData != null &&
-            manifestData.get("schema_version").asInt == 1 &&
-            manifestData.get("precision_policy").asString == CORRECTED_FP16_POLICY &&
-            manifestData.get("max_context_tokens").asInt == CORRECTED_FP16_CONTEXT_TOKENS &&
-            manifestData.get("target_rope_corrected").asBoolean &&
-            manifestData.get("transform_version").asString == profile.transformVersion &&
-            manifestData.get("source_bytes").asLong == profile.sourceBytes &&
-            original.length() == profile.sourceBytes &&
-            manifestData.get("model_bytes").asLong == prepared.length() &&
-            manifestData.get("source_sha256").asString == profile.sourceSha256 &&
-            manifestData.get("model_sha256").asString == profile.modelSha256 &&
-            drafterFlag != null && drafterFlag.isJsonPrimitive && drafterFlag.asJsonPrimitive.isBoolean
-    }.getOrDefault(false)
-    if (!manifestValid) {
+    val verifiedProfile = if (directPrepared) {
+        profiles.firstOrNull { candidate ->
+            correctedManifestMatches(manifestData, candidate, prepared, original = null)
+        }
+    } else {
+        profile?.takeIf { candidate ->
+            correctedManifestMatches(manifestData, candidate, prepared, original)
+        }
+    }
+    if (verifiedProfile == null) {
         return TrainedE2bModelSelection(
             prepared.absolutePath,
             Gemma4GpuPrecision.FP16_CORRECTED,
@@ -163,6 +163,32 @@ internal fun selectTrainedE2bModel(
         mtpSupported = drafterCorrected,
     )
 }
+
+private fun correctedManifestMatches(
+    manifestData: JsonObject?,
+    profile: CorrectedFp16Profile,
+    prepared: File,
+    original: File?,
+): Boolean = runCatching {
+    val targetFlag = manifestData?.get("target_rope_corrected")
+    val drafterFlag = manifestData?.get("drafter_rope_corrected")
+    manifestData != null &&
+        SHA256_HEX.matches(profile.sourceSha256) &&
+        SHA256_HEX.matches(profile.modelSha256) &&
+        profile.sourceBytes > 0L &&
+        manifestData.get("schema_version").asInt == 1 &&
+        manifestData.get("precision_policy").asString == CORRECTED_FP16_POLICY &&
+        manifestData.get("max_context_tokens").asInt == CORRECTED_FP16_CONTEXT_TOKENS &&
+        targetFlag != null && targetFlag.isJsonPrimitive && targetFlag.asJsonPrimitive.isBoolean &&
+        targetFlag.asBoolean &&
+        manifestData.get("transform_version").asString == profile.transformVersion &&
+        manifestData.get("source_bytes").asLong == profile.sourceBytes &&
+        (original == null || original.length() == profile.sourceBytes) &&
+        manifestData.get("model_bytes").asLong == prepared.length() &&
+        manifestData.get("source_sha256").asString == profile.sourceSha256 &&
+        manifestData.get("model_sha256").asString == profile.modelSha256 &&
+        drafterFlag != null && drafterFlag.isJsonPrimitive && drafterFlag.asJsonPrimitive.isBoolean
+}.getOrDefault(false)
 
 internal fun basicModelReadiness(
     modelPath: String,
@@ -191,7 +217,7 @@ private fun basicPathError(
         return "$modelName must be a .litertlm file."
     }
     if (!allowCorrectedName && modelFile.name.equals(CORRECTED_FP16_MODEL_FILE_NAME, ignoreCase = true)) {
-        return "Keep the original trained model path here and select FP16 (corrected) separately."
+        return "Use FP16 (corrected) for this prepared package, or select the original trained model for FP32."
     }
     return null
 }

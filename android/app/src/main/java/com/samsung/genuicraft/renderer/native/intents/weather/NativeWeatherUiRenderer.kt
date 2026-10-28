@@ -1,7 +1,5 @@
 package com.samsung.genuicraft.renderer.native.intents.weather
 
-import android.graphics.BitmapFactory
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -19,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AcUnit
@@ -28,6 +27,8 @@ import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Grain
 import androidx.compose.material.icons.filled.Thunderstorm
+import androidx.compose.material.icons.filled.Thermostat
+import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -35,6 +36,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,11 +47,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
@@ -65,8 +65,9 @@ import com.samsung.genuicraft.genUiCardContainerColor
 import com.samsung.genuicraft.genUiTableContainerColor
 import com.samsung.genuicraft.renderer.native.WeatherCurrentDetails
 import com.samsung.genuicraft.renderer.native.WeatherRow
-import java.time.LocalTime
 import kotlin.math.max
+
+private val LocalForecastIconTimeContext = compositionLocalOf<String?> { null }
 
 internal object NativeWeatherUiRenderer {
     private val TEMPERATURE_NUMBER_REGEX = Regex("""-?\d{1,3}(?:\.\d+)?""")
@@ -106,6 +107,10 @@ internal object NativeWeatherUiRenderer {
             return
         }
         val orderedRows = remember(rows) { orderWeatherRows(rows) }
+        if (NativeWeatherPresentationPolicy.shouldUseForecastPanel(orderedRows)) {
+            WeatherForecastPanel(orderedRows, sanitizeDisplayText, weatherTemperatureText, weatherConditionIcon)
+            return
+        }
         val todayRow = orderedRows.first()
         val laterRows = orderedRows.drop(1)
         val todayTemperature = weatherTemperatureText(todayRow)
@@ -194,6 +199,243 @@ internal object NativeWeatherUiRenderer {
         }
     }
 
+    @Composable
+    private fun WeatherForecastPanel(
+        rows: List<WeatherRow>,
+        sanitizeDisplayText: (String) -> String,
+        weatherTemperatureText: (WeatherRow) -> String,
+        weatherConditionIcon: @Composable (String?, Dp) -> Unit,
+    ) {
+        // Forecast artwork is decorative; each dated row also gets an explicitly labelled weather or probability symbol.
+        val palette = weatherHeroPalette(null)
+        val dark = isSystemInDarkTheme()
+        val highAccent = if (dark) Color(0xFFFFD394) else Color(0xFF964400)
+        val lowAccent = if (dark) Color(0xFFA4E1FF) else Color(0xFF155DAA)
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(GenUiTokens.RadiusXl),
+            colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+            border = BorderStroke(GenUiTokens.BorderMd, palette.tileBorder),
+            elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth()
+                    .background(Brush.linearGradient(palette.gradient))
+                    .padding(horizontal = 12.dp, vertical = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    MarkdownText(
+                        text = "Forecast",
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        color = palette.content,
+                        modifier = Modifier.weight(1f),
+                    )
+                    ForecastSkyIllustration(dark)
+                }
+                rows.forEach { row ->
+                    val precipitationIndex = NativeWeatherPresentationPolicy.precipitationIndex(row.metrics)
+                    val precipitation = row.metrics.getOrNull(precipitationIndex)
+                    val tileShape = RoundedCornerShape(16.dp)
+                    Column(
+                        modifier = Modifier.fillMaxWidth()
+                            .clip(tileShape)
+                            .background(palette.tileContainer)
+                            .border(GenUiTokens.BorderMd, palette.tileBorder, tileShape)
+                            .padding(horizontal = 10.dp, vertical = 10.dp)
+                            .semantics(mergeDescendants = true) {
+                                contentDescription = NativeWeatherPresentationPolicy.accessibilityDescription(row)
+                            },
+                        verticalArrangement = Arrangement.spacedBy(7.dp),
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            ForecastRowArtwork(row, sanitizeDisplayText, weatherConditionIcon)
+                            Column(
+                                modifier = Modifier.weight(1f),
+                                verticalArrangement = Arrangement.spacedBy(2.dp),
+                            ) {
+                                MarkdownText(
+                                    text = sanitizeDisplayText(row.period),
+                                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                                    color = palette.content,
+                                )
+                                row.date?.takeIf { it.isNotBlank() && it != row.period }?.let { date ->
+                                    MarkdownText(
+                                        text = sanitizeDisplayText(date),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = palette.mutedContent,
+                                    )
+                                }
+                                row.condition?.takeIf { it.isNotBlank() }?.let { condition ->
+                                    MarkdownText(
+                                        text = sanitizeDisplayText(condition),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = palette.mutedContent,
+                                    )
+                                }
+                                if (!NativeWeatherPresentationPolicy.hasExplicitCondition(row.condition) && precipitation != null) {
+                                    MarkdownText(
+                                        text = "${sanitizeDisplayText(precipitation.first)} · ${sanitizeDisplayText(precipitation.second)}",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = palette.mutedContent,
+                                    )
+                                }
+                            }
+
+                        }
+                        RendererFlowRow(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            verticalArrangement = Arrangement.spacedBy(6.dp),
+                        ) {
+                            row.high?.takeIf { it.isNotBlank() }?.let { high ->
+                                WeatherForecastMetric(
+                                    "High", sanitizeDisplayText(high), Modifier.widthIn(min = 72.dp),
+                                    icon = Icons.Filled.Thermostat,
+                                    contentColor = highAccent, labelColor = palette.mutedContent,
+                                )
+                            }
+                            row.low?.takeIf { it.isNotBlank() }?.let { low ->
+                                WeatherForecastMetric(
+                                    "Low", sanitizeDisplayText(low), Modifier.widthIn(min = 72.dp),
+                                    icon = Icons.Filled.Thermostat,
+                                    contentColor = lowAccent, labelColor = palette.mutedContent,
+                                )
+                            }
+                            if (row.high.isNullOrBlank() && row.low.isNullOrBlank()) {
+                                weatherTemperatureText(row).takeIf { it.isNotBlank() }?.let { temperature ->
+                                    WeatherForecastMetric(
+                                        "Temperature", sanitizeDisplayText(temperature), Modifier.widthIn(min = 96.dp),
+                                        icon = Icons.Filled.Thermostat,
+                                        contentColor = palette.content, labelColor = palette.mutedContent,
+                                    )
+                                }
+                            }
+                            precipitation?.let { (label, value) ->
+                                WeatherForecastMetric(
+                                    sanitizeDisplayText(label), sanitizeDisplayText(value),
+                                    Modifier.widthIn(min = 132.dp)
+                                        .clip(RoundedCornerShape(12.dp))
+                                        .background(weatherRainAccent(dark).copy(alpha = if (dark) 0.18f else 0.10f))
+                                        .border(GenUiTokens.BorderMd, weatherRainAccent(dark).copy(alpha = 0.24f), RoundedCornerShape(12.dp))
+                                        .padding(horizontal = 8.dp, vertical = 5.dp),
+                                    icon = Icons.Filled.WaterDrop,
+                                    prominent = false,
+                                    contentColor = if (dark) Color(0xFFC6F6FF) else weatherRainAccent(false),
+                                    labelColor = palette.mutedContent,
+                                )
+                            }
+                        }
+                        precipitation?.second?.let { value ->
+                            NativeWeatherPresentationPolicy.precipitationFraction(sanitizeDisplayText(value))?.let { fraction ->
+                                Box(Modifier.fillMaxWidth().height(4.dp).clip(RoundedCornerShape(4.dp))
+                                    .background(palette.content.copy(alpha = 0.10f))) {
+                                    if (fraction > 0f) {
+                                        Spacer(Modifier.fillMaxWidth(fraction).height(4.dp)
+                                            .background(Brush.horizontalGradient(listOf(
+                                                weatherRainAccent(dark), if (dark) Color(0xFF5EEAD4) else Color(0xFF0D9488),
+                                            ))))
+                                    }
+                                }
+                            }
+                        }
+                        val extraMetrics = row.metrics.filterIndexed { metricIndex, _ -> metricIndex != precipitationIndex }
+                        val additionalTemperature = row.temp?.takeIf {
+                            it.isNotBlank() && (!row.high.isNullOrBlank() || !row.low.isNullOrBlank())
+                        }
+                        val details = listOfNotNull(additionalTemperature?.let { "Temperature" to it }) + extraMetrics
+                        details.forEach { (label, value) ->
+                            MarkdownText(
+                                text = listOf(label, value).filter { it.isNotBlank() }.joinToString(": "),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = palette.mutedContent,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Composable
+    private fun ForecastRowArtwork(
+        row: WeatherRow,
+        sanitizeDisplayText: (String) -> String,
+        weatherConditionIcon: @Composable (String?, Dp) -> Unit,
+    ) {
+        val dark = isSystemInDarkTheme()
+        val kind = NativeWeatherPresentationPolicy.forecastArtwork(row)
+        val warm = kind == WeatherArtworkKind.SUN || kind == WeatherArtworkKind.PARTLY_CLOUDY
+        val colors = when {
+            dark -> listOf(Color(0xFF24496B), Color(0xFF193A57))
+            warm -> listOf(Color(0xFFFFF4CF), Color(0xFFFFE5B6))
+            else -> listOf(Color(0xFFE0F4FF), Color(0xFFBFDFF7))
+        }
+        Box(
+            modifier = Modifier.size(64.dp).clip(RoundedCornerShape(18.dp))
+                .background(Brush.linearGradient(colors))
+                .border(1.dp, Color.White.copy(alpha = if (dark) 0.12f else 0.72f), RoundedCornerShape(18.dp)),
+            contentAlignment = Alignment.Center,
+        ) {
+            if (NativeWeatherPresentationPolicy.hasExplicitCondition(row.condition)) {
+                CompositionLocalProvider(LocalForecastIconTimeContext provides row.period.ifBlank { "Forecast" }) {
+                    weatherConditionIcon(row.condition, 54.dp)
+                }
+            } else {
+                val precipitation = row.metrics.getOrNull(NativeWeatherPresentationPolicy.precipitationIndex(row.metrics))
+                val description = if (kind == WeatherArtworkKind.RAIN || kind == WeatherArtworkKind.DROP) {
+                    precipitation?.let { "${sanitizeDisplayText(it.first)} illustration: ${sanitizeDisplayText(it.second)}" }
+                } else "Temperature readings"
+                NativeWeatherArtwork.Symbol(kind, Modifier.size(54.dp), description)
+            }
+        }
+    }
+
+    @Composable
+    private fun ForecastSkyIllustration(dark: Boolean) {
+        Box(
+            modifier = Modifier.size(58.dp).clip(RoundedCornerShape(18.dp))
+                .background(Color.White.copy(alpha = if (dark) 0.10f else 0.5f)),
+            contentAlignment = Alignment.Center,
+        ) {
+            NativeWeatherArtwork.Symbol(WeatherArtworkKind.PARTLY_CLOUDY, Modifier.size(54.dp))
+        }
+    }
+
+    @Composable
+    private fun WeatherForecastMetric(
+        label: String,
+        value: String,
+        modifier: Modifier = Modifier,
+        icon: ImageVector? = null,
+        prominent: Boolean = true,
+        contentColor: Color = if (prominent) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.primary,
+        labelColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+    ) {
+        Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(3.dp), verticalAlignment = Alignment.CenterVertically) {
+                icon?.let {
+                    Icon(it, contentDescription = null, tint = contentColor, modifier = Modifier.size(14.dp))
+                }
+                MarkdownText(text = label, style = MaterialTheme.typography.labelSmall, color = labelColor)
+            }
+            MarkdownText(
+                text = value,
+                style = if (prominent) MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                    else MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                color = contentColor,
+            )
+        }
+    }
+
     @OptIn(ExperimentalLayoutApi::class)
     @Composable
     private fun WeatherHeroSummaryCard(
@@ -275,7 +517,7 @@ internal object NativeWeatherUiRenderer {
                             modifier = Modifier.size(92.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            weatherConditionIcon(row.condition, 72.dp)
+                            ForecastRowArtwork(row, sanitizeDisplayText, weatherConditionIcon)
                         }
                     }
 
@@ -1411,34 +1653,16 @@ internal object NativeWeatherUiRenderer {
         condition: String?,
         size: Dp,
         sanitizeDisplayText: (String) -> String,
-        timeContext: String? = null
+        timeContext: String? = null,
     ) {
-        val context = LocalContext.current
-        val assetPath = remember(condition, timeContext) {
-            weatherConditionAssetPath(condition, timeContext)
-        }
-        val painter = remember(context, assetPath) {
-            runCatching {
-                context.assets.open(assetPath).use { input ->
-                    BitmapFactory.decodeStream(input)?.asImageBitmap()?.let(::BitmapPainter)
-                }
-            }.getOrNull()
-        }
-        if (painter != null) {
-            Image(
-                painter = painter,
-                contentDescription = sanitizeDisplayText(condition.orEmpty()).ifBlank { "Weather condition" },
-                modifier = Modifier.size(size)
-            )
-            return
-        }
-
-        val (icon, tint) = weatherConditionIconSpec(condition)
-        Icon(
-            imageVector = icon,
-            contentDescription = sanitizeDisplayText(condition.orEmpty()).ifBlank { "Weather condition" },
-            tint = tint,
-            modifier = Modifier.size(size)
+        val forecastTimeContext = LocalForecastIconTimeContext.current
+        val iconDescription = sanitizeDisplayText(condition.orEmpty()).ifBlank { "Temperature readings" }
+        val description = if (forecastTimeContext != null && !condition.isNullOrBlank()) {
+            "Condition icon: $iconDescription"
+        } else iconDescription
+        NativeWeatherArtwork.Symbol(
+            NativeWeatherArtwork.kindFor(condition, timeContext ?: forecastTimeContext),
+            Modifier.size(size), description,
         )
     }
 
@@ -1488,118 +1712,6 @@ internal object NativeWeatherUiRenderer {
             maxLines = maxLines,
             overflow = overflow
         )
-    }
-
-    @Composable
-    private fun weatherConditionIconSpec(condition: String?): Pair<ImageVector, Color> {
-        val normalized = NativeWeatherSemantics.normalizeWeatherText(condition.orEmpty())
-        return when {
-            normalized.contains("thunder") || normalized.contains("storm") || normalized.contains("lightning") ->
-                Icons.Filled.Thunderstorm to Color(0xFFE65B17)
-            normalized.contains("snow") || normalized.contains("sleet") || normalized.contains("blizzard") ->
-                Icons.Filled.AcUnit to Color(0xFF82B1FF)
-            normalized.contains("rain") || normalized.contains("shower") || normalized.contains("drizzle") ->
-                Icons.Filled.Grain to Color(0xFF2E65D4)
-            normalized.contains("fog") || normalized.contains("mist") || normalized.contains("haze") ||
-                normalized.contains("wind") || normalized.contains("breeze") ->
-                Icons.Filled.Air to Color(0xFF25B871)
-            normalized.contains("cloud") || normalized.contains("overcast") ->
-                Icons.Filled.Cloud to Color(0xFF7A7A85)
-            normalized.contains("clear") ->
-                if (NativeWeatherSemantics.isNightWeatherContext(condition)) {
-                    Icons.Filled.DarkMode to Color(0xFF7DA2FF)
-                } else {
-                    Icons.Filled.WbSunny to Color(0xFFFFB300)
-                }
-
-            normalized.contains("sun") ->
-                Icons.Filled.WbSunny to Color(0xFFFFB300)
-
-            else -> Icons.Filled.Cloud to MaterialTheme.colorScheme.primary
-        }
-    }
-
-    private fun weatherConditionAssetPath(condition: String?, timeContext: String?): String {
-        val variant = if (useNightWeatherAsset(condition, timeContext)) "night" else "day"
-        return "weather_icons/$variant/${weatherConditionAssetName(condition)}.webp"
-    }
-
-    private fun useNightWeatherAsset(condition: String?, timeContext: String?): Boolean {
-        val contextText = listOfNotNull(condition, timeContext).joinToString(" ")
-        if (NativeWeatherSemantics.isNightWeatherContext(contextText)) {
-            return true
-        }
-        val normalized = NativeWeatherSemantics.normalizeWeatherText(timeContext.orEmpty())
-        if (normalized.contains("evening") || normalized.contains("night") || normalized.contains("overnight")) {
-            return true
-        }
-        if (timeContext.isNullOrBlank()) {
-            val hour = LocalTime.now().hour
-            return hour < 6 || hour >= 18
-        }
-        return false
-    }
-
-    private fun weatherConditionAssetName(condition: String?): String {
-        val normalized = NativeWeatherSemantics.normalizeWeatherText(condition.orEmpty())
-        return when {
-            normalized.contains("hurricane") || normalized.contains("cyclone") || normalized.contains("typhoon") ->
-                "hurricane"
-            normalized.contains("sand") || normalized.contains("dust") ->
-                "sand_storm"
-            normalized.contains("hail") ->
-                "hail"
-            normalized.contains("ice") || normalized.contains("freez") ->
-                "ice"
-            normalized.contains("sleet") ->
-                "rain_and_sleet"
-            (normalized.contains("rain") || normalized.contains("shower")) &&
-                (normalized.contains("snow") || normalized.contains("flurr")) ->
-                "rain_and_snow"
-            normalized.contains("heavy") && normalized.contains("snow") ->
-                "heavy_snow"
-            normalized.contains("light") && normalized.contains("snow") ->
-                "light_snow"
-            normalized.contains("flurr") && (normalized.contains("partly") || normalized.contains("sun")) ->
-                "partly_sunny_with_flurries"
-            normalized.contains("snow") || normalized.contains("blizzard") ->
-                "snow"
-            (normalized.contains("thunder") || normalized.contains("storm") || normalized.contains("lightning")) &&
-                (normalized.contains("rain") || normalized.contains("shower")) ->
-                "rain_and_thunder"
-            (normalized.contains("thunder") || normalized.contains("storm") || normalized.contains("lightning")) &&
-                (normalized.contains("partly") || normalized.contains("sun") || normalized.contains("cloud")) ->
-                "partly_sunny_with_thunder"
-            normalized.contains("thunder") || normalized.contains("storm") || normalized.contains("lightning") ->
-                "thunderstorm"
-            normalized.contains("heavy") && normalized.contains("rain") ->
-                "heavy_rain"
-            normalized.contains("shower") && (normalized.contains("partly") || normalized.contains("sun")) ->
-                "partly_sunny_with_shower"
-            normalized.contains("shower") ->
-                "shower"
-            normalized.contains("rain") || normalized.contains("drizzle") || normalized.contains("precip") ->
-                "rain"
-            normalized.contains("fog") || normalized.contains("mist") || normalized.contains("haze") ->
-                "fog"
-            normalized.contains("wind") || normalized.contains("breeze") ->
-                "wind"
-            normalized.contains("hot") || normalized.contains("heat") ->
-                "hot"
-            normalized.contains("cold") || normalized.contains("chill") ->
-                "cold"
-            normalized.contains("mostly") && normalized.contains("sun") ->
-                "mostly_sunny"
-            normalized.contains("mostly") && normalized.contains("cloud") ->
-                "mostly_cloudy"
-            normalized.contains("partly") || normalized.contains("partial") ->
-                "partly_cloud"
-            normalized.contains("cloud") || normalized.contains("overcast") ->
-                "cloudy"
-            normalized.contains("clear") || normalized.contains("sun") || normalized.contains("fair") ->
-                "sunny"
-            else -> "cloudy"
-        }
     }
 
     private fun sanitizeDisplayText(text: String, preserveMarkdown: Boolean = false): String =

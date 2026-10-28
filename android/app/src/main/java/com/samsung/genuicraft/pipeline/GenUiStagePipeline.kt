@@ -30,8 +30,11 @@ import com.samsung.genuicraft.pipeline.ResponseFactCoverage
 import com.samsung.genuicraft.pipeline.TrainedStage3Bridge
 import com.samsung.genuicraft.sdk.GenUiRepairKind
 import com.samsung.genuicraft.sdk.GenUiRenderSnapshot
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.async
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.withContext
 import java.io.File
 
@@ -469,6 +472,43 @@ class GenUiStagePipeline(private val appContext: Context) {
             )
         }
 
+        // Capture one trained model configuration for the whole request. Its best-effort native
+        // load overlaps the upstream Stage 2 route and is released on every return/cancellation.
+        val preparedTrainedModel = if (useTrainedSdkStage3) {
+            TrainedStage3Bridge.prepareModel(appContext, onDeviceModelPath)
+        } else {
+            null
+        }
+        if (preparedTrainedModel is TrainedStage3Bridge.PreparedModel.Unavailable) {
+            Log.w(LOG_TAG, "Trained Stage 3 prewarm skipped: ${preparedTrainedModel.message}")
+        }
+        // A local upstream model needs the same single-engine budget. Prewarming there would
+        // force a handoff before fetching finishes, increasing startup work instead of hiding it.
+        val trainedPrewarm = if (preparedTrainedModel is TrainedStage3Bridge.PreparedModel.Ready &&
+            responseProvider != InferenceBackendSettings.Provider.ON_DEVICE_LITERT) {
+            async(Dispatchers.IO) {
+                try {
+                    TrainedStage3Bridge.prewarm(appContext, preparedTrainedModel)
+                    null
+                } catch (cancelled: CancellationException) {
+                    throw cancelled
+                } catch (failure: Throwable) {
+                    Log.w(LOG_TAG, "Trained Stage 3 prewarm failed; Stage 2 continues", failure)
+                    "Trained Stage 3 prewarm unavailable: " +
+                        (failure.message ?: failure.javaClass.simpleName)
+                }
+            }
+        } else {
+            null
+        }
+        suspend fun collectPrewarmWarning(warnings: MutableList<String>): Long {
+            val prewarm = trainedPrewarm ?: return 0L
+            val startedAtMs = android.os.SystemClock.elapsedRealtime()
+            prewarm.await()?.let(warnings::add)
+            return (android.os.SystemClock.elapsedRealtime() - startedAtMs).coerceAtLeast(0L)
+        }
+        try {
+
         // -- MCP path: LLM routes query -> optional live data fetch ----------
         // When MCP is enabled, Stage 2 uses a special routing prompt.
         // The LLM decides which domain (if any) to call and provides:
@@ -570,6 +610,7 @@ class GenUiStagePipeline(private val appContext: Context) {
                             irProvider == InferenceBackendSettings.Provider.AZURE_OPENAI) {
                             mcpWarnings += "Azure OpenAI deployment: $azureOpenAiDeployment"
                         }
+                        val prewarmWaitMs = collectPrewarmWarning(mcpWarnings)
                         return@withContext executeStage3WithResponse(
                             normalizedQuery = normalizedQuery,
                             stage2Response = combinedResponse,
@@ -582,6 +623,8 @@ class GenUiStagePipeline(private val appContext: Context) {
                             stageDurationsMs = stageDurationsMs,
                             stageStreamDurationsMs = stageStreamDurationsMs,
                             extraWarnings = mcpWarnings,
+                            preparedTrainedModel = preparedTrainedModel,
+                            prewarmWaitMs = prewarmWaitMs,
                             onStageUpdate = onStageUpdate
                         )
                     }
@@ -609,6 +652,7 @@ class GenUiStagePipeline(private val appContext: Context) {
                         irProvider == InferenceBackendSettings.Provider.AZURE_OPENAI) {
                         mcpWarnings += "Azure OpenAI deployment: $azureOpenAiDeployment"
                     }
+                    val prewarmWaitMs = collectPrewarmWarning(mcpWarnings)
                     return@withContext executeStage3WithResponse(
                         normalizedQuery = normalizedQuery,
                         stage2Response = routerResult.fullResponse,
@@ -621,6 +665,8 @@ class GenUiStagePipeline(private val appContext: Context) {
                         stageDurationsMs = stageDurationsMs,
                         stageStreamDurationsMs = stageStreamDurationsMs,
                         extraWarnings = mcpWarnings,
+                        preparedTrainedModel = preparedTrainedModel,
+                        prewarmWaitMs = prewarmWaitMs,
                         onStageUpdate = onStageUpdate
                     )
                 }
@@ -907,6 +953,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             warnings += "Added fallback inline media for travel sections missing media."
         }
         if (useTrainedSdkStage3) {
+            val prewarmWaitMs = collectPrewarmWarning(warnings)
             return@withContext executeTrainedStage3(
                 normalizedQuery = normalizedQuery,
                 stage2Response = stage2Response,
@@ -914,6 +961,8 @@ class GenUiStagePipeline(private val appContext: Context) {
                 stageDurationsMs = stageDurationsMs,
                 stageStreamDurationsMs = stageStreamDurationsMs,
                 extraWarnings = warnings,
+                preparedTrainedModel = preparedTrainedModel,
+                prewarmWaitMs = prewarmWaitMs,
                 onStageUpdate = onStageUpdate,
             )
         }
@@ -1224,6 +1273,11 @@ class GenUiStagePipeline(private val appContext: Context) {
                 stage3RuntimeBackend = stage3Call.runtimeBackend
             )
         )
+        } finally {
+            trainedPrewarm?.let { prewarm ->
+                withContext(NonCancellable) { prewarm.cancelAndJoin() }
+            }
+        }
     }
 
     suspend fun executeStage3FromResponse(
@@ -1889,6 +1943,8 @@ class GenUiStagePipeline(private val appContext: Context) {
         stageDurationsMs: LinkedHashMap<Stage, Long>,
         stageStreamDurationsMs: LinkedHashMap<Stage, Long>,
         extraWarnings: List<String>,
+        preparedTrainedModel: TrainedStage3Bridge.PreparedModel? = null,
+        prewarmWaitMs: Long = 0L,
         onStageUpdate: (StageUpdate) -> Unit
     ): Outcome {
         fun markDuration(stage: Stage, startMs: Long) {
@@ -1939,7 +1995,7 @@ class GenUiStagePipeline(private val appContext: Context) {
 
         val warnings = extraWarnings.toMutableList()
         val onDeviceModelPath = InferenceBackendSettings.getOnDeviceModelPath(appContext)
-        if (TrainedStage3Bridge.shouldUse(irProvider, onDeviceModelPath)) {
+        if (preparedTrainedModel != null || TrainedStage3Bridge.shouldUse(irProvider, onDeviceModelPath)) {
             return executeTrainedStage3(
                 normalizedQuery = normalizedQuery,
                 stage2Response = sanitizedResponse,
@@ -1947,6 +2003,8 @@ class GenUiStagePipeline(private val appContext: Context) {
                 stageDurationsMs = stageDurationsMs,
                 stageStreamDurationsMs = stageStreamDurationsMs,
                 extraWarnings = warnings,
+                preparedTrainedModel = preparedTrainedModel,
+                prewarmWaitMs = prewarmWaitMs,
                 onStageUpdate = onStageUpdate,
             )
         }
@@ -2336,6 +2394,8 @@ class GenUiStagePipeline(private val appContext: Context) {
         stageDurationsMs: LinkedHashMap<Stage, Long>,
         stageStreamDurationsMs: LinkedHashMap<Stage, Long>,
         extraWarnings: List<String>,
+        preparedTrainedModel: TrainedStage3Bridge.PreparedModel? = null,
+        prewarmWaitMs: Long = 0L,
         onStageUpdate: (StageUpdate) -> Unit,
     ): Outcome {
         val warnings = extraWarnings.toMutableList()
@@ -2343,17 +2403,17 @@ class GenUiStagePipeline(private val appContext: Context) {
             if (warnings.none { it == message }) warnings += message
         }
         val modelPath = InferenceBackendSettings.getOnDeviceModelPath(appContext)
-        val precision = InferenceBackendSettings.getTrainedE2bGpuPrecision(appContext)
-        val modelSelection = selectTrainedE2bModel(modelPath, precision)
-        val profile = com.samsung.genuicraft.inference.OnDeviceModelCatalog
-            .entryForModelPath(modelPath)
-        val mtpEnabled = profile?.enableSpeculativeDecoding == true &&
-            modelSelection.mtpSupported &&
-            InferenceBackendSettings.getOnDeviceMtpEnabled(appContext)
-        val accelerator = InferenceBackendSettings.getOnDeviceAccelerator(appContext)
+        val prepared = preparedTrainedModel ?: TrainedStage3Bridge.prepareModel(appContext, modelPath)
+        val ready = prepared as? TrainedStage3Bridge.PreparedModel.Ready
+        val precision = ready?.selectedPrecision
+            ?: InferenceBackendSettings.getTrainedE2bGpuPrecision(appContext)
+        val accelerator = ready?.selectedAccelerator
+            ?: InferenceBackendSettings.getOnDeviceAccelerator(appContext)
+        val selectedModelPath = ready?.config?.modelPath ?: modelPath
+        val mtpEnabled = ready?.config?.enableSpeculativeDecoding == true
 
         addWarningOnce("IR output format: A2UI Express v1 (trained SDK converter)")
-        addWarningOnce("On-device Gemma IR model: ${modelSelection.modelPath}")
+        addWarningOnce("On-device Gemma IR model: $selectedModelPath")
         addWarningOnce("On-device Gemma GPU precision: ${precision.displayName}")
         addWarningOnce("On-device Gemma accelerator: GPU (setting=${accelerator.rawValue})")
         addWarningOnce(if (mtpEnabled) "On-device Gemma MTP: enabled" else "On-device Gemma MTP: disabled")
@@ -2420,11 +2480,12 @@ class GenUiStagePipeline(private val appContext: Context) {
                     )
                 }
             },
+            preparedModel = prepared,
         )
         conversion.generationElapsedMs?.let { elapsedMs ->
             stageStreamDurationsMs[Stage.STAGE3] = elapsedMs.coerceAtLeast(0L)
         }
-        stageDurationsMs[Stage.STAGE3] =
+        stageDurationsMs[Stage.STAGE3] = prewarmWaitMs +
             (System.currentTimeMillis() - stage3StartedAtMs).coerceAtLeast(0L)
 
         val finalRawText: String

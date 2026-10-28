@@ -43,11 +43,39 @@ dependencyResolutionManagement {
     }
 }
 // consumer module
-implementation("com.samsung.genuicraft:genuicraft:0.6.35")
+implementation("com.samsung.genuicraft:genuicraft:0.6.45")
 ```
+
+Version 0.6.45 improves city-weather comparisons with city-titled, coloured cards,
+labelled current/high/low/rain fields, supplied condition icons and an alternate
+table view. Generated-DSL recovery preserves complete table rows when a closing
+delimiter is malformed, without changing quoted source text. Flight parsing keeps
+missing fare descriptions separate from stops and flight status.
+Phone/device entity comparisons without an explicit grid preference use cards
+that retain every field, including qualified price ranges and citations. Flight
+times work with both "departure 04:30" and "04:30 departure", including named
+airlines with flight numbers; qualified options with missing fares keep that fact
+visible. Ambiguous or incomplete offers keep their complete original description. These changes
+live in the shared AAR and apply to its consumers without changing the model.
 
 Version 0.5.0 removes the remote server provider and its public configuration API.
 Conversion uses the SDK's on-device LiteRT model profiles.
+
+Version 0.6.44 routes recognized airline offers in those entity cards through the
+native flight layout: airline artwork with a local aircraft placeholder, explicit
+departure/arrival times, stops and qualified fares. Full descriptions and citations
+remain available. Multi-offer aggregator summaries stay generic cards rather than
+having one price or time selected from several. The same rendering works for saved
+answers, progressive previews and final converted output.
+
+Version 0.6.43 adds conservative entity-list presentation in the shared SDK.
+Repeated named options with concrete attributes can become compact native cards,
+with each option's complete description and citations retained. General notes,
+instructions, dynamic lists and existing Tables keep their original structure.
+This adaptation runs after conversion validation/recovery, in progressive previews,
+and for renderer-only replay of saved answers. The strict compiler and raw model
+stream remain unchanged; conversion warnings identify SDK presentation changes
+separately from DSL repair. The trained inference prompt stays pinned.
 
 Version 0.6.0 adds progressive native rendering through `GenUiSession`,
 `GenUiGenerationObserver.onRenderSnapshot`, `GenUiStreamingContent`, and
@@ -198,6 +226,28 @@ observed FP16 accuracy loss. The library prepares a reusable metadata-only model
 copy (~2.6 GB extra storage on first use); quantized weights and the source file
 stay unchanged. Debug runtime names include `GPU+FP32` and retain the MTP status.
 See [GPU precision and cache behavior](ON_DEVICE_RUNTIME.md#trained-model-gpu-precision-051).
+
+### Gemma 3 270M trained profile
+
+The 270M A2UI Express package uses its own provider and trained prompt profile:
+
+```kotlin
+val provider = Gemma270MProvider(GenUiModelProfiles.trainedGemma270M(
+    modelPath = modelPath,
+    enableMetrics = true,
+)) // CPU by default; accelerator = "GPU" is experimental.
+val session = GenUiSession(context, provider, GenUiConversionProfile.TRAINED_GEMMA3_270M)
+val result = session.convert(GenUiRequest(text = responseText), GenUiGenerationObserver())
+val rawAttempts = session.attemptSnapshots
+// Keep rawAttempts separate from the accepted document, repair, and warnings.
+session.closeAndAwait()
+```
+
+This profile disables MTP and source-text fallback. It can repair generated DSL, but
+only generated content is rendered. Mechanical checks add source-fidelity warnings
+for detected omissions or changes; successful rendering is not a fidelity claim.
+Raw attempts, repaired Express, compiled A2UI, and optional native token/timing
+metrics remain separate in the shared session API.
 
 The same session supports the official source-bound route through
 `GenUiConversionProfile.SOURCE_BOUND` and the trained model route through its dedicated profile. Model discovery, UI preferences, host actions,
@@ -366,7 +416,7 @@ provenance limits are recorded in the
 
 ### Official E2B profile
 
-The runtime initializes lazily and is reused. Keep the provider for the owner's lifetime and call `provider.close()` when that owner is destroyed. This is nonblocking; await `provider.closeAndAwait()` before constructing a replacement that requires the old engine to be fully released. The model must be accessible to the consumer app. GPU, MTP speculative decoding and thinking are enabled by default; the packaged GPU runtime requires `arm64-v8a`, and an incompatible MTP model fails clearly. The formatting prompt uses a 1,024-token thinking budget, configurable through `Gemma4Config.thinkingTokenBudget`. See [ON_DEVICE_RUNTIME.md](ON_DEVICE_RUNTIME.md) for the Gallery comparison, runtime/backend support and lifecycle details. Gemma has a separately versioned compact prompt in `genuicraft/src/main/assets/genuicraft/prompts/gemma.txt`.
+The runtime initializes lazily. Compatible providers share one process-wide engine, even after a provider/session closes; each request gets a fresh conversation. Call `provider.close()` when its owner is destroyed, or `closeAndAwait()` to drain that owner's work. The manager releases the retained engine after 120 seconds idle, under memory pressure, or before a configuration/model change. For explicit native teardown use `GenUiEngineManager.retire()`. Context-based `GenUiSession` installs memory handling automatically; direct provider hosts should call `GenUiEngineManager.install(applicationContext)` at startup. GPU, MTP and thinking remain profile-specific. See [ON_DEVICE_RUNTIME.md](ON_DEVICE_RUNTIME.md) for lifecycle details.
 
 The accepted v10 Gemma path segments source content conservatively into headings, paragraphs, lists, tables, code and dividers. It supplies ordered blocks, typed source-binding tokens, component names and the required root assignment. The model generates the complete Express program using those bindings, including each table's domain and presentation. The SDK inserts the exact original values before compilation, avoiding numeric copying errors. Missing, reordered, repeated or misused bindings and malformed Express fail validation and receive a bounded model repair. Failed inference is never replaced with a deterministic layout. Returned Express/JSON contains the actual content and needs no binding service to render.
 
@@ -448,6 +498,14 @@ The trained SDK demo uses generated-DSL repair with source-text fallback disable
 matching the trained Pipeline and IR Demo routes. Token metrics remain optional
 and do not control whether text streams.
 
+For Bixby50, select **Gemma 270M** under **Generation model**. The demo uses the
+app-owned `on_device_models/gemma-3-270m-a2ui-express-int8.litertlm` path by default; **Model setup**
+offers CPU (default) and experimental GPU. MTP is unavailable for this choice.
+**Inspect IR** shows exact streamed model text and repaired IR separately;
+**Preview** renders the accepted generated document. Conversion notes show source
+fidelity warnings when mechanical checks detect a difference, and **Performance metrics**
+shows the available native counters and timing details.
+
 Open **GenUICraft SDK · Bixby50 → Settings → Stream UI** to enable or disable
 native previews on the next run. The setting defaults to on, persists across
 app restarts, and is disabled during generation. With it off, the screen waits
@@ -460,10 +518,10 @@ metrics. These timing values do not establish source fidelity.
 
 Open **GenUICraft SDK · Bixby50 → Settings → MTP acceleration** to enable or disable
 speculative decoding. It defaults to on, persists across app restarts, and applies
-to both Gemma profiles. Changing it recreates the GPU engine on the next conversion.
+to MTP-capable Gemma 4 profiles. Changing it recreates the GPU engine on the next conversion.
 The switch is disabled during generation. An MTP-capable
 model package is required; disable the switch for older exports without a drafter.
-The app reports the actual completed runtime (`GPU` or `GPU+MTP`) under the run
+For Gemma 4, the app reports the actual completed runtime (`GPU` or `GPU+MTP`) under the run
 status, even when token metrics are off. Logs separately report requested MTP,
 effective MTP, and package capability.
 The main Settings screen shares the same persisted MTP choice. Gemma 3 270M does
@@ -474,9 +532,9 @@ not use a drafter; the choice applies to MTP-capable Gemma 4 GPU packages.
 Open **GenUICraft SDK · Bixby50 → Settings → Performance metrics** to enable or disable
 the measurements. The preference persists across app restarts and is enabled by
 default in the demo. With Gemma, changing it takes effect on the next conversion
-and recreates the engine as needed. Both Gemma profiles use GPU and honor the
-separate MTP setting; official-model thinking stays enabled and trained-model
-thinking stays disabled.
+and recreates the engine as needed. Gemma 4 profiles use GPU and honor the
+separate MTP setting; Gemma 3 270M defaults to CPU without MTP. Official-model
+thinking stays enabled and trained-model thinking stays disabled.
 
 SDK hosts opt in with `Gemma4Config(enableMetrics = true, modelPath = modelPath)`.
 Each `GenUiProvider.generate` result exposes nullable `metrics` with actual
@@ -490,13 +548,31 @@ LiteRT's native init-phase sum remains a diagnostic because those phases can ove
 it is not used as additive wall time. Renderer-only calls clear previous generation
 measurements.
 
-After all generation and repair attempts, `GenUiSession.generationSessionMetrics`
-reports whether speculative decoding actually ran and, when LiteRT publishes it,
-the aggregate drafter acceptance rate. LiteRT exposes that counter when the MTP
-drafter is destroyed, so an opt-in metrics run using MTP finalizes that engine after
-the conversion and recreates it on the next request. Normal metrics-off generation
-keeps its reusable engine behavior. Telemetry collection is optional and cannot
-turn a successful conversion into a failure.
+After generation, `GenUiSession.generationSessionMetrics` reports the engine ID,
+MTP status and `pendingRetirement`. It does not close the engine. Observe
+`GenUiEngineManager.retirementMetrics` for LiteRT's eventual drafter acceptance
+when that engine retires. Match `engineId`; the ratio covers the **engine lifetime**,
+potentially several generation attempts, and is never a per-request rate. An
+unavailable native counter stays null. Per-request token and timing metrics remain
+available while the engine stays warm.
+
+With metrics enabled, `metrics.resources` contains bounded device observations:
+GPU clock and RAM/thermal reads roughly once a second, PSS once every five seconds,
+with coverage and readability counts. Denied GPU sysfs access is unknown, not zero.
+These observations do not by themselves prove thermal throttling. Sampling never
+changes device clocks or memory policy.
+
+Call `session.prewarm()` concurrently with upstream fetching using the **same** model,
+backend, precision, context and MTP/metrics settings as conversion. It loads the
+engine without generating a dummy response. The test app's trained Stage 3 route
+does this automatically, including MCP routes; residual prewarm wait is counted in
+Stage 3 wall time. Cancellation drains the native worker before replacement.
+
+Trained Express profiles stop decoding once a real closing tag is received and the
+accumulated program compiles strictly. Partial/malformed programs continue to the
+existing repetition or token limit and repair path. Raw received output is retained.
+Prompt compression and prefix-KV reuse remain separate experiments: the shipped
+training prompt is unchanged, and engine reuse does not retain conversation KV.
 
 See the [Fold7 metrics validation](validation/20260918_fold_metrics/REPORT.md) for
 historical GPU+MTP speeds. See the
@@ -622,7 +698,7 @@ screenshots only after generation. Artifacts under external-files
 native revisions, first preview/frame timing, converter elapsed time, and total
 session wall time sampled at 40 ms intervals. Actual native initialization,
 prefill/decode, provider timing, and MTP metrics remain separate. MTP metrics
-finalization can close the engine between cases, so inspect initialization
+retirement can close the engine between cases, so inspect initialization
 counters rather than assuming every measured case is warm. Test definitions
 and artifacts must be evaluated separately from historical device reports.
 

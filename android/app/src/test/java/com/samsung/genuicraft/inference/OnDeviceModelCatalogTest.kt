@@ -9,10 +9,11 @@ import org.junit.Test
 
 class OnDeviceModelCatalogTest {
     @Test
-    fun settingsExposeOnlyTheThreeRetainedModelsInPriorityOrder() {
+    fun settingsExposeLatestPreviousAndTheTwoOtherRetainedModelsInPriorityOrder() {
         assertEquals(
             listOf(
                 "gemma4_e2b_a2ui_mobile",
+                "gemma4_e2b_a2ui_previous_r64",
                 "gemma4_e2b_it_litert",
                 "gemma3_270m_a2ui_express_int8",
             ),
@@ -20,12 +21,32 @@ class OnDeviceModelCatalogTest {
         )
         assertEquals(
             listOf(
-                "Trained Gemma 4 E2B (A2UI Mobile)",
+                "Latest trained E2B",
+                "Previous trained E2B (R64)",
                 "Official Gemma 4 E2B",
                 "Gemma 3 270M A2UI Express",
             ),
             OnDeviceModelCatalog.visibleEntries.map { it.displayName },
         )
+    }
+
+    @Test
+    fun previousPreparedPackageIsRecognizedByQualifiedPathWithoutClaimingOtherModels() {
+        val previous = requireNotNull(OnDeviceModelCatalog.entryForModelPath(
+            "/data/user/0/com.samsung.genuicraft/files/list_card_model_compare/previous_r64/model-fp16-corrected.litertlm",
+        ))
+        assertEquals("gemma4_e2b_a2ui_previous_r64", previous.id)
+        assertTrue(previous.usesTrainedSdkConverter)
+        assertTrue(previous.trainingCompatiblePrompt)
+        assertTrue(previous.requireGpu)
+        assertTrue(previous.enableSpeculativeDecoding)
+        assertEquals(8_192, previous.maxContextTokens)
+        assertEquals(2_048, previous.maxOutputTokens)
+        assertFalse(previous.matchesSelection("/other/model-fp16-corrected.litertlm"))
+        assertFalse(previous.matchesSelection("model-fp16-corrected.litertlm"))
+        assertFalse(previous.matchesSelection("/engine_probe_model/e2b_qat_grpo_20261009.litertlm"))
+        assertEquals(previous, OnDeviceModelCatalog.entryForModelPath(previous.id))
+        assertNull(OnDeviceModelCatalog.migrationTargetForSelection(previous.id, setOf("gemma4_e2b_a2ui_mobile")))
     }
 
     @Test
@@ -58,6 +79,8 @@ class OnDeviceModelCatalogTest {
         assertFalse(canonical.isDownloadable)
         assertEquals(
             listOf(
+                "engine_probe_model/e2b_qat_grpo_20261009.litertlm",
+                "sdk_models/qat_grpo_20261009/e2b_qat_grpo_20261009.litertlm",
                 "sdk_models/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm",
                 "sdk_models/gemma4_e2b_a2ui_mobile.litertlm",
                 "sdk_models/e2b_v10_w4.litertlm",

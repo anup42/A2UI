@@ -151,22 +151,48 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                     mutableStateOf(
                         preferences.getString(
                             PREFERENCE_TRAINED_E2B_W4_MODEL_PATH,
-                            OnDeviceModelCatalog.entries.first { it.usesTrainedSdkConverter }
+                            OnDeviceModelCatalog.entries.first { it.id == "gemma4_e2b_a2ui_mobile" }
+                                .localFile(this@GenUiSdkDemoActivity).absolutePath,
+                        ).orEmpty()
+                    )
+                }
+                var previousTrainedModelPath by rememberSaveable {
+                    mutableStateOf(
+                        preferences.getString(
+                            PREFERENCE_TRAINED_E2B_PREVIOUS_R64_MODEL_PATH,
+                            OnDeviceModelCatalog.entries.first { it.id == "gemma4_e2b_a2ui_previous_r64" }
                                 .localFile(this@GenUiSdkDemoActivity).absolutePath,
                         ).orEmpty()
                     )
                 }
                 var trainedModelCheckRevision by rememberSaveable { mutableIntStateOf(0) }
+                var gemma270ModelPath by rememberSaveable {
+                    mutableStateOf(preferences.getString(
+                        PREFERENCE_GEMMA270_MODEL_PATH,
+                        OnDeviceModelCatalog.entries.first { it.id == "gemma3_270m_a2ui_express_int8" }
+                            .localFile(this@GenUiSdkDemoActivity).absolutePath,
+                    ).orEmpty())
+                }
+                var gemma270Accelerator by rememberSaveable {
+                    mutableStateOf(preferences.getString(PREFERENCE_GEMMA270_ACCELERATOR, "CPU")
+                        ?.takeIf { it in setOf("CPU", "GPU") } ?: "CPU")
+                }
+                val gemma270Readiness = remember(gemma270ModelPath, trainedModelCheckRevision) {
+                    gemma270ModelReadiness(gemma270ModelPath)
+                }
                 var modelSetupVisible by rememberSaveable { mutableStateOf(false) }
+                val selectedTrainedModelPath = if (
+                    e2bModelChoice == E2bModelChoice.TRAINED_E2B_PREVIOUS_R64
+                ) previousTrainedModelPath else trainedModelPath
                 val trainedModelSelection = remember(
-                    trainedModelPath,
+                    selectedTrainedModelPath,
                     trainedGpuPrecision,
                     trainedModelCheckRevision,
                 ) {
-                    selectTrainedE2bModel(trainedModelPath, trainedGpuPrecision)
+                    selectTrainedE2bModel(selectedTrainedModelPath, trainedGpuPrecision)
                 }
                 val trainedModelReadiness = trainedModelSelection.readiness
-                val editorScroll = rememberScrollState()
+                val pageScroll = rememberScrollState()
                 val selectedCase = cases[caseIndex]
                 val customInput = source != selectedCase.get("text").asString
                 val generationCase = screen.generationSourceText?.let { submittedText ->
@@ -174,7 +200,12 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                 } ?: selectedCase.takeIf { screen.generationSourceText == null && !customInput }
                 Surface(modifier = Modifier.fillMaxSize()) {
                     Column(
-                        Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 16.dp, vertical = 12.dp),
+                        Modifier.fillMaxSize()
+                            .safeDrawingPadding()
+                            .verticalScroll(pageScroll)
+                            .testTag("sdk_page_scroll")
+                            .semantics { contentDescription = "SDK page" }
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp),
                     ) {
                         Row(
@@ -226,6 +257,10 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                             style = MaterialTheme.typography.labelSmall,
                                             modifier = Modifier.testTag("sdk_last_runtime"),
                                         )
+                                    }
+                                    screen.lastModel?.let {
+                                        Text(it, style = MaterialTheme.typography.labelSmall,
+                                            modifier = Modifier.testTag("sdk_last_model"))
                                     }
                                     screen.lastPrecision?.let { precision ->
                                         Text(
@@ -344,19 +379,17 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                             officialModelSource = gemmaModelSource,
                             managedOfficialModelReady = managedReadyFile != null,
                             trainedModelReady = trainedModelReadiness.usable,
+                            gemma270ModelReady = gemma270Readiness.usable,
                         )
                         if (editorVisible) {
                             OutlinedCard(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .testTag("sdk_input_editor")
-                                    .weight(1f, fill = false)
-                                    .heightIn(max = 470.dp),
+                                    .testTag("sdk_input_editor"),
                             ) {
                                 Column(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .verticalScroll(editorScroll)
                                         .padding(14.dp),
                                     verticalArrangement = Arrangement.spacedBy(10.dp),
                                 ) {
@@ -442,27 +475,61 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                             },
                                             enabled = !working,
                                             modifier = Modifier.testTag("e2b_model_trained_v10_w4"),
-                                            label = { Text("Trained E2B") },
+                                            label = { Text("Trained E2B · Latest") },
+                                        )
+                                        FilterChip(
+                                            selected = e2bModelChoice == E2bModelChoice.TRAINED_E2B_PREVIOUS_R64,
+                                            onClick = {
+                                                e2bModelChoice = E2bModelChoice.TRAINED_E2B_PREVIOUS_R64
+                                                preferences.edit()
+                                                    .putString(
+                                                        PREFERENCE_E2B_MODEL_CHOICE,
+                                                        E2bModelChoice.TRAINED_E2B_PREVIOUS_R64.preferenceValue,
+                                                    ).apply()
+                                            },
+                                            enabled = !working,
+                                            modifier = Modifier.testTag("e2b_model_trained_previous_r64"),
+                                            label = { Text("Trained E2B · Previous R64") },
+                                        )
+                                        FilterChip(
+                                            selected = e2bModelChoice == E2bModelChoice.TRAINED_GEMMA3_270M,
+                                            onClick = {
+                                                e2bModelChoice = E2bModelChoice.TRAINED_GEMMA3_270M
+                                                preferences.edit().putString(PREFERENCE_E2B_MODEL_CHOICE,
+                                                    E2bModelChoice.TRAINED_GEMMA3_270M.preferenceValue).apply()
+                                            },
+                                            enabled = !working,
+                                            modifier = Modifier.testTag("gemma270_model_trained"),
+                                            label = { Text("Gemma 270M") },
                                         )
                                     }
                                     Text(
                                         when {
+                                            e2bModelChoice == E2bModelChoice.TRAINED_GEMMA3_270M ->
+                                                "Gemma 3 270M · $gemma270Accelerator · " +
+                                                    if (gemma270Readiness.usable) "model ready" else "model setup required"
                                             e2bModelChoice == E2bModelChoice.OFFICIAL_E2B &&
                                                 managedReadyFile != null -> "On-device GPU · ready offline"
                                             e2bModelChoice == E2bModelChoice.OFFICIAL_E2B ->
                                                 "On-device GPU · model setup required"
+                                            e2bModelChoice == E2bModelChoice.TRAINED_E2B_PREVIOUS_R64 &&
+                                                trainedGpuPrecision ==
+                                                    InferenceBackendSettings.TrainedE2bGpuPrecision.FP32 ->
+                                                "${e2bModelChoice.displayName} · select FP16 (corrected) for the installed package"
                                             trainedModelReadiness.usable && trainedGpuPrecision ==
                                                 InferenceBackendSettings.TrainedE2bGpuPrecision.FP16_CORRECTED ->
-                                                "Trained on-device GPU FP16 (corrected) · package found; SDK verifies before use"
+                                                "${e2bModelChoice.displayName} · on-device GPU FP16 (corrected) · package found; SDK verifies before use"
                                             trainedModelReadiness.usable ->
-                                                "Trained on-device GPU FP32 · model ready"
+                                                "${e2bModelChoice.displayName} · on-device GPU FP32 · model ready"
                                             else ->
-                                                "Trained on-device GPU ${trainedGpuPrecision.displayName} · model setup required"
+                                                "${e2bModelChoice.displayName} · on-device GPU ${trainedGpuPrecision.displayName} · model setup required"
                                         },
                                         style = MaterialTheme.typography.bodySmall,
                                         color = if (
-                                            e2bModelChoice == E2bModelChoice.TRAINED_E2B_V10_W4 &&
-                                            !trainedModelReadiness.usable
+                                            (e2bModelChoice.isTrainedE2b &&
+                                            !trainedModelReadiness.usable) ||
+                                            (e2bModelChoice == E2bModelChoice.TRAINED_GEMMA3_270M &&
+                                            !gemma270Readiness.usable)
                                         ) MaterialTheme.colorScheme.error
                                         else MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
@@ -538,6 +605,48 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                                     singleLine = true,
                                                 )
                                             }
+                                        } else if (e2bModelChoice == E2bModelChoice.TRAINED_GEMMA3_270M) {
+                                            Text("Gemma 270M runtime", style = MaterialTheme.typography.titleSmall)
+                                            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                                listOf("CPU", "GPU").forEach { accelerator ->
+                                                    FilterChip(
+                                                        selected = gemma270Accelerator == accelerator,
+                                                        onClick = {
+                                                            gemma270Accelerator = accelerator
+                                                            preferences.edit().putString(
+                                                                PREFERENCE_GEMMA270_ACCELERATOR, accelerator).apply()
+                                                        },
+                                                        enabled = !working,
+                                                        modifier = Modifier.testTag("gemma270_accelerator_$accelerator"),
+                                                        label = { Text(if (accelerator == "CPU") "CPU" else "GPU · experimental") },
+                                                    )
+                                                }
+                                            }
+                                            Text(
+                                                "CPU is recommended for this package. GPU produced invalid output in testing. " +
+                                                    "MTP is not supported. Raw output and source-fidelity warnings remain available.",
+                                                style = MaterialTheme.typography.bodySmall,
+                                            )
+                                            OutlinedTextField(
+                                                gemma270ModelPath,
+                                                {
+                                                    gemma270ModelPath = it
+                                                    preferences.edit().putString(PREFERENCE_GEMMA270_MODEL_PATH, it).apply()
+                                                },
+                                                modifier = Modifier.fillMaxWidth().testTag("gemma270_model_path"),
+                                                label = { Text("Gemma 270M .litertlm model path") },
+                                                singleLine = true,
+                                            )
+                                            Text(gemma270Readiness.message,
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = if (gemma270Readiness.usable) MaterialTheme.colorScheme.onSurface
+                                                    else MaterialTheme.colorScheme.error,
+                                                modifier = Modifier.testTag("gemma270_model_readiness"))
+                                            OutlinedButton(
+                                                onClick = { trainedModelCheckRevision += 1 },
+                                                enabled = !working,
+                                                modifier = Modifier.testTag("gemma270_check_model"),
+                                            ) { Text("Check model") }
                                         } else {
                                             Text("GPU precision", style = MaterialTheme.typography.titleSmall)
                                             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -557,7 +666,12 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                                 }
                                             }
                                             Text(
-                                                if (trainedGpuPrecision == InferenceBackendSettings.TrainedE2bGpuPrecision.FP32) {
+                                                if (e2bModelChoice == E2bModelChoice.TRAINED_E2B_PREVIOUS_R64) {
+                                                    "Previous R64 is installed as a prepared FP16 package. " +
+                                                        "Select FP16 (corrected) to use it."
+                                                } else if (trainedGpuPrecision ==
+                                                    InferenceBackendSettings.TrainedE2bGpuPrecision.FP32
+                                                ) {
                                                     "FP32 · First use prepares a cached copy (~2.6 GB)."
                                                 } else {
                                                     getString(R.string.settings_trained_precision_experimental) +
@@ -566,18 +680,27 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                                 style = MaterialTheme.typography.bodySmall,
                                             )
                                             OutlinedTextField(
-                                                trainedModelPath,
+                                                selectedTrainedModelPath,
                                                 {
-                                                    trainedModelPath = it
+                                                    val previous = e2bModelChoice ==
+                                                        E2bModelChoice.TRAINED_E2B_PREVIOUS_R64
+                                                    if (previous) previousTrainedModelPath = it
+                                                    else trainedModelPath = it
                                                     preferences.edit().putString(
-                                                        PREFERENCE_TRAINED_E2B_W4_MODEL_PATH,
+                                                        if (previous) PREFERENCE_TRAINED_E2B_PREVIOUS_R64_MODEL_PATH
+                                                        else PREFERENCE_TRAINED_E2B_W4_MODEL_PATH,
                                                         it,
                                                     ).apply()
                                                 },
                                                 modifier = Modifier
                                                     .fillMaxWidth()
-                                                    .testTag("trained_e2b_w4_model_path"),
-                                                label = { Text("Original trained .litertlm model path") },
+                                                    .testTag(if (e2bModelChoice == E2bModelChoice.TRAINED_E2B_PREVIOUS_R64)
+                                                        "trained_e2b_previous_r64_model_path" else "trained_e2b_w4_model_path"),
+                                                label = {
+                                                    Text(if (e2bModelChoice == E2bModelChoice.TRAINED_E2B_PREVIOUS_R64)
+                                                        "Previous R64 prepared FP16 .litertlm model path"
+                                                    else "Original trained .litertlm model path")
+                                                },
                                                 singleLine = true,
                                             )
                                             if (trainedGpuPrecision ==
@@ -596,17 +719,26 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                                 } else {
                                                     MaterialTheme.colorScheme.error
                                                 },
-                                                modifier = Modifier.testTag("trained_e2b_w4_model_readiness"),
+                                                modifier = Modifier.testTag(
+                                                    if (e2bModelChoice == E2bModelChoice.TRAINED_E2B_PREVIOUS_R64)
+                                                        "trained_e2b_previous_r64_model_readiness"
+                                                    else "trained_e2b_w4_model_readiness"),
                                             )
                                             Text(
-                                                "Place the original exported model at the path above. " +
+                                                if (e2bModelChoice == E2bModelChoice.TRAINED_E2B_PREVIOUS_R64)
+                                                    "Select FP16 (corrected). Place the prepared model and its .fp16.json " +
+                                                        "manifest at the path above; FP32 needs the original export."
+                                                else "Place the original exported model at the path above. " +
                                                     "The corrected FP16 package and its .fp16.json manifest belong beside it.",
                                                 style = MaterialTheme.typography.bodySmall,
                                             )
                                             OutlinedButton(
                                                 onClick = { trainedModelCheckRevision += 1 },
                                                 enabled = !working,
-                                                modifier = Modifier.testTag("trained_e2b_w4_check_model"),
+                                                modifier = Modifier.testTag(
+                                                    if (e2bModelChoice == E2bModelChoice.TRAINED_E2B_PREVIOUS_R64)
+                                                        "trained_e2b_previous_r64_check_model"
+                                                    else "trained_e2b_w4_check_model"),
                                             ) { Text("Check model") }
                                         }
                                     }
@@ -626,8 +758,12 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                         if (working) return@Button
                                         val e2bModelChoiceForRun = e2bModelChoice
                                         val trainedSelectionForRun = if (
-                                            e2bModelChoiceForRun == E2bModelChoice.TRAINED_E2B_V10_W4
-                                        ) selectTrainedE2bModel(trainedModelPath, trainedGpuPrecision) else null
+                                            e2bModelChoiceForRun.isTrainedE2b
+                                        ) selectTrainedE2bModel(
+                                            if (e2bModelChoiceForRun == E2bModelChoice.TRAINED_E2B_PREVIOUS_R64)
+                                                previousTrainedModelPath else trainedModelPath,
+                                            trainedGpuPrecision,
+                                        ) else null
                                         val modelPathForRun = if (
                                             e2bModelChoiceForRun == E2bModelChoice.OFFICIAL_E2B &&
                                             gemmaModelSource == GemmaModelSource.MANAGED_DOWNLOAD
@@ -637,8 +773,7 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                                 return@Button
                                             }
                                         } else if (
-                                            e2bModelChoiceForRun ==
-                                                E2bModelChoice.TRAINED_E2B_V10_W4
+                                            e2bModelChoiceForRun.isTrainedE2b
                                         ) {
                                             if (trainedSelectionForRun?.readiness?.usable != true) {
                                                 status = trainedSelectionForRun?.readiness?.message
@@ -646,6 +781,13 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                                 return@Button
                                             }
                                             trainedSelectionForRun.modelPath
+                                        } else if (e2bModelChoiceForRun == E2bModelChoice.TRAINED_GEMMA3_270M) {
+                                            val readiness = gemma270ModelReadiness(gemma270ModelPath)
+                                            if (!readiness.usable) {
+                                                status = readiness.message
+                                                return@Button
+                                            }
+                                            gemma270ModelPath.trim()
                                         } else {
                                             officialModelPath
                                         }
@@ -661,6 +803,7 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                             gpuPrecisionForRun = trainedSelectionForRun?.gpuPrecision ?:
                                                 com.samsung.genuicraft.sdk.provider.Gemma4GpuPrecision.FP32,
                                             streamingRenderingForRun = streamingUiEnabled,
+                                            gemma270AcceleratorForRun = gemma270Accelerator,
                                         )
                                     },
                                 ) { Text("Generate UI") }
@@ -685,7 +828,8 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                 snapshot = screen.renderSnapshot,
                                 streamingViewMode = streamingViewMode,
                                 onStreamingViewModeChange = selectStreamingViewMode,
-                                modifier = Modifier.weight(if (editorVisible) 0.3f else 1f).fillMaxWidth(),
+                                modifier = Modifier.fillMaxWidth(),
+                                hostOwnsVerticalScroll = true,
                                 metrics = {
                                     if (tokenMetricsEnabled) {
                                         generationMetrics?.let { metrics -> GenerationMetricsPanel(metrics) }
@@ -769,18 +913,19 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                     Column(Modifier.weight(1f)) {
                                         Text("MTP acceleration", style = MaterialTheme.typography.titleSmall)
                                         Text(
-                                            "Uses a bundled drafter on supported Gemma models.",
+                                            if (e2bModelChoice.supportsMtp) "Uses a bundled drafter on supported Gemma models."
+                                                else "Gemma 270M has no drafter. MTP is disabled for this model.",
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                                         )
                                     }
                                     Switch(
-                                        checked = mtpEnabled,
+                                        checked = mtpEnabled && e2bModelChoice.supportsMtp,
                                         onCheckedChange = { enabled ->
                                             mtpEnabled = enabled
                                             preferences.edit().putBoolean(PREFERENCE_E2B_MTP_ENABLED, enabled).apply()
                                         },
-                                        enabled = !working,
+                                        enabled = !working && e2bModelChoice.supportsMtp,
                                         modifier = Modifier.testTag("e2b_mtp_switch")
                                             .semantics { contentDescription = "MTP drafter" },
                                     )
@@ -790,7 +935,7 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
-                                if (e2bModelChoice == E2bModelChoice.TRAINED_E2B_V10_W4 &&
+                                if (e2bModelChoice.isTrainedE2b &&
                                     trainedGpuPrecision ==
                                         InferenceBackendSettings.TrainedE2bGpuPrecision.FP16_CORRECTED &&
                                     !trainedModelSelection.mtpSupported
@@ -916,11 +1061,7 @@ private fun GenerationMetricsPanel(metrics: GenerationMetricsUiState) {
     } else {
         "Request average: ${formatTokensPerSecond(metrics.requestAverageTokensPerSecond)}"
     }
-    val drafterSummary = when (metrics.speculativeDecodingEnabled) {
-        true -> "MTP acceptance: ${formatPercentage(metrics.drafterAcceptanceRate)}"
-        false -> "MTP disabled"
-        null -> null
-    }
+    val drafterSummary = metrics.drafterAcceptanceSummary()
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -964,9 +1105,7 @@ private fun GenerationMetricsPanel(metrics: GenerationMetricsUiState) {
             if (detailsExpanded) {
                 Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(max = 360.dp)
-                        .verticalScroll(rememberScrollState()),
+                        .fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(5.dp),
                 ) {
                     Text("Conversion time breakdown", style = MaterialTheme.typography.labelLarge)
@@ -1056,23 +1195,30 @@ private fun GenerationMetricsPanel(metrics: GenerationMetricsUiState) {
                                     " (diagnostic; phases may overlap)",
                                 style = MaterialTheme.typography.bodySmall,
                             )
+                            attempt.resources?.let { resources ->
+                                Text("Resource observations", style = MaterialTheme.typography.labelMedium)
+                                resources.toUiLines().forEach { line ->
+                                    Text(line, style = MaterialTheme.typography.bodySmall)
+                                }
+                            }
                         }
                     }
+                    if (metrics.attempts.any { it.resources != null }) {
+                        Text(
+                            "Clock, memory, and thermal readings describe the request; they do not prove throttling.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
                     Text(
-                        when (metrics.speculativeDecodingEnabled) {
-                            true -> "Drafter acceptance: " +
-                                formatPercentage(metrics.drafterAcceptanceRate) +
-                                " (verified draft tokens / proposed draft tokens)."
-                            false -> "Drafter acceptance: MTP was disabled for this session."
-                            null -> "Drafter acceptance: unavailable for this provider."
-                        },
+                        metrics.drafterAcceptanceDetail(),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Text(
                         "Prefill/decode rates and TTFT come from LiteRT. Durations are token count " +
-                            "divided by the matching native rate. Acceptance is LiteRT's session " +
-                            "counter, collected after all generation and repair attempts.",
+                            "divided by the matching native rate. When available, acceptance comes " +
+                            "from LiteRT's engine counter after engine retirement.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )

@@ -44,20 +44,34 @@ data class Gemma4Config(
 class Gemma4Provider private constructor(
     private val validatedConfig: ValidatedGemma4Config,
     private val runtime: Gemma4Runtime,
+    override val id: String,
 ) : GenUiProvider {
-    constructor(config: Gemma4Config) : this(createProviderParts(config, ::LiteRtGemma4Runtime))
+    constructor(config: Gemma4Config) : this(createProviderParts(config, GenUiEngineManager::lease), "gemma4_e2b")
 
     internal constructor(
         config: Gemma4Config,
         runtimeFactory: Gemma4RuntimeFactory,
-    ) : this(createProviderParts(config, runtimeFactory))
+    ) : this(createProviderParts(config, runtimeFactory), "gemma4_e2b")
 
-    private constructor(parts: Gemma4ProviderParts) : this(parts.config, parts.runtime)
+    internal constructor(
+        config: Gemma4Config,
+        providerId: String,
+        runtimeFamily: String,
+        runtimeFactory: Gemma4RuntimeFactory = Gemma4RuntimeFactory(GenUiEngineManager::lease),
+    ) : this(createProviderParts(config, runtimeFactory, runtimeFamily), providerId)
 
-    override val id: String = "gemma4_e2b"
+    private constructor(parts: Gemma4ProviderParts, id: String) : this(parts.config, parts.runtime, id)
 
     private val generationMutex = Mutex()
     private val closed = AtomicBoolean(false)
+
+    override suspend fun prewarm() {
+        generationMutex.lock()
+        try {
+            check(!closed.get()) { "Gemma 4 provider has been closed." }
+            runtime.prewarm()
+        } finally { generationMutex.unlock() }
+    }
 
     override suspend fun generate(prompt: GenUiPrompt): GenUiModelOutput = generateInternal(prompt, null)
 
@@ -135,8 +149,9 @@ private data class Gemma4ProviderParts(
 private fun createProviderParts(
     config: Gemma4Config,
     runtimeFactory: Gemma4RuntimeFactory,
+    runtimeFamily: String = "Gemma4",
 ): Gemma4ProviderParts {
-    val validated = config.validate()
+    val validated = config.validate().copy(runtimeFamily = runtimeFamily)
     return Gemma4ProviderParts(validated, runtimeFactory.create(validated))
 }
 
@@ -152,6 +167,7 @@ internal data class ValidatedGemma4Config(
     val enableSpeculativeDecoding: Boolean,
     val enableMetrics: Boolean,
     val gpuPrecision: Gemma4GpuPrecision,
+    val runtimeFamily: String = "Gemma4",
 )
 
 internal enum class Gemma4Accelerator {

@@ -38,6 +38,7 @@ internal fun interface Gemma4RuntimeFactory {
 }
 
 internal interface Gemma4Runtime : AutoCloseable {
+    suspend fun prewarm() {}
     suspend fun generate(prompt: GenUiPrompt, maxOutputTokens: Int): Gemma4RuntimeOutput
     suspend fun generate(
         prompt: GenUiPrompt,
@@ -46,6 +47,7 @@ internal interface Gemma4Runtime : AutoCloseable {
     ): Gemma4RuntimeOutput = generate(prompt, maxOutputTokens).also { onPartialText(it.text) }
     fun cancelActive()
     suspend fun finishGenerationMetrics(): GenUiGenerationSessionMetrics? = null
+    suspend fun retire(reason: String): GenUiGenerationSessionMetrics? = null
     suspend fun awaitClosed()
     override fun close()
 }
@@ -74,6 +76,15 @@ internal class LiteRtGemma4Runtime(
     // Accessed only by the single runtime worker.
     private var engineState: EngineState? = null
 
+    override suspend fun prewarm() = submitCancellable { cancelled ->
+        if (config.accelerator == Gemma4Accelerator.GPU) Gemma4NativeLibraries.ensureGpuRuntimeLoaded()
+        LiteRtRuntimeFlags.withGpuPrecision(config.gpuPrecision == Gemma4GpuPrecision.FP16_CORRECTED) {
+            throwIfRequestStopped(cancelled)
+            if (engineState == null) engineState = initializeEngine(cancelled)
+            throwIfRequestStopped(cancelled)
+        }
+    }
+
     override suspend fun generate(
         prompt: GenUiPrompt,
         maxOutputTokens: Int,
@@ -89,109 +100,122 @@ internal class LiteRtGemma4Runtime(
         prompt: GenUiPrompt,
         maxOutputTokens: Int,
         onPartialText: ((String) -> Unit)?,
-    ): Gemma4RuntimeOutput = submitCancellable { requestCancelled ->
-        if (config.accelerator == Gemma4Accelerator.GPU) Gemma4NativeLibraries.ensureGpuRuntimeLoaded()
-        LiteRtRuntimeFlags.withGpuPrecision(config.gpuPrecision == Gemma4GpuPrecision.FP16_CORRECTED) {
-        check(!closed.get()) { "Gemma 4 runtime has been closed." }
-        var engineInitializationWallSeconds: Double? = null
-        val state = engineState ?: run {
-            val initializationStartedNanos = System.nanoTime()
-            initializeEngine(requestCancelled).also {
-                engineInitializationWallSeconds =
-                    (System.nanoTime() - initializationStartedNanos).coerceAtLeast(0L) /
-                    1_000_000_000.0
-                engineState = it
-            }
-        }
-        throwIfRequestStopped(requestCancelled)
-        val deterministic = prompt.temperature <= 0.0
-        // Pass thinking explicitly: a null native optional can resolve to thinking disabled.
-        // The formatting default bounds reasoning while leaving a generous final layout budget.
-        val conversationConfig =
-            ConversationConfig(
-                systemInstruction = prompt.system.takeIf { it.isNotBlank() }?.let(Contents::of),
-                initialMessages = prompt.initialMessages.map { message ->
-                    when (message.role) {
-                        GenUiPromptRole.USER -> Message.user(message.text)
-                        GenUiPromptRole.MODEL -> Message.model(message.text)
-                    }
-                },
-                samplerConfig = SamplerConfig(
-                    temperature = prompt.temperature,
-                    topK = if (deterministic) 1 else 32,
-                    topP = if (deterministic) 1.0 else 0.9,
-                ),
-                maxOutputToken = maxOutputTokens,
-                thinkingConfig = ThinkingConfig(
-                    enableThinking = config.enableThinking,
-                    thinkingTokenBudget = config.thinkingTokenBudget,
-                ),
-            )
-        val conversation = LiteRtRuntimeFlags.withPromptTemplate(prompt.chatTemplateOverride) {
-            state.engine.createConversation(conversationConfig)
-        }
-        if (requestCancelled.get() || closed.get()) {
-            runCatching { conversation.cancelProcess() }
-            conversation.close()
-            throw java.util.concurrent.CancellationException(
-                "Gemma 4 request was cancelled during engine initialization.",
-            )
-        }
-        check(activeConversation.compareAndSet(null, conversation)) {
-            "LiteRT-LM conversation serialization invariant was violated."
-        }
+    ): Gemma4RuntimeOutput {
+        val monitor = if (config.enableMetrics) GenUiEngineManager.resourceMonitor?.start(
+            java.util.UUID.randomUUID().toString(), "${config.runtimeFamily}/${config.accelerator}",
+        ) else null
         try {
-            throwIfRequestStopped(requestCancelled)
-            val renderedPromptSha256 = prompt.expectedRenderedPrompt?.let { expected ->
-                val message = conversation.renderMessageIntoString(Message.user(prompt.user))
-                // On the first turn native rendering returns the full history, but leaves
-                // bos_token empty. The session inserts Gemma's BOS token separately.
-                val rendered = "<bos>" + message
-                check(rendered == expected) {
-                    "Native prompt differs from the pinned training template " +
-                        "(expected=${promptSha256(expected)}, actual=${promptSha256(rendered)}, " +
-                        "messageChars=${message.length})."
+            val output = submitCancellable { requestCancelled ->
+                if (config.accelerator == Gemma4Accelerator.GPU) Gemma4NativeLibraries.ensureGpuRuntimeLoaded()
+                LiteRtRuntimeFlags.withGpuPrecision(config.gpuPrecision == Gemma4GpuPrecision.FP16_CORRECTED) {
+                check(!closed.get()) { "Gemma 4 runtime has been closed." }
+                var engineInitializationWallSeconds: Double? = null
+                val state = engineState ?: run {
+                    val initializationStartedNanos = System.nanoTime()
+                    initializeEngine(requestCancelled).also {
+                        engineInitializationWallSeconds =
+                            (System.nanoTime() - initializationStartedNanos).coerceAtLeast(0L) /
+                            1_000_000_000.0
+                        engineState = it
+                    }
                 }
-                promptSha256(rendered)
-            }
-            // Always use the async path so decode-loop detection also protects callers that do not
-            // request UI streaming. The observer remains optional; repetition recovery is not.
-            val stream = awaitGemma4Stream(
-                start = { callback -> conversation.sendMessageAsync(prompt.user, callback) },
-                cancel = { conversation.cancelProcess() },
-                onPartialText = onPartialText ?: {},
-                isCancelled = { requestCancelled.get() || closed.get() },
-            )
-            val responseText = if (onPartialText == null) stream.text.trim() else stream.text
-            throwIfRequestStopped(requestCancelled)
-            if (config.gpuPrecision == Gemma4GpuPrecision.FP16_CORRECTED) GpuFp16Correction.requireApplied()
-            val metrics = if (config.enableMetrics) {
-                runCatching {
-                    readGemma4GenerationMetrics(
-                        conversation = conversation,
-                        includeEngineInitialization = engineInitializationWallSeconds != null,
-                        engineInitializationWallSeconds = engineInitializationWallSeconds,
+                throwIfRequestStopped(requestCancelled)
+                val deterministic = prompt.temperature <= 0.0
+                // Pass thinking explicitly: a null native optional can resolve to thinking disabled.
+                // The formatting default bounds reasoning while leaving a generous final layout budget.
+                val conversationConfig =
+                    ConversationConfig(
+                        systemInstruction = prompt.system.takeIf { it.isNotBlank() }?.let(Contents::of),
+                        initialMessages = prompt.initialMessages.map { message ->
+                            when (message.role) {
+                                GenUiPromptRole.USER -> Message.user(message.text)
+                                GenUiPromptRole.MODEL -> Message.model(message.text)
+                            }
+                        },
+                        samplerConfig = SamplerConfig(
+                            temperature = prompt.temperature,
+                            topK = if (deterministic) 1 else 32,
+                            topP = if (deterministic) 1.0 else 0.9,
+                        ),
+                        maxOutputToken = maxOutputTokens,
+                        thinkingConfig = ThinkingConfig(
+                            enableThinking = config.enableThinking,
+                            thinkingTokenBudget = config.thinkingTokenBudget,
+                        ),
                     )
-                }.getOrNull()
-            } else null
-            Gemma4RuntimeOutput(
-                text = responseText,
-                runtimeIdentity = state.runtimeIdentity,
-                outputTokens = metrics?.outputTokens ?: runCatching { conversation.outputTokenCount() }.getOrNull(),
-                metrics = metrics,
-                renderedPromptSha256 = renderedPromptSha256,
-                finishReason = if (stream.repetitionStop == null) {
-                    GenUiGenerationFinishReason.COMPLETED
-                } else {
-                    GenUiGenerationFinishReason.REPETITION_LIMIT
-                },
-                finishDetail = stream.repetitionStop?.detail,
-            )
-        } finally {
-            activeConversation.compareAndSet(conversation, null)
-            conversation.close()
-        }
-        }
+                val conversation = LiteRtRuntimeFlags.withPromptTemplate(prompt.chatTemplateOverride) {
+                    state.engine.createConversation(conversationConfig)
+                }
+                if (requestCancelled.get() || closed.get()) {
+                    runCatching { conversation.cancelProcess() }
+                    conversation.close()
+                    throw java.util.concurrent.CancellationException(
+                        "Gemma 4 request was cancelled during engine initialization.",
+                    )
+                }
+                check(activeConversation.compareAndSet(null, conversation)) {
+                    "LiteRT-LM conversation serialization invariant was violated."
+                }
+                try {
+                    throwIfRequestStopped(requestCancelled)
+                    val renderedPromptSha256 = prompt.expectedRenderedPrompt?.let { expected ->
+                        val message = conversation.renderMessageIntoString(Message.user(prompt.user))
+                        // On the first turn native rendering returns the full history, but leaves
+                        // bos_token empty. The session inserts Gemma's BOS token separately.
+                        val rendered = "<bos>" + message
+                        check(rendered == expected) {
+                            "Native prompt differs from the pinned training template " +
+                                "(expected=${promptSha256(expected)}, actual=${promptSha256(rendered)}, " +
+                                "messageChars=${message.length})."
+                        }
+                        promptSha256(rendered)
+                    }
+                    // Always use the async path so decode-loop detection also protects callers that do not
+                    // request UI streaming. The observer remains optional; repetition recovery is not.
+                    val stream = awaitGemma4Stream(
+                        start = { callback -> conversation.sendMessageAsync(prompt.user, callback) },
+                        cancel = { conversation.cancelProcess() },
+                        onPartialText = onPartialText ?: {},
+                        isCancelled = { requestCancelled.get() || closed.get() },
+                        stopAtCompleteExpress = prompt.stopAtCompleteExpress,
+                    )
+                    val responseText = if (onPartialText == null) stream.text.trim() else stream.text
+                    throwIfRequestStopped(requestCancelled)
+                    if (config.gpuPrecision == Gemma4GpuPrecision.FP16_CORRECTED) GpuFp16Correction.requireApplied()
+                    val metrics = if (config.enableMetrics) {
+                        runCatching {
+                            readGemma4GenerationMetrics(
+                                conversation = conversation,
+                                includeEngineInitialization = engineInitializationWallSeconds != null,
+                                engineInitializationWallSeconds = engineInitializationWallSeconds,
+                            )
+                        }.getOrNull()?.copy(engineId = state.engineId)
+                    } else null
+                    state.requestCount++
+                    Gemma4RuntimeOutput(
+                        text = responseText,
+                        runtimeIdentity = state.runtimeIdentity,
+                        outputTokens = metrics?.outputTokens ?: runCatching { conversation.outputTokenCount() }.getOrNull(),
+                        metrics = metrics,
+                        renderedPromptSha256 = renderedPromptSha256,
+                        finishReason = when {
+                            stream.repetitionStop != null -> GenUiGenerationFinishReason.REPETITION_LIMIT
+                            stream.completionStop -> GenUiGenerationFinishReason.EXPRESS_COMPLETE
+                            else -> GenUiGenerationFinishReason.COMPLETED
+                        },
+                        finishDetail = stream.repetitionStop?.detail,
+                    )
+                } finally {
+                    activeConversation.compareAndSet(conversation, null)
+                    conversation.close()
+                }
+                }
+            }
+            val resources = monitor?.stop()
+            val metrics = output.metrics ?: if (resources != null)
+                GenUiGenerationMetrics(null, null, null) else null
+            return output.copy(metrics = metrics?.copy(resources = resources))
+        } finally { monitor?.stop() }
     }
 
     override suspend fun finishGenerationMetrics(): GenUiGenerationSessionMetrics? {
@@ -199,31 +223,33 @@ internal class LiteRtGemma4Runtime(
         return submitCancellable { requestCancelled ->
             throwIfRequestStopped(requestCancelled)
             val state = engineState ?: return@submitCancellable null
-            if (!state.speculativeDecodingEnabled) {
-                return@submitCancellable GenUiGenerationSessionMetrics(
-                    speculativeDecodingEnabled = false,
-                )
-            }
-            // LiteRT-LM owns verified/drafted counters in the engine's MTP drafter and publishes
-            // their ratio only from its destructor. End the metrics session after all conversion
-            // attempts, then read the process's own bounded log window.
-            val logBoundaryEpochMs = System.currentTimeMillis()
-            val engineClosed = try {
-                state.engine.close()
-                true
-            } catch (_: Exception) {
-                false
-            }
-            if (engineState === state) engineState = null
             GenUiGenerationSessionMetrics(
-                speculativeDecodingEnabled = true,
-                drafterAcceptanceRate = if (engineClosed) {
-                    MtpAcceptanceLogcat.readSince(logBoundaryEpochMs)
-                } else {
-                    null
-                },
+                speculativeDecodingEnabled = state.speculativeDecodingEnabled,
+                engineId = state.engineId,
+                acceptanceScope = "engine_lifetime",
+                pendingRetirement = state.speculativeDecodingEnabled,
+                requestCount = state.requestCount,
             )
         }
+    }
+
+    override suspend fun retire(reason: String): GenUiGenerationSessionMetrics? =
+        submitCancellable { retireEngine(reason) }
+
+    /** Worker-only: LiteRT emits accumulated drafter counters from the engine destructor. */
+    private fun retireEngine(reason: String): GenUiGenerationSessionMetrics? {
+        val state = engineState ?: return null
+        val boundary = System.currentTimeMillis()
+        state.engine.close()
+        engineState = null
+        if (!config.enableMetrics) return null
+        return GenUiGenerationSessionMetrics(
+            speculativeDecodingEnabled = state.speculativeDecodingEnabled,
+            drafterAcceptanceRate = if (state.speculativeDecodingEnabled && state.requestCount > 0)
+                MtpAcceptanceLogcat.readSince(boundary) else null,
+            engineId = state.engineId, acceptanceScope = "engine_lifetime",
+            retirementReason = reason, requestCount = state.requestCount,
+        ).also { android.util.Log.i("GenUICraftEngine", "Retired: $it") }
     }
 
     override fun cancelActive() {
@@ -239,8 +265,7 @@ internal class LiteRtGemma4Runtime(
                     runCatching { conversation.cancelProcess() }
                     runCatching { conversation.close() }
                 }
-                engineState?.engine?.close()
-                engineState = null
+                retireEngine("runtime_close")
             }
         } catch (_: RejectedExecutionException) {
             // The only normal shutdown path submits cleanup before shutting down the worker. This
@@ -307,7 +332,7 @@ internal class LiteRtGemma4Runtime(
                         maxNumTokens = config.maxContextTokens,
                         cacheDir = cacheDir,
                     ),
-                ).also(Engine::initialize)
+                ).also { engine -> initializedEngine = engine; engine.initialize() }
             } catch (failure: Throwable) {
                 runCatching { initializedEngine?.close() }
                 throw failure
@@ -316,10 +341,10 @@ internal class LiteRtGemma4Runtime(
         val engine = checkNotNull(initializedEngine)
         val mtpSuffix = if (useMtp) "+MTP" else ""
         val precisionSuffix = if (fp32) "+FP32" else if (correctedFp16) "+FP16_CORRECTED" else ""
-        android.util.Log.i("GenUICraftRuntime", "Gemma4 backend=${config.accelerator.name}; precision=${config.gpuPrecision}; MTP=$useMtp; MTPRequested=${config.enableSpeculativeDecoding}; modelSupportsMtp=$modelHasMtp; thinking=${config.enableThinking}; metrics=${config.enableMetrics}; model=${model.absolutePath}")
+        android.util.Log.i("GenUICraftRuntime", "${config.runtimeFamily} backend=${config.accelerator.name}; precision=${config.gpuPrecision}; MTP=$useMtp; MTPRequested=${config.enableSpeculativeDecoding}; modelSupportsMtp=$modelHasMtp; thinking=${config.enableThinking}; metrics=${config.enableMetrics}; model=${model.absolutePath}")
         return EngineState(
             engine = engine,
-            runtimeIdentity = "LiteRT-LM/Gemma4/${config.accelerator.name}$precisionSuffix$mtpSuffix",
+            runtimeIdentity = "LiteRT-LM/${config.runtimeFamily}/${config.accelerator.name}$precisionSuffix$mtpSuffix",
             speculativeDecodingEnabled = useMtp,
         )
     }
@@ -381,6 +406,8 @@ internal class LiteRtGemma4Runtime(
         val engine: Engine,
         val runtimeIdentity: String,
         val speculativeDecodingEnabled: Boolean,
+        val engineId: String = java.util.UUID.randomUUID().toString(),
+        var requestCount: Int = 0,
     )
 
 }

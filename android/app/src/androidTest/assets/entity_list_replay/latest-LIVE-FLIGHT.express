@@ -1,0 +1,8 @@
+<a2ui>
+root=Column([intro,flights,notesHeading,notesList,offer],gap="md")
+intro=Text("Flights from **Bengaluru (BLR) to Lucknow (LKO)** on **15 Oct** are listed with fares starting from about **₹7,195** on one source, while other sources show higher same-day fares depending on airline and availability.")
+flights=List(items=["**Akasa Air**: **₹7,195** one-way, non-stop, departing **12:25** from Bengaluru and arriving **15:05** in Lucknow.","**Air India Express**: **₹7,298** one-way, non-stop, departing **17:05** from Bengaluru and arriving **19:50** in Lucknow.","**IndiGo**: **₹15,599** for 15 Oct as listed in the fare calendar.","**Air India Express**: another same-day fare listing shows **from ₹22,268** for **Thu, Oct 15 2026**.","**ixigo** lists **₹12,882** for **Thu, 15 Oct**, with multiple Air India Express options on that date, including a non-stop **05:55 → 08:35** flight priced at **₹10,898** and other one-stop options from **₹14,010** and above."])
+notesHeading=Text("A few fare notes:","h3")
+notesList=List(items=["Prices are *dynamic* and can change based on demand, booking time, and seat availability.[1]","Some sources show broader route fare ranges, including **₹6,207–₹7,174** on EasyMyTrip and **₹7,271+** on Air India Express, but those are not specific guarantees for 15 Oct at booking time.","Non-stop flights on this route commonly take about **2h 40m to 2h 45m**."])
+offer=Text("If you want, I can also list the flights in a cleaner shortlist by **cheapest**, **fastest**, or **non-stop only**.")
+</a2ui>

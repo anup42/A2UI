@@ -1,6 +1,7 @@
 package com.samsung.genuicraft
 
 import com.samsung.genuicraft.sdk.GenUiModelOutput
+import com.samsung.genuicraft.sdk.telemetry.GenUiResourceSummary
 import java.util.Locale
 
 const val TOKEN_METRICS_SWITCH_TEST_TAG = "token_metrics_switch"
@@ -17,6 +18,7 @@ internal data class GenerationAttemptUiMetrics(
     val nativeEngineInitializationSeconds: Double? = null,
     val engineInitializedForRequest: Boolean? = null,
     val nativeInitializationPhaseSeconds: Double? = null,
+    val resources: GenUiResourceSummary? = null,
 ) {
     val requestAverageTokensPerSecond: Double?
         get() {
@@ -62,6 +64,10 @@ internal data class GenerationMetricsUiState(
     val conversionElapsedMs: Long,
     val speculativeDecodingEnabled: Boolean? = null,
     val drafterAcceptanceRate: Double? = null,
+    val engineId: String? = null,
+    val acceptanceScope: String? = null,
+    val retirementReason: String? = null,
+    val pendingRetirement: Boolean = false,
 ) {
     val totalInputTokens: Long?
         get() = completeTokenTotal { it.inputTokens }
@@ -169,8 +175,55 @@ internal fun GenUiModelOutput.toUiMetrics(providerCallElapsedNanos: Long? = null
         engineInitializedForRequest = reported?.engineInitializedForRequest,
         nativeInitializationPhaseSeconds = reported?.nativeInitializationPhaseSeconds
             ?.takeIf { it.isFinite() && it >= 0.0 },
+        resources = reported?.resources,
     )
 }
+
+/** Descriptive measurements only; coverage and readability stay visible beside each value. */
+internal fun GenUiResourceSummary.toUiLines(): List<String> {
+    val sampleDenominator = sampleCount.coerceAtLeast(0)
+    val clockMin = gpuClockHzMin
+    val clockMedian = gpuClockHzMedian
+    val clockMax = gpuClockHzMax
+    val clock = if (gpuClockReadableSamples > 0 &&
+        clockMin != null && clockMedian != null && clockMax != null
+    ) {
+        listOf(clockMin.toDouble(), clockMedian, clockMax.toDouble())
+            .joinToString(" / ") { String.format(Locale.US, "%.1f", it / 1_000_000.0) } +
+            " MHz min / median / max"
+    } else {
+        "unavailable"
+    }
+    val peakPss = processPssKiBMax
+        ?.takeIf { processPssReadableSamples > 0 && it >= 0 }
+        ?.let { formatMebibytes(it.toDouble() / 1_024.0) }
+        ?: "unavailable"
+    val lowestAvailableRam = availableMemoryBytesMin
+        ?.takeIf { systemMemoryReadableSamples > 0 && it >= 0L }
+        ?.let { formatMebibytes(it.toDouble() / (1_024.0 * 1_024.0)) }
+        ?: "unavailable"
+    val thermal = peakThermalStatus
+        ?.takeIf { thermalReadableSamples > 0 && it >= 0 }
+        ?.toString()
+        ?: "unavailable"
+    val lowMemory = if (systemMemoryReadableSamples > 0) {
+        "$lowMemorySampleCount/$systemMemoryReadableSamples memory-readable samples"
+    } else {
+        "unavailable"
+    }
+    return listOf(
+        "Resource samples: $sampleDenominator/${expectedSampleCount.coerceAtLeast(0L)} expected " +
+            "(${formatPercentage(sampleCoverage)} coverage; ${sampleIntervalMs} ms interval)",
+        "GPU clock: $clock ($gpuClockReadableSamples/$sampleDenominator readable)",
+        "Process PSS peak: $peakPss ($processPssReadableSamples/$processPssAttemptedSamples reads); " +
+            "lowest available RAM: $lowestAvailableRam ($systemMemoryReadableSamples/$sampleDenominator readable)",
+        "Thermal status max: $thermal ($thermalReadableSamples/$sampleDenominator readable); " +
+            "low-memory: $lowMemory",
+    )
+}
+
+private fun formatMebibytes(value: Double): String =
+    String.format(Locale.US, "%.1f MiB", value)
 
 internal fun formatTokenCount(value: Number?): String = value?.toString() ?: "unavailable"
 
@@ -194,6 +247,26 @@ internal fun formatPercentage(value: Double?): String =
     value?.takeIf { it.isFinite() && it in 0.0..1.0 }
         ?.let { String.format(Locale.US, "%.2f%%", it * 100.0) }
         ?: "unavailable"
+
+internal fun GenerationMetricsUiState.drafterAcceptanceSummary(): String? = when {
+    speculativeDecodingEnabled == false -> "MTP disabled"
+    speculativeDecodingEnabled != true -> null
+    pendingRetirement -> "MTP acceptance: pending engine retirement"
+    drafterAcceptanceRate != null && acceptanceScope == "engine_lifetime" ->
+        "MTP acceptance (engine lifetime): ${formatPercentage(drafterAcceptanceRate)}"
+    else -> "MTP acceptance: ${formatPercentage(drafterAcceptanceRate)}"
+}
+
+internal fun GenerationMetricsUiState.drafterAcceptanceDetail(): String = when {
+    speculativeDecodingEnabled == false -> "Drafter acceptance: MTP was disabled for this session."
+    speculativeDecodingEnabled != true -> "Drafter acceptance: unavailable for this provider."
+    pendingRetirement -> "Drafter acceptance: pending engine retirement. The native counter covers the engine lifetime."
+    drafterAcceptanceRate != null && acceptanceScope == "engine_lifetime" ->
+        "Drafter acceptance: ${formatPercentage(drafterAcceptanceRate)} " +
+            "(verified draft tokens / proposed draft tokens across the engine lifetime)."
+    else -> "Drafter acceptance: ${formatPercentage(drafterAcceptanceRate)} " +
+        "(counter scope not reported by provider)."
+}
 
 private fun durationNanos(tokens: Int?, tokensPerSecond: Double?): Long? {
     val count = tokens?.takeIf { it >= 0 } ?: return null

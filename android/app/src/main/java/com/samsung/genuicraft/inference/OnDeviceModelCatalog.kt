@@ -24,6 +24,7 @@ object OnDeviceModelCatalog {
         val usesTrainedSdkConverter: Boolean = false,
         val stage3TrainingPromptPrefix: String? = null,
         val additionalLocalRelativePaths: List<String> = emptyList(),
+        val qualifiedLocalRelativePaths: List<String> = emptyList(),
         val additionalAcceptedFileNames: List<String> = emptyList(),
         val minimumFileSizeBytes: Long = 1L,
     ) {
@@ -41,6 +42,10 @@ object OnDeviceModelCatalog {
                 return true
             }
             val selectedFileName = File(normalized).name
+            val portablePath = normalized.replace('\\', '/')
+            if (qualifiedLocalRelativePaths.any { relative ->
+                    portablePath.endsWith("/$relative", ignoreCase = true)
+                }) return true
             return acceptedFileNames().any { it.equals(selectedFileName, ignoreCase = true) }
         }
 
@@ -48,7 +53,7 @@ object OnDeviceModelCatalog {
             val externalRoot = context.getExternalFilesDir(null)
             val internalRoot = context.filesDir
             return buildList {
-                additionalLocalRelativePaths.forEach { relativePath ->
+                (qualifiedLocalRelativePaths + additionalLocalRelativePaths).forEach { relativePath ->
                     if (externalRoot != null) add(File(externalRoot, relativePath))
                     add(File(internalRoot, relativePath))
                 }
@@ -92,7 +97,7 @@ object OnDeviceModelCatalog {
     val entries: List<Entry> = listOf(
         Entry(
             id = "gemma4_e2b_a2ui_mobile",
-            displayName = "Trained Gemma 4 E2B (A2UI Mobile)",
+            displayName = "Latest trained E2B",
             subtitle =
                 "Trained A2UI Express model. Select GPU FP32 or a prepared corrected FP16 " +
                     "package; MTP needs a compatible drafter.",
@@ -108,11 +113,33 @@ object OnDeviceModelCatalog {
             trainingCompatiblePrompt = true,
             usesTrainedSdkConverter = true,
             additionalLocalRelativePaths = listOf(
+                "engine_probe_model/e2b_qat_grpo_20261009.litertlm",
+                "sdk_models/qat_grpo_20261009/e2b_qat_grpo_20261009.litertlm",
                 "sdk_models/gemma4_e2b_a2ui_mobile_r64_qat_compatible.litertlm",
                 "sdk_models/gemma4_e2b_a2ui_mobile.litertlm",
                 "sdk_models/e2b_v10_w4.litertlm",
             ),
             additionalAcceptedFileNames = listOf("e2b_qat_grpo_20261009.litertlm"),
+            minimumFileSizeBytes = 2_500_000_000L,
+        ),
+        Entry(
+            id = "gemma4_e2b_a2ui_previous_r64",
+            displayName = "Previous trained E2B (R64)",
+            subtitle = "Previous R64 checkpoint used in the comparison. Select corrected FP16 for its prepared package; MTP is supported.",
+            repoId = "local/gemma-4-e2b-a2ui-previous-r64",
+            fileName = "gemma4_e2b_a2ui_previous_r64.litertlm",
+            downloadUrl = null,
+            approximateSize = "~2.7 GB",
+            quantization = "Mixed W2/W4/W8-A8 mobile topology",
+            maxContextTokens = 8_192,
+            maxOutputTokens = 2_048,
+            requireGpu = true,
+            enableSpeculativeDecoding = true,
+            trainingCompatiblePrompt = true,
+            usesTrainedSdkConverter = true,
+            qualifiedLocalRelativePaths = listOf(
+                "list_card_model_compare/previous_r64/model-fp16-corrected.litertlm",
+            ),
             minimumFileSizeBytes = 2_500_000_000L,
         ),
         Entry(
@@ -146,6 +173,7 @@ object OnDeviceModelCatalog {
             requireGpu = true,
             trainingCompatiblePrompt = true,
             allowGpuQualityFallback = true,
+            additionalAcceptedFileNames = listOf("gemma3_270m_a2ui_express_checkpoint16000_20260831.litertlm"),
             minimumFileSizeBytes = 200_000_000L,
         ),
         Entry(
@@ -231,6 +259,7 @@ object OnDeviceModelCatalog {
     /** Models deliberately offered in Settings, independent of legacy runtime lookup support. */
     val visibleEntries: List<Entry> = listOfNotNull(
         entries.firstOrNull { it.id == "gemma4_e2b_a2ui_mobile" },
+        entries.firstOrNull { it.id == "gemma4_e2b_a2ui_previous_r64" },
         entries.firstOrNull { it.id == "gemma4_e2b_it_litert" },
         entries.firstOrNull { it.id == "gemma3_270m_a2ui_express_int8" },
     )

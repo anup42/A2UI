@@ -18,12 +18,36 @@ internal object NativeWeatherPresentationPolicy {
 
     fun hasExplicitCondition(condition: String?): Boolean = !condition.isNullOrBlank()
 
-    fun precipitationIndex(metrics: List<Pair<String, String>>): Int =
-        metrics.indexOfFirst { (label, value) ->
-            val normalized = label.lowercase()
-            value.isNotBlank() &&
-                (normalized.contains("rain") || normalized.contains("precip") || normalized.contains("shower"))
+    fun precipitationIndex(metrics: List<Pair<String, String>>): Int {
+        fun isPrecipitation(metric: Pair<String, String>): Boolean {
+            val (label, value) = metric
+            val normalized = label.lowercase(java.util.Locale.ROOT)
+            return value.isNotBlank() &&
+                (normalized.contains("rain") || normalized.contains("precip") || normalized.contains("shower") || normalized.trim() == "pop")
         }
+        // Prefer a bounded chance when a row supplies both rainfall amount and probability.
+        val probabilityIndex = metrics.indexOfFirst {
+            isPrecipitation(it) && isProbabilityLabel(it.first) && precipitationFraction(it.second) != null
+        }
+        return if (probabilityIndex >= 0) probabilityIndex else metrics.indexOfFirst(::isPrecipitation)
+    }
+
+    private fun isProbabilityLabel(label: String): Boolean {
+        val text = label.lowercase(java.util.Locale.ROOT)
+        return text.contains("probab") || text.contains("chance") || text.trim() == "pop"
+    }
+
+    /** A probability symbol describes the supplied metric, not an invented daily condition. */
+    fun forecastArtwork(row: WeatherRow): WeatherArtworkKind {
+        if (hasExplicitCondition(row.condition)) return NativeWeatherArtwork.kindFor(row.condition, row.period)
+        val precipitation = row.metrics.getOrNull(precipitationIndex(row.metrics))
+        val fraction = precipitation?.takeIf { isProbabilityLabel(it.first) }?.second?.let(::precipitationFraction)
+        return when {
+            fraction == null -> WeatherArtworkKind.TEMPERATURE
+            fraction > 0f -> WeatherArtworkKind.RAIN
+            else -> WeatherArtworkKind.DROP
+        }
+    }
 
     fun heroMetrics(row: WeatherRow, temperature: String): List<Pair<String, String>> = buildList {
         row.high?.takeIf { it.isNotBlank() }?.let { add("High" to it) }

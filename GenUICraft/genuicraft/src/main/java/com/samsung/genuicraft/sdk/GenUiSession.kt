@@ -20,12 +20,39 @@ enum class GenUiConversionProfile {
     SOURCE_BOUND,
     /** Frozen v10 training prompt, generated-output recovery, no source-text replacement. */
     TRAINED_E2B_V10_W4,
+    /** Gemma 3 270M training prompt and generated-output recovery with source-fidelity warnings. */
+    TRAINED_GEMMA3_270M,
 }
 
 /** Native settings that must agree between hosts using the same model export. */
 object GenUiModelProfiles {
     const val TRAINED_CONTEXT_TOKENS = 8_192
     const val TRAINED_OUTPUT_TOKENS = 2_048
+    const val GEMMA270M_CONTEXT_TOKENS = 4_096
+    const val GEMMA270M_OUTPUT_TOKENS = 2_048
+
+    /** The 270M export runs on CPU by default; GPU remains an explicit diagnostic choice. */
+    fun trainedGemma270M(
+        modelPath: String,
+        enableMetrics: Boolean = false,
+        accelerator: String = "CPU",
+    ): Gemma4Config {
+        val backend = accelerator.trim().uppercase(java.util.Locale.ROOT)
+        require(backend in setOf("CPU", "GPU")) {
+            "The trained Gemma 3 270M model supports CPU or GPU."
+        }
+        return Gemma4Config(
+            modelPath = modelPath,
+            accelerator = backend,
+            maxContextTokens = GEMMA270M_CONTEXT_TOKENS,
+            maxOutputTokens = GEMMA270M_OUTPUT_TOKENS,
+            enableThinking = false,
+            thinkingTokenBudget = 0,
+            enableSpeculativeDecoding = false,
+            enableMetrics = enableMetrics,
+            gpuPrecision = Gemma4GpuPrecision.MODEL_DEFAULT,
+        )
+    }
 
     fun trainedE2b(
         modelPath: String,
@@ -98,7 +125,7 @@ class GenUiSession private constructor(
         options: ConversionOptions = ConversionOptions(),
     ) : this(
         provider,
-        runtimePreparationFor(profile),
+        runtimePreparationFor(context),
         conversionFor(context.applicationContext, profile, options),
     )
 
@@ -113,6 +140,13 @@ class GenUiSession private constructor(
     /** Metrics finalized after every generation/repair attempt in the most recent conversion. */
     val generationSessionMetrics: GenUiGenerationSessionMetrics?
         get() = completedSessionMetrics
+
+    /** Loads native weights/shaders while upstream data is fetched; does not generate tokens. */
+    suspend fun prewarm() = mutex.withLock {
+        check(!closed.get()) { "GenUICraft session has been closed." }
+        withContext(Dispatchers.IO) { prepareRuntime() }
+        provider.prewarm()
+    }
 
     suspend fun convert(
         request: GenUiRequest,
@@ -182,9 +216,9 @@ class GenUiSession private constructor(
     }
 
     companion object {
-        private fun runtimePreparationFor(profile: GenUiConversionProfile): () -> Unit = when (profile) {
-            GenUiConversionProfile.SOURCE_BOUND -> ({})
-            GenUiConversionProfile.TRAINED_E2B_V10_W4 -> ({ LiteRtModelRunner.releaseCachedEngine() })
+        private fun runtimePreparationFor(context: Context): () -> Unit {
+            val app = context.applicationContext
+            return { com.samsung.genuicraft.sdk.provider.GenUiEngineManager.install(app) }
         }
 
         private fun conversionFor(
@@ -199,6 +233,15 @@ class GenUiSession private constructor(
                     allowSourceTextFallback = false,
                     allowGeneratedDslRepair = true,
                     requireSourceIntegrity = false,
+                ).convert(request)
+                GenUiConversionProfile.TRAINED_GEMMA3_270M -> GenUiTrainedConverter(
+                    provider = provider,
+                    contract = Gemma270PromptContract.load(context),
+                    allowSourceTextFallback = false,
+                    allowGeneratedDslRepair = true,
+                    requireSourceIntegrity = false,
+                    profile = Gemma270PromptContract.PROFILE,
+                    modelName = "Trained Gemma 3 270M",
                 ).convert(request)
             }
         }

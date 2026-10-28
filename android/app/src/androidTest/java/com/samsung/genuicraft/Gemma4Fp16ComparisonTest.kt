@@ -43,7 +43,8 @@ import org.junit.runner.RunWith
  *
  * Required arguments: modelPath, precision=FP32|FP16_CORRECTED, outputDir, label.
  * Optional: mtp=true|false, cases=BXP-001,BXP-003,BXP-004, caseTimeoutMs=360000,
- * warmupCase=<corpus ID>, cooldownTimeoutMs=0 (disabled; otherwise wait for thermal status 0).
+ * warmupCase=<corpus ID>, cooldownTimeoutMs=0 (disabled; otherwise wait for thermal status 0),
+ * corpusPath=<absolute app-readable JSONL path> for a bounded custom id/query/text corpus.
  * outputDir is a new leaf under the app's sdk_fp16_comparison external-files directory.
  */
 @RunWith(AndroidJUnit4::class)
@@ -73,17 +74,63 @@ class Gemma4Fp16ComparisonTest {
         }
         require(modelFile.extension.equals("litertlm", ignoreCase = true)) { "Expected .litertlm model" }
 
-        val corpusBytes = context.assets.open(CORPUS_ASSET).use { it.readBytes() }
-        require(sha256(corpusBytes) == PINNED_CORPUS_SHA256) { "Bixby50 asset changed" }
-        val corpus = corpusBytes.toString(Charsets.UTF_8).lineSequence().filter(String::isNotBlank)
-            .map { JsonParser.parseString(it).asJsonObject }
-            .associateBy { it.get("id").asString }
-        val ids = args.getString("cases", DEFAULT_CASES)!!.split(',').map(String::trim)
+        val customCorpusPath = args.getString("corpusPath")?.trim()?.takeIf(String::isNotEmpty)
+        val customCorpusFile = customCorpusPath?.let { path ->
+            require(File(path).isAbsolute) { "corpusPath must be absolute" }
+            File(path).canonicalFile.also { file ->
+                require(file.isFile && file.canRead() && file.length() in 1L..MAX_CUSTOM_CORPUS_BYTES) {
+                    "corpusPath must be a readable JSONL file of 1..$MAX_CUSTOM_CORPUS_BYTES bytes"
+                }
+            }
+        }
+        val corpusBytes = if (customCorpusFile == null) {
+            context.assets.open(CORPUS_ASSET).use { it.readBytes() }.also { bytes ->
+                require(sha256(bytes) == PINNED_CORPUS_SHA256) { "Bixby50 asset changed" }
+            }
+        } else customCorpusFile.readBytes()
+        val corpusText = corpusBytes.toString(Charsets.UTF_8)
+        if (customCorpusFile != null) {
+            require(corpusText.toByteArray(Charsets.UTF_8).contentEquals(corpusBytes)) {
+                "corpusPath must contain valid UTF-8"
+            }
+        }
+        val corpusRows = corpusText.lineSequence().filter(String::isNotBlank)
+            .map { JsonParser.parseString(it).asJsonObject }.toList()
+        if (customCorpusFile != null) {
+            require(corpusRows.size in 1..MAX_CUSTOM_CORPUS_ROWS) {
+                "Custom corpus must contain 1..$MAX_CUSTOM_CORPUS_ROWS JSONL rows"
+            }
+            corpusRows.forEachIndexed { index, row ->
+                fun requiredString(key: String): String {
+                    val value = row.get(key)
+                    require(value != null && value.isJsonPrimitive && value.asJsonPrimitive.isString) {
+                        "Custom corpus row ${index + 1} needs string $key"
+                    }
+                    return value.asString
+                }
+                val id = requiredString("id")
+                val query = requiredString("query")
+                val text = requiredString("text")
+                require(NAME.matches(id)) { "Custom corpus row ${index + 1} has an invalid id" }
+                require(query.isNotBlank() && query.length <= MAX_CUSTOM_QUERY_CHARS) {
+                    "Custom corpus row ${index + 1} query must be 1..$MAX_CUSTOM_QUERY_CHARS characters"
+                }
+                require(text.isNotBlank() && text.length <= MAX_CUSTOM_TEXT_CHARS) {
+                    "Custom corpus row ${index + 1} text must be 1..$MAX_CUSTOM_TEXT_CHARS characters"
+                }
+            }
+            require(corpusRows.map { it.get("id").asString }.distinct().size == corpusRows.size) {
+                "Custom corpus IDs must be unique"
+            }
+        }
+        val corpus = corpusRows.associateBy { it.get("id").asString }
+        val defaultCases = if (customCorpusFile == null) DEFAULT_CASES else corpus.keys.joinToString(",")
+        val ids = args.getString("cases", defaultCases)!!.split(',').map(String::trim)
         require(ids.isNotEmpty() && ids.size == ids.distinct().size && ids.all(corpus::containsKey)) {
-            "cases must be unique IDs from the frozen Bixby50 asset"
+            "cases must be unique IDs from the selected corpus"
         }
         val warmupId = args.getString("warmupCase", ids.first())!!.trim().also {
-            require(corpus.containsKey(it)) { "warmupCase must be an ID from the frozen Bixby50 asset" }
+            require(corpus.containsKey(it)) { "warmupCase must be an ID from the selected corpus" }
         }
         val cooldownTimeoutMs = args.getString("cooldownTimeoutMs", "0")!!.toLong().also {
             require(it in 0L..600_000L) { "cooldownTimeoutMs out of range" }
@@ -92,6 +139,7 @@ class Gemma4Fp16ComparisonTest {
         val root = File(requireNotNull(context.getExternalFilesDir(null)), "sdk_fp16_comparison/$outputDir")
         require(!root.exists() && root.mkdirs()) { "Output directory must be new: ${root.absolutePath}" }
         File(root, "shared_prompt.json").writeBytes(promptBytes)
+        if (customCorpusFile != null) File(root, "custom_corpus.jsonl").writeBytes(corpusBytes)
         val config = linkedMapOf<String, Any?>(
             "schemaVersion" to 1,
             "kind" to "trained_e2b_gpu_precision_comparison",
@@ -108,7 +156,9 @@ class Gemma4Fp16ComparisonTest {
             "warmupCase" to warmupId,
             "cooldownTimeoutMs" to cooldownTimeoutMs,
             "caseTimeoutMs" to timeoutMs,
-            "corpusAsset" to CORPUS_ASSET,
+            "corpusAsset" to if (customCorpusFile == null) CORPUS_ASSET else null,
+            "corpusPath" to customCorpusFile?.absolutePath,
+            "corpusRows" to corpusRows.size,
             "corpusSha256" to sha256(corpusBytes),
             "promptAsset" to GenUiTrainedConverter.PROMPT_ASSET,
             "promptSha256" to sha256(promptBytes),
@@ -448,6 +498,10 @@ class Gemma4Fp16ComparisonTest {
         private const val PINNED_CORPUS_SHA256 =
             "fc46aa381957bed206f9e0f53e28edbb21b5096ca093985ad184fda73faaea0a"
         private const val DEFAULT_CASES = "BXP-001,BXP-003,BXP-004"
+        private const val MAX_CUSTOM_CORPUS_BYTES = 1_048_576L
+        private const val MAX_CUSTOM_CORPUS_ROWS = 50
+        private const val MAX_CUSTOM_QUERY_CHARS = 10_000
+        private const val MAX_CUSTOM_TEXT_CHARS = 100_000
         private val NAME = Regex("[A-Za-z0-9_-]{1,100}")
     }
 }

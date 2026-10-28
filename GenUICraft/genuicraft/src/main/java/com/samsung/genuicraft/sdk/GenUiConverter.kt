@@ -86,12 +86,14 @@ class GenUiConverter private constructor(
                 val document = GenUiCompiler.compile(bindings?.expand(raw) ?: LiteralTextCodec.protectVisibleContent(raw))
                 val issues = ContentIntegrity.check(request, document)
                 require(issues.isEmpty()) { issues.joinToString("; ") }
+                val presentation = GenUiPresentation.prepare(document)
                 return@withContext GenUiConversionResult.Success(
-                    SourceAttribution.append(document, request.sources), provider.id, elapsed(), attempt,
+                    SourceAttribution.append(presentation.document, request.sources), provider.id, elapsed(), attempt,
                     buildList {
                         add("Runtime: ${output.runtime}")
                         if (bindings != null) add("Model-generated layout with exact source bindings.")
                         if (attempt > 1) add("Model output repaired after validation failure.")
+                        addAll(presentation.diagnostics)
                     },
                 )
             } catch (cancel: CancellationException) {

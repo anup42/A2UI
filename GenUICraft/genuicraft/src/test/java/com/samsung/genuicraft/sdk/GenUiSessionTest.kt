@@ -3,7 +3,9 @@ package com.samsung.genuicraft.sdk
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.async
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.Assert.*
@@ -15,6 +17,49 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
 class GenUiSessionTest {
+    @Test fun prewarmDoesNotConvertGenerateOrFinalizeMetrics() = runBlocking {
+        val provider = FakeProvider("unused")
+        var conversionCalls = 0
+        val session = GenUiSession(provider) { _, _ ->
+            conversionCalls++
+            error("prewarm must not invoke conversion")
+        }
+
+        session.prewarm()
+
+        assertEquals(1, provider.prewarmCount)
+        assertEquals(0, provider.generateCount)
+        assertEquals(0, conversionCalls)
+        assertEquals(0, provider.metricsFinalizationCount)
+        assertTrue(session.attemptSnapshots.isEmpty())
+        assertNull(session.generationSessionMetrics)
+        session.closeAndAwait()
+        assertTrue(provider.closed)
+    }
+
+    @Test fun prewarmSerializesWithConversionAndCancellationReleasesMutex() = runBlocking {
+        val provider = BlockingPrewarmProvider()
+        val conversionEntered = CompletableDeferred<Unit>()
+        val session = GenUiSession(provider) { _, _ ->
+            conversionEntered.complete(Unit)
+            GenUiConversionResult.Failure("test", provider.id, 0, 0)
+        }
+        val warming = async { session.prewarm() }
+        provider.prewarmStarted.await()
+        val converting = async(start = CoroutineStart.UNDISPATCHED) {
+            session.convert(GenUiRequest("test"))
+        }
+        assertFalse(conversionEntered.isCompleted)
+
+        warming.cancelAndJoin()
+        assertTrue(warming.isCancelled)
+        assertTrue(provider.prewarmFinished)
+        assertTrue(converting.await() is GenUiConversionResult.Failure)
+        assertTrue(conversionEntered.isCompleted)
+        withTimeout(5_000) { session.closeAndAwait() }
+        assertTrue(provider.closed)
+    }
+
     @Test fun trainedProfileUsesFrozenPromptAndGeneratedOnlyRecovery() = runBlocking {
         val raw = "Here is your UI: <a2ui>\nroot=Text(\"Salary $75,000\")\n</a2ui>"
         val provider = FakeProvider(raw)
@@ -40,6 +85,33 @@ class GenUiSessionTest {
         assertEquals(2, attempt.prompt?.initialMessages?.size)
         session.closeAndAwait()
         assertTrue(provider.closed)
+    }
+
+    @Test fun gemma270ProfileStreamsGeneratedOnlyOutputWithNativeTemplateAndFidelityWarning() = runBlocking {
+        val raw = "Here is your UI: <a2ui>\nroot=Text(\"Salary $75,000\")\n</a2ui>"
+        val provider = FakeProvider(raw, providerId = "gemma3_270m_a2ui_express")
+        val session = GenUiSession(
+            ApplicationProvider.getApplicationContext(), provider,
+            GenUiConversionProfile.TRAINED_GEMMA3_270M,
+        )
+        val partials = mutableListOf<String>()
+        val result = session.convert(
+            GenUiRequest("Salary $75,000. Hourly rate $36.06."),
+            GenUiGenerationObserver(onPartialText = { _, text -> partials += text }),
+        ) as GenUiConversionResult.Success
+
+        assertEquals(Gemma270PromptContract.PROFILE, result.document.profile)
+        assertEquals("gemma3_270m_a2ui_express", result.provider)
+        assertEquals(GenUiRepairKind.GENERATED_DSL_REPAIR, result.repairKind)
+        assertTrue(result.warnings.any { it.contains("not a faithful conversion") })
+        assertFalse(result.document.express.contains("36.06"))
+        assertEquals(listOf(raw.take(12), raw), partials)
+        assertEquals(raw, session.attemptSnapshots.single().rawText)
+        assertEquals(Gemma270PromptContract.EXAMPLE_MODEL,
+            session.attemptSnapshots.single().prompt?.initialMessages?.last()?.text)
+        assertNull(session.attemptSnapshots.single().prompt?.chatTemplateOverride)
+        assertNull(session.attemptSnapshots.single().prompt?.expectedRenderedPrompt)
+        session.closeAndAwait()
     }
 
     @Test fun unrepairableOutputNeverBecomesSourceReplacement() = runBlocking {
@@ -152,12 +224,17 @@ class GenUiSessionTest {
         val cancel: Boolean = false,
         val finalizedMetrics: GenUiGenerationSessionMetrics? = null,
         val failMetricsFinalization: Boolean = false,
+        val providerId: String = "gemma4_e2b",
     ) : GenUiProvider {
-        override val id = "gemma4_e2b"
+        override val id = providerId
         var closed = false
+        var prewarmCount = 0
+        var generateCount = 0
         var metricsFinalizationCount = 0
+        override suspend fun prewarm() { prewarmCount++ }
         override suspend fun generate(prompt: GenUiPrompt): GenUiModelOutput = error("Use streaming")
         override suspend fun generate(prompt: GenUiPrompt, onPartialText: (String) -> Unit): GenUiModelOutput {
+            generateCount++
             onPartialText(raw.take(12))
             onPartialText(raw)
             if (cancel) throw CancellationException("cancelled")
@@ -169,6 +246,27 @@ class GenUiSessionTest {
             return finalizedMetrics
         }
         override suspend fun closeAndAwait() { closed = true }
+    }
+
+    private class BlockingPrewarmProvider : GenUiProvider {
+        override val id = "blocking-prewarm"
+        val prewarmStarted = CompletableDeferred<Unit>()
+        @Volatile var prewarmFinished = false
+        @Volatile var closed = false
+
+        override suspend fun prewarm() {
+            prewarmStarted.complete(Unit)
+            try {
+                CompletableDeferred<Unit>().await()
+            } finally {
+                prewarmFinished = true
+            }
+        }
+
+        override suspend fun generate(prompt: GenUiPrompt): GenUiModelOutput =
+            error("prewarm must not generate")
+
+        override fun close() { closed = true }
     }
 
     private class CloseReleasedProvider : GenUiProvider {

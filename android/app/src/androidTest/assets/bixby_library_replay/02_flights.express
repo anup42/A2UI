@@ -1,0 +1,7 @@
+<a2ui>
+root=Column([a,b,c,d],"md")
+a=Text("For tomorrow (29 Oct 2026), I have these morning options from Bengaluru to Varanasi in the search results:")
+b=Text("Morning options:")
+c=Table(columns=["Option","Details"],rows=[["IndiGo 6E-6558","04:30 departure, 06:55 arrival, non-stop, fare from ₹8,015."],["Air India Express IX 1470","06:05 departure, 08:35 arrival, fare not shown in the result snippet."],["Akasa Air QP 1421","06:45 departure, 09:30 arrival, non-stop, fare from ₹7,542.[1]"],["SpiceJet SG-615","10:20 departure, 12:50 arrival, non-stop, fare from ₹7,733."],["IndiGo 6E-196","12:40 departure; this is listed in the broader route results, but it is after the morning window."]],domain="comparison",preferredPresentation="cards",primaryColumn="Option")
+d=Text("If you want, I can also narrow this down to only non-stop morning flights or the cheapest morning option.")
+</a2ui>

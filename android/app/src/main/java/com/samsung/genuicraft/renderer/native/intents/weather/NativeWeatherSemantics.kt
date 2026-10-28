@@ -1,4 +1,4 @@
-﻿package com.samsung.genuicraft.renderer.native.intents.weather
+package com.samsung.genuicraft.renderer.native.intents.weather
 
 import com.samsung.genuicraft.renderer.native.TextBlock
 import com.samsung.genuicraft.renderer.native.WeatherCurrentDetails
@@ -853,7 +853,7 @@ internal object NativeWeatherSemantics {
     fun mapOpenWeatherIconCode(code: String): String? {
         return when (code) {
             "01d" -> "Sunny"
-            "01n" -> "Clear"
+            "01n" -> "Clear night"
             "02d", "02n" -> "Partly Cloudy"
             "03d", "03n", "04d", "04n" -> "Cloudy"
             "09d", "09n", "10d", "10n" -> "Rain"

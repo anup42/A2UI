@@ -1,0 +1,7 @@
+<a2ui>
+root=Column([intro,table,readability,offer],gap="md")
+intro=Text("Bengaluru, Mysore, and Ooty have noticeably different weather right now: **Mysore is the warmest**, **Bengaluru is mild**, and **Ooty is the coolest**.[1][3][2]")
+table=Table(columns=["City","Current weather","Today’s high","Today’s low","Rain chance / note"],rows=[["Bengaluru","Mostly cloudy, about 21.8°C at IMD observation time","About 29.0°C to 30.0°C","About 16.0°C to 18.0°C","Low chance of rain; cloudy/partly cloudy conditions[7][11][10]"],["Mysore","Partly sunny, about 27°C to 29°C range in the morning","About 29.0°C to 29.6°C","About 17.0°C to 18.3°C","Mostly dry; sunny spells or cloudy/overcast[8][12]"],["Ooty","Cool and cloudy, about 14.9°C to 15.9°C in the day forecast","About 23.9°C to 24.4°C","About 14.9°C to 17.0°C","Higher rain chance, including patchy rain nearby or showers[13]"]],domain="comparison",preferredPresentation="table")
+readability=Text("A simple way to read the comparison is: **Mysore feels hottest**, **Bengaluru sits in the middle**, and **Ooty stays much cooler and more humid/rain-prone**.")
+offer=Text("If you want, I can also rank them by *temperature*, *rain chance*, or *best weather for travel*.")
+</a2ui>

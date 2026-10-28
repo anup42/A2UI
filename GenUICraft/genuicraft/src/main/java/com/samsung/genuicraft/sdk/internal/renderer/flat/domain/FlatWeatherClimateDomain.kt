@@ -119,6 +119,11 @@ import com.samsung.genuicraft.sdk.internal.renderer.native.intents.flight.Native
 import com.samsung.genuicraft.sdk.internal.renderer.native.intents.flight.NativeFlightUiRenderer
 import com.samsung.genuicraft.sdk.internal.renderer.native.intents.weather.NativeWeatherSemantics
 import com.samsung.genuicraft.sdk.internal.renderer.native.intents.weather.NativeWeatherUiRenderer
+import com.samsung.genuicraft.sdk.internal.renderer.native.intents.weather.CityWeatherComparisonRow
+import com.samsung.genuicraft.sdk.internal.renderer.native.intents.weather.CityWeatherField
+import com.samsung.genuicraft.sdk.internal.renderer.native.intents.weather.CityWeatherFieldKind
+import com.samsung.genuicraft.sdk.internal.renderer.native.intents.weather.NativeWeatherArtwork
+import com.samsung.genuicraft.sdk.internal.renderer.native.intents.weather.WeatherArtworkKind
 import com.samsung.genuicraft.sdk.internal.renderer.native.media.NativeMediaVisualUtils
 import com.samsung.genuicraft.sdk.internal.renderer.native.parser.NativeSourceParsing
 import com.samsung.genuicraft.sdk.internal.renderer.native.parser.NativeStructureParsing
@@ -132,6 +137,120 @@ import com.samsung.genuicraft.sdk.internal.renderer.flat.parse.*
 import com.samsung.genuicraft.sdk.internal.renderer.flat.expr.*
 import com.samsung.genuicraft.sdk.internal.renderer.flat.runtime.*
 import com.samsung.genuicraft.sdk.internal.renderer.flat.compose.table.*
+
+/** Show each city as the identity of a weather row, with the supplied measurements intact. */
+@Composable
+internal fun RenderCityWeatherComparisonCards(
+    rows: List<CityWeatherComparisonRow>,
+    modifier: Modifier = Modifier,
+    title: String? = null,
+) {
+    Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        title?.takeIf(String::isNotBlank)?.let {
+            Text(
+                text = parseBoldMarkdown(it),
+                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                modifier = Modifier.semantics { heading() },
+            )
+        }
+        rows.forEach { row ->
+            val palette = NativeWeatherUiRenderer.weatherHeroPalette(row.iconCondition)
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+                border = BorderStroke(1.dp, palette.tileBorder),
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxWidth()
+                        .background(Brush.linearGradient(palette.gradient))
+                        .padding(horizontal = 14.dp, vertical = 13.dp),
+                    verticalArrangement = Arrangement.spacedBy(11.dp),
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        NativeWeatherUiRenderer.WeatherConditionIcon(
+                            condition = row.iconCondition,
+                            size = 38.dp,
+                            sanitizeDisplayText = NativeTextFormatter::sanitizeDisplayText,
+                        )
+                        Text(
+                            text = parseBoldMarkdown(row.city),
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                            color = palette.content,
+                            modifier = Modifier.weight(1f).semantics { heading() },
+                        )
+                    }
+
+                    row.fields.filter { it.value.isNotBlank() && it.kind in setOf(
+                        CityWeatherFieldKind.CURRENT, CityWeatherFieldKind.CONDITION,
+                    ) }.forEach { field -> CityWeatherComparisonField(field, palette = palette) }
+
+                    val temperatures = row.fields.filter { it.value.isNotBlank() && it.kind in setOf(
+                        CityWeatherFieldKind.HIGH, CityWeatherFieldKind.LOW,
+                    ) }
+                    if (temperatures.size == 2) {
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            temperatures.forEach { field ->
+                                CityWeatherComparisonField(field, Modifier.weight(1f), palette)
+                            }
+                        }
+                    } else {
+                        temperatures.forEach { field -> CityWeatherComparisonField(field, palette = palette) }
+                    }
+
+                    row.fields.filter { it.value.isNotBlank() && it.kind in setOf(
+                        CityWeatherFieldKind.RAIN, CityWeatherFieldKind.OTHER,
+                    ) }.forEach { field ->
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = palette.tileContainer,
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
+                                horizontalArrangement = Arrangement.spacedBy(7.dp),
+                                verticalAlignment = Alignment.Top,
+                            ) {
+                                if (field.kind == CityWeatherFieldKind.RAIN) {
+                                    NativeWeatherArtwork.Symbol(
+                                        WeatherArtworkKind.DROP, Modifier.size(18.dp),
+                                    )
+                                }
+                                CityWeatherComparisonField(field, Modifier.weight(1f), palette)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun CityWeatherComparisonField(
+    field: CityWeatherField,
+    modifier: Modifier = Modifier,
+    palette: NativeWeatherUiRenderer.WeatherHeroPalette,
+) {
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Text(
+            text = parseBoldMarkdown(field.label),
+            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+            color = palette.mutedContent,
+        )
+        Text(
+            text = parseBoldMarkdown(field.value),
+            style = if (field.kind in setOf(CityWeatherFieldKind.HIGH, CityWeatherFieldKind.LOW))
+                MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold)
+            else MaterialTheme.typography.bodyMedium,
+            color = palette.content,
+        )
+    }
+}
 
 // moved from FlatSpecRenderer.kt (ClimateComparisonRow)
 internal data class ClimateComparisonRow(

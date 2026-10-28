@@ -1,0 +1,14 @@
+<a2ui>
+$/={flights:[{airline:"Akasa Air",price:"₹7,195",details:"One-way, non-stop, departing 12:25 from Bengaluru and arriving 15:05 in Lucknow"},{airline:"Air India Express",price:"₹7,298",details:"One-way, non-stop, departing 17:05 from Bengaluru and arriving 19:50 in Lucknow"},{airline:"IndiGo",price:"₹15,599",details:"For 15 Oct as listed in the fare calendar"},{airline:"Air India Express",price:"₹22,268",details:"Another same-day fare listing shows from ₹22,268 for Thu, Oct 15 2026"},{airline:"ixigo",price:"₹12,882",details:"Lists ₹12,882 for Thu, 15 Oct, with multiple Air India Express options including a non-stop 05:55 → 08:35 flight priced at ₹10,898 and other one-stop options from ₹14,010 and above"}]}
+root=Column([a,b,c,f,k],gap="md",padding=16)
+a=Text("Flights from Bengaluru (BLR) to Lucknow (LKO) on 15 Oct are listed with fares starting from about ₹7,195 on one source, while other sources show higher same-day fares depending on airline and availability.","h2")
+b=Text("Here are the flight options for your review:","h3")
+c=Table(columns=[{key:"airline",label:"Airline"},{key:"price",label:"Price"},{key:"details",label:"Details"}],statePath="/flights",domain="flight",preferredPresentation="cards",primaryColumn="airline",numericColumns=["price"])
+d=Text("Fare Notes","h3")
+e=Column([f,g,h],"sm")
+f=Text("Prices are dynamic and can change based on demand, booking time, and seat availability.","caption")
+g=Text("Some sources show broader route fare ranges, including ₹6,207–₹7,174 on EasyMyTrip and ₹7,271+ on Air India Express, but those are not specific guarantees for 15 Oct at booking time.","caption")
+h=Text("Non-stop flights on this route commonly take about 2h 40m to 2h 45m.","caption")
+i=Text("If you want, I can also list the flights in a cleaner shortlist by cheapest, fastest, or non-stop only.","h3")
+j=Button("Show Cheapest","primary",/"/flights)
+</a2ui>

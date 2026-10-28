@@ -103,7 +103,9 @@ internal object NativeFlightUiRenderer {
                                 duration = duration,
                                 stopLabel = stopLabel,
                                 statusLabel = statusLabel
-                            )
+                            ) + row.details.joinToString(separator = "", transform = { (label, value) ->
+                                ". $label: ${sanitize(value)}"
+                            })
                         },
                     shape = RoundedCornerShape(24.dp),
                     colors = genUiCardColors(GenUiCardTone.Neutral),
@@ -177,7 +179,7 @@ internal object NativeFlightUiRenderer {
                             ) {
                                 FlightTimeCell(
                                     title = departDisplay,
-                                    subtitle = departPoint.code,
+                                    subtitle = departPoint.code ?: "Departure".takeIf { departDisplay != null },
                                     align = TextAlign.Start,
                                     modifier = Modifier.weight(1f),
                                     emphasis = true
@@ -208,9 +210,9 @@ internal object NativeFlightUiRenderer {
                                         )
                                         Icon(
                                             imageVector = Icons.Filled.FlightTakeoff,
-                                            contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                            modifier = Modifier.size(14.dp)
+                                            contentDescription = "Flight route",
+                                            tint = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.size(20.dp)
                                         )
                                         HorizontalDivider(
                                             modifier = Modifier.weight(1f),
@@ -223,7 +225,7 @@ internal object NativeFlightUiRenderer {
                                 }
                                 FlightTimeCell(
                                     title = arriveDisplay,
-                                    subtitle = arrivePoint.code,
+                                    subtitle = arrivePoint.code ?: "Arrival".takeIf { arriveDisplay != null },
                                     align = TextAlign.End,
                                     modifier = Modifier.weight(1f),
                                     emphasis = true
@@ -238,7 +240,7 @@ internal object NativeFlightUiRenderer {
                                 )
                             }
                         } else {
-                            val meta = listOfNotNull(stopLabel, arrivalStatus, fareValue, fareMeta)
+                            val meta = listOfNotNull("Fare listing".takeIf { fareValue != null }, stopLabel, arrivalStatus)
                             if (meta.isNotEmpty()) {
                                 MarkdownText(
                                     text = meta.joinToString(" | "),
@@ -248,8 +250,8 @@ internal object NativeFlightUiRenderer {
                             }
                         }
                         row.details.forEach { (label, value) ->
-                            Text(
-                                text = "$label: $value",
+                            MarkdownText(
+                                text = if (label == "Details") value else "$label: $value",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -328,14 +330,26 @@ internal object NativeFlightUiRenderer {
         val code = NativeFlightSemantics.airlineBadgeCode(airline)
         val resolvedLogo = remember(airline, logoUrl) { airlineLogoUrl(airline, logoUrl) }
         var logoFailed by remember(resolvedLogo) { mutableStateOf(false) }
+        var logoLoaded by remember(resolvedLogo) { mutableStateOf(false) }
         val context = LocalContext.current
         val imageLoader = rememberFlatImageLoader()
         Box(
             modifier = Modifier
                 .size(42.dp)
-                .clip(RoundedCornerShape(999.dp)),
+                .clip(RoundedCornerShape(999.dp))
+                .background(accent.copy(alpha = 0.10f))
+                .semantics { contentDescription = "Flight icon" },
             contentAlignment = Alignment.Center
         ) {
+            // Keep the local aircraft visible until a logo is actually decoded, including offline use.
+            if (!logoLoaded) {
+                Icon(
+                    imageVector = Icons.Filled.FlightTakeoff,
+                    contentDescription = null,
+                    tint = accent,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
             if (resolvedLogo != null && !logoFailed) {
                 AsyncImage(
                     model = ImageRequest.Builder(context)
@@ -349,14 +363,8 @@ internal object NativeFlightUiRenderer {
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(6.dp),
-                    onError = { logoFailed = true }
-                )
-            } else {
-                Icon(
-                    imageVector = Icons.Filled.FlightTakeoff,
-                    contentDescription = null,
-                    tint = accent,
-                    modifier = Modifier.size(18.dp)
+                    onError = { logoFailed = true; logoLoaded = false },
+                    onSuccess = { logoLoaded = true }
                 )
             }
             if (code.isNotBlank() && (resolvedLogo == null || logoFailed)) {

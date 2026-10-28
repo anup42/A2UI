@@ -1,0 +1,14 @@
+<a2ui>
+root=Column([quickHeading,comparisonTable,batteryHeading,batteryText,cameraHeading,cameraText,priceHeading,priceText,bestHeading,bestList,offerText],gap="md")
+quickHeading=Text("Quick comparison","h2")
+comparisonTable=Table(columns=["Phone","Battery","Camera","Price in India"],rows=[["Samsung Galaxy S25","4,000 mAh [21][31]","50 MP main + 12 MP ultra-wide + 10 MP telephoto, 12 MP front [15][8]","Starts around ₹58,999 to ₹84,999 depending on listing and variant[23]"],["iPhone 16","3,561 mAh [27][35]","48 MP main + 12 MP ultra-wide, 12 MP front [13][32]","Starts at ₹79,900 officially; some listings show ₹76,999"],["Google Pixel 9","4,700 mAh [1][10]","50 MP main + 48 MP ultra-wide, 10.5 MP front [17]","Starts around ₹79,999; some India listings show lower sale prices[12]"}]}
+batteryHeading=Text("Battery","h2")
+batteryText=Text("The Pixel 9 has the biggest battery here at 4,700 mAh, followed by the Galaxy S25 at 4,000 mAh, while the iPhone 16 has the smallest battery at 3,561 mAh.")
+cameraHeading=Text("Camera","h2")
+cameraText=Text("For rear cameras, the Galaxy S25 is the most versatile because it adds a telephoto lens, which helps with optical zoom.\n\nThe Pixel 9 and iPhone 16 both have strong dual-camera setups, but the Pixel 9 has the larger ultra-wide sensor on paper, while the iPhone 16 uses a 48 MP main camera paired with a 12 MP ultra-wide camera.")
+priceHeading=Text("Price","h2")
+priceText=Text("In India, the iPhone 16 officially starts at ₹79,900, the Pixel 9 starts at ₹79,999, and the Galaxy S25 often lists below both in current retail pricing, with some listings around ₹58,999 to ₹84,999 depending on storage and seller.")
+bestHeading=Text("Best pick by priority","h2")
+bestList=List(items=["Best battery: Google Pixel 9.","Best zoom and camera flexibility: Samsung Galaxy S25.","Best iPhone option: iPhone 16, if you want iOS and Apple’s ecosystem."])
+offerText=Text("If you want, I can also turn this into a simple recommendation based on your budget and whether you care more about photos, gaming, or battery life.")
+</a2ui>

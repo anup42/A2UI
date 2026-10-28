@@ -8,6 +8,7 @@ import coil.ImageLoader
 import coil.ImageLoaderFactory
 import com.google.android.material.color.DynamicColors
 import com.samsung.genuicraft.renderer.flat.compose.*
+import com.samsung.genuicraft.sdk.provider.GenUiEngineManager
 
 class GenUiCraftApplication : Application(), ImageLoaderFactory {
 
@@ -20,6 +21,7 @@ class GenUiCraftApplication : Application(), ImageLoaderFactory {
 
     override fun onCreate() {
         super.onCreate()
+        GenUiEngineManager.install(this)
         // This is the Android-supported way for third-party apps to follow
         // wallpaper-driven system dynamic colors on compatible devices.
         DynamicColors.applyToActivitiesIfAvailable(this)

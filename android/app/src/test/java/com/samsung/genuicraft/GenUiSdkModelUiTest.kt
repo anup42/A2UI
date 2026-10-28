@@ -3,6 +3,7 @@ package com.samsung.genuicraft
 import com.samsung.genuicraft.sdk.GenUiModelOutput
 import com.samsung.genuicraft.sdk.GenUiPrompt
 import com.samsung.genuicraft.sdk.GenUiProvider
+import com.samsung.genuicraft.sdk.GenUiTrainedConverter
 import com.samsung.genuicraft.sdk.provider.Gemma4GpuPrecision
 import java.io.File
 import java.security.MessageDigest
@@ -62,6 +63,10 @@ class GenUiSdkModelUiTest {
             E2bModelChoice.TRAINED_E2B_V10_W4,
             E2bModelChoice.fromPreference("trained_e2b_v10_w4"),
         )
+        assertEquals(
+            E2bModelChoice.TRAINED_E2B_PREVIOUS_R64,
+            E2bModelChoice.fromPreference("trained_e2b_previous_r64"),
+        )
         assertEquals(E2bModelChoice.OFFICIAL_E2B, E2bModelChoice.fromPreference(null))
         assertEquals(E2bModelChoice.OFFICIAL_E2B, E2bModelChoice.fromPreference("future"))
         assertEquals(
@@ -85,12 +90,20 @@ class GenUiSdkModelUiTest {
             "trained_e2b_v10_w4_model_path",
             PREFERENCE_TRAINED_E2B_W4_MODEL_PATH,
         )
+        assertEquals(
+            "trained_e2b_previous_r64_model_path",
+            PREFERENCE_TRAINED_E2B_PREVIOUS_R64_MODEL_PATH,
+        )
         assertNotEquals(
             PREFERENCE_OFFICIAL_E2B_MODEL_PATH,
             PREFERENCE_TRAINED_E2B_W4_MODEL_PATH,
         )
         assertNotEquals(PREFERENCE_E2B_MODEL_CHOICE, PREFERENCE_OFFICIAL_E2B_MODEL_PATH)
         assertNotEquals(PREFERENCE_E2B_MODEL_CHOICE, PREFERENCE_TRAINED_E2B_W4_MODEL_PATH)
+        assertNotEquals(PREFERENCE_TRAINED_E2B_W4_MODEL_PATH,
+            PREFERENCE_TRAINED_E2B_PREVIOUS_R64_MODEL_PATH)
+        assertNotEquals(PREFERENCE_OFFICIAL_E2B_MODEL_PATH,
+            PREFERENCE_TRAINED_E2B_PREVIOUS_R64_MODEL_PATH)
 
         val officialKey = sdkDemoProviderKey(
             e2bModelChoice = E2bModelChoice.OFFICIAL_E2B,
@@ -108,6 +121,29 @@ class GenUiSdkModelUiTest {
         assertTrue(trainedKey.contains("profile=trained_e2b_v10_w4"))
         assertTrue(officialKey.contains("path=/models/e2b.litertlm"))
         assertTrue(trainedKey.contains("path=/models/e2b.litertlm"))
+    }
+
+    @Test
+    fun previousR64UsesTheSameTrainedSdkProfileWithItsOwnPathAndReadiness() {
+        val latest = E2bModelChoice.TRAINED_E2B_V10_W4
+        val previous = E2bModelChoice.TRAINED_E2B_PREVIOUS_R64
+        assertTrue(latest.isTrainedE2b)
+        assertTrue(previous.isTrainedE2b)
+        assertFalse(E2bModelChoice.OFFICIAL_E2B.isTrainedE2b)
+        assertEquals(GenUiTrainedConverter.PROFILE, latest.profile)
+        assertEquals(latest.profile, previous.profile)
+        assertTrue(previous.supportsMtp)
+        assertNotEquals(latest.displayName, previous.displayName)
+        assertNotEquals(
+            sdkDemoProviderKey(latest, "/models/latest.litertlm", true, true,
+                Gemma4GpuPrecision.FP16_CORRECTED),
+            sdkDemoProviderKey(previous, "/models/previous/model-fp16-corrected.litertlm", true, true,
+                Gemma4GpuPrecision.FP16_CORRECTED),
+        )
+        assertFalse(sdkDemoActionAvailability(false, previous, GemmaModelSource.MANAGED_DOWNLOAD,
+            managedOfficialModelReady = true, trainedModelReady = false).convertEnabled)
+        assertTrue(sdkDemoActionAvailability(false, previous, GemmaModelSource.MANAGED_DOWNLOAD,
+            managedOfficialModelReady = false, trainedModelReady = true).convertEnabled)
     }
 
     @Test
@@ -215,6 +251,74 @@ class GenUiSdkModelUiTest {
     }
 
     @Test
+    fun correctedFp16DirectPackageNeedsOnlyVerifiedSidecarAndRejectsFp32() {
+        val original = temporaryFolder.newFile("gemma4_e2b_a2ui_previous_r64.litertlm").apply {
+            writeBytes(byteArrayOf(1, 2, 3))
+        }
+        val preparedBytes = byteArrayOf(4, 5, 6, 7)
+        val profile = correctedProfile(original, preparedBytes)
+        val unrelatedProfile = correctedProfile(original, byteArrayOf(8, 9), "other-transform")
+        val prepared = File(temporaryFolder.newFolder("previous_r64"), CORRECTED_FP16_MODEL_FILE_NAME)
+            .apply { writeBytes(preparedBytes) }
+        assertTrue(original.delete())
+        val sidecar = File("${prepared.absolutePath}.fp16.json")
+        fun select(precision: InferenceBackendSettings.TrainedE2bGpuPrecision) = selectTrainedE2bModel(
+            prepared.absolutePath, precision, listOf(unrelatedProfile, profile),
+        )
+
+        val fp32 = select(InferenceBackendSettings.TrainedE2bGpuPrecision.FP32)
+        assertFalse(fp32.readiness.usable)
+        assertTrue(fp32.readiness.message.contains("Use FP16 (corrected)"))
+        assertFalse(select(InferenceBackendSettings.TrainedE2bGpuPrecision.FP16_CORRECTED).readiness.usable)
+
+        sidecar.writeText(correctedManifest(profile, prepared.length(), drafterCorrected = true))
+        val direct = select(InferenceBackendSettings.TrainedE2bGpuPrecision.FP16_CORRECTED)
+        assertEquals(prepared.absolutePath, direct.modelPath)
+        assertEquals(Gemma4GpuPrecision.FP16_CORRECTED, direct.gpuPrecision)
+        assertTrue(direct.readiness.message, direct.readiness.usable)
+        assertTrue(direct.mtpSupported)
+    }
+
+    @Test
+    fun correctedFp16DirectPackageRejectsUnverifiedOrMalformedSidecar() {
+        val original = temporaryFolder.newFile("previous-original.litertlm").apply {
+            writeBytes(byteArrayOf(1, 2, 3))
+        }
+        val preparedBytes = byteArrayOf(4, 5, 6, 7)
+        val profile = correctedProfile(original, preparedBytes)
+        val prepared = File(temporaryFolder.newFolder("direct-only"), CORRECTED_FP16_MODEL_FILE_NAME)
+            .apply { writeBytes(preparedBytes) }
+        val sidecar = File("${prepared.absolutePath}.fp16.json")
+        val valid = correctedManifest(profile, prepared.length(), drafterCorrected = false)
+        fun usable(profiles: List<CorrectedFp16Profile> = listOf(profile)) = selectTrainedE2bModel(
+            prepared.absolutePath, InferenceBackendSettings.TrainedE2bGpuPrecision.FP16_CORRECTED,
+            profiles,
+        ).readiness.usable
+
+        sidecar.writeText(valid)
+        assertTrue(usable())
+        assertFalse(usable(listOf(profile.copy(modelSha256 = "b".repeat(64)))))
+        assertFalse(usable(listOf(profile.copy(sourceSha256 = "a".repeat(64)))))
+        val invalidManifests = listOf(
+            valid.replace("\"source_sha256\": \"${profile.sourceSha256}\"", "\"source_sha256\": \"${"a".repeat(64)}\""),
+            valid.replace("\"source_bytes\": ${profile.sourceBytes}", "\"source_bytes\": ${profile.sourceBytes + 1}"),
+            valid.replace("\"model_sha256\": \"${profile.modelSha256}\"", "\"model_sha256\": \"${"b".repeat(64)}\""),
+            valid.replace("\"model_bytes\": ${prepared.length()}", "\"model_bytes\": ${prepared.length() + 1}"),
+            valid.replace("\"transform_version\": \"${profile.transformVersion}\"", "\"transform_version\": \"wrong\""),
+            valid.replace("genuicraft-fp16-rope-qdq-v1", "wrong-policy"),
+            valid.replace("\"max_context_tokens\": 8192", "\"max_context_tokens\": 4096"),
+            valid.replace("\"target_rope_corrected\": true", "\"target_rope_corrected\": false"),
+            valid.replace("\"target_rope_corrected\": true", "\"target_rope_corrected\": \"true\""),
+            valid.replace("\"drafter_rope_corrected\": false", "\"drafter_rope_corrected\": \"false\""),
+            "not-json",
+        )
+        invalidManifests.forEachIndexed { index, invalid ->
+            sidecar.writeText(invalid)
+            assertFalse("Invalid direct sidecar #$index must not select a model", usable())
+        }
+    }
+
+    @Test
     fun correctedFp16RejectsManifestIdentityChangesAndUnverifiedProfile() {
         val original = temporaryFolder.newFile("e2b_qat_grpo_20261009.litertlm").apply {
             writeBytes(byteArrayOf(8, 9, 0))
@@ -297,7 +401,7 @@ class GenUiSdkModelUiTest {
 
     @Test
     fun mtpSettingReplacesEachOnDeviceProvider() {
-        E2bModelChoice.entries.forEach { choice ->
+        E2bModelChoice.entries.filter { it.supportsMtp }.forEach { choice ->
             val on = sdkDemoProviderKey(choice, "/models/e2b.litertlm", true, true)
             val off = sdkDemoProviderKey(choice, "/models/e2b.litertlm", true, false)
             assertNotEquals("MTP changes must recreate the engine for $choice", on, off)
@@ -334,6 +438,40 @@ class GenUiSdkModelUiTest {
         assertFalse(config.enableThinking)
         assertFalse(config.enableSpeculativeDecoding)
         assertTrue(config.enableMetrics)
+    }
+
+    @Test
+    fun gemma270ChoiceIsIndependentOfE2bReadinessAndMtpSettings() {
+        val choice = E2bModelChoice.TRAINED_GEMMA3_270M
+        assertEquals(choice, E2bModelChoice.fromPreference("trained_gemma3_270m"))
+        assertFalse(choice.supportsMtp)
+        assertFalse(sdkDemoActionAvailability(false, choice, GemmaModelSource.LOCAL_FILE,
+            true, true, gemma270ModelReady = false).convertEnabled)
+        assertTrue(sdkDemoActionAvailability(false, choice, GemmaModelSource.MANAGED_DOWNLOAD,
+            false, false, gemma270ModelReady = true).convertEnabled)
+        assertFalse(sdkDemoActionAvailability(true, choice, GemmaModelSource.LOCAL_FILE,
+            false, false, gemma270ModelReady = true).convertEnabled)
+        assertEquals(sdkDemoProviderKey(choice, "/models/270.litertlm", true, true),
+            sdkDemoProviderKey(choice, "/models/270.litertlm", true, false, Gemma4GpuPrecision.FP16_CORRECTED))
+        assertNotEquals(sdkDemoProviderKey(choice, "/models/270.litertlm", true),
+            sdkDemoProviderKey(choice, "/models/270.litertlm", true, gemma270Accelerator = "GPU"))
+        assertNotEquals(sdkDemoProviderKey(choice, "/models/270.litertlm", true),
+            sdkDemoProviderKey(choice, "/models/other.litertlm", true))
+    }
+
+    @Test
+    fun gemma270ReadinessRejectsMissingOrIncompletePackage() {
+        assertFalse(gemma270ModelReadiness("/missing/270.litertlm").usable)
+        val model = temporaryFolder.newFile("gemma-3-270m-a2ui-express-int8.litertlm")
+        assertFalse(gemma270ModelReadiness(model.absolutePath).usable)
+        java.io.RandomAccessFile(model, "rw").use { it.setLength(200_000_000L) }
+        assertTrue(gemma270ModelReadiness(model.absolutePath).usable)
+        val wrongExtension = temporaryFolder.newFile("270.bin")
+        java.io.RandomAccessFile(wrongExtension, "rw").use { it.setLength(200_000_000L) }
+        assertFalse(gemma270ModelReadiness(wrongExtension.absolutePath).usable)
+        val differentModel = temporaryFolder.newFile("e2b_v10_w4.litertlm")
+        java.io.RandomAccessFile(differentModel, "rw").use { it.setLength(200_000_000L) }
+        assertFalse(gemma270ModelReadiness(differentModel.absolutePath).usable)
     }
 
     private fun sha256(bytes: ByteArray): String = MessageDigest.getInstance("SHA-256")

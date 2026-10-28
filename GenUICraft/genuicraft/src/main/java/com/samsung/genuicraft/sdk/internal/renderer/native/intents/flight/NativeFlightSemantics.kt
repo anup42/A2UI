@@ -14,6 +14,24 @@ internal object NativeFlightSemantics {
     )
     private val rangeSeparator = Regex("""->|[-\u2013\u2014\u2192]|\bto\b""", RegexOption.IGNORE_CASE)
     private val airportAroundSeparator = Regex("""\s*(?:\(?[A-Z]{3}\)?)?\s*""")
+    private val missingDataMarker = Regex(
+        """(?i)^(?:n\s*/\s*a|not\s+(?:shown|available|provided|listed)(?:\s+in\s+(?:the\s+)?(?:result|search)\s+snippet)?|unavailable|unknown|[-–—])$"""
+    )
+    private val missingFareNote = Regex(
+        """(?i)\b(?:fare|price|cost)\s+(?:is\s+)?(?:not\s+(?:shown|available|provided|listed)|unavailable)\b"""
+    )
+    private val missingStopsNote = Regex(
+        """(?i)\b(?:stops?|layovers?|connections?)\s+(?:information\s+)?(?:is\s+)?(?:not\s+(?:shown|available|provided|listed)|unavailable)\b"""
+    )
+
+    private fun isMissingDataMarker(value: String?): Boolean =
+        missingDataMarker.matches(NativeTextFormatter.sanitizeDisplayText(value.orEmpty()).trim().trimEnd('.', ';'))
+
+    private fun isMissingFareNote(value: String?): Boolean =
+        missingFareNote.containsMatchIn(NativeTextFormatter.sanitizeDisplayText(value.orEmpty()))
+
+    private fun isMissingStopsNote(value: String?): Boolean =
+        missingStopsNote.containsMatchIn(NativeTextFormatter.sanitizeDisplayText(value.orEmpty()))
 
     /** Split only an explicit two-clock range; never infer a day offset or a missing time. */
     fun parseFlightTimeRange(value: String?): Pair<String, String>? {
@@ -104,11 +122,11 @@ internal object NativeFlightSemantics {
             .replace(Regex("""\s+"""), " ")
             .replace("â‚¹", "\u20B9")
             .replace("Â₹", "\u20B9")
+        if (isMissingDataMarker(compact)) return "Fare unavailable" to null
         val lower = compact.lowercase(Locale.US)
-        val amount = Regex("""(?i)((?:[\u20B9$\u20AC\u00A3]|rs\.?|inr)\s?\d[\d,]*(?:\.\d+)?)""")
+        val amountMatch = Regex("""(?i)((?:[\u20B9$\u20AC\u00A3]|rs\.?|inr)\s?\d[\d,]*(?:\.\d+)?)""")
             .find(compact)
-            ?.groupValues
-            ?.getOrNull(1)
+        val amount = amountMatch?.groupValues?.getOrNull(1)
         val normalizedAmount = amount
             ?.replace(Regex("""\s+"""), "")
             ?.replace(Regex("""(?i)^(rs\.?|inr)"""), "\u20B9")
@@ -118,7 +136,18 @@ internal object NativeFlightSemantics {
             else -> null
         }
         if (!normalizedAmount.isNullOrBlank()) {
-            return normalizedAmount to suffix
+            val qualifier = amountMatch?.let { match ->
+                Regex("""(?i)^(from|about|around|approx(?:\.|imately)?|starting\s+(?:at|from(?:\s+about)?))\s*$""")
+                    .matchEntire(compact.substring(0, match.range.first))
+                    ?.groupValues?.getOrNull(1)
+            }
+            val citations = amountMatch?.let { match ->
+                Regex("""^\s*((?:\[\d+\]\s*)+)""")
+                    .find(compact.substring(match.range.last + 1))
+                    ?.groupValues?.getOrNull(1)?.trim()
+            }
+            val displayAmount = listOfNotNull(qualifier, normalizedAmount, citations).joinToString(" ")
+            return displayAmount to suffix
         }
         return when {
             lower.contains("/adult") -> compact.replace(Regex("""(?i)\s*/\s*adult"""), "").trim() to "/adult"
@@ -142,7 +171,7 @@ internal object NativeFlightSemantics {
 
     fun canonicalizeStopLabel(value: String?): String? {
         val text = NativeTextFormatter.sanitizeDisplayText(value.orEmpty()).trim()
-        if (text.isBlank()) {
+        if (text.isBlank() || isMissingDataMarker(text) || isMissingFareNote(text) || isMissingStopsNote(text)) {
             return null
         }
         val normalized = normalizeMatchText(text)
@@ -159,7 +188,7 @@ internal object NativeFlightSemantics {
 
     fun normalizeFlightStatus(rawStatus: String?, stopLabel: String?): String? {
         val status = NativeTextFormatter.sanitizeDisplayText(rawStatus.orEmpty()).trim()
-        if (status.isBlank()) {
+        if (status.isBlank() || isMissingDataMarker(status) || isMissingFareNote(status) || isMissingStopsNote(status)) {
             return null
         }
         val normalized = normalizeMatchText(status)
@@ -268,6 +297,20 @@ internal object NativeFlightSemantics {
             val departRange = parseFlightTimeRange(rawDepart)
             val arriveRange = parseFlightTimeRange(rawArrive)
             val actionUrl = readCell(row, columns.actionUrl)?.takeIf(::looksLikeActionUrl)
+            val rawFare = readCell(row, columns.fare)
+            val rawStatus = readCell(row, columns.status)
+            val rawStops = readCell(row, columns.stops)
+            val fareIsMissing = rawFare.isNullOrBlank() || isMissingDataMarker(rawFare) || isMissingFareNote(rawFare)
+            val explicitFareNote = if (fareIsMissing) {
+                listOfNotNull(rawFare, rawStatus).firstOrNull(::isMissingFareNote)
+            } else null
+            val fareNotShown = explicitFareNote != null ||
+                (isMissingDataMarker(rawFare) && isMissingDataMarker(rawStatus) &&
+                    rawStatus?.trim()?.startsWith("not shown", ignoreCase = true) == true)
+            val fare = if (fareNotShown) "Fare not shown" else rawFare
+            val status = rawStatus?.takeUnless {
+                isMissingDataMarker(it) || isMissingFareNote(it) || isMissingStopsNote(it)
+            }
             val representedColumns = setOfNotNull(
                 columns.airline, columns.depart, columns.arrive, columns.duration, columns.stops,
                 columns.fare, columns.status, columns.logo,
@@ -278,7 +321,12 @@ internal object NativeFlightSemantics {
                 val value = readCell(row, index) ?: return@mapNotNull null
                 val label = if (Regex("""(?:\s*\[\d+])+\s*""").matches(value)) "Sources" else header[index]
                 label to value
-            }
+            } + listOfNotNull(
+                rawFare?.takeIf { isMissingFareNote(it) && it.trim() != "Fare not shown" }?.let { "Fare note" to it },
+                rawStatus?.takeIf { isMissingFareNote(it) && it.trim() != "Fare not shown" }?.let { "Fare note" to it },
+                rawStops?.takeIf(::isMissingStopsNote)?.let { "Stops note" to it },
+                rawStatus?.takeIf(::isMissingStopsNote)?.let { "Stops note" to it },
+            ).distinct()
             FlightRow(
                 airline = airline,
                 depart = departRange?.first ?: rawDepart ?: arriveRange?.first,
@@ -286,9 +334,11 @@ internal object NativeFlightSemantics {
                 arrive = arriveRange?.second ?: rawArrive ?: departRange?.second,
                 destinationCode = destinationCode,
                 duration = readCell(row, columns.duration),
-                stops = readCell(row, columns.stops),
-                fare = readCell(row, columns.fare),
-                status = readCell(row, columns.status),
+                stops = rawStops?.takeUnless {
+                    isMissingDataMarker(it) || isMissingFareNote(it) || isMissingStopsNote(it)
+                },
+                fare = fare,
+                status = status,
                 logoUrl = readCell(row, columns.logo)?.takeIf(::looksLikeMediaUrl),
                 actionUrl = actionUrl,
                 actionLabel = readCell(row, columns.actionLabel)
@@ -435,11 +485,17 @@ internal object NativeFlightSemantics {
             duration = bestIndex(indices, durationScore, exclude = setOfNotNull(airline, depart, arrive, logo, actionUrl, actionLabel))
         }
         if (fare == null || score(fare, fareScore) < 0.4f) {
-            fare = bestIndex(indices, fareScore, exclude = setOfNotNull(airline, depart, arrive, duration, stops, logo, actionUrl, actionLabel))
+            // A declared Fare column may contain N/A when no price was supplied. Keep that
+            // column unless another column actually has fare evidence.
+            bestIndex(indices, fareScore, exclude = setOfNotNull(airline, depart, arrive, duration, stops, logo, actionUrl, actionLabel))
+                ?.let { fare = it }
         }
         if (stops == null || score(stops, stopScore) < 0.4f) {
             // A generated Details cell can contain both duration and stops.
-            stops = bestIndex(indices, stopScore, exclude = setOfNotNull(airline, depart, arrive, fare, logo, actionUrl, actionLabel))
+            // A declared Stops column with "not shown" must retain its column identity;
+            // buildFlightRows decides whether that value is displayable stop information.
+            bestIndex(indices, stopScore, exclude = setOfNotNull(airline, depart, arrive, fare, logo, actionUrl, actionLabel))
+                ?.let { stops = it }
         }
 
         return detected.copy(

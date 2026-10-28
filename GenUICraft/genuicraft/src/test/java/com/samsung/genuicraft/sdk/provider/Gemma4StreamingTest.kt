@@ -11,6 +11,125 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class Gemma4StreamingTest {
+    @Test fun `opted in valid Express stops after split closing tag and keeps exact native delta`() {
+        lateinit var callback: MessageCallback
+        val snapshots = mutableListOf<String>()
+        var cancellations = 0
+        val first = "  <a2ui>\nroot=Text(\"Sunny\")\n</a"
+        val last = "2ui> \n"
+        val result = awaitGemma4Stream(
+            start = {
+                callback = it
+                it.onMessage(Message.model(first))
+                assertEquals(0, cancellations)
+                it.onMessage(Message.model(last))
+                it.onMessage(Message.model("ignored after cancellation"))
+                it.onDone()
+            },
+            cancel = {
+                cancellations++
+                callback.onError(CancellationException("completion cutoff"))
+            },
+            onPartialText = snapshots::add,
+            isCancelled = { false },
+            stopAtCompleteExpress = true,
+        )
+
+        assertEquals(1, cancellations)
+        assertEquals(first + last, result.text)
+        assertEquals(listOf(first, first + last), snapshots)
+        assertTrue(result.completionStop)
+        assertNull(result.repetitionStop)
+    }
+
+    @Test fun `complete Express does not stop when opt in is absent`() {
+        var cancelled = false
+        val result = awaitGemma4Stream(
+            start = {
+                it.onMessage(Message.model("<a2ui>\nroot=Text(\"Hi\")\n</a2ui>"))
+                it.onDone()
+            },
+            cancel = { cancelled = true },
+            onPartialText = {},
+            isCancelled = { false },
+        )
+        assertFalse(cancelled)
+        assertFalse(result.completionStop)
+    }
+
+    @Test fun `quoted commented and fenced delimiters cannot trigger completion`() {
+        val prefixes = listOf(
+            "<a2ui>\nroot=Text(\"</a2ui>",
+            "<a2ui>\nroot=Text(r\"</a2ui>",
+            "<a2ui>\nroot=Text(\"\"\"</a2ui>",
+            "<a2ui>\nroot=Text(\"Hi\")\n# </a2ui>",
+            "<a2ui>\nroot=Text(\"Hi\")\n// </a2ui>",
+            "<a2ui>\nroot=Text(\"Hi\")\n/* </a2ui>",
+            "```a2ui\n<a2ui>\nroot=Text(\"Hi\")\n</a2ui>\n```",
+        )
+        prefixes.forEach { prefix ->
+            assertFalse(prefix, GenUiExpressCompletionDetector().inspect(prefix))
+        }
+        val quotedThenRealClose = "<a2ui>\nroot=Text(\"</a2ui>\")\n</a2ui>"
+        val detector = GenUiExpressCompletionDetector()
+        assertFalse(detector.inspect("<a2ui>\nroot=Text(\"</a2ui>"))
+        assertTrue(detector.inspect(quotedThenRealClose))
+    }
+
+    @Test fun `syntactically closed but invalid Express does not cancel decode`() {
+        val invalid = "<a2ui>\nroot=Unsupported(\"Hi\")\n</a2ui>"
+        var cancelled = false
+        val result = awaitGemma4Stream(
+            start = {
+                it.onMessage(Message.model(invalid))
+                it.onDone()
+            },
+            cancel = { cancelled = true },
+            onPartialText = {},
+            isCancelled = { false },
+            stopAtCompleteExpress = true,
+        )
+        assertFalse(cancelled)
+        assertFalse(result.completionStop)
+        assertEquals(invalid, result.text)
+    }
+
+    @Test fun `nonwhitespace trailing text is retained without a false completion stop`() {
+        val raw = "<a2ui>\nroot=Text(\"Hi\")\n</a2ui> extra"
+        var cancelled = false
+        val result = awaitGemma4Stream(
+            start = {
+                it.onMessage(Message.model(raw))
+                it.onDone()
+            },
+            cancel = { cancelled = true },
+            onPartialText = {},
+            isCancelled = { false },
+            stopAtCompleteExpress = true,
+        )
+        assertFalse(cancelled)
+        assertFalse(result.completionStop)
+        assertEquals(raw, result.text)
+    }
+
+    @Test fun `user cancellation still wins after a complete Express callback`() {
+        lateinit var callback: MessageCallback
+        var userCancelled = false
+        val actual = assertThrows(CancellationException::class.java) {
+            awaitGemma4Stream(
+                start = {
+                    callback = it
+                    it.onMessage(Message.model("<a2ui>\nroot=Text(\"Hi\")\n</a2ui>"))
+                },
+                cancel = { callback.onError(CancellationException("native cancellation")) },
+                onPartialText = { userCancelled = true },
+                isCancelled = { userCancelled },
+                stopAtCompleteExpress = true,
+            )
+        }
+        assertEquals("Gemma 4 streaming request cancelled.", actual.message)
+    }
+
     @Test fun `native deltas become exact cumulative snapshots before completion`() {
         val snapshots = mutableListOf<String>()
         var complete = false

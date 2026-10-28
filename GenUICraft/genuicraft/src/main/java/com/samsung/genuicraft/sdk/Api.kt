@@ -35,6 +35,8 @@ data class GenUiPrompt(
     val chatTemplateOverride: String? = null,
     /** When supplied, native rendering must match this exact training prefix before inference. */
     val expectedRenderedPrompt: String? = null,
+    /** Stop native decode after a complete, strictly compilable Express program. */
+    val stopAtCompleteExpress: Boolean = false,
 )
 
 /** How [GenUiCompiler.compileWithRepair] produced an accepted document. */
@@ -78,6 +80,9 @@ data class GenUiGenerationMetrics(
     val engineInitializedForRequest: Boolean? = null,
     /** LiteRT's sum of native init phases; phases can overlap, so this is not additive wall time. */
     val nativeInitializationPhaseSeconds: Double? = null,
+    /** Correlates request measurements with eventual engine-lifetime drafter counters. */
+    val engineId: String? = null,
+    val resources: com.samsung.genuicraft.sdk.telemetry.GenUiResourceSummary? = null,
 )
 
 /** Metrics that LiteRT can publish only when one complete native engine session ends. */
@@ -86,12 +91,18 @@ data class GenUiGenerationSessionMetrics(
     val speculativeDecodingEnabled: Boolean,
     /** Verified draft tokens divided by all proposed draft tokens, in the range 0.0..1.0. */
     val drafterAcceptanceRate: Double? = null,
+    val engineId: String? = null,
+    val acceptanceScope: String? = null,
+    val retirementReason: String? = null,
+    val pendingRetirement: Boolean = false,
+    val requestCount: Int = 0,
 )
 
 /** Why native generation ended. A repetition cutoff still returns its accumulated text for repair. */
 enum class GenUiGenerationFinishReason {
     COMPLETED,
     REPETITION_LIMIT,
+    EXPRESS_COMPLETE,
 }
 
 data class GenUiModelOutput(
@@ -106,6 +117,8 @@ data class GenUiModelOutput(
 
 interface GenUiProvider : AutoCloseable {
     val id: String
+    /** Initializes a reusable engine without decoding or retaining conversation history. */
+    suspend fun prewarm() {}
     suspend fun generate(prompt: GenUiPrompt): GenUiModelOutput
     /**
      * Reports cumulative raw output, potentially on a native/provider worker thread. The observer
@@ -116,8 +129,8 @@ interface GenUiProvider : AutoCloseable {
         return generate(prompt).also { onPartialText(it.text) }
     }
     /**
-     * Ends an opt-in metrics session after all conversion attempts. Providers return null when
-     * they have no session-level telemetry. Normal generation must not depend on this hook.
+     * Snapshots opt-in metrics without retiring a reusable engine. Native MTP acceptance remains
+     * pending until retirement and is then published by GenUiEngineManager.retirementMetrics.
      */
     suspend fun finishGenerationMetrics(): GenUiGenerationSessionMetrics? = null
     suspend fun closeAndAwait() {

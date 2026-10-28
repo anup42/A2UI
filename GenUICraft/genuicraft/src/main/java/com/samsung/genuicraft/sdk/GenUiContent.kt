@@ -82,8 +82,10 @@ internal fun GenUiContentImpl(
     surfaceKey: String? = null,
     interactionEnabled: Boolean = true,
 ) {
-    val renderResult = remember(document.a2uiJson, document.express) {
-        val input = document.a2uiJson.ifBlank { document.express }
+    val renderResult = remember(document.a2uiJson, document.express, interactionEnabled) {
+        // Apply the same presentation policy to persisted answers and renderer-only callers.
+        val presented = if (interactionEnabled) GenUiPresentation.prepare(document).document else document
+        val input = presented.a2uiJson.ifBlank { presented.express }
         GenUiNativeRenderer.render(input, sourceDir = null)
     }
     val callbackHost = remember(onAction) { CallbackRendererHost(onAction) }

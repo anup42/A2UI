@@ -23,6 +23,26 @@ class NativeFlightSemanticsTest {
     }
 
     @Test
+    fun splitFareDisplay_preservesExplicitFareQualifiers() {
+        assertEquals("from \u20B922,268" to null, NativeFlightSemantics.splitFareDisplay("from \u20B922,268"))
+        assertEquals("about \u20B97,195" to null, NativeFlightSemantics.splitFareDisplay("about INR 7,195"))
+        assertEquals("around \u20B97,195" to null, NativeFlightSemantics.splitFareDisplay("around \u20B97,195"))
+        assertEquals("approx. \u20B97,298" to null, NativeFlightSemantics.splitFareDisplay("approx. Rs. 7,298"))
+        assertEquals("approximately \u20B97,298" to null, NativeFlightSemantics.splitFareDisplay("approximately \u20B97,298"))
+        assertEquals("starting at \u20B97,298" to null, NativeFlightSemantics.splitFareDisplay("starting at \u20B97,298"))
+        assertEquals("starting from \u20B97,298" to null, NativeFlightSemantics.splitFareDisplay("starting from \u20B97,298"))
+        assertEquals("starting from about \u20B97,298" to null, NativeFlightSemantics.splitFareDisplay("starting from about \u20B97,298"))
+    }
+
+    @Test
+    fun splitFareDisplay_keepsAdjacentFareCitationsAndAdultSuffix() {
+        assertEquals(
+            "from \u20B922,268 [5][12]" to "/adult",
+            NativeFlightSemantics.splitFareDisplay("from \u20B922,268 [5][12] /adult")
+        )
+    }
+
+    @Test
     fun buildFlightRows_preservesLogoAndActionFields() {
         val rows = NativeFlightSemantics.buildFlightRows(
             header = listOf(

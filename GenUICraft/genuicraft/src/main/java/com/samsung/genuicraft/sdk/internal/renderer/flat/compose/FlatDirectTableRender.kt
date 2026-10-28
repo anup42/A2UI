@@ -1,6 +1,7 @@
 package com.samsung.genuicraft.sdk.internal.renderer.flat.compose
 
 import com.samsung.genuicraft.sdk.internal.renderer.*
+import com.samsung.genuicraft.sdk.internal.renderer.native.intents.flight.FlightOptionPresentation
 
 import android.content.Intent
 import android.content.res.Configuration
@@ -123,6 +124,7 @@ import com.samsung.genuicraft.sdk.internal.renderer.native.intents.train.NativeT
 import com.samsung.genuicraft.sdk.internal.renderer.native.intents.train.NativeTrainUiRenderer
 import com.samsung.genuicraft.sdk.internal.renderer.native.intents.weather.NativeWeatherSemantics
 import com.samsung.genuicraft.sdk.internal.renderer.native.intents.weather.NativeWeatherUiRenderer
+import com.samsung.genuicraft.sdk.internal.renderer.native.intents.weather.CityWeatherComparisonSemantics
 import com.samsung.genuicraft.sdk.internal.renderer.native.intents.airquality.NativeAirQualitySemantics
 import com.samsung.genuicraft.sdk.internal.renderer.native.intents.airquality.NativeAirQualityUiRenderer
 import com.samsung.genuicraft.sdk.internal.renderer.native.media.NativeMediaVisualUtils
@@ -156,6 +158,40 @@ import com.samsung.genuicraft.sdk.internal.renderer.flat.compose.table.*
 // moved from FlatSpecRenderer.kt (extractDirectTableModel)
 internal fun hasExplicitTablePresentation(props: Map<String, Any?>): Boolean =
     props["preferredPresentation"]?.toString()?.trim()?.equals("table", ignoreCase = true) == true
+
+/** A device comparison with named products and concrete specifications reads better as row cards. */
+internal fun deviceProductComparisonPrimaryIndex(
+    headers: List<String>,
+    rows: List<List<String>>,
+    props: Map<String, Any?>,
+    shape: FlatTableShape,
+    domain: String,
+): Int? {
+    if (hasExplicitTablePresentation(props) || shape == FlatTableShape.FEATURE_MATRIX ||
+        domain !in setOf("generic", "comparison") || headers.size < 3 || rows.size < 2) return null
+    val identity = normalizeTableHeaderForMatch(headers.first())
+    if (identity !in setOf("phone", "phones", "smartphone", "smartphones", "device", "devices",
+            "product", "products", "model", "models", "device name", "product name", "model name")) return null
+
+    val attributeKinds = headers.drop(1).mapNotNull { header ->
+        val tokens = normalizeTableHeaderForMatch(header).split(' ').toSet()
+        when {
+            "battery" in tokens || "charging" in tokens -> "battery"
+            "camera" in tokens || "cameras" in tokens -> "camera"
+            "price" in tokens || "cost" in tokens || "mrp" in tokens -> "price"
+            "display" in tokens || "screen" in tokens -> "display"
+            "processor" in tokens || "chipset" in tokens || "chip" in tokens -> "processor"
+            "ram" in tokens || "storage" in tokens || "memory" in tokens -> "memory"
+            else -> null
+        }
+    }.toSet()
+    if (attributeKinds.size < 2 ||
+        attributeKinds.none { it in setOf("battery", "camera", "display", "processor") }) return null
+
+    val names = rows.map { row -> row.firstOrNull()?.trim()?.lowercase().orEmpty() }
+    if (names.any(String::isBlank) || names.toSet().size != rows.size) return null
+    return 0
+}
 
 internal fun extractDirectTableModel(
     props: Map<String, Any?>,
@@ -359,8 +395,102 @@ internal fun RenderDirectTable(
         )
         return
     }
-    // Apart from the guarded sightseeing view above, an explicit table preserves header meaning and units. Heuristic card routes may
-    // omit column labels or suppress summary rows, so they must not override this request.
+    // A city is the row identity here, not a forecast day. Keep the original grid available
+    // when it was explicitly requested, while showing compact source-faithful cards first.
+    val cityWeatherRows = if (table.shape != FlatTableShape.FEATURE_MATRIX) {
+        CityWeatherComparisonSemantics.buildRows(headers, table.rows, table.domain)
+    } else null
+    if (cityWeatherRows != null) {
+        var showTable by remember { mutableStateOf(false) }
+        Column(modifier = tableModifier, verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            if (hasExplicitTablePresentation(props)) {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                    TextButton(onClick = { showTable = !showTable }, enabled = isFinal) {
+                        Text(
+                            if (showTable) "Card view" else "Table view",
+                            style = MaterialTheme.typography.labelMedium,
+                        )
+                    }
+                }
+            }
+            if (showTable) {
+                props["title"]?.toString()?.takeIf { it.isNotBlank() }?.let { title ->
+                    Text(
+                        parseBoldMarkdown(title),
+                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                        modifier = Modifier.semantics { heading() },
+                    )
+                }
+                val horizontalScrollEnabled = nativeTableShouldScroll(
+                    compactScreen = compactPortrait,
+                    screenWidthDp = screenWidthDp,
+                    headers = headers,
+                    rows = table.rows,
+                )
+                RenderAdaptiveTableGrid(
+                    headers = headers,
+                    rows = table.rows,
+                    horizontalScrollEnabled = horizontalScrollEnabled,
+                    stickyFirstColumn = nativeTableStickyFirstColumn(headers, horizontalScrollEnabled),
+                    numericColumns = numericColumnIndexes(table.columns, table.rows, table.numericColumns),
+                )
+            } else {
+                RenderCityWeatherComparisonCards(
+                    rows = cityWeatherRows,
+                    modifier = Modifier.fillMaxWidth(),
+                    title = props["title"]?.toString(),
+                )
+            }
+        }
+        return
+    }
+    // Strong train-service semantics retain every cell. Prefer the rail cards even when the
+    // model requests a table, and keep that authored grid available through the view toggle.
+    val trainRows = if (table.shape != FlatTableShape.FEATURE_MATRIX) {
+        NativeTrainSemantics.buildTrainRows(headers, table.rows, props["title"]?.toString())
+    } else null
+    if (!trainRows.isNullOrEmpty()) {
+        var showTable by remember { mutableStateOf(false) }
+        Column(modifier = tableModifier, verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            if (hasExplicitTablePresentation(props)) {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                    TextButton(onClick = { showTable = !showTable }, enabled = isFinal) {
+                        Text(
+                            if (showTable) "Card view" else "Table view",
+                            style = MaterialTheme.typography.labelMedium,
+                        )
+                    }
+                }
+            }
+            if (showTable) {
+                props["title"]?.toString()?.takeIf { it.isNotBlank() }?.let { title ->
+                    Text(
+                        parseBoldMarkdown(title),
+                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                        modifier = Modifier.semantics { heading() },
+                    )
+                }
+                val horizontalScrollEnabled = nativeTableShouldScroll(
+                    compactScreen = compactPortrait,
+                    screenWidthDp = screenWidthDp,
+                    headers = headers,
+                    rows = table.rows,
+                )
+                RenderAdaptiveTableGrid(
+                    headers = headers,
+                    rows = table.rows,
+                    horizontalScrollEnabled = horizontalScrollEnabled,
+                    stickyFirstColumn = nativeTableStickyFirstColumn(headers, horizontalScrollEnabled),
+                    numericColumns = numericColumnIndexes(table.columns, table.rows, table.numericColumns),
+                )
+            } else {
+                NativeTrainUiRenderer.RenderTrainRows(trainRows, props["title"]?.toString(), Modifier.fillMaxWidth())
+            }
+        }
+        return
+    }
+    // Other explicit tables preserve header meaning and units. Broader heuristic routes
+    // may omit column labels or suppress summary rows, so they must not override this request.
     if (hasExplicitTablePresentation(props)) {
         val horizontalScrollEnabled = nativeTableShouldScroll(
             compactScreen = compactPortrait,
@@ -391,11 +521,6 @@ internal fun RenderDirectTable(
     )
     if (airQuality != null) {
         NativeAirQualityUiRenderer.RenderSummary(airQuality, props["title"]?.toString(), tableModifier)
-        return
-    }
-    val trainRows = NativeTrainSemantics.buildTrainRows(headers, table.rows, props["title"]?.toString())
-    if (!trainRows.isNullOrEmpty()) {
-        NativeTrainUiRenderer.RenderTrainRows(trainRows, props["title"]?.toString(), tableModifier)
         return
     }
     val sourceLinks = if (shouldBypassSourceLinkIntercept(table.renderMode)) {
@@ -523,6 +648,33 @@ internal fun RenderDirectTable(
         }
     }
 
+    // Literal entity lists can retain prose cells while still qualifying for flight presentation.
+    // Keep ambiguous summaries in place rather than treating their multiple fares as one flight.
+    val flightOptions = remember(headers, table.rows) {
+        FlightOptionPresentation.buildFlightOptionRows(headers, table.rows)
+    }
+    if (flightOptions != null) {
+        Column(modifier = tableModifier, verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            flightOptions.forEachIndexed { index, flight ->
+                if (flight != null) {
+                    NativeFlightUiRenderer.RenderFlightRows(listOf(flight), onOpenUrl = onOpenUrl)
+                } else {
+                    RenderEntityTableCards(
+                        headers = headers,
+                        rows = listOf(table.rows[index]),
+                        modifier = Modifier.fillMaxWidth(),
+                        spacing = 10.dp,
+                        primaryColumn = table.primaryColumn,
+                        highlightColumns = table.highlightColumns,
+                        onOpenUrl = onOpenUrl,
+                        tableTitle = null
+                    )
+                }
+            }
+        }
+        return
+    }
+
     if (table.renderMode == FlatTableRenderMode.FLIGHT_CARDS && looksLikeRankedFlightComparisonTable(headers)) {
         RenderRankedFlightComparisonCards(
             headers = headers,
@@ -558,6 +710,23 @@ internal fun RenderDirectTable(
         if (rendered) {
             return
         }
+    }
+
+    val devicePrimaryIndex = deviceProductComparisonPrimaryIndex(
+        headers, table.rows, props, table.shape, table.domain,
+    )
+    if (devicePrimaryIndex != null) {
+        RenderEntityTableCards(
+            headers = headers,
+            rows = table.rows,
+            modifier = tableModifier,
+            primaryColumn = headers[devicePrimaryIndex],
+            highlightColumns = table.highlightColumns,
+            onOpenUrl = onOpenUrl,
+            tableTitle = props["title"]?.toString(),
+            spacing = 8.dp,
+        )
+        return
     }
 
     if (shouldUseScrollableNativeTableGrid(table.renderMode, table.rows.isNotEmpty())) {

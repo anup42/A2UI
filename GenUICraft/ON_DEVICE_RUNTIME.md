@@ -76,7 +76,26 @@ execution precision; it does not dequantize or re-export the stored weights.
 
 ## Lifecycle and limits
 
-The provider initializes its engine on the first request and reuses it. It serializes conversations because LiteRT-LM engine calls must not overlap. Cancellation while waiting for the provider mutex starts no native task. After submission, cancellation marks the request stopped and cancels/interrupts its worker task; an existing conversation also receives `Conversation.cancelProcess()`. During engine initialization no conversation exists, and native initialization may finish before cleanup can proceed. `close()` is idempotent and safe to call from `Activity.onDestroy`: it marks the provider closed, requests cancellation of any active conversation, queues engine cleanup behind in-flight initialization or generation, returns without blocking the main thread, and rejects later calls. Use suspend `closeAndAwait()` before constructing a replacement provider when the old native engine must be fully released first; it performs the same nonblocking close and awaits worker termination on `Dispatchers.IO`.
+Since 0.6.37, compatible providers lease one process-wide native engine. A request always
+gets a fresh conversation; conversation history and prefix KV are not shared. Model identity
+(path/size/mtime and FP16 manifest), runtime family, backend, context, precision and MTP/metrics
+configuration are part of compatibility. Changing any of them drains the old engine before
+loading the replacement. The legacy `LiteRtModelRunner` uses the same handoff lock.
+
+`close()` releases only that provider's lease and cancels its active conversation without
+blocking main; `closeAndAwait()` waits for that owner's request to finish. Native initialization
+may need to finish before cancellation can drain it. Neither closes an otherwise healthy warm
+engine. `GenUiEngineManager.retire()` explicitly drains and releases native memory. Automatic
+retirement happens after 120 seconds without a request, on memory-pressure callbacks, or if
+the periodic retained-engine memory check reports low memory. Prewarm is skipped while memory
+is low or shortly after a pressure callback. Failed native cleanup blocks engine replacement
+until process restart, rather than risking two live native engines.
+
+Install `GenUiEngineManager` from your Application, or use a Context-based `GenUiSession` which
+installs it automatically. `session.prewarm()` initializes weights/shaders without generating
+tokens; start it during upstream IO with the exact same conversion configuration. Per-request
+token metrics do not retire the engine. MTP acceptance becomes available only at retirement,
+through `retirementMetrics`, scoped to the reported engine ID and engine lifetime.
 
 `maxContextTokens` sizes the LiteRT-LM engine. `maxOutputTokens` is the provider ceiling; each `GenUiPrompt.maxOutputTokens` must fit under it. A conservative prompt estimate plus a chat-template reserve is checked before native generation, while LiteRT-LM remains the authoritative tokenizer and enforces the configured engine window.
 

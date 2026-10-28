@@ -65,6 +65,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -247,6 +248,51 @@ internal fun RenderDirectTable(
         )
         return
     }
+    // Strong train-service semantics retain every cell. Prefer the rail cards even when the
+    // model requests a table, and keep that authored grid available through the view toggle.
+    val trainRows = if (table.shape != FlatTableShape.FEATURE_MATRIX) {
+        NativeTrainSemantics.buildTrainRows(headers, table.rows, props["title"]?.toString())
+    } else null
+    if (!trainRows.isNullOrEmpty()) {
+        var showTable by remember { mutableStateOf(false) }
+        Column(modifier = tableModifier, verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            if (hasExplicitTablePresentation(props)) {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                    TextButton(onClick = { showTable = !showTable }) {
+                        Text(
+                            if (showTable) "Card view" else "Table view",
+                            style = MaterialTheme.typography.labelMedium,
+                        )
+                    }
+                }
+            }
+            if (showTable) {
+                props["title"]?.toString()?.takeIf { it.isNotBlank() }?.let { title ->
+                    Text(
+                        parseBoldMarkdown(title),
+                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                        modifier = Modifier.semantics { heading() },
+                    )
+                }
+                val horizontalScrollEnabled = nativeTableShouldScroll(
+                    compactScreen = compactPortrait,
+                    screenWidthDp = screenWidthDp,
+                    headers = headers,
+                    rows = table.rows,
+                )
+                RenderAdaptiveTableGrid(
+                    headers = headers,
+                    rows = table.rows,
+                    horizontalScrollEnabled = horizontalScrollEnabled,
+                    stickyFirstColumn = nativeTableStickyFirstColumn(headers, horizontalScrollEnabled),
+                    numericColumns = numericColumnIndexes(table.columns, table.rows, table.numericColumns),
+                )
+            } else {
+                NativeTrainUiRenderer.RenderTrainRows(trainRows, props["title"]?.toString(), Modifier.fillMaxWidth())
+            }
+        }
+        return
+    }
     if (hasExplicitTablePresentation(props)) {
         val horizontalScrollEnabled = nativeTableShouldScroll(
             compactScreen = compactPortrait,
@@ -270,11 +316,6 @@ internal fun RenderDirectTable(
                 numericColumns = numericColumnIndexes(table.columns, table.rows, table.numericColumns)
             )
         }
-        return
-    }
-    val trainRows = NativeTrainSemantics.buildTrainRows(headers, table.rows, props["title"]?.toString())
-    if (!trainRows.isNullOrEmpty()) {
-        NativeTrainUiRenderer.RenderTrainRows(trainRows, props["title"]?.toString(), tableModifier)
         return
     }
     val sourceLinks = if (shouldBypassSourceLinkIntercept(table.renderMode)) {

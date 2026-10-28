@@ -108,8 +108,10 @@ class LiteRtModelRunner(
 
     fun generate(request: LiteRtGenerationRequest): LiteRtGenerationResult {
         checkHealth().errorMessage?.let { error(it) }
-        return LiteRtSharedEngineCache.withGenerationLock {
-            generateLocked(request)
+        return kotlinx.coroutines.runBlocking {
+            GenUiEngineManager.pool.withLegacyRuntime {
+                LiteRtSharedEngineCache.withGenerationLock { generateLocked(request) }
+            }
         }
     }
 

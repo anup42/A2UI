@@ -105,6 +105,7 @@ internal fun SdkGenerationWorkspace(
     streamingViewMode: SdkStreamingViewMode = SdkStreamingViewMode.UI,
     onStreamingViewModeChange: (SdkStreamingViewMode) -> Unit = {},
     modifier: Modifier = Modifier,
+    hostOwnsVerticalScroll: Boolean = false,
     metrics: @Composable () -> Unit = {},
     onSnapshotPresented: (GenUiRenderSnapshot) -> Unit = {},
     onAction: (GenUiAction) -> Unit,
@@ -164,7 +165,7 @@ internal fun SdkGenerationWorkspace(
 
     BoxWithConstraints(
         modifier = modifier
-            .fillMaxSize()
+            .then(if (hostOwnsVerticalScroll) Modifier.fillMaxWidth() else Modifier.fillMaxSize())
             .testTag("sdk_generation_workspace")
             .semantics { contentDescription = "SDK generation workspace" },
     ) {
@@ -175,10 +176,10 @@ internal fun SdkGenerationWorkspace(
             trace.finalIr == null &&
             document == null
         ) {
-            EmptyWorkspace()
+            EmptyWorkspace(hostOwnsVerticalScroll)
             return@BoxWithConstraints
         }
-        Column(Modifier.fillMaxSize()) {
+        Column(if (hostOwnsVerticalScroll) Modifier.fillMaxWidth() else Modifier.fillMaxSize()) {
             PhaseTracker(trace, compact, document != null)
             TabRow(
                 selectedTabIndex = if (activeTab == WorkspaceTab.IR) 0 else 1,
@@ -212,15 +213,15 @@ internal fun SdkGenerationWorkspace(
 
             when (activeTab) {
                 WorkspaceTab.IR -> tabStateHolder.SaveableStateProvider(WorkspaceTab.IR.name) {
-                    IrWorkspace(trace, compact, metrics)
+                    IrWorkspace(trace, compact, metrics, hostOwnsVerticalScroll)
                 }
                 WorkspaceTab.PREVIEW -> {
                     tabStateHolder.SaveableStateProvider(WorkspaceTab.PREVIEW.name) {
                         Column(
                             modifier = Modifier
-                                .fillMaxSize()
+                                .then(if (hostOwnsVerticalScroll) Modifier.fillMaxWidth() else Modifier.fillMaxSize())
                                 .testTag("sdk_preview_content")
-                                .verticalScroll(rememberScrollState())
+                                .then(if (hostOwnsVerticalScroll) Modifier else Modifier.verticalScroll(rememberScrollState()))
                                 .padding(top = 10.dp, bottom = 16.dp),
                             verticalArrangement = Arrangement.spacedBy(10.dp),
                         ) {
@@ -277,9 +278,10 @@ internal fun SdkGenerationWorkspace(
 }
 
 @Composable
-private fun EmptyWorkspace() {
+private fun EmptyWorkspace(hostOwnsVerticalScroll: Boolean) {
     Box(
-        modifier = Modifier.fillMaxSize().padding(vertical = 12.dp),
+        modifier = (if (hostOwnsVerticalScroll) Modifier.fillMaxWidth() else Modifier.fillMaxSize())
+            .padding(vertical = 12.dp),
         contentAlignment = Alignment.TopCenter,
     ) {
         OutlinedCard(Modifier.fillMaxWidth()) {
@@ -379,12 +381,12 @@ private fun IrWorkspace(
     trace: SdkGenerationTrace,
     compact: Boolean,
     metrics: @Composable () -> Unit,
+    hostOwnsVerticalScroll: Boolean,
 ) {
-    val outerScroll = rememberScrollState()
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(outerScroll)
+            .then(if (hostOwnsVerticalScroll) Modifier.fillMaxWidth() else Modifier.fillMaxSize())
+            .then(if (hostOwnsVerticalScroll) Modifier else Modifier.verticalScroll(rememberScrollState()))
             .padding(top = 10.dp, bottom = 16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {

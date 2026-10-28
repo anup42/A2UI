@@ -174,7 +174,102 @@ internal object A2uiExpressGeneralRepair {
             else -> return null
         }
         val normalized = normalizeSyntax(value, changes)
-        return normalized to changes.distinct()
+        val tableBalanced = repairTableClosingSuffix(normalized)?.also {
+            changes += "Corrected mismatched unquoted Table closing delimiters; literal values were unchanged."
+        } ?: normalized
+        val balanced = removeSingleExcessArrayClose(tableBalanced)?.also {
+            changes += "Removed one excess unquoted closing array bracket; literal values were unchanged."
+        } ?: tableBalanced
+        return balanced to changes.distinct()
+    }
+
+    /** Only a trailing delimiter suffix of a literal Table may be changed; values stay untouched. */
+    private fun repairTableClosingSuffix(input: String): String? {
+        val tableStart = Regex("(?m)^[\\t ]*[A-Za-z_][A-Za-z0-9_]*[\\t ]*=[\\t ]*Table[\\t ]*\\(")
+        val rowsStart = Regex("\\brows[\\t ]*=[\\t ]*\\[")
+        for (match in tableStart.findAll(input)) {
+            val start = match.range.first
+            val end = input.indexOf('\n', start).let { if (it < 0) input.length else it }
+            val line = input.substring(start, end)
+            val quoted = stringRanges(line)
+            val rows = rowsStart.findAll(line).firstOrNull { found ->
+                quoted.none { found.range.first in it }
+            } ?: continue
+            val output = StringBuilder(line)
+            val stack = java.util.ArrayDeque<Char>()
+            var inString = false
+            var escaped = false
+            var corrections = 0
+            var valid = true
+            for (index in line.indices) {
+                val char = line[index]
+                if (inString) {
+                    when {
+                        escaped -> escaped = false
+                        char == '\\' -> escaped = true
+                        char == '"' -> inString = false
+                    }
+                    continue
+                }
+                when (char) {
+                    '"' -> inString = true
+                    '(', '[', '{' -> stack.addLast(char)
+                    ')', ']', '}' -> {
+                        val open = stack.peekLast()
+                        val expected = when (open) { '(' -> ')'; '[' -> ']'; '{' -> '}'; else -> null }
+                        if (expected == null) { valid = false; break }
+                        if (char != expected) {
+                            val trailingClosers = line.substring(index).all {
+                                it.isWhitespace() || it == ')' || it == ']' || it == '}'
+                            }
+                            if (char != '}' || index <= rows.range.last || !trailingClosers ||
+                                (open != '[' && open != '(') || corrections >= 2) {
+                                valid = false
+                                break
+                            }
+                            output.setCharAt(index, expected)
+                            corrections += 1
+                        }
+                        stack.removeLast()
+                    }
+                }
+            }
+            if (valid && corrections in 1..2 && stack.isEmpty() && !inString) {
+                return input.replaceRange(start, end, output.toString())
+            }
+        }
+        return null
+    }
+
+    /** Remove only a redundant `]` after an array has already closed inside a component call. */
+    private fun removeSingleExcessArrayClose(input: String): String? {
+        val stack = java.util.ArrayDeque<Char>()
+        var inString = false
+        var escaped = false
+        var excess = -1
+        for (index in input.indices) {
+            val char = input[index]
+            if (inString) {
+                when {
+                    escaped -> escaped = false
+                    char == '\\' -> escaped = true
+                    char == '"' -> inString = false
+                }
+                continue
+            }
+            when (char) {
+                '"' -> inString = true
+                '(', '[', '{' -> stack.addLast(char)
+                ')' -> if (stack.pollLast() != '(') return null
+                '}' -> if (stack.pollLast() != '{') return null
+                ']' -> when {
+                    stack.peekLast() == '[' -> stack.removeLast()
+                    stack.peekLast() == '(' && excess < 0 -> excess = index
+                    else -> return null
+                }
+            }
+        }
+        return if (excess >= 0 && stack.isEmpty() && !inString) input.removeRange(excess, excess + 1) else null
     }
 
     private fun referenceClosure(start: String, elements: JsonObject): Set<String> {
