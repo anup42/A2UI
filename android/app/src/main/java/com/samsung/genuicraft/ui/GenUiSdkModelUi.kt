@@ -83,7 +83,9 @@ internal fun sdkDemoActionAvailability(
     managedOfficialModelReady: Boolean,
     trainedModelReady: Boolean,
     gemma270ModelReady: Boolean = false,
+    structuredInput: Boolean = false,
 ): DemoActionAvailability {
+    if (structuredInput) return DemoActionAvailability(!working, !working)
     if (e2bModelChoice == E2bModelChoice.TRAINED_GEMMA3_270M) {
         return DemoActionAvailability(!working && gemma270ModelReady, !working)
     }

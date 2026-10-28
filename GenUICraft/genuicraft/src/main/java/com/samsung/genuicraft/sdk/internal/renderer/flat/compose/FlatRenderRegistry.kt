@@ -69,6 +69,7 @@ internal val FLAT_ELEMENT_RENDERERS: Map<String, FlatElementRenderer> = mapOf(
             c.repeatedChildScopes, c.onOpenUrl, c.onSetState, c.onAction, c.activePath, c.modifier
         )
     },
+    "placecard" to { c -> RenderPlaceCard(c) },
     "table" to { c ->
         val table = c.elements[c.elementId]
         val ancestors = c.activePath.filter { it != c.elementId }.map { c.elements[it] }

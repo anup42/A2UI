@@ -12,7 +12,9 @@ import androidx.lifecycle.viewModelScope
 import com.samsung.genuicraft.sdk.*
 import com.samsung.genuicraft.sdk.provider.*
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /** Owns the demo's session, never an Activity, across rotation and UI-mode recreation. */
 internal class GenUiSdkDemoViewModel(application: Application) : AndroidViewModel(application) {
@@ -132,6 +134,7 @@ internal class GenUiSdkDemoViewModel(application: Application) : AndroidViewMode
         },
     ) {
         if (working) return
+        val structuredInput = GenUiStructuredInput.recognizes(source)
         clearPendingPartialFlush()
         workspaceRevision++
         document = null
@@ -139,8 +142,8 @@ internal class GenUiSdkDemoViewModel(application: Application) : AndroidViewMode
         generationSourceText = source
         generationMetrics = null
         lastRuntime = null
-        lastModel = e2bModelChoiceForRun.displayName
-        lastPrecision = if (e2bModelChoiceForRun.isTrainedE2b) {
+        lastModel = e2bModelChoiceForRun.displayName.takeUnless { structuredInput }
+        lastPrecision = if (structuredInput) null else if (e2bModelChoiceForRun.isTrainedE2b) {
             when (gpuPrecisionForRun) {
                 Gemma4GpuPrecision.MODEL_DEFAULT -> "Requested GPU model default"
                 Gemma4GpuPrecision.FP32 -> "Requested GPU FP32"
@@ -154,13 +157,44 @@ internal class GenUiSdkDemoViewModel(application: Application) : AndroidViewMode
         generationTrace = SdkGenerationTrace(
             phase = SdkGenerationPhase.GENERATING,
             streamingRenderingEnabled = streamingRenderingForRun,
+            structuredInput = structuredInput,
         )
         val runId = ++generationRunId
-        status = "Generating IR…" + lastPrecision?.let { " · $it" }.orEmpty()
+        status = if (structuredInput) "Building place cards…"
+            else "Generating IR…" + lastPrecision?.let { " · $it" }.orEmpty()
         val sourceForRun = source
         activeJob = viewModelScope.launch {
             var captureForRun: GenUiSession? = null
             try {
+                val imported = withContext(Dispatchers.Default) {
+                    GenUiStructuredInput.convertOrNull(GenUiRequest(sourceForRun))
+                }
+                if (imported != null) {
+                    lastRuntime = "SDK structured input · no model inference"
+                    lastModel = null
+                    lastPrecision = null
+                    generationMetrics = null
+                    when (imported) {
+                        is GenUiConversionResult.Success -> {
+                            document = imported.document
+                            status = "Place cards ready · ${imported.elapsedMs} ms · no model inference"
+                            generationTrace = generationTrace.copy(
+                                phase = SdkGenerationPhase.COMPLETE,
+                                attempts = emptyList(),
+                                finalIr = imported.document.express,
+                                repairKind = imported.repairKind,
+                                warnings = imported.warnings,
+                            )
+                        }
+                        is GenUiConversionResult.Failure -> {
+                            status = "Structured input could not be imported"
+                            generationTrace = generationTrace.copy(
+                                phase = SdkGenerationPhase.FAILED, error = imported.message,
+                            )
+                        }
+                    }
+                    return@launch
+                }
                 val providerKey = sdkDemoProviderKey(
                     e2bModelChoice = e2bModelChoiceForRun,
                     modelPath = modelPathForRun,

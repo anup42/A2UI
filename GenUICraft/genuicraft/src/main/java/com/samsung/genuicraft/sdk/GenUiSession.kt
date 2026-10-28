@@ -164,6 +164,33 @@ class GenUiSession private constructor(
         capture = null
         completedSessionMetrics = null
         coroutineContext.ensureActive()
+        // Structured upstream cards already contain their presentation and exact URLs/actions.
+        // Import before runtime preparation, so this path never initializes or calls a model.
+        val imported = withContext(Dispatchers.Default) {
+            GenUiStructuredInput.convertOrNull(request)
+        }
+        if (imported != null) {
+            coroutineContext.ensureActive()
+            if (imported is GenUiConversionResult.Success &&
+                enableStreamingRendering && observer.onRenderSnapshot !== NO_RENDER_OBSERVER
+            ) {
+                val count = runCatching {
+                    com.google.gson.JsonParser.parseString(imported.document.a2uiJson).asJsonArray
+                        .sumOf { it.asJsonObject.getAsJsonObject("updateComponents")
+                            ?.getAsJsonArray("components")?.size() ?: 0 }
+                }.getOrDefault(0)
+                val snapshot = GenUiRenderSnapshot(
+                    surfaceKey = "structured:${java.util.UUID.randomUUID()}",
+                    attempt = 0, revision = 1L, document = imported.document,
+                    elapsedMs = (System.nanoTime() - startedNanos) / 1_000_000,
+                    readyComponentCount = count, isFinal = true,
+                )
+                withContext(Dispatchers.Default) {
+                    runCatching { observer.onRenderSnapshot(snapshot) }
+                }
+            }
+            return@coroutineScope imported
+        }
         withContext(Dispatchers.IO) { prepareRuntime() }
         coroutineContext.ensureActive()
         check(!closed.get()) { "GenUICraft session was closed while preparing its runtime." }

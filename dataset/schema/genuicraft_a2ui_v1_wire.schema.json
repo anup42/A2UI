@@ -740,6 +740,9 @@
           "ariaLabel": {
             "$ref": "#/$defs/dynamicString"
           },
+          "boxKeys": {
+            "$ref": "#/$defs/dynamicObject"
+          },
           "chartType": {
             "$ref": "#/$defs/dynamicValue"
           },
@@ -751,6 +754,9 @@
           },
           "contentDescription": {
             "$ref": "#/$defs/dynamicString"
+          },
+          "data": {
+            "$ref": "#/$defs/dynamicArray"
           },
           "dataPath": {
             "$ref": "#/$defs/dynamicValue"
@@ -767,6 +773,12 @@
           "itemTemplate": {
             "$ref": "#/$defs/dynamicValue"
           },
+          "orientation": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "rightYLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "role": {
             "$ref": "#/$defs/dynamicString"
           },
@@ -777,6 +789,12 @@
             "$ref": "#/$defs/dynamicValue"
           },
           "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "series": {
+            "$ref": "#/$defs/dynamicArray"
+          },
+          "sizeKey": {
             "$ref": "#/$defs/dynamicString"
           },
           "statePath": {
@@ -797,35 +815,17 @@
           "xKey": {
             "$ref": "#/$defs/dynamicString"
           },
+          "xLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "xType": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "yKey": {
             "$ref": "#/$defs/dynamicString"
           },
           "yLabel": {
             "$ref": "#/$defs/dynamicString"
-          },
-          "series": {
-            "$ref": "#/$defs/dynamicArray"
-          },
-          "xType": {
-            "$ref": "#/$defs/dynamicString"
-          },
-          "xLabel": {
-            "$ref": "#/$defs/dynamicString"
-          },
-          "rightYLabel": {
-            "$ref": "#/$defs/dynamicString"
-          },
-          "orientation": {
-            "$ref": "#/$defs/dynamicString"
-          },
-          "sizeKey": {
-            "$ref": "#/$defs/dynamicString"
-          },
-          "boxKeys": {
-            "$ref": "#/$defs/dynamicObject"
-          },
-          "data": {
-            "$ref": "#/$defs/dynamicArray"
           }
         }
       },
@@ -1982,6 +1982,163 @@
           },
           "trigger": {
             "$ref": "#/$defs/dynamicValue"
+          },
+          "width": {
+            "$ref": "#/$defs/dynamicNumber"
+          }
+        }
+      },
+      "PlaceCard": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "component"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "component": {
+            "const": "PlaceCard"
+          },
+          "children": {
+            "$ref": "#/$defs/childList"
+          },
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
+          "on": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "watch": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "actions": {
+            "anyOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "label",
+                    "url"
+                  ],
+                  "properties": {
+                    "label": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "url": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              },
+              {
+                "$ref": "#/$defs/dataBinding"
+              },
+              {
+                "$ref": "#/$defs/functionCall"
+              }
+            ]
+          },
+          "address": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "addressUrl": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "decorative": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
+          "description": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "height": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "images": {
+            "anyOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "url",
+                    "title"
+                  ],
+                  "properties": {
+                    "url": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "onClickUrl": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              },
+              {
+                "$ref": "#/$defs/dataBinding"
+              },
+              {
+                "$ref": "#/$defs/functionCall"
+              }
+            ]
+          },
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "rating": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "reviewCount": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "title": {
+            "$ref": "#/$defs/dynamicString"
           },
           "width": {
             "$ref": "#/$defs/dynamicNumber"
@@ -3288,6 +3445,9 @@
         },
         {
           "$ref": "#/$defs/components/Modal"
+        },
+        {
+          "$ref": "#/$defs/components/PlaceCard"
         },
         {
           "$ref": "#/$defs/components/Row"

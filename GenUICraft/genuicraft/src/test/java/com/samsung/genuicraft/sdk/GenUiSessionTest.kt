@@ -17,6 +17,33 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
 class GenUiSessionTest {
+    @Test fun structuredViewSkipsProviderAndPublishesFinalSnapshotWithoutModelAttempts() = runBlocking {
+        val provider = FakeProvider("must not generate")
+        var converterCalls = 0
+        val session = GenUiSession(provider) { _, _ ->
+            converterCalls++
+            error("Structured input must not reach the model converter")
+        }
+        val snapshots = mutableListOf<GenUiRenderSnapshot>()
+        val input = """[{"${'$'}type":"Markdown","value":"## Day 1"}]"""
+        val result = session.convert(
+            GenUiRequest(input),
+            GenUiGenerationObserver(onRenderSnapshot = { snapshots += it }),
+        ) as GenUiConversionResult.Success
+        assertEquals("sdk-structured-input", result.provider)
+        assertEquals(0, result.attempts)
+        assertEquals(0, provider.generateCount)
+        assertEquals(0, provider.metricsFinalizationCount)
+        assertEquals(0, converterCalls)
+        assertTrue(session.attemptSnapshots.isEmpty())
+        assertNull(session.generationSessionMetrics)
+        assertEquals(1, snapshots.size)
+        assertTrue(snapshots.single().isFinal)
+        assertEquals(0, snapshots.single().attempt)
+        assertEquals(result.document, snapshots.single().document)
+        session.closeAndAwait()
+    }
+
     @Test fun prewarmDoesNotConvertGenerateOrFinalizeMetrics() = runBlocking {
         val provider = FakeProvider("unused")
         var conversionCalls = 0

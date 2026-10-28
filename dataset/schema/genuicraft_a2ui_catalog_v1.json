@@ -720,6 +720,9 @@
           "ariaLabel": {
             "$ref": "#/$defs/dynamicString"
           },
+          "boxKeys": {
+            "$ref": "#/$defs/dynamicObject"
+          },
           "chartType": {
             "$ref": "#/$defs/dynamicValue"
           },
@@ -731,6 +734,9 @@
           },
           "contentDescription": {
             "$ref": "#/$defs/dynamicString"
+          },
+          "data": {
+            "$ref": "#/$defs/dynamicArray"
           },
           "dataPath": {
             "$ref": "#/$defs/dynamicValue"
@@ -747,6 +753,12 @@
           "itemTemplate": {
             "$ref": "#/$defs/dynamicValue"
           },
+          "orientation": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "rightYLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "role": {
             "$ref": "#/$defs/dynamicString"
           },
@@ -757,6 +769,12 @@
             "$ref": "#/$defs/dynamicValue"
           },
           "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "series": {
+            "$ref": "#/$defs/dynamicArray"
+          },
+          "sizeKey": {
             "$ref": "#/$defs/dynamicString"
           },
           "statePath": {
@@ -777,35 +795,17 @@
           "xKey": {
             "$ref": "#/$defs/dynamicString"
           },
+          "xLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "xType": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "yKey": {
             "$ref": "#/$defs/dynamicString"
           },
           "yLabel": {
             "$ref": "#/$defs/dynamicString"
-          },
-          "series": {
-            "$ref": "#/$defs/dynamicArray"
-          },
-          "xType": {
-            "$ref": "#/$defs/dynamicString"
-          },
-          "xLabel": {
-            "$ref": "#/$defs/dynamicString"
-          },
-          "rightYLabel": {
-            "$ref": "#/$defs/dynamicString"
-          },
-          "orientation": {
-            "$ref": "#/$defs/dynamicString"
-          },
-          "sizeKey": {
-            "$ref": "#/$defs/dynamicString"
-          },
-          "boxKeys": {
-            "$ref": "#/$defs/dynamicObject"
-          },
-          "data": {
-            "$ref": "#/$defs/dynamicArray"
           }
         }
       },
@@ -2660,6 +2660,223 @@
         "width"
       ]
     },
+    "PlaceCard": {
+      "aliases": [
+        "PlaceCard",
+        "placecard"
+      ],
+      "positional": [
+        "title",
+        "rating",
+        "reviewCount",
+        "address",
+        "addressUrl",
+        "images",
+        "actions",
+        "description"
+      ],
+      "defaults": {},
+      "consumedProps": [
+        "title",
+        "rating",
+        "reviewCount",
+        "address",
+        "addressUrl",
+        "images",
+        "actions",
+        "description"
+      ],
+      "container": false,
+      "allowAdditionalProps": false,
+      "metadata": [
+        "children",
+        "repeat",
+        "visible",
+        "on",
+        "watch"
+      ],
+      "allowedProperties": [
+        "accessibility",
+        "accessibilityLabel",
+        "actions",
+        "address",
+        "addressUrl",
+        "ariaLabel",
+        "child",
+        "contentDescription",
+        "decorative",
+        "description",
+        "flex",
+        "height",
+        "images",
+        "itemTemplate",
+        "rating",
+        "reviewCount",
+        "role",
+        "semanticRole",
+        "template",
+        "title",
+        "width"
+      ],
+      "schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "component"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "component": {
+            "const": "PlaceCard"
+          },
+          "children": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "repeat": {
+            "$ref": "#/$defs/repeat"
+          },
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
+          "on": {
+            "$ref": "#/$defs/actionMap"
+          },
+          "watch": {
+            "$ref": "#/$defs/actionMap"
+          },
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "actions": {
+            "anyOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "label",
+                    "url"
+                  ],
+                  "properties": {
+                    "label": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "url": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              },
+              {
+                "$ref": "#/$defs/dataBinding"
+              },
+              {
+                "$ref": "#/$defs/functionCall"
+              }
+            ]
+          },
+          "address": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "addressUrl": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "decorative": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
+          "description": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "height": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "images": {
+            "anyOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "url",
+                    "title"
+                  ],
+                  "properties": {
+                    "url": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "onClickUrl": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              },
+              {
+                "$ref": "#/$defs/dataBinding"
+              },
+              {
+                "$ref": "#/$defs/functionCall"
+              }
+            ]
+          },
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "rating": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "reviewCount": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "title": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "width": {
+            "$ref": "#/$defs/dynamicNumber"
+          }
+        }
+      }
+    },
     "Slider": {
       "aliases": [
         "Slider",
@@ -4450,7 +4667,7 @@
       ]
     }
   },
-  "catalogIdentityHash": "191f07efda0685a7c079be7fe6b79d565dce07151a42ce8db6c6482845f786ee",
+  "catalogIdentityHash": "465f2d3b68d0b262198a2136a87533e94dcfebbdde2e55c809bf479edb99e3df",
   "catalogVersion": "genuicraft-a2ui-catalog-v1",
   "profileVersion": "genuicraft-a2ui-express-profile-v1",
   "$defs": {

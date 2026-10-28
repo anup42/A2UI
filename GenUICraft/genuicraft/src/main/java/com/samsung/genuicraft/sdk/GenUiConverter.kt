@@ -38,6 +38,7 @@ class GenUiConverter private constructor(
         if (request.text.isBlank()) return@withContext GenUiConversionResult.Failure("Input text is empty.", provider.id, elapsed(), 0)
         val invalidRequest = requestProblem(request)
         if (invalidRequest != null) return@withContext GenUiConversionResult.Failure(invalidRequest, provider.id, elapsed(), 0)
+        GenUiStructuredInput.convertOrNull(request)?.let { return@withContext it }
         // Formatting must not re-execute the original query's instructions (for example,
         // "omit follow-up offers" can otherwise erase a sentence in the supplied answer).
         val stableSources = request.sources.map { source ->

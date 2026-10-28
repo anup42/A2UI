@@ -59,6 +59,7 @@ class GenUiTrainedConverter internal constructor(
         val problem = if (request.text.isBlank()) "Input text is empty."
             else GenUiConverter.requestProblem(request)
         if (problem != null) return@withContext GenUiConversionResult.Failure(problem, provider.id, elapsed(), 0)
+        GenUiStructuredInput.convertOrNull(request)?.let { return@withContext it }
         var raw: String? = null
         try {
             val output = provider.generate(contract.prompt(request.text))

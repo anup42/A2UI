@@ -43,8 +43,23 @@ dependencyResolutionManagement {
     }
 }
 // consumer module
-implementation("com.samsung.genuicraft:genuicraft:0.6.45")
+implementation("com.samsung.genuicraft:genuicraft:0.6.46")
 ```
+
+Version 0.6.46 imports supported structured Bixby `View` responses into A2UI before
+model preparation. Place cards retain supplied photo URLs, ratings, review counts,
+address links and Call/Directions/Website actions; surrounding text keeps its source
+order. This is an explicit structured-input import, with provider
+`sdk-structured-input`, zero model attempts and no generated-text fallback. Ordinary
+Markdown and prose keep their existing model conversion path. Unsupported meaningful
+components and unsafe URLs produce an import error instead of silently losing data.
+
+`GenUiSession`, `GenUiConverter` and `GenUiTrainedConverter` recognize this input.
+Renderer-only hosts can also call `GenUiStructuredInput.convertOrNull(GenUiRequest(text))`
+and render the successful document with `GenUiContent`. Place actions are delivered
+through the existing `GenUiAction("openUrl", ...)` callback; hosts should use the dialer
+for `tel:` links and their normal browser/maps routing for web links. The SDK demo
+includes **Try Mysore place cards · captured Bixby answer** without requiring a model.
 
 Version 0.6.45 improves city-weather comparisons with city-titled, coloured cards,
 labelled current/high/low/rain fields, supplied condition icons and an alternate

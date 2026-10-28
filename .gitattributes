@@ -35,6 +35,11 @@ training/reports/v10_manual100_20260916/* -text whitespace=cr-at-eol
 training/reports/offline_recovery_20260916_v10/*.json text eol=lf
 # Keep the Android benchmark corpus byte-identical to its validated snapshot.
 android/app/src/main/assets/genuicraft_bixby50.jsonl -text whitespace=cr-at-eol
+# Mysore replay pins the captured Bixby View bytes and imported-document hashes.
+GenUICraft/genuicraft/src/test/resources/bixby_view_mysore.json -text whitespace=cr-at-eol
+android/app/src/main/assets/genuicraft_examples/mysore_view.json -text whitespace=cr-at-eol
+android/app/src/androidTest/assets/place_card_replay/mysore_view.json -text whitespace=cr-at-eol
+GenUICraft/validation/20261029_mysore_place_cards/device_final/** -text whitespace=cr-at-eol
 
 # v11/v11s preserve the supplied release bytes and original split hashes.
 training/data/train/v11/*.gz -text -diff

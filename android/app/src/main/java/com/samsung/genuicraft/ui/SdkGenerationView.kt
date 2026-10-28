@@ -62,6 +62,7 @@ internal data class SdkGenerationTrace(
     val firstPreviewElapsedMs: Long? = null,
     val firstPreviewFrameElapsedMs: Long? = null,
     val latestReadyComponentCount: Int = 0,
+    val structuredInput: Boolean = false,
 )
 
 internal data class SdkGenerationAttempt(
@@ -330,7 +331,7 @@ private fun PhaseTracker(trace: SdkGenerationTrace, compact: Boolean, hasDocumen
     }
     val status = when (trace.phase) {
         SdkGenerationPhase.IDLE -> if (hasDocument) "Preview ready" else "Waiting to generate"
-        SdkGenerationPhase.GENERATING -> "Generating IR · live output"
+        SdkGenerationPhase.GENERATING -> if (trace.structuredInput) "Importing supplied cards" else "Generating IR · live output"
         SdkGenerationPhase.REPAIRING -> "Validating and repairing IR"
         SdkGenerationPhase.COMPLETE -> "IR ready"
         SdkGenerationPhase.FAILED -> "Generation failed · raw output preserved"
@@ -341,7 +342,8 @@ private fun PhaseTracker(trace: SdkGenerationTrace, compact: Boolean, hasDocumen
         SdkGenerationPhase.CANCELLED -> MaterialTheme.colorScheme.tertiary
         else -> MaterialTheme.colorScheme.onSurfaceVariant
     }
-    val labels = if (compact) listOf("Generate", "Recover", "Render")
+    val labels = if (trace.structuredInput) listOf("Import", "Validate", "Render")
+    else if (compact) listOf("Generate", "Recover", "Render")
     else listOf("Generate", "Validate & recover", "Render")
 
     Column(
@@ -419,7 +421,7 @@ private fun IrWorkspace(
         }
 
         trace.finalIr?.let { finalIr ->
-            val title = when (trace.repairKind) {
+            val title = if (trace.structuredInput) "Imported IR" else when (trace.repairKind) {
                 GenUiRepairKind.STRUCTURAL,
                 GenUiRepairKind.GENERATED_DSL_REPAIR -> "Repaired IR"
                 GenUiRepairKind.SOURCE_TEXT_FALLBACK -> "Source fallback"
@@ -430,7 +432,8 @@ private fun IrWorkspace(
                 text = finalIr,
                 testTag = "sdk_repaired_ir",
                 compact = compact,
-                supportingText = finalIrSupportingText(trace.repairKind),
+                supportingText = if (trace.structuredInput) "source-preserving import · no model inference"
+                    else finalIrSupportingText(trace.repairKind),
                 initiallyExpanded = false,
             )
         }

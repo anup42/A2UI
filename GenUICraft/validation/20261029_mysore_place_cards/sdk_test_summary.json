@@ -1,0 +1,32 @@
+[
+  {
+    "Name": "com.samsung.genuicraft.sdk.GenUiCompilerTest",
+    "Tests": 21,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Name": "com.samsung.genuicraft.sdk.GenUiSessionTest",
+    "Tests": 12,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Name": "com.samsung.genuicraft.sdk.GenUiStructuredInputTest",
+    "Tests": 8,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Name": "com.samsung.genuicraft.sdk.internal.renderer.flat.compose.FlatPlaceCardSemanticsTest",
+    "Tests": 3,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Name": "com.samsung.genuicraft.sdk.internal.renderer.MarkdownCodeInferenceTest",
+    "Tests": 3,
+    "Failures": 0,
+    "Errors": 0
+  }
+]

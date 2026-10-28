@@ -590,6 +590,42 @@ COMPONENTS: dict[str, dict[str, Any]] = json.loads(r'''{
       "watch"
     ]
   },
+  "PlaceCard": {
+    "aliases": [
+      "PlaceCard",
+      "placecard"
+    ],
+    "positional": [
+      "title",
+      "rating",
+      "reviewCount",
+      "address",
+      "addressUrl",
+      "images",
+      "actions",
+      "description"
+    ],
+    "defaults": {},
+    "consumedProps": [
+      "title",
+      "rating",
+      "reviewCount",
+      "address",
+      "addressUrl",
+      "images",
+      "actions",
+      "description"
+    ],
+    "container": false,
+    "allowAdditionalProps": true,
+    "metadata": [
+      "children",
+      "repeat",
+      "visible",
+      "on",
+      "watch"
+    ]
+  },
   "Slider": {
     "aliases": [
       "Slider",

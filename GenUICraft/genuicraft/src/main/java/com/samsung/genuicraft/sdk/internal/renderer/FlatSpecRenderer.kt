@@ -7592,13 +7592,21 @@ internal fun inferCodeBlockFromPlainText(raw: String, props: Map<String, Any?>):
     val text = raw.trim()
     if ('\n' !in text || text.length < 16) return null
     val variant = props["variant"]?.toString()?.lowercase().orEmpty()
+    // A Markdown heading is not a root shell prompt. Explicit markdown keeps
+    // imported prose out of code inference; fences are parsed before this call.
+    if (variant == "markdown") return null
+    val hasRootShellCommand = Regex("""(?im)^[ \t]*#[ \t]+(?:adb|git|npm|python|apt(?:-get)?|dnf|yum|docker|kubectl|ls|cd|cat|echo|curl|wget|systemctl)[ \t]+\S""")
+        .containsMatchIn(text)
+    val hasMarkdownHeading = Regex("""(?m)^[ \t]{0,3}#{1,6}[ \t]+\S""").containsMatchIn(text)
+    if (hasMarkdownHeading && variant != "console" && !hasRootShellCommand) return null
     val hasOutput = Regex("""(?im)^\s*(Output|Console|Terminal|Result)\s*:""").containsMatchIn(text)
     val hasUsage = Regex("""(?im)^\s*(Usage|Example)\s*\d*\s*$""").containsMatchIn(text)
     val hasPythonCode = Regex("""(?m)^\s*(def |class |print\(|for |if |elif |else:|return |import |from )""")
         .containsMatchIn(text)
-    val hasShellPrompt = Regex("""(?m)^\s*([$>#]|PS>|C:\\|adb |git |npm |python )""").containsMatchIn(text)
+    val hasShellPrompt = hasRootShellCommand || Regex("""(?im)^[ \t]*(?:[$][ \t]+\S|PS>[ \t]*\S|[A-Za-z]:\\[^\r\n>]*>[ \t]*\S|(?:adb|git|npm|python)[ \t]+\S)""")
+        .containsMatchIn(text)
     val lineCount = text.lines().count { it.isNotBlank() }
-    if (!hasOutput && !hasPythonCode && !hasShellPrompt) return null
+    if (!hasOutput && !hasPythonCode && !hasShellPrompt && variant != "console") return null
     if (lineCount < 2) return null
 
     val isConsole = hasOutput || hasUsage || hasShellPrompt || variant == "console"

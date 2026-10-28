@@ -21,6 +21,12 @@
       "consumed_props": ["title", "subtitle", "tone", "padding", "paddingHorizontal", "paddingVertical", "margin", "marginHorizontal", "marginVertical"]
     },
     {
+      "canonical": "PlaceCard",
+      "runtime_key": "placecard",
+      "aliases": ["placecard"],
+      "consumed_props": ["title", "rating", "reviewCount", "address", "addressUrl", "images", "actions", "description"]
+    },
+    {
       "canonical": "Table",
       "runtime_key": "table",
       "aliases": ["table"],

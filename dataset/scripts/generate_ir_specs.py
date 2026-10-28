@@ -273,17 +273,17 @@ def _catalog_defs() -> dict[str, Any]:
 
 
 _STRING_PROPERTIES = {
-    "accessibilityLabel", "actionLabel", "activeTabId", "align", "alt", "ariaLabel",
+    "accessibilityLabel", "actionLabel", "activeTabId", "address", "addressUrl", "align", "alt", "ariaLabel",
     "contentDescription", "contentScale", "date", "description", "domain", "fit", "from",
     "gap", "heading", "height", "icon", "iconSize", "justify", "label", "language", "latex",
     "message", "mode", "name", "placeholder", "poster", "posterUrl", "preferredPresentation",
-    "presentation", "primaryColumn", "role", "semanticRole", "size", "source", "src", "statePath",
+    "presentation", "primaryColumn", "rating", "reviewCount", "role", "semanticRole", "size", "source", "src", "statePath",
     "subtitle", "subject", "template", "text", "thumbnail", "thumbnailUrl", "timestamp", "title",
     "to", "tone", "url", "variant", "wrap", "xKey", "yKey", "yLabel", "xLabel", "rightYLabel", "xType", "orientation", "sizeKey",
 }
 _NUMBER_PROPERTIES = {"aspectRatio", "flex", "height", "iconSize", "max", "min", "padding", "paddingHorizontal", "paddingVertical", "margin", "marginHorizontal", "marginVertical", "size", "step", "width"}
 _BOOLEAN_PROPERTIES = {"decorative", "display"}
-_ARRAY_PROPERTIES = {"series", "attachments", "columns", "entityMedia", "highlightColumns", "items", "numericColumns", "options", "rows", "tabs"}
+_ARRAY_PROPERTIES = {"actions", "images", "series", "attachments", "columns", "entityMedia", "highlightColumns", "items", "numericColumns", "options", "rows", "tabs"}
 _OBJECT_PROPERTIES = {"boxKeys", "accessibility", "checks", "data", "style"}
 _ENUM_PROPERTIES = {
     "direction": ("vertical", "horizontal"),
@@ -297,6 +297,27 @@ _ENUM_PROPERTIES = {
 
 def _property_schema(name: str, component: str | None = None) -> dict[str, Any]:
     """Return a typed dynamic property schema for a catalog field."""
+    if component == "PlaceCard" and name in {"images", "actions"}:
+        item_properties = (
+            {"url": {"type": "string", "minLength": 1}, "title": {"type": "string"}, "onClickUrl": {"type": "string", "minLength": 1}}
+            if name == "images" else
+            {"label": {"type": "string", "minLength": 1}, "url": {"type": "string", "minLength": 1}}
+        )
+        return {
+            "anyOf": [
+                {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "required": ["url", "title"] if name == "images" else ["label", "url"],
+                        "properties": item_properties,
+                    },
+                },
+                {"$ref": "#/$defs/dataBinding"},
+                {"$ref": "#/$defs/functionCall"},
+            ]
+        }
     if component == "Chart" and name == "data":
         return {"$ref": "#/$defs/dynamicArray"}
     if name in _ENUM_PROPERTIES:

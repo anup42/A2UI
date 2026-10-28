@@ -195,6 +195,7 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                 val pageScroll = rememberScrollState()
                 val selectedCase = cases[caseIndex]
                 val customInput = source != selectedCase.get("text").asString
+                val structuredInput = remember(source) { GenUiStructuredInput.recognizes(source) }
                 val generationCase = screen.generationSourceText?.let { submittedText ->
                     cases.firstOrNull { it.get("text").asString == submittedText }
                 } ?: selectedCase.takeIf { screen.generationSourceText == null && !customInput }
@@ -380,6 +381,7 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                             managedOfficialModelReady = managedReadyFile != null,
                             trainedModelReady = trainedModelReadiness.usable,
                             gemma270ModelReady = gemma270Readiness.usable,
+                            structuredInput = structuredInput,
                         )
                         if (editorVisible) {
                             OutlinedCard(
@@ -437,12 +439,33 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                         source,
                                         { source = it },
                                         modifier = Modifier.fillMaxWidth().testTag("sdk_source_text"),
-                                        label = { Text("Markdown, text or A2UI Express") },
+                                        label = { Text("Markdown, text, Bixby View or A2UI Express") },
                                         supportingText = {
                                             Text("Paste an answer, or use a Bixby50 example above.")
                                         },
                                         minLines = 3,
                                         maxLines = 5,
+                                    )
+                                    TextButton(
+                                        enabled = !working,
+                                        modifier = Modifier.testTag("sdk_mysore_place_demo"),
+                                        onClick = {
+                                            source = assets.open("genuicraft_examples/mysore_view.json")
+                                                .bufferedReader().use { it.readText() }
+                                            screen.generate(
+                                                source = source,
+                                                e2bModelChoiceForRun = e2bModelChoice,
+                                                modelPathForRun = "",
+                                                metricsForRun = tokenMetricsEnabled,
+                                                mtpForRun = false,
+                                                streamingRenderingForRun = streamingUiEnabled,
+                                            )
+                                        },
+                                    ) { Text("Try Mysore place cards · captured Bixby answer") }
+                                    if (structuredInput) Text(
+                                        "Uses the supplied place details and photos. No model download is needed.",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.primary,
                                     )
                                     Text("Generation model", style = MaterialTheme.typography.titleSmall)
                                     FlowRow(
@@ -757,6 +780,17 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                         // Compose can deliver a second tap before the disabled state recomposes.
                                         if (working) return@Button
                                         val e2bModelChoiceForRun = e2bModelChoice
+                                        if (structuredInput) {
+                                            screen.generate(
+                                                source = source,
+                                                e2bModelChoiceForRun = e2bModelChoiceForRun,
+                                                modelPathForRun = "",
+                                                metricsForRun = tokenMetricsEnabled,
+                                                mtpForRun = false,
+                                                streamingRenderingForRun = streamingUiEnabled,
+                                            )
+                                            return@Button
+                                        }
                                         val trainedSelectionForRun = if (
                                             e2bModelChoiceForRun.isTrainedE2b
                                         ) selectTrainedE2bModel(
@@ -806,7 +840,7 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                             gemma270AcceleratorForRun = gemma270Accelerator,
                                         )
                                     },
-                                ) { Text("Generate UI") }
+                                ) { Text(if (structuredInput) "Show place cards" else "Generate UI") }
                                 OutlinedButton(
                                     enabled = actionAvailability.renderEnabled,
                                     modifier = Modifier
@@ -841,7 +875,12 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                     if (handler != null) handler(action)
                                     else if (action.name == "openUrl") {
                                         val uri = Uri.parse(action.parameters["url"].orEmpty())
-                                        if (uri.scheme in listOf("http", "https")) runCatching { startActivity(Intent(Intent.ACTION_VIEW, uri)) }
+                                        val intentAction = when (uri.scheme?.lowercase(java.util.Locale.ROOT)) {
+                                            "http", "https" -> Intent.ACTION_VIEW
+                                            "tel" -> Intent.ACTION_DIAL
+                                            else -> null
+                                        }
+                                        if (intentAction != null) runCatching { startActivity(Intent(intentAction, uri)) }
                                     }
                                 },
                             )

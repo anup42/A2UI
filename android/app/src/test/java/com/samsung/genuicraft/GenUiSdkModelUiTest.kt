@@ -22,6 +22,25 @@ import org.junit.Test
 import org.junit.rules.TemporaryFolder
 
 class GenUiSdkModelUiTest {
+    @Test fun structuredCardsDoNotRequireAModelButRespectAnActiveRun() {
+        for (choice in E2bModelChoice.entries) {
+            val ready = sdkDemoActionAvailability(
+                working = false, e2bModelChoice = choice,
+                officialModelSource = GemmaModelSource.MANAGED_DOWNLOAD,
+                managedOfficialModelReady = false, trainedModelReady = false,
+                gemma270ModelReady = false, structuredInput = true,
+            )
+            assertTrue(ready.convertEnabled)
+            val busy = sdkDemoActionAvailability(
+                working = true, e2bModelChoice = choice,
+                officialModelSource = GemmaModelSource.MANAGED_DOWNLOAD,
+                managedOfficialModelReady = false, trainedModelReady = false,
+                gemma270ModelReady = false, structuredInput = true,
+            )
+            assertFalse(busy.convertEnabled)
+        }
+    }
+
     @get:Rule
     val temporaryFolder = TemporaryFolder()
 
