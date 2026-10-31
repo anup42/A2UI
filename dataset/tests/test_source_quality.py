@@ -1,21 +1,24 @@
 import copy
-from decimal import Decimal
 import json
 import logging
 import os
-from pathlib import Path
 import sys
 import tempfile
-from types import SimpleNamespace
 import unittest
+from decimal import Decimal
+from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
 SRC = Path(__file__).resolve().parents[1] / "src"
 sys.path.insert(0, str(SRC))
 
 from pipeline.source_quality import (
-    QueryQualityIndex, QualityQueryWriter, assess_source_quality,
-    asset_verification_metadata, calculate, source_contract_prompt,
+    QualityQueryWriter,
+    QueryQualityIndex,
+    assess_source_quality,
+    asset_verification_metadata,
+    calculate,
 )
 from pipeline.stage1_queries import run_stage1
 from pipeline.stage2_responses import run_stage2
@@ -208,7 +211,7 @@ class Stage2SourceIntegrationTests(unittest.TestCase):
             (p / "prompt.md").write_text("Answer {query_text}", encoding="utf8")
             response = "Total: 3\nMedia: Icon=https://example.com/icon.svg"
             adapter = SimpleNamespace(spec=SimpleNamespace(name="mock", provider="mock", model="mock", supports_json_mode=False),
-                                      generate=Mock(return_value=SimpleNamespace(text=response, raw={}, latency_ms=0, input_tokens=0, output_tokens=0, provider="mock", model="mock", error=None)))
+                                      generate=Mock(return_value=SimpleNamespace(text=response, raw={}, latency_ms=0, input_tokens=0, output_tokens=0, provider="mock", model="mock", error=None, finish_reason="stop")))
             cache = Mock(); cache.get.return_value = None
             env = {"DATASET_OFFLINE_MODE": "1", "INTERNET": "0", "STAGE2_ASSET_WORKERS": "1", "STAGE2_REAL_ASSET_RETRY": "0"}
             with patch.dict(os.environ, env), patch("pipeline.stage2_responses._load_local_icon_context", return_value=None), patch("pipeline.stage2_responses._commons_enrichment_enabled", return_value=False), patch("pipeline.stage2_responses.urlopen", side_effect=AssertionError("network forbidden")):

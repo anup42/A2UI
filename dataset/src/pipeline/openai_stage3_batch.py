@@ -9,6 +9,7 @@ from copy import deepcopy
 from pathlib import Path
 
 from pipeline import openai_stage3_batch_runner as runner
+from pipeline import openai_stage3_selection as selection
 from pipeline import v11_regeneration as existing
 from pipeline import v11_regeneration_guard as guard
 from pipeline.source_quality import assess_source_quality
@@ -66,7 +67,12 @@ def query_for(row: dict) -> dict:
     return {"query_text": (row.get("metadata") or {}).get("query_text", "Render the supplied response faithfully.")}
 
 
-def select(source: SplitInput, samples: int, seed: int) -> tuple[list[dict], dict, dict]:
+def select(source: SplitInput, samples: int, seed: int, selection_profile="random") -> tuple[list[dict], dict, dict]:
+    if selection_profile not in {"random", selection.PROFILE}:
+        raise ValueError("Unknown selection profile")
+    if selection_profile == selection.PROFILE and samples != 1000:
+        raise ValueError("failure_mix_v1 requires exactly 1000 samples")
+    sampler = selection.MixSampler() if selection_profile == selection.PROFILE else None
     excluded_ids, excluded_sources, benchmark_files = existing._benchmark_exclusions()
     counts = Counter()
     # Validation sources/aliases are excluded even if renamed in training.
@@ -92,7 +98,12 @@ def select(source: SplitInput, samples: int, seed: int) -> tuple[list[dict], dic
             continue
         seen_sources.update(hashes)
         priority = int(digest({"seed": seed, "id": row_id}), 16)
-        if len(heap) == samples and priority >= -heap[0][0]:
+        evidence = selection.features(existing._generation_source(row)) if sampler else None
+        if sampler:
+            sampler.observe(evidence)
+            if not sampler.wants(priority, evidence):
+                continue
+        elif len(heap) == samples and priority >= -heap[0][0]:
             continue
         if guard.assess_source(row).get("eligible") is not True:
             counts["sampled_source_holds_excluded"] += 1
@@ -104,12 +115,18 @@ def select(source: SplitInput, samples: int, seed: int) -> tuple[list[dict], dic
         entry = {"source_id": row_id, "line": line, "original_split": "train", "row": row,
                  "original_row_sha256": hashlib.sha256(raw).hexdigest(),
                  "response_id": "p-" + digest(row)[:24]}
+        if sampler:
+            sampler.offer(priority, entry, evidence)
+            continue
         item = (-priority, row_id, entry)
         if len(heap) < samples:
             heapq.heappush(heap, item)
         else:
             heapq.heapreplace(heap, item)
     source.recheck_sidecars()
+    if sampler:
+        selected, report = sampler.finish()
+        return selected, {**counts, "selection_report": report}, benchmark_files
     if len(heap) != samples:
         raise ValueError(f"Only {len(heap)} eligible distinct training sources; requested {samples}")
     return [entry for _, _, entry in sorted(heap, reverse=True)], dict(counts), benchmark_files
@@ -176,7 +193,7 @@ def estimate(requests: list[dict], config: dict) -> dict:
 
 def prepare(input_dir: Path, output_dir: Path, *, samples=1000, seed=123,
             model="gpt-6.1-sol", reasoning_effort="medium", max_output_tokens=8192,
-            cache_ttl=runner.DEFAULT_CACHE_TTL) -> dict:
+            cache_ttl=runner.DEFAULT_CACHE_TTL, selection_profile="random") -> dict:
     from pipeline.genui_quality.validation_v5_4 import ensure_v5_4_validation_ready
 
     if not 1 <= samples <= 1000 or seed < 0 or not 1024 <= max_output_tokens <= 32768:
@@ -185,6 +202,10 @@ def prepare(input_dir: Path, output_dir: Path, *, samples=1000, seed=123,
         raise ValueError("Unsupported pilot model or reasoning effort")
     if cache_ttl not in runner.CACHE_TTLS:
         raise ValueError("Unsupported prompt cache TTL; choose 30m or 12h")
+    if selection_profile not in {"random", selection.PROFILE}:
+        raise ValueError("Unknown selection profile")
+    if selection_profile == selection.PROFILE and samples != 1000:
+        raise ValueError("failure_mix_v1 requires exactly 1000 samples")
     output, source = safe_path(output_dir), SplitInput(input_dir)
     if output == source.directory or source.directory in output.parents or output in source.directory.parents:
         raise ValueError("Pilot output must be separate from its source dataset")
@@ -199,9 +220,14 @@ def prepare(input_dir: Path, output_dir: Path, *, samples=1000, seed=123,
         raise ValueError(f"Canonical evaluator preflight failed: {probe.get('reasons')}")
     config = {"model": model, "reasoning_effort": reasoning_effort,
               "max_output_tokens": max_output_tokens, "seed": seed, "samples": samples, "cache_ttl": cache_ttl}
+    if selection_profile != "random":
+        config["selection_profile"] = selection_profile
     code_hashes = fingerprint()
-    selected, counts, benchmark_files = select(source, samples, seed)
+    selected, counts, benchmark_files = select(source, samples, seed, selection_profile)
+    selection_report = counts.pop("selection_report", None)
     output.mkdir(parents=True, exist_ok=False)
+    if selection_report is not None:
+        atomic_bytes(output / "selection_report.json", canonical(selection_report) + b"\n")
     runner.write_rows(output / "selected.jsonl", selected)
     runner.write_rows(output / "responses.jsonl", (
         {"query_id": entry["response_id"], "response_id": entry["response_id"], "n_idx": 1,
@@ -223,12 +249,17 @@ def prepare(input_dir: Path, output_dir: Path, *, samples=1000, seed=123,
         raise ValueError("Code/prompt/schema changed during preparation")
     files = {name: file_hash(output / name) for name in
              ("requests.jsonl", "selected.jsonl", "responses.jsonl", "queries.jsonl", "estimate.json")}
+    if selection_report is not None:
+        files["selection_report.json"] = file_hash(output / "selection_report.json")
     contract = {"version": VERSION, "config": config, "files": files, "bindings": bindings,
                 "input_identities": source.identities, "source_directory": str(source.directory),
                 "counts": counts, "benchmark_files": benchmark_files, "code_hashes": code_hashes,
                 "guard": guard.guard_identity(), "environment": runner.ENVIRONMENT}
     save(output / "contract.json", contract)
-    return {"status": "prepared_offline_no_api_calls", "output_dir": str(output), **costs}
+    result = {"status": "prepared_offline_no_api_calls", "output_dir": str(output), **costs}
+    if selection_report is not None:
+        result["selection_report"] = selection_report
+    return result
 
 
 def load(output: Path) -> dict:

@@ -23,15 +23,17 @@ source /group-volume/k.anup/envs/a2ui-openai-batch/bin/activate
 python -m pip install -r dataset/requirements-openai-batch.txt
 
 INPUT=training/data/train/v11
-PILOT=/group-volume/k.anup/working_dir/openai_stage3_sol_1000_cached_r2
+PILOT=/group-volume/k.anup/working_dir/openai_stage3_sol_1000_mix_r3
 
 python -u dataset/scripts/openai_stage3_batch.py prepare \
   --input-dir "$INPUT" --output-dir "$PILOT" \
   --samples 1000 --seed 123 \
+  --selection-profile failure_mix_v1 \
   --model gpt-6.1-sol --reasoning-effort medium --max-output-tokens 8192 \
   --cache-ttl 12h
 
 cat "$PILOT/estimate.json"
+cat "$PILOT/selection_report.json"
 ```
 
 `prepare` makes no generation/API calls and needs no API key. The tokenizer may
@@ -45,6 +47,79 @@ quality checks describe sampled candidates, not a full factual audit of v11.
 The old teacher label is retained locally for comparison but is not in the
 OpenAI request. A fresh output directory is required; failed preparation cannot
 be submitted without its completed, hash-checked contract.
+
+## Opt-in sample mix from existing training data
+
+`--selection-profile failure_mix_v1` requires exactly 1,000 sources. Omitting it
+keeps the existing seeded random selector. This profile changes only source
+selection in this standalone pilot, not Muse, training, prompts, caching, or the
+canonical Stage 3 admission/fidelity checks.
+
+| Primary source category | Requested |
+| --- | ---: |
+| Repeated entities with separately extractable fields in lists | 300 |
+| Comparison tables, including pipe-delimited sources | 200 |
+| Long answers with multiple sections | 150 |
+| Procedures, recipes, plans and checklists | 100 |
+| Numerical values, units and qualifications | 100 |
+| Citations and supplied URL references/actions | 100 |
+| Short plain answers and uncertainty controls | 50 |
+
+Features are detected from the original response after canonical reference
+restoration, never from old teacher completions or benchmark answers. Category
+recognition uses documented English/Markdown heuristics, not a semantic or factual
+certification. Entity recognition reuses the existing bounded extraction-policy
+source parser, rather than counting colons (which mistakes timestamps for fields).
+Sources can match several categories; deterministic matching
+assigns each selected source to only one primary bucket. Reassignment prevents
+overlap from producing an avoidable shortage. No source is rewritten or truncated.
+
+The reference target is **60 numbered-citation sources plus 40 URL-bearing
+sources**. The citation heuristic ignores fenced/inline code, legal years, and
+table/form row labels, and looks for citations at the end of a prose claim.
+It is conservative and still requires manual review. `[SOURCE_URL_*]` placeholders
+are not numbered citations; URL slots require restored URLs and unchanged source
+checks. Citation destinations are never invented, fetched or borrowed from a
+benchmark. Numeric citations without captured URLs remain literal source text.
+
+If citations are scarce, eligible URL-bearing sources fill those reference slots.
+If any primary bucket still lacks candidates, remaining eligible training sources
+fill explicit `coverage_backfill` slots. `selection_report.json` records requested
+and achieved categories, citation shortfall, URL substitutions, other category
+shortfalls, backfill counts, and word-length diagnostics. It never labels those
+substitutions as meeting the missing feature. Fewer than 1,000 distinct eligible
+sources fails preparation. Existing-source citation scarcity is a coverage gap,
+not permission to synthesize references or use Golden/Bixby data.
+
+`detected_before_quality_checks` counts source features after holdout/dedup
+exclusion, before sampled source-quality checks; it is **not** a count of all
+eligible sources. Every selected row passes the existing source checks. Word
+counts describe the selected length mix; a 50/50 length split is not enforced,
+and word counts are not student-tokenizer context limits. Review the pilot's
+length and category distribution before paying for generation.
+
+Each `selected.jsonl` entry retains its source identity/hash, feature evidence,
+primary bucket and any backfill reason. The selection report is hash-bound in
+`contract.json`; changing it invalidates submission/collection. A new profile or
+code version requires fresh preparation; do not reuse an older prepared pilot.
+
+Validation and pinned Golden/Bixby sources remain excluded by identity and
+normalized original/restored source hash. Explicit evaluation-only records fail
+closed. The broad failure categories guide selection; benchmark inputs, labels,
+and paraphrases are not a candidate source pool. Only accepted regenerated labels
+can pass the existing downstream gates; this profile does not certify model gains.
+
+Offline v11 selection audit (2026-11-01, seed 123): verified all 200,214 training
+and 4,089 validation rows; selected 1,000 distinct training sources meeting the
+seven primary quotas above, with no general category backfill. The conservative
+detector found **0 numbered-citation candidates**, leaving a **60-source citation
+gap**; 60 additional eligible URL-bearing sources filled those reference slots.
+This is not proof that every possible citation style is absent. Length diagnostics
+were 223 sources below 250 words and 777 at or above 250 words, so the suggested
+even length balance is not achieved. The audit performed selection only, without
+request capture, API submission, label generation or training. Validation passed
+233 regression tests plus 29 subtests, including source preservation, holdout
+exclusion, reference binding, replay fidelity and report-tampering checks.
 
 ## Submit once, then collect later
 
