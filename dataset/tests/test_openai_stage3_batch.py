@@ -70,7 +70,8 @@ def response(custom_id, text=GOOD, *, status="completed", model="gpt-6.1-sol"):
                      "output": [{"type": "message", "role": "assistant", "status": "completed",
                                  "content": [{"type": "output_text", "text": text}]}],
                      "usage": {"input_tokens": 10000, "output_tokens": 3000,
-                               "input_tokens_details": {"cached_tokens": 2000},
+                               "input_tokens_details": {"cached_tokens": 2000, "cache_write_tokens": 0,
+                                                        "cache_write_tokens_details": {"ttl_30m_tokens": 0, "ttl_12h_tokens": 0}},
                                "output_tokens_details": {"reasoning_tokens": 1000}}}}}
 
 
@@ -119,12 +120,71 @@ def test_prepare_captures_canonical_prompt_and_cost_without_target_or_api(prepar
     messages = request["body"]["input"]
     assert SOURCE in messages[-1]["content"]
     assert row("train-a")["completion"] not in messages[-1]["content"]
-    assert "same entity, section, event, and action context" in messages[0]["content"]
+    assert messages[0]["role"] == "developer"
+    prefix = messages[0]["content"][0]
+    assert "same entity, section, event, and action context" in prefix["text"]
+    assert prefix["prompt_cache_breakpoint"] == {"mode": "explicit"}
+    assert request["body"]["prompt_cache_options"] == {"mode": "explicit", "ttl": "12h"}
+    assert contract["config"]["cache_ttl"] == "12h"
     assert "temperature" not in request["body"]
     assert contract["bindings"][request["custom_id"]].startswith("p-")
     costs = json.loads((prepared / "estimate.json").read_text())
     assert costs["estimated_input_tokens"] > 1000
     assert costs["output_token_cap_including_reasoning"] == 8192
+    assert costs["prompt_caching"]["estimated_prefix_meets_minimum"] is True
+    assert costs["prompt_caching"]["cache_hits_guaranteed"] is False
+
+
+@pytest.mark.parametrize("ttl", ["30m", "12h"])
+def test_shared_cache_prefix_is_stable_across_sources_and_budget_covers_writes(tmp_path, ttl):
+    directory = inputs(tmp_path, [row("a"), row("b", "Rain expected tomorrow.")])
+    output = tmp_path / "caching"
+    pilot.prepare(directory, output, samples=2, cache_ttl=ttl)
+    contract = pilot.load(output)
+    requests = runner.read_rows(output / "requests.jsonl")
+    bodies = [item["body"] for item in requests]
+    assert bodies[0]["input"][0] == bodies[1]["input"][0]
+    assert bodies[0]["input"][1] != bodies[1]["input"][1]
+    for body in bodies:
+        assert body["prompt_cache_options"] == {"mode": "explicit", "ttl": ttl}
+        assert "prompt_cache_key" not in body
+        assert "prompt_cache_retention" not in body
+        assert canonical(body).count(b'"prompt_cache_breakpoint"') == 1
+        assert SOURCE not in body["input"][0]["content"][0]["text"]
+    assert contract["config"]["cache_ttl"] == ttl
+    costs = json.loads((output / "estimate.json").read_text())
+    cache = costs["prompt_caching"]
+    assert cache["estimated_shared_prefix_tokens"] * 2 + cache["estimated_uncached_suffix_tokens"] == costs["estimated_input_tokens"]
+    capped = costs["scenarios"][-1]
+    assert capped["batch_cost_usd_one_shared_write_estimated"] < capped["batch_cost_usd_estimated"] < costs["budget_estimate_usd"]
+    other = dict(contract["config"], cache_ttl="30m" if ttl == "12h" else "12h")
+    replay = runner.ReplayAdapter(other, {item["custom_id"]: item for item in requests}, {})
+    with pytest.raises(ValueError, match="drift or duplicate"):
+        replay.generate(prompt=bodies[0]["input"][1]["content"], system=bodies[0]["input"][0]["content"][0]["text"])
+
+
+def test_caching_requires_supported_ttl_and_static_prefix(tmp_path):
+    config = {"model": "gpt-6.1-sol", "reasoning_effort": "medium", "max_output_tokens": 8192}
+    for system in (None, "", "  "):
+        with pytest.raises(ValueError, match="shared Stage 3"):
+            runner.request_body(config, "source", system)
+    with pytest.raises(ValueError, match="cache TTL"):
+        runner.request_body(dict(config, cache_ttl="24h"), "source", "instructions")
+    with pytest.raises(ValueError, match="cache TTL"):
+        pilot.prepare(tmp_path / "input", tmp_path / "output", cache_ttl="24h")
+    assert not (tmp_path / "output").exists()
+
+
+def test_estimate_detects_dynamic_prefix_and_does_not_assume_small_prefix_cache_hits():
+    config = {"model": "gpt-6.1-sol", "reasoning_effort": "medium", "max_output_tokens": 8192}
+    requests = [{"body": runner.request_body(config, "Source A", "Short prefix")},
+                {"body": runner.request_body(config, "Source B", "Short prefix")}]
+    costs = pilot.estimate(requests, config)
+    assert costs["prompt_caching"]["estimated_prefix_meets_minimum"] is False
+    assert costs["scenarios"][0]["batch_cost_usd_estimated"] == costs["scenarios"][0]["batch_cost_usd_one_shared_write_estimated"]
+    requests[1]["body"] = runner.request_body(config, "Source B", "Per-source dynamic prefix")
+    with pytest.raises(ValueError, match="prefix changed"):
+        pilot.estimate(requests, config)
 
 
 def test_selection_deterministic_excludes_validation_sources_and_duplicates(tmp_path):
@@ -312,6 +372,58 @@ def test_reported_usage_includes_failed_requests_without_double_counting_reasoni
     assert report["reasoning_tokens"] == 2000
     assert report["records_without_usage"] == 1
     assert report["batch_cost_usd_from_reported_tokens_estimated"] == pytest.approx(0.0462)
+
+
+def test_usage_charges_cache_writes_once_by_lifetime_and_reports_net_savings():
+    record = response("cache")
+    usage = record["response"]["body"]["usage"]
+    usage["input_tokens"] = 12000
+    usage["input_tokens_details"] = {"cached_tokens": 4000, "cache_write_tokens": 7000,
+                                     "cache_write_tokens_details": {"ttl_30m_tokens": 3000, "ttl_12h_tokens": 4000}}
+    report = api.usage_report([record], {"model": "gpt-6.1-sol"})
+    assert report["ordinary_input_tokens"] == 1000
+    assert report["cache_write_tokens"] == 7000
+    assert report["cache_write_tokens_30m"] == 3000
+    assert report["cache_write_tokens_12h"] == 4000
+    assert report["cache_hit_token_fraction"] == pytest.approx(1 / 3, abs=1e-6)
+    assert report["input_cost_usd_estimated"] == pytest.approx(0.01495)
+    assert report["batch_cost_usd_from_reported_tokens_estimated"] == pytest.approx(0.02995)
+    assert report["net_input_savings_vs_uncached_usd_estimated"] == pytest.approx(-0.00295)
+
+
+@pytest.mark.parametrize("details", [
+    {"cached_tokens": 2000},
+    {"cached_tokens": 2000, "cache_write_tokens": 5000},
+    {"cache_write_tokens": 0},
+])
+def test_missing_cache_usage_is_unknown_cost_not_free_writes(details):
+    record = response("missing-cache")
+    record["response"]["body"]["usage"]["input_tokens_details"] = details
+    report = api.usage_report([record], {"model": "gpt-6.1-sol"})
+    assert report["records_without_complete_cache_usage"] == 1
+    assert report["batch_cost_usd_from_reported_tokens_estimated"] is None
+    assert report["net_input_savings_vs_uncached_usd_estimated"] is None
+
+
+@pytest.mark.parametrize("mutation", ["overlap", "breakdown", "negative", "boolean", "wrong_type", "partial_excess"])
+def test_invalid_cache_usage_fails_closed(mutation):
+    record = response("invalid-cache")
+    details = record["response"]["body"]["usage"]["input_tokens_details"]
+    details.update(cache_write_tokens=5000, cache_write_tokens_details={"ttl_30m_tokens": 2000, "ttl_12h_tokens": 3000})
+    if mutation == "overlap":
+        details["cached_tokens"] = 6000
+    elif mutation == "breakdown":
+        details["cache_write_tokens_details"]["ttl_12h_tokens"] = 0
+    elif mutation == "negative":
+        details["cache_write_tokens_details"]["ttl_12h_tokens"] = -3000
+    elif mutation == "boolean":
+        details["cache_write_tokens"] = True
+    elif mutation == "wrong_type":
+        details["cache_write_tokens_details"] = []
+    else:
+        details["cache_write_tokens_details"] = {"ttl_30m_tokens": 6000}
+    with pytest.raises((ValueError, TypeError), match="Malformed API usage"):
+        api.usage_report([record], {"model": "gpt-6.1-sol"})
 
 
 def test_expired_partial_batch_keeps_valid_results_and_reports_missing(tmp_path):

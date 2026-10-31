@@ -12,6 +12,7 @@ sys.path[:0] = [str(ROOT / "dataset/src"), str(ROOT / "training/src")]
 
 from pipeline import openai_stage3_batch as pilot
 from pipeline import openai_stage3_batch_api as batch
+from pipeline.openai_stage3_batch_runner import CACHE_TTLS, DEFAULT_CACHE_TTL
 
 
 def main() -> int:
@@ -24,6 +25,8 @@ def main() -> int:
     prepare.add_argument("--model", choices=tuple(pilot.PRICES), default="gpt-6.1-sol")
     prepare.add_argument("--reasoning-effort", choices=("low", "medium", "high"), default="medium")
     prepare.add_argument("--max-output-tokens", type=int, default=8192, help="Per request, including reasoning tokens")
+    prepare.add_argument("--cache-ttl", choices=CACHE_TTLS, default=DEFAULT_CACHE_TTL,
+                         help="Shared instruction cache lifetime: 12h (default) for asynchronous Batch reuse; 30m for lower write fees")
     submit = commands.add_parser("submit", help="Paid: upload and submit ONE 24-hour Batch; never auto-retry creation")
     submit.add_argument("--max-estimated-cost-usd", type=float, required=True, help="Local estimate allowance, not a provider billing cap")
     status = commands.add_parser("status", help="Read remote status without generation")
@@ -35,7 +38,7 @@ def main() -> int:
     command = args.pop("command")
     try:
         result = (pilot.prepare if command == "prepare" else getattr(batch, command))(**args)
-    except (ValueError, RuntimeError, OSError) as exc:
+    except (ValueError, TypeError, RuntimeError, OSError) as exc:
         parser.exit(1, f"OpenAI Stage 3 Batch pilot failed: {exc}\n")
     print(json.dumps(result, ensure_ascii=False, indent=2))
     return 0

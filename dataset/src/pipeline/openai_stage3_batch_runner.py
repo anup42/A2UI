@@ -13,6 +13,8 @@ from llm.base import BaseLLMAdapter, LLMResult, ModelSpec
 from pipeline.v11_regeneration_io import ROOT, canonical, digest
 
 DATASET = ROOT / "dataset"
+CACHE_TTLS = ("30m", "12h")
+DEFAULT_CACHE_TTL = "12h"
 ENVIRONMENT = {
     "DATASET_OFFLINE_MODE": "1",
     "STAGE3_PROMPT_MODE": "system_prefix",
@@ -37,9 +39,19 @@ def offline_environment():
 
 
 def request_body(config: dict, prompt: str, system: str | None) -> dict:
-    messages = [{"role": "system", "content": system}] if system else []
+    ttl = config.get("cache_ttl", DEFAULT_CACHE_TTL)
+    if ttl not in CACHE_TTLS:
+        raise ValueError("Unsupported prompt cache TTL; choose 30m or 12h")
+    if not system or not system.strip():
+        raise ValueError("Explicit caching requires the shared Stage 3 instruction prefix")
+    # Preserve the canonical instructions verbatim. Only this stable prefix is
+    # written; the per-source user message has no cache breakpoint. Sol handles
+    # cache routing automatically, so per-run/source keys would fragment reuse.
+    messages = [{"role": "developer", "content": [{"type": "input_text", "text": system,
+                 "prompt_cache_breakpoint": {"mode": "explicit"}}]}]
     messages.append({"role": "user", "content": prompt})
     return {"model": config["model"], "input": messages, "store": False,
+            "prompt_cache_options": {"mode": "explicit", "ttl": ttl},
             "max_output_tokens": config["max_output_tokens"],
             "reasoning": {"effort": config["reasoning_effort"]}}
 

@@ -110,31 +110,59 @@ def status(output_dir: Path, batch_id=None, *, api=None) -> dict:
 
 
 def usage_report(records: list[dict], config: dict) -> dict:
-    totals = {"input_tokens": 0, "output_tokens": 0, "cached_input_tokens": 0, "reasoning_tokens": 0}
-    missing = 0
+    totals = {"input_tokens": 0, "output_tokens": 0, "cached_input_tokens": 0, "reasoning_tokens": 0,
+              "cache_write_tokens": 0, "cache_write_tokens_30m": 0, "cache_write_tokens_12h": 0}
+    missing = missing_cache = 0
     for record in records:
         body = (record.get("response") or {}).get("body") or {}
         usage = body.get("usage")
         if not isinstance(usage, dict):
             missing += 1
             continue
+        details = usage.get("input_tokens_details", {})
+        if not isinstance(details, dict):
+            raise TypeError("Malformed API usage evidence")
+        writes = details.get("cache_write_tokens_details", {})
+        if not isinstance(writes, dict):
+            raise TypeError("Malformed API usage evidence")
+        complete_cache = ("cached_tokens" in details and "cache_write_tokens" in details
+                          and (details["cache_write_tokens"] == 0 or
+                               {"ttl_30m_tokens", "ttl_12h_tokens"} <= writes.keys()))
+        missing_cache += not complete_cache
         values = {"input_tokens": usage.get("input_tokens"), "output_tokens": usage.get("output_tokens"),
-                  "cached_input_tokens": (usage.get("input_tokens_details") or {}).get("cached_tokens", 0),
+                  "cached_input_tokens": details.get("cached_tokens", 0),
+                  "cache_write_tokens": details.get("cache_write_tokens", 0),
+                  "cache_write_tokens_30m": writes.get("ttl_30m_tokens", 0),
+                  "cache_write_tokens_12h": writes.get("ttl_12h_tokens", 0),
                   "reasoning_tokens": (usage.get("output_tokens_details") or {}).get("reasoning_tokens", 0)}
         if (any(type(value) is not int or value < 0 for value in values.values())
-                or values["cached_input_tokens"] > values["input_tokens"]
+                or values["cached_input_tokens"] + values["cache_write_tokens"] > values["input_tokens"]
+                or values["cache_write_tokens_30m"] + values["cache_write_tokens_12h"] > values["cache_write_tokens"]
+                or (complete_cache and values["cache_write_tokens_30m"] + values["cache_write_tokens_12h"]
+                    != values["cache_write_tokens"])
                 or values["reasoning_tokens"] > values["output_tokens"]):
             raise ValueError("Malformed API usage evidence")
         for key, value in values.items():
             totals[key] += value
     prices = pilot.PRICES[config["model"]]
-    cost = ((totals["input_tokens"] - totals["cached_input_tokens"]) * prices["input"]
-            + totals["cached_input_tokens"] * prices["cached_input"] + totals["output_tokens"] * prices["output"]) / 1e6
-    return {**totals, "records_without_usage": missing,
-            "batch_cost_usd_from_reported_tokens_estimated": round(cost, 6),
+    ordinary = totals["input_tokens"] - totals["cached_input_tokens"] - totals["cache_write_tokens"]
+    input_cost = (ordinary * prices["input"] + totals["cached_input_tokens"] * prices["cached_input"]
+                  + totals["cache_write_tokens_30m"] * prices["cache_write_30m"]
+                  + totals["cache_write_tokens_12h"] * prices["cache_write_12h"]) / 1e6
+    cost = input_cost + totals["output_tokens"] * prices["output"] / 1e6
+    return {**totals, "records_without_usage": missing, "records_without_complete_cache_usage": missing_cache,
+            "ordinary_input_tokens": None if missing_cache else ordinary,
+            "cache_hit_token_fraction": None if missing_cache or not totals["input_tokens"] else
+                round(totals["cached_input_tokens"] / totals["input_tokens"], 6),
+            "input_cost_usd_estimated": None if missing_cache else round(input_cost, 6),
+            "net_input_savings_vs_uncached_usd_estimated": None if missing_cache else
+                round(totals["input_tokens"] * prices["input"] / 1e6 - input_cost, 6),
+            "batch_cost_usd_from_reported_tokens_estimated": None if missing_cache else round(cost, 6),
             "scope": "Includes rejected/incomplete responses with reported usage; reasoning is already inside output_tokens. "
-                     "Not an invoice; cache-write charges, regional premiums and taxes are not included.",
-            "pricing_as_of": "2026-10-31", "pricing_url": pilot.PRICE_URL}
+                     "Read/write counts do not overlap. Writes are total rates, not surcharges. "
+                     "Cost is unknown when cache usage is incomplete; net savings can be negative for cold writes. "
+                     "Not an invoice; regional premiums and taxes are not included.",
+            "pricing_as_of": "2026-11-01", "pricing_url": pilot.PRICE_URL}
 
 
 def collect(output_dir: Path, *, api=None) -> dict:

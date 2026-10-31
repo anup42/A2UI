@@ -26,8 +26,9 @@ from pipeline.v11_regeneration_io import (
 )
 
 VERSION = "openai-stage3-batch-v1"
-# Per million tokens, Batch short-context prices verified 2026-10-31.
-PRICES = {"gpt-6.1-sol": {"input": 1.0, "output": 5.0, "cached_input": 0.05}}
+# Per million tokens, Batch short-context prices verified 2026-11-01.
+PRICES = {"gpt-6.1-sol": {"input": 1.0, "output": 5.0, "cached_input": 0.05,
+                         "cache_write_30m": 1.25, "cache_write_12h": 2.5}}
 PRICE_URL = "https://developers.openai.com/api/docs/pricing"
 
 
@@ -122,39 +123,68 @@ def estimate(requests: list[dict], config: dict) -> dict:
     except KeyError:
         encoding = tiktoken.get_encoding("o200k_base")
         method = "o200k_base_proxy_estimate_plus_framing_not_exact_model_tokenizer"
-    per_request = [sum(len(encoding.encode(message["content"], disallowed_special=()))
-                       for message in req["body"]["input"]) + 32 for req in requests]
+    # The canonical runner splits a single static instruction prefix from every
+    # source. Catch accidental per-source prefix changes before paid submission.
+    prefixes = {digest(req["body"]["input"][0]) for req in requests}
+    if len(prefixes) != 1:
+        raise ValueError("Stage 3 cache prefix changed between sources")
+    prefix = requests[0]["body"]["input"][0]["content"][0]["text"]
+    prefix_tokens = len(encoding.encode(prefix, disallowed_special=()))
+    per_request = [prefix_tokens + len(encoding.encode(req["body"]["input"][1]["content"],
+                                                     disallowed_special=())) + 32 for req in requests]
     if max(per_request) > 64000:
         raise ValueError("Prompt exceeds pilot input budget; source was not truncated")
     total = sum(per_request)
     rates = PRICES[config["model"]]
+    ttl = config.get("cache_ttl", runner.DEFAULT_CACHE_TTL)
+    cacheable = prefix_tokens >= 1024
+    write_rate = rates[f"cache_write_{ttl}"] if cacheable else rates["input"]
+    prefix_total = prefix_tokens * len(requests)
+    suffix_total = total - prefix_total
+    no_hit_input = prefix_total * write_rate + suffix_total * rates["input"]
+    one_write_input = (prefix_tokens * write_rate + (prefix_total - prefix_tokens) * rates["cached_input"]
+                       + suffix_total * rates["input"]) if cacheable else no_hit_input
     output_cap = len(requests) * config["max_output_tokens"]
-    # Estimates, not an API billing cap. Allow tokenizer variance and cache writes.
-    budget = (total * 1.25 * rates["input"] * 1.25 + output_cap * rates["output"]) / 1e6
-    return {"model": config["model"], "requests": len(requests), "pricing_as_of": "2026-10-31",
+    # Conservative allowance: no hits, 25% input-token margin, even framing
+    # charged at the write rate. A cache write is a total rate, not a surcharge.
+    framing = 32 * len(requests)
+    budget_input = ((prefix_total + framing) * write_rate + (suffix_total - framing) * rates["input"]) * 1.25
+    budget = (budget_input + output_cap * rates["output"]) / 1e6
+    return {"model": config["model"], "requests": len(requests), "pricing_as_of": "2026-11-01",
             "pricing_url": PRICE_URL, "batch_usd_per_million_tokens": rates,
             "token_estimation_method": method, "estimated_input_tokens": total,
+            "prompt_caching": {"mode": "explicit", "ttl": ttl, "shared_prefix_sha256": digest(prefix),
+                               "estimated_shared_prefix_tokens": prefix_tokens,
+                               "estimated_uncached_suffix_tokens": suffix_total,
+                               "minimum_cacheable_prefix_tokens": 1024,
+                               "estimated_prefix_meets_minimum": cacheable,
+                               "cache_hits_guaranteed": False},
             "max_estimated_input_tokens_per_request": max(per_request),
             "output_token_cap_including_reasoning": output_cap,
             "scenarios": [{"average_output_tokens_including_reasoning": count,
                            "total_tokens_estimated": total + len(requests) * count,
-                           "batch_cost_usd_estimated": round((total * rates["input"] + len(requests) * count * rates["output"]) / 1e6, 4)}
+                           "batch_cost_usd_estimated": round((no_hit_input + len(requests) * count * rates["output"]) / 1e6, 4),
+                           "batch_cost_usd_one_shared_write_estimated": round((one_write_input + len(requests) * count * rates["output"]) / 1e6, 4)}
                           for count in (2048, 4096, config["max_output_tokens"]) if count <= config["max_output_tokens"]],
             "budget_estimate_usd": round(budget, 4),
             "limits": "Estimates, not a provider spending cap; no cached-read discount assumed. "
-                      "Budget includes 25% input token margin and 25% cache-write allowance. "
+                      "Budget includes 25% input token margin and a shared-prefix write on EVERY request at the selected TTL. "
+                      "One-shared-write scenarios assume all later requests hit the cache; scheduling/routing can prevent this. "
                       "Excludes taxes/regional premiums; actual usage includes reasoning tokens. "
                       "Batch reduces price, not token usage. No paid retries."}
 
 
 def prepare(input_dir: Path, output_dir: Path, *, samples=1000, seed=123,
-            model="gpt-6.1-sol", reasoning_effort="medium", max_output_tokens=8192) -> dict:
+            model="gpt-6.1-sol", reasoning_effort="medium", max_output_tokens=8192,
+            cache_ttl=runner.DEFAULT_CACHE_TTL) -> dict:
     from pipeline.genui_quality.validation_v5_4 import ensure_v5_4_validation_ready
 
     if not 1 <= samples <= 1000 or seed < 0 or not 1024 <= max_output_tokens <= 32768:
         raise ValueError("Pilot requires 1..1000 samples, nonnegative seed and 1024..32768 output tokens")
     if model not in PRICES or reasoning_effort not in {"low", "medium", "high"}:
         raise ValueError("Unsupported pilot model or reasoning effort")
+    if cache_ttl not in runner.CACHE_TTLS:
+        raise ValueError("Unsupported prompt cache TTL; choose 30m or 12h")
     output, source = safe_path(output_dir), SplitInput(input_dir)
     if output == source.directory or source.directory in output.parents or output in source.directory.parents:
         raise ValueError("Pilot output must be separate from its source dataset")
@@ -168,7 +198,7 @@ def prepare(input_dir: Path, output_dir: Path, *, samples=1000, seed=123,
     if probe.get("eligible") is not True:
         raise ValueError(f"Canonical evaluator preflight failed: {probe.get('reasons')}")
     config = {"model": model, "reasoning_effort": reasoning_effort,
-              "max_output_tokens": max_output_tokens, "seed": seed, "samples": samples}
+              "max_output_tokens": max_output_tokens, "seed": seed, "samples": samples, "cache_ttl": cache_ttl}
     code_hashes = fingerprint()
     selected, counts, benchmark_files = select(source, samples, seed)
     output.mkdir(parents=True, exist_ok=False)

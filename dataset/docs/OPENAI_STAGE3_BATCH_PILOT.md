@@ -23,12 +23,13 @@ source /group-volume/k.anup/envs/a2ui-openai-batch/bin/activate
 python -m pip install -r dataset/requirements-openai-batch.txt
 
 INPUT=training/data/train/v11
-PILOT=/group-volume/k.anup/working_dir/openai_stage3_sol_1000_r1
+PILOT=/group-volume/k.anup/working_dir/openai_stage3_sol_1000_cached_r2
 
 python -u dataset/scripts/openai_stage3_batch.py prepare \
   --input-dir "$INPUT" --output-dir "$PILOT" \
   --samples 1000 --seed 123 \
-  --model gpt-6.1-sol --reasoning-effort medium --max-output-tokens 8192
+  --model gpt-6.1-sol --reasoning-effort medium --max-output-tokens 8192 \
+  --cache-ttl 12h
 
 cat "$PILOT/estimate.json"
 ```
@@ -67,7 +68,7 @@ python -u dataset/scripts/openai_stage3_batch.py collect --output-dir "$PILOT"
 
 The allowance is a **local estimated-cost check, not an OpenAI spending cap**.
 Account model access and queued-token limits must accommodate the pilot; the
-estimate includes its full repeated system prompts. Batch has a 24-hour
+estimate includes its full repeated instruction prompts. Batch has a 24-hour
 completion window. No synchronous generation fallback or automatic paid repair
 retries occur. Retrying `submit` after success reports the saved Batch ID.
 
@@ -85,45 +86,85 @@ after successful collection. Do not delete submission journals to retry a job.
 Keep the same code, prompt, schema and source-policy version until collection;
 changes are rejected rather than mixed into the pilot.
 
+## Shared prompt caching
+
+New preparations use **explicit-only caching**. The canonical Stage 3 instructions
+and extraction supplement are preserved verbatim in the first `developer`
+message, with one `prompt_cache_breakpoint` on its `input_text` block. The
+source-specific user message follows it with **no breakpoint**. This avoids
+paying to cache changing source text, IDs or reference bindings. The original
+reference masking/restoration and fidelity gates are unchanged.
+
+`--cache-ttl 12h` is the default: the shared instructions can be reused across
+asynchronous Batch scheduling gaps. Use `--cache-ttl 30m` when a shorter cache
+lifetime and lower write fees suit your run. The 12-hour write rate is higher,
+so it is not always cheaper; actual scheduling and reuse determine savings.
+No cache warm-up request or extra paid API call is made.
+
+The request sets `prompt_cache_options={"mode":"explicit","ttl":"12h"}`.
+Sol handles routing automatically; no per-source/run cache key fragments the
+shared prefix. Preparation verifies that every request has the identical
+instruction prefix, records its hash and estimated token count, and reports
+whether it meets the **1,024 visible-token minimum**. It never pads or truncates
+the prompt to force caching. Exact-prefix matches, model/settings, routing and
+lifetime affect reuse; cache hits are **not guaranteed**. `store:false` remains
+set and is independent of prompt-cache lifetime.
+
+Use a **new output directory** after this cache-policy change. For a batch
+already prepared/submitted with an older version, keep that original checkout
+for `status`/`collect`; do not edit its requests, contract or submission journal.
+Cache settings are bound into the preparation contract and request hashes.
+
 ## Usage and price
 
-As verified **2026-10-31**, Sol Batch short-context pricing is **$1.00 per million
+As verified **2026-11-01**, Sol Batch short-context pricing is **$1.00 per million
 input tokens and $5.00 per million output tokens**. Output includes billed
 reasoning tokens, not just visible Express code. Batch is 50% below Standard
 prices; it reduces dollars, not token usage.
+
+Cached reads cost **$0.05/M**. Cache writes cost **$1.25/M for 30m** or
+**$2.50/M for 12h**; these are total write prices, not surcharges on ordinary input.
+Tokens after the explicit breakpoint cost the ordinary input rate without a
+cache-write charge.
 
 `estimate.json` measures the captured prompts using tiktoken and labels whether
 the model tokenizer or the `o200k_base` proxy was used. It reports total input,
 per-request maximum input, and output scenarios at 2,048, 4,096 and the configured
 cap. The default pilot permits at most **8,192,000 output tokens** across 1,000
-requests. Input is charged for every request; no cached-input discount is assumed.
-The budget estimate adds 25% input-token margin and a 25% cache-write allowance.
+requests. Each scenario gives both a **no-cache-hit cost including prefix writes**
+and an illustrative **one-prefix-write then all hits** cost. The latter is an
+assumption, not a prediction. The budget assumes a prefix write on every request
+at the selected TTL, adds 25% input-token margin and conservatively prices message
+framing at the write rate. It does not assume any cached-read savings.
 It excludes taxes/regional premiums and is not a guaranteed invoice maximum.
 
-An offline preparation against the repository's v11 bundle on 2026-10-31
-(1,000 sources, seed 123, medium reasoning) measured **6,132,695 estimated input
-tokens** using the `o200k_base` proxy. All 1,000 sources passed the existing
-source-quality gate before requests were prepared. No API batch was submitted.
+Re-estimating the 2026-10-31 offline v11 pilot's 1,000 captured prompts with this
+request format on 2026-11-01 (seed 123, medium reasoning) measured **6,132,695
+estimated input tokens**, including a shared **5,409-token prefix per request**,
+using the `o200k_base` proxy. All 1,000 selected sources had passed the existing
+source-quality gate. No API batch was submitted and no cache hits were measured.
 
-| Output assumption (includes reasoning) | Total estimated tokens | Batch cost estimate |
-| --- | ---: | ---: |
-| 2,048 per source | 8.18 million | $16.37 |
-| 4,096 per source | 10.23 million | $26.61 |
-| Every request reaches the 8,192 cap | 14.32 million | $47.09 |
+| Output assumption (includes reasoning) | Total estimated tokens | 12h, no cache hits | 12h, one write then all hits |
+| --- | ---: | ---: | ---: |
+| 2,048 per source | 8.18 million | $24.49 | $11.25 |
+| 4,096 per source | 10.23 million | $34.73 | $21.49 |
+| Every request reaches the 8,192 cap | 14.32 million | $55.21 | $41.97 |
 
-The local budget estimate with input/cache-write allowances was **$50.54**;
-the example command allows $60. These scenarios are **not measured output usage
-or a predicted acceptance rate**. Source/prompt changes will change the estimate.
+The conservative local budget estimate is **$58.83 with 12h**, or **$50.33 with
+30m**; the example command allows $60. These scenarios are **not measured output
+usage or a predicted acceptance rate**. Source/prompt changes change the estimate.
 
-For example, **10 million input + 3 million output tokens is about $25** at the
-uncached Batch rates. Use the actual `estimate.json` for your data instead of
-assuming this example. `usage.json` reports actual returned input/output/cached/
-reasoning token counts, including rejected responses, and a price-snapshot cost
-estimate. Reasoning is not added twice. Missing usage and partial results are
-explicit; the OpenAI billing record remains authoritative for charges.
+`usage.json` reports returned input/output/reasoning counts, cache reads, writes
+by lifetime, ordinary input, token cache-hit fraction and **net input savings
+including write charges**. Failed/rejected responses with usage are counted.
+Reasoning and cache writes are not counted twice. Missing cache accounting makes
+the cost unknown (`null`), rather than assuming free writes. Net savings can be
+negative when cold writes outweigh reads. Missing usage/partial results remain
+explicit; the OpenAI billing record is authoritative for charges.
 
 Official references: [Sol model](https://developers.openai.com/api/docs/models/gpt-6.1-sol),
 [Batch guide](https://developers.openai.com/api/docs/guides/batch),
+[prompt caching](https://developers.openai.com/api/docs/guides/prompt-caching),
 [pricing](https://developers.openai.com/api/docs/pricing).
 
 ## Validation and outputs
