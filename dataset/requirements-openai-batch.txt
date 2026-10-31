@@ -1,0 +1,3 @@
+# Dedicated dataset-generation environment; do not install in training/export venvs.
+-r requirements.txt
+openai>=1.99.9,<3
