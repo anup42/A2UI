@@ -1,4 +1,4 @@
-# OpenAI Stage 3: separate 1,000-source Batch pilot
+# OpenAI Stage 3: separate 100/1,000-source Batch pilot
 
 Use **GPT-6.1 Sol (`gpt-6.1-sol`), medium reasoning** for the first pilot. It
 supports Responses and Batch and provides a useful quality/cost starting point.
@@ -23,13 +23,13 @@ source /group-volume/k.anup/envs/a2ui-openai-batch/bin/activate
 python -m pip install -r dataset/requirements-openai-batch.txt
 
 INPUT=training/data/train/v11
-PILOT=/group-volume/k.anup/working_dir/openai_stage3_sol_1000_mix_r3
+PILOT=/group-volume/k.anup/working_dir/openai_stage3_sol_100_mix_r1
 
 python -u dataset/scripts/openai_stage3_batch.py prepare \
   --input-dir "$INPUT" --output-dir "$PILOT" \
-  --samples 1000 --seed 123 \
+  --samples 100 --seed 123 \
   --selection-profile failure_mix_v1 \
-  --model gpt-6.1-sol --reasoning-effort medium --max-output-tokens 8192 \
+  --model gpt-6.1-sol --reasoning-effort medium --reasoning-summary auto --max-output-tokens 8192 \
   --cache-ttl 12h
 
 cat "$PILOT/estimate.json"
@@ -50,20 +50,22 @@ be submitted without its completed, hash-checked contract.
 
 ## Opt-in sample mix from existing training data
 
-`--selection-profile failure_mix_v1` requires exactly 1,000 sources. Omitting it
+`--selection-profile failure_mix_v1` supports exactly **100 or 1,000** sources.
+Start with `--samples 100` to measure real usage and review quality before scaling.
+The CLI default remains 1,000; specify 100 explicitly. Omitting the profile
 keeps the existing seeded random selector. This profile changes only source
 selection in this standalone pilot, not Muse, training, prompts, caching, or the
 canonical Stage 3 admission/fidelity checks.
 
-| Primary source category | Requested |
-| --- | ---: |
-| Repeated entities with separately extractable fields in lists | 300 |
-| Comparison tables, including pipe-delimited sources | 200 |
-| Long answers with multiple sections | 150 |
-| Procedures, recipes, plans and checklists | 100 |
-| Numerical values, units and qualifications | 100 |
-| Citations and supplied URL references/actions | 100 |
-| Short plain answers and uncertainty controls | 50 |
+| Primary source category | 100-source trial | 1,000-source pilot |
+| --- | ---: | ---: |
+| Repeated entities with separately extractable fields in lists | 30 | 300 |
+| Comparison tables, including pipe-delimited sources | 20 | 200 |
+| Long answers with multiple sections | 15 | 150 |
+| Procedures, recipes, plans and checklists | 10 | 100 |
+| Numerical values, units and qualifications | 10 | 100 |
+| Citations and supplied URL references/actions | 10 | 100 |
+| Short plain answers and uncertainty controls | 5 | 50 |
 
 Features are detected from the original response after canonical reference
 restoration, never from old teacher completions or benchmark answers. Category
@@ -74,8 +76,8 @@ Sources can match several categories; deterministic matching
 assigns each selected source to only one primary bucket. Reassignment prevents
 overlap from producing an avoidable shortage. No source is rewritten or truncated.
 
-The reference target is **60 numbered-citation sources plus 40 URL-bearing
-sources**. The citation heuristic ignores fenced/inline code, legal years, and
+The reference target is **6 numbered-citation sources plus 4 URL-bearing sources**
+for 100, or **60 plus 40** for 1,000. The citation heuristic ignores fenced/inline code, legal years, and
 table/form row labels, and looks for citations at the end of a prose claim.
 It is conservative and still requires manual review. `[SOURCE_URL_*]` placeholders
 are not numbered citations; URL slots require restored URLs and unchanged source
@@ -87,7 +89,7 @@ If any primary bucket still lacks candidates, remaining eligible training source
 fill explicit `coverage_backfill` slots. `selection_report.json` records requested
 and achieved categories, citation shortfall, URL substitutions, other category
 shortfalls, backfill counts, and word-length diagnostics. It never labels those
-substitutions as meeting the missing feature. Fewer than 1,000 distinct eligible
+substitutions as meeting the missing feature. Fewer than the requested number of distinct eligible
 sources fails preparation. Existing-source citation scarcity is a coverage gap,
 not permission to synthesize references or use Golden/Bixby data.
 
@@ -102,6 +104,22 @@ Each `selected.jsonl` entry retains its source identity/hash, feature evidence,
 primary bucket and any backfill reason. The selection report is hash-bound in
 `contract.json`; changing it invalidates submission/collection. A new profile or
 code version requires fresh preparation; do not reuse an older prepared pilot.
+
+Both sizes scan and verify the original training/validation inputs; a smaller
+pilot reduces paid requests, not necessarily preparation time. The 100-source
+mix uses smaller deterministic candidate pools and is not guaranteed to be a
+subset of the 1,000-source mix. Do not trim or edit a prepared request file: use
+a fresh output directory and `--samples 100` so request counts, source bindings,
+selection quotas and cost estimates are sealed consistently.
+
+After explicit submission and collection, review `usage.json` for actual token
+counts and token-based cost estimates, `report.json` for acceptance and failure
+counts, and `assessments.jsonl`/`pilot_accepted.jsonl` against `selected.jsonl` for
+source fidelity and list-to-card extraction. Inspect all 100 outputs when practical,
+including rejects and truncations. Accepted-output fidelity is not certification
+of source factuality, rendered UI quality or downstream training accuracy.
+Use returned usage rather than the old 1,000-source estimate when deciding
+whether to expand; cache hit rates and acceptance rates need not scale linearly.
 
 Validation and pinned Golden/Bixby sources remain excluded by identity and
 normalized original/restored source hash. Explicit evaluation-only records fail
@@ -132,7 +150,7 @@ export OPENAI_API_KEY
 
 # This command incurs API usage. Inspect estimate.json first.
 python -u dataset/scripts/openai_stage3_batch.py submit \
-  --output-dir "$PILOT" --max-estimated-cost-usd 60
+  --output-dir "$PILOT" --max-estimated-cost-usd 6
 
 # Run separately whenever convenient; no GPU is occupied while OpenAI works.
 python dataset/scripts/openai_stage3_batch.py status --output-dir "$PILOT"
@@ -142,6 +160,9 @@ python -u dataset/scripts/openai_stage3_batch.py collect --output-dir "$PILOT"
 ```
 
 The allowance is a **local estimated-cost check, not an OpenAI spending cap**.
+The example uses a $6 allowance for the 100-source trial; check its actual
+`estimate.json` first. For a separately prepared 1,000-source run, choose a new
+allowance after reviewing that run's estimate (the earlier pilot used $60).
 Account model access and queued-token limits must accommodate the pilot; the
 estimate includes its full repeated instruction prompts. Batch has a 24-hour
 completion window. No synchronous generation fallback or automatic paid repair

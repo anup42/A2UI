@@ -275,11 +275,71 @@ def test_mix_profile_rejects_explicit_benchmark_identity(tmp_path, bad):
         pilot.select(SplitInput(directory), 1000, 123, selection.PROFILE)
 
 
-@pytest.mark.parametrize("profile,count", [("unknown-profile", 1000), (selection.PROFILE, 999)])
+@pytest.mark.parametrize("profile,count", [("unknown-profile", 1000),
+                                           (selection.PROFILE, 99), (selection.PROFILE, 999)])
 def test_invalid_profile_or_wrong_mix_size_fails_before_output(tmp_path, profile, count):
-    with pytest.raises(ValueError, match="profile|exactly 1000"):
+    with pytest.raises(ValueError, match="profile|100.*1000"):
         pilot.prepare(tmp_path / "absent", tmp_path / "output", samples=count, selection_profile=profile)
     assert not (tmp_path / "output").exists()
+
+
+@pytest.mark.parametrize("count,scale", [(100, 10), (1000, 1)])
+def test_profile_quotas_scale_without_changing_original_defaults(count, scale):
+    expected = {"entity_lists": 300, "comparisons": 200, "long_sections": 150,
+                "procedures": 100, "numerical": 100, "references": 100, "controls": 50}
+    assert selection.QUOTAS == expected
+    actual = selection.quotas_for_samples(count)
+    assert actual == {key: value // scale for key, value in expected.items()}
+    assert sum(actual.values()) == count
+    actual["entity_lists"] = 0
+    assert selection.QUOTAS == expected
+    assert selection.MixSampler().quotas == expected
+    assert selection.MixSampler().citation_target == 60
+
+
+@pytest.mark.parametrize("count", [1, 99, 101, 999, 1001, 100.0, True])
+def test_profile_select_rejects_unsupported_size(tmp_path, count):
+    source = SplitInput(inputs(tmp_path))
+    with pytest.raises(ValueError, match="100.*1000"):
+        pilot.select(source, count, 123, selection.PROFILE)
+    with pytest.raises(ValueError, match="100.*1000"):
+        selection.quotas_for_samples(count)
+
+
+def test_prepare_100_uses_scaled_sampler_and_captures_every_request_without_api(tmp_path, monkeypatch):
+    requested = {"entity_lists": 30, "comparisons": 20, "long_sections": 15,
+                 "procedures": 10, "numerical": 10, "references": 10, "controls": 5}
+    train, hints_by_source = [], {}
+    for bucket, count in requested.items():
+        for index in range(count):
+            source = SOURCE + f"\nFixture bucket {bucket}, record {index}."
+            tags = ("numbered_citations",) if bucket == "references" and index < 6 else (bucket,)
+            hints_by_source[source] = evidence(*tags)
+            train.append(row(f"{bucket}-{index}", source))
+    directory = inputs(tmp_path, train)
+    before = file_hash(directory / "train.jsonl")
+    # Keep admission, sampling, report binding and Stage 3 capture real; only the
+    # source classifier uses controlled coverage fixtures.
+    monkeypatch.setattr(selection, "features", lambda source: deepcopy(hints_by_source[source]))
+    monkeypatch.setattr(api, "client", lambda: pytest.fail("Unexpected paid API client"))
+    output = tmp_path / "profile-100"
+    result = pilot.prepare(directory, output, samples=100, selection_profile=selection.PROFILE)
+    contract = pilot.load(output)
+    selected = runner.read_rows(output / "selected.jsonl")
+    report = result["selection_report"]
+    assert report["requested"] == report["achieved"] == requested
+    assert report["numbered_citations"]["requested"] == 6
+    assert report["numbered_citations"]["selected_heuristic_candidates"] == 6
+    assert report["numbered_citations"]["shortfall"] == 0
+    assert not any(report["category_shortfalls"].values())
+    assert not any(report["coverage_backfill"].values())
+    assert len(selected) == len({entry["source_id"] for entry in selected}) == 100
+    assert Counter(entry["selection_bucket"] for entry in selected) == requested
+    assert len(runner.read_rows(output / "requests.jsonl")) == len(contract["bindings"]) == 100
+    assert contract["config"]["samples"] == 100
+    assert contract["config"]["selection_profile"] == selection.PROFILE
+    assert contract["files"]["selection_report.json"] == file_hash(output / "selection_report.json")
+    assert file_hash(directory / "train.jsonl") == before
 
 
 def test_prepare_binds_selection_report_and_selected_evidence_without_api(tmp_path, monkeypatch):

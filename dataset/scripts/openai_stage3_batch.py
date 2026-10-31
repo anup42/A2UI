@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prepare, explicitly submit, and validate a separate 1,000-source OpenAI Batch pilot."""
+"""Prepare, explicitly submit, and validate a separate OpenAI Stage 3 Batch pilot."""
 from __future__ import annotations
 
 import argparse
@@ -28,7 +28,7 @@ def main() -> int:
     prepare.add_argument("--samples", type=int, default=1000)
     prepare.add_argument("--seed", type=int, default=123)
     prepare.add_argument("--selection-profile", choices=("random", PROFILE), default="random",
-                         help="Optional 1000-source coverage mix with citation-gap reporting; default preserves random sampling")
+                         help="Optional 100/1000-source coverage mix with citation-gap reporting; default preserves random sampling")
     prepare.add_argument("--model", choices=tuple(pilot.PRICES), default="gpt-6.1-sol")
     prepare.add_argument("--reasoning-effort", choices=("low", "medium", "high"), default="medium")
     prepare.add_argument("--reasoning-summary", choices=REASONING_SUMMARIES, default="none",

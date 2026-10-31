@@ -70,9 +70,10 @@ def query_for(row: dict) -> dict:
 def select(source: SplitInput, samples: int, seed: int, selection_profile="random") -> tuple[list[dict], dict, dict]:
     if selection_profile not in {"random", selection.PROFILE}:
         raise ValueError("Unknown selection profile")
-    if selection_profile == selection.PROFILE and samples != 1000:
-        raise ValueError("failure_mix_v1 requires exactly 1000 samples")
-    sampler = selection.MixSampler() if selection_profile == selection.PROFILE else None
+    sampler = None
+    if selection_profile == selection.PROFILE:
+        sampler = selection.MixSampler(selection.quotas_for_samples(samples),
+                                       citation_target=selection.CITATION_TARGET * samples // sum(selection.QUOTAS.values()))
     excluded_ids, excluded_sources, benchmark_files = existing._benchmark_exclusions()
     counts = Counter()
     # Validation sources/aliases are excluded even if renamed in training.
@@ -206,8 +207,8 @@ def prepare(input_dir: Path, output_dir: Path, *, samples=1000, seed=123,
         raise ValueError("Unsupported prompt cache TTL; choose 30m or 12h")
     if selection_profile not in {"random", selection.PROFILE}:
         raise ValueError("Unknown selection profile")
-    if selection_profile == selection.PROFILE and samples != 1000:
-        raise ValueError("failure_mix_v1 requires exactly 1000 samples")
+    if selection_profile == selection.PROFILE:
+        selection.quotas_for_samples(samples)
     output, source = safe_path(output_dir), SplitInput(input_dir)
     if output == source.directory or source.directory in output.parents or output in source.directory.parents:
         raise ValueError("Pilot output must be separate from its source dataset")

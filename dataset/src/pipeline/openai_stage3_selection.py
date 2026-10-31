@@ -11,10 +11,18 @@ PROFILE = "failure_mix_v1"
 QUOTAS = {"entity_lists": 300, "comparisons": 200, "long_sections": 150,
           "procedures": 100, "numerical": 100, "references": 100, "controls": 50}
 CITATION_TARGET = 60
+PILOT_SIZES = (100, 1000)
 _BULLET = re.compile(r"^\s*(?:[-*+] |\d+[.)] )(.+)$", re.MULTILINE)
 _CODE = re.compile(r"```.*?(?:```|\Z)|~~~.*?(?:~~~|\Z)|`[^`\n]*`", re.DOTALL)
 _MARKER = re.compile(r"(?<=[\s.!?])((?:\[[1-9]\d?\](?!\()\s*)+)")
 _URL = re.compile(r"https?://[^\s<>\]\)]+")
+
+
+def quotas_for_samples(samples: int) -> dict[str, int]:
+    """Keep the original 1,000-source mix or scale it exactly for a 100-source trial."""
+    if type(samples) is not int or samples not in PILOT_SIZES:
+        raise ValueError("failure_mix_v1 requires 100 or 1000 samples")
+    return {key: count * samples // sum(QUOTAS.values()) for key, count in QUOTAS.items()}
 
 
 def features(text: str) -> dict:
@@ -151,7 +159,7 @@ class MixSampler:
             return taken
 
         shortfalls = {key: self.quotas[key] - achieved[key] for key in self.quotas}
-        # Never pretend a replacement met the missing category. Keep 1,000 valid
+        # Never pretend a replacement met the missing category. Keep the requested
         # sources, reporting every shortage and the actual replacement features.
         for bucket, count in shortfalls.items():
             replacements[bucket] = take("all", count, "coverage_backfill", bucket)
