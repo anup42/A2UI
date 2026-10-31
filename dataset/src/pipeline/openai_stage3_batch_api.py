@@ -8,6 +8,7 @@ from pathlib import Path
 
 from pipeline import openai_stage3_batch as pilot
 from pipeline.openai_stage3_batch_runner import read_rows
+from pipeline.openai_stage3_reasoning import write_reasoning_summaries
 from pipeline.v11_regeneration import _exclusive
 from pipeline.v11_regeneration_io import (
     atomic_bytes,
@@ -205,15 +206,20 @@ def collect(output_dir: Path, *, api=None) -> dict:
                 save(download_path, downloads)
             records.extend(read_rows(output / name))
         # Validate IDs before computing usage or replaying: results arrive unordered.
-        pilot.index_results(records, set(contract["bindings"]))
+        indexed = pilot.index_results(records, set(contract["bindings"]))
         usage = usage_report(records, contract["config"])
         usage["requested_results_not_returned"] = len(contract["bindings"]) - len(records)
         atomic_bytes(output / "usage.json", canonical(usage) + b"\n")
         report = pilot.validate_results(output, contract, records, batch["status"])
         report["usage"] = usage
+        if contract["config"].get("reasoning_summary", "none") != "none":
+            report["reasoning_summaries"] = write_reasoning_summaries(output, contract, indexed)
         atomic_bytes(output / "report.json", canonical(report) + b"\n")
         files = {name: file_hash(output / name) for name in
                  ("pilot_accepted.jsonl", "assessments.jsonl", "rejected.jsonl", "report.json", "usage.json")}
+        if "reasoning_summaries" in report:
+            name = report["reasoning_summaries"]["file"]
+            files[name] = file_hash(output / name)
         files.update({name: item["sha256"] for name, item in downloads["files"].items()})
         # Seal canonical audit artifacts too; repeated collect is read-only.
         for path in (output / report["stage3_artifacts"]).rglob("*"):

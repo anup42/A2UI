@@ -15,6 +15,7 @@ from pipeline.v11_regeneration_io import ROOT, canonical, digest
 DATASET = ROOT / "dataset"
 CACHE_TTLS = ("30m", "12h")
 DEFAULT_CACHE_TTL = "12h"
+REASONING_SUMMARIES = ("none", "auto")
 ENVIRONMENT = {
     "DATASET_OFFLINE_MODE": "1",
     "STAGE3_PROMPT_MODE": "system_prefix",
@@ -39,6 +40,12 @@ def offline_environment():
 
 
 def request_body(config: dict, prompt: str, system: str | None) -> dict:
+    summary = config.get("reasoning_summary", "none")
+    if summary not in REASONING_SUMMARIES:
+        raise ValueError("Unsupported reasoning summary; choose none or auto")
+    reasoning = {"effort": config["reasoning_effort"]}
+    if summary != "none":
+        reasoning["summary"] = summary
     ttl = config.get("cache_ttl", DEFAULT_CACHE_TTL)
     if ttl not in CACHE_TTLS:
         raise ValueError("Unsupported prompt cache TTL; choose 30m or 12h")
@@ -53,7 +60,7 @@ def request_body(config: dict, prompt: str, system: str | None) -> dict:
     return {"model": config["model"], "input": messages, "store": False,
             "prompt_cache_options": {"mode": "explicit", "ttl": ttl},
             "max_output_tokens": config["max_output_tokens"],
-            "reasoning": {"effort": config["reasoning_effort"]}}
+            "reasoning": reasoning}
 
 
 def request_id(body: dict) -> str:

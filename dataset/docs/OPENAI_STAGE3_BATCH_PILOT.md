@@ -275,6 +275,7 @@ partial results; they are never reported as a complete 1,000-label dataset.
 | `pilot_accepted.jsonl` | Only candidates passing all gates; preserves original row IDs and sources |
 | `assessments.jsonl`, `rejected.jsonl` | Per-source admission decisions and rejection reasons |
 | `report.json`, `usage.json` | Acceptance/partial-result summary and reported API token usage |
+| `reasoning_summaries.jsonl` | Optional returned reasoning summaries with source bindings and admission status; never training targets |
 | `v-*/stage3/` | Canonical Stage 3 records, metrics and generation audit artifacts |
 
 The accepted file is intentionally marked a **pilot subset**, not a complete
@@ -284,3 +285,49 @@ same sources. Later replace those training labels by original ID in a separately
 reviewed dataset composition step; do not append duplicate source/target pairs
 or incorporate Golden/Bixby examples. Source factuality, rendered/device quality
 and downstream training gains are not certified by structural/fidelity checks.
+
+## Keep reasoning summaries for later review
+
+Add `--reasoning-summary auto` to **prepare** to request the most detailed
+summary supported by the model. The default is `none`, which omits the API
+summary option and preserves the existing request and training-target behavior.
+OpenAI does not expose raw internal reasoning tokens as readable text; this
+option saves **provider reasoning summaries**, not the full private reasoning
+trace. See the [official reasoning summary documentation](https://developers.openai.com/api/docs/guides/reasoning#reasoning-summaries).
+
+Prepare a fresh folder; existing prepared requests and contracts must not be
+edited. Code is also fingerprinted, so use the original checkout to operate an
+older pilot, or prepare a new one with the updated code. For this 1,000-source
+pilot, the same seed and unchanged v11 inputs preserve the source selection:
+
+```bash
+python -u dataset/scripts/openai_stage3_batch.py prepare \
+  --input-dir training/data/train/v11 \
+  --output-dir /group-volume/k.anup/working_dir/openai_stage3_failure_mix_v1_summaries_r1 \
+  --samples 1000 --seed 123 --selection-profile failure_mix_v1 \
+  --model gpt-6.1-sol --reasoning-effort medium --reasoning-summary auto \
+  --max-output-tokens 8192 --cache-ttl 12h
+```
+
+Preparation remains offline and does not submit a Batch. Inspect the new
+`estimate.json` before explicit submission. Submit/status/collect use their
+existing commands with the new output directory; no collection flag is needed.
+No live summary-enabled API run is required by the offline tests.
+
+When collection completes, `reasoning_summaries.jsonl` contains one audit row
+per requested source, joined by `custom_id`, including missing, rejected, failed
+and incomplete results. Each row records original/prepared/API IDs, returned
+summary fragments and combined text, API status and usage, and the final
+canonical admission decision. Availability is independent of admission: an
+empty summary does not reject valid Express, and a summary cannot admit invalid
+Express. Unknown or malformed summary parts are flagged and remain available in
+the unchanged raw Batch evidence. No rationale is invented when none is returned.
+
+The sidecar is written atomically and sealed into `collection.json`; interrupted
+collection reuses verified downloads, and completed collection verifies the
+summary hash. Summaries are excluded from `pilot_accepted.jsonl`, prompts,
+fidelity scoring, and training targets. They can be reviewed separately later;
+do not treat summaries from rejected results as approved training examples.
+Summary availability depends on model/account support and may require OpenAI
+organization verification. The script does not silently retry without summaries
+or submit replacement requests on API errors. Actual usage remains in `usage.json`.

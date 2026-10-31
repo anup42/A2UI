@@ -193,13 +193,15 @@ def estimate(requests: list[dict], config: dict) -> dict:
 
 def prepare(input_dir: Path, output_dir: Path, *, samples=1000, seed=123,
             model="gpt-6.1-sol", reasoning_effort="medium", max_output_tokens=8192,
-            cache_ttl=runner.DEFAULT_CACHE_TTL, selection_profile="random") -> dict:
+            cache_ttl=runner.DEFAULT_CACHE_TTL, selection_profile="random", reasoning_summary="none") -> dict:
     from pipeline.genui_quality.validation_v5_4 import ensure_v5_4_validation_ready
 
     if not 1 <= samples <= 1000 or seed < 0 or not 1024 <= max_output_tokens <= 32768:
         raise ValueError("Pilot requires 1..1000 samples, nonnegative seed and 1024..32768 output tokens")
     if model not in PRICES or reasoning_effort not in {"low", "medium", "high"}:
         raise ValueError("Unsupported pilot model or reasoning effort")
+    if reasoning_summary not in runner.REASONING_SUMMARIES:
+        raise ValueError("Unsupported reasoning summary; choose none or auto")
     if cache_ttl not in runner.CACHE_TTLS:
         raise ValueError("Unsupported prompt cache TTL; choose 30m or 12h")
     if selection_profile not in {"random", selection.PROFILE}:
@@ -222,6 +224,8 @@ def prepare(input_dir: Path, output_dir: Path, *, samples=1000, seed=123,
               "max_output_tokens": max_output_tokens, "seed": seed, "samples": samples, "cache_ttl": cache_ttl}
     if selection_profile != "random":
         config["selection_profile"] = selection_profile
+    if reasoning_summary != "none":
+        config["reasoning_summary"] = reasoning_summary
     code_hashes = fingerprint()
     selected, counts, benchmark_files = select(source, samples, seed, selection_profile)
     selection_report = counts.pop("selection_report", None)

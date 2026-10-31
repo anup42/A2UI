@@ -484,3 +484,200 @@ def test_real_openai_sdk_batch_and_file_contract_offline(prepared):
         api.submit(prepared, 100, api=sdk)
         assert api.collect(prepared, api=sdk)["accepted"] == 1
     assert events.count(("POST", "/v1/batches")) == 1
+
+
+def summary_item(texts, identifier="reasoning-1"):
+    return {"type": "reasoning", "id": identifier,
+            "summary": [{"type": "summary_text", "text": text} for text in texts]}
+
+
+def prepare_with_summaries(tmp_path):
+    output = tmp_path / "summary-pilot"
+    source_root = tmp_path / "summary-source"
+    source_root.mkdir()
+    pilot.prepare(inputs(source_root), output, samples=1, reasoning_summary="auto")
+    return output
+
+
+def test_reasoning_summary_is_opt_in_and_bound_to_request(tmp_path, prepared):
+    assert "reasoning_summary" not in pilot.load(prepared)["config"]
+    assert "summary" not in runner.read_rows(prepared / "requests.jsonl")[0]["body"]["reasoning"]
+    output = prepare_with_summaries(tmp_path)
+    contract = pilot.load(output)
+    assert contract["config"]["reasoning_summary"] == "auto"
+    request = runner.read_rows(output / "requests.jsonl")[0]
+    assert request["body"]["reasoning"] == {"effort": "medium", "summary": "auto"}
+    config = dict(contract["config"], reasoning_summary="none")
+    replay = runner.ReplayAdapter(config, {request["custom_id"]: request}, {})
+    with pytest.raises(ValueError, match="drift or duplicate"):
+        replay.generate(prompt=request["body"]["input"][1]["content"],
+                        system=request["body"]["input"][0]["content"][0]["text"])
+
+
+@pytest.mark.parametrize("mode", ["all", "", True])
+def test_invalid_reasoning_summary_mode_fails_before_output(tmp_path, mode):
+    with pytest.raises(ValueError, match="reasoning summary"):
+        pilot.prepare(tmp_path / "absent-input", tmp_path / "output", reasoning_summary=mode)
+    assert not (tmp_path / "output").exists()
+
+
+def test_default_collection_does_not_create_summary_sidecar(prepared):
+    fake = FakeAPI(prepared)
+    fake.records[0]["response"]["body"]["output"].insert(0, summary_item(["Summary sentinel"]))
+    api.submit(prepared, 100, api=fake)
+    assert api.collect(prepared, api=fake)["accepted"] == 1
+    assert not (prepared / "reasoning_summaries.jsonl").exists()
+    assert "Summary sentinel" not in (prepared / "pilot_accepted.jsonl").read_text()
+
+
+def test_summary_collection_preserves_parts_and_never_changes_training_target(tmp_path):
+    output = prepare_with_summaries(tmp_path)
+    fake = FakeAPI(output)
+    body = fake.records[0]["response"]["body"]
+    body["output"].insert(0, summary_item(["First summary sentinel", "Second summary sentinel"]))
+    body["output"].append(summary_item(["Third summary sentinel"], "reasoning-2"))
+    api.submit(output, 100, api=fake)
+    report = api.collect(output, api=fake)
+    assert report["accepted"] == 1
+    row = runner.read_rows(output / "reasoning_summaries.jsonl")[0]
+    selected = runner.read_rows(output / "selected.jsonl")[0]
+    assert row["custom_id"] == fake.records[0]["custom_id"]
+    assert row["source_id"] == selected["source_id"]
+    assert row["prepared_response_id"] == selected["response_id"]
+    assert row["api_response_id"] == body["id"]
+    assert row["response_status"] == "completed"
+    assert row["http_status"] == 200
+    assert row["usage"] == body["usage"]
+    assert row["text_kind"] == "reasoning_summary"
+    assert row["summary_status"] == "available"
+    assert row["summary_text"] == "First summary sentinel\n\nSecond summary sentinel\n\nThird summary sentinel"
+    assert row["summary_parts"] == [
+        {"item_id": "reasoning-1", "output_index": 0, "summary_index": 0, "text": "First summary sentinel"},
+        {"item_id": "reasoning-1", "output_index": 0, "summary_index": 1, "text": "Second summary sentinel"},
+        {"item_id": "reasoning-2", "output_index": 2, "summary_index": 0, "text": "Third summary sentinel"}]
+    assert row["summary_warnings"] == []
+    assert row["eligible"] is True
+    assert row["contract_sha256"] == digest(fake.contract)
+    for name in ("pilot_accepted.jsonl", "assessments.jsonl", "rejected.jsonl"):
+        assert "summary sentinel" not in (output / name).read_text()
+    info = report["reasoning_summaries"]
+    assert info["file"] == "reasoning_summaries.jsonl"
+    assert (info["requested"], info["available"], info["unavailable"]) == (1, 1, 0)
+    assert info["text_kind"] == "reasoning_summary"
+    assert info["raw_reasoning_available"] is False
+    assert api.collect(output) == report
+    assert fake.downloads == 1
+    with (output / "reasoning_summaries.jsonl").open("ab") as stream:
+        stream.write(b"\n")
+    with pytest.raises(ValueError, match="evidence changed"):
+        api.collect(output)
+
+
+@pytest.mark.parametrize("mutation,summary_status,eligible", [
+    ("absent", "not_returned", True), ("empty", "empty", True),
+    ("invalid_ir", "available", False), ("incomplete", "available", False),
+    ("error", "not_returned", False), ("missing", "missing_result", False)])
+def test_summary_audit_includes_unavailable_and_rejected_results(tmp_path, mutation, summary_status, eligible):
+    output = prepare_with_summaries(tmp_path)
+    fake = FakeAPI(output)
+    record = fake.records[0]
+    body = record["response"]["body"]
+    if mutation != "absent":
+        body["output"].insert(0, summary_item([] if mutation == "empty" else ["Audit sentinel"]))
+    if mutation == "invalid_ir":
+        body["output"][1]["content"][0]["text"] = "invalid IR"
+    elif mutation == "incomplete":
+        body["status"] = "incomplete"
+    elif mutation == "error":
+        record.update(response=None, error={"code": "batch_expired"})
+    elif mutation == "missing":
+        fake.records = []
+    api.submit(output, 100, api=fake)
+    report = api.collect(output, api=fake)
+    row = runner.read_rows(output / "reasoning_summaries.jsonl")[0]
+    assert row["summary_status"] == summary_status
+    assert row["eligible"] is eligible
+    assessment = runner.read_rows(output / "assessments.jsonl")[0]
+    assert row["reasons"] == assessment.get("reasons", [])
+    assert report["reasoning_summaries"]["requested"] == 1
+    assert report["reasoning_summaries"]["available"] == (summary_status == "available")
+    if mutation in {"error", "missing"}:
+        assert row["usage"] is None
+    else:
+        assert row["usage"] == body["usage"]
+
+
+def test_summary_source_joins_follow_ids_for_out_of_order_results(tmp_path):
+    directory = inputs(tmp_path, [row("a"), row("b", "Rain expected tomorrow.")])
+    output = tmp_path / "joined-summaries"
+    pilot.prepare(directory, output, samples=2, reasoning_summary="auto")
+    fake = FakeAPI(output)
+    for record in fake.records:
+        identifier = record["custom_id"]
+        record["response"]["body"]["id"] = "api-" + identifier
+        record["response"]["body"]["output"].insert(0, summary_item([identifier]))
+    api.submit(output, 100, api=fake)
+    api.collect(output, api=fake)
+    rows = runner.read_rows(output / "reasoning_summaries.jsonl")
+    selected = {item["response_id"]: item for item in runner.read_rows(output / "selected.jsonl")}
+    assert len(rows) == 2
+    assert {item["custom_id"] for item in rows} == set(fake.contract["bindings"])
+    for item in rows:
+        prepared_id = fake.contract["bindings"][item["custom_id"]]
+        assert item["prepared_response_id"] == prepared_id
+        assert item["source_id"] == selected[prepared_id]["source_id"]
+        assert item["api_response_id"] == "api-" + item["custom_id"]
+        assert item["summary_text"] == item["custom_id"]
+
+
+def test_summary_collection_resumes_after_sidecar_without_redownload_or_duplicates(tmp_path, monkeypatch):
+    output = prepare_with_summaries(tmp_path)
+    fake = FakeAPI(output)
+    fake.records[0]["response"]["body"]["output"].insert(0, summary_item(["Resume sentinel"]))
+    api.submit(output, 100, api=fake)
+    original_save = api.save
+
+    def interrupted_save(path, value):
+        if path.name == "collection.json":
+            raise OSError("simulated interruption before receipt")
+        return original_save(path, value)
+
+    monkeypatch.setattr(api, "save", interrupted_save)
+    with pytest.raises(OSError, match="simulated interruption"):
+        api.collect(output, api=fake)
+    assert (output / "reasoning_summaries.jsonl").exists()
+    assert not (output / "collection.json").exists()
+    before = (output / "reasoning_summaries.jsonl").read_bytes()
+    monkeypatch.setattr(api, "save", original_save)
+    report = api.collect(output, api=fake)
+    assert fake.downloads == fake.creates == 1
+    assert (output / "reasoning_summaries.jsonl").read_bytes() == before
+    assert len(runner.read_rows(output / "reasoning_summaries.jsonl")) == 1
+    assert api.collect(output) == report
+
+
+def test_summary_parser_preserves_unicode_and_warns_without_scraping_other_fields(tmp_path):
+    output = prepare_with_summaries(tmp_path)
+    fake = FakeAPI(output)
+    body = fake.records[0]["response"]["body"]
+    body["output"].insert(0, {
+        "type": "reasoning", "id": "unicode", "encrypted_content": "SECRET_ENCRYPTED_SENTINEL",
+        "content": [{"type": "output_text", "text": "UNRELATED_CONTENT_SENTINEL"}],
+        "summary": [{"type": "summary_text", "text": "हैलो 世界 café 🪷"},
+                    {"type": "output_text", "text": "WRONG_TYPE_SENTINEL"},
+                    {"type": "summary_text", "text": 123}, None]})
+    body["output"].append({"type": "reasoning", "summary": "MALFORMED_SUMMARY_SENTINEL"})
+    api.submit(output, 100, api=fake)
+    report = api.collect(output, api=fake)
+    assert report["accepted"] == 1
+    item = runner.read_rows(output / "reasoning_summaries.jsonl")[0]
+    assert item["summary_text"] == "हैलो 世界 café 🪷"
+    assert item["summary_parts"] == [{"item_id": "unicode", "output_index": 0,
+                                       "summary_index": 0, "text": "हैलो 世界 café 🪷"}]
+    assert item["summary_warnings"] == ["unsupported_summary_part:0:1", "unsupported_summary_part:0:2",
+                                         "unsupported_summary_part:0:3", "malformed_summary:2"]
+    sidecar = (output / "reasoning_summaries.jsonl").read_text(encoding="utf-8")
+    for sentinel in ("SECRET_ENCRYPTED_SENTINEL", "UNRELATED_CONTENT_SENTINEL",
+                     "WRONG_TYPE_SENTINEL", "MALFORMED_SUMMARY_SENTINEL"):
+        assert sentinel not in sidecar
+        assert sentinel in (output / "output_file_id.jsonl").read_text(encoding="utf-8")

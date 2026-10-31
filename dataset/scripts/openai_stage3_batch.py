@@ -12,7 +12,11 @@ sys.path[:0] = [str(ROOT / "dataset/src"), str(ROOT / "training/src")]
 
 from pipeline import openai_stage3_batch as pilot
 from pipeline import openai_stage3_batch_api as batch
-from pipeline.openai_stage3_batch_runner import CACHE_TTLS, DEFAULT_CACHE_TTL
+from pipeline.openai_stage3_batch_runner import (
+    CACHE_TTLS,
+    DEFAULT_CACHE_TTL,
+    REASONING_SUMMARIES,
+)
 from pipeline.openai_stage3_selection import PROFILE
 
 
@@ -27,6 +31,8 @@ def main() -> int:
                          help="Optional 1000-source coverage mix with citation-gap reporting; default preserves random sampling")
     prepare.add_argument("--model", choices=tuple(pilot.PRICES), default="gpt-6.1-sol")
     prepare.add_argument("--reasoning-effort", choices=("low", "medium", "high"), default="medium")
+    prepare.add_argument("--reasoning-summary", choices=REASONING_SUMMARIES, default="none",
+                         help="Opt in to API reasoning summaries saved separately on collection; not raw internal reasoning")
     prepare.add_argument("--max-output-tokens", type=int, default=8192, help="Per request, including reasoning tokens")
     prepare.add_argument("--cache-ttl", choices=CACHE_TTLS, default=DEFAULT_CACHE_TTL,
                          help="Shared instruction cache lifetime: 12h (default) for asynchronous Batch reuse; 30m for lower write fees")
