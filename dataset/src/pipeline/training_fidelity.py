@@ -60,9 +60,10 @@ def _tokens(value: Any) -> str:
 
 def _tokens_v2(value: Any) -> str:
     """Pilot literal view also preserves semantic operators ignored by prose."""
+    from pipeline.genui_quality.pilot_layout_v2 import prose_spelling
+
     text = unicodedata.normalize("NFKC", str(value)).replace("−", "-")
-    # Strip actual Markdown bold wrappers, not literal form blanks/scripts.
-    text = re.sub(r"(?<![\w_])__([^_\s](?:.*?[^_\s])?)__(?!_)", r"\1", text.replace("**", ""))
+    text = prose_spelling(text)
     text = _PREFIX.sub("", text)
     text = _REFERENCES.sub(" ", text)
     text = _GROUPED_NUMBER.sub(lambda match: match[0].replace(",", ""), text)

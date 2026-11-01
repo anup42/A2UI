@@ -92,6 +92,7 @@ _SCORE_FILES = (
     "candidate_normalization_v5_4.py",
     "card_content_v5_4.py",
     "pilot_content_v2.py",
+    "pilot_layout_v2.py",
     "pilot_source_card_v2.py",
     "pilot_source_contract_v2.py",
     "formula_evidence_v2.py",

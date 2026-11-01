@@ -19,7 +19,7 @@ _EXPLICIT_ACTION = re.compile(
     r"(?i)^Action:\s*\[\s*(?:Button\s*:\s*)?([^\]]+?)\s*\]\s*"
     r"(?:<(https://[^\s<>]+)>|(https://[^\s<>]+|\{\{u\d+\}\}|\[(?:[A-Z_]+_)?URL_\d+\]))\s*$"
 )
-_LABELED_SOURCE = re.compile(r"^(.+?):\s*<(https://[^\s<>]+)>\s*$")
+_LABELED_SOURCE = re.compile(r"^(.+?):\s*(?:<(https://[^\s<>]+)>|(https://[^\s<>]+))\s*$")
 
 
 def source_action_occurrences(source: str) -> list[dict[str, Any]]:
@@ -74,13 +74,16 @@ def source_link_occurrences(source: str) -> list[dict[str, Any]]:
         body = inline[1] if inline else re.sub(r"^(?:[-*+]\s+|\d+[.)]\s+)", "", raw)
         if not in_sources and inline is None:
             continue
-        match = _core._MARKDOWN_LINK_RE.fullmatch(body) or _LABELED_SOURCE.fullmatch(body)
+        match = _core._MARKDOWN_LINK_RE.fullmatch(body)
+        labeled = _LABELED_SOURCE.fullmatch(body) if match is None else None
+        match = match or labeled
         if match is None:
             if raw:
                 in_sources = False
                 heading_span = None
             continue
-        label, target = _core.normalize_markdown(match[1]), match[2].strip()
+        label = _core.normalize_markdown(match[1])
+        target = (match[2] or match[3]).strip() if labeled else match[2].strip()
         if label and target:
             found.append({"id": f"{SOURCE_PREFIX}{start}:{end}", "label": label,
                           "target": target, "action_type": "openUrl", "required": True,

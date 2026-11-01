@@ -175,14 +175,19 @@ def prepare_source_context_v5_4(
         computed_registry=computed_registry,
     )
     if cfg.pilot_fidelity_v2:
+        from .pilot_layout_v2 import restore_literal_source_view
         from .pilot_source_contract_v2 import restore_bound_action_targets
         base = restore_bound_action_targets(base, resolution.contract)
+        base = restore_literal_source_view(base, ownership)
     fingerprint = metric_fingerprint_v5_4(
         cfg, computed_registry=computed_registry
     )
     entity_records = ()
     if cfg.grpo_entity_extraction:
-        base, entity_records = prepare_grpo_entity_source(base)
+        if cfg.pilot_fidelity_v2:
+            base, entity_records = prepare_grpo_entity_source(base, pilot_fidelity_v2=True)
+        else:
+            base, entity_records = prepare_grpo_entity_source(base)
     return PreparedSourceContextV54(
         source_text=str(source_text or ""),
         intent=intent,
@@ -297,13 +302,29 @@ def _score_one_v5_4(
     def collect(*args: Any, **kwargs: Any) -> Any:
         evidence_started = perf_counter()
         result = collect_output_evidence_v5_4(*args, **kwargs)
-        if prepared.config.pilot_fidelity_v2 and not entity_records:
+        if entity_records:
+            if not (base_prepared.applicability.table_fidelity or base_prepared.applicability.chart_roles):
+                result = project_grpo_entity_tables(entity_records, result)
+            entity_detail.update(certify_grpo_entity_output(entity_records, result))
+            if prepared.config.pilot_fidelity_v2:
+                from .pilot_layout_v2 import (
+                    certify_section_fields,
+                    project_entity_certificates,
+                )
+                entity_detail.update(certify_section_fields(prepared.source_text, entity_records, result, entity_detail))
+                result = replace(result, evidence_ownership=tuple(project_entity_certificates(
+                    result.evidence_ownership, entity_detail)))
+        if prepared.config.pilot_fidelity_v2:
             from .matching_v5_1 import prepare_text_block
             from .pilot_content_v2 import (
                 project_exact_formula_prose,
                 project_exact_headings,
                 project_exact_plain_table_headers,
                 project_exact_siblings,
+            )
+            from .pilot_layout_v2 import (
+                project_exact_card_fragments,
+                project_exact_equation_rows,
             )
             # Base matching strips Markdown marks, including ~ and _. Those
             # lossy strings cannot certify approximation or form blanks.
@@ -316,19 +337,15 @@ def _score_one_v5_4(
             rows, pilot_certificates["pilot_exact_plain_table_headers"] = project_exact_plain_table_headers(
                 tuple(prepare_text_block(line) for line in prepared.source_text.splitlines()),
                 rows, result.output_tables)
+            rows, pilot_certificates["pilot_exact_equation_rows"] = project_exact_equation_rows(
+                literal_source, rows, result.output_tables)
             rows, pilot_certificates["pilot_exact_sibling_fragments"] = project_exact_siblings(
                 literal_source, rows)
             rows, pilot_certificates["pilot_exact_formula_fields"] = project_exact_formula_prose(
                 literal_source, rows)
+            rows, pilot_certificates["pilot_exact_card_fragments"] = project_exact_card_fragments(
+                literal_source, rows)
             result = replace(result, evidence_ownership=tuple(rows))
-        if entity_records:
-            # Shared table headers may become record fields only after an
-            # exact, complete source-bound certificate. Existing source-table
-            # and chart contracts keep their dedicated canonical role path.
-            if not (base_prepared.applicability.table_fidelity
-                    or base_prepared.applicability.chart_roles):
-                result = project_grpo_entity_tables(entity_records, result)
-            entity_detail.update(certify_grpo_entity_output(entity_records, result))
         timings["dynamic_evidence_ms"] = (
             perf_counter() - evidence_started
         ) * 1000.0
@@ -337,9 +354,9 @@ def _score_one_v5_4(
     def content_assignment(*args: Any) -> Any:
         heading_certificates = []
         pipe_certificates = []
-        # Entity certificates use original generic-output occurrence indices.
-        # Do not alter that index space before their exact ownership projection.
-        if prepared.config.pilot_fidelity_v2 and not entity_detail:
+        # Pilot entity certificates were already consumed in their original
+        # index space, before any independent layout projection.
+        if prepared.config.pilot_fidelity_v2:
             from .pilot_content_v2 import (
                 project_exact_headings,
                 project_exact_pipe_cards,
@@ -350,7 +367,7 @@ def _score_one_v5_4(
                 rows, heading_certificates = project_exact_headings(prepared.source_ownership, args[1])
             rows, pipe_certificates = project_exact_pipe_cards(args[0], rows, args[2])
             args = (args[0], rows, args[2])
-        if entity_detail:
+        if entity_detail and not prepared.config.pilot_fidelity_v2:
             blocks, detail = grpo_entity_assignment(*args, entity_detail)
         else:
             blocks, detail = card_content_assignment_v5_4(*args)
@@ -377,7 +394,14 @@ def _score_one_v5_4(
 
     def roles(*args: Any, **kwargs: Any) -> Any:
         matching_started = perf_counter()
+        certificates = []
+        if prepared.config.pilot_fidelity_v2:
+            from .pilot_layout_v2 import project_exact_formula_roles
+            actual, certificates = project_exact_formula_roles(prepared.source_text, args[0], args[1])
+            args = (args[0], actual, *args[2:])
         result = semantic_role_coverage_v5_4(*args, **kwargs)
+        if certificates and "formula" in result[4]:
+            result[4]["formula"]["pilot_exact_formula_spellings"] = certificates
         timings["semantic_role_matching_ms"] = (
             perf_counter() - matching_started
         ) * 1000.0
@@ -385,6 +409,10 @@ def _score_one_v5_4(
             timings["semantic_role_matching_ms"]
         )
         return result
+
+    def tables(*args: Any, **kwargs: Any) -> Any:
+        from .pilot_layout_v2 import table_fidelity_v2
+        return table_fidelity_v2(*args, **kwargs)
 
     def matching_timing(domain: str, elapsed_ms: float) -> None:
         matching_times[domain] = float(elapsed_ms)
@@ -477,6 +505,7 @@ def _score_one_v5_4(
         matching_timing_callback=matching_timing,
         unsupported_additions_scorer=unsupported_additions,
         content_assignment_grouper=content_assignment,
+        table_fidelity_scorer=tables if prepared.config.pilot_fidelity_v2 else None,
         action_fidelity_scorer=actions,
     )
     accessibility_multiplier, accessibility = _accessibility_adjustment(

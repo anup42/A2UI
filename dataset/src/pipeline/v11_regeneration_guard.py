@@ -10,6 +10,7 @@ import hashlib
 import json
 import re
 import sys
+from collections import Counter
 from collections.abc import Mapping
 from dataclasses import replace
 from pathlib import Path
@@ -297,12 +298,18 @@ def assess_candidate(row: Mapping[str, Any], target: str | Mapping[str, Any], *,
         # Only fresh canonical, whole-field certificates can resolve layout
         # separators. Raw observations and all canonical gates still apply.
         grouping = reward.evidence.get("content_assignment", {}).get("card_field_grouping", {})
-        certified = {_tokens_v2(item["source_text"])
+        certified = Counter(_tokens_v2(item["source_text"])
                      for key in ("pilot_exact_pipe_card_fields", "pilot_exact_plain_table_headers",
-                                 "pilot_exact_sibling_fragments", "pilot_exact_formula_fields")
-                     for item in grouping.get(key, ())}
+                                 "pilot_exact_sibling_fragments", "pilot_exact_formula_fields",
+                                 "pilot_exact_card_fragments", "pilot_exact_equation_rows")
+                     for item in grouping.get(key, ()))
         missing = fidelity.get("missing_units", ())
-        field_covered = [unit["unit_id"] for unit in missing if _tokens_v2(unit["text"]) in certified]
+        field_covered = []
+        for unit in missing:
+            key = _tokens_v2(unit["text"])
+            if certified[key]:
+                certified[key] -= 1
+                field_covered.append(unit["unit_id"])
         report["literal_missing_units_certified_by_pilot_fields"] = field_covered
         if ("source_literal_not_exactly_represented" in fidelity_reasons
                 and not fidelity.get("missing_unit_examples_truncated")

@@ -112,7 +112,7 @@ def extract_grpo_entity_records(
     return extract_records(source_units, expected_urls, source_text=source_text)
 
 
-def prepare_grpo_entity_source(base: Any) -> tuple[Any, tuple[EntityRecord, ...]]:
+def prepare_grpo_entity_source(base: Any, *, pilot_fidelity_v2: bool = False) -> tuple[Any, tuple[EntityRecord, ...]]:
     """Prepare bounded source records, preserving all facts and action bindings."""
     original = base.applicability.generic_source_units
     records = extract_grpo_entity_records(
@@ -120,6 +120,9 @@ def prepare_grpo_entity_source(base: Any) -> tuple[Any, tuple[EntityRecord, ...]
                         if action.required and action.minimum_count > 0),
         source_text=base.source_text,
     )
+    if pilot_fidelity_v2:
+        from .pilot_layout_v2 import explicit_field_delimiters
+        records = tuple(record for record in records if explicit_field_delimiters(record))
     if not records:
         return base, ()
     mapped = {record.source_index: record for record in records}

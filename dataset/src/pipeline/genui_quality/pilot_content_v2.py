@@ -11,6 +11,7 @@ from collections import Counter
 from collections.abc import Sequence
 
 from .matching_v5_1 import PreparedTextBlock
+from .pilot_layout_v2 import exact_fragments, layout_text
 
 
 def project_exact_headings(source_ownership, output_ownership):
@@ -19,13 +20,14 @@ def project_exact_headings(source_ownership, output_ownership):
     Keep raw headings, counts, order and text unchanged in every other channel.
     Unmatched or duplicated headings stay generic and receive no certificate.
     """
-    remaining = Counter(tuple(unit.text.split()) for unit in source_ownership
+    remaining = Counter(tuple(layout_text(unit.text).split()) for unit in source_ownership
                         if unit.owner == "heading")
     rows, certificates = [], []
     for index, row in enumerate(output_ownership):
-        key = tuple(str(row.get("text") or "").split())
+        key = tuple(layout_text(str(row.get("text") or "")).split())
         if (row.get("owner") == "generic_visible_content"
-                and row.get("rendered_heading") is True and remaining[key]):
+                and (row.get("rendered_heading") is True or row.get("component_type") == "card")
+                and remaining[key]):
             remaining[key] -= 1
             rows.append({**row, "owner": "pilot_certified_source_heading"})
             certificates.append({"output_index": index, "text": row["text"]})
@@ -48,7 +50,7 @@ def project_exact_pipe_cards(source, ownership, generic_owners):
                and str(row.get("text") or "").strip()]
     candidates = []
     for unit in source:
-        parts = unit.raw.split("|")
+        parts = layout_text(unit.raw).split("|")
         if not 2 <= len(parts) <= 16 or "\\|" in unit.raw:
             continue
         # Pipes also mean regex alternation and bitwise OR. Recognize only
@@ -61,8 +63,13 @@ def project_exact_pipe_cards(source, ownership, generic_owners):
             re.fullmatch(r"Option (?:[A-Z]|\d+): [^|:\n]+", parts[0].strip())
             and len(parts) >= 3 and all(p.strip() for p in parts[1:])
         )
-        if (record is not None and record.identity_label is not None) or option_record:
+        dated_record = (re.fullmatch(r"(?:[A-Za-z]+ \d{1,2}|\d{4}-\d{2}-\d{2}) \([A-Za-z]+\): .+", parts[0].strip())
+                        and len(parts) >= 3 and all(p.strip() for p in parts))
+        if (record is not None and record.identity_label is not None) or option_record or dated_record:
             candidates.append((unit, tuple(tuple(part.split()) for part in parts)))
+            if dated_record or option_record:
+                date, subject = parts[0].split(":", 1)
+                candidates.append((unit, tuple(tuple(part.split()) for part in (date, subject, *parts[1:]))))
     consumed, certificates = set(), []
     for position, index in enumerate(indices):
         if index in consumed:
@@ -78,7 +85,7 @@ def project_exact_pipe_cards(source, ownership, generic_owners):
             instance = group[0].get("card_instance")
             if (not instance or any(row.get("card_instance") != instance for row in group)
                     or any(row.get("component_type") not in {"card", "text"} for row in group)
-                    or any(len(row.get("card_ancestors", ())) != 1 for row in group)):
+                    or any(row.get("pilot_entity_projected") for row in group)):
                 continue
             if tuple(tuple(str(row["text"]).split()) for row in group) == parts:
                 matches.append((unit, window))
@@ -98,7 +105,7 @@ def project_exact_pipe_cards(source, ownership, generic_owners):
 
 def project_exact_siblings(source, ownership):
     """Join adjacent Text siblings only when their WHOLE ordered text is exact."""
-    units = {" ".join(unit.raw.split()): unit.raw for unit in source}
+    units = {unit.raw for unit in source}
     rows = [dict(row) for row in ownership]
     consumed, certificates = set(), []
     for start, row in enumerate(rows):
@@ -112,11 +119,11 @@ def project_exact_siblings(source, ownership):
                     item.get("parent_instance") != parent
                     or item.get("component_type") != "text"
                     or item.get("owner") != "generic_visible_content"
+                    or item.get("pilot_entity_projected")
                     or item.get("card_instance") != row.get("card_instance") for item in group):
                 break
-            key = " ".join(" ".join(str(item.get("text") or "").split()) for item in group)
-            if key in units:
-                matches.append((end, units[key]))
+            parts = [str(item.get("text") or "") for item in group]
+            matches.extend((end, unit) for unit in units if exact_fragments(unit, parts))
         if len(matches) == 1:
             end, original = matches[0]
             row["text"] = original
@@ -128,11 +135,60 @@ def project_exact_siblings(source, ownership):
 
 
 def project_exact_plain_table_headers(source, ownership, tables):
-    """Certify a plain-pipe header only with ALL of its ordered visible rows.
+    """Certify a pipe header only with ALL of its ordered visible rows.
 
     Arbitrary pipe expressions are not tables. Require a complete contiguous
     source run with a header and >=2 data rows matching one renderer Table.
+    Optional Markdown border pipes/separator lines and omitted empty trailing
+    cells are syntax; nonempty cells, column ownership and row order stay exact.
     """
+    from .pilot_layout_v2 import table_cell_spelling
+
+    def cells(raw, bordered):
+        if "\\|" in raw or "|" not in raw:
+            return None
+        value = raw.strip()
+        if bordered:
+            if not value.startswith("|") or not value.endswith("|"):
+                return None
+            value = value[1:-1]
+        return tuple(table_cell_spelling(part.strip()) for part in value.split("|"))
+
+    runs = []
+    cursor, fence = 0, None
+    while cursor < len(source):
+        raw = source[cursor].raw.strip()
+        if raw.startswith(("```", "~~~")):
+            marker = raw[:3]
+            fence = None if fence == marker else marker if fence is None else fence
+        if fence is not None or "|" not in raw:
+            cursor += 1
+            continue
+        bordered = raw.startswith("|") and raw.endswith("|")
+        header = cells(raw, bordered)
+        if not header or len(header) < 2 or any(not cell for cell in header):
+            cursor += 1
+            continue
+        end, values, originals = cursor + 1, [header], [source[cursor].raw]
+        if end < len(source):
+            separator = cells(source[end].raw, bordered)
+            if separator and len(separator) == len(header) and all(re.fullmatch(r":?-{3,}:?", c) for c in separator):
+                end += 1
+        while end < len(source):
+            row = cells(source[end].raw, bordered)
+            if row is None:
+                break
+            if len(row) > len(header):
+                values = []  # Never certify a partial prefix of a longer run.
+                while end < len(source) and "|" in source[end].raw:
+                    end += 1
+                break
+            values.append(row + ("",) * (len(header) - len(row)))
+            originals.append(source[end].raw)
+            end += 1
+        if len(values) >= 3:
+            runs.append((originals, values))
+        cursor = max(cursor + 1, end)
     rows, certificates = [dict(row) for row in ownership], []
     consumed = set()
     for table in tables:
@@ -141,20 +197,10 @@ def project_exact_plain_table_headers(source, ownership, tables):
                         for row in table.rows)
         if len(expected) < 3 or len(expected[0]) < 2 or any(not x for x in expected[0]):
             continue
-        matches = []
-        for start in range(len(source) - len(expected) + 1):
-            # A matching prefix is not a complete source table. Boundary rows
-            # with the same width belong to this run and cannot be omitted.
-            neighbors = ([source[start - 1]] if start else []) + (
-                [source[start + len(expected)]] if start + len(expected) < len(source) else [])
-            if any("|" in unit.raw and len(unit.raw.split("|")) == len(expected[0]) for unit in neighbors):
-                continue
-            group = source[start:start + len(expected)]
-            if (all("\\|" not in unit.raw for unit in group)
-                    and [tuple(p.strip() for p in unit.raw.split("|")) for unit in group] == expected):
-                matches.append(group[0].raw)
-        if len(set(matches)) != 1:
+        matches = {tuple(originals) for originals, values in runs if values == expected}
+        if len(matches) != 1:
             continue
+        originals = next(iter(matches))
         # Do not associate two occurrences just because their element ids match.
         groups = {}
         for i, row in enumerate(rows):
@@ -165,10 +211,10 @@ def project_exact_plain_table_headers(source, ownership, tables):
         indices = next(iter(groups.values()))
         if tuple(str(rows[i]["text"]).strip() for i in indices) != expected[0]:
             continue
-        rows[indices[0]]["text"] = matches[0]
+        rows[indices[0]]["text"] = originals[0]
         consumed.update(indices[1:])
-        certificates.append({"source_text": matches[0], "output_indices": indices,
-                             "complete_ordered_table_exact": True})
+        certificates.extend({"source_text": original, "output_indices": indices,
+                             "complete_ordered_table_exact": True} for original in originals)
     return [row for i, row in enumerate(rows) if i not in consumed], certificates
 
 
@@ -178,7 +224,7 @@ def project_exact_formula_prose(source, ownership):
 
     units = {}
     for unit in source:
-        if "=" in unit.raw:
+        if any(symbol in unit.raw for symbol in ("=", "≈", "≥", "≤")):
             units.setdefault(formula_literal_key_v2(unit.raw), set()).add(unit.raw)
     rows, groups = [dict(row) for row in ownership], {}
     for i, row in enumerate(rows):

@@ -13,6 +13,17 @@ Asset reference policy for this request:
 - Preserve every placeholder exactly; the pipeline restores it after parsing.
 - Never emit raw URLs, machine-local paths or invented resources.
 
+Preserve reference roles as well as destinations. A citation under Sources or
+References stays a labeled source link; it is not an instruction to create an
+action button. For example, `Source: Agency: [URL_1]` can be rendered as
+`sources=Card([links],title="Sources")` and
+`links=List(items=[{label:"Agency",url:"[URL_1]"}])`.
+An explicit `Action: [Read forecast] [URL_2]` instead uses
+`forecast=Button("Read forecast",onPress=openUrl(url="[URL_2]"))`.
+Keep the original source labels and each occurrence, even when a citation and
+an action share the same destination. Do not combine, relabel, shorten or swap
+their placeholders. Do not turn citations into images or decorative icons.
+
 Render repeated entity records as separate Cards with readable fields, or a
 compact Table with source-grounded columns and rows/statePath. Extract labeled
 attributes; a multi-field bullet copied into a List or single Text is not a
@@ -30,6 +41,15 @@ correct entity/field. Do not expand compact tables into cell component trees.
 A Card title is already a visible heading. Do not repeat that same heading in
 an immediate Text child, or duplicate the original source bullet alongside its
 extracted fields. Preserve distinct occurrences of same-name entities.
+
+Keep each record's identity and all of its fields in the same Card. A profile
+section such as `Age: 34 y, Sex: female` may use adjacent `Text("Age: 34 y")`
+and `Text("Sex: female")` fields inside that section's Card. Do not split the
+label from its value, and do not move a field under another entity or section.
+Colons in `16:00` and `C:` are parts of times/paths, not new field delimiters.
+For dated pipe records, retain the whole dated first field in the Card title
+and the remaining whole fields in their original order. Keep free prose and
+procedural instructions intact instead of inventing table column names for them.
 
 Use supported Formula(latex, title, result, display) for supplied mathematics.
 Keep exact operands, units, signs, fractions, exponents and result semantics.

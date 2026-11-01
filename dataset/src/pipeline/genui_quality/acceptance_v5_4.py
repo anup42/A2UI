@@ -5,7 +5,8 @@ It never checks whether placeholder media files exist or can be downloaded.
 """
 from __future__ import annotations
 
-from typing import Any, Mapping
+from collections.abc import Mapping
+from typing import Any
 
 ACCEPTANCE_POLICY_VERSION = "1.0.0"
 
@@ -42,6 +43,11 @@ def training_acceptance_v5_4(result: Any) -> dict[str, Any]:
                     # targeted review rather than silently accepting a row.
                     review.append("table_content_difference")
                     break
+            literal_cells = evidence.get("table_matching", {}).get("pilot_exact_cell_ownership")
+            if (literal_cells is not None
+                    and (literal_cells.get("matched_count") != literal_cells.get("required_count")
+                         or literal_cells.get("unassigned_source_table_count", 0))):
+                review.append("table_content_difference")
     additions = result.unsupported_external_additions or {}
     if additions.get("unsupported_external_action_count", 0):
         review.append("unsupported_external_action")

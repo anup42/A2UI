@@ -563,6 +563,7 @@ def _score_one(
     matching_timing_callback: Callable[[str, float], None] | None = None,
     unsupported_additions_scorer: Callable[..., Any] = unsupported_external_addition_precision_v5_3,
     content_assignment_grouper: Callable[..., Any] | None = None,
+    table_fidelity_scorer: Callable[..., Any] | None = None,
     action_fidelity_scorer: Callable[..., Any] = action_fidelity_v5_3,
 ) -> RewardBreakdownV53:
     cfg = prepared.config
@@ -724,7 +725,7 @@ def _score_one(
         )
     else:
         matching_started = perf_counter()
-        table_score, table_diagnostics = table_fidelity_v5_3(
+        table_score, table_diagnostics = (table_fidelity_scorer or table_fidelity_v5_3)(
             source.tables,
             evidence_result.output_tables,
             evidence_result.output_charts,

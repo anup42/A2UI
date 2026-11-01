@@ -139,6 +139,74 @@ including the 48 files in the original collection seal, stayed unchanged.
 This corrects evaluator mismatches, not newly generated model quality. No
 samples were regenerated or added to training, and no device test was run.
 
+## Follow-up fixes for the 100-sample ChatGPT pilot
+
+These fixes remain exclusive to `pilot_fidelity_v2`; default SFT, QAT, GRPO,
+Muse and legacy-pilot scoring paths retain their existing behavior and gates.
+The pilot supplement clarifies complete list-to-card extraction and citation
+versus action rendering. Prompt improvements require a separately authorized
+generation to measure; rescoring never repairs existing IR.
+
+- Clock and drive-letter colons do not create labeled entity fields. Split
+  property bundles such as Age/Sex must retain every field under their unique
+  source-section Card. Named Option/date records retain ordered fields, labels,
+  qualifiers and complete source text, with no reuse across Cards.
+- Balanced prose emphasis and a source heading rendered as a Card title do
+  not introduce extra claims. Code, blanks, math operators, literal pipes,
+  source multiplicity and field association remain significant.
+- Complete pipe tables certify their headers and every ordered source row,
+  including optional Markdown borders and genuinely empty trailing cells.
+  Table-only contracts additionally require exact cell/column ownership;
+  changed comparisons, numbers, qualifiers and duplicate tables fail.
+- Explicit source formulas compare against their renderer-supported spelling.
+  The `Formula:` source marker may own the matching Formula title only when
+  the whole expression is exact. Extra results, changed operands/operators,
+  scripts, units and unsupported commands remain failures. Complete numbered
+  equation tables must preserve each row identity and its full calculation.
+- Labeled source citations accept bare or angle-wrapped HTTPS destinations.
+  Labels, destination bytes, occurrence counts and source/action roles remain
+  mandatory; standalone action buttons cannot satisfy source citations.
+
+The read-only command for the collected 100-sample archive is:
+
+```powershell
+python dataset/scripts/rescore_openai_stage3_pilot.py `
+  --pilot-dir C:/Users/anupk/Downloads/genui_chatgpt_sol_100_parallel4_fidelity_v2_20261101_r1 `
+  --output-dir C:/Users/anupk/Downloads/genui_chatgpt_sol_100_parallel4_fidelity_v2_20261101_r1_rescore_fixes_r2
+```
+
+The output directory must be a new sibling. Reports record current and archived
+decisions and fingerprints without modifying the sealed run or admitting data
+to training. Existing fingerprint-bound resumes still require their original
+code or explicit reassessment; these fixes do not bypass provenance checks.
+
+The November 1 offline rescore of this 100-sample archive accepts 66/100,
+compared with 44/100 at collection: 22 false rejections resolved, no previously
+accepted sample newly rejected, and 34 still held. The original labels for the
+same sources pass 45/100 under the updated policy. This is an evaluator
+correction on unchanged outputs, not a newly measured generation improvement.
+
+| Category | Samples | Archived accepted | Rescored accepted |
+|---|---:|---:|---:|
+| Entity lists | 30 | 12 | 18 |
+| Comparisons | 20 | 10 | 14 |
+| Long sections | 15 | 3 | 8 |
+| Procedures | 10 | 4 | 6 |
+| Numerical | 10 | 7 | 8 |
+| References | 10 | 3 | 7 |
+| Controls | 5 | 5 | 5 |
+
+Remaining holds include citation/action-role errors, unsupported media/prose,
+and content/numeric or unproven layout transformations. These are review flags,
+not a claim that all 34 outputs lose facts. For example, standalone buttons for
+source citations remain invalid, while some rearranged course/profile records
+still lack a complete exact ownership certificate. No hold is waived.
+
+Verification covers 688 evaluator/generation/GRPO regression tests and 250
+SFT/QAT pipeline contract tests (seven skips), plus 100 byte-for-byte equivalent
+default-policy assessments before and after the changes. All 628 archived files
+remain unchanged. No GPU training, device evaluation or new generation was run.
+
 ## Future preparation (offline only)
 
 When a new pilot is explicitly authorized, prepare it in a new directory using
