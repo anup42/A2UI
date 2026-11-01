@@ -4,6 +4,8 @@ This folder contains pipeline to generate user queries, responses, GenUICraft JS
 
 For an isolated 1,000-source OpenAI Batch relabeling pilot with the existing Stage 3 fidelity gates, see [OpenAI Stage 3 Batch pilot](docs/OPENAI_STAGE3_BATCH_PILOT.md). Muse and training entrypoints are unchanged.
 
+For a separate ChatGPT/Codex sign-in route and the local GenUI progress/quality dashboard, see [GenUI generation studio](docs/GENUI_CHATGPT_GENERATION.md). Opening the dashboard does not start generation or submit an API Batch.
+
 ## Structure
 
 ```

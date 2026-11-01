@@ -166,6 +166,10 @@ def estimate(requests: list[dict], config: dict) -> dict:
     if max(per_request) > 64000:
         raise ValueError("Prompt exceeds pilot input budget; source was not truncated")
     total = sum(per_request)
+    if config.get("transport") == "chatgpt":
+        return {"model": config["model"], "requests": len(requests), "estimated_input_tokens": total,
+                "token_estimation_method": method, "billing": "chatgpt_subscription", "cost_usd": None,
+                "limits": "Uses Codex account allowance, not API Batch pricing. Cache retention and a hard output-token cap are not configurable through this integration. No automated generation retries."}
     rates = PRICES[config["model"]]
     ttl = config.get("cache_ttl", runner.DEFAULT_CACHE_TTL)
     cacheable = prefix_tokens >= 1024
@@ -208,13 +212,16 @@ def estimate(requests: list[dict], config: dict) -> dict:
 def prepare(input_dir: Path, output_dir: Path, *, samples=1000, seed=123,
             model="gpt-6.1-sol", reasoning_effort="medium", max_output_tokens=8192,
             cache_ttl=runner.DEFAULT_CACHE_TTL, selection_profile="random", reasoning_summary="none",
-            pilot_profile="legacy") -> dict:
+            pilot_profile="legacy", transport="batch") -> dict:
     from pipeline.genui_quality.validation_v5_4 import ensure_v5_4_validation_ready
 
     fidelity_v2.profile({"pilot_profile": pilot_profile})
+    if transport not in {"batch", "chatgpt"}:
+        raise ValueError("Unsupported generation transport")
     if not 1 <= samples <= 1000 or seed < 0 or not 1024 <= max_output_tokens <= 32768:
         raise ValueError("Pilot requires 1..1000 samples, nonnegative seed and 1024..32768 output tokens")
-    if model not in PRICES or reasoning_effort not in {"low", "medium", "high"}:
+    if ((transport == "batch" and model not in PRICES) or not isinstance(model, str) or not model.strip()
+            or reasoning_effort not in {"low", "medium", "high"}):
         raise ValueError("Unsupported pilot model or reasoning effort")
     if reasoning_summary not in runner.REASONING_SUMMARIES:
         raise ValueError("Unsupported reasoning summary; choose none or auto")
@@ -239,6 +246,8 @@ def prepare(input_dir: Path, output_dir: Path, *, samples=1000, seed=123,
         raise ValueError(f"Canonical evaluator preflight failed: {probe.get('reasons')}")
     config = {"model": model, "reasoning_effort": reasoning_effort,
               "max_output_tokens": max_output_tokens, "seed": seed, "samples": samples, "cache_ttl": cache_ttl}
+    if transport == "chatgpt":
+        config["transport"] = transport
     if selection_profile != "random":
         config["selection_profile"] = selection_profile
     if reasoning_summary != "none":
@@ -318,7 +327,14 @@ def validate_results(output: Path, contract: dict, records: list[dict], batch_st
     config = contract["config"]
     requests = {row["custom_id"]: row for row in runner.read_rows(output / "requests.jsonl")}
     indexed = index_results(records, set(requests))
-    adapter = runner.ReplayAdapter(config, requests, indexed)
+    chatgpt = config.get("transport", "batch") == "chatgpt"
+    if chatgpt:
+        from pipeline.chatgpt_stage3 import ReplayAdapter, response_text
+        adapter = ReplayAdapter(config, requests, indexed)
+        validate_text = response_text
+    else:
+        adapter = runner.ReplayAdapter(config, requests, indexed)
+        validate_text = runner.response_text
     # A fresh disposable directory permits safe local revalidation after interruption.
     directory = Path(tempfile.mkdtemp(prefix="v-", dir=output))
     replay = directory / "stage3"
@@ -340,7 +356,7 @@ def validate_results(output: Path, contract: dict, records: list[dict], batch_st
         candidate = generated.get(response_id)
         assessment = {"source_id": entry["source_id"], "custom_id": custom_id, "eligible": False}
         try:
-            runner.response_text(indexed.get(custom_id, {}), config)
+            validate_text(indexed.get(custom_id, {}), config)
             if candidate is None:
                 raise ValueError("canonical_stage3_rejected")
             reasons = admission_errors(candidate, existing._generation_source(source_row))
@@ -364,7 +380,7 @@ def validate_results(output: Path, contract: dict, records: list[dict], batch_st
                 if not updated.get("messages") or updated["messages"][-1].get("role") != "assistant":
                     raise ValueError("missing_original_assistant_target")
                 updated["messages"][-1]["content"] = target
-                updated.setdefault("metadata", {})["openai_stage3_batch"] = {
+                updated.setdefault("metadata", {})["chatgpt_stage3" if chatgpt else "openai_stage3_batch"] = {
                     "contract_sha256": digest(contract), "custom_id": custom_id,
                     "original_row_sha256": entry["original_row_sha256"], "original_split": "train",
                     "source_factuality_verified": False}
@@ -388,5 +404,8 @@ def validate_results(output: Path, contract: dict, records: list[dict], batch_st
               "rejection_reasons": dict(Counter(reason for item in assessments if not item["eligible"]
                                                  for reason in item.get("reasons", []))),
               "contract_sha256": digest(contract)}
+    if chatgpt:
+        report["generation_status"] = report.pop("batch_status")
+        report["transport"] = "chatgpt"
     atomic_bytes(output / "report.json", canonical(report) + b"\n")
     return report

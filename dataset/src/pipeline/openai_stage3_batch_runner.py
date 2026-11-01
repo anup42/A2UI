@@ -189,7 +189,7 @@ def run(output: Path, directory: Path, config: dict, adapter: BaseLLMAdapter) ->
             cache=PromptCache(directory / "cache.jsonl", enabled=False), logger=logger,
             batch_size=1, max_attempts=1, metric_version="v5_4",
             ir_formats=["a2ui_express_v1"], grpo_entity_extraction=True,
-            phase_invocation_id="openai-stage3-batch-v1",
+            phase_invocation_id=("chatgpt-stage3-v1" if config.get("transport") == "chatgpt" else "openai-stage3-batch-v1"),
             **profile_options,
         )
 

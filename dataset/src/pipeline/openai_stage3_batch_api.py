@@ -56,6 +56,8 @@ def submit(output_dir: Path, max_estimated_cost_usd: float, *, api=None) -> dict
     output = safe_path(output_dir)
     with _exclusive(output):
         contract = pilot.load(output)
+        if contract["config"].get("transport", "batch") != "batch":
+            raise ValueError("ChatGPT preparations cannot be submitted to API Batch")
         estimate = json.loads((output / "estimate.json").read_text(encoding="utf-8"))
         if not math.isfinite(max_estimated_cost_usd) or max_estimated_cost_usd <= 0:
             raise ValueError("Cost allowance must be finite and positive")
@@ -87,6 +89,8 @@ def submit(output_dir: Path, max_estimated_cost_usd: float, *, api=None) -> dict
 
 
 def _status(output, contract, api, batch_id=None):
+    if contract["config"].get("transport", "batch") != "batch":
+        raise ValueError("This is a ChatGPT run, not an API Batch")
     state = _submission(output, contract)
     if state.get("batch_id") and batch_id and state["batch_id"] != batch_id:
         raise ValueError("Cannot replace an existing Batch association")
@@ -106,7 +110,10 @@ def _status(output, contract, api, batch_id=None):
 def status(output_dir: Path, batch_id=None, *, api=None) -> dict:
     output = safe_path(output_dir)
     with _exclusive(output):
-        batch = _status(output, pilot.load(output), api or client(), batch_id)
+        contract = pilot.load(output)
+        if contract["config"].get("transport", "batch") != "batch":
+            raise ValueError("This is a ChatGPT run, not an API Batch")
+        batch = _status(output, contract, api or client(), batch_id)
         return {key: batch.get(key) for key in ("id", "status", "request_counts", "errors", "output_file_id", "error_file_id")}
 
 
@@ -170,6 +177,8 @@ def collect(output_dir: Path, *, api=None) -> dict:
     output = safe_path(output_dir)
     with _exclusive(output):
         contract = pilot.load(output)
+        if contract["config"].get("transport", "batch") != "batch":
+            raise ValueError("This is a ChatGPT run, not an API Batch")
         receipt_path = output / "collection.json"
         if receipt_path.exists():
             receipt = checked(receipt_path)
