@@ -558,6 +558,8 @@ def _placeholder_prefix(kind: str, raw: str) -> str:
 def _mask_model_references(
     response_text: str,
     assets: list[dict],
+    *,
+    pilot_fidelity_v2: bool = False,
 ) -> tuple[str, dict[str, str], dict[str, str]]:
     """Mask URLs/local paths and return (text, raw->placeholder, placeholder->raw)."""
 
@@ -601,6 +603,10 @@ def _mask_model_references(
         raw, trailing = (raw, "") if quote else split_reference_suffix(raw)
         if not raw:
             return match.group(0)
+        if pilot_fidelity_v2 and raw not in raw_to_placeholder:
+            from pipeline.openai_stage3_fidelity_v2 import is_declared_reference
+            if not is_declared_reference(response_text, match.start(), raw):
+                return match.group(0)
         token = raw_to_placeholder.get(raw)
         if token is None:
             token = add(raw, "asset" if _asset_kind("", raw) == "asset" else _asset_kind("", raw))
@@ -2853,6 +2859,7 @@ def run_stage3(
                 masked_response_text, raw_to_placeholder, placeholder_to_raw = _mask_model_references(
                     response_text,
                     assets_list,
+                    **({"pilot_fidelity_v2": True} if pilot_fidelity_v2 else {}),
                 )
                 try:
                     fidelity_repair_feedback = _normalize_fidelity_repair_feedback(

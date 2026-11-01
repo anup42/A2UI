@@ -1,5 +1,5 @@
 {
-  "policy_version": "openai-stage3-fidelity-v2-20261101",
+  "policy_version": "openai-stage3-fidelity-v2-20261102",
   "scope": "Explicit fidelity_v2 OpenAI pilot only; reviewed source hashes, no source rewriting or shared-policy changes.",
   "holds": [
     {
@@ -41,6 +41,38 @@
       "reason": "All assumptions, quarterly profits, tax amounts, credits, cumulative vs incremental distinction, Q4 condition and final limitations are preserved; no generated tax amount differs from source. LaTex {,} creates spurious numeric tokens such as123 and11. List children are supported by renderer, so assumption2 Formula is reachable. Source arithmetic issue independently verified: 22100*0.9235 = 20409.35, while source and output show20409.39. Source supplied tax rule and rounded quarterly aggregation need source review, not model blame.",
       "review": "full_review.json",
       "review_sha256": "be38ba7d6e5abdf3cad7ee430d89cc1453a8a2d508f502d3d7f0d66047ed6818"
+    },
+    {
+      "source_id": "dataset_muse_glimmer_100k_r3:u_013885_01:10895",
+      "source_sha256": "445a25132341e30704f6cba8c98868f34c2e6c8a43a092d5175f238770c383fb",
+      "sample_index": 199,
+      "reason": "Source repeatedly calls 2027-06-26 Sunday, immediately before race Sunday 2027-06-27. June 26 is Saturday. This contradiction is inherited from Stage 2; target fidelity must not silently rewrite it.",
+      "review": "genui_chatgpt_sol_1000_analysis_20261102_r1/source_calendar_errors.json",
+      "review_sha256": "84c495de6e4836e9e7beacd87512cc83da8d359d812f634e449ad993802ee0dc"
+    },
+    {
+      "source_id": "dataset_muse_glimmer_100k_r2:u_002408_01:1609",
+      "source_sha256": "509903e3c7445f5bc801e2a17ee2d0a3d5ba23db6b28c0b795798d275ad915ce",
+      "sample_index": 397,
+      "reason": "Source week labels Sunday 2028-08-19 through Saturday 2028-08-25 are one weekday late (actual Saturday through Friday), affecting its timetable/instructor interpretation. Upstream data issue, not generated drift.",
+      "review": "genui_chatgpt_sol_1000_analysis_20261102_r1/source_calendar_errors.json",
+      "review_sha256": "84c495de6e4836e9e7beacd87512cc83da8d359d812f634e449ad993802ee0dc"
+    },
+    {
+      "source_id": "dataset_muse_glimmer_100k_r3:u_018857_01:15498",
+      "source_sha256": "f8911064e977c2841898a15d7d90da9fa487edbea99b0f403990b9199c08177e",
+      "sample_index": 434,
+      "reason": "Source explicitly says 2028-11-03 and 2028-11-10 are Saturdays; both are Fridays. This row PASSES the strict pilot fidelity gate, proving acceptance does not certify source factuality. Propose source quarantine before training; no dataset was modified.",
+      "review": "genui_chatgpt_sol_1000_analysis_20261102_r1/source_calendar_errors.json",
+      "review_sha256": "84c495de6e4836e9e7beacd87512cc83da8d359d812f634e449ad993802ee0dc"
+    },
+    {
+      "source_id": "dataset_muse_glimmer_100k_r1:u_010355_01:11540",
+      "source_sha256": "9cde4999990e5c1aa35f8393590f14c49baadbde29da78852793617fc7022096",
+      "sample_index": 537,
+      "reason": "Room assignments and 16-slot judging schedules faithfully structured. Source and output label 2030-11-05 Wednesday, but Python Gregorian calendar gives Tuesday. Source defect, not a Stage 3 hallucination.",
+      "review": "genui_chatgpt_sol_1000_analysis_20261102_r1/source_calendar_errors.json",
+      "review_sha256": "84c495de6e4836e9e7beacd87512cc83da8d359d812f634e449ad993802ee0dc"
     }
   ]
 }

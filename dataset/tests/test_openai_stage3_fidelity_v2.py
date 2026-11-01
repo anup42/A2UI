@@ -138,8 +138,8 @@ def test_holds_match_source_hash_under_renaming_and_block_changed_held_identity(
 
 def test_real_pilot_hold_catalog_contains_reviewed_sources_and_is_fingerprinted():
     holds = policy._holds()
-    assert [item["sample_index"] for item in holds] == [10, 33, 37, 38, 84]
-    assert len({item["source_sha256"] for item in holds}) == 5
+    assert [item["sample_index"] for item in holds] == [10, 33, 37, 38, 84, 199, 397, 434, 537]
+    assert len({item["source_sha256"] for item in holds}) == 9
     fingerprint = pilot.fingerprint()
     for path in (policy.HOLDS_PATH, policy.SUPPLEMENT_PATH, Path(policy.__file__)):
         assert fingerprint[path.relative_to(ROOT).as_posix()] == file_hash(path)

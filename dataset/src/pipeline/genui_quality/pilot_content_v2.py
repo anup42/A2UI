@@ -36,7 +36,7 @@ def project_exact_headings(source_ownership, output_ownership):
     return rows, certificates
 
 
-def project_exact_pipe_cards(source, ownership, generic_owners):
+def project_exact_pipe_cards(source, ownership, generic_owners, *, source_text="", actions=(), media=()):
     """Join only a source's explicit pipe-separated fields in one Card.
 
     Each field retains its complete ordered literal spelling. No label inference,
@@ -51,6 +51,9 @@ def project_exact_pipe_cards(source, ownership, generic_owners):
     candidates = []
     for unit in source:
         parts = layout_text(unit.raw).split("|")
+        # One empty trailing delimiter is layout, not an omitted data field.
+        if parts[-1].strip() == "" and len(parts) >= 4:
+            parts = parts[:-1]
         if not 2 <= len(parts) <= 16 or "\\|" in unit.raw:
             continue
         # Pipes also mean regex alternation and bitwise OR. Recognize only
@@ -65,7 +68,13 @@ def project_exact_pipe_cards(source, ownership, generic_owners):
         )
         dated_record = (re.fullmatch(r"(?:[A-Za-z]+ \d{1,2}|\d{4}-\d{2}-\d{2}) \([A-Za-z]+\): .+", parts[0].strip())
                         and len(parts) >= 3 and all(p.strip() for p in parts))
-        if (record is not None and record.identity_label is not None) or option_record or dated_record:
+        original_lines = [line for line in source_text.splitlines() if layout_text(line) == layout_text(unit.raw)]
+        named_record = len(original_lines) == 1 and bool(re.match(
+            r"^\s*(?:[-*+]\s+)?\*\*[^*|\n]+\*\*\s*\|", original_lines[0]))
+        labeled_fields = (len(parts) >= 3
+                          and not re.match(r"(?i)^(?:formula|regex|permission mask|code|command):", parts[0].strip())
+                          and all(re.fullmatch(r"[A-Za-z][A-Za-z0-9 _-]*:\s+\S.*", part.strip()) for part in parts))
+        if ((record is not None and record.identity_label is not None) or option_record or dated_record or named_record or labeled_fields) and all(p.strip() for p in parts):
             candidates.append((unit, tuple(tuple(part.split()) for part in parts)))
             if dated_record or option_record:
                 date, subject = parts[0].split(":", 1)
@@ -88,6 +97,8 @@ def project_exact_pipe_cards(source, ownership, generic_owners):
                     or any(row.get("pilot_entity_projected") for row in group)):
                 continue
             if tuple(tuple(str(row["text"]).split()) for row in group) == parts:
+                if source_text and not _pipe_references_exact(source_text, unit.raw, instance, actions, media):
+                    continue
                 matches.append((unit, window))
         # Equivalent duplicated source occurrences still have one exact shape;
         # downstream assignment enforces their actual multiplicity.
@@ -101,6 +112,48 @@ def project_exact_pipe_cards(source, ownership, generic_owners):
                              "card_instance": rows[index]["card_instance"],
                              "ordered_literal_fields_exact": True})
     return [row for i, row in enumerate(rows) if i not in consumed], certificates
+
+
+def _pipe_references_exact(source, unit, instance, actions, media):
+    """Keep each record's declared actions/media in the same rendered Card."""
+    from .pilot_source_contract_v2 import (
+        declared_media_occurrences,
+        source_action_occurrences,
+    )
+
+    lines = source.splitlines()
+    locations = [i for i, line in enumerate(lines) if layout_text(line) == layout_text(unit)]
+    if len(locations) != 1:
+        return False
+    expected, expected_media = [], []
+    def media_key(kind, url):
+        kind = str(kind).casefold()
+        return ("audio" if kind == "audioplayer" else kind, url)
+    start = locations[0]
+    while start > 0 and lines[start - 1].strip().startswith("Media:"):
+        start -= 1
+    # A leading media block belongs to this record only across an explicit
+    # block/section boundary, never by stealing the previous record's suffix.
+    if start < locations[0] and start > 0 and lines[start - 1].strip() and not re.match(r"^\s*#{1,6}\s+", lines[start - 1]):
+        return False
+    for line in lines[start:locations[0]] + lines[locations[0] + 1:]:
+        if line.strip().startswith("Media:"):
+            declared = declared_media_occurrences(line)
+            if not declared:
+                return False
+            expected_media.extend(media_key(item["kind"], item["url"]) for item in declared)
+            continue
+        if "|" not in line and re.fullmatch(r"\s*[-*+]\s+\S.*", line):
+            continue
+        declared = source_action_occurrences(line)
+        if not declared:
+            break
+        expected.extend((item["label"], item["target"]) for item in declared)
+    actual = [(item.get("label"), item.get("target")) for item in actions
+              if item.get("card_instance") == instance]
+    actual_media = [media_key(item.get("kind"), item.get("raw_url")) for item in media
+                    if item.get("card_instance") == instance]
+    return Counter(expected) == Counter(actual) and Counter(expected_media) == Counter(actual_media)
 
 
 def project_exact_siblings(source, ownership):
@@ -218,14 +271,14 @@ def project_exact_plain_table_headers(source, ownership, tables):
     return [row for i, row in enumerate(rows) if i not in consumed], certificates
 
 
-def project_exact_formula_prose(source, ownership):
+def project_exact_formula_prose(source, ownership, *, source_text=""):
     """Credit a generic source equation only if every visible Formula field matches."""
     from .formula_evidence_v2 import formula_literal_key_v2
 
     units = {}
     for unit in source:
         if any(symbol in unit.raw for symbol in ("=", "≈", "≥", "≤")):
-            units.setdefault(formula_literal_key_v2(unit.raw), set()).add(unit.raw)
+            units.setdefault(formula_literal_key_v2(layout_text(unit.raw)), set()).add(unit.raw)
     rows, groups = [dict(row) for row in ownership], {}
     for i, row in enumerate(rows):
         if row.get("owner") == "source_formula" and row.get("render_instance"):
@@ -240,6 +293,10 @@ def project_exact_formula_prose(source, ownership):
         if len(matches) != 1:
             continue
         original = next(iter(matches))
+        if source_text:
+            from .pilot_semantic_fields_v2 import formula_owner_matches
+            if not formula_owner_matches(source_text, original, [rows[i] for i in indices], rows):
+                continue
         rows[indices[0]].update(text=original, owner="generic_visible_content")
         consumed.update(indices[1:])
         certificates.append({"source_text": original, "render_instance": instance,

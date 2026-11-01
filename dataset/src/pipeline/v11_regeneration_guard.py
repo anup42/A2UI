@@ -187,8 +187,14 @@ changed to manufacture a claim that did not occur in the source.
             supported_source = formula_source if owner == "source_formula" else source_sequence
             if normalized and " " + normalized + " " not in supported_source:
                 unsupported.append({"component_id": item.get("component_id"), "text": line})
-    return {"complete": evidence.dynamic_evidence_complete,
-            "unsupported_count": len(unsupported), "unsupported_examples": unsupported[:16]}
+    result = {"complete": evidence.dynamic_evidence_complete,
+              "unsupported_count": len(unsupported), "unsupported_examples": unsupported[:16]}
+    if pilot_fidelity_v2:
+        from pipeline.genui_quality.pilot_source_contract_v2 import (
+            declared_media_fidelity,
+        )
+        result["declared_media"] = declared_media_fidelity(source, evidence.media_taxonomy)
+    return result
 
 
 def _fidelity_reasons(fidelity: Mapping[str, Any], ownership: Mapping[str, Any]) -> tuple[list[str], list[str]]:
@@ -289,9 +295,12 @@ def assess_candidate(row: Mapping[str, Any], target: str | Mapping[str, Any], *,
     # Reuse only this freshly scored certificate, never row-supplied evidence.
     ownership = summarize_grpo_entity_detail(reward.evidence.get("grpo_entity_extraction"))
     report["entity_ownership"] = ownership
-    fidelity = (audit_training_fidelity(bound.source, bound.graph, pilot_fidelity_v2=True)
+    fidelity = (audit_training_fidelity(bound.source, bound.graph, pilot_fidelity_v2=True,
+                                       complete_missing_units=True)
                 if pilot_fidelity_v2 else audit_training_fidelity(bound.source, bound.graph))
-    report["fidelity"] = fidelity
+    # Public diagnostics stay small; their display limit must not cap proof.
+    report["fidelity"] = {**fidelity, "missing_units": fidelity.get("missing_units", ())[:16],
+                          "missing_unit_examples_truncated": fidelity.get("missing_unit_count", 0) > 16}
     fidelity_reasons, covered = _fidelity_reasons(fidelity, ownership)
     report["literal_missing_units_certified_by_entity_ownership"] = covered
     if pilot_fidelity_v2:
@@ -301,7 +310,8 @@ def assess_candidate(row: Mapping[str, Any], target: str | Mapping[str, Any], *,
         certified = Counter(_tokens_v2(item["source_text"])
                      for key in ("pilot_exact_pipe_card_fields", "pilot_exact_plain_table_headers",
                                  "pilot_exact_sibling_fragments", "pilot_exact_formula_fields",
-                                 "pilot_exact_card_fragments", "pilot_exact_equation_rows")
+                                 "pilot_exact_card_fragments", "pilot_exact_equation_rows",
+                                 "pilot_exact_semantic_fields", "pilot_exact_record_tables")
                      for item in grouping.get(key, ()))
         missing = fidelity.get("missing_units", ())
         field_covered = []
@@ -319,6 +329,8 @@ def assess_candidate(row: Mapping[str, Any], target: str | Mapping[str, Any], *,
     prose = (_unsupported_prose(bound.source, bound.graph, pilot_fidelity_v2=True)
              if pilot_fidelity_v2 else _unsupported_prose(bound.source, bound.graph))
     report["visible_prose"] = prose
+    if pilot_fidelity_v2 and not prose["declared_media"]["complete"]:
+        report["reasons"].append("pilot_declared_media_mismatch")
     if not prose["complete"]:
         report["reasons"].append("renderer_evidence_incomplete")
     if prose["unsupported_count"]:

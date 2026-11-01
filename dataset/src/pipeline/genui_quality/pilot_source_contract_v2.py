@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import re
+from collections import Counter
 from collections.abc import Mapping
 from copy import deepcopy
 from dataclasses import replace
@@ -20,6 +21,52 @@ _EXPLICIT_ACTION = re.compile(
     r"(?:<(https://[^\s<>]+)>|(https://[^\s<>]+|\{\{u\d+\}\}|\[(?:[A-Z_]+_)?URL_\d+\]))\s*$"
 )
 _LABELED_SOURCE = re.compile(r"^(.+?):\s*(?:<(https://[^\s<>]+)>|(https://[^\s<>]+))\s*$")
+
+
+def declared_media_occurrences(source: str) -> list[dict]:
+    """Parse every typed reference on a complete Media line, outside fences."""
+    found, offset, fence = [], 0, None
+    pattern = re.compile(r"(Image|Icon|Video|Audio)\s*=\s*(?:<([^<>\s]+)>|([^\s<>]+))")
+    for line in source.splitlines(keepends=True):
+        start, offset = offset, offset + len(line)
+        raw = line.strip()
+        if raw.startswith(("```", "~~~")):
+            marker = raw[:3]
+            fence = None if fence == marker else marker if fence is None else fence
+            continue
+        if fence is not None or not raw.startswith("Media:"):
+            continue
+        body, cursor, items = raw[len("Media:"):].strip(), 0, []
+        for match in pattern.finditer(body):
+            if body[cursor:match.start()].strip():
+                items = []
+                break
+            items.append({"kind": match[1], "url": match[2] or match[3], "_span": (start, offset)})
+            cursor = match.end()
+        if items and not body[cursor:].strip():
+            found.extend(items)
+    return found
+
+
+def declared_media_fidelity(source: str, actual: Any) -> dict[str, Any]:
+    """Require exact visible destinations, including fragments, for declarations."""
+    from pipeline.renderer_effective_semantics_v5_4 import canonical_media_kind
+
+    expected = Counter((canonical_media_kind(item["kind"]), item["url"])
+                       for item in declared_media_occurrences(source))
+    visible = Counter((canonical_media_kind(item.get("kind")), item["raw_url"])
+                      for item in actual if isinstance(item.get("raw_url"), str))
+    missing = expected - visible
+    groups = {(kind, _core.normalize_url(url)) for kind, url in expected}
+    unexpected = {key: count for key, count in visible.items()
+                  if key not in expected and (key[0], _core.normalize_url(key[1])) in groups}
+    return {"required_count": sum(expected.values()),
+            "matched_count": sum((expected & visible).values()),
+            "missing": [{"kind": kind, "url": url, "count": count}
+                        for (kind, url), count in sorted(missing.items())],
+            "unexpected_destinations": [{"kind": kind, "url": url, "count": count}
+                                        for (kind, url), count in sorted(unexpected.items())],
+            "complete": not missing and not unexpected}
 
 
 def source_action_occurrences(source: str) -> list[dict[str, Any]]:
@@ -72,7 +119,9 @@ def source_link_occurrences(source: str) -> list[dict[str, Any]]:
             continue
         inline = re.match(r"(?i)^(?:source|reference|citation)\s*:\s*(.+)$", raw)
         body = inline[1] if inline else re.sub(r"^(?:[-*+]\s+|\d+[.)]\s+)", "", raw)
-        if not in_sources and inline is None:
+        labeled_link = _LABELED_SOURCE.fullmatch(body)
+        explicit_link_field = labeled_link is not None and re.search(r"(?i)\b(?:link|url)$", labeled_link[1])
+        if not in_sources and inline is None and not explicit_link_field:
             continue
         match = _core._MARKDOWN_LINK_RE.fullmatch(body)
         labeled = _LABELED_SOURCE.fullmatch(body) if match is None else None
@@ -85,10 +134,11 @@ def source_link_occurrences(source: str) -> list[dict[str, Any]]:
         label = _core.normalize_markdown(match[1])
         target = (match[2] or match[3]).strip() if labeled else match[2].strip()
         if label and target:
-            found.append({"id": f"{SOURCE_PREFIX}{start}:{end}", "label": label,
+            subtype = "field:" if explicit_link_field and not in_sources and inline is None else ""
+            found.append({"id": f"{SOURCE_PREFIX}{subtype}{start}:{end}", "label": label,
                           "target": target, "action_type": "openUrl", "required": True,
                           "minimum_count": 1, "_span": (start, end),
-                          "_heading_span": heading_span if inline is None else None})
+                          "_heading_span": heading_span if in_sources and inline is None else None})
     return found
 
 
@@ -101,6 +151,27 @@ def source_contract_v2(source: str, contract: Mapping[str, Any]) -> dict[str, An
     result = deepcopy(dict(contract))
     links = source_link_occurrences(source)
     source_actions = source_action_occurrences(source)
+    media = declared_media_occurrences(source)
+    from pipeline.renderer_effective_semantics_v5_4 import canonical_media_kind
+
+    def media_key(item):
+        return canonical_media_kind(item.get("kind")), _core.normalize_url(item.get("url"))
+
+    existing_media = Counter()
+    for item in result.get("media") or []:
+        if item.get("required", True):
+            existing_media[media_key(item)] += int(item.get("minimum_count", 1) or 0)
+    missing_media = Counter()
+    for item in media:
+        key = media_key(item)
+        if existing_media[key]:
+            existing_media[key] -= 1
+        else:
+            missing_media[(item["kind"], item["url"])] += 1
+    result.setdefault("media", [])
+    for (kind, url), count in missing_media.items():
+        result["media"].append({"kind": kind, "url": url, "required": True,
+                                "minimum_count": count, "media_policy": "exact"})
     claimed_actions: set[int] = set()
     # Preserve every existing explicit action requirement, adding role identity.
     actions = []
@@ -124,7 +195,8 @@ def source_contract_v2(source: str, contract: Mapping[str, Any]) -> dict[str, An
     actions.extend({key: value for key, value in item.items() if not key.startswith("_")}
                    for position, item in enumerate(source_actions) if position not in claimed_actions)
     targets = {_core.normalize_url(item["target"]) for item in [*links, *source_actions]}
-    proven_spans = {item["_span"] for item in [*links, *source_actions]}
+    targets.update(_core.normalize_url(item["url"]) for item in media)
+    proven_spans = {item["_span"] for item in [*links, *source_actions, *media]}
     url_occurrences = list(_core._URL_RE.finditer(source))
     def owned_url(match):
         return any(start <= match.start() and match.end() <= end for start, end in proven_spans)
@@ -151,7 +223,7 @@ def source_contract_v2(source: str, contract: Mapping[str, Any]) -> dict[str, An
     # not duplicate prose. Remove only the concrete proven occurrences.
     units = list(result.get("content_units") or [])
     headings = list(result.get("headings") or [])
-    owned_spans = source_link_owned_spans(source) | {item["_span"] for item in source_actions}
+    owned_spans = source_link_owned_spans(source) | {item["_span"] for item in [*source_actions, *media]}
     for start, end in sorted(owned_spans):
         line = source[start:end].strip()
         if line in units:
@@ -201,7 +273,13 @@ def action_match_v2(expected: Any, actual: Any, aliases: Any) -> float:
     if role:
         if expected.id.startswith(ACTION_PREFIX + "unproven:"):
             return 0.0
-        if role != _role(actual, expected=False) or _label(expected.label) != _label(actual.label):
+        actual_role = _role(actual, expected=False)
+        # A source-declared labeled link can be a normal List link. The exact
+        # label, raw destination, type and occurrence count still bind it;
+        # arbitrary Buttons/actions do not acquire this reference role.
+        if expected.id.startswith(SOURCE_PREFIX + "field:") and actual.source == "list.item":
+            actual_role = "source_link"
+        if role != actual_role or _label(expected.label) != _label(actual.label):
             return 0.0
         if expected.action_type != actual.action_type:
             return 0.0
@@ -214,6 +292,25 @@ def action_match_v2(expected: Any, actual: Any, aliases: Any) -> float:
         # No certified raw source occurrence/role: retain a conservative hold.
         return 0.0
     return _action_match_score(expected, actual, aliases)
+
+
+def project_source_link_labels(source, ownership, actions):
+    """Assign only an exact declared link's visible List label to that role."""
+    expected = Counter((item["label"], item["target"]) for item in source_link_occurrences(source)
+                       if item["id"].startswith(SOURCE_PREFIX + "field:"))
+    matched = Counter()
+    for action in actions:
+        key = (action.label, action.url)
+        if action.source == "list.item" and expected[key]:
+            expected[key] -= 1
+            matched[(action.element_id.rsplit("[", 1)[0], action.label)] += 1
+    visible = Counter((row.get("component_id"), row.get("text")) for row in ownership
+                      if row.get("component_type") == "list" and row.get("owner") == "generic_visible_content")
+    return [{**row, "owner": "source_action"} if (
+                row.get("component_type") == "list" and row.get("owner") == "generic_visible_content"
+                and matched[(row.get("component_id"), row.get("text"))]
+                == visible[(row.get("component_id"), row.get("text"))]) else row
+            for row in ownership]
 
 
 def action_fidelity_v2(expected, actual, *, aliases, expected_exact_index=None,

@@ -207,6 +207,92 @@ SFT/QAT pipeline contract tests (seven skips), plus 100 byte-for-byte equivalent
 default-policy assessments before and after the changes. All 628 archived files
 remain unchanged. No GPU training, device evaluation or new generation was run.
 
+## Follow-up fixes for the 1,000-sample ChatGPT pilot
+
+The November 2 update remains opt-in. It does not enable pilot scoring in
+SFT/QAT/GRPO, alter Muse prompts, or relax any admission threshold. Its scope is
+exact source-to-rendered evidence and guidance for future authorized generation:
+
+- Preserve instructional paths and prose such as `asset/liability` as text.
+  Mask only actual URI references, declared media, and provided assets. Typed
+  `Media: Image=... Icon=...` lines retain both required roles and destinations.
+  Check raw destinations including URL fragments and every required occurrence.
+  Media declared immediately before or after a record must remain in that Card;
+  swapping or detaching another record's image/icon never gains field credit.
+- Certify complete bold-name/Option records and labeled property fields only
+  with their exact ordered values, section, and source-declared actions. A
+  trailing delimiter is not an extra field. Regex/math pipes remain operators.
+- Compare visible EmailPreview subjects and every body paragraph to complete
+  source units; keep Formula qualifiers under their original section. Comparing
+  source floor notation does not enable unsupported renderer commands.
+- Distinguish prose emphasis and inline single-letter math from currency, code,
+  and operators. A labeled link field can use a List link with the exact label
+  and destination; a citation still requires its visible source context.
+- Check the complete internal set of missing literal units. The public report
+  still shows at most 16 examples; that display bound cannot waive the 17th or
+  later missing field. Every resolved unit requires a fresh complete certificate.
+- Recognize complete track/artist/duration lists rendered as compact Tables even
+  when a separate Markdown table exists. Keep every row, column, duration and
+  source section exact; arbitrary table headers do not gain this certificate.
+
+The pilot source-hold catalog additionally quarantines the exact source hashes
+for samples 199, 397, 434 and 537 (incorrect calendar weekdays). Sample 434
+previously passed fidelity because fidelity does not prove source factuality.
+Original sources and generated outputs remain immutable. Unconfirmed source
+concerns are not automatically promoted to factual-error holds.
+
+The prompt now explicitly requires valid Express identifiers, faithful handling
+of header-only templates without empty Tables or invented rows, and visible
+headings outside native source-link Cards when their Card.title would be hidden.
+These instructions cannot repair the saved malformed/hidden-heading outputs;
+those remain held pending separately authorized regeneration.
+
+Re-score the sealed 1,000 outputs offline into a **new sibling directory**:
+
+```powershell
+python dataset/scripts/rescore_openai_stage3_pilot.py `
+  --pilot-dir C:/Users/anupk/Downloads/genui_chatgpt_sol_1000_parallel4_fidelity_v2_20261101_r1 `
+  --output-dir C:/Users/anupk/Downloads/genui_chatgpt_sol_1000_parallel4_fidelity_v2_20261101_r1_rescore_fixes_20261102_r1
+```
+
+This command does not generate or call a provider. It validates saved request,
+response and canonical-output bindings, independently re-scores the same-source
+original labels, and verifies before/after archive hashes. Its reports are
+diagnostic and retain `training_input_ready=false`. Use a different fresh output
+name if this report directory already exists.
+
+The completed offline re-score accepted **646/1,000** outputs (previously
+612/1,000): 35 false rejections were resolved, and previously accepted sample
+434 was quarantined. **354 remain held**, including all four confirmed bad
+sources. The same-source original labels pass **386/1,000** under the updated
+policy. These are evaluator corrections on unchanged outputs, not newly
+generated improvements or Android rendering certification.
+
+| Category | Samples | Before accepted | After accepted |
+| --- | ---: | ---: | ---: |
+| comparisons | 200 | 132 | 139 |
+| controls | 50 | 41 | 45 |
+| entity_lists | 300 | 160 | 167 |
+| long_sections | 150 | 87 | 95 |
+| numerical | 100 | 57 | 60 |
+| procedures | 100 | 68 | 69 |
+| references | 100 | 67 | 71 |
+
+All 6,019 sealed archive files remain byte-identical. All 1,000 complete
+legacy/default-policy guard reports match the previous re-score exactly;
+40 unrelated working-tree files were also verified unchanged. The report
+remains diagnostic (`training_input_ready=false`); no samples were merged
+into training, rewritten, regenerated or sent to a provider.
+
+Validation for these changes: 597 dataset/generation regression tests passed.
+The training compatibility selection passed 633 tests (including all 18
+Windows path-length failures rerun with a short temporary directory), with
+7 skips. One unrelated, pre-existing test still fails because the already-edited
+`training/src/ir_training/qat/fake_quant.py` calls `.item()` on a meta tensor;
+that failure reproduces in isolation without these pilot modules, and the file
+was left unchanged. Python compilation and `git diff --check` passed for the changed pilot files;
+Ruff introduced no new findings against the existing baseline.
+
 ## Future preparation (offline only)
 
 When a new pilot is explicitly authorized, prepare it in a new directory using

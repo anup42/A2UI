@@ -10,7 +10,14 @@ from collections import Counter
 from dataclasses import replace
 
 _PREFIX = re.compile(r"^\s*(?:#{1,6}\s+|(?:[-*+•]|\d+[.)])\s+)")
-_PROTECTED = re.compile(r"(`+)[\s\S]*?\1|(?<!\\)\$[^$\n]+\$")
+# Recognizable math stays literal even beside a unit/digit or with inner spaces.
+# Otherwise dollar delimiters must flank non-space text; a following digit is
+# another currency amount, not a closing delimiter across unrelated prose.
+_PROTECTED = re.compile(
+    r"(`+)[\s\S]*?\1|"
+    r"(?<!\\)\$(?:(?=[^$\n]*[+=^\\_×÷≈≤≥])|(?=\s*\d[\d.,]*\s*\*+\s*\w)|(?!\s*\d))[^$\n]+\$|"
+    r"(?<!\\)\$(?=\S)[^$\n]+(?<!\s)\$(?!\d)"
+)
 
 
 def prose_spelling(value: str) -> str:
@@ -32,7 +39,12 @@ def prose_spelling(value: str) -> str:
         return text
     parts, cursor = [], 0
     for match in _PROTECTED.finditer(str(value)):
-        parts.extend((plain(value[cursor:match.start()]), match[0]))
+        # A single inline variable has the same visible letter without its
+        # math delimiters. Currency, compound math and code remain literal.
+        protected = match[0]
+        if re.fullmatch(r"\$[A-Za-z]\$", protected):
+            protected = protected[1:-1]
+        parts.extend((plain(value[cursor:match.start()]), protected))
         cursor = match.end()
     parts.append(plain(value[cursor:]))
     return "".join(parts)
@@ -220,10 +232,18 @@ def certify_section_fields(source_text, records, evidence, detail):
         if len(locations) != 1:
             continue
         heading = None
-        for line in reversed(lines[:locations[0]]):
-            if re.fullmatch(r"\s*(?:#{1,6}\s+.+|\*\*[^*]+\*\*|__[^_]+__)\s*", line):
+        property_units = {layout_text(unit) for item in records if item.source_format == "labeled_comma"
+                          for unit in item.original_source_units}
+        for index in range(locations[0] - 1, -1, -1):
+            line = lines[index].strip()
+            if not line or layout_text(line) in property_units:
+                continue
+            if re.fullmatch(r"\s*(?:#{1,6}\s+.+|\*\*[^*]+\*\*|__[^_]+__)\s*", line) or ((index == 0 or not lines[index - 1].strip()
+                   or (index + 1 < len(lines) and not lines[index + 1].strip()))
+                    and len(line) <= 120 and not _PREFIX.match(line)
+                    and not re.search(r"[.:!?=|`]|://", line)):
                 heading = layout_text(line)
-                break
+            break
         if not heading:
             continue
         expected = [": ".join(record.fixed_texts), *(f"{label}: {value}" for label, value in record.field_pairs)]

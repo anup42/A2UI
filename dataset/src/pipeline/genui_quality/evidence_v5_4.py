@@ -781,6 +781,10 @@ class _EvidenceInterpreterV54(_EvidenceInterpreterV53):
                     "category": category,
                 }
             )
+            if getattr(self.config, "pilot_fidelity_v2", False):
+                self.media_taxonomy[-1]["raw_url"] = model.url
+                if self._card_instances:
+                    self.media_taxonomy[-1]["card_instance"] = self._card_instances[-1]
             self.effective_components.append(
                 {
                     "component_id": element_id,
@@ -838,6 +842,11 @@ class _EvidenceInterpreterV54(_EvidenceInterpreterV53):
                     row["parent_kind"] = self._pilot_render_stack[-2]["kind"]
                 if token == "table" and len(self.tables) > before["tables"]:
                     row["table_header"] = row_index < len(self.tables[before["tables"]].headers)
+                if token == "emailpreview":
+                    fields = [name for name in ("subject", "body")
+                              if str(props.get(name) or "").strip() == str(row.get("text") or "").strip()]
+                    if len(fields) == 1:
+                        row["semantic_field"] = fields[0]
             if getattr(self.config, "pilot_fidelity_v2", False) and row_index == 0:
                 text_heading = token == "text" and str(props.get("variant") or "").casefold() in {"h1", "h2", "h3", "h4", "title", "heading"}
                 alert_heading = token == "alert" and bool(kotlin_string_v5_4(props.get("title")).strip())

@@ -298,8 +298,10 @@ def _score_one_v5_4(
     entity_records = prepared.grpo_entity_records
     entity_detail: dict[str, Any] = {}
     pilot_certificates: dict[str, Any] = {}
+    pilot_actions, pilot_media = (), ()
 
     def collect(*args: Any, **kwargs: Any) -> Any:
+        nonlocal pilot_actions, pilot_media
         evidence_started = perf_counter()
         result = collect_output_evidence_v5_4(*args, **kwargs)
         if entity_records:
@@ -326,6 +328,14 @@ def _score_one_v5_4(
                 project_exact_card_fragments,
                 project_exact_equation_rows,
             )
+            from .pilot_semantic_fields_v2 import (
+                project_exact_email_fields,
+                project_exact_formula_fragments,
+                project_exact_track_tables,
+            )
+            from .pilot_source_contract_v2 import project_source_link_labels
+            pilot_actions = result.action_taxonomy
+            pilot_media = result.media_taxonomy
             # Base matching strips Markdown marks, including ~ and _. Those
             # lossy strings cannot certify approximation or form blanks.
             literal_source = tuple(prepare_text_block(unit.text) for unit in prepared.source_ownership
@@ -342,9 +352,17 @@ def _score_one_v5_4(
             rows, pilot_certificates["pilot_exact_sibling_fragments"] = project_exact_siblings(
                 literal_source, rows)
             rows, pilot_certificates["pilot_exact_formula_fields"] = project_exact_formula_prose(
-                literal_source, rows)
+                literal_source, rows, source_text=prepared.source_text)
+            rows, formula_certificates = project_exact_formula_fragments(
+                literal_source, rows, source_text=prepared.source_text)
+            rows, email_certificates = project_exact_email_fields(literal_source, rows)
+            pilot_certificates["pilot_exact_semantic_fields"] = [*formula_certificates, *email_certificates]
+            rows, pilot_certificates["pilot_exact_record_tables"] = project_exact_track_tables(
+                tuple(prepare_text_block(line) for line in prepared.source_text.splitlines()),
+                rows, result.output_tables, source_text=prepared.source_text)
             rows, pilot_certificates["pilot_exact_card_fragments"] = project_exact_card_fragments(
                 literal_source, rows)
+            rows = project_source_link_labels(prepared.source_text, rows, result.output.actions)
             result = replace(result, evidence_ownership=tuple(rows))
         timings["dynamic_evidence_ms"] = (
             perf_counter() - evidence_started
@@ -365,7 +383,8 @@ def _score_one_v5_4(
                 rows = args[1]
             else:
                 rows, heading_certificates = project_exact_headings(prepared.source_ownership, args[1])
-            rows, pipe_certificates = project_exact_pipe_cards(args[0], rows, args[2])
+            rows, pipe_certificates = project_exact_pipe_cards(
+                args[0], rows, args[2], source_text=prepared.source_text, actions=pilot_actions, media=pilot_media)
             args = (args[0], rows, args[2])
         if entity_detail and not prepared.config.pilot_fidelity_v2:
             blocks, detail = grpo_entity_assignment(*args, entity_detail)

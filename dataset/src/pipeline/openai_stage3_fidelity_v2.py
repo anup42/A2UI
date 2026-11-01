@@ -9,7 +9,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 PROFILE = "fidelity_v2"
 PROFILES = ("legacy", PROFILE)
-POLICY_VERSION = "openai-stage3-fidelity-v2-20261101"
+POLICY_VERSION = "openai-stage3-fidelity-v2-20261102"
 HOLDS_PATH = ROOT / "dataset/configs/openai_stage3_fidelity_v2_source_holds.json"
 SUPPLEMENT_PATH = ROOT / "dataset/prompts/openai_stage3_fidelity_v2.md"
 
@@ -25,6 +25,19 @@ def source_payload(source: str, asset_mapping: str = "") -> str:
     """Serialize supplied fields directly: never split or search source contents."""
     return json.dumps({"source_response_text": source, "asset_mapping": asset_mapping},
                       ensure_ascii=False, sort_keys=True)
+
+
+def is_declared_reference(source: str, start: int, raw: str) -> bool:
+    """Keep prose slashes and instructional local paths out of the link map.
+
+    Explicit URI schemes retain existing masking and validation. A local path
+    needs a media declaration or a provided asset (handled by the caller).
+    """
+    if re.match(r"(?i)^(?:https?|ftp|app|action|mailto|tel|geo|intent|genuicraft|data|javascript|blob|urn|sms|market):", raw):
+        return True
+    prefix = source[source.rfind("\n", 0, start) + 1:start]
+    return bool(re.fullmatch(
+        r"(?i)\s*(?:Media:\s*.*?)?(?:Image|Icon|Video|Audio|Asset)\s*[:=]\s*", prefix))
 
 
 def reference_preflight(row: dict) -> dict:

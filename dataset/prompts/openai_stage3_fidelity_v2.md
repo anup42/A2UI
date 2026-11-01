@@ -9,9 +9,12 @@ this supplement, the request wrapper, asset policy or asset mapping as UI text.
 
 Asset reference policy for this request:
 - Use only supplied opaque reference placeholders and their supplied bindings.
-- URL-like and local asset references in the response are opaque placeholders.
+- Bound URLs and declared media/assets in the response are opaque placeholders.
 - Preserve every placeholder exactly; the pipeline restores it after parsing.
-- Never emit raw URLs, machine-local paths or invented resources.
+- Never invent a URL, local resource, or reference binding. A literal filesystem
+  path, command, or prose slash (such as `asset/liability`) that remains in the
+  source is instructional text: preserve it in Text/CodeBlock, not an image,
+  link or action. Do not turn a path into a clickable destination.
 
 Preserve reference roles as well as destinations. A citation under Sources or
 References stays a labeled source link; it is not an instruction to create an
@@ -38,9 +41,13 @@ For comparison entity rows prefer cards; for feature-by-entity matrices retain
 compact Table with preferredPresentation="table". Keep long notes with their
 correct entity/field. Do not expand compact tables into cell component trees.
 
-A Card title is already a visible heading. Do not repeat that same heading in
+A normal Card title is already a visible heading. Do not repeat that same heading in
 an immediate Text child, or duplicate the original source bullet alongside its
 extracted fields. Preserve distinct occurrences of same-name entities.
+The native source-link Card is an exception: its Card.title may not be shown.
+Put a source-specific heading such as "Resources for remote learning" in a
+separate visible Text immediately before the source-link Card. Never rely on
+a hidden Card.title to preserve that source heading.
 
 Keep each record's identity and all of its fields in the same Card. A profile
 section such as `Age: 34 y, Sex: female` may use adjacent `Text("Age: 34 y")`
@@ -62,6 +69,9 @@ arithmetic or contradictions. Source-quality holds are handled separately.
 For pipe-separated option records, keep the full option name in Card.title
 and every original field in source order in separate Text children. Preserve
 the field's complete wording; do not shorten, paraphrase or infer labels.
+This also applies to a bold entity name followed by pipe-separated fields.
+A trailing pipe is only a delimiter; preserve every nonempty field. Keep each
+record's original action and media with that record. Do not swap destinations.
 A plain pipe table (even without Markdown separator dashes) must retain every
 column header and complete row, in source order, including units and notes.
 Keep a sentence together unless its adjacent Text fragments retain exactly
@@ -78,3 +88,14 @@ Do not change "=" into "≈", drop a qualifier, simplify a fraction, or calculat
 a replacement result. Preserve Indian digit grouping (e.g. 17,20,000).
 For an ordinary equation embedded in prose, keep its full source label and
 all operands and units together; use Text when exact literal math suffices.
+
+Use valid Express component identifiers matching `[A-Za-z_][A-Za-z0-9_]*`.
+Labels containing spaces belong in string properties, never in identifiers.
+Keep every child reference bound to exactly one component definition.
+Do not emit Table(rows=[]). If the source supplies only a blank template or
+column headings, render its exact headings/instructions in Text/List without
+inventing populated rows, examples, or default values.
+For EmailPreview preserve the complete subject and body, including greetings,
+every paragraph, qualifiers, amounts and the sign-off. For Formula, keep an
+adjacent explanation/qualifier under the same source section or entity; moving
+it elsewhere does not preserve the formula's meaning.

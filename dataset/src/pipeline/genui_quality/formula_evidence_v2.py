@@ -114,6 +114,11 @@ def formula_syntax_errors_v2(raw: str) -> tuple[str, ...]:
 def formula_literal_key_v2(raw: str) -> str:
     """Spelling equivalence only; retain math structure, words and units."""
     value = normalize_formula_evidence_v2(raw)
+    # Source LaTeX floor/ceiling delimiters and literal Unicode brackets name
+    # the same operation. This comparison does NOT add unsupported commands
+    # to the renderer syntax allowlist: output must still pass that gate.
+    value = re.sub(r"\\(lfloor|rfloor|lceil|rceil)(?![A-Za-z])",
+                   lambda m: {"lfloor": "⌊", "rfloor": "⌋", "lceil": "⌈", "rceil": "⌉"}[m[1]], value)
     if "=" in value:
         # A word x between numeric operands (possibly carrying unit words)
         # spells multiplication. Standalone variables, e.g. x=2, stay intact.

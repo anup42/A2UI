@@ -148,7 +148,8 @@ def _join_diagnostics(source: str, visible: list[str]) -> list[dict[str, Any]]:
 
 
 def audit_training_fidelity(source: str, graph: Mapping[str, Any], *,
-                            pilot_fidelity_v2: bool = False) -> dict[str, Any]:
+                            pilot_fidelity_v2: bool = False,
+                            complete_missing_units: bool = False) -> dict[str, Any]:
     """Check all literal prose/heading units using renderer-visible evidence.
 
     Bound evidence expansion by the concrete source/graph and retain the existing
@@ -157,6 +158,8 @@ def audit_training_fidelity(source: str, graph: Mapping[str, Any], *,
     """
     if type(pilot_fidelity_v2) is not bool:
         raise ValueError("pilot_fidelity_v2 must be a boolean")
+    if type(complete_missing_units) is not bool or (complete_missing_units and not pilot_fidelity_v2):
+        raise ValueError("Complete missing-unit proof is available only in the opt-in pilot")
     graph_text = json.dumps(graph, ensure_ascii=False, sort_keys=True)
     bounded_config = bounded_fidelity_config(source, graph)
     if pilot_fidelity_v2:
@@ -232,8 +235,8 @@ def audit_training_fidelity(source: str, graph: Mapping[str, Any], *,
             "source_sha256": hashlib.sha256(source.encode("utf-8")).hexdigest(),
             "graph_sha256": hashlib.sha256(graph_text.encode("utf-8")).hexdigest(),
             "source_unit_count": len(units), "checked_source_unit_count": len(units),
-            "missing_unit_count": len(missing), "missing_units": missing[:16],
-            "missing_unit_examples_truncated": len(missing) > 16,
+            "missing_unit_count": len(missing), "missing_units": missing if complete_missing_units else missing[:16],
+            "missing_unit_examples_truncated": len(missing) > 16 and not complete_missing_units,
             "unsupported_numeric_anchors": unsupported,
             "suspected_word_join_count": len(joins), "suspected_word_joins": joins[:16],
             "unsupported_chart_count": len(unsupported_charts),

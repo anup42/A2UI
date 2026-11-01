@@ -95,6 +95,7 @@ _SCORE_FILES = (
     "pilot_layout_v2.py",
     "pilot_source_card_v2.py",
     "pilot_source_contract_v2.py",
+    "pilot_semantic_fields_v2.py",
     "formula_evidence_v2.py",
     "grpo_entity_content.py",
     "grpo_entity_formats.py",
