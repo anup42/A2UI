@@ -6,7 +6,9 @@ This route consumes the account's **Codex allowance**, subject to its model avai
 
 ## Setup and prepare
 
-Use the existing dataset environment and install the official [Codex CLI](https://learn.chatgpt.com/docs/cli). The local handshake and JSON-RPC schema were checked against `codex-cli 0.133.0`. No new Python or frontend dependency is required beyond the existing pilot environment.
+Use the existing dataset environment and install the official [Codex CLI](https://learn.chatgpt.com/docs/cli). GenUI selects the newest version of `codex` found on PATH, so an old installation cannot shadow the current desktop runtime. Use `--codex-executable /absolute/path/to/codex` on `dashboard`, `login`, `account`, or `run` to pin a particular installation. No new Python or frontend dependency is required beyond the existing pilot environment.
+
+The account's model catalog depends on that runtime. On this machine, version 0.133 returned GPT-5 models, while the installed 0.166.0-alpha.5.1 runtime returned GPT-6.1 Sol, GPT-6 Astra, GPT-6.1 Terra and other current account models. A tiny authenticated GPT-6.1 Sol response was verified on the newer runtime. Existing runs still require the Codex version recorded when their generation began; pin that version when resuming them.
 
 From the repository root, sign in and inspect the account's available model IDs:
 
@@ -44,6 +46,10 @@ python dataset/scripts/genui_stage3.py dashboard \
 ```
 
 Open `http://127.0.0.1:8767`. Click **Check sign-in**, or **Sign in with ChatGPT** and then follow the OpenAI sign-in link. **Start generation** explicitly starts the prepared run. It processes one source at a time and automatically validates the completed run. Closing the tab does not stop the server's worker; stopping the server interrupts it and may leave an uncertain attempt.
+
+The header provides a visible account link. The **New generation run** panel loads available models and reasoning efforts from the signed-in account; **Refresh models** queries the catalog again. It also exposes reasoning summaries and, under **Data and execution settings**, sample count, selection profile, seed, training-data folder, a fresh output folder, and per-source timeout. Supported effort levels such as `max` and `ultra` appear only for models that advertise them. Unsupported models or effort combinations fail before preparation.
+
+Click **Prepare new run** to run local selection, prompt capture and validation in the new folder. Preparation does not make model requests. After it succeeds, the dashboard switches to the prepared run; click **Start generation** separately when ready. Changing settings never edits the current contract or existing archive. The timeout is stored in the new contract and restored when reopened; CLI `run --timeout` can explicitly override the wait limit. API-only sampling/output-cap/cache settings are not exposed for this Codex route.
 
 The dashboard shows:
 
@@ -92,11 +98,11 @@ Outputs are `pilot_accepted.jsonl`, `rejected.jsonl`, `assessments.jsonl`, `repo
 ## Authentication and measurement boundaries
 
 - Credentials are owned by Codex's managed credential store under a dedicated `~/.genui/codex` home (or `--auth-home` outside the repository and separate from the run directory). GenUI does not read/copy OAuth tokens, export them to API Batch, or use an API-key fallback. Existing normal Codex configuration and credentials are not changed.
-- The app-server runs in an empty temporary workspace, with read-only sandboxing, no approval requests, disabled shell/web/apps/hooks/memory/subagents, and an explicit conversion-only policy. Unexpected tool activity, local instruction files, model rerouting, compaction, ambiguous final responses and incomplete turns fail closed.
+- The app-server runs in an empty temporary workspace, with read-only sandboxing, no approval requests, disabled shell/web/apps/plugins/hooks/memory/subagents, and an explicit conversion-only policy. On Codex 0.166+, a verified named permission profile restricts filesystem reads to that workspace and disables command network access. Older runtimes retain their existing restricted-read request format. Account-managed plugin caches do not prevent reconnecting, but their tools and skills stay disabled. Unexpected tool activity, local instruction files, model rerouting, compaction, ambiguous final responses and incomplete turns fail closed.
 - API `max_output_tokens`, explicit cache TTL and Batch pricing do **not** apply to this transport. Existing request files are canonical prompt templates; their API-only fields are not forwarded to Codex. `--timeout` (30–3,600 seconds, default 600) limits how long GenUI waits per sample, not the provider's billed tokens. There is also a local response-storage size limit.
 - GenUI starts at most one Codex turn per selected source and never automatically retries that turn or repairs a rejected sample. Codex itself owns network-level connection recovery; this integration keeps its built-in OpenAI provider unchanged. Reported usage and the account allowance, rather than the number of attempted sources, determine actual consumption.
 - `--reasoning-summary auto` requests a concise summary; availability is model-dependent. Returned summaries are stored with the per-attempt record. Raw/private reasoning content is never written by GenUI. `none` disables summary requests.
 - Reported token counts may be missing after a disconnect or unsupported event. Missing usage is explicitly counted, never advertised as zero usage. The account's own usage dashboard remains authoritative for allowance/billing.
-- Offline/mock tests cover replay, rejection, resume, accounting and dashboard security. A real signed-in generation run is a separate validation step; no new pilot/batch is submitted by installing or opening this dashboard.
+- Offline/mock tests cover replay, rejection, resume, accounting, model/runtime selection, preparation and dashboard security. The tiny signed-in connection test establishes that model generation works; it does not establish pilot quality. No new pilot/batch is submitted by installing or opening this dashboard.
 
 References: [Codex authentication](https://learn.chatgpt.com/docs/auth), [official app-server API](https://learn.chatgpt.com/docs/app-server).

@@ -43,7 +43,13 @@ class FakeCodex:
         return {"signed_in": True, "type": "chatgpt", "plan": "test"}
 
     def check_model(self, model, effort):
-        assert model == "gpt-6.1-sol" and effort == "medium"
+        if not any(m["model"] == model and effort in m["reasoning_efforts"] for m in self.models()):
+            raise codex.CodexError("Prepared model/reasoning effort is unavailable")
+
+    def models(self):
+        return [{"model": "gpt-6.1-sol", "reasoning_efforts": ["low", "medium", "high", "xhigh", "max", "ultra"],
+                 "default_reasoning_effort": "medium", "is_default": True},
+                {"model": "gpt-6-luna", "reasoning_efforts": ["low", "medium"], "default_reasoning_effort": "low"}]
 
     def limits(self):
         return {"primary": {"usedPercent": 20, "windowDurationMins": 300}}
@@ -170,6 +176,7 @@ def test_usage_never_fabricated(usage):
 
 def rpc_client(tmp_path):
     client = object.__new__(codex.CodexClient)
+    client.version = "codex-cli 0.133.0"
     client.workspace = SimpleNamespace(name=str(tmp_path))
     client.home = tmp_path / "auth"
     client._events = queue.Queue()
@@ -276,8 +283,8 @@ def test_genui_client_identity_and_no_credential_environment_inheritance(tmp_pat
     calls, captured = [], {}
     monkeypatch.setenv("OPENAI_API_KEY", "fixture-secret-not-forwarded")
     monkeypatch.setenv("CODEX_SESSION_ID", "fixture-session-not-forwarded")
-    monkeypatch.setattr(codex.shutil, "which", lambda name: "codex.exe")
-    monkeypatch.setattr(codex.subprocess, "run", lambda *args, **kwargs: SimpleNamespace(stdout="codex-cli test"))
+    monkeypatch.setattr(codex.shutil, "which", lambda name, **kwargs: "codex.exe")
+    monkeypatch.setattr(codex.subprocess, "run", lambda *args, **kwargs: SimpleNamespace(stdout="codex-cli 0.166.0-alpha.5.1"))
     process = SimpleNamespace(stdin=io.StringIO(), stdout=io.StringIO(), poll=lambda: None, wait=lambda **_: 0)
     def popen(args, **kwargs):
         captured.update(args=args, **kwargs)
@@ -288,12 +295,17 @@ def test_genui_client_identity_and_no_credential_environment_inheritance(tmp_pat
     # Codex installs bundled skills here itself. A subsequent sign-in client
     # must be able to reuse its auth home without enabling custom user skills.
     (tmp_path / "skills/.system").mkdir(parents=True)
+    # Codex may download account-managed plugin caches on login. They must not
+    # break subsequent connections, and plugins remain disabled for generation.
+    (tmp_path / "plugins/cache").mkdir(parents=True)
     client = codex.CodexClient(tmp_path)
     try:
-        assert calls[0] == ("initialize", {"clientInfo": {"name": "genui", "title": "GenUI", "version": codex.CLIENT_VERSION}})
+        assert calls[0] == ("initialize", {"clientInfo": {"name": "genui", "title": "GenUI", "version": codex.CLIENT_VERSION},
+                                           "capabilities": {"experimentalApi": True}})
         assert captured["env"]["CODEX_HOME"] == str(tmp_path)
         assert "OPENAI_API_KEY" not in captured["env"] and "CODEX_SESSION_ID" not in captured["env"]
         assert 'forced_login_method="chatgpt"' in captured["args"]
+        assert 'features.plugins=false' in captured["args"] and 'features.remote_plugin=false' in captured["args"]
         assert json.loads(process.stdin.getvalue())["method"] == "initialized"
     finally:
         client.close()

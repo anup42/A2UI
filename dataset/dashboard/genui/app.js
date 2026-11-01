@@ -1,6 +1,7 @@
 "use strict";
 const $ = id => document.getElementById(id);
 let state = null, detail = null, tab = "source", pending = false, listSignature = "", categorySignature = "";
+let catalog = null, catalogLoading = false, catalogAttempted = false, setupRun = "";
 const number = value => value == null ? "—" : Number(value).toLocaleString();
 const label = value => String(value || "").replaceAll("_", " ");
 const text = (id, value) => { $(id).textContent = value; };
@@ -28,6 +29,7 @@ async function action(name) {
   } catch (exc) { error(exc.message); } finally { pending = false; }
 }
 function render(s) {
+  renderSetup(s);
   text("connection", "● Local evidence"); $("connection").classList.add("good");
   text("run-name", s.name); text("run-meta", [s.config.model, label(s.config.selection_profile), s.config.pilot_profile, s.transport === "chatgpt" ? "ChatGPT / Codex" : "OpenAI Batch"].filter(Boolean).join("  ·  "));
   text("run-status", label(s.status)); $("run-status").classList.toggle("good", s.status === "validated");
@@ -79,6 +81,61 @@ function render(s) {
   if (s.error) error(s.error);
   renderSamples();
 }
+function fillEfforts(preferred) {
+  const model = catalog?.models.find(m => m.model === $("generation-model").value);
+  $("generation-effort").replaceChildren();
+  for (const effort of model?.reasoning_efforts || []) {
+    const option = node("option", label(effort)); option.value = effort; $("generation-effort").append(option);
+  }
+  const available = model?.reasoning_efforts || [];
+  $("generation-effort").value = available.includes(preferred) ? preferred : available.includes(model?.default_reasoning_effort) ? model.default_reasoning_effort : available[0] || "";
+}
+async function loadModels(force = false) {
+  if (catalogLoading) return;
+  catalogLoading = true; catalogAttempted = true;
+  text("model-status", "Loading models from your signed-in account…");
+  try {
+    const selected = $("generation-model").value || state?.config.model, effort = $("generation-effort").value || state?.config.reasoning_effort;
+    catalog = await api(force ? "models/refresh" : "models", force ? {} : undefined);
+    $("generation-model").replaceChildren();
+    for (const model of catalog.models) { const opt = node("option", model.display_name || model.model); opt.value = model.model; $("generation-model").append(opt); }
+    $("generation-model").value = catalog.models.some(m => m.model === selected) ? selected : (catalog.models.find(m => m.is_default) || catalog.models[0]).model;
+    fillEfforts(effort);
+    text("model-status", `${catalog.models.length} account models · ${catalog.codex_version} · checked ${new Date(catalog.refreshed_at*1000).toLocaleTimeString()}`);
+  } catch (exc) { catalog = null; text("model-status", "Model list unavailable: " + exc.message); }
+  finally { catalogLoading = false; if (state) renderSetup(state); }
+}
+function renderSetup(s) {
+  text("header-auth", s.auth.signed_in ? `ChatGPT ${s.auth.plan || "account"} connected ↓` : "Sign in with ChatGPT ↓");
+  if (setupRun !== s.path) {
+    setupRun = s.path; detail = null; listSignature = "";
+    const d = s.setup_defaults || {};
+    for (const [id,key] of [["samples","samples"],["seed","seed"],["profile","selection_profile"],["summary","reasoning_summary"],["timeout","timeout"],["input","input_dir"],["output","output_dir"]]) {
+      if (d[key] != null) $("generation-"+id).value = d[key];
+    }
+    $("sample-content").textContent = "Choose a source to inspect its original text and generated output.";
+    text("sample-title", "Select a sample"); text("sample-badge", ""); text("sample-reasons", "");
+  }
+  if (!s.auth.signed_in) { catalog = null; catalogAttempted = false; text("model-status", "Connect your ChatGPT account to load available models."); }
+  $("refresh-models").disabled = !s.auth.signed_in || s.busy || catalogLoading;
+  $("setup-fields").disabled = !s.auth.signed_in || s.busy || !catalog || catalogLoading;
+  $("prepare").disabled = $("setup-fields").disabled;
+  text("prepare-status", s.job === "prepare" ? "Preparing sources and checking fidelity locally. This may take several minutes…" : s.transport === "chatgpt" && s.status === "prepared" ? "Run prepared. Review its model and settings below, then click Start generation when ready." : "");
+  if (s.auth.signed_in && !catalogAttempted) loadModels();
+}
+async function prepareRun(event) {
+  event.preventDefault();
+  if (pending || !catalog || !state || state.busy) return;
+  const options = {model:$("generation-model").value, reasoning_effort:$("generation-effort").value,
+    reasoning_summary:$("generation-summary").value, samples:Number($("generation-samples").value),
+    seed:Number($("generation-seed").value), timeout:Number($("generation-timeout").value),
+    selection_profile:$("generation-profile").value, input_dir:$("generation-input").value, output_dir:$("generation-output").value};
+  if (options.selection_profile === "failure_mix_v1" && ![100,1000].includes(options.samples)) { error("Failure mix v1 requires 100 or 1,000 samples. Choose Random for another size."); return; }
+  pending = true; $("prepare").disabled = true;
+  try { await api("prepare", options); error(null); await refresh(); }
+  catch (exc) { error(exc.message); }
+  finally { pending = false; if (state) renderSetup(state); }
+}
 function renderSamples() {
   if (!state) return;
   const search = $("search").value.toLowerCase(), category=$("category").value, status=$("status").value;
@@ -100,6 +157,9 @@ function renderSamples() {
 function showDetail(){if(!detail)return;text("sample-title",detail.source_id);text("sample-badge",detail.status);text("sample-reasons",detail.reasons.join(" · "));text("sample-content",detail[tab] || (tab==="output"?"No final output available for this source.":"No source text available."));$("source-tab").setAttribute("aria-pressed",String(tab==="source"));$("output-tab").setAttribute("aria-pressed",String(tab==="output"));}
 async function refresh(){try{state=await api("state");render(state);}catch(exc){text("connection","Disconnected");$("connection").classList.remove("good");error(exc.message);}}
 $("signin").onclick=()=>action("auth/login"); $("device").onclick=()=>action("auth/device"); $("check-auth").onclick=()=>action("auth/check"); $("start").onclick=()=>action("run"); $("collect").onclick=()=>action("collect");
+$("refresh-models").onclick=()=>loadModels(true);
+$("generation-model").onchange=()=>fillEfforts();
+$("prepare-form").onsubmit=prepareRun;
 for(const id of ["search","category","status"]) $(id).addEventListener("input",renderSamples);
 $("source-tab").onclick=()=>{tab="source";showDetail();};$("output-tab").onclick=()=>{tab="output";showDetail();};
 async function loop(){await refresh();setTimeout(loop,3000);}loop();

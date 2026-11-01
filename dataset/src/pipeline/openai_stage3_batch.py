@@ -212,16 +212,20 @@ def estimate(requests: list[dict], config: dict) -> dict:
 def prepare(input_dir: Path, output_dir: Path, *, samples=1000, seed=123,
             model="gpt-6.1-sol", reasoning_effort="medium", max_output_tokens=8192,
             cache_ttl=runner.DEFAULT_CACHE_TTL, selection_profile="random", reasoning_summary="none",
-            pilot_profile="legacy", transport="batch") -> dict:
+            pilot_profile="legacy", transport="batch", generation_timeout=None) -> dict:
     from pipeline.genui_quality.validation_v5_4 import ensure_v5_4_validation_ready
 
     fidelity_v2.profile({"pilot_profile": pilot_profile})
     if transport not in {"batch", "chatgpt"}:
         raise ValueError("Unsupported generation transport")
+    if generation_timeout is not None and (transport != "chatgpt" or type(generation_timeout) is not int
+                                           or not 30 <= generation_timeout <= 3600):
+        raise ValueError("ChatGPT generation timeout must be an integer from 30 to 3600 seconds")
     if not 1 <= samples <= 1000 or seed < 0 or not 1024 <= max_output_tokens <= 32768:
         raise ValueError("Pilot requires 1..1000 samples, nonnegative seed and 1024..32768 output tokens")
     if ((transport == "batch" and model not in PRICES) or not isinstance(model, str) or not model.strip()
-            or reasoning_effort not in {"low", "medium", "high"}):
+            or reasoning_effort not in ({"low", "medium", "high"} if transport == "batch" else
+                                       {"none", "minimal", "low", "medium", "high", "xhigh", "max", "ultra"})):
         raise ValueError("Unsupported pilot model or reasoning effort")
     if reasoning_summary not in runner.REASONING_SUMMARIES:
         raise ValueError("Unsupported reasoning summary; choose none or auto")
@@ -248,6 +252,8 @@ def prepare(input_dir: Path, output_dir: Path, *, samples=1000, seed=123,
               "max_output_tokens": max_output_tokens, "seed": seed, "samples": samples, "cache_ttl": cache_ttl}
     if transport == "chatgpt":
         config["transport"] = transport
+        if generation_timeout is not None:
+            config["generation_timeout"] = generation_timeout
     if selection_profile != "random":
         config["selection_profile"] = selection_profile
     if reasoning_summary != "none":

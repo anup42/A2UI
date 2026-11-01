@@ -149,8 +149,8 @@ def _progress(output, state, requested, found, active=None):
         "started_at": state["created_at"], "usage": usage_report(found)}) + b"\n")
 
 
-def run(output_dir: Path, *, client=None, auth_home=None, timeout=600, skip_uncertain=False):
-    if not 30 <= timeout <= 3600:
+def run(output_dir: Path, *, client=None, auth_home=None, timeout=None, skip_uncertain=False, codex_executable=None):
+    if timeout is not None and (type(timeout) is not int or not 30 <= timeout <= 3600):
         raise ValueError("Per-sample timeout must be 30..3600 seconds")
     output = safe_path(output_dir)
     validate_auth_location(output, auth_home)
@@ -158,6 +158,8 @@ def run(output_dir: Path, *, client=None, auth_home=None, timeout=600, skip_unce
     owned_client = client is None
     with _exclusive(output):
         contract = load(output)
+        if timeout is None:
+            timeout = contract["config"].get("generation_timeout", 600)
         if (output / "chatgpt_collection.json").exists():
             return {"status": "already_collected"}
         state = _state(output, contract)
@@ -189,7 +191,7 @@ def run(output_dir: Path, *, client=None, auth_home=None, timeout=600, skip_unce
             save(output / "generation.json", state)
             _progress(output, state, len(requests), list(indexed.values()))
             return {"status": "generated", "requests": len(requests)}
-        client = client or CodexClient(auth_home)
+        client = client or CodexClient(auth_home, executable=codex_executable)
         try:
             if not client.account()["signed_in"]:
                 raise ValueError("Sign in with ChatGPT through GenUI before generation")
