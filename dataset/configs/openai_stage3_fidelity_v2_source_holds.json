@@ -3,6 +3,14 @@
   "scope": "Explicit fidelity_v2 OpenAI pilot only; reviewed source hashes, no source rewriting or shared-policy changes.",
   "holds": [
     {
+      "source_id": "dataset_muse_glimmer_100k_r2:u_005711_01:8086",
+      "source_sha256": "56de63478a54d62a88d2b968a9d1af67ef3f816c109ae634a93eda007c352d8c",
+      "sample_index": 10,
+      "reason": "The source states that the children are ages 4 and 7, then says the youngest child is 7. The generated output repeats this inherited contradiction. Quarantine this exact source pending correction and fresh generation; do not repair the sealed source or IR or admit it based on a fidelity score.",
+      "review": "genui_chatgpt_sol_10_parallel4_20261101_r1/analysis/manual_review.json",
+      "review_sha256": "d2767abc886ffa74e44a70caf3d4e3b7cb39dc58494d393b93ead7e67da7fdad"
+    },
+    {
       "source_id": "dataset_muse_glimmer_100k_r1:u_014072_01:13824",
       "source_sha256": "cc56ea8c9081c2093584f9fca5c81d6663eaef899cd3914047b18885e8e60d65",
       "sample_index": 33,

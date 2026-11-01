@@ -163,14 +163,14 @@ changed to manufacture a claim that did not occur in the source.
     formula_source = None
     if pilot_fidelity_v2:
         from pipeline.genui_quality.formula_evidence_v2 import (
-            normalize_formula_evidence_v2,
+            formula_literal_key_v2,
         )
 
         # Unlike prose tokenization, math evidence retains every operator,
         # script marker and grouping character. Formatting commands are only
         # normalized using the renderer-supported, non-algebraic spellings.
         def formula_tokens(value):
-            return " ".join(re.findall(r"\w+|[^\w\s]", normalize_formula_evidence_v2(value)))
+            return formula_literal_key_v2(value)
 
         formula_source = " " + formula_tokens(source) + " "
     unsupported = []
@@ -297,7 +297,10 @@ def assess_candidate(row: Mapping[str, Any], target: str | Mapping[str, Any], *,
         # Only fresh canonical, whole-field certificates can resolve layout
         # separators. Raw observations and all canonical gates still apply.
         grouping = reward.evidence.get("content_assignment", {}).get("card_field_grouping", {})
-        certified = {_tokens_v2(item["source_text"]) for item in grouping.get("pilot_exact_pipe_card_fields", ())}
+        certified = {_tokens_v2(item["source_text"])
+                     for key in ("pilot_exact_pipe_card_fields", "pilot_exact_plain_table_headers",
+                                 "pilot_exact_sibling_fragments", "pilot_exact_formula_fields")
+                     for item in grouping.get(key, ())}
         missing = fidelity.get("missing_units", ())
         field_covered = [unit["unit_id"] for unit in missing if _tokens_v2(unit["text"]) in certified]
         report["literal_missing_units_certified_by_pilot_fields"] = field_covered

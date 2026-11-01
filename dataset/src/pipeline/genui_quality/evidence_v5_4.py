@@ -322,6 +322,7 @@ class _EvidenceInterpreterV54(_EvidenceInterpreterV53):
         self._card_header_children: dict[str, tuple[str, ...]] = {}
         self._source_cards: set[str] = set()
         self._pilot_render_stack: list[dict[str, Any]] = []
+        self._next_pilot_render_instance = 0
 
     def _card_headers_may_be_intercepted(
         self, children: tuple[str, ...], *, item: Any,
@@ -441,7 +442,9 @@ class _EvidenceInterpreterV54(_EvidenceInterpreterV53):
             self._pilot_render_stack.append({
                 "kind": str(raw.get("type") or "").casefold() if isinstance(raw, Mapping) else "",
                 "source_heading": False,
+                "instance": f"render:{self._next_pilot_render_instance}:{element_id}",
             })
+            self._next_pilot_render_instance += 1
         if is_card:
             instance = f"card:{self._next_card_instance}:{element_id}"
             self._next_card_instance += 1
@@ -520,6 +523,13 @@ class _EvidenceInterpreterV54(_EvidenceInterpreterV53):
                 parent_scope["source_heading"] = bool(blocks and source_heading(blocks[0]))
         if token == "formula" and getattr(self.config, "pilot_fidelity_v2", False) and len(self.visible_blocks) == before["visible"]:
             del self.role_instances.get("formula", [])[before["formula_roles"] :]
+        elif token == "formula" and getattr(self.config, "pilot_fidelity_v2", False):
+            from .formula_evidence_v2 import formula_syntax_errors_v2
+
+            raw_formula = next((props[key] for key in ("latex", "formula", "text", "value")
+                                if props.get(key) is not None), "")
+            for error in formula_syntax_errors_v2(kotlin_string_v5_4(raw_formula)):
+                self.resolver._unknown(f"pilot_formula_syntax:{element_id}:{error}")
         if token == "alert" and getattr(self.config, "pilot_fidelity_v2", False):
             title = kotlin_string_v5_4(props.get("title")).strip()
             if title:
@@ -821,6 +831,13 @@ class _EvidenceInterpreterV54(_EvidenceInterpreterV53):
 
         for row_index, row in enumerate(self.block_ownership[before["ownership"] :]):
             row["component_type"] = token
+            if getattr(self.config, "pilot_fidelity_v2", False) and self._pilot_render_stack:
+                row["render_instance"] = self._pilot_render_stack[-1]["instance"]
+                if len(self._pilot_render_stack) >= 2:
+                    row["parent_instance"] = self._pilot_render_stack[-2]["instance"]
+                    row["parent_kind"] = self._pilot_render_stack[-2]["kind"]
+                if token == "table" and len(self.tables) > before["tables"]:
+                    row["table_header"] = row_index < len(self.tables[before["tables"]].headers)
             if getattr(self.config, "pilot_fidelity_v2", False) and row_index == 0:
                 text_heading = token == "text" and str(props.get("variant") or "").casefold() in {"h1", "h2", "h3", "h4", "title", "heading"}
                 alert_heading = token == "alert" and bool(kotlin_string_v5_4(props.get("title")).strip())

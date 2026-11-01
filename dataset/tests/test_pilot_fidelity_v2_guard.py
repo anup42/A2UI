@@ -21,6 +21,98 @@ def assess(source, body, **kwargs):
                                   "<a2ui>" + body + "</a2ui>", **kwargs)
 
 
+def test_option_pipe_card_preserves_complete_unlabelled_fields():
+    source = "Option 1: Alpine | Durable in wet peat | Best for longevity"
+    body = 'root=Card([d,b],"Option 1: Alpine")\nd=Text("Durable in wet peat")\nb=Text("Best for longevity")'
+    assert assess(source, body, pilot_fidelity_v2=True)["eligible"]
+    assert assess(source, body) == assess(source, body, pilot_fidelity_v2=False)
+    for bad in [
+        body.replace("wet peat", "dry sand"),
+        body.replace("[d,b]", "[b,d]"),
+        body.replace("[d,b]", "[d,d,b]"),
+        body.replace("[d,b]", "[d]"),
+        body.replace('b=Text("Best for longevity")', 'b=Text("Best for longevity",visible=false)'),
+        body.replace('root=Card([d,b]', 'root=Card([d,c]').replace(
+            'b=Text', 'c=Card([b],"Other")\nb=Text'),
+    ]:
+        assert not assess(source, bad, pilot_fidelity_v2=True)["eligible"], bad
+
+
+def test_split_sentence_certificate_keeps_approximation_and_same_parent():
+    source = "Assemble: reheat rice. Assembly ~12 min."
+    body = 'root=Card([a,b])\na=Text("Assemble: reheat rice.")\nb=Text("Assembly ~12 min.")'
+    assert assess(source, body, pilot_fidelity_v2=True)["eligible"]
+    for bad in [body.replace("~12", "12"), body.replace("~12", "~13"),
+                body.replace("[a,b]", "[b,a]"), body.replace("[a,b]", "[a,a,b]"),
+                'root=Column([a,c])\na=Text("Assemble: reheat rice.")\nc=Card([b])\nb=Text("Assembly ~12 min.")']:
+        assert not assess(source, bad, pilot_fidelity_v2=True)["eligible"], bad
+
+
+def test_form_blank_fragments_keep_exact_repeated_occurrences():
+    source = "Student Name: ______ Class: ___ Date: _____\nStudent Name: ______ Class: ___ Date: _____"
+    body = '''root=Column([s1,s2])
+s1=Column([n1,c1,d1])
+s2=Column([n2,c2,d2])
+n1=Text("Student Name: ______")
+c1=Text("Class: ___")
+d1=Text("Date: _____")
+n2=Text("Student Name: ______")
+c2=Text("Class: ___")
+d2=Text("Date: _____")'''
+    assert assess(source, body, pilot_fidelity_v2=True)["eligible"]
+    for bad in [body.replace("[s1,s2]", "[s1]"), body.replace("[s1,s2]", "[s1,s2,s1]"),
+                body.replace("[n2,c2,d2]", "[n2,d2,c2]"),
+                body.replace("Class: ___", "Class: 8")]:
+        assert not assess(source, bad, pilot_fidelity_v2=True)["eligible"], bad
+
+
+def test_plain_pipe_table_requires_complete_ordered_headers_and_rows():
+    source = "Item | Qty | Unit price\nRice | 2 kg | 35 /kg\nEggs | 10 pcs | 6 /pc"
+    body = 'root=Table(columns=["Item","Qty","Unit price"],rows=[["Rice","2 kg","35 /kg"],["Eggs","10 pcs","6 /pc"]],preferredPresentation="table")'
+    assert assess(source, body, pilot_fidelity_v2=True)["eligible"]
+    assert not assess(source, body)["eligible"]
+    for bad in [body.replace("35 /kg", "35 /pc"), body.replace("10 pcs", "11 pcs"),
+                body.replace('["Eggs","10 pcs","6 /pc"]', '["Eggs","6 /pc","10 pcs"]'),
+                body.replace(',"Unit price"', ''), body.replace(',["Eggs","10 pcs","6 /pc"]', ''),
+                body.replace('"Item","Qty"', '"Qty","Item"')]:
+        assert not assess(source, bad, pilot_fidelity_v2=True)["eligible"], bad
+
+
+def test_numeric_headings_are_owned_once_without_hiding_duplicates():
+    source = "## Plan for 90 minutes\nKeep the window open for 10 seconds."
+    body = 'root=Column([h,t])\nh=Text("Plan for 90 minutes","h2")\nt=Text("Keep the window open for 10 seconds.")'
+    assert assess(source, body, pilot_fidelity_v2=True)["eligible"]
+    for bad in [body.replace("[h,t]", "[h,h,t]"), body.replace("90 minutes", "80 minutes"),
+                body.replace("[h,t]", "[t]")]:
+        assert not assess(source, bad, pilot_fidelity_v2=True)["eligible"], bad
+
+
+def test_plain_table_certificate_cannot_cover_only_a_source_run_prefix():
+    from pipeline.genui_quality._core import OutputTable
+    from pipeline.genui_quality.pilot_content_v2 import (
+        project_exact_plain_table_headers,
+    )
+
+    source = tuple(prepare_text_block(s) for s in
+                   ("Item | Qty", "Rice | 2 kg", "Eggs | 10 pcs", "Milk | 1 l"))
+    ownership = [{"component_id": "table", "table_header": True, "render_instance": "r1",
+                  "owner": "source_table", "text": text} for text in ("Item", "Qty")]
+    partial = OutputTable("table", "Table", ["Item", "Qty"], ["item", "qty"],
+                          [{"item": "Rice", "qty": "2 kg"}, {"item": "Eggs", "qty": "10 pcs"}])
+    rows, certificates = project_exact_plain_table_headers(source, ownership, [partial])
+    assert not certificates and rows == ownership
+
+
+def test_numeric_equation_formula_keeps_all_operators_units_and_values():
+    source = "Regular pay: 40 x $20 = $800"
+    body = 'root=Formula(latex="40 \\\\times $20 = $800",title="Regular pay")'
+    assert assess(source, body, pilot_fidelity_v2=True)["eligible"]
+    for bad in [body.replace("$800", "$900"), body.replace("times", "div"),
+                body.replace(" = ", " < "), body.replace("$20", "20"),
+                body.replace("Regular pay", "Guaranteed pay")]:
+        assert not assess(source, bad, pilot_fidelity_v2=True)["eligible"], bad
+
+
 def test_exact_alert_is_eligible_but_default_behavior_is_unchanged():
     source = "The appointment is at 14:00."
     body = "root=Alert(message=" + json.dumps(source) + ")"

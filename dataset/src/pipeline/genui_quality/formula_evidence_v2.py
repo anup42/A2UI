@@ -82,9 +82,44 @@ def normalize_formula_evidence_v2(raw: str) -> str:
     # into an unrecognized \timesweight command.
     value = re.sub(r"\\[A-Za-z]+|\\[ $%,;]", lambda m: _COMMANDS.get(m[0][1:], m[0]), value)
     value = _unwrap_text_groups(value)
-    value = re.sub(r"(?<=\d)\{,\}(?=\d{3}(?:\D|$))", ",", value)
+    # Digit-delimited {,} also covers Indian grouping (17{,}20{,}000).
+    # Retain the comma and every other grouping character.
+    value = re.sub(r"(?<=\d)\{,\}(?=\d)", ",", value)
     value = value.replace("–", "-").replace("−", "-")
     return "\n".join(re.sub(r"[^\S\r\n]+", " ", line).strip() for line in value.splitlines()).strip()
 
 
-__all__ = ["normalize_formula_evidence_v2"]
+def formula_syntax_errors_v2(raw: str) -> tuple[str, ...]:
+    """Reject unsupported renderer commands, never erase or repair them."""
+    value = _aligned_rows(normalize_formula_wrapper(raw))
+    allowed = {*_COMMANDS, "frac", "text", "mathrm"}
+    errors = {
+        "unsupported_command:" + match[1]
+        for match in re.finditer(r"\\([A-Za-z]+|.)", value)
+        if match[1] not in allowed
+    }
+    depth = 0
+    for char in value:
+        if char == "{":
+            depth += 1
+        elif char == "}":
+            depth -= 1
+        if depth < 0:
+            errors.add("unbalanced_group")
+    if depth:
+        errors.add("unbalanced_group")
+    return tuple(sorted(errors))
+
+
+def formula_literal_key_v2(raw: str) -> str:
+    """Spelling equivalence only; retain math structure, words and units."""
+    value = normalize_formula_evidence_v2(raw)
+    if "=" in value:
+        # A word x between numeric operands (possibly carrying unit words)
+        # spells multiplication. Standalone variables, e.g. x=2, stay intact.
+        value = re.sub(r"(?<!\w)(\d[\d.,]*(?:\s+[A-Za-z]+){0,3})\s+x\s+(?=[\d$€£₹])",
+                       lambda m: m[1] + " × ", value)
+    return " ".join(re.findall(r"\w+|[^\w\s]", value))
+
+
+__all__ = ["formula_literal_key_v2", "formula_syntax_errors_v2", "normalize_formula_evidence_v2"]

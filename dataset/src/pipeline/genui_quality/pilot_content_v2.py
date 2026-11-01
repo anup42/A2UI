@@ -1,10 +1,12 @@
 """Opt-in lossless segmentation for literal multiline renderer text.
 
-Only the assignment view changes. Raw evidence still controls additions,
-numbers, duplication, actions and roles; no threshold or acceptance override.
+Only a freshly certified ownership/assignment view changes. Every character
+and numeric occurrence survives; raw evidence still controls additions,
+duplication, actions and roles. No threshold or acceptance override.
 """
 from __future__ import annotations
 
+import re
 from collections import Counter
 from collections.abc import Sequence
 
@@ -55,7 +57,11 @@ def project_exact_pipe_cards(source, ownership, generic_owners):
         record = _parsed([part.strip() for part in parts], 0, set(),
                          source_format="pipe", source_indices=(0,),
                          original_source_units=(unit.raw,))
-        if record is not None and record.identity_label is not None:
+        option_record = (
+            re.fullmatch(r"Option (?:[A-Z]|\d+): [^|:\n]+", parts[0].strip())
+            and len(parts) >= 3 and all(p.strip() for p in parts[1:])
+        )
+        if (record is not None and record.identity_label is not None) or option_record:
             candidates.append((unit, tuple(tuple(part.split()) for part in parts)))
     consumed, certificates = set(), []
     for position, index in enumerate(indices):
@@ -87,6 +93,111 @@ def project_exact_pipe_cards(source, ownership, generic_owners):
         certificates.append({"output_indices": window, "source_text": unit.raw,
                              "card_instance": rows[index]["card_instance"],
                              "ordered_literal_fields_exact": True})
+    return [row for i, row in enumerate(rows) if i not in consumed], certificates
+
+
+def project_exact_siblings(source, ownership):
+    """Join adjacent Text siblings only when their WHOLE ordered text is exact."""
+    units = {" ".join(unit.raw.split()): unit.raw for unit in source}
+    rows = [dict(row) for row in ownership]
+    consumed, certificates = set(), []
+    for start, row in enumerate(rows):
+        parent = row.get("parent_instance")
+        if start in consumed or not parent or row.get("component_type") != "text":
+            continue
+        matches = []
+        for end in range(start + 1, min(len(rows), start + 16)):
+            group = rows[start:end + 1]
+            if any(i in consumed for i in range(start, end + 1)) or any(
+                    item.get("parent_instance") != parent
+                    or item.get("component_type") != "text"
+                    or item.get("owner") != "generic_visible_content"
+                    or item.get("card_instance") != row.get("card_instance") for item in group):
+                break
+            key = " ".join(" ".join(str(item.get("text") or "").split()) for item in group)
+            if key in units:
+                matches.append((end, units[key]))
+        if len(matches) == 1:
+            end, original = matches[0]
+            row["text"] = original
+            consumed.update(range(start + 1, end + 1))
+            certificates.append({"source_text": original, "parent_instance": parent,
+                                 "output_indices": list(range(start, end + 1)),
+                                 "ordered_literal_fragments_exact": True})
+    return [row for i, row in enumerate(rows) if i not in consumed], certificates
+
+
+def project_exact_plain_table_headers(source, ownership, tables):
+    """Certify a plain-pipe header only with ALL of its ordered visible rows.
+
+    Arbitrary pipe expressions are not tables. Require a complete contiguous
+    source run with a header and >=2 data rows matching one renderer Table.
+    """
+    rows, certificates = [dict(row) for row in ownership], []
+    consumed = set()
+    for table in tables:
+        expected = [tuple(str(x).strip() for x in table.headers)]
+        expected.extend(tuple(str(row.get(key, "")).strip() for key in table.keys)
+                        for row in table.rows)
+        if len(expected) < 3 or len(expected[0]) < 2 or any(not x for x in expected[0]):
+            continue
+        matches = []
+        for start in range(len(source) - len(expected) + 1):
+            # A matching prefix is not a complete source table. Boundary rows
+            # with the same width belong to this run and cannot be omitted.
+            neighbors = ([source[start - 1]] if start else []) + (
+                [source[start + len(expected)]] if start + len(expected) < len(source) else [])
+            if any("|" in unit.raw and len(unit.raw.split("|")) == len(expected[0]) for unit in neighbors):
+                continue
+            group = source[start:start + len(expected)]
+            if (all("\\|" not in unit.raw for unit in group)
+                    and [tuple(p.strip() for p in unit.raw.split("|")) for unit in group] == expected):
+                matches.append(group[0].raw)
+        if len(set(matches)) != 1:
+            continue
+        # Do not associate two occurrences just because their element ids match.
+        groups = {}
+        for i, row in enumerate(rows):
+            if row.get("component_id") == table.element_id and row.get("table_header") is True:
+                groups.setdefault(row.get("render_instance"), []).append(i)
+        if len(groups) != 1 or None in groups:
+            continue
+        indices = next(iter(groups.values()))
+        if tuple(str(rows[i]["text"]).strip() for i in indices) != expected[0]:
+            continue
+        rows[indices[0]]["text"] = matches[0]
+        consumed.update(indices[1:])
+        certificates.append({"source_text": matches[0], "output_indices": indices,
+                             "complete_ordered_table_exact": True})
+    return [row for i, row in enumerate(rows) if i not in consumed], certificates
+
+
+def project_exact_formula_prose(source, ownership):
+    """Credit a generic source equation only if every visible Formula field matches."""
+    from .formula_evidence_v2 import formula_literal_key_v2
+
+    units = {}
+    for unit in source:
+        if "=" in unit.raw:
+            units.setdefault(formula_literal_key_v2(unit.raw), set()).add(unit.raw)
+    rows, groups = [dict(row) for row in ownership], {}
+    for i, row in enumerate(rows):
+        if row.get("owner") == "source_formula" and row.get("render_instance"):
+            groups.setdefault(row["render_instance"], []).append(i)
+    consumed, certificates = set(), []
+    for instance, indices in groups.items():
+        texts = [str(rows[i].get("text") or "") for i in indices]
+        variants = [" ".join(texts)]
+        if len(texts) == 2:
+            variants.append(texts[0] + ": " + texts[1])
+        matches = set().union(*(units.get(formula_literal_key_v2(text), set()) for text in variants))
+        if len(matches) != 1:
+            continue
+        original = next(iter(matches))
+        rows[indices[0]].update(text=original, owner="generic_visible_content")
+        consumed.update(indices[1:])
+        certificates.append({"source_text": original, "render_instance": instance,
+                             "output_indices": indices, "complete_formula_fields_exact": True})
     return [row for i, row in enumerate(rows) if i not in consumed], certificates
 
 

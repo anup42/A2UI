@@ -1,4 +1,4 @@
-"""Read-only reassessment of a sealed Batch archive under the opt-in v2 policy.
+"""Read-only reassessment of sealed Batch or ChatGPT archives under the v2 policy.
 
 This deliberately does not call pilot.load: historical code fingerprints may
 differ. Archive seals and source/candidate bindings remain mandatory.
@@ -94,13 +94,20 @@ def _indexed(rows, key, expected=None):
 
 def _load_archive(root):
     envelopes = {}
-    for name in ("contract", "submission", "collection"):
+    contract_path = _contained(root, "contract.json")
+    _json(contract_path.read_text(encoding="utf-8"))
+    transport = checked(contract_path).get("config", {}).get("transport", "batch")
+    if transport not in {"batch", "chatgpt"}:
+        raise ValueError("Unsupported archived transport")
+    names = ("contract", "generation", "chatgpt_collection") if transport == "chatgpt" else (
+        "contract", "submission", "collection")
+    for name in names:
         path = _contained(root, name + ".json")
         _json(path.read_text(encoding="utf-8"))  # Reject duplicate keys before checked().
         envelopes[name] = checked(path)
         if not isinstance(envelopes[name], dict):
             raise ValueError("Malformed archive seal payload")  # noqa: TRY004 - invalid external JSON
-    contract, submission, collection = (envelopes[k] for k in ("contract", "submission", "collection"))
+    contract, submission, collection = (envelopes[k] for k in names)
     if contract.get("version") != pilot.VERSION:
         raise ValueError("Unknown archived pilot version")
     config = contract.get("config")
@@ -113,9 +120,18 @@ def _load_archive(root):
     identity = digest(contract)
     if submission.get("contract_sha256") != identity or collection.get("contract_sha256") != identity:
         raise ValueError("Archive contract binding mismatch")
-    batch_id = submission.get("batch_id")
-    if not isinstance(batch_id, str) or not batch_id or collection.get("batch_id") != batch_id:
-        raise ValueError("Archive batch binding mismatch")
+    if transport == "batch":
+        batch_id = submission.get("batch_id")
+        if not isinstance(batch_id, str) or not batch_id or collection.get("batch_id") != batch_id:
+            raise ValueError("Archive batch binding mismatch")
+    else:
+        from pipeline import chatgpt_stage3
+        if (submission.get("version") != chatgpt_stage3.VERSION
+                or collection.get("version") != chatgpt_stage3.VERSION
+                or submission.get("status") != "validated"
+                or not isinstance(submission.get("attempts"), dict)
+                or "generation.json" not in collection.get("files", {})):
+            raise ValueError("Invalid or unsealed ChatGPT generation state")
     for item in (contract, collection):
         _hashes(root, item.get("files"))
     if not {"selected.jsonl", "requests.jsonl", "responses.jsonl", "queries.jsonl"} <= contract["files"].keys():
@@ -185,11 +201,29 @@ def _load_archive(root):
                 isinstance(reason, str) for reason in assessment.get("reasons", [])):
             raise ValueError("Malformed archived assessment reasons")
     records = []
-    for name in ("output_file_id.jsonl", "error_file_id.jsonl"):
-        if (root / name).exists():
-            if name not in collection["files"]:
-                raise ValueError("Unsealed Batch result file")
-            records.extend(_rows(root / name))
+    if transport == "chatgpt":
+        if set(submission["attempts"]) != set(bindings):
+            raise ValueError("ChatGPT attempt coverage mismatch")
+        for identifier, attempt in submission["attempts"].items():
+            name = "chatgpt_records/" + identifier + ".json"
+            if (not isinstance(attempt, dict) or not attempt.get("record_sha256")
+                    or collection["files"].get(name) != attempt["record_sha256"]):
+                raise ValueError("Unsealed ChatGPT result")
+            path = _contained(root, name)
+            _json(path.read_text(encoding="utf-8"))
+            record = checked(path)
+            if record.get("status") != attempt.get("status") or record.get("status") != "completed":
+                raise ValueError("Incomplete or inconsistent ChatGPT result")
+        # Pure local reader validates model, request, source and contract
+        # bindings. Never load a client or compare historical runtime hashes
+        # with today's runtime (which would require rerunning generation).
+        records = chatgpt_stage3.records(root, contract, submission)
+    else:
+        for name in ("output_file_id.jsonl", "error_file_id.jsonl"):
+            if (root / name).exists():
+                if name not in collection["files"]:
+                    raise ValueError("Unsealed Batch result file")
+                records.extend(_rows(root / name))
     indexed = pilot.index_results(records, set(bindings))
     candidates = _indexed(_rows(candidate_path) if candidate_path.exists() else [], "response_id", set(responses))
     for response_id, candidate in candidates.items():
@@ -251,7 +285,11 @@ def rescore(pilot_dir: Path, output_dir: Path) -> dict:
                 "official": official[entry["source_id"]],
                 "baseline_v2": guard.assess_candidate(source, source.get("completion"), pilot_fidelity_v2=True)}
         try:
-            paid_text = runner.response_text(indexed.get(custom_id, {}), contract["config"])
+            if contract["config"].get("transport") == "chatgpt":
+                from pipeline.chatgpt_stage3 import response_text
+                paid_text = response_text(indexed.get(custom_id, {}), contract["config"])
+            else:
+                paid_text = runner.response_text(indexed.get(custom_id, {}), contract["config"])
             if candidate is None:
                 raise ValueError("canonical_stage3_rejected")
             errors = admission_errors(candidate, pilot.existing._generation_source(source))
@@ -297,13 +335,15 @@ def rescore(pilot_dir: Path, output_dir: Path) -> dict:
     summary = {"version": VERSION, "status": "offline_rescored_no_training_output", "training_input_ready": False,
                "diagnostic_only": True,
                "scope": "Assessment only; sealed archive unchanged; no API calls, replay or regeneration.",
-               "batch_id": collection["batch_id"], "contract_sha256": digest(contract),
+               "transport": contract["config"].get("transport", "batch"),
+               "batch_id": collection.get("batch_id"), "contract_sha256": digest(contract),
                "overall": _summary(rows), "categories": {k: _summary(v) for k, v in sorted(categories.items())}}
     output.mkdir(exist_ok=False)
     runner.write_rows(output / "assessments.jsonl", rows)
     atomic_bytes(output / "summary.json", canonical(summary) + b"\n")
     save(output / "rescore.json", {"version": VERSION, "pilot_dir": str(root),
-         "batch_id": collection["batch_id"], "contract_sha256": digest(contract),
+         "transport": contract["config"].get("transport", "batch"),
+         "batch_id": collection.get("batch_id"), "contract_sha256": digest(contract),
          "archived_code_hashes": contract.get("code_hashes"), "current_code_hashes": current,
          "archived_guard": contract.get("guard"), "current_guard": guard.guard_identity(),
          "archive_hashes_before": before, "archive_hashes_after": after,

@@ -292,10 +292,35 @@ def _score_one_v5_4(
     base_prepared = prepared.base
     entity_records = prepared.grpo_entity_records
     entity_detail: dict[str, Any] = {}
+    pilot_certificates: dict[str, Any] = {}
 
     def collect(*args: Any, **kwargs: Any) -> Any:
         evidence_started = perf_counter()
         result = collect_output_evidence_v5_4(*args, **kwargs)
+        if prepared.config.pilot_fidelity_v2 and not entity_records:
+            from .matching_v5_1 import prepare_text_block
+            from .pilot_content_v2 import (
+                project_exact_formula_prose,
+                project_exact_headings,
+                project_exact_plain_table_headers,
+                project_exact_siblings,
+            )
+            # Base matching strips Markdown marks, including ~ and _. Those
+            # lossy strings cannot certify approximation or form blanks.
+            literal_source = tuple(prepare_text_block(unit.text) for unit in prepared.source_ownership
+                                   if unit.owner == "generic_prose")
+            # Only the ownership/assignment view changes. Raw visible evidence
+            # still drives roles, actions, duplication and renderer diagnostics.
+            rows, pilot_certificates["pilot_exact_heading_occurrences"] = project_exact_headings(
+                prepared.source_ownership, result.evidence_ownership)
+            rows, pilot_certificates["pilot_exact_plain_table_headers"] = project_exact_plain_table_headers(
+                tuple(prepare_text_block(line) for line in prepared.source_text.splitlines()),
+                rows, result.output_tables)
+            rows, pilot_certificates["pilot_exact_sibling_fragments"] = project_exact_siblings(
+                literal_source, rows)
+            rows, pilot_certificates["pilot_exact_formula_fields"] = project_exact_formula_prose(
+                literal_source, rows)
+            result = replace(result, evidence_ownership=tuple(rows))
         if entity_records:
             # Shared table headers may become record fields only after an
             # exact, complete source-bound certificate. Existing source-table
@@ -319,7 +344,10 @@ def _score_one_v5_4(
                 project_exact_headings,
                 project_exact_pipe_cards,
             )
-            rows, heading_certificates = project_exact_headings(prepared.source_ownership, args[1])
+            if "pilot_exact_heading_occurrences" in pilot_certificates:
+                rows = args[1]
+            else:
+                rows, heading_certificates = project_exact_headings(prepared.source_ownership, args[1])
             rows, pipe_certificates = project_exact_pipe_cards(args[0], rows, args[2])
             args = (args[0], rows, args[2])
         if entity_detail:
@@ -332,6 +360,7 @@ def _score_one_v5_4(
             detail["pilot_exact_multiline_partitions"] = certificates
             detail["pilot_exact_heading_occurrences"] = heading_certificates
             detail["pilot_exact_pipe_card_fields"] = pipe_certificates
+            detail.update(pilot_certificates)
         return blocks, detail
 
     def actions(*args: Any, **kwargs: Any) -> Any:

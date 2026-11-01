@@ -12,13 +12,35 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from pipeline.genui_quality import generation_reward_a2ui_express_v1 as score
 from pipeline.genui_quality.config_v5_4 import RewardConfigV54
 from pipeline.genui_quality.evidence_v5_4 import collect_output_evidence_v5_4
-from pipeline.genui_quality.formula_evidence_v2 import normalize_formula_evidence_v2
+from pipeline.genui_quality.formula_evidence_v2 import (
+    formula_syntax_errors_v2,
+    normalize_formula_evidence_v2,
+)
 from pipeline.genui_quality.graph import audit_renderer_graph
 from pipeline.genui_quality.identity_v5_4 import metric_fingerprint_v5_4
 
 
 def node(kind, props=None, children=(), **extra):
     return {"type": kind, "props": props or {}, "children": list(children), **extra}
+
+
+@pytest.mark.parametrize("formula", [r"\mathord{\sim} 125", r"\operatorname{Cost}(2)",
+                                   r"\text{unfinished", r"2} + 3"])
+def test_unsupported_formula_syntax_is_pilot_only_fail_closed(formula):
+    elements = {"root": node("Formula", {"latex": formula})}
+    assert formula_syntax_errors_v2(formula)
+    fixed = collect(elements)
+    assert not fixed.dynamic_evidence_complete
+    assert any("pilot_formula_syntax" in d for d in fixed.unknown_diagnostics)
+    default = collect(elements, config=RewardConfigV54())
+    assert default == collect(elements, config=RewardConfigV54(pilot_fidelity_v2=False))
+    assert not any("pilot_formula_syntax" in d for d in default.unknown_diagnostics)
+
+
+def test_supported_formula_and_indian_grouping_preserve_numbers():
+    assert normalize_formula_evidence_v2(r"INR 17{,}20{,}000 + 1{,}25{,}000") == "INR 17,20,000 + 1,25,000"
+    assert formula_syntax_errors_v2(r"\frac{2}{3} \times 4 \approx 2.67") == ()
+    assert r"\frac{2}{3}" in normalize_formula_evidence_v2(r"\frac{2}{3}")
 
 
 def collect(elements, state=None, config=None):

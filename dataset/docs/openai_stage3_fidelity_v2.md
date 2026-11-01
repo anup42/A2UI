@@ -22,6 +22,12 @@ hold catalog contains the reviewed source hashes for zero-based audit indices
 the hold; changing content under its held identity requires review. The shared
 v11 source holds and the source records themselves remain unchanged.
 
+The separate ten-sample ChatGPT pilot also quarantines sample 10,
+`dataset_muse_glimmer_100k_r2:u_005711_01:8086`: it gives children's ages as
+4 and 7, then calls the seven-year-old the youngest. The catalog pins the exact
+source hash and the manual review hash. This is an inherited source defect,
+not an instruction to rewrite its output or remove it from existing datasets.
+
 The static pilot supplement reinforces entity field ownership, domain-appropriate
 cards and compact feature matrices, unique Card headings, and exact Formula
 semantics with adjacent Text for long explanations. It prohibits invented facts
@@ -52,6 +58,12 @@ python dataset/scripts/rescore_openai_stage3_pilot.py \
 ```
 
 This command uses no API key and cannot submit, replay or regenerate requests.
+It supports both sealed API Batch archives and fully collected ChatGPT sign-in
+archives. ChatGPT archives require `generation.json`, `chatgpt_collection.json`,
+and every completed request's sealed record; model, request, source, thread,
+turn and status evidence remain mandatory. Uncertain/partial generations are
+not rescored as successful outputs. Historical client fingerprints are recorded
+as evidence, without loading a client or asking the current runtime to replay.
 It verifies the archive seals and every declared hash, checks source/request
 identities, binds each canonical candidate to its exact paid response and
 reference-restored semantics, and verifies that the archive stayed unchanged.
@@ -71,7 +83,8 @@ prose, exact action/source role and destination ownership, source reference
 completeness and reviewed source holds. Literal multiline splitting consumes
 whole ordered source units; matched headings keep their dedicated ownership.
 Card field grouping requires the existing explicit named-entity/labeled-field
-grammar, contiguous fields in one Card, exact text and an unambiguous match.
+grammar or an explicit `Option 1: Name | field | field` record, contiguous
+fields in one Card, complete ordered text and an unambiguous match.
 Explicit Action lines support both bare and angle-wrapped destinations. Source
 links require their own labeled source occurrence; sharing a URL does not let a
 button satisfy a citation, or let one occurrence satisfy multiple requirements.
@@ -83,6 +96,48 @@ Uncertain or unsupported representations remain held for review. Formula
 normalization is formatting-only, with mathematical symbols and value changes
 still checked. Android unit tests cover the supported Formula rendering changes;
 these tests do not replace device rendering or model/training evaluation.
+
+The ten-sample follow-up adds narrowly certified layout transformations:
+
+- Adjacent Text fragments can form a whole source sentence only under the
+  same rendered parent occurrence. Approximation marks, blanks and all other
+  non-whitespace characters must survive; duplicate occurrences remain counted.
+- A plain pipe table header is credited only with a complete matching source
+  run and all ordered headers, cells and rows. Arbitrary pipe expressions do
+  not become tables.
+- A source equation in a Formula can retain generic-content ownership only
+  when its entire visible field group matches that source equation. Supported
+  spelling normalization preserves words, units, operands, signs and structure;
+  Indian numeric grouping is retained.
+- Each exact heading occurrence has one owner, including for numeric counts.
+  Missing, changed or duplicated headings remain failures.
+- Unsupported Formula commands such as `\mathord` and `\sim`, and unbalanced
+  groups, make pilot renderer evidence incomplete. They are not stripped.
+
+These projections apply only under `pilot_fidelity_v2`. Existing entity
+certificates retain their own occurrence indexing; uncertain overlaps,
+paraphrases and unsupported layouts stay held. No score threshold changes,
+general fuzzy matching, or post-hoc acceptance override were added.
+
+For the completed ten-sample ChatGPT pilot, the read-only Windows command is:
+
+```powershell
+python dataset/scripts/rescore_openai_stage3_pilot.py `
+  --pilot-dir C:/Users/anupk/Downloads/genui_chatgpt_sol_10_parallel4_20261101_r1 `
+  --output-dir C:/Users/anupk/Downloads/genui_chatgpt_sol_10_parallel4_20261101_r1_rescore_fixes
+```
+
+Choose a fresh sibling output name if that directory already exists. This
+produces reports only; generation and training admission remain separate.
+
+The November 1 ten-sample offline check accepted 6/10 versus 1/10 in the sealed
+collection. Samples 1, 2, 3, 4, 7 and 9 pass. Samples 5 and 6 remain held for
+uncertified paraphrasing/structure changes; sample 8 contains unsupported Formula
+commands; sample 10 is the source quarantine above. The original labels for the
+same sources pass 4/10 under the current pilot policy. All 90 archive files,
+including the 48 files in the original collection seal, stayed unchanged.
+This corrects evaluator mismatches, not newly generated model quality. No
+samples were regenerated or added to training, and no device test was run.
 
 ## Future preparation (offline only)
 

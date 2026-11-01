@@ -60,8 +60,14 @@ def _tokens(value: Any) -> str:
 
 def _tokens_v2(value: Any) -> str:
     """Pilot literal view also preserves semantic operators ignored by prose."""
-    text = _plain(value).casefold().replace(">=", "≥").replace("<=", "≤").replace("!=", "≠")
-    return " ".join(re.findall(r"[+\-]?\d+(?:[.,:/\-]\d+)*|\w+|[<>≤≥≠=+%$€£¥₹°|≈×÷∑^_*]", text))
+    text = unicodedata.normalize("NFKC", str(value)).replace("−", "-")
+    # Strip actual Markdown bold wrappers, not literal form blanks/scripts.
+    text = re.sub(r"(?<![\w_])__([^_\s](?:.*?[^_\s])?)__(?!_)", r"\1", text.replace("**", ""))
+    text = _PREFIX.sub("", text)
+    text = _REFERENCES.sub(" ", text)
+    text = _GROUPED_NUMBER.sub(lambda match: match[0].replace(",", ""), text)
+    text = text.casefold().replace(">=", "≥").replace("<=", "≤").replace("!=", "≠")
+    return " ".join(re.findall(r"[+\-]?\d+(?:[.,:/\-]\d+)*|\w+|[<>≤≥≠=+%$€£¥₹°|~≈×÷∑^_*]", text))
 
 
 def _numbers(value: Any) -> set[str]:

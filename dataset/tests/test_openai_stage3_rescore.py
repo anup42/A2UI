@@ -81,6 +81,113 @@ def seal(root):
     save(root / "collection.json", {"batch_id": "batch-1", "contract_sha256": digest(contract), "files": files})
 
 
+def chatgpt_archive(root):
+    from pipeline import chatgpt_stage3
+    contract = checked(root / "contract.json")
+    contract["config"]["transport"] = "chatgpt"
+    save(root / "contract.json", contract)
+    identity = digest(contract)
+    request = rescore._rows(root / "requests.jsonl")[0]
+    identifier = request["custom_id"]
+    target = rescore._rows(root / "v-1/stage3/genui.jsonl")[0]["genui_raw_completion"]
+    record_path = root / "chatgpt_records" / (identifier + ".json")
+    record_path.parent.mkdir()
+    save(record_path, {"custom_id": identifier, "contract_sha256": identity,
+        "request_sha256": digest(request), "transport": "chatgpt", "status": "completed",
+        "model": contract["config"]["model"], "thread_id": "thread-1", "turn_id": "turn-1", "text": target})
+    save(root / "generation.json", {"version": chatgpt_stage3.VERSION, "contract_sha256": identity,
+        "status": "validated", "client_version": "historical-runtime",
+        "attempts": {identifier: {"status": "completed", "record_sha256": file_hash(record_path)}}})
+    write(root, "report.json", {"contract_sha256": identity, "stage3_artifacts": "v-1/stage3"})
+    chatgpt_seal(root)
+    return identifier, record_path
+
+
+def chatgpt_seal(root):
+    from pipeline import chatgpt_stage3
+    contract = checked(root / "contract.json")
+    files = {p.relative_to(root).as_posix(): file_hash(p) for p in root.rglob("*")
+             if p.is_file() and p.name not in {"contract.json", "submission.json", "collection.json",
+                                              "chatgpt_collection.json"}
+             and p.relative_to(root).as_posix() not in contract["files"]}
+    save(root / "chatgpt_collection.json", {"version": chatgpt_stage3.VERSION,
+        "contract_sha256": digest(contract), "files": files})
+
+
+def test_chatgpt_rescore_is_offline_and_preserves_all_sealed_bytes(archive, monkeypatch):
+    from pipeline import chatgpt_stage3
+    root, calls = archive
+    chatgpt_archive(root)
+    monkeypatch.setattr(chatgpt_stage3, "load", lambda *a: pytest.fail("No live fingerprint/load"))
+    monkeypatch.setattr(chatgpt_stage3, "run", lambda *a: pytest.fail("No generation"))
+    monkeypatch.setattr(chatgpt_stage3, "collect", lambda *a: pytest.fail("No replay"))
+    before = rescore._snapshot(root)
+    summary = rescore.rescore(root, root.with_name("rescored"))
+    assert summary["transport"] == "chatgpt" and summary["batch_id"] is None
+    assert summary["overall"]["canonical_valid_candidates"] == summary["overall"]["v2_accepted"] == 1
+    assert len(calls) == 3 and rescore._snapshot(root) == before
+
+
+@pytest.mark.parametrize("change", [
+    {"request_sha256": "f" * 64}, {"contract_sha256": "f" * 64},
+    {"model": "wrong-model"}, {"thread_id": None}, {"custom_id": "other"},
+    {"status": "unknown"}, {"status": "skipped"},
+])
+def test_resealed_chatgpt_binding_or_status_mutations_fail(archive, change):
+    root, calls = archive
+    identifier, path = chatgpt_archive(root)
+    record = checked(path)
+    save(path, {**record, **change})
+    state = checked(root / "generation.json")
+    state["attempts"][identifier]["record_sha256"] = file_hash(path)
+    save(root / "generation.json", state)
+    chatgpt_seal(root)
+    with pytest.raises(ValueError):
+        rescore.rescore(root, root.with_name("rescored"))
+    assert not calls
+
+
+@pytest.mark.parametrize("mutation", ["missing_attempt", "no_hash", "unsealed_record", "unsealed_state", "tampered_record"])
+def test_chatgpt_missing_or_unsealed_evidence_fails_before_scoring(archive, mutation):
+    root, calls = archive
+    identifier, path = chatgpt_archive(root)
+    state = checked(root / "generation.json")
+    if mutation == "missing_attempt":
+        state["attempts"] = {}
+    if mutation == "no_hash":
+        state["attempts"][identifier].pop("record_sha256")
+    save(root / "generation.json", state)
+    chatgpt_seal(root)
+    receipt = checked(root / "chatgpt_collection.json")
+    if mutation == "unsealed_record":
+        receipt["files"].pop(path.relative_to(root).as_posix())
+    if mutation == "unsealed_state":
+        receipt["files"].pop("generation.json")
+    save(root / "chatgpt_collection.json", receipt)
+    if mutation == "tampered_record":
+        path.write_text("{}", encoding="utf-8")
+    with pytest.raises(ValueError):
+        rescore.rescore(root, root.with_name("rescored"))
+    assert not calls
+
+
+def test_chatgpt_raw_output_cannot_be_replaced_by_canonical_target(archive):
+    root, _ = archive
+    identifier, path = chatgpt_archive(root)
+    record = checked(path)
+    record["text"] = '<a2ui>root=Text("Meeting at 12:00.")</a2ui>'
+    save(path, record)
+    state = checked(root / "generation.json")
+    state["attempts"][identifier]["record_sha256"] = file_hash(path)
+    save(root / "generation.json", state)
+    chatgpt_seal(root)
+    output = root.with_name("rescored")
+    summary = rescore.rescore(root, output)
+    assert summary["overall"]["v2_accepted"] == 0
+    assert rescore._rows(output / "assessments.jsonl")[0]["v2"]["reasons"] == [
+        "canonical_candidate_paid_output_mismatch"]
+
+
 def test_rescore_preserves_archive_and_recomputes_old_quality(archive):
     root, calls = archive
     before = rescore._snapshot(root)

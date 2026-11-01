@@ -38,3 +38,23 @@ Formula.result or LaTeX text commands. Keep formulas short enough to read;
 do not truncate the source equation to achieve that. Do not invent calculations,
 conclusions, defaults, benefits or facts, and do not silently correct source
 arithmetic or contradictions. Source-quality holds are handled separately.
+
+For pipe-separated option records, keep the full option name in Card.title
+and every original field in source order in separate Text children. Preserve
+the field's complete wording; do not shorten, paraphrase or infer labels.
+A plain pipe table (even without Markdown separator dashes) must retain every
+column header and complete row, in source order, including units and notes.
+Keep a sentence together unless its adjacent Text fragments retain exactly
+the original wording and punctuation under the same parent. Do not merge
+fields from different entities or repeat numeric headings as body text.
+
+Use only renderer-supported formula syntax: literal math characters,
+\frac, \text, \mathrm, \left, \right, \times, \cdot, \div, \sqrt,
+\alpha, \beta, \gamma, \delta, \Delta, \theta, \lambda, \mu, \pi,
+\sigma, \Sigma, \sum, \rightarrow, \leq, \geq, \neq, \approx, \infty.
+For an approximate value preserve a literal "~" or "≈" as supplied; never
+wrap it in \mathord, \sim, \operatorname, or another unsupported macro.
+Do not change "=" into "≈", drop a qualifier, simplify a fraction, or calculate
+a replacement result. Preserve Indian digit grouping (e.g. 17,20,000).
+For an ordinary equation embedded in prose, keep its full source label and
+all operands and units together; use Text when exact literal math suffices.
