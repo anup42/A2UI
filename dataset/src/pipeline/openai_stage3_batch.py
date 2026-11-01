@@ -9,6 +9,7 @@ from copy import deepcopy
 from pathlib import Path
 
 from pipeline import openai_stage3_batch_runner as runner
+from pipeline import openai_stage3_fidelity_v2 as fidelity_v2
 from pipeline import openai_stage3_selection as selection
 from pipeline import v11_regeneration as existing
 from pipeline import v11_regeneration_guard as guard
@@ -67,7 +68,9 @@ def query_for(row: dict) -> dict:
     return {"query_text": (row.get("metadata") or {}).get("query_text", "Render the supplied response faithfully.")}
 
 
-def select(source: SplitInput, samples: int, seed: int, selection_profile="random") -> tuple[list[dict], dict, dict]:
+def select(source: SplitInput, samples: int, seed: int, selection_profile="random", pilot_profile="legacy") -> tuple[list[dict], dict, dict]:
+    fidelity_v2.profile({"pilot_profile": pilot_profile})
+    pilot_holds = fidelity_v2._holds() if pilot_profile == fidelity_v2.PROFILE else None
     if selection_profile not in {"random", selection.PROFILE}:
         raise ValueError("Unknown selection profile")
     sampler = None
@@ -90,6 +93,16 @@ def select(source: SplitInput, samples: int, seed: int, selection_profile="rando
         ids.add(row_id)
         if (row.get("metadata") or {}).get("assigned_split", "train") != "train":
             raise ValueError("Training input contains a non-training split")
+        # Profile-only reference/known-source screening precedes restoration,
+        # sampling and all request capture. An unresolved selected source never
+        # reaches a paid request, and a bad donor cannot abort unrelated rows.
+        if pilot_profile == fidelity_v2.PROFILE:
+            source_preflight = fidelity_v2.assess_source(row, catalog=pilot_holds)
+            if not source_preflight["eligible"]:
+                counts["pilot_source_preflight_excluded"] += 1
+                for reason in source_preflight["reasons"]:
+                    counts["pilot_source_preflight:" + reason.split(":", 1)[0]] += 1
+                continue
         aliases, hashes = source_aliases(row), source_hashes(row)
         if aliases & excluded_ids or hashes & excluded_sources:
             counts["heldout_overlap_excluded"] += 1
@@ -194,9 +207,11 @@ def estimate(requests: list[dict], config: dict) -> dict:
 
 def prepare(input_dir: Path, output_dir: Path, *, samples=1000, seed=123,
             model="gpt-6.1-sol", reasoning_effort="medium", max_output_tokens=8192,
-            cache_ttl=runner.DEFAULT_CACHE_TTL, selection_profile="random", reasoning_summary="none") -> dict:
+            cache_ttl=runner.DEFAULT_CACHE_TTL, selection_profile="random", reasoning_summary="none",
+            pilot_profile="legacy") -> dict:
     from pipeline.genui_quality.validation_v5_4 import ensure_v5_4_validation_ready
 
+    fidelity_v2.profile({"pilot_profile": pilot_profile})
     if not 1 <= samples <= 1000 or seed < 0 or not 1024 <= max_output_tokens <= 32768:
         raise ValueError("Pilot requires 1..1000 samples, nonnegative seed and 1024..32768 output tokens")
     if model not in PRICES or reasoning_effort not in {"low", "medium", "high"}:
@@ -218,7 +233,8 @@ def prepare(input_dir: Path, output_dir: Path, *, samples=1000, seed=123,
     ensure_v5_4_validation_ready()
     probe = guard.assess_candidate(
         {"id": "openai-stage3-local-evaluator-probe", "response_text": "Meeting at 11:00."},
-        '<a2ui>root=Text("Meeting at 11:00.")</a2ui>')
+        '<a2ui>root=Text("Meeting at 11:00.")</a2ui>',
+        **({"pilot_fidelity_v2": True} if pilot_profile == fidelity_v2.PROFILE else {}))
     if probe.get("eligible") is not True:
         raise ValueError(f"Canonical evaluator preflight failed: {probe.get('reasons')}")
     config = {"model": model, "reasoning_effort": reasoning_effort,
@@ -227,8 +243,10 @@ def prepare(input_dir: Path, output_dir: Path, *, samples=1000, seed=123,
         config["selection_profile"] = selection_profile
     if reasoning_summary != "none":
         config["reasoning_summary"] = reasoning_summary
+    if pilot_profile != "legacy":
+        config["pilot_profile"] = pilot_profile
     code_hashes = fingerprint()
-    selected, counts, benchmark_files = select(source, samples, seed, selection_profile)
+    selected, counts, benchmark_files = select(source, samples, seed, selection_profile, pilot_profile)
     selection_report = counts.pop("selection_report", None)
     output.mkdir(parents=True, exist_ok=False)
     if selection_report is not None:
@@ -269,6 +287,7 @@ def prepare(input_dir: Path, output_dir: Path, *, samples=1000, seed=123,
 
 def load(output: Path) -> dict:
     contract = checked(output / "contract.json")
+    fidelity_v2.profile(contract["config"])
     if contract["version"] != VERSION or contract["code_hashes"] != fingerprint() or contract["guard"] != guard.guard_identity():
         raise ValueError("Bound code/prompt/schema/policy changed; use the original code for this pilot")
     for name, expected in contract["files"].items():
@@ -334,7 +353,10 @@ def validate_results(output: Path, contract: dict, records: list[dict], batch_st
             bound = bind_source_target_references(candidate["response_text"], parsed.graph, candidate)
             target = existing._candidate_target(source_row, {
                 "a2ui_express": express.encode(bound.graph, shorten_ids=False)})
-            assessment.update(guard.assess_candidate(source_row, target))
+            if fidelity_v2.profile(config) == fidelity_v2.PROFILE:
+                assessment.update(guard.assess_candidate(source_row, target, pilot_fidelity_v2=True))
+            else:
+                assessment.update(guard.assess_candidate(source_row, target))
             if assessment["eligible"]:
                 updated = deepcopy(source_row)
                 updated["completion"] = updated["a2ui_express"] = target

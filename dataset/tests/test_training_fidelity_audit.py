@@ -1,8 +1,8 @@
 """Repair-driven source fidelity fixtures; no model calls or target mutation."""
-from copy import deepcopy
 import hashlib
-from pathlib import Path
 import sys
+from copy import deepcopy
+from pathlib import Path
 
 import pytest
 
@@ -101,7 +101,13 @@ def test_table_field_associations_count_and_ignored_table_title_does_not():
 def test_hidden_list_and_email_special_card_title_do_not_gain_credit():
     hidden = graph('root=Column([items])\nitems=List(items=["Hidden source fact"],visible=false)')
     assert audit_training_fidelity("Hidden source fact", hidden)["missing_unit_count"] == 1
-    special = graph('root=Card([subject],title="Lost heading")\nsubject=Text("Subject: Update")')
+    # The native email interception needs >=5 text blocks, a subject and a
+    # greeting/signature. A subject alone follows the ordinary Card route.
+    ordinary = graph('root=Card([subject],title="Lost heading")\nsubject=Text("Subject: Update")')
+    assert audit_training_fidelity("## Lost heading", ordinary)["missing_unit_count"] == 0
+    special = graph('root=Card([subject,to,from,greeting,body],title="Lost heading")\n'
+                    'subject=Text("Subject: Update")\nto=Text("To: Jo")\n'
+                    'from=Text("From: Lee")\ngreeting=Text("Dear Jo,")\nbody=Text("Update attached.")')
     result = audit_training_fidelity("## Lost heading", special)
     assert result["normal_card_label_count"] == 0
     assert result["missing_unit_count"] == 1

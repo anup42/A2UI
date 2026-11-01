@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections import Counter
+from collections import Counter, defaultdict, deque
 from dataclasses import dataclass, replace
 import hashlib
 import inspect
@@ -36,6 +36,7 @@ from .evidence_v5_3 import (
 )
 from .matching_v5_1 import PreparedTextBlock, prepare_text_block
 from .list_evidence_v5_4 import literal_list_evidence, parse_source_links, self_source_cue, source_heading
+from .pilot_source_card_v2 import source_card_link_presence_v2
 
 
 EVIDENCE_POLICY_VERSION = "5.4.2"
@@ -270,6 +271,36 @@ class DynamicEvidenceResolverV54(DynamicEvidenceResolverV53):
 
 
 class _EvidenceInterpreterV54(_EvidenceInterpreterV53):
+    def _text_values(self, element_type: str, props: Mapping[str, Any]) -> list[str]:
+        if getattr(self.config, "pilot_fidelity_v2", False) and element_type == "formula":
+            from .formula_evidence_v2 import normalize_formula_evidence_v2
+
+            # RenderFormula's Elvis chain is null-only, and an empty expression
+            # returns before the title, subtitle or result can render.
+            raw = next((props[key] for key in ("latex", "formula", "text", "value") if props.get(key) is not None), "")
+            formula = normalize_formula_evidence_v2(kotlin_string_v5_4(raw))
+            if not formula:
+                return []
+            return [value for value in (
+                kotlin_string_v5_4(props.get("title")).strip(),
+                kotlin_string_v5_4(props.get("subtitle")).strip(),
+                formula,
+                kotlin_string_v5_4(props.get("result")).strip(),
+            ) if value]
+        if getattr(self.config, "pilot_fidelity_v2", False) and element_type == "alert":
+            # RenderAlert in FlatIntentTemplateComposables.kt:67-148. The
+            # fallback is null-only: an explicitly blank message hides text.
+            # Metadata is one rendered Text block; unknown/unused props never
+            # gain credit. Parent collection retains visibility, bindings,
+            # repeat scopes, ownership and evidence-budget enforcement.
+            def display(key: str) -> str:
+                return kotlin_string_v5_4(props.get(key)).strip()
+
+            message_key = "message" if props.get("message") is not None else "text"
+            metadata = " • ".join(value for value in (display("timestamp"), display("source")) if value)
+            return [value for value in (display("title"), display(message_key), metadata) if value]
+        return super()._text_values(element_type, props)
+
     def __init__(
         self,
         spec: Mapping[str, Any],
@@ -290,10 +321,12 @@ class _EvidenceInterpreterV54(_EvidenceInterpreterV53):
         self._card_headers: dict[str, tuple[str, ...]] = {}
         self._card_header_children: dict[str, tuple[str, ...]] = {}
         self._source_cards: set[str] = set()
+        self._pilot_render_stack: list[dict[str, Any]] = []
 
     def _card_headers_may_be_intercepted(
         self, children: tuple[str, ...], *, item: Any,
         index: int | None, base_path: str | None,
+        source_card: bool = False,
     ) -> bool:
         """Conservative header gate for Android's early-return Card routes.
 
@@ -304,9 +337,12 @@ class _EvidenceInterpreterV54(_EvidenceInterpreterV53):
         header credit when route resolution is uncertain.
         """
         texts: list[str] = []
-        pending = [(child, (), True) for child in reversed(children)]
+        pilot = bool(getattr(self.config, "pilot_fidelity_v2", False))
+        source_links_proven = False
+        source_links_possible = False
+        pending = [(child, (), True, True) for child in reversed(children)]
         while pending:
-            child_id, ancestors, direct = pending.pop()
+            child_id, ancestors, direct, source_owned = pending.pop()
             if not self._consume_work(f"card_header_route.{child_id}"):
                 return True
             child = self.elements.get(child_id)
@@ -322,11 +358,15 @@ class _EvidenceInterpreterV54(_EvidenceInterpreterV53):
                 return True
             token = str(child.get("type") or "").casefold()
             if direct and self_source_cue(child_id, props):
-                return True
+                if not pilot:
+                    return True
+                source_card = True
             if direct and token == "table":
                 table = effective_table(props, self.state)
                 if any(self_source_cue("table", {"title": column.label}) for column in table.columns):
-                    return True
+                    if not pilot:
+                        return True
+                    source_card = True
             if token == "text":
                 values = [
                     kotlin_string_v5_4(props[key]).strip()
@@ -335,14 +375,34 @@ class _EvidenceInterpreterV54(_EvidenceInterpreterV53):
                 ]
                 value = next((value for value in values if value), "")
                 if direct and any(source_heading(line) for line in value.splitlines()):
-                    return True
+                    if not pilot:
+                        return True
+                    source_card = True
                 if value:
                     texts.append(value)
+            if pilot and source_owned:
+                on = self.resolver.resolve(
+                    child.get("on") or {}, item=item, index=index, base_path=base_path,
+                    path=f"card_header_route.{child_id}.on",
+                ) if token == "button" else {}
+                proven, possible = source_card_link_presence_v2(token, props, on)
+                source_links_proven |= proven
+                source_links_possible |= possible
+            nested_children = child.get("children") or []
+            if pilot and not nested_children and isinstance(props.get("child"), str):
+                nested_children = [props["child"]]
             pending.extend(
-                (child_id_next, (*ancestors, child_id), False)
-                for child_id_next in reversed(child.get("children") or [])
+                (child_id_next, (*ancestors, child_id), False,
+                 source_owned and token not in {"text", "button", "table"})
+                for child_id_next in reversed(nested_children)
                 if isinstance(child_id_next, str)
             )
+        if pilot and source_card:
+            if source_links_proven:
+                return True
+            if source_links_possible:
+                self.resolver._unknown("pilot_source_card_interception_unproven")
+                return True
         return (
             len(texts) >= 5
             and any(
@@ -369,6 +429,19 @@ class _EvidenceInterpreterV54(_EvidenceInterpreterV53):
         is_card = isinstance(raw, Mapping) and str(raw.get("type") or "").casefold() == "card"
         start_visible = len(self.visible_blocks)
         start_owned = len(self.block_ownership)
+        pilot = bool(getattr(self.config, "pilot_fidelity_v2", False))
+        prior_source_nodes = set(self.source_section_nodes) if pilot and is_card else None
+        if pilot:
+            if self._pilot_render_stack:
+                parent_scope = self._pilot_render_stack[-1]
+                scope = (index, base_path)
+                if parent_scope.get("repeat_scope") != scope:
+                    parent_scope["source_heading"] = False
+                    parent_scope["repeat_scope"] = scope
+            self._pilot_render_stack.append({
+                "kind": str(raw.get("type") or "").casefold() if isinstance(raw, Mapping) else "",
+                "source_heading": False,
+            })
         if is_card:
             instance = f"card:{self._next_card_instance}:{element_id}"
             self._next_card_instance += 1
@@ -385,9 +458,10 @@ class _EvidenceInterpreterV54(_EvidenceInterpreterV53):
             # Android's source-link/email Card routes return before ordinary
             # declared headers. Never credit text hidden by those routes.
             intercepted = headers and (
-                instance in self._source_cards
+                (not pilot and instance in self._source_cards)
                 or self._card_headers_may_be_intercepted(
                     children, item=item, index=index, base_path=base_path,
+                    source_card=instance in self._source_cards,
                 )
             )
             if headers and not intercepted:
@@ -408,6 +482,10 @@ class _EvidenceInterpreterV54(_EvidenceInterpreterV53):
                     self.truncated = True
                     self.resolver._unknown("dynamic_evidence_byte_budget")
         finally:
+            if prior_source_nodes is not None:
+                self.source_section_nodes = prior_source_nodes
+            if pilot:
+                self._pilot_render_stack.pop()
             if is_card:
                 self._card_instances.pop()
                 self._source_cards.discard(instance)
@@ -428,9 +506,25 @@ class _EvidenceInterpreterV54(_EvidenceInterpreterV53):
             "action_taxonomy": len(self.action_taxonomy),
             "media_taxonomy": len(self.media_taxonomy),
             "chart_roles": len(self.role_instances.get("chart", ())),
+            "formula_roles": len(self.role_instances.get("formula", ())),
         }
         super()._collect_element(element_id, element, props)
         token = str(element.get("type") or "").casefold().replace("_", "")
+        if getattr(self.config, "pilot_fidelity_v2", False) and token == "text" and len(self._pilot_render_stack) >= 2:
+            # Ordinary List has no native source interception. Its semantic
+            # source role requires a preceding visible sibling source heading,
+            # never an invisible component ID or unused List.title property.
+            parent_scope = self._pilot_render_stack[-2]
+            if parent_scope["kind"] in {"stack", "column", "row"}:
+                blocks = self.visible_blocks[before["visible"] :]
+                parent_scope["source_heading"] = bool(blocks and source_heading(blocks[0]))
+        if token == "formula" and getattr(self.config, "pilot_fidelity_v2", False) and len(self.visible_blocks) == before["visible"]:
+            del self.role_instances.get("formula", [])[before["formula_roles"] :]
+        if token == "alert" and getattr(self.config, "pilot_fidelity_v2", False):
+            title = kotlin_string_v5_4(props.get("title")).strip()
+            if title:
+                self.headings.append(title)
+                self.heading_variants.append("heading")
         if token == "card" and self._card_instances:
             self._card_headers[self._card_instances[-1]] = tuple(
                 kotlin_string_v5_4(props[key]).strip()
@@ -443,6 +537,8 @@ class _EvidenceInterpreterV54(_EvidenceInterpreterV53):
             )
         children = element.get("children") or []
         if token in {"stack", "column", "row", "card"} and (
+            not getattr(self.config, "pilot_fidelity_v2", False) or token == "card"
+        ) and (
             self_source_cue(element_id, props)
             or (token == "card" and any(
                 self_source_cue(str(child), self.elements.get(child, {}).get("props", {}))
@@ -462,20 +558,40 @@ class _EvidenceInterpreterV54(_EvidenceInterpreterV53):
                 if isinstance(nested, Mapping):
                     pending.extend(nested.get("children") or [])
         source_context = element_id in self.source_section_nodes
+        source_role_context = source_context or (
+            getattr(self.config, "pilot_fidelity_v2", False) and token == "list"
+            and len(self._pilot_render_stack) >= 2
+            and self._pilot_render_stack[-2].get("source_heading") is True
+        )
         if token == "list":
-            blocks, links = literal_list_evidence(props.get("items"), source_context=source_context)
+            pilot_list = bool(getattr(self.config, "pilot_fidelity_v2", False))
+            if pilot_list and source_context and isinstance(props.get("items"), list):
+                for position, entry in enumerate(props["items"]):
+                    if not isinstance(entry, Mapping):
+                        continue
+                    targets = {entry[key].strip() for key in ("url", "href", "link", "source")
+                               if isinstance(entry.get(key), str) and entry[key].strip()}
+                    if len(targets) > 1:
+                        # Native picks the first URL passing its public-host
+                        # sanitizer, which this collector does not certify.
+                        # Retain legacy evidence and block completeness rather
+                        # than hide a later, potentially rendered destination.
+                        self.resolver._unknown(f"pilot_source_link_destination_ambiguity:{element_id}[{position}]")
+                        pilot_list = False
+            blocks, links = literal_list_evidence(props.get("items"), source_context=source_context, pilot_fidelity_v2=pilot_list)
             # Parent interpreters do not own literal List.items. Add only
             # renderer-supported fields; never serialize arbitrary state/maps.
             for block in blocks:
                 self.visible_blocks.append(block)
-                self.block_ownership.append({"component_id": element_id, "owner": "source_action" if source_context and links else "generic_visible_content", "text": block})
+                source_label = source_role_context and any(block == label for label, _ in links)
+                self.block_ownership.append({"component_id": element_id, "owner": "source_action" if (source_context and links) or source_label else "generic_visible_content", "text": block})
         elif token == "text" and source_context:
             blocks = [str(next((props[key] for key in ("text", "title", "label", "content", "value") if props.get(key) is not None), ""))]
-            links = [link for block in blocks for link in parse_source_links(block)]
+            links = [link for block in blocks for link in parse_source_links(block, pilot_fidelity_v2=getattr(self.config, "pilot_fidelity_v2", False))]
         else:
             links = []
         for index, (label, target) in enumerate(links):
-            action = _core.OutputAction(f"{element_id}[{index}]", label, target, "source_link" if source_context else "list.item", "openUrl")
+            action = _core.OutputAction(f"{element_id}[{index}]", label, target, "source_link" if source_role_context else "list.item", "openUrl")
             self.actions.append(action)
             self.action_taxonomy.append({"component_id": action.element_id, "action_type": "openUrl", "target": target, "category": "external_semantic"})
         semantic_owner = {
@@ -665,8 +781,51 @@ class _EvidenceInterpreterV54(_EvidenceInterpreterV53):
                 }
             )
 
-        for row in self.block_ownership[before["ownership"] :]:
+        if getattr(self.config, "pilot_fidelity_v2", False):
+            # Legacy collection canonicalizes URLs and drops fragments. Bind
+            # each actual occurrence back to its already-resolved event/row;
+            # do not inspect hidden props or unrelated state for a replacement.
+            raw_events = defaultdict(deque)
+            on = element.get("on")
+            if isinstance(on, Mapping):
+                for event, payload in on.items():
+                    for raw_action in _core._iter_action_candidates(payload):
+                        action_type = str(raw_action.get("action") or "")
+                        params = raw_action.get("params")
+                        if action_type == "openUrl" and isinstance(params, Mapping):
+                            raw_events[(f"on.{event}", action_type)].append(
+                                params.get("url") or params.get("href") or params.get("link") or params.get("targetUrl"))
+            for action in self.actions[before["actions"] :]:
+                if action.action_type != "openUrl":
+                    continue
+                target = None
+                if action.source.startswith("on."):
+                    pending = raw_events[(action.source, action.action_type)]
+                    target = pending.popleft() if pending else None
+                elif action.source.startswith("row.") and token in {"table", "chart"}:
+                    try:
+                        position = int(action.element_id.rsplit("[", 1)[1].rstrip("]"))
+                        target = structured.rows[position].get(action.source.split(".", 1)[1]) if structured is not None else None
+                    except (ValueError, IndexError):
+                        target = None
+                elif action.source in {"source_link", "list.item"}:
+                    target = action.url
+                if isinstance(target, str) and target.strip():
+                    action.url = target.strip()
+                else:
+                    self.resolver._unknown(f"pilot_action_raw_target_unproven:{action.element_id}:{action.source}")
+            for offset, taxonomy in enumerate(self.action_taxonomy[before["action_taxonomy"] :]):
+                action_index = before["actions"] + offset
+                if action_index < len(self.actions):
+                    taxonomy["target"] = self.actions[action_index].url
+
+        for row_index, row in enumerate(self.block_ownership[before["ownership"] :]):
             row["component_type"] = token
+            if getattr(self.config, "pilot_fidelity_v2", False) and row_index == 0:
+                text_heading = token == "text" and str(props.get("variant") or "").casefold() in {"h1", "h2", "h3", "h4", "title", "heading"}
+                alert_heading = token == "alert" and bool(kotlin_string_v5_4(props.get("title")).strip())
+                if text_heading or alert_heading:
+                    row["rendered_heading"] = True
             if self._card_instances:
                 row["card_instance"] = self._card_instances[-1]
                 row["card_ancestors"] = tuple(self._card_instances)

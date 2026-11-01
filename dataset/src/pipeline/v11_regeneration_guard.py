@@ -21,6 +21,7 @@ from pipeline.genui_quality.evidence_v5_4 import collect_output_evidence_v5_4
 from pipeline.genui_quality.graph import audit_renderer_graph
 from pipeline.training_fidelity import (
     _tokens,
+    _tokens_v2,
     audit_training_fidelity,
     bounded_fidelity_config,
 )
@@ -144,7 +145,8 @@ def _reference_context(row: Mapping[str, Any]) -> dict[str, Any]:
     return result
 
 
-def _unsupported_prose(source: str, graph: Mapping[str, Any]) -> dict[str, Any]:
+def _unsupported_prose(source: str, graph: Mapping[str, Any], *,
+                       pilot_fidelity_v2: bool = False) -> dict[str, Any]:
     """Reject added visible prose using ordered source spans, never token bags.
 
 This supplements, rather than replaces, canonical role/table/action validation
@@ -153,18 +155,36 @@ support. Multi-line source prose may be joined, but its token order cannot be
 changed to manufacture a claim that did not occur in the source.
 """
     config = bounded_fidelity_config(source, graph)
+    if pilot_fidelity_v2:
+        config = replace(config, pilot_fidelity_v2=True, grpo_entity_extraction=True)
     evidence = collect_output_evidence_v5_4(graph, audit_renderer_graph(graph), config)
-    source_sequence = " " + _tokens(source) + " "
+    tokenize = _tokens_v2 if pilot_fidelity_v2 else _tokens
+    source_sequence = " " + tokenize(source) + " "
+    formula_source = None
+    if pilot_fidelity_v2:
+        from pipeline.genui_quality.formula_evidence_v2 import (
+            normalize_formula_evidence_v2,
+        )
+
+        # Unlike prose tokenization, math evidence retains every operator,
+        # script marker and grouping character. Formatting commands are only
+        # normalized using the renderer-supported, non-algebraic spellings.
+        def formula_tokens(value):
+            return " ".join(re.findall(r"\w+|[^\w\s]", normalize_formula_evidence_v2(value)))
+
+        formula_source = " " + formula_tokens(source) + " "
     unsupported = []
     for item in evidence.evidence_ownership:
-        if item.get("owner") != "generic_visible_content":
+        owner = item.get("owner")
+        if owner != "generic_visible_content" and not (pilot_fidelity_v2 and owner == "source_formula"):
             continue
         raw = str(item.get("text") or "")
         # Each literal line/bullet is an independently visible claim. Splitting
         # on a semicolon is intentionally avoided: it can hide qualifier loss.
         for line in raw.splitlines():
-            normalized = _tokens(line)
-            if normalized and " " + normalized + " " not in source_sequence:
+            normalized = formula_tokens(line) if owner == "source_formula" else tokenize(line)
+            supported_source = formula_source if owner == "source_formula" else source_sequence
+            if normalized and " " + normalized + " " not in supported_source:
                 unsupported.append({"component_id": item.get("component_id"), "text": line})
     return {"complete": evidence.dynamic_evidence_complete,
             "unsupported_count": len(unsupported), "unsupported_examples": unsupported[:16]}
@@ -199,14 +219,26 @@ training-acceptance override is permitted, including when examples truncate.
     return reasons, covered
 
 
-def assess_candidate(row: Mapping[str, Any], target: str | Mapping[str, Any]) -> dict[str, Any]:
+def assess_candidate(row: Mapping[str, Any], target: str | Mapping[str, Any], *,
+                     pilot_fidelity_v2: bool = False) -> dict[str, Any]:
     """Require *all* existing gates plus strict regeneration-only safeguards."""
+    if type(pilot_fidelity_v2) is not bool:
+        raise ValueError("pilot_fidelity_v2 must be a boolean")
     source_report = assess_source(row)
     report: dict[str, Any] = {"policy_version": POLICY_VERSION, "eligible": False,
                               "status": "rejected", "reasons": list(source_report["reasons"]),
                               "source": source_report}
     if not source_report["eligible"]:
         return report
+    if pilot_fidelity_v2:
+        from pipeline.openai_stage3_fidelity_v2 import (
+            assess_source as assess_pilot_source,
+        )
+        report["pilot_source"] = assess_pilot_source(row)
+        report["pilot_profile"] = "fidelity_v2"
+        if not report["pilot_source"]["eligible"]:
+            report["reasons"].extend(report["pilot_source"]["reasons"])
+            return report
     source = source_text(row)
     PreparationError, serialize_checked, bind_references, reviewed_hold = _training_imports()
     from pipeline.genui_quality.grpo_entity_content import (
@@ -238,6 +270,8 @@ def assess_candidate(row: Mapping[str, Any], target: str | Mapping[str, Any]) ->
     # not a post-hoc override of a failed default acceptance result.
     config = bounded_fidelity_config(bound.source, bound.graph, replace(
         coerce_reward_config_v5_4(None), grpo_entity_extraction=True))
+    if pilot_fidelity_v2:
+        config = replace(config, pilot_fidelity_v2=True)
     scoring_text = express.encode(bound.graph, shorten_ids=False)
     reward = generation_reward_a2ui_express_v1(scoring_text, bound.source, config=config)
     admission = reward.evidence.get("training_acceptance")
@@ -245,18 +279,35 @@ def assess_candidate(row: Mapping[str, Any], target: str | Mapping[str, Any]) ->
     report["canonical_policy"] = {"scorer": "generation_reward_a2ui_express_v1",
                                   "grpo_entity_extraction": True,
                                   "thresholds": "unchanged"}
+    if pilot_fidelity_v2:
+        report["canonical_policy"]["pilot_fidelity_v2"] = True
+        report["score_v5_4"] = reward.quality_0_100
     if (not isinstance(admission, Mapping) or admission.get("eligible") is not True
             or admission.get("blocking_reasons") != [] or admission.get("review_reasons") != []):
         report["reasons"].append("canonical_training_ineligible")
     # Reuse only this freshly scored certificate, never row-supplied evidence.
     ownership = summarize_grpo_entity_detail(reward.evidence.get("grpo_entity_extraction"))
     report["entity_ownership"] = ownership
-    fidelity = audit_training_fidelity(bound.source, bound.graph)
+    fidelity = (audit_training_fidelity(bound.source, bound.graph, pilot_fidelity_v2=True)
+                if pilot_fidelity_v2 else audit_training_fidelity(bound.source, bound.graph))
     report["fidelity"] = fidelity
     fidelity_reasons, covered = _fidelity_reasons(fidelity, ownership)
     report["literal_missing_units_certified_by_entity_ownership"] = covered
+    if pilot_fidelity_v2:
+        # Only fresh canonical, whole-field certificates can resolve layout
+        # separators. Raw observations and all canonical gates still apply.
+        grouping = reward.evidence.get("content_assignment", {}).get("card_field_grouping", {})
+        certified = {_tokens_v2(item["source_text"]) for item in grouping.get("pilot_exact_pipe_card_fields", ())}
+        missing = fidelity.get("missing_units", ())
+        field_covered = [unit["unit_id"] for unit in missing if _tokens_v2(unit["text"]) in certified]
+        report["literal_missing_units_certified_by_pilot_fields"] = field_covered
+        if ("source_literal_not_exactly_represented" in fidelity_reasons
+                and not fidelity.get("missing_unit_examples_truncated")
+                and len(field_covered) == fidelity.get("missing_unit_count") == len(missing)):
+            fidelity_reasons.remove("source_literal_not_exactly_represented")
     report["reasons"].extend("fidelity:" + reason for reason in fidelity_reasons)
-    prose = _unsupported_prose(bound.source, bound.graph)
+    prose = (_unsupported_prose(bound.source, bound.graph, pilot_fidelity_v2=True)
+             if pilot_fidelity_v2 else _unsupported_prose(bound.source, bound.graph))
     report["visible_prose"] = prose
     if not prose["complete"]:
         report["reasons"].append("renderer_evidence_incomplete")

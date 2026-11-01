@@ -2,14 +2,14 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, fields
 import json
+from collections.abc import Mapping
+from dataclasses import dataclass, fields
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any
 
 from ._core import RewardConfig
 from .config_v5_3 import RewardBreakdownV53, RewardConfigV53
-
 
 REWARD_VERSION_V54 = "5.4.0"
 DEFAULT_CONFIG_PATH_V54 = (
@@ -21,6 +21,8 @@ DEFAULT_CONFIG_PATH_V54 = (
 class RewardConfigV54(RewardConfigV53):
     # Opt-in training objective; canonical SFT/data/evaluation stays unchanged.
     grpo_entity_extraction: bool = False
+    # Reviewed OpenAI pilot only; do not change historical scoring defaults.
+    pilot_fidelity_v2: bool = False
     accessibility_penalty_alpha: float = 0.03
     raw_fence_utility: float = 0.995
     raw_wrapper_utility: float = 0.990
@@ -30,6 +32,8 @@ class RewardConfigV54(RewardConfigV53):
         super().__post_init__()
         if type(self.grpo_entity_extraction) is not bool:
             raise ValueError("grpo_entity_extraction must be a boolean")
+        if type(self.pilot_fidelity_v2) is not bool:
+            raise ValueError("pilot_fidelity_v2 must be a boolean")
         if not 0.0 <= self.accessibility_penalty_alpha <= 0.03:
             raise ValueError("accessibility_penalty_alpha must be in [0, 0.03]")
         for name in (
@@ -66,6 +70,7 @@ class RewardConfigV54(RewardConfigV53):
         )
         payload.update(
             grpo_entity_extraction=policies.get("grpo_entity_extraction", False),
+            pilot_fidelity_v2=policies.get("pilot_fidelity_v2", False),
             accessibility_penalty_alpha=float(
                 policies.get("accessibility_penalty_alpha", 0.03)
             ),

@@ -3,17 +3,18 @@
 from __future__ import annotations
 
 import hashlib
+from collections.abc import Mapping
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any
 
-from ..renderer_semantics import (
-    RENDERER_SEMANTICS_VERSION,
-    renderer_reference_inventory_hash,
-)
 from ..renderer_effective_semantics_v5_4 import (
     COMPONENT_CONTRACT_POLICY_VERSION,
     RENDERER_EFFECTIVE_SEMANTICS_VERSION,
     renderer_effective_semantics_hash,
+)
+from ..renderer_semantics import (
+    RENDERER_SEMANTICS_VERSION,
+    renderer_reference_inventory_hash,
 )
 from .candidate_normalization import DEFAULT_STRICT_SCHEMA_PATH
 from .candidate_normalization_v5_4 import (
@@ -45,11 +46,10 @@ from .source_contract import DEFAULT_SCHEMA_PATH as EXPECTED_SCHEMA_PATH
 from .source_contract_v5_4 import (
     SOURCE_EXTRACTION_BENCHMARK_VERSION,
     V5_4_CONTRACT_VERSION,
-    V5_4_EXTRACTOR_VERSION,
     V5_4_EXTRACTION_POLICY_VERSION,
+    V5_4_EXTRACTOR_VERSION,
     V5_4_MIGRATION_POLICY_VERSION,
 )
-
 
 METRIC_NAME = "GenUI Representation Quality"
 ALGORITHM_VERSION = REWARD_VERSION_V54
@@ -91,6 +91,10 @@ _SCORE_FILES = (
     "candidate_normalization.py",
     "candidate_normalization_v5_4.py",
     "card_content_v5_4.py",
+    "pilot_content_v2.py",
+    "pilot_source_card_v2.py",
+    "pilot_source_contract_v2.py",
+    "formula_evidence_v2.py",
     "grpo_entity_content.py",
     "grpo_entity_formats.py",
     "references_v5_4.py",

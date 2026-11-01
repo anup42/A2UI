@@ -7248,26 +7248,8 @@ internal fun RenderFormulaExpression(
         fontFamily = FontFamily.Monospace,
         fontWeight = FontWeight.SemiBold
     )
-    val hasFraction = segments.any { it is FormulaVisualSegment.FractionSegment }
-    if (!hasFraction) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(scrollState)
-                .padding(horizontal = 16.dp, vertical = 18.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = formulaAnnotatedString(displayFormula),
-                style = formulaTextStyle,
-                color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 1,
-                overflow = TextOverflow.Visible
-            )
-        }
-        return
-    }
-
+    val lines = normalizeFormulaText(displayFormula).lines()
+    val rows = if (lines.size == 1) listOf(segments) else lines.map(::parseFormulaSegments)
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -7275,29 +7257,36 @@ internal fun RenderFormulaExpression(
             .padding(horizontal = 16.dp, vertical = 18.dp),
         contentAlignment = Alignment.Center
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        Column(
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            segments.forEachIndexed { index, segment ->
-                when (segment) {
-                    is FormulaVisualSegment.TextSegment -> {
-                        val nextIsFraction = segments.getOrNull(index + 1) is FormulaVisualSegment.FractionSegment
-                        val text = formulaDisplayTextSegment(segment.value, nextIsFraction)
-                        if (text.isNotBlank()) {
-                            Text(
-                                text = formulaAnnotatedString(text),
-                                style = formulaTextStyle,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                maxLines = 1,
-                                overflow = TextOverflow.Visible
+            rows.forEach { row ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    row.forEachIndexed { index, segment ->
+                        when (segment) {
+                            is FormulaVisualSegment.TextSegment -> {
+                                val nextIsFraction = row.getOrNull(index + 1) is FormulaVisualSegment.FractionSegment
+                                val text = formulaDisplayTextSegment(segment.value, nextIsFraction)
+                                if (text.isNotBlank()) {
+                                    Text(
+                                        text = formulaAnnotatedString(text),
+                                        style = formulaTextStyle,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Visible
+                                    )
+                                }
+                            }
+                            is FormulaVisualSegment.FractionSegment -> FormulaFractionView(
+                                numerator = segment.numerator,
+                                denominator = segment.denominator
                             )
                         }
                     }
-                    is FormulaVisualSegment.FractionSegment -> FormulaFractionView(
-                        numerator = segment.numerator,
-                        denominator = segment.denominator
-                    )
                 }
             }
         }
@@ -7457,18 +7446,63 @@ internal fun normalizeFormulaText(raw: String): String {
             .removePrefix("\\(").removeSuffix("\\)")
             .trim()
     }
-    return value
-        .replace("\\left", "")
-        .replace("\\right", "")
-        .replace("\\times", "×")
-        .replace("\\cdot", "·")
-        .replace("\\div", "÷")
-        .replace("\\%", "%")
+    // The supported aligned environment is displayed as separate equation rows.
+    // Unknown or incomplete environments remain visible instead of being erased.
+    value = normalizeAlignedFormulaRows(value)
+    value = Regex("""\\[A-Za-z]+|\\[ $%,;]""").replace(value) { match ->
+        when (val command = match.value.substring(1)) {
+            "left", "right" -> ""
+            "times" -> "×"
+            "cdot" -> "·"
+            "div" -> "÷"
+            "$", "%" -> command
+            " ", ",", ";" -> " "
+            else -> latexCommandReplacement(command) ?: match.value
+        }
+    }
+    return unwrapFormulaTextGroups(value)
         .replace("–", "-")
         .replace("−", "-")
-        .replace(Regex("""\\text\{([^}]*)\}""")) { match -> match.groupValues[1] }
-        .replace(Regex("""\s+"""), " ")
+        .lines().joinToString("\n") { it.replace(Regex("""[^\S\r\n]+"""), " ").trim() }
         .trim()
+}
+
+private fun normalizeAlignedFormulaRows(value: String): String {
+    if (!value.startsWith("\\begin{aligned}") || !value.endsWith("\\end{aligned}")) return value
+    val body = value.removePrefix("\\begin{aligned}").removeSuffix("\\end{aligned}")
+    if ("\\begin" in body || "\\end" in body) return value
+    return buildString {
+        var depth = 0
+        var index = 0
+        while (index < body.length) {
+            val char = body[index]
+            if (char == '\\' && index + 1 < body.length) {
+                val next = body[index + 1]
+                if (next == '\\' && depth == 0) append('\n') else append(body.substring(index, index + 2))
+                index += 2
+                continue
+            }
+            when (char) {
+                '{' -> depth++
+                '}' -> depth--
+            }
+            append(if (char == '&' && depth == 0) ' ' else char)
+            index++
+        }
+    }
+}
+
+private fun unwrapFormulaTextGroups(text: String): String = buildString {
+    var cursor = 0
+    val commands = Regex("""\\(?:text|mathrm)(?![A-Za-z])\s*""")
+    for (match in commands.findAll(text)) {
+        if (match.range.first < cursor) continue
+        val group = readLatexGroup(text, match.range.last + 1) ?: continue
+        append(text.substring(cursor, match.range.first))
+        append(unwrapFormulaTextGroups(group.value))
+        cursor = group.nextIndex
+    }
+    append(text.substring(cursor))
 }
 
 internal fun plainBracketFractionToLatex(raw: String): String {
@@ -7535,7 +7569,7 @@ internal fun formulaDisplayTextSegment(raw: String, nextIsFraction: Boolean): St
     val text = raw.trim()
     if (!nextIsFraction || text.isBlank()) return text
     val last = text.last()
-    val alreadyOperator = last in setOf('=', '+', '-', '*', '/', '×', '÷', '·', '(')
+    val alreadyOperator = last in setOf('=', '+', '-', '*', '/', '×', '÷', '·', '(', '≈', '≤', '≥', '≠', '→', '∑')
     return if (alreadyOperator) text else "$text ×"
 }
 
@@ -7576,7 +7610,7 @@ internal fun formulaAnnotatedString(raw: String): AnnotatedString = buildAnnotat
                             fontWeight = FontWeight.SemiBold
                         )
                     )
-                    append(token.value)
+                    append(formulaAnnotatedString(token.value))
                     pop()
                     index = token.nextIndex
                 } else {
@@ -7586,13 +7620,35 @@ internal fun formulaAnnotatedString(raw: String): AnnotatedString = buildAnnotat
             }
             char == '\\' -> {
                 val command = readLatexCommand(text, index + 1)
+                // Fractions nested inside a numerator, denominator or script use an
+                // explicit grouped inline quotient; top-level fractions remain stacked.
+                if (command.value == "frac") {
+                    var cursor = command.nextIndex
+                    while (cursor < text.length && text[cursor].isWhitespace()) cursor++
+                    val numerator = readLatexGroup(text, cursor)
+                    cursor = numerator?.nextIndex ?: cursor
+                    while (cursor < text.length && text[cursor].isWhitespace()) cursor++
+                    val denominator = readLatexGroup(text, cursor)
+                    if (numerator != null && denominator != null) {
+                        append("(")
+                        append(formulaAnnotatedString(numerator.value))
+                        append(")/(")
+                        append(formulaAnnotatedString(denominator.value))
+                        append(")")
+                        index = denominator.nextIndex
+                        continue
+                    }
+                }
                 val replacement = latexCommandReplacement(command.value)
                 if (replacement != null) {
                     append(replacement)
                     index = command.nextIndex
                 } else {
-                    append(char)
-                    index++
+                    // Keep unsupported syntax inspectable, including its argument.
+                    val group = readLatexGroup(text, command.nextIndex)
+                    val end = group?.nextIndex ?: command.nextIndex.coerceAtLeast(index + 1)
+                    append(text.substring(index, end))
+                    index = end
                 }
             }
             char == '{' || char == '}' -> index++
@@ -7632,6 +7688,8 @@ internal fun latexCommandReplacement(command: String): String? = when (command) 
     "pi" -> "π"
     "sigma" -> "σ"
     "Sigma" -> "Σ"
+    "sum" -> "∑"
+    "rightarrow" -> "→"
     "sqrt" -> "√"
     "leq" -> "≤"
     "geq" -> "≥"

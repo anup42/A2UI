@@ -1,0 +1,38 @@
+{
+  "policy_version": "openai-stage3-fidelity-v2-20261101",
+  "scope": "Explicit fidelity_v2 OpenAI pilot only; reviewed source hashes, no source rewriting or shared-policy changes.",
+  "holds": [
+    {
+      "source_id": "dataset_muse_glimmer_100k_r1:u_014072_01:13824",
+      "source_sha256": "cc56ea8c9081c2093584f9fca5c81d6663eaef899cd3914047b18885e8e60d65",
+      "sample_index": 33,
+      "reason": "All seven dates, three recipes, ingredient quantities, 17 grocery entries, 16 price rows, budget qualifiers and all prep notes survive. Schedule keeps weekend pre-made Friday qualifier. Source arithmetic issue: price rows total CAD 54.21, not the asserted 53.71; correct headroom would be 30.79 instead of 31.29. Also Monday-evening prep for Monday lunch is inherited. No Stage3 change introduced either.",
+      "review": "full_review.json",
+      "review_sha256": "be38ba7d6e5abdf3cad7ee430d89cc1453a8a2d508f502d3d7f0d66047ed6818"
+    },
+    {
+      "source_id": "dataset_muse_glimmer_100k_r3:u_000032_01:392",
+      "source_sha256": "b768562b1c60d0daa77ecb27affaed20804fc255c2e48e556ef9a3a04b57588b",
+      "sample_index": 37,
+      "reason": "All three hotel rows, SGD320/340/360, 960/1020/1080 totals, gym windows, checkout distinctions and relaxed alternatives preserved. Inherited source contradiction: No offer satisfies all hard requirements together, while Marina meets every listed hard requirement and misses only the stated preference. Nine-column forced table has mobile-width risk.",
+      "review": "full_review.json",
+      "review_sha256": "be38ba7d6e5abdf3cad7ee430d89cc1453a8a2d508f502d3d7f0d66047ed6818"
+    },
+    {
+      "source_id": "dataset_muse_glimmer_100k_r5:u_004436_01:4499",
+      "source_sha256": "8ec64b1be5994a776f0a2a7dc689495c585faaa267b35532cf5681c41a0365be",
+      "sample_index": 38,
+      "reason": "120 distinct volunteers, 8 stations, 24 blocks, 5 perblock, role counts 48/24/24/24, all strict/alternative times and six station rows preserved. Source claims15-minute overlap with next shift but intervals05–08, 08–11, 11–14 merely abut; output faithfully repeats that inconsistency. Ten-column station table is unrendered.",
+      "review": "full_review.json",
+      "review_sha256": "be38ba7d6e5abdf3cad7ee430d89cc1453a8a2d508f502d3d7f0d66047ed6818"
+    },
+    {
+      "source_id": "dataset_muse_glimmer_100k_r1:u_024276_01:24315",
+      "source_sha256": "d8a9f343a1189d405ee52399d2839cf4a9c3a4a20ffddd3b05a12344e125c7ed",
+      "sample_index": 84,
+      "reason": "All assumptions, quarterly profits, tax amounts, credits, cumulative vs incremental distinction, Q4 condition and final limitations are preserved; no generated tax amount differs from source. LaTex {,} creates spurious numeric tokens such as123 and11. List children are supported by renderer, so assumption2 Formula is reachable. Source arithmetic issue independently verified: 22100*0.9235 = 20409.35, while source and output show20409.39. Source supplied tax rule and rounded quarterly aggregation need source review, not model blame.",
+      "review": "full_review.json",
+      "review_sha256": "be38ba7d6e5abdf3cad7ee430d89cc1453a8a2d508f502d3d7f0d66047ed6818"
+    }
+  ]
+}

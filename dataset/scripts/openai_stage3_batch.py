@@ -17,6 +17,7 @@ from pipeline.openai_stage3_batch_runner import (
     DEFAULT_CACHE_TTL,
     REASONING_SUMMARIES,
 )
+from pipeline.openai_stage3_fidelity_v2 import PROFILES
 from pipeline.openai_stage3_selection import PROFILE
 
 
@@ -27,6 +28,8 @@ def main() -> int:
     prepare.add_argument("--input-dir", type=Path, required=True, help="Existing train/val JSONL directory or checked v11 gzip bundle")
     prepare.add_argument("--samples", type=int, default=1000)
     prepare.add_argument("--seed", type=int, default=123)
+    prepare.add_argument("--pilot-profile", choices=PROFILES, default="legacy",
+                         help="Explicit fidelity_v2 source preflight, prompt boundary and guard; default preserves legacy behavior")
     prepare.add_argument("--selection-profile", choices=("random", PROFILE), default="random",
                          help="Optional 100/1000-source coverage mix with citation-gap reporting; default preserves random sampling")
     prepare.add_argument("--model", choices=tuple(pilot.PRICES), default="gpt-6.1-sol")

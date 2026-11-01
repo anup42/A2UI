@@ -6,20 +6,23 @@ semantic, source-factuality or device-rendering certificate.
 """
 from __future__ import annotations
 
-from dataclasses import replace
-from functools import lru_cache
 import hashlib
 import json
-from pathlib import Path
 import re
-from typing import Any, Mapping
 import unicodedata
+from collections.abc import Mapping
+from dataclasses import replace
+from functools import lru_cache
+from pathlib import Path
+from typing import Any
 
 from pipeline.genui_quality.config_v5_4 import coerce_reward_config_v5_4
 from pipeline.genui_quality.evidence_v5_4 import collect_output_evidence_v5_4
 from pipeline.genui_quality.graph import audit_renderer_graph
 from pipeline.genui_quality.ownership_v5_4 import build_source_ownership
-from pipeline.genui_quality.source_contract_v5_4 import extract_expected_ui_contract_v5_4
+from pipeline.genui_quality.source_contract_v5_4 import (
+    extract_expected_ui_contract_v5_4,
+)
 
 POLICY_VERSION = "stage3-training-fidelity-20261001-v1"
 GUIDANCE_PATH = Path(__file__).resolve().parents[2] / "prompts/stage3_training_fidelity_v1.md"
@@ -53,6 +56,12 @@ def _plain(value: Any) -> str:
 def _tokens(value: Any) -> str:
     text = _plain(value).casefold().replace(">=", "≥").replace("<=", "≤").replace("!=", "≠")
     return " ".join(re.findall(r"[+\-]?\d+(?:[.,:/\-]\d+)*|\w+|[<>≤≥≠=+%$€£¥₹°]", text))
+
+
+def _tokens_v2(value: Any) -> str:
+    """Pilot literal view also preserves semantic operators ignored by prose."""
+    text = _plain(value).casefold().replace(">=", "≥").replace("<=", "≤").replace("!=", "≠")
+    return " ".join(re.findall(r"[+\-]?\d+(?:[.,:/\-]\d+)*|\w+|[<>≤≥≠=+%$€£¥₹°|≈×÷∑^_*]", text))
 
 
 def _numbers(value: Any) -> set[str]:
@@ -131,19 +140,26 @@ def _join_diagnostics(source: str, visible: list[str]) -> list[dict[str, Any]]:
     return found
 
 
-def audit_training_fidelity(source: str, graph: Mapping[str, Any]) -> dict[str, Any]:
+def audit_training_fidelity(source: str, graph: Mapping[str, Any], *,
+                            pilot_fidelity_v2: bool = False) -> dict[str, Any]:
     """Check all literal prose/heading units using renderer-visible evidence.
 
     Bound evidence expansion by the concrete source/graph and retain the existing
     aggregate work/byte limits. Hitting a limit is explicitly incomplete, never
     a proof of missing source or permission to clip/modify the training pair.
     """
+    if type(pilot_fidelity_v2) is not bool:
+        raise ValueError("pilot_fidelity_v2 must be a boolean")
     graph_text = json.dumps(graph, ensure_ascii=False, sort_keys=True)
     bounded_config = bounded_fidelity_config(source, graph)
+    if pilot_fidelity_v2:
+        bounded_config = replace(bounded_config, pilot_fidelity_v2=True,
+                                 grpo_entity_extraction=True)
     bound = bounded_config.max_string_expansion_length
     output = collect_output_evidence_v5_4(graph, audit_renderer_graph(graph), bounded_config)
     visible = list(output.output.visible_blocks)
-    labels = _static_card_labels(graph, output.output.reachable_ids)
+    # The opt-in evidence collector already emits visible Card headers in order.
+    labels = [] if pilot_fidelity_v2 else _static_card_labels(graph, output.output.reachable_ids)
     visible.extend(labels)
     # Numeric field associations are represented through their own visible row,
     # not by scanning arbitrary state or props. Table.title is intentionally absent.
@@ -154,21 +170,41 @@ def audit_training_fidelity(source: str, graph: Mapping[str, Any]) -> dict[str, 
         for field, label in (("subject", "Subject"), ("from", "From"), ("to", "To")):
             if role.get(field):
                 contexts.append(label + ": " + str(role[field]))
-    represented = " " + _tokens("\n".join(visible)) + " "
-    context_tokens = [" " + _tokens(value) + " " for value in contexts]
+    tokenize = _tokens_v2 if pilot_fidelity_v2 else _tokens
+    represented = " " + tokenize("\n".join(visible)) + " "
+    context_tokens = [" " + tokenize(value) + " " for value in contexts]
     contract = extract_expected_ui_contract_v5_4(source)
-    units = [unit for unit in build_source_ownership(source, contract)
+    source_units = build_source_ownership(source, contract)
+    link_spans = set()
+    numeric_source = source
+    if pilot_fidelity_v2:
+        from pipeline.genui_quality.formula_evidence_v2 import (
+            normalize_formula_evidence_v2,
+        )
+        from pipeline.genui_quality.pilot_source_contract_v2 import (
+            source_link_owned_spans,
+        )
+        link_spans = source_link_owned_spans(source)
+        # Normalize only authoritative formula-owned source spans, never
+        # arbitrary prose, code or inferred substring matches.
+        spans = sorted({unit.source_span for unit in source_units
+                        if unit.owner == "formula" and unit.source_span is not None}, reverse=True)
+        for start, end in spans:
+            numeric_source = numeric_source[:start] + normalize_formula_evidence_v2(source[start:end]) + numeric_source[end:]
+    units = [unit for unit in source_units
              if unit.owner in {"generic_prose", "heading"}]
+    if pilot_fidelity_v2:
+        units = [unit for unit in units if unit.source_span not in link_spans]
     missing = []
     for unit in units:
-        literal = _tokens(unit.text)
+        literal = tokenize(unit.text)
         present = not literal or " " + literal + " " in represented or any(
             " " + literal + " " in context for context in context_tokens)
         if not present:
             missing.append({"unit_id": unit.unit_id, "owner": unit.owner,
                             "source_span": list(unit.source_span) if unit.source_span else None,
                             "text": unit.text})
-    unsupported = sorted(_numbers("\n".join(visible)) - _numbers(source))
+    unsupported = sorted(_numbers("\n".join(visible)) - _numbers(numeric_source))
     joins = _join_diagnostics(source, visible)
     unsupported_charts = [item for item in output.effective_components
                           if item.get("kind") == "chart" and

@@ -910,7 +910,12 @@ def run_stage3(
     phase_invocation_id: str | None = None,
     prompt_supplement_path: Path | None = None,
     grpo_entity_extraction: bool = False,
+    pilot_fidelity_v2: bool = False,
 ) -> None:
+    if type(pilot_fidelity_v2) is not bool:
+        raise ValueError("Stage 3 pilot fidelity policy must be an explicit boolean")
+    if pilot_fidelity_v2 and normalize_metric_mode(metric_version) not in {"v5_4", "dual"}:
+        raise ValueError("Stage 3 pilot fidelity policy requires v5_4 scoring")
     if type(grpo_entity_extraction) is not bool:
         raise ValueError("Stage 3 entity extraction policy must be an explicit boolean")
     if grpo_entity_extraction and normalize_metric_mode(metric_version) not in {"v5_4", "dual"}:
@@ -993,6 +998,8 @@ def run_stage3(
         # Opt-in exact source/field projection; keep all canonical thresholds,
         # roles, renderer, reference and acceptance checks unchanged.
         v5_4_config = replace(v5_4_config, grpo_entity_extraction=True)
+    if pilot_fidelity_v2:
+        v5_4_config = replace(v5_4_config, pilot_fidelity_v2=True)
     v5_1_config = (
         load_v5_1_reward_config()
         if metric_mode in {"v5_1", "dual"}
@@ -1305,6 +1312,16 @@ def run_stage3(
         prompt_response_text = response_with_policy
         if asset_context:
             prompt_response_text = f"{response_with_policy}\n\n{asset_context}"
+
+        # Explicit adapters may serialize structured source/policy fields before
+        # interpolation. Default/Muse paths retain their existing prompt bytes;
+        # never recover boundaries by splitting text supplied by the user.
+        source_formatter = getattr(adapter, "format_stage3_source", None)
+        if callable(source_formatter) and not uses_muse_stage3_prompt(adapter.spec):
+            formatted = source_formatter(source=masked_response_text, asset_policy=asset_policy,
+                                         asset_mapping=asset_context)
+            if formatted is not None:
+                response_with_policy, prompt_response_text = formatted
 
         if uses_muse_stage3_prompt(adapter.spec):
             def _muse_source(mapping: str = "") -> str:
@@ -2366,8 +2383,12 @@ def run_stage3(
             record["metrics"]["legacy_structural_richness_score"] = sample_legacy_score
             # Compatibility field for one migration window.
             record["metrics"]["overall_score"] = sample_legacy_score
-        record["generation_fidelity_audit"] = audit_training_fidelity(response_text, genui_json)
+        record["generation_fidelity_audit"] = (
+            audit_training_fidelity(response_text, genui_json, pilot_fidelity_v2=True)
+            if pilot_fidelity_v2 else audit_training_fidelity(response_text, genui_json))
         record["gen"]["training_fidelity_guidance"] = guidance_identity()
+        if pilot_fidelity_v2:
+            record["gen"]["pilot_fidelity_v2"] = True
         if supplement_identity is not None:
             record["gen"]["prompt_supplement"] = supplement_identity
         if grpo_entity_extraction:

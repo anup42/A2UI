@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass, fields
+from dataclasses import asdict, dataclass, fields, replace
 import math
 from time import perf_counter
 import tracemalloc
@@ -155,6 +155,9 @@ def prepare_source_context_v5_4(
         persisted=expected_ui_contract,
         persisted_source=expected_ui_contract_source,
     )
+    if cfg.pilot_fidelity_v2:
+        from .pilot_source_contract_v2 import source_contract_v2
+        resolution = replace(resolution, contract=source_contract_v2(source_text, resolution.contract))
     ownership = build_source_ownership(source_text, resolution.contract)
     compat = _v5_3_compat_contract(
         resolution.contract,
@@ -171,6 +174,9 @@ def prepare_source_context_v5_4(
         config=cfg,
         computed_registry=computed_registry,
     )
+    if cfg.pilot_fidelity_v2:
+        from .pilot_source_contract_v2 import restore_bound_action_targets
+        base = restore_bound_action_targets(base, resolution.contract)
     fingerprint = metric_fingerprint_v5_4(
         cfg, computed_registry=computed_registry
     )
@@ -304,12 +310,36 @@ def _score_one_v5_4(
         return result
 
     def content_assignment(*args: Any) -> Any:
+        heading_certificates = []
+        pipe_certificates = []
+        # Entity certificates use original generic-output occurrence indices.
+        # Do not alter that index space before their exact ownership projection.
+        if prepared.config.pilot_fidelity_v2 and not entity_detail:
+            from .pilot_content_v2 import (
+                project_exact_headings,
+                project_exact_pipe_cards,
+            )
+            rows, heading_certificates = project_exact_headings(prepared.source_ownership, args[1])
+            rows, pipe_certificates = project_exact_pipe_cards(args[0], rows, args[2])
+            args = (args[0], rows, args[2])
         if entity_detail:
-            return grpo_entity_assignment(*args, entity_detail)
-        return card_content_assignment_v5_4(*args)
+            blocks, detail = grpo_entity_assignment(*args, entity_detail)
+        else:
+            blocks, detail = card_content_assignment_v5_4(*args)
+        if prepared.config.pilot_fidelity_v2:
+            from .pilot_content_v2 import split_exact_multiline
+            blocks, certificates = split_exact_multiline(args[0], blocks)
+            detail["pilot_exact_multiline_partitions"] = certificates
+            detail["pilot_exact_heading_occurrences"] = heading_certificates
+            detail["pilot_exact_pipe_card_fields"] = pipe_certificates
+        return blocks, detail
 
     def actions(*args: Any, **kwargs: Any) -> Any:
-        value, detail = action_fidelity_v5_3(*args, **kwargs)
+        if prepared.config.pilot_fidelity_v2:
+            from .pilot_source_contract_v2 import action_fidelity_v2
+            value, detail = action_fidelity_v2(*args, **kwargs)
+        else:
+            value, detail = action_fidelity_v5_3(*args, **kwargs)
         binding = entity_detail.get("action_binding_fidelity")
         if value is not None and binding is not None:
             value = min(value, binding)
@@ -332,10 +362,29 @@ def _score_one_v5_4(
 
     def unsupported_additions(expected_actions: Any, actual_actions: Any,
                               expected_media: Any, actual_media: Any, **kwargs: Any) -> Any:
-        return unsupported_external_addition_precision_v5_4(
+        value, detail = unsupported_external_addition_precision_v5_4(
             expected_actions, actual_actions, prepared.base.source_contract.media,
             actual_media, **kwargs,
         )
+        if prepared.config.pilot_fidelity_v2:
+            from .applicability_v5_3 import classify_action
+            from .pilot_source_contract_v2 import action_fidelity_v2
+            external = [item for item in actual_actions if classify_action(item.action_type, item.url) == "external_semantic"]
+            _, matched = action_fidelity_v2(
+                expected_actions, external, aliases=kwargs["aliases"],
+                exact_dense_limit=prepared.config.max_assignment_size,
+                max_edges=prepared.config.max_matching_edges, top_k=prepared.config.large_matching_top_k,
+                max_hungarian_work=prepared.config.max_matching_hungarian_work,
+                max_sparse_relaxations=prepared.config.max_matching_sparse_relaxations,
+            )
+            supported = sum(item["score"] >= .75 for item in matched.get("matches", []))
+            unsupported = len(external) - supported
+            total = detail["candidate_count"]
+            detail["unsupported_external_action_count"] = unsupported
+            detail["supported_count"] = total - unsupported - detail["unsupported_semantic_media_count"]
+            value = detail["supported_count"] / total if total else 1.0
+            detail["precision"] = value
+        return value, detail
 
     def duplication(
         base_prepared: Any, evidence_result: Any, output: Any

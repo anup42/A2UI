@@ -10,6 +10,7 @@ from pathlib import Path
 
 from llm.base import BaseLLMAdapter, LLMResult, ModelSpec
 
+from pipeline import openai_stage3_fidelity_v2 as fidelity_v2
 from pipeline.v11_regeneration_io import ROOT, canonical, digest
 
 DATASET = ROOT / "dataset"
@@ -40,6 +41,7 @@ def offline_environment():
 
 
 def request_body(config: dict, prompt: str, system: str | None) -> dict:
+    pilot_profile = fidelity_v2.profile(config)
     summary = config.get("reasoning_summary", "none")
     if summary not in REASONING_SUMMARIES:
         raise ValueError("Unsupported reasoning summary; choose none or auto")
@@ -51,6 +53,10 @@ def request_body(config: dict, prompt: str, system: str | None) -> dict:
         raise ValueError("Unsupported prompt cache TTL; choose 30m or 12h")
     if not system or not system.strip():
         raise ValueError("Explicit caching requires the shared Stage 3 instruction prefix")
+    if pilot_profile == fidelity_v2.PROFILE:
+        # A static developer prefix across all source/asset combinations. The
+        # structured source was produced directly by the Stage 3 adapter hook.
+        system = system + "\n\n" + fidelity_v2.SUPPLEMENT_PATH.read_text(encoding="utf-8").strip()
     # Preserve the canonical instructions verbatim. Only this stable prefix is
     # written; the per-source user message has no cache breakpoint. Sol handles
     # cache routing automatically, so per-run/source keys would fragment reuse.
@@ -86,6 +92,12 @@ class CaptureAdapter(BaseLLMAdapter):
         super().__init__(ModelSpec("openai-stage3-batch", "openai", config["model"]))
         self.config = config
         self.requests = {}
+
+    def format_stage3_source(self, *, source, asset_policy, asset_mapping):
+        if fidelity_v2.profile(self.config) != fidelity_v2.PROFILE:
+            return None
+        return (fidelity_v2.source_payload(source),
+                fidelity_v2.source_payload(source, asset_mapping))
 
     def generate(self, *, prompt, system, **kwargs):
         body = request_body(self.config, prompt, system)
@@ -162,6 +174,8 @@ def run(output: Path, directory: Path, config: dict, adapter: BaseLLMAdapter) ->
     logger = logging.getLogger("dataset.openai_stage3_batch.offline")
     logger.addHandler(logging.NullHandler())
     logger.propagate = False
+    profile_options = ({"pilot_fidelity_v2": True}
+                       if fidelity_v2.profile(config) == fidelity_v2.PROFILE else {})
     with offline_environment():
         run_stage3(
             queries_path=output / "queries.jsonl", responses_path=output / "responses.jsonl",
@@ -176,6 +190,7 @@ def run(output: Path, directory: Path, config: dict, adapter: BaseLLMAdapter) ->
             batch_size=1, max_attempts=1, metric_version="v5_4",
             ir_formats=["a2ui_express_v1"], grpo_entity_extraction=True,
             phase_invocation_id="openai-stage3-batch-v1",
+            **profile_options,
         )
 
 
