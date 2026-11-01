@@ -212,12 +212,17 @@ def estimate(requests: list[dict], config: dict) -> dict:
 def prepare(input_dir: Path, output_dir: Path, *, samples=1000, seed=123,
             model="gpt-6.1-sol", reasoning_effort="medium", max_output_tokens=8192,
             cache_ttl=runner.DEFAULT_CACHE_TTL, selection_profile="random", reasoning_summary="none",
-            pilot_profile="legacy", transport="batch", generation_timeout=None) -> dict:
+            pilot_profile="legacy", transport="batch", generation_timeout=None, generation_workers=None) -> dict:
     from pipeline.genui_quality.validation_v5_4 import ensure_v5_4_validation_ready
 
     fidelity_v2.profile({"pilot_profile": pilot_profile})
     if transport not in {"batch", "chatgpt"}:
         raise ValueError("Unsupported generation transport")
+    if generation_workers is not None:
+        if transport != "chatgpt":
+            raise ValueError("Generation workers apply only to the ChatGPT transport")
+        from pipeline.chatgpt_stage3 import worker_count
+        worker_count(generation_workers)
     if generation_timeout is not None and (transport != "chatgpt" or type(generation_timeout) is not int
                                            or not 30 <= generation_timeout <= 3600):
         raise ValueError("ChatGPT generation timeout must be an integer from 30 to 3600 seconds")
@@ -254,6 +259,8 @@ def prepare(input_dir: Path, output_dir: Path, *, samples=1000, seed=123,
         config["transport"] = transport
         if generation_timeout is not None:
             config["generation_timeout"] = generation_timeout
+        if generation_workers is not None:
+            config["generation_workers"] = generation_workers
     if selection_profile != "random":
         config["selection_profile"] = selection_profile
     if reasoning_summary != "none":

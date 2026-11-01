@@ -30,7 +30,8 @@ python dataset/scripts/genui_stage3.py prepare \
   --selection-profile failure_mix_v1 \
   --model gpt-6.1-sol \
   --reasoning-effort medium \
-  --reasoning-summary auto
+  --reasoning-summary auto \
+  --workers 2
 ```
 
 Use an exact model ID printed by `account` if this account does not offer `gpt-6.1-sol`. Model and reasoning effort are checked before generation; there is no fallback or silent rerouting. A model change requires a fresh preparation. The CLI also supports `--seed` (default 123) and `--selection-profile random` for other pilot sizes. `failure_mix_v1` supports 100 or 1,000 sources; the default here is 100.
@@ -45,9 +46,9 @@ python dataset/scripts/genui_stage3.py dashboard \
   --port 8767 --open
 ```
 
-Open `http://127.0.0.1:8767`. Click **Check sign-in**, or **Sign in with ChatGPT** and then follow the OpenAI sign-in link. **Start generation** explicitly starts the prepared run. It processes one source at a time and automatically validates the completed run. Closing the tab does not stop the server's worker; stopping the server interrupts it and may leave an uncertain attempt.
+Open `http://127.0.0.1:8767`. Click **Check sign-in**, or **Sign in with ChatGPT** and then follow the OpenAI sign-in link. **Start generation** explicitly starts the prepared run with its selected worker count and automatically validates the completed run. Closing the tab does not stop generation; stopping the server interrupts it and may leave uncertain attempts.
 
-The header provides a visible account link. The **New generation run** panel loads available models and reasoning efforts from the signed-in account; **Refresh models** queries the catalog again. It also exposes reasoning summaries and, under **Data and execution settings**, sample count, selection profile, seed, training-data folder, a fresh output folder, and per-source timeout. Supported effort levels such as `max` and `ultra` appear only for models that advertise them. Unsupported models or effort combinations fail before preparation.
+The header provides a visible account link. The **New generation run** panel loads available models and reasoning efforts from the signed-in account; **Refresh models** queries the catalog again. It also exposes reasoning summaries and, under **Data and execution settings**, sample count, selection profile, seed, training-data folder, a fresh output folder, per-source timeout and **Parallel workers** (1–8, default 2). Supported effort levels such as `max` and `ultra` appear only for models that advertise them. Unsupported models or effort combinations fail before preparation.
 
 Click **Prepare new run** to run local selection, prompt capture and validation in the new folder. Preparation does not make model requests. After it succeeds, the dashboard switches to the prepared run; click **Start generation** separately when ready. Changing settings never edits the current contract or existing archive. The timeout is stored in the new contract and restored when reopened; CLI `run --timeout` can explicitly override the wait limit. API-only sampling/output-cap/cache settings are not exposed for this Codex route.
 
@@ -57,6 +58,7 @@ The dashboard shows:
 - Strict acceptance and held records, per-category coverage, citation-gap reporting, and rejection reasons.
 - Source/output inspection with category, decision and text search. All source/output text is rendered as text, never executable HTML.
 - Input, output, cached-input and reasoning tokens **when reported**; reasoning tokens are already included in output.
+- Active/configured workers, the initial cache-warming phase, reported cache reuse percentage and cache-write tokens when available. Missing or partial usage is identified explicitly.
 - Codex sign-in, plan and reported allowance windows. ChatGPT usage is not converted into an API dollar estimate.
 
 The server binds only to `127.0.0.1`, checks Host/Origin and a session token for actions, and serves only the three dashboard assets and fixed evidence endpoints. For a remote machine, keep it on loopback and use an SSH tunnel, for example `ssh -L 8767:127.0.0.1:8767 user@host`. Do not expose it as a public web service.
@@ -83,7 +85,26 @@ python dataset/scripts/genui_stage3.py collect --output-dir /path/to/genui_stage
 
 Do not run a CLI worker and dashboard worker concurrently. The output lock rejects concurrent writers. Resuming `run` reuses completed records and processes only requests that were never attempted. The actual Codex CLI version, model, prompt, code, source and contract are bound to the run.
 
-An interruption or provider error may consume allowance even if no response reached the client. GenUI stops instead of retrying. Inspect `generation.json` and `chatgpt_records/`, then explicitly skip an uncertain attempt if you want to continue:
+### Parallel execution and caching
+
+New CLI/dashboard preparations default to **two workers**, with a maximum of eight. Use `--workers 1` for sequential generation. Contracts without a worker setting retain a default of one. CLI `run --workers 4` explicitly overrides the prepared count for that invocation, and the chosen count is recorded in `generation.json` under `execution_history`; model, prompt and source bindings remain fixed.
+
+```bash
+# Uses the prepared model/data and records the explicit concurrency override.
+python dataset/scripts/genui_stage3.py run \
+  --output-dir /path/to/genui_stage3_100_r1 --workers 4
+python dataset/scripts/genui_stage3.py collect --output-dir /path/to/genui_stage3_100_r1
+```
+
+The first **real pending source** completes before parallel dispatch begins, giving the shared prefix a chance to enter the provider cache. No synthetic warm-up or repeated generation is added. Each invocation, including a resume after an idle period, warms with its first still-unattempted source. Remaining requests share one app-server, workspace, instruction prefix and model/reasoning settings. Each source gets an independent thread and event queue, so prompts, output and token accounting cannot be mixed between workers. Previous samples are never added to another sample's conversation history.
+
+Caching remains provider-managed, including cache routing across independent threads. GenUI preserves the stable prefix and reports observed hits; it does not force a shared cross-thread cache key, promise a hit rate, set an unsupported TTL, or infer API discounts from subscription usage. The first-source warm-up is best effort. `usage.json` includes `reported_cache_hit_rate`, `cache_write_input_tokens`, `records_without_cache_write_usage`, and `records_with_partial_usage`. Cache percentage uses reported input only; missing/partial accounting means actual consumption can be higher. These are measurement fields, not quality gates.
+
+Only the configured number of requests may be in flight. A reported exhausted allowance prevents new dispatch. A timeout, uncertain result, provider failure, or contract error stops new dispatch; already-issued requests drain and save their results. Uncertain calls are never automatically repeated. More workers may improve throughput, but shared account limits and model latency still apply. Parallel regressions use offline providers and the real preparation/replay path; no live multi-source throughput improvement is claimed.
+
+Prepare a fresh run after updating generation code: existing prepared runs deliberately pin their source/prompt/code fingerprints and cannot silently adopt this implementation. Existing sealed archives remain read-only.
+
+An interruption or provider error may consume allowance even if no response reached the client. GenUI stops dispatch, saves any already-running results, and does not retry. Inspect `generation.json` and `chatgpt_records/`, then explicitly skip an uncertain attempt if you want to continue:
 
 ```bash
 python dataset/scripts/genui_stage3.py run \
@@ -105,4 +126,4 @@ Outputs are `pilot_accepted.jsonl`, `rejected.jsonl`, `assessments.jsonl`, `repo
 - Reported token counts may be missing after a disconnect or unsupported event. Missing usage is explicitly counted, never advertised as zero usage. The account's own usage dashboard remains authoritative for allowance/billing.
 - Offline/mock tests cover replay, rejection, resume, accounting, model/runtime selection, preparation and dashboard security. The tiny signed-in connection test establishes that model generation works; it does not establish pilot quality. No new pilot/batch is submitted by installing or opening this dashboard.
 
-References: [Codex authentication](https://learn.chatgpt.com/docs/auth), [official app-server API](https://learn.chatgpt.com/docs/app-server).
+References: [Codex authentication](https://learn.chatgpt.com/docs/auth), [official app-server API](https://learn.chatgpt.com/docs/app-server), [prompt caching](https://developers.openai.com/api/docs/guides/prompt-caching).

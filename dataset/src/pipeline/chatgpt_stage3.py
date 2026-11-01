@@ -2,8 +2,10 @@
 from __future__ import annotations
 
 import json
+import threading
 import time
 from collections import Counter, defaultdict, deque
+from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
 from pathlib import Path
 
 from pipeline import openai_stage3_batch as pilot
@@ -27,6 +29,13 @@ from pipeline.v11_regeneration_io import (
 )
 
 VERSION = "genui-chatgpt-stage3-v1"
+MAX_WORKERS = 8
+
+
+def worker_count(value):
+    if type(value) is not int or not 1 <= value <= MAX_WORKERS:
+        raise ValueError(f"Generation workers must be an integer from 1 to {MAX_WORKERS}")
+    return value
 
 
 def load(output):
@@ -54,7 +63,13 @@ def token_usage(raw):
         raise ValueError("Malformed Codex token usage")
     if raw["cachedInputTokens"] > raw["inputTokens"] or raw["reasoningOutputTokens"] > raw["outputTokens"]:
         raise ValueError("Inconsistent Codex token usage")
-    return {name: raw[key] for key, name in mapping.items()}
+    result = {name: raw[key] for key, name in mapping.items()}
+    if "cacheWriteInputTokens" in raw:
+        value = raw["cacheWriteInputTokens"]
+        if type(value) is not int or not 0 <= value <= raw["inputTokens"]:
+            raise ValueError("Malformed Codex cache-write usage")
+        result["cache_write_input_tokens"] = value
+    return result
 
 
 class ReplayAdapter(runner.CaptureAdapter):
@@ -128,36 +143,154 @@ def records(output, contract, state):
 
 
 def usage_report(found):
-    totals = dict.fromkeys(("input_tokens", "output_tokens", "cached_input_tokens", "reasoning_tokens"), 0)
-    missing = 0
+    totals = dict.fromkeys(("input_tokens", "output_tokens", "cached_input_tokens", "reasoning_tokens", "cache_write_input_tokens"), 0)
+    missing, missing_writes, partial = 0, 0, 0
     for record in found:
         usage = token_usage(record.get("usage"))
+        missing_writes += int(usage is None or "cache_write_input_tokens" not in usage)
+        partial += int(usage is not None and record.get("usage_partial", False))
         if usage is None:
             missing += 1
         else:
             for key, value in usage.items():
                 totals[key] += value
-    return {**totals, "records_without_usage": missing, "billing": "chatgpt_subscription", "cost_usd": None,
+    return {**totals, "records_without_usage": missing, "records_without_cache_write_usage": missing_writes,
+            "records_with_partial_usage": partial,
+            "reported_cache_hit_rate": totals["cached_input_tokens"] / totals["input_tokens"] if totals["input_tokens"] else None,
+            "billing": "chatgpt_subscription", "cost_usd": None,
             "scope": "Reported Codex tokens only; reasoning is included in output. Subscription limits apply. Not API Batch pricing or an invoice."}
 
 
 def _progress(output, state, requested, found, active=None):
     counts = Counter(item["status"] for item in found)
+    active_ids = [key for key, attempt in state["attempts"].items() if attempt["status"] == "inflight"]
+    workers = state.get("workers", 1)
+    phase = ("warming" if workers > 1 and not state.get("cache_warm_start_completed") else
+             "parallel" if workers > 1 else "serial") if active_ids else "idle"
     atomic_bytes(output / "progress.json", canonical({"status": state["status"], "requested": requested,
         "completed": counts["completed"], "skipped": counts["skipped"], "uncertain": counts["unknown"],
-        "attempted": len(state["attempts"]), "active_custom_id": active, "updated_at": time.time(),
+        "attempted": len(state["attempts"]), "active_custom_id": active or next(iter(active_ids), None),
+        "active_custom_ids": active_ids, "active_workers": len(active_ids), "workers": workers,
+        "cache_phase": phase, "pause_reason": state.get("pause_reason"), "updated_at": time.time(),
         "started_at": state["created_at"], "usage": usage_report(found)}) + b"\n")
 
 
-def run(output_dir: Path, *, client=None, auth_home=None, timeout=None, skip_uncertain=False, codex_executable=None):
+def _dispatch(output, contract, state, indexed, pending, client, timeout, workers):
+    """Bounded dispatch with durable, serialized journals and no automatic retries."""
+    prefixes = {digest({"model": r["body"]["model"], "reasoning": r["body"]["reasoning"],
+                       "prefix": r["body"]["input"][0]}) for r in pending}
+    if len(prefixes) != 1:
+        raise ValueError("Parallel generation requires an identical shared instruction prefix and model settings")
+    state.update(workers=workers, cache_prefix_sha256=next(iter(prefixes)), cache_warm_start_completed=False)
+    state.pop("pause_reason", None)
+    state.setdefault("execution_history", []).append({"started_at": time.time(), "workers": workers})
+    lock, stopped = threading.RLock(), threading.Event()
+    remaining, active = deque(pending), set()
+    requested, last_limits_at = len(contract["bindings"]), None
+
+    def pause(reason):
+        with lock:
+            stopped.set()
+            state["status"] = "paused"
+            state.setdefault("pause_reason", reason)
+
+    def progress():
+        save(output / "generation.json", state)
+        _progress(output, state, requested, list(indexed.values()))
+
+    def generate(request):
+        identifier, last_usage = request["custom_id"], None
+        def on_thread(thread_id):
+            with lock:
+                state["attempts"][identifier]["thread_id"] = thread_id
+                save(output / "generation.json", state)
+        def on_event(event):
+            nonlocal last_usage
+            raw = event.get("usage")
+            if raw is not None:
+                token_usage(raw)
+                last_usage = raw
+        try:
+            reply = client.generate(request["body"], timeout=timeout, on_thread=on_thread, on_event=on_event)
+            response_text(dict(reply, transport="chatgpt"), contract["config"])
+            token_usage(reply.get("usage"))
+        except (RuntimeError, OSError, ValueError, KeyError, TypeError) as exc:
+            pause("Generation outcome uncertain; no retry was made. In-flight sources are being saved.")
+            reply = {"status": "unknown", "error": "generation_outcome_uncertain",
+                     "diagnostic": str(exc) if isinstance(exc, CodexError) else type(exc).__name__,
+                     "usage": last_usage, "usage_partial": last_usage is not None}
+        with lock:
+            record = dict(reply, transport="chatgpt", custom_id=identifier,
+                          contract_sha256=digest(contract), request_sha256=digest(request), finished_at=time.time())
+            path = output / "chatgpt_records" / (identifier + ".json")
+            save(path, record)
+            indexed[identifier] = record
+            attempt = state["attempts"][identifier]
+            attempt.update(status=record["status"], record_sha256=file_hash(path))
+            if record.get("diagnostic"):
+                attempt["diagnostic"] = record["diagnostic"]
+            state["status"] = "paused" if stopped.is_set() else "generating"
+            progress()
+
+    def can_dispatch():
+        nonlocal last_limits_at
+        if stopped.is_set():
+            return False
+        if last_limits_at is None or time.monotonic() - last_limits_at >= 5:
+            limits = client.limits()
+            last_limits_at = time.monotonic()
+            if any(isinstance(limits.get(key), dict) and limits[key].get("usedPercent", 0) >= 100
+                   for key in ("primary", "secondary")):
+                pause("ChatGPT allowance exhausted; wait for it to reset before resuming.")
+        return not stopped.is_set()
+
+    try:
+        with ThreadPoolExecutor(max_workers=workers, thread_name_prefix="genui-source") as pool:
+            try:
+                while remaining or active:
+                    # Warm using the first real pending source, never a synthetic or repeated request.
+                    limit = workers if state["cache_warm_start_completed"] else 1
+                    while remaining and len(active) < limit and can_dispatch():
+                        load(output)  # Recheck the bound source/prompt/code before every dispatch.
+                        with lock:
+                            if stopped.is_set():
+                                break
+                            request = remaining.popleft()
+                            state["status"] = "generating"
+                            state["attempts"][request["custom_id"]] = {"status": "inflight", "started_at": time.time()}
+                            progress()  # Durable intent BEFORE a worker can contact the provider.
+                            active.add(pool.submit(generate, request))
+                    if not active:
+                        break
+                    done, active = wait(active, return_when=FIRST_COMPLETED)
+                    for future in done:
+                        future.result()
+                    with lock:
+                        if not stopped.is_set():
+                            state["cache_warm_start_completed"] = True
+            except BaseException:
+                pause("Dispatch stopped; inspect local evidence before resuming.")
+                raise  # The executor drains already-issued calls and saves their results first.
+    finally:
+        with lock:
+            state["status"] = "paused" if stopped.is_set() else "generated"
+            progress()
+    return {"status": state["status"], "requests": requested, "workers": workers,
+            **({"reason": state["pause_reason"]} if stopped.is_set() else {})}
+
+
+def run(output_dir: Path, *, client=None, auth_home=None, timeout=None, skip_uncertain=False, codex_executable=None, workers=None):
     if timeout is not None and (type(timeout) is not int or not 30 <= timeout <= 3600):
         raise ValueError("Per-sample timeout must be 30..3600 seconds")
+    if workers is not None:
+        worker_count(workers)
     output = safe_path(output_dir)
     validate_auth_location(output, auth_home)
     load(output)  # Refuse other transports before even creating a lock file.
     owned_client = client is None
     with _exclusive(output):
         contract = load(output)
+        workers = worker_count(workers if workers is not None else contract["config"].get("generation_workers", 1))
         if timeout is None:
             timeout = contract["config"].get("generation_timeout", 600)
         if (output / "chatgpt_collection.json").exists():
@@ -199,42 +332,7 @@ def run(output_dir: Path, *, client=None, auth_home=None, timeout=None, skip_unc
             if state.get("codex_version", client.version) != client.version:
                 raise ValueError("Codex CLI version changed during a prepared generation run")
             state["codex_version"] = client.version
-            for request in pending:
-                load(output)
-                identifier = request["custom_id"]
-                state["status"] = "generating"
-                attempt = state["attempts"][identifier] = {"status": "inflight", "started_at": time.time()}
-                save(output / "generation.json", state)  # Durable intent BEFORE any model request.
-                _progress(output, state, len(requests), list(indexed.values()), identifier)
-                def on_thread(thread_id, attempt=attempt):
-                    attempt["thread_id"] = thread_id
-                    save(output / "generation.json", state)
-                try:
-                    reply = client.generate(request["body"], timeout=timeout, on_thread=on_thread)
-                    response_text(dict(reply, transport="chatgpt"), contract["config"])
-                    token_usage(reply.get("usage"))
-                except (RuntimeError, OSError, ValueError, KeyError, TypeError) as exc:
-                    # Provider may already have consumed allowance. Never retry
-                    # an error/timeout automatically or label it a quality fail.
-                    reply = {"status": "unknown", "error": "generation_outcome_uncertain",
-                             "diagnostic": str(exc) if isinstance(exc, CodexError) else type(exc).__name__}
-                record = dict(reply, transport="chatgpt", custom_id=identifier,
-                              contract_sha256=digest(contract), request_sha256=digest(request), finished_at=time.time())
-                path = output / "chatgpt_records" / (identifier + ".json")
-                save(path, record)
-                indexed[identifier] = record
-                attempt.update(status=record["status"], record_sha256=file_hash(path))
-                if record.get("diagnostic"):
-                    attempt["diagnostic"] = record["diagnostic"]
-                state["status"] = "paused" if record["status"] == "unknown" else "generating"
-                save(output / "generation.json", state)
-                _progress(output, state, len(requests), list(indexed.values()))
-                if state["status"] == "paused":
-                    return {"status": "paused", "reason": "Generation outcome uncertain; no retry was made", "custom_id": identifier}
-            state["status"] = "generated"
-            save(output / "generation.json", state)
-            _progress(output, state, len(requests), list(indexed.values()))
-            return {"status": "generated", "requests": len(requests)}
+            return _dispatch(output, contract, state, indexed, pending, client, timeout, workers)
         finally:
             if owned_client:
                 client.close()

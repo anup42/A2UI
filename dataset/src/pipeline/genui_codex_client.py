@@ -19,7 +19,7 @@ from urllib.parse import urlsplit
 
 from pipeline.v11_regeneration_io import safe_path
 
-CLIENT_VERSION = "1.0.0"
+CLIENT_VERSION = "1.1.0"
 SETTINGS = {
     "forced_login_method": "chatgpt", "model_provider": "openai",
     "cli_auth_credentials_store": "auto", "approval_policy": "never",
@@ -35,6 +35,59 @@ SETTINGS = {
 
 class CodexError(RuntimeError):
     """A bounded error without raw server messages or credentials."""
+
+
+class _ThreadEvents:
+    """Route notifications before turns start; never discard another worker's reply."""
+
+    def __init__(self):
+        self._lock, self._queues = threading.Lock(), {}
+        self._fatal, self._overflow = None, set()
+
+    def subscribe(self, thread_id):
+        with self._lock:
+            if self._fatal:
+                raise CodexError(self._fatal["method"])
+            if thread_id in self._queues:
+                raise CodexError("Duplicate GenUI thread identity")
+            target = self._queues[thread_id] = queue.Queue(maxsize=4096)
+            return target
+
+    def unsubscribe(self, thread_id):
+        with self._lock:
+            self._queues.pop(thread_id, None)
+            self._overflow.discard(thread_id)
+
+    @staticmethod
+    def _fail(target, event):
+        while not target.empty():
+            try:
+                target.get_nowait()
+            except queue.Empty:
+                break
+        target.put_nowait(event)
+
+    def put(self, event):
+        with self._lock:
+            if event.get("method") in {"genui/disconnected", "genui/toolDenied"}:
+                self._fatal = event
+                for target in self._queues.values():
+                    try:
+                        target.put_nowait(event)
+                    except queue.Full:
+                        self._fail(target, event)
+                return
+            if self._fatal:
+                return
+            thread_id = (event.get("params") or {}).get("threadId")
+            target = self._queues.get(thread_id)
+            if target is None or thread_id in self._overflow:
+                return  # No turn starts until its mailbox has been registered.
+            try:
+                target.put_nowait(event)
+            except queue.Full:
+                self._overflow.add(thread_id)
+                self._fail(target, {"method": "genui/eventOverflow", "params": {"threadId": thread_id}})
 
 
 def validate_auth_location(output_dir, auth_home=None):
@@ -94,7 +147,7 @@ class CodexClient:
         for key, value in SETTINGS.items():
             args += ["-c", f"{key}={json.dumps(value)}"]
         args += ["app-server", "--listen", "stdio://"]
-        self._pending, self._events = {}, queue.Queue()
+        self._pending, self._events = {}, _ThreadEvents()
         self._lock, self._write_lock = threading.Lock(), threading.Lock()
         self._serial, self._closed = 0, False
         self.process = subprocess.Popen(
@@ -217,17 +270,19 @@ class CodexClient:
                 for folder in (self.home / "skills", self.home / "plugins")
                 for path in folder.rglob("SKILL.md")]},
         })
-        if started.get("model") != body["model"] or started.get("modelProvider") != "openai":
-            raise CodexError("Codex selected an unexpected model/provider")
-        if started.get("instructionSources"):
-            raise CodexError("Unexpected local instruction files in GenUI generation")
-        if profiles and (started.get("activePermissionProfile") or {}).get("id") != "genui":
-            raise CodexError("Codex did not select GenUI's restricted permission profile")
         thread_id = started["thread"]["id"]
-        if on_thread:
-            on_thread(thread_id)
-        turn_id = None
+        turn_id, subscribed = None, False
         try:
+            events = self._events.subscribe(thread_id)
+            subscribed = True
+            if started.get("model") != body["model"] or started.get("modelProvider") != "openai":
+                raise CodexError("Codex selected an unexpected model/provider")
+            if started.get("instructionSources"):
+                raise CodexError("Unexpected local instruction files in GenUI generation")
+            if profiles and (started.get("activePermissionProfile") or {}).get("id") != "genui":
+                raise CodexError("Codex did not select GenUI's restricted permission profile")
+            if on_thread:
+                on_thread(thread_id)
             turn = self.rpc("turn/start", {
                 "threadId": thread_id, "input": [{"type": "text", "text": source}],
                 "model": body["model"], "effort": body["reasoning"]["effort"],
@@ -237,7 +292,7 @@ class CodexClient:
                     "readableRoots": [self.workspace.name]}}}),
             })
             turn_id = turn["turn"]["id"]
-            return self._completion(thread_id, turn_id, body["model"], timeout, on_event)
+            return self._completion(thread_id, turn_id, body["model"], timeout, on_event, events)
         except Exception:
             if turn_id:
                 try:
@@ -246,20 +301,22 @@ class CodexClient:
                     pass
             raise
         finally:
-            try:
-                self.rpc("thread/unsubscribe", {"threadId": thread_id}, timeout=5)
-            except CodexError:
-                pass
+            if subscribed:
+                self._events.unsubscribe(thread_id)
+                try:
+                    self.rpc("thread/unsubscribe", {"threadId": thread_id}, timeout=5)
+                except CodexError:
+                    pass
 
-    def _completion(self, thread_id, turn_id, model, timeout, on_event):
+    def _completion(self, thread_id, turn_id, model, timeout, on_event, events):
         deadline, messages, summaries, usage = time.monotonic() + timeout, {}, [], None
         while time.monotonic() < deadline:
             try:
-                event = self._events.get(timeout=min(1, max(.01, deadline - time.monotonic())))
+                event = events.get(timeout=min(1, max(.01, deadline - time.monotonic())))
             except queue.Empty:
                 continue
             method, params = event.get("method"), event.get("params") or {}
-            if method in {"genui/disconnected", "genui/toolDenied"}:
+            if method in {"genui/disconnected", "genui/toolDenied", "genui/eventOverflow"}:
                 raise CodexError(method)
             if params.get("threadId") != thread_id:
                 continue

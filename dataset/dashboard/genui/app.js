@@ -35,7 +35,7 @@ function render(s) {
   text("run-status", label(s.status)); $("run-status").classList.toggle("good", s.status === "validated");
   const finished = s.completed + s.provider_failed + s.skipped;
   $("progress-bar").style.width = (s.requested ? Math.min(100, finished / s.requested * 100) : 0) + "%";
-  text("progress-text", `${number(s.completed)} of ${number(s.requested)} generated` + (s.active_custom_id ? " · generating next source" : "") + (s.uncertain ? ` · ${s.uncertain} uncertain` : ""));
+  text("progress-text", `${number(s.completed)} of ${number(s.requested)} generated` + (s.active_workers ? ` · ${s.active_workers}/${s.workers} workers active` : "") + (s.cache_phase === "warming" ? " · warming shared prompt" : "") + (s.uncertain ? ` · ${s.uncertain} uncertain` : ""));
   text("elapsed", s.started_at ? `Elapsed ${Math.floor(((s.updated_at || Date.now()/1000)-s.started_at)/60)} min` : "");
   text("prepared", number(s.requested)); text("generated", number(s.completed)); text("accepted", number(s.accepted)); text("held", number(s.held));
   text("generated-sub", `${s.provider_failed} API failures · ${s.uncertain} uncertain · ${s.skipped} skipped`);
@@ -44,17 +44,22 @@ function render(s) {
   $("start").disabled = !chatgpt || !s.auth.signed_in || s.busy || s.sealed || s.uncertain > 0;
   $("collect").disabled = !chatgpt || s.busy || s.sealed || s.completed+s.skipped !== s.requested;
   text("start", s.completed ? "Resume remaining sources" : "Start generation");
-  text("transport-note", chatgpt ? "Uses your Codex allowance. Each source runs once; validation follows." : "API Batch archive · read-only local status. Prepare a separate GenUI run for ChatGPT sign-in.");
+  text("transport-note", chatgpt ? `${s.workers || 1} worker(s) · Uses your Codex allowance. Each source runs once; validation follows.` : "API Batch archive · read-only local status. Prepare a separate GenUI run for ChatGPT sign-in.");
   text("billing-mode", chatgpt ? "Subscription" : "API Batch");
   text("auth-state", s.auth.signed_in ? `Connected to GenUI · ChatGPT ${s.auth.plan || "account"}` : s.auth.checked ? (s.auth.error || "No ChatGPT account connected to GenUI") : "Check your GenUI account to connect.");
   for (const id of ["signin", "device"]) $(id).disabled = s.busy;
   if (s.auth.signed_in) $("login-flow").hidden = true;
   const u = s.usage || {}, known = Object.hasOwn(u, "input_tokens") && u.records_without_usage < Math.max(1, s.completed+s.skipped+s.uncertain);
   for (const [id, key] of [["input-tokens","input_tokens"],["output-tokens","output_tokens"],["cached-tokens","cached_input_tokens"],["reasoning-tokens","reasoning_tokens"]]) text(id, number(known ? u[key] : null));
+  const cacheRate = known && u.input_tokens > 0 && u.cached_input_tokens != null ? u.cached_input_tokens / u.input_tokens : null;
+  text("cache-rate", cacheRate == null ? "—" : (100 * cacheRate).toFixed(1) + "%");
+  text("cache-writes", number(known && u.records_without_cache_write_usage === 0 ? u.cache_write_input_tokens : null));
   text("cost-label", chatgpt ? "Billing" : "Cost from reported usage");
   text("cost", chatgpt ? "Account allowance" : u.batch_cost_usd_from_reported_tokens_estimated == null ? "Not available" : "$"+u.batch_cost_usd_from_reported_tokens_estimated.toFixed(4));
   text("usage-note", chatgpt ? "No API dollar charge is inferred. Reasoning is included in output. Token counts are only those reported by Codex; no guaranteed cache hit or API-style output cap." : "Estimated from reported Batch usage, including rejected output and cache writes. Reasoning is included in output; taxes and regional premiums excluded.");
   if (u.records_without_usage) text("usage-note", $("usage-note").textContent + ` Usage unavailable for ${u.records_without_usage} attempted records.`);
+  if (chatgpt) text("usage-note", $("usage-note").textContent + " Cache reuse is calculated only from reported tokens; cache hits are not guaranteed.");
+  if (u.records_with_partial_usage) text("usage-note", $("usage-note").textContent + ` ${u.records_with_partial_usage} interrupted record(s) have partial usage; actual consumption may be higher.`);
   if (u.records_without_complete_cache_usage) text("usage-note", $("usage-note").textContent + " Cache usage is incomplete; cost cannot be calculated reliably.");
   const limits = s.auth.limits || {};
   text("rate-limits", [limits.primary, limits.secondary].filter(Boolean).map(l => `${l.windowDurationMins || "?"}-minute window: ${l.usedPercent}% used`).join(" · "));
@@ -79,6 +84,7 @@ function render(s) {
   if (s.rescore) text("rescore-panel", `Separate offline reassessment: ${s.rescore.v2_accepted}/${s.requested} accepted with fidelity_v2, versus ${s.rescore.official_accepted}/${s.requested} in the original report. Existing labels: ${s.rescore.baseline_v2_accepted}/${s.requested}. The original decisions below are unchanged.`);
   text("refresh-time", "Local files checked " + new Date(s.local_snapshot_at*1000).toLocaleTimeString() + (chatgpt ? "" : " · no remote API polling"));
   if (s.error) error(s.error);
+  else if (s.pause_reason) error(s.pause_reason);
   renderSamples();
 }
 function fillEfforts(preferred) {
@@ -110,7 +116,7 @@ function renderSetup(s) {
   if (setupRun !== s.path) {
     setupRun = s.path; detail = null; listSignature = "";
     const d = s.setup_defaults || {};
-    for (const [id,key] of [["samples","samples"],["seed","seed"],["profile","selection_profile"],["summary","reasoning_summary"],["timeout","timeout"],["input","input_dir"],["output","output_dir"]]) {
+    for (const [id,key] of [["samples","samples"],["seed","seed"],["profile","selection_profile"],["summary","reasoning_summary"],["timeout","timeout"],["workers","workers"],["input","input_dir"],["output","output_dir"]]) {
       if (d[key] != null) $("generation-"+id).value = d[key];
     }
     $("sample-content").textContent = "Choose a source to inspect its original text and generated output.";
@@ -128,7 +134,7 @@ async function prepareRun(event) {
   if (pending || !catalog || !state || state.busy) return;
   const options = {model:$("generation-model").value, reasoning_effort:$("generation-effort").value,
     reasoning_summary:$("generation-summary").value, samples:Number($("generation-samples").value),
-    seed:Number($("generation-seed").value), timeout:Number($("generation-timeout").value),
+    seed:Number($("generation-seed").value), timeout:Number($("generation-timeout").value), workers:Number($("generation-workers").value),
     selection_profile:$("generation-profile").value, input_dir:$("generation-input").value, output_dir:$("generation-output").value};
   if (options.selection_profile === "failure_mix_v1" && ![100,1000].includes(options.samples)) { error("Failure mix v1 requires 100 or 1,000 samples. Choose Random for another size."); return; }
   pending = true; $("prepare").disabled = true;

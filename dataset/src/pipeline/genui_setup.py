@@ -1,6 +1,7 @@
 """Validate dashboard preparation options before creating a fresh pilot."""
 from pathlib import Path
 
+from pipeline.chatgpt_stage3 import worker_count
 from pipeline.genui_codex_client import validate_auth_location
 from pipeline.v11_regeneration_io import safe_path
 
@@ -10,7 +11,7 @@ EFFORTS = {"none", "minimal", "low", "medium", "high", "xhigh", "max", "ultra"}
 
 
 def settings(body, current, auth_home=None):
-    if set(body) != FIELDS:
+    if set(body) - {"workers"} != FIELDS:
         raise ValueError("Provide the displayed generation settings; unsupported overrides are not allowed")
     for key in FIELDS - {"samples", "seed", "timeout"}:
         if not isinstance(body[key], str) or not body[key].strip():
@@ -25,6 +26,7 @@ def settings(body, current, auth_home=None):
     if body["reasoning_effort"] not in EFFORTS or body["reasoning_summary"] not in {"none", "auto"}:
         raise ValueError("Unsupported reasoning or summary setting")
     result = dict(body)
+    result["workers"] = worker_count(body.get("workers", 2))
     for key in ("input_dir", "output_dir"):
         result[key] = safe_path(Path(body[key]))
     output, source, current = result["output_dir"], result["input_dir"], safe_path(current)

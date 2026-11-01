@@ -179,7 +179,7 @@ def rpc_client(tmp_path):
     client.version = "codex-cli 0.133.0"
     client.workspace = SimpleNamespace(name=str(tmp_path))
     client.home = tmp_path / "auth"
-    client._events = queue.Queue()
+    client._events, client._script = codex._ThreadEvents(), queue.Queue()
     calls = []
     def rpc(method, params=None, **kwargs):
         calls.append((method, params))
@@ -188,6 +188,7 @@ def rpc_client(tmp_path):
         if method == "thread/start":
             return {"thread": {"id": "t"}, "model": "gpt-6.1-sol", "modelProvider": "openai", "instructionSources": []}
         if method == "turn/start":
+            flush_events(client)
             return {"turn": {"id": "u"}}
         return {}
     client.rpc = rpc
@@ -195,7 +196,12 @@ def rpc_client(tmp_path):
 
 
 def event(client, method, **params):
-    client._events.put({"method": method, "params": {"threadId": "t", "turnId": "u", **params}})
+    client._script.put({"method": method, "params": {"threadId": "t", "turnId": "u", **params}})
+
+
+def flush_events(client):
+    while not client._script.empty():
+        client._events.put(client._script.get_nowait())
 
 
 def finish(client, text=GOOD, status="completed"):
@@ -234,8 +240,10 @@ def test_codex_incomplete_or_unexpected_output_is_never_accepted(tmp_path, failu
     if failure == "disconnected":
         event(client, "genui/disconnected")
     finish(client, text="" if failure == "empty" else GOOD, status="interrupted" if failure == "interrupted" else "completed")
+    events = client._events.subscribe("t")
+    flush_events(client)
     with pytest.raises(codex.CodexError):
-        client._completion("t", "u", "gpt-6.1-sol", .1, None)
+        client._completion("t", "u", "gpt-6.1-sol", .1, None, events)
 
 
 def test_model_catalog_is_checked_without_generation(tmp_path):

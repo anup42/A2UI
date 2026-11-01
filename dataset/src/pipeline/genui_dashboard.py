@@ -135,6 +135,10 @@ class Evidence:
             "source_counts": contract.get("counts", {}),
             "sealed": bool(self.read("chatgpt_collection.json" if transport == "chatgpt" else "collection.json", sealed=True)),
             "active_custom_id": progress.get("active_custom_id"),
+            "active_custom_ids": progress.get("active_custom_ids", []),
+            "active_workers": progress.get("active_workers", 0),
+            "workers": progress.get("workers", config.get("generation_workers", 1)),
+            "cache_phase": progress.get("cache_phase", "idle"), "pause_reason": progress.get("pause_reason"),
             "local_snapshot_at": time.time(), "rescore": None}
         if self.rescore:
             receipt = _read(self.rescore, "rescore.json", sealed=True)
@@ -166,7 +170,8 @@ class Controller:
                 "output_dir": str(self.evidence.directory.parent / ("genui_stage3_" + time.strftime("%Y%m%d_%H%M%S") + "_" + secrets.token_hex(3))),
                 "samples": config.get("samples", 100), "seed": config.get("seed", 123),
                 "selection_profile": config.get("selection_profile", "failure_mix_v1"),
-                "reasoning_summary": config.get("reasoning_summary", "auto"), "timeout": self.run_timeout}
+                "reasoning_summary": config.get("reasoning_summary", "auto"), "timeout": self.run_timeout,
+                "workers": config.get("generation_workers", 2)}
 
     def _client(self):
         with self._lock:
@@ -253,7 +258,9 @@ class Controller:
         try:
             options = dict(options)
             timeout = options.pop("timeout")
-            openai_stage3_batch.prepare(**options, transport="chatgpt", pilot_profile="fidelity_v2", generation_timeout=timeout)
+            workers = options.pop("workers")
+            openai_stage3_batch.prepare(**options, transport="chatgpt", pilot_profile="fidelity_v2",
+                                       generation_timeout=timeout, generation_workers=workers)
             with self._lock:
                 self.evidence = Evidence(options["output_dir"])
                 self.run_timeout = timeout
