@@ -307,10 +307,31 @@ def prepare(input_dir: Path, output_dir: Path, *, samples=1000, seed=123,
     return result
 
 
-def load(output: Path) -> dict:
-    contract = checked(output / "contract.json")
+CHATGPT_RUNTIME_RECEIPT = "chatgpt_runtime_upgrade.json"
+CHATGPT_RUNTIME_VERSION = "genui-dispatch-file-sharing-v1"
+# Only this reviewed predecessor is eligible; prompts, guards, schemas, client
+# settings and every other code hash must still match byte for byte.
+CHATGPT_DISPATCH_PREDECESSOR = {
+    "dataset/src/pipeline/chatgpt_stage3.py": "ec54586722c8174f7ae71f8b2091ebd0acff35945ed54684a5f3a8e18b472242",
+    "dataset/src/pipeline/openai_stage3_batch.py": "7e0bb3bc7f5d5428993bccbec91f2031440ea1792410f5c0f967dc31a81075c2",
+}
+
+
+def dispatch_runtime_changes(contract, current):
+    previous = contract["code_hashes"]
+    changes = {name: {"before": previous.get(name), "after": current.get(name)}
+               for name in previous.keys() | current.keys() if previous.get(name) != current.get(name)}
+    if (contract["config"].get("transport") != "chatgpt"
+            or set(changes) != set(CHATGPT_DISPATCH_PREDECESSOR)
+            or any(previous.get(name) != sha or name not in current
+                   for name, sha in CHATGPT_DISPATCH_PREDECESSOR.items())):
+        raise ValueError("Runtime upgrade is limited to the reviewed ChatGPT dispatch fix; bound code/prompt/policy changed")
+    return changes
+
+
+def validate_bound_files(output, contract):
     fidelity_v2.profile(contract["config"])
-    if contract["version"] != VERSION or contract["code_hashes"] != fingerprint() or contract["guard"] != guard.guard_identity():
+    if contract["version"] != VERSION or contract["guard"] != guard.guard_identity():
         raise ValueError("Bound code/prompt/schema/policy changed; use the original code for this pilot")
     for name, expected in contract["files"].items():
         if file_hash(safe_path(output / name)) != expected:
@@ -318,6 +339,27 @@ def load(output: Path) -> dict:
     for name, expected in contract["benchmark_files"].items():
         if file_hash(ROOT / name) != expected:
             raise ValueError("Pinned benchmark exclusion policy changed")
+
+
+def load(output: Path, *, chatgpt_runtime_upgrade=False) -> dict:
+    contract = checked(output / "contract.json")
+    current = fingerprint()
+    if contract["code_hashes"] != current:
+        receipt_path = output / CHATGPT_RUNTIME_RECEIPT
+        if not chatgpt_runtime_upgrade or not receipt_path.exists():
+            raise ValueError("Bound code/prompt/schema/policy changed; use the original code for this pilot")
+        changes = dispatch_runtime_changes(contract, current)
+        receipt = checked(receipt_path)
+        if (receipt.get("version") != CHATGPT_RUNTIME_VERSION or receipt.get("contract_sha256") != digest(contract)
+                or receipt.get("code_hashes") != current or receipt.get("changes") != changes
+                or not isinstance(receipt.get("preserved_records"), dict)):
+            raise ValueError("ChatGPT runtime upgrade receipt changed or is incompatible")
+        for identifier, expected in receipt["preserved_records"].items():
+            if identifier not in contract["bindings"] or Path(identifier).name != identifier:
+                raise ValueError("Unknown preserved ChatGPT output")
+            if file_hash(safe_path(output / "chatgpt_records" / (identifier + ".json"))) != expected:
+                raise ValueError("Preserved ChatGPT output changed after runtime upgrade")
+    validate_bound_files(output, contract)
     return contract
 
 
@@ -405,7 +447,7 @@ def validate_results(output: Path, contract: dict, records: list[dict], batch_st
             assessment.update(eligible=False, reasons=[str(exc)])
         assessments.append(assessment)
     # Recheck before publication; the accepted file is a pilot subset, never a full dataset.
-    load(output)
+    load(output, chatgpt_runtime_upgrade=chatgpt)
     runner.write_rows(output / "pilot_accepted.jsonl", accepted)
     runner.write_rows(output / "assessments.jsonl", assessments)
     runner.write_rows(output / "rejected.jsonl", (item for item in assessments if not item["eligible"]))

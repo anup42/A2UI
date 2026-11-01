@@ -35,6 +35,7 @@ def main():
     run.add_argument("--workers", type=int, help="Override prepared concurrency (1..8); the chosen count is recorded for this invocation")
     run.add_argument("--skip-uncertain", action="store_true", help="Keep uncertain attempts as skipped, never regenerate them")
     collect = commands.add_parser("collect", help="Offline canonical Stage 3 and strict quality checks")
+    upgrade = commands.add_parser("upgrade-dispatch-runtime", help="Offline audited Windows dispatch fix; preserves completed outputs, never generates")
     dashboard = commands.add_parser("dashboard", help="Local GenUI dashboard; no automatic sign-in or generation")
     dashboard.add_argument("--port", type=int, default=8767)
     dashboard.add_argument("--rescore-dir", type=Path, help="Optional separately sealed offline reassessment of this pilot")
@@ -43,7 +44,7 @@ def main():
     login.add_argument("--device", action="store_true", help="Use the official device-code flow for a remote host")
     login.add_argument("--no-browser", action="store_true")
     status = commands.add_parser("account", help="Check GenUI sign-in without generation")
-    for command in (prepare, run, collect, dashboard):
+    for command in (prepare, run, collect, dashboard, upgrade):
         command.add_argument("--output-dir", type=Path, required=True)
     for command in (run, dashboard, login, status):
         command.add_argument("--auth-home", type=Path, help="Dedicated auth directory outside the repository; default ~/.genui/codex")
@@ -55,6 +56,8 @@ def main():
             result = openai_stage3_batch.prepare(**args, transport="chatgpt", pilot_profile="fidelity_v2")
         elif command in {"run", "collect"}:
             result = getattr(chatgpt_stage3, command)(**args)
+        elif command == "upgrade-dispatch-runtime":
+            result = chatgpt_stage3.upgrade_dispatch_runtime(**args)
         elif command == "dashboard":
             controller = Controller(args["output_dir"], args["auth_home"], args["rescore_dir"], codex_executable=args["codex_executable"])
             server = make_server(controller, args["port"])

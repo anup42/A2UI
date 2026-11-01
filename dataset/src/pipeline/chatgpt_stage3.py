@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 import threading
 import time
+import traceback
 from collections import Counter, defaultdict, deque
 from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
 from pathlib import Path
@@ -19,17 +20,42 @@ from pipeline.genui_codex_client import (
 )
 from pipeline.v11_regeneration import _exclusive
 from pipeline.v11_regeneration_io import (
-    atomic_bytes,
+    atomic_bytes as _atomic_bytes,
+)
+from pipeline.v11_regeneration_io import (
     canonical,
     checked,
     digest,
     file_hash,
     safe_path,
-    save,
+)
+from pipeline.v11_regeneration_io import (
+    save as _save,
 )
 
 VERSION = "genui-chatgpt-stage3-v1"
 MAX_WORKERS = 8
+WRITE_ATTEMPTS = 10
+
+
+def _persist(writer, path, value):
+    # Windows readers (including the dashboard) can briefly deny atomic replace.
+    # Retry identical local bytes, never a provider request or an integrity error.
+    for attempt in range(WRITE_ATTEMPTS):
+        try:
+            return writer(path, value)
+        except OSError as exc:
+            if getattr(exc, "winerror", None) not in {5, 32, 33} or attempt == WRITE_ATTEMPTS - 1:
+                raise
+            time.sleep(min(.01 * 2 ** attempt, .25))
+
+
+def atomic_bytes(path, content):
+    return _persist(_atomic_bytes, path, content)
+
+
+def save(path, value):
+    return _persist(_save, path, value)
 
 
 def worker_count(value):
@@ -39,10 +65,39 @@ def worker_count(value):
 
 
 def load(output):
-    contract = pilot.load(output)
+    contract = pilot.load(output, chatgpt_runtime_upgrade=True)
     if contract["config"].get("transport") != "chatgpt":
         raise ValueError("Prepare a fresh ChatGPT run; existing API Batch runs cannot be repurposed")
     return contract
+
+
+def upgrade_dispatch_runtime(output_dir: Path):
+    """Offline, audited upgrade from the known Windows dispatch implementation."""
+    output = safe_path(output_dir)
+    with _exclusive(output):
+        receipt = output / pilot.CHATGPT_RUNTIME_RECEIPT
+        if receipt.exists():
+            load(output)
+            return {"status": "runtime_upgrade_already_registered"}
+        contract = checked(output / "contract.json")
+        current = pilot.fingerprint()
+        changes = pilot.dispatch_runtime_changes(contract, current)
+        pilot.validate_bound_files(output, contract)
+        if (output / "chatgpt_collection.json").exists():
+            raise ValueError("Collected runs cannot change their runtime")
+        state = _state(output, contract)
+        found = records(output, contract, state)
+        if (len(found) != len(state["attempts"]) or any(r["status"] != "completed" for r in found)
+                or any(a["status"] != "completed" for a in state["attempts"].values())):
+            raise ValueError("Resolve uncertain/in-flight attempts before a runtime upgrade; no retries permitted")
+        preserved = {r["custom_id"]: file_hash(output / "chatgpt_records" / (r["custom_id"] + ".json"))
+                     for r in found}
+        save(receipt, {"version": pilot.CHATGPT_RUNTIME_VERSION, "contract_sha256": digest(contract),
+                       "code_hashes": current, "changes": changes, "preserved_records": preserved,
+                       "created_at": time.time()})
+        load(output)
+        return {"status": "runtime_upgrade_registered_no_generation", "preserved_outputs": len(preserved),
+                "remaining": len(contract["bindings"]) - len(preserved), "changes": changes}
 
 
 def response_text(record, config):
@@ -183,7 +238,12 @@ def _dispatch(output, contract, state, indexed, pending, client, timeout, worker
         raise ValueError("Parallel generation requires an identical shared instruction prefix and model settings")
     state.update(workers=workers, cache_prefix_sha256=next(iter(prefixes)), cache_warm_start_completed=False)
     state.pop("pause_reason", None)
-    state.setdefault("execution_history", []).append({"started_at": time.time(), "workers": workers})
+    state.pop("dispatch_error", None)
+    execution = {"started_at": time.time(), "workers": workers}
+    upgrade = output / pilot.CHATGPT_RUNTIME_RECEIPT
+    if upgrade.exists():
+        execution["runtime_upgrade_sha256"] = file_hash(upgrade)
+    state.setdefault("execution_history", []).append(execution)
     lock, stopped = threading.RLock(), threading.Event()
     remaining, active = deque(pending), set()
     requested, last_limits_at = len(contract["bindings"]), None
@@ -268,8 +328,20 @@ def _dispatch(output, contract, state, indexed, pending, client, timeout, worker
                     with lock:
                         if not stopped.is_set():
                             state["cache_warm_start_completed"] = True
-            except BaseException:
-                pause("Dispatch stopped; inspect local evidence before resuming.")
+            except BaseException as exc:
+                diagnostic = {"type": type(exc).__name__, "errno": getattr(exc, "errno", None),
+                              "winerror": getattr(exc, "winerror", None), "at": time.time(),
+                              "frames": [{"file": Path(f.filename).name, "function": f.name, "line": f.lineno}
+                                         for f in traceback.extract_tb(exc.__traceback__)]}
+                with lock:
+                    state["dispatch_error"] = diagnostic
+                    state.setdefault("dispatch_errors", []).append(diagnostic)
+                reason = (f"Dispatch stopped ({diagnostic['type']}, errno={diagnostic['errno']}, "
+                          f"winerror={diagnostic['winerror']}); saved outputs retained. "
+                          "Inspect generation.json dispatch_error before resuming.")
+                pause(reason)
+                if isinstance(exc, (OSError, KeyError, TypeError)):
+                    raise RuntimeError(reason) from exc  # noqa: TRY004 -- operational failure, not argument validation
                 raise  # The executor drains already-issued calls and saves their results first.
     finally:
         with lock:
@@ -367,6 +439,8 @@ def collect(output_dir: Path):
         save(output / "generation.json", state)
         _progress(output, state, len(contract["bindings"]), found)
         names = ["report.json", "usage.json", "assessments.jsonl", "pilot_accepted.jsonl", "rejected.jsonl", "generation.json", "progress.json"]
+        if (output / pilot.CHATGPT_RUNTIME_RECEIPT).exists():
+            names.append(pilot.CHATGPT_RUNTIME_RECEIPT)
         paths = [output / name for name in names]
         paths += list((output / "chatgpt_records").glob("*.json"))
         paths += [p for p in (output / report["stage3_artifacts"]).rglob("*") if p.is_file()]

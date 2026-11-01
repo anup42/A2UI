@@ -104,6 +104,37 @@ Only the configured number of requests may be in flight. A reported exhausted al
 
 Prepare a fresh run after updating generation code: existing prepared runs deliberately pin their source/prompt/code fingerprints and cannot silently adopt this implementation. Existing sealed archives remain read-only.
 
+### Recover the Windows dispatch file-sharing failure
+
+The ChatGPT runner now retries only identical local journal/status writes when
+Windows briefly denies replacement of a file being read by the dashboard
+(WinError 5, 32 or 33). There are at most ten attempts with bounded backoff;
+permanent write failures still stop dispatch. Provider calls are never retried.
+Unexpected dispatch failures record the exception type, OS codes and code
+locations in `generation.json`, without exception text, credentials or prompts.
+
+For an uncollected run prepared with the reviewed predecessor, apply the narrow
+offline runtime upgrade before resuming:
+
+```bash
+python dataset/scripts/genui_stage3.py upgrade-dispatch-runtime --output-dir /path/to/existing_run
+python dataset/scripts/genui_stage3.py dashboard --output-dir /path/to/existing_run --port 8771 --open
+```
+
+Restart the idle dashboard to load the fixed code, check sign-in, and select
+**Start generation** once. Completed outputs are verified and reused; only
+unattempted sources are dispatched. The dashboard validates the full run after
+generation finishes. CLI `run` can also resume, followed by `collect`.
+
+The upgrade writes `chatgpt_runtime_upgrade.json`; it never rewrites the original
+contract, captured requests, sources or saved outputs. It permits only the two
+reviewed dispatch/loader file changes from their exact predecessor hashes, pins
+the new full code fingerprint, and checks every preserved output hash on resume.
+Prompt, schema, fidelity policy, model/client settings, source/request changes,
+unknown predecessor versions, subsequent code drift and uncertain attempts are
+rejected. The API Batch loader and all normal training paths retain their
+existing strict behavior. This is not a general code-change override.
+
 An interruption or provider error may consume allowance even if no response reached the client. GenUI stops dispatch, saves any already-running results, and does not retry. Inspect `generation.json` and `chatgpt_records/`, then explicitly skip an uncertain attempt if you want to continue:
 
 ```bash
