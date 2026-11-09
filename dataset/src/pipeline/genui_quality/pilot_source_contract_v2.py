@@ -21,6 +21,9 @@ _EXPLICIT_ACTION = re.compile(
     r"(?:<(https://[^\s<>]+)>|(https://[^\s<>]+|\{\{u\d+\}\}|\[(?:[A-Z_]+_)?URL_\d+\]))\s*$"
 )
 _LABELED_SOURCE = re.compile(r"^(.+?):\s*(?:<(https://[^\s<>]+)>|(https://[^\s<>]+))\s*$")
+_HEADING = re.compile(r"^(?:#{1,6}\s+(.+)|\*\*([^*]+)\*\*)$")
+_SOURCE_TITLE = re.compile(r"(?i)^(?:(?:[\w-]+ )*(?:sources?|references?|citations?|resources)|"
+                           r"(?:sources?|references?|citations?|resources) for .+):?$")
 
 
 def declared_media_occurrences(source: str) -> list[dict]:
@@ -98,6 +101,7 @@ def source_link_occurrences(source: str) -> list[dict[str, Any]]:
     """Explicit source-heading Markdown or label-colon-angle link lines."""
     found = []
     in_sources = False
+    explicit_heading = False
     fence = None
     offset = 0
     heading_span = None
@@ -113,9 +117,15 @@ def source_link_occurrences(source: str) -> list[dict[str, Any]]:
             continue
         if fence is not None:
             continue
-        if source_heading(raw):
-            in_sources = True
-            heading_span = (start, end)
+        heading = _HEADING.fullmatch(raw)
+        bare = source_heading(raw)
+        if heading or bare:
+            title = (heading[1] or heading[2]).strip() if heading else ""
+            explicit_heading = heading is not None
+            in_sources = bare or bool(_SOURCE_TITLE.fullmatch(title))
+            # A qualified source title is meaningful visible prose. Only the
+            # legacy bare section labels retain their existing optional role.
+            heading_span = (start, end) if bare else None
             continue
         inline = re.match(r"(?i)^(?:source|reference|citation)\s*:\s*(.+)$", raw)
         body = inline[1] if inline else re.sub(r"^(?:[-*+]\s+|\d+[.)]\s+)", "", raw)
@@ -127,7 +137,7 @@ def source_link_occurrences(source: str) -> list[dict[str, Any]]:
         labeled = _LABELED_SOURCE.fullmatch(body) if match is None else None
         match = match or labeled
         if match is None:
-            if raw:
+            if raw and (not explicit_heading or re.match(r"(?i)^(?:Action|Media):", raw)):
                 in_sources = False
                 heading_span = None
             continue

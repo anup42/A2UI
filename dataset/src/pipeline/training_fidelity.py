@@ -176,10 +176,17 @@ def audit_training_fidelity(source: str, graph: Mapping[str, Any], *,
     contexts = [" ".join(str(header) + " " + str(row.get(key, ""))
                           for header, key in zip(table.headers, table.keys))
                 for table in output.output_tables for row in table.rows]
-    for role in output.role_instances.get("email", ()):
-        for field, label in (("subject", "Subject"), ("from", "From"), ("to", "To")):
-            if role.get(field):
-                contexts.append(label + ": " + str(role[field]))
+    if pilot_fidelity_v2:
+        from pipeline.genui_quality.pilot_semantic_fields_v2 import EMAIL_FIELDS
+
+        contexts.extend(EMAIL_FIELDS[item["semantic_field"]] + ": " + str(item["text"])
+                        for item in output.evidence_ownership if item.get("owner") == "source_email"
+                        and item.get("semantic_field") in EMAIL_FIELDS)
+    else:
+        for role in output.role_instances.get("email", ()):
+            for field, label in (("subject", "Subject"), ("from", "From"), ("to", "To")):
+                if role.get(field):
+                    contexts.append(label + ": " + str(role[field]))
     tokenize = _tokens_v2 if pilot_fidelity_v2 else _tokens
     represented = " " + tokenize("\n".join(visible)) + " "
     context_tokens = [" " + tokenize(value) + " " for value in contexts]

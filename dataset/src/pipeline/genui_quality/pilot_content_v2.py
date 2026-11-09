@@ -97,7 +97,7 @@ def project_exact_pipe_cards(source, ownership, generic_owners, *, source_text="
                     or any(row.get("pilot_entity_projected") for row in group)):
                 continue
             if tuple(tuple(str(row["text"]).split()) for row in group) == parts:
-                if source_text and not _pipe_references_exact(source_text, unit.raw, instance, actions, media):
+                if source_text and not _pipe_references_exact(source_text, unit.raw, instance, rows, actions, media):
                     continue
                 matches.append((unit, window))
         # Equivalent duplicated source occurrences still have one exact shape;
@@ -114,7 +114,7 @@ def project_exact_pipe_cards(source, ownership, generic_owners, *, source_text="
     return [row for i, row in enumerate(rows) if i not in consumed], certificates
 
 
-def _pipe_references_exact(source, unit, instance, actions, media):
+def _pipe_references_exact(source, unit, instance, ownership, actions, media):
     """Keep each record's declared actions/media in the same rendered Card."""
     from .pilot_source_contract_v2 import (
         declared_media_occurrences,
@@ -126,6 +126,9 @@ def _pipe_references_exact(source, unit, instance, actions, media):
     if len(locations) != 1:
         return False
     expected, expected_media = [], []
+    prose = Counter(layout_text(row["text"]) for row in ownership
+                    if row.get("card_instance") == instance and row.get("component_type") == "text"
+                    and row.get("owner") == "generic_visible_content")
     def media_key(kind, url):
         kind = str(kind).casefold()
         return ("audio" if kind == "audioplayer" else kind, url)
@@ -146,9 +149,17 @@ def _pipe_references_exact(source, unit, instance, actions, media):
         if "|" not in line and re.fullmatch(r"\s*[-*+]\s+\S.*", line):
             continue
         declared = source_action_occurrences(line)
-        if not declared:
+        if declared:
+            expected.extend((item["label"], item["target"]) for item in declared)
+            continue
+        text = layout_text(line)
+        # A complete visible sentence between a record and its reference can
+        # establish ownership inside the same block. Never cross a heading,
+        # blank line or ambiguous directive to find a reference.
+        if (not prose[text] or not re.search(r"[.!?]$", text)
+                or re.match(r"(?i)^\s*(?:#|\*\*|Action:|Media:|Source:|Reference:)", line)):
             break
-        expected.extend((item["label"], item["target"]) for item in declared)
+        prose[text] -= 1
     actual = [(item.get("label"), item.get("target")) for item in actions
               if item.get("card_instance") == instance]
     actual_media = [media_key(item.get("kind"), item.get("raw_url")) for item in media
@@ -305,14 +316,14 @@ def project_exact_formula_prose(source, ownership, *, source_text=""):
 
 
 def split_exact_multiline(source: Sequence[PreparedTextBlock],
-                          output: Sequence[PreparedTextBlock]):
+                          output: Sequence[PreparedTextBlock], *, spelling=str):
     # Whitespace alone is a component/layout boundary. Retain EVERY other
     # character, including approximation, signs, scripts and punctuation.
     # Generic lexical tokenizers discard meaningful math symbols and cannot
     # justify replacing output blocks with original source units.
     units = {}
     for unit in source:
-        key = tuple(unit.raw.split())
+        key = tuple(spelling(unit.raw).split())
         if key:
             units.setdefault(key, unit)
     trie = {}
@@ -324,7 +335,7 @@ def split_exact_multiline(source: Sequence[PreparedTextBlock],
     result, certificates = [], []
     remaining_work = 100_000
     for index, block in enumerate(output):
-        tokens = tuple(block.raw.split())
+        tokens = tuple(spelling(block.raw).split())
         if "\n" not in block.raw or tokens in units:
             result.append(block)
             continue

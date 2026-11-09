@@ -1,5 +1,5 @@
 {
-  "policy_version": "openai-stage3-fidelity-v2-20261102",
+  "policy_version": "openai-stage3-fidelity-v2-20261109",
   "scope": "Explicit fidelity_v2 OpenAI pilot only; reviewed source hashes, no source rewriting or shared-policy changes.",
   "holds": [
     {
@@ -73,6 +73,54 @@
       "reason": "Room assignments and 16-slot judging schedules faithfully structured. Source and output label 2030-11-05 Wednesday, but Python Gregorian calendar gives Tuesday. Source defect, not a Stage 3 hallucination.",
       "review": "genui_chatgpt_sol_1000_analysis_20261102_r1/source_calendar_errors.json",
       "review_sha256": "84c495de6e4836e9e7beacd87512cc83da8d359d812f634e449ad993802ee0dc"
+    },
+    {
+      "source_id": "archive-train-104222-cc3546a10fda15ad",
+      "source_sha256": "6ae6ee5ad8eab10470c4515b154e9d0f4fc19d5cd2651cc556d3afffda7162c8",
+      "sample_index": 76,
+      "reason": "The bound Search Novena action has an invalid web host.",
+      "review": "genui_latest_1000_review_20261109/proposed_source_holds.json",
+      "review_sha256": "65073794e1180580687a62d0247896c3d877e1ee524cc1fa1f1dfce5c43a98dc"
+    },
+    {
+      "source_id": "dataset_muse_glimmer_100k_r1:u_015585_01:16546",
+      "source_sha256": "b93d6d4788dad04abe29fbb190509abf424658d25e88c8ee6cce42559d5787f3",
+      "sample_index": 442,
+      "reason": "The source labels 2035-09-14 Sunday. The Gregorian weekday is Friday.",
+      "review": "genui_latest_1000_review_20261109/proposed_source_holds.json",
+      "review_sha256": "65073794e1180580687a62d0247896c3d877e1ee524cc1fa1f1dfce5c43a98dc"
+    },
+    {
+      "source_id": "archive-train-113677-5b04569402c15a14",
+      "source_sha256": "17ffa5c643b91ebad7142945174bc64b779eeb929b4d83b82a0e07740db9a701",
+      "sample_index": 697,
+      "reason": "The Compare Cost of Living action opens with an angle bracket and closes with a parenthesis.",
+      "review": "genui_latest_1000_review_20261109/proposed_source_holds.json",
+      "review_sha256": "65073794e1180580687a62d0247896c3d877e1ee524cc1fa1f1dfce5c43a98dc"
+    },
+    {
+      "source_id": "archive-train-074406-d0285b3614b9ff0d",
+      "source_sha256": "cae31a639932e0f5087d8335871608fd9b4047f0ca8821b1a053ea44055d08ec",
+      "sample_index": 747,
+      "reason": "The Nissan Service Center action opens with an angle bracket and closes with a parenthesis.",
+      "review": "genui_latest_1000_review_20261109/proposed_source_holds.json",
+      "review_sha256": "65073794e1180580687a62d0247896c3d877e1ee524cc1fa1f1dfce5c43a98dc"
+    },
+    {
+      "source_id": "dataset_muse_glimmer_100k_r3:u_004652_01:4710",
+      "source_sha256": "5d40de3656d00039488a940f5a320a6942fcaf72f4721cc8eca21fde50220cbd",
+      "sample_index": 856,
+      "reason": "The source labels 2027-04-03 Friday. The Gregorian weekday is Saturday.",
+      "review": "genui_latest_1000_review_20261109/proposed_source_holds.json",
+      "review_sha256": "65073794e1180580687a62d0247896c3d877e1ee524cc1fa1f1dfce5c43a98dc"
+    },
+    {
+      "source_id": "archive-train-096359-bb66e0a8b9bcbade",
+      "source_sha256": "9e7ece4372a7c6e0cbb77381ed0996be1580f89c75f7da658da77269722b2239",
+      "sample_index": 997,
+      "reason": "The Vaccine Info action opens with an angle bracket and closes with a parenthesis.",
+      "review": "genui_latest_1000_review_20261109/proposed_source_holds.json",
+      "review_sha256": "65073794e1180580687a62d0247896c3d877e1ee524cc1fa1f1dfce5c43a98dc"
     }
   ]
 }

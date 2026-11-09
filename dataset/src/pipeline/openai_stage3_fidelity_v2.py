@@ -5,13 +5,15 @@ import hashlib
 import json
 import re
 from pathlib import Path
+from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parents[3]
 PROFILE = "fidelity_v2"
 PROFILES = ("legacy", PROFILE)
-POLICY_VERSION = "openai-stage3-fidelity-v2-20261102"
+POLICY_VERSION = "openai-stage3-fidelity-v2-20261109"
 HOLDS_PATH = ROOT / "dataset/configs/openai_stage3_fidelity_v2_source_holds.json"
 SUPPLEMENT_PATH = ROOT / "dataset/prompts/openai_stage3_fidelity_v2.md"
+_WEB_ACTION = re.compile(r"(?i)^Action:\s*\[[^\]]+\]\s*(<?https?://.+)$")
 
 
 def profile(config: dict) -> str:
@@ -38,6 +40,27 @@ def is_declared_reference(source: str, start: int, raw: str) -> bool:
     prefix = source[source.rfind("\n", 0, start) + 1:start]
     return bool(re.fullmatch(
         r"(?i)\s*(?:Media:\s*.*?)?(?:Image|Icon|Video|Audio|Asset)\s*[:=]\s*", prefix))
+
+
+def _web_action_issues(source: str) -> list[str]:
+    from pipeline.source_quality import _url_issue
+
+    reasons, fence = [], None
+    for number, line in enumerate(source.splitlines(), 1):
+        raw = line.strip()
+        if raw.startswith(("```", "~~~")):
+            marker = raw[:3]
+            fence = None if fence == marker else fence or marker
+            continue
+        match = _WEB_ACTION.fullmatch(raw) if fence is None else None
+        if not match:
+            continue
+        value = match[1]
+        target = value.removeprefix("<").removesuffix(">")
+        if (value.startswith("<") != value.endswith(">") or "<" in target or ">" in target
+                or _url_issue(target) or (urlsplit(target).hostname or "").casefold().rstrip(".") == "www"):
+            reasons.append(f"pilot_invalid_web_action_destination:line_{number}")
+    return reasons
 
 
 def reference_preflight(row: dict) -> dict:
@@ -69,6 +92,7 @@ def reference_preflight(row: dict) -> dict:
         if expected and expected != hashlib.sha256(source.encode("utf-8")).hexdigest():
             reasons.append("reference_source_hash_mismatch")
         restored = restore_url_placeholders(source, mapping)
+        reasons.extend(_web_action_issues(restored))
         unresolved = sorted(reference_tokens(restored))
         if unresolved and not missing:
             reasons.append("pilot_unresolved_source_references:" + ",".join(unresolved))

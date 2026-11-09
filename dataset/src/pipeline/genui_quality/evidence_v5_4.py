@@ -299,6 +299,23 @@ class _EvidenceInterpreterV54(_EvidenceInterpreterV53):
             message_key = "message" if props.get("message") is not None else "text"
             metadata = " • ".join(value for value in (display("timestamp"), display("source")) if value)
             return [value for value in (display("title"), display(message_key), metadata) if value]
+        if getattr(self.config, "pilot_fidelity_v2", False) and element_type == "emailpreview":
+            return [*super()._text_values(element_type, props),
+                    *([props["date"].strip()] if isinstance(props.get("date"), str) and props["date"].strip() else [])]
+        if getattr(self.config, "pilot_fidelity_v2", False) and element_type == "checklist":
+            # The native Checklist consumes maps with labels and renders at
+            # most twenty. Never treat a string item as visible evidence.
+            items = props.get("items")
+            rows = [item for item in items or () if isinstance(item, Mapping)
+                    and isinstance(item.get("label"), str) and item["label"].strip()] if isinstance(items, list) else []
+            if not isinstance(items, list) or len(rows) != len(items) or len(rows) > 20:
+                self.resolver._unknown("pilot_checklist_items_not_renderable")
+            visible = [kotlin_string_v5_4(props.get("title")).strip()]
+            for item in rows[:20]:
+                visible.extend((item["label"].strip() + (" *" if item.get("required") is True else ""),
+                                kotlin_string_v5_4(item.get("detail")).strip()))
+            visible.extend(kotlin_string_v5_4(props.get(key)).strip() for key in ("disclaimer", "source"))
+            return [text for text in visible if text]
         return super()._text_values(element_type, props)
 
     def __init__(
@@ -626,6 +643,7 @@ class _EvidenceInterpreterV54(_EvidenceInterpreterV53):
 
             structured: _core.OutputTable | None
             owner: str
+            axes = []
             component_detail: dict[str, Any]
             if token == "table":
                 model = effective_table(props, self.state)
@@ -697,6 +715,14 @@ class _EvidenceInterpreterV54(_EvidenceInterpreterV53):
                     )
                     if chart.title:
                         self.visible_blocks.append(chart.title)
+                    if getattr(self.config, "pilot_fidelity_v2", False):
+                        for field, key in (("x", "xLabel"), ("y", "yLabel"), ("right y", "rightYLabel")):
+                            raw_axis = props.get(key)
+                            if isinstance(raw_axis, str) and raw_axis.strip():
+                                label = raw_axis.strip()
+                                if field == "x" and chart.x_type == "time":
+                                    label += " (UTC)"
+                                axes.append((field, label))
 
             if structured is not None:
                 self.visible_blocks.extend(
@@ -722,6 +748,10 @@ class _EvidenceInterpreterV54(_EvidenceInterpreterV53):
                         "text": str(block),
                     }
                 )
+            for field, text in axes:
+                self.visible_blocks.append(text)
+                self.block_ownership.append({"component_id": element_id, "owner": owner, "text": text,
+                                             "semantic_field": field, "chart_title": chart.title})
             for action in self.actions[before["actions"] :]:
                 self.action_taxonomy.append(
                     {
@@ -843,14 +873,15 @@ class _EvidenceInterpreterV54(_EvidenceInterpreterV53):
                 if token == "table" and len(self.tables) > before["tables"]:
                     row["table_header"] = row_index < len(self.tables[before["tables"]].headers)
                 if token == "emailpreview":
-                    fields = [name for name in ("subject", "body")
-                              if str(props.get(name) or "").strip() == str(row.get("text") or "").strip()]
+                    fields = [name for name in ("subject", "title", "to", "from", "date", "body")
+                              if isinstance(props.get(name), str) and props[name].strip() == row.get("text")]
                     if len(fields) == 1:
                         row["semantic_field"] = fields[0]
             if getattr(self.config, "pilot_fidelity_v2", False) and row_index == 0:
                 text_heading = token == "text" and str(props.get("variant") or "").casefold() in {"h1", "h2", "h3", "h4", "title", "heading"}
                 alert_heading = token == "alert" and bool(kotlin_string_v5_4(props.get("title")).strip())
-                if text_heading or alert_heading:
+                checklist_heading = token == "checklist" and bool(kotlin_string_v5_4(props.get("title")).strip())
+                if text_heading or alert_heading or checklist_heading:
                     row["rendered_heading"] = True
             if self._card_instances:
                 row["card_instance"] = self._card_instances[-1]

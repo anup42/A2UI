@@ -128,6 +128,44 @@ def test_chatgpt_rescore_is_offline_and_preserves_all_sealed_bytes(archive, monk
     assert len(calls) == 3 and rescore._snapshot(root) == before
 
 
+@pytest.mark.parametrize("mutation", [None, "text", "previous_status", "candidate", "eligible"])
+def test_sealed_chatgpt_skip_is_counted_without_scoring_an_output(archive, mutation):
+    root, calls = archive
+    identifier, path = chatgpt_archive(root)
+    record = checked(path)
+    record.update(status="skipped", previous_status="unknown")
+    record.pop("text")
+    if mutation == "text":
+        record["text"] = "<a2ui>root=Text(\"Uncertain\")</a2ui>"
+    if mutation == "previous_status":
+        record["previous_status"] = "completed"
+    save(path, record)
+    state = checked(root / "generation.json")
+    state["attempts"][identifier].update(status="skipped", record_sha256=file_hash(path))
+    save(root / "generation.json", state)
+    write(root, "assessments.jsonl", {"source_id": "source-1", "custom_id": identifier,
+          "eligible": mutation == "eligible", "reasons": ["chatgpt_result_missing_failed_or_incomplete"]})
+    if mutation != "candidate":
+        (root / "v-1/stage3/genui.jsonl").write_bytes(b"")
+    chatgpt_seal(root)
+    output = root.with_name("rescored")
+    if mutation is not None:
+        with pytest.raises(ValueError, match="skipped ChatGPT result|Skipped ChatGPT result"):
+            rescore.rescore(root, output)
+        assert not calls and not output.exists()
+        return
+
+    before = rescore._snapshot(root)
+    summary = rescore.rescore(root, output)
+    assert summary["overall"]["requests"] == 1
+    assert summary["overall"]["canonical_candidates"] == summary["overall"]["v2_accepted"] == 0
+    assert len(calls) == 1 and calls[0][-1] is True  # Original label only.
+    assert rescore._rows(output / "assessments.jsonl")[0]["v2"]["reasons"] == [
+        "chatgpt_result_missing_failed_or_incomplete",
+    ]
+    assert rescore._snapshot(root) == before
+
+
 @pytest.mark.parametrize("change", [
     {"request_sha256": "f" * 64}, {"contract_sha256": "f" * 64},
     {"model": "wrong-model"}, {"thread_id": None}, {"custom_id": "other"},

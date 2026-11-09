@@ -329,6 +329,7 @@ def _score_one_v5_4(
                 project_exact_equation_rows,
             )
             from .pilot_semantic_fields_v2 import (
+                project_exact_chart_axes,
                 project_exact_email_fields,
                 project_exact_formula_fragments,
                 project_exact_track_tables,
@@ -356,7 +357,8 @@ def _score_one_v5_4(
             rows, formula_certificates = project_exact_formula_fragments(
                 literal_source, rows, source_text=prepared.source_text)
             rows, email_certificates = project_exact_email_fields(literal_source, rows)
-            pilot_certificates["pilot_exact_semantic_fields"] = [*formula_certificates, *email_certificates]
+            rows, axis_certificates = project_exact_chart_axes(prepared.source_text, rows)
+            pilot_certificates["pilot_exact_semantic_fields"] = [*formula_certificates, *email_certificates, *axis_certificates]
             rows, pilot_certificates["pilot_exact_record_tables"] = project_exact_track_tables(
                 tuple(prepare_text_block(line) for line in prepared.source_text.splitlines()),
                 rows, result.output_tables, source_text=prepared.source_text)
@@ -431,7 +433,7 @@ def _score_one_v5_4(
 
     def tables(*args: Any, **kwargs: Any) -> Any:
         from .pilot_layout_v2 import table_fidelity_v2
-        return table_fidelity_v2(*args, **kwargs)
+        return table_fidelity_v2(*args, source_text=prepared.source_text, **kwargs)
 
     def matching_timing(domain: str, elapsed_ms: float) -> None:
         matching_times[domain] = float(elapsed_ms)

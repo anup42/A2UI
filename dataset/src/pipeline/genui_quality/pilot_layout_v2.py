@@ -14,6 +14,7 @@ _PREFIX = re.compile(r"^\s*(?:#{1,6}\s+|(?:[-*+•]|\d+[.)])\s+)")
 # Otherwise dollar delimiters must flank non-space text; a following digit is
 # another currency amount, not a closing delimiter across unrelated prose.
 _PROTECTED = re.compile(
+    r"(?<![\w\\*_])\*\*\$(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?\*\*(?![\w*_])|"
     r"(`+)[\s\S]*?\1|"
     r"(?<!\\)\$(?:(?=[^$\n]*[+=^\\_×÷≈≤≥])|(?=\s*\d[\d.,]*\s*\*+\s*\w)|(?!\s*\d))[^$\n]+\$|"
     r"(?<!\\)\$(?=\S)[^$\n]+(?<!\s)\$(?!\d)"
@@ -27,6 +28,9 @@ def prose_spelling(value: str) -> str:
     powers, script markers, path characters or form blanks.
     """
     def plain(text):
+        # Paired strong delimiters can surround a literal identifier. The
+        # underscores inside that identifier remain part of its spelling.
+        text = re.sub(r"(?<![\w\\*])\*\*([A-Za-z][A-Za-z0-9]*(?:_[A-Za-z0-9]+)+)\*\*(?![\w*])", r"\1", text)
         for marker in ("**", "__", "*", "_"):
             escaped = re.escape(marker)
             pattern = (rf"(?<![\w\\*_]){escaped}([^\s*_](?:[^\n*_]*?[^\s*_])?)"
@@ -34,7 +38,9 @@ def prose_spelling(value: str) -> str:
             def unwrap(match, marker=marker):
                 body = match[1]
                 prose = re.search(r"[^\W\d_]", body) and not re.search(r"[=+×÷<>^~]", body)
-                return body if prose or len(marker) == 2 else match[0]
+                sentence = (marker == "*" and body[0].isupper() and body[-1] in ".!?"
+                            and len(re.findall(r"[^\W\d_]+", body)) >= 3)
+                return body if prose or sentence or len(marker) == 2 else match[0]
             text = re.sub(pattern, unwrap, text)
         return text
     parts, cursor = [], 0
@@ -42,7 +48,11 @@ def prose_spelling(value: str) -> str:
         # A single inline variable has the same visible letter without its
         # math delimiters. Currency, compound math and code remain literal.
         protected = match[0]
-        if re.fullmatch(r"\$[A-Za-z]\$", protected):
+        if protected.startswith("**$"):
+            # Consume each emphasized amount before a later dollar can be
+            # mistaken for the closing delimiter of a math span.
+            protected = protected[2:-2]
+        elif re.fullmatch(r"\$[A-Za-z]\$", protected):
             protected = protected[1:-1]
         parts.extend((plain(value[cursor:match.start()]), protected))
         cursor = match.end()
@@ -77,19 +87,87 @@ def exact_fragments(source: str, parts: list[str]) -> bool:
 def table_cell_spelling(value: str) -> str:
     """Bounded source Markdown spellings, not algebraic equivalence.
 
-    Only an inline comparison symbol and its literal numeric operand can shed
-    dollar delimiters. General formulas, scripts and unknown commands stay raw.
+    Preserve code contents, operators, operands and punctuation. Only complete
+    inline spans with recognized renderer spellings can shed their delimiters.
     """
     value = prose_spelling(str(value))
-    parts = re.split(r"(`+[^`]*`+)", value)
-    for index in range(0, len(parts), 2):
-        parts[index] = re.sub(r"(?<!\\)\$\s*\\(geq?|leq?|neq)\s+([+\-]?\d+(?:\.\d+)?)\s*\$",
-                             lambda m: {"ge": "≥", "geq": "≥", "le": "≤", "leq": "≤", "neq": "≠"}[m[1]] + " " + m[2], parts[index])
-        parts[index] = parts[index].replace(r"\$", "$")
-    return "".join(parts)
+    operators = {"ge": "≥", "geq": "≥", "le": "≤", "leq": "≤", "neq": "≠",
+                 "to": "→", "rightarrow": "→", "times": "×", "cdot": "⋅", "div": "÷"}
+
+    def math(text):
+        text = re.sub(r"(?<![\\$])\$\s*\\(geq?|leq?|neq)\s+([+\-]?\d+(?:\.\d+)?)\s*\$(?![$\d])",
+                      lambda m: operators[m[1]] + " " + m[2], text)
+        text = re.sub(r"(?<![\\$])\$\s*\\(to|rightarrow|times|cdot|div)\s*\$(?![$\d])",
+                      lambda m: operators[m[1]], text)
+        text = re.sub(r"(?<![\\$])\$\s*(\d+(?:\.\d+)?)\s*\\(times|cdot|div)\s*(\d+(?:\.\d+)?)\s*\$(?![$\d])",
+                      lambda m: f"{m[1]} {operators[m[2]]} {m[3]}", text)
+        return text.replace(r"\$", "$")
+
+    parts, cursor = [], 0
+    for span in re.finditer(r"(?<![\\`])(`+)([^`\n]+)\1(?!`)", value):
+        # A simple identifier can render without its code delimiters. Keep
+        # commands, escaped currency, paths and expressions byte-literal.
+        code = span[2] if re.fullmatch(r"[A-Za-z_]\w*(?:[.-]\w+)*", span[2]) else span[0]
+        parts.extend((math(value[cursor:span.start()]), code))
+        cursor = span.end()
+    return "".join((*parts, math(value[cursor:])))
 
 
-def table_fidelity_v2(expected, actual, charts, **kwargs):
+def _literal_source_tables(source_text):
+    """Read full Markdown tables before the shared parser strips *, _ and ~."""
+    from ._core import _TABLE_SEPARATOR_RE
+
+    def cells(line):
+        return tuple(cell.strip() for cell in line.strip().removeprefix("|").removesuffix("|").split("|"))
+
+    lines = source_text.splitlines()
+    index, fence = 0, None
+    while index + 1 < len(lines):
+        line = lines[index].lstrip()
+        marker = re.match(r"^(`{3,}|~{3,})", line)
+        if marker:
+            token = marker[1]
+            if fence is None:
+                fence = token
+            elif token[0] == fence[0] and len(token) >= len(fence):
+                fence = None
+        if fence or marker or "|" not in line or not _TABLE_SEPARATOR_RE.match(lines[index + 1]):
+            index += 1
+            continue
+        header = cells(line)
+        start = index
+        index += 2
+        rows = []
+        while index < len(lines) and "|" in lines[index] and lines[index].strip():
+            rows.append(cells(lines[index]))
+            index += 1
+        if (all(header) and len(cells(lines[start + 1])) == len(header) and rows
+                and all(len(row) == len(header) for row in rows)
+                and not any(r"\|" in raw for raw in lines[start:index])):
+            yield header, tuple(rows)
+
+
+def _restore_literal_tables(source_text, expected):
+    from ._core import normalize_markdown
+
+    by_shape = {}
+    for headers, rows in _literal_source_tables(source_text):
+        shape = (tuple(map(normalize_markdown, headers)),
+                 tuple(tuple(map(normalize_markdown, row)) for row in rows))
+        by_shape.setdefault(shape, set()).add((headers, rows))
+    restored, ambiguous = [], set()
+    for index, table in enumerate(expected):
+        originals = by_shape.get((table.headers, table.rows), ())
+        if len(originals) == 1:
+            headers, rows = next(iter(originals))
+            table = replace(table, headers=headers, rows=rows)
+        elif len(originals) > 1:
+            ambiguous.add(index)
+        restored.append(table)
+    return restored, ambiguous
+
+
+def table_fidelity_v2(expected, actual, charts, *, source_text="", **kwargs):
     """Supplement canonical matching with exact table cell/column ownership.
 
     Canonical matching, representation policies and work budgets still run.
@@ -98,29 +176,48 @@ def table_fidelity_v2(expected, actual, charts, **kwargs):
     """
     from .metrics_v5_3 import table_fidelity_v5_3
 
-    value, detail = table_fidelity_v5_3(expected, actual, charts, **kwargs)
+    literal, ambiguous = _restore_literal_tables(source_text, expected)
+
+    def key(value):
+        return " ".join(table_cell_spelling(str(value)).split())
+
+    # Compare the same narrowly normalized spelling in the canonical matcher
+    # and the exact gate. Keep the original chart representation policies.
+    comparable = [replace(table, headers=tuple(map(key, table.headers)),
+                          rows=tuple(tuple(map(key, row)) for row in table.rows))
+                  for table in literal]
+    actual = [replace(table, headers=tuple(map(key, table.headers)),
+                      rows=[{column: key(value) for column, value in row.items()} for row in table.rows])
+              for table in actual]
+    value, detail = table_fidelity_v5_3(comparable, actual, charts, **kwargs)
     if value is None:
         return value, detail
 
     remaining = list(actual)
     required, matched = 0, 0
-    key = lambda x: " ".join(table_cell_spelling(str(x)).split())
-    for source in expected:
+    for index, source in enumerate(comparable):
         if not source.required or source.minimum_count <= 0:
             continue
         # Chart-permitted representations retain their existing dedicated gate.
         if source.representation_policy != "table_only":
             continue
-        headers = tuple(key(x) for x in source.headers)
+        headers = source.headers
         for _ in range(source.minimum_count):
             required += 1
+            if index in ambiguous:
+                continue
             for position, candidate in enumerate(remaining):
-                actual_headers = tuple(key(x) for x in candidate.headers)
-                if len(set(headers)) != len(headers) or Counter(headers) != Counter(actual_headers):
+                actual_headers = candidate.headers
+                if len(set(candidate.keys)) != len(candidate.keys) or Counter(headers) != Counter(actual_headers):
                     continue
-                order = [candidate.keys[actual_headers.index(header)] for header in headers]
-                rows = tuple(tuple(key(row.get(column, "")) for column in order) for row in candidate.rows)
-                wanted = tuple(tuple(key(cell) for cell in row) for row in source.rows)
+                if len(set(headers)) != len(headers):
+                    if headers != actual_headers:
+                        continue
+                    order = candidate.keys
+                else:
+                    order = [candidate.keys[actual_headers.index(header)] for header in headers]
+                rows = tuple(tuple(row.get(column, "") for column in order) for row in candidate.rows)
+                wanted = source.rows
                 exact = rows == wanted if source.order_sensitive else Counter(rows) == Counter(wanted)
                 if exact:
                     remaining.pop(position)
@@ -128,9 +225,9 @@ def table_fidelity_v2(expected, actual, charts, **kwargs):
                     break
     # A second copy of a source-owned table is extra evidence, not another
     # representation of its single required occurrence.
-    source_headers = {tuple(sorted(key(x) for x in table.headers)) for table in expected
+    source_headers = {tuple(sorted(table.headers)) for table in comparable
                       if table.required and table.minimum_count > 0 and table.representation_policy == "table_only"}
-    duplicates = sum(tuple(sorted(key(x) for x in table.headers)) in source_headers for table in remaining)
+    duplicates = sum(tuple(sorted(table.headers)) in source_headers for table in remaining)
     detail = {**detail, "pilot_exact_cell_ownership": {
         "required_count": required, "matched_count": matched, "unassigned_source_table_count": duplicates}}
     return min(value, matched / (required + duplicates)) if required else value, detail
@@ -193,19 +290,16 @@ def restore_literal_source_view(base, source_ownership):
         # entity record that the original source plan did not recognize.
         units.append(original if _PREFIX.match(raw) else _PREFIX.sub("", original))
     blocks = tuple(prepare_text_block(value) for value in units)
-    # The source-side table projection changes no cell association or counts.
-    tables = [replace(table,
-                      headers=tuple(table_cell_spelling(x) for x in table.headers),
-                      rows=tuple(tuple(table_cell_spelling(x) for x in row) for row in table.rows))
-              for table in base.source_contract.tables]
-    return replace(base, source_contract=replace(base.source_contract, tables=tables),
-                   applicability=replace(base.applicability, generic_source_units=tuple(units)),
+    return replace(base, applicability=replace(base.applicability, generic_source_units=tuple(units)),
                    content_blocks=blocks,
                    content_exact_index=group_exact_indices([content_exact_key_v5_3(x) for x in blocks]))
 
 
 def explicit_field_delimiters(record) -> bool:
-    """A clock or drive colon cannot introduce a labeled entity field."""
+    """Clocks, drive colons and procedural clauses do not label fields."""
+    if (record.source_format == "labeled_comma" and record.identity_label is None
+            and any(re.match(r"(?i)^(?:and )?then\s+", label) for label, _ in record.field_pairs)):
+        return False
     originals = "\n".join(record.original_source_units)
     return all(re.search(re.escape(label) + r":\s+" + re.escape(value), originals)
                for label, value in record.field_pairs)

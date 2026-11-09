@@ -28,6 +28,134 @@ def assess(source, body, *, pilot=True):
                             "<a2ui>" + body + "</a2ui>", pilot_fidelity_v2=pilot)
 
 
+def test_literal_markdown_table_keeps_exact_cells_and_headers():
+    source = ("| option_id | Cost | Actual | Note* |\n|---|---|---|---|\n"
+              "| A | ~12.50 | ___ | Keep optional |\n| B | 10.25 | 8.25 | Keep exact |")
+    body = ('root=Table(columns=["option_id","Cost","Actual","Note*"],'
+            'rows=[["A","~12.50","___","Keep optional"],["B","10.25","8.25","Keep exact"]])')
+    assert assess(source, body)["eligible"]
+    for old, new in (("~12.50", "12.50"), ("___", "0"), ("option_id", "optionid"),
+                     ("Note*", "Note"), ("Keep optional", "Keep required"), ("~12.50", "~12.5"),
+                     ('"10.25","8.25"', '"8.25","10.25"'), (',["B","10.25","8.25","Keep exact"]', '')):
+        assert not assess(source, body.replace(old, new))["eligible"]
+
+
+def test_table_only_recognized_inline_spelling_preserves_values_and_code():
+    source = r"| Path | Outcome |" + "\n|---|---|\n" + r"| `editor.folding` | Move A $\to$ B |"
+    body = 'root=Table(columns=["Path","Outcome"],rows=[["editor.folding","Move A → B"]])'
+    assert assess(source, body)["eligible"]
+    for old, new in (("editor.folding", "editorFolding"), ("A → B", "A ← B")):
+        assert not assess(source, body.replace(old, new))["eligible"]
+
+
+def test_bold_dollar_amounts_in_one_cell_keep_both_exact_values():
+    source = ("| Category | Penalty |\n|---|---|\n"
+              "| Max penalties | Up to **$2,500** per unintentional or **$7,500** per intentional violation. |")
+    body = ('root=Table(columns=["Category","Penalty"],rows=[["Max penalties",'
+            '"Up to $2,500 per unintentional or $7,500 per intentional violation."]])')
+    assert assess(source, body)["eligible"]
+    assert not assess(source, body.replace("$2,500", "$2,600"))["eligible"]
+    assert not assess(source, body.replace("$7,500", "7,500"))["eligible"]
+
+
+def test_ambiguous_literal_tables_do_not_use_a_lossy_shape_as_proof():
+    source = "| Item | Price |\n|---|---|\n| A | ~20 |\n\n| Item | Price |\n|---|---|\n| A | 20 |"
+    body = ('root=Column([first,second])\nfirst=Table(columns=["Item","Price"],rows=[["A","20"]])\n'
+            'second=Table(columns=["Item","Price"],rows=[["A","20"]])')
+    assert not assess(source, body)["eligible"]
+
+
+@pytest.mark.parametrize("source, visible", [
+    ("Check **CRITICAL_PROCESS_DIED** in **Safe Mode**.", "Check CRITICAL_PROCESS_DIED in Safe Mode."),
+    ("Example: *We learn water + sunlight = food. Why does a plant need water?*",
+     "Example: We learn water + sunlight = food. Why does a plant need water?"),
+])
+def test_only_prose_delimiters_change(source, visible):
+    body = "root=Text(" + json.dumps(visible) + ")"
+    assert assess(source, body)["eligible"]
+    assert not assess(source, body.replace("CRITICAL_PROCESS_DIED", "CRITICALPROCESSDIED")
+                      .replace("sunlight = food", "sunlight food"))["eligible"]
+
+
+def test_email_metadata_and_bullet_spelling_match_visible_fields():
+    source = ("**Subject:** Meeting at 18:00\n**From:** Meeting Team\n**To:** Event Guests\n"
+              "**Date:** 2026-11-10\n\nHi everyone,\n\n* Arrival: 17:45\n* Start: 18:00\n\nThank you.")
+    body = ('root=EmailPreview(subject="Meeting at 18:00",from="Meeting Team",to="Event Guests",'
+            'date="2026-11-10",body="Hi everyone,\\n\\n• Arrival: 17:45\\n• Start: 18:00\\n\\nThank you.")')
+    assert assess(source, body)["eligible"]
+    for bad in (body.replace("17:45", "17:46"), body.replace('date="2026-11-10"', 'date=""'),
+                body.replace('from="Meeting Team",to="Event Guests"', 'from="Event Guests",to="Meeting Team"'),
+                body.replace("• Arrival: 17:45\\n• Start: 18:00", "• Start: 18:00\\n• Arrival: 17:45"),
+                body.replace("Thank you.", "Thank you. Tickets are free.")):
+        assert not assess(source, bad)["eligible"]
+
+
+def test_qualified_reference_heading_keeps_exact_role_and_visible_heading():
+    url = "https://example.com/manual?mode=full#page"
+    source = (f"Action: [Open manual] <{url}>\n\n## Official References\n"
+              f"- Provenance: provided by the author.\n- Technical manual: <{url}>")
+    body = (f'root=Column([open,heading,note,sources])\nopen=Button("Open manual",onPress=openUrl("{url}"))\n'
+            f'heading=Text("Official References","h2")\nnote=Text("Provenance: provided by the author.")\n'
+            f'sources=Card([links])\nlinks=List(items=[{{label:"Technical manual",url:"{url}"}}])')
+    assert assess(source, body)["eligible"]
+    for bad in (body.replace("Official References", "Additional links"),
+                body.replace('"Technical manual"', '"Other manual"'),
+                body.replace('url:"' + url, 'url:"' + url.replace("#page", "#wrong")),
+                body.replace("open,heading,note,sources", "open,heading,sources")
+                    .replace('note=Text("Provenance: provided by the author.")\n', "")
+                    .replace("items=[{", 'items=["Provenance: provided by the author.",{')):
+        assert not assess(source, bad)["eligible"]
+
+
+def test_pipe_card_keeps_references_after_visible_prose_with_the_same_owner():
+    source = ("Option 1: North | Quiet seating | 2-hour limit\n"
+              "Reserve a seat early to secure a place.\nMedia: Icon=https://example.com/north.svg")
+    body = ('root=Card([place,limit,note,icon],title="Option 1: North")\n'
+            'place=Text("Quiet seating")\nlimit=Text("2-hour limit")\n'
+            'note=Text("Reserve a seat early to secure a place.")\n'
+            'icon=Icon(url="https://example.com/north.svg")')
+    assert assess(source, body)["eligible"]
+    assert not assess(source, body.replace("north.svg", "south.svg"))["eligible"]
+    moved = 'root=Column([card,note])\n' + body.replace(
+        "root=Card([place,limit,note,icon]", "card=Card([place,limit,icon]")
+    assert not assess(source, moved)["eligible"]
+
+
+def test_chart_axes_must_be_visible_on_the_title_matched_chart():
+    source = ("Chart Title: Enrollment\nX-Axis: Campus location\nY-Axis: Students per class\n\n"
+              "| Campus | Count |\n|---|---|\n| North | 24 |\n| South | 18 |")
+    body = ('root=Chart(chartType="column",columns=["Campus","Count"],rows=[["North",24],["South",18]],'
+            'title="Enrollment",xKey="Campus",yKey="Count",xType="category",'
+            'xLabel="Campus location",yLabel="Students per class")')
+    result = assess(source, body)
+    assert "content_unit_fidelity" not in result["canonical_acceptance"]["review_reasons"]
+    assert "fidelity:source_literal_not_exactly_represented" not in result["reasons"]
+    for bad in (body.replace("Students per class", "Students per school"),
+                body.replace('title="Enrollment"', 'title="Other chart"'),
+                body.replace('rows=[["North",24],["South",18]]', "rows=[]")):
+        assert not assess(source, bad)["eligible"]
+
+
+def test_checklist_requires_items_the_android_renderer_can_display():
+    source = "Verify the schedule.\nConfirm the list."
+    plain = 'root=List(items=["Verify the schedule.","Confirm the list."])'
+    assert assess(source, plain)["eligible"]
+    strings = plain.replace("List", "Checklist")
+    result = assess(source, strings)
+    assert not result["eligible"]
+    assert "dynamic_evidence_incomplete" in result["canonical_acceptance"]["review_reasons"]
+    objects = 'root=Checklist(items=[{label:"Verify the schedule."},{label:"Confirm the list."}])'
+    assert assess(source, objects)["eligible"]
+    assert not assess(source, objects.replace("Confirm the list.", ""))["eligible"]
+
+
+def test_comma_then_clause_stays_procedural_prose():
+    source = "- Clean the area, then wipe with disposable cloths: floors, walls, and window sills."
+    body = 'root=List(items=["Clean the area, then wipe with disposable cloths: floors, walls, and window sills."])'
+    assert assess(source, body)["eligible"]
+    assert not assess(source, body.replace(", and window sills", ""))["eligible"]
+
+
 def test_instructional_paths_and_slashes_are_not_reference_bindings():
     source = r"The asset/liability ratio. Delete C:\Windows\spool\pending.txt, then GET /assets/{id}."
     assert _mask_model_references(source, [], pilot_fidelity_v2=True) == (source, {}, {})

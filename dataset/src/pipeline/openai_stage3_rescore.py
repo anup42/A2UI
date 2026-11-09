@@ -200,7 +200,7 @@ def _load_archive(root):
         if not isinstance(assessment.get("reasons", []), list) or not all(
                 isinstance(reason, str) for reason in assessment.get("reasons", [])):
             raise ValueError("Malformed archived assessment reasons")
-    records = []
+    records, skipped_responses = [], set()
     if transport == "chatgpt":
         if set(submission["attempts"]) != set(bindings):
             raise ValueError("ChatGPT attempt coverage mismatch")
@@ -212,8 +212,17 @@ def _load_archive(root):
             path = _contained(root, name)
             _json(path.read_text(encoding="utf-8"))
             record = checked(path)
-            if record.get("status") != attempt.get("status") or record.get("status") != "completed":
+            status = record.get("status")
+            if status != attempt.get("status") or status not in {"completed", "skipped"}:
                 raise ValueError("Incomplete or inconsistent ChatGPT result")
+            if status == "skipped":
+                response_id = bindings[identifier]
+                assessment = official[responses[response_id]["source_id"]]
+                if (record.get("transport") != "chatgpt" or record.get("previous_status") != "unknown"
+                        or record.get("text") not in (None, "") or assessment["eligible"]
+                        or assessment.get("reasons") != ["chatgpt_result_missing_failed_or_incomplete"]):
+                    raise ValueError("Invalid skipped ChatGPT result")
+                skipped_responses.add(response_id)
         # Pure local reader validates model, request, source and contract
         # bindings. Never load a client or compare historical runtime hashes
         # with today's runtime (which would require rerunning generation).
@@ -226,6 +235,8 @@ def _load_archive(root):
                 records.extend(_rows(root / name))
     indexed = pilot.index_results(records, set(bindings))
     candidates = _indexed(_rows(candidate_path) if candidate_path.exists() else [], "response_id", set(responses))
+    if skipped_responses.intersection(candidates):
+        raise ValueError("Skipped ChatGPT result has a canonical candidate")
     for response_id, candidate in candidates.items():
         if candidate.get("query_id") != response_id:
             raise ValueError("Canonical candidate query binding mismatch")

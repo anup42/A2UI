@@ -105,6 +105,23 @@ def test_reference_hash_and_conflicting_donors_fail_closed():
     assert "reference_source_hash_mismatch" in policy.reference_preflight(record)["reasons"]
 
 
+@pytest.mark.parametrize("source, donor", [
+    ("Action: [Search] <[ACTION_URL_1]>", "https://www.//example.com/"),
+    ("Action: [Read] <[ACTION_URL_1])", "https://example.com/docs/"),
+])
+def test_web_action_preflight_checks_restored_donor_and_wrapping(source, donor):
+    record = row("broken-action", source)
+    record["reference_map"] = {"[ACTION_URL_1]": donor}
+    assert "pilot_invalid_web_action_destination:line_1" in policy.reference_preflight(record)["reasons"]
+
+
+def test_web_action_preflight_leaves_code_and_exact_valid_urls_alone():
+    source = ("Action: [Read] <https://example.com/docs?a=1#intro>\n\n"
+              "```text\nAction: [Syntax example] <https://www.//example.com/)\n```\n\n"
+              "Check the local API at http://192.0.2.1/api.")
+    assert policy.reference_preflight(row("valid", source))["eligible"]
+
+
 def test_source_preflight_excludes_before_restoration_selection_or_capture(tmp_path, monkeypatch):
     directory = inputs(tmp_path, [row("unbound", "Media: Icon=[ICON_URL_1]"), row("good")])
     original = existing._generation_source
@@ -138,8 +155,10 @@ def test_holds_match_source_hash_under_renaming_and_block_changed_held_identity(
 
 def test_real_pilot_hold_catalog_contains_reviewed_sources_and_is_fingerprinted():
     holds = policy._holds()
-    assert [item["sample_index"] for item in holds] == [10, 33, 37, 38, 84, 199, 397, 434, 537]
-    assert len({item["source_sha256"] for item in holds}) == 9
+    assert [item["sample_index"] for item in holds] == [
+        10, 33, 37, 38, 84, 199, 397, 434, 537, 76, 442, 697, 747, 856, 997,
+    ]
+    assert len({item["source_sha256"] for item in holds}) == 15
     fingerprint = pilot.fingerprint()
     for path in (policy.HOLDS_PATH, policy.SUPPLEMENT_PATH, Path(policy.__file__)):
         assert fingerprint[path.relative_to(ROOT).as_posix()] == file_hash(path)

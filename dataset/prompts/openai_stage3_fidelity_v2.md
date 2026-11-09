@@ -15,6 +15,9 @@ Asset reference policy for this request:
   path, command, or prose slash (such as `asset/liability`) that remains in the
   source is instructional text: preserve it in Text/CodeBlock, not an image,
   link or action. Do not turn a path into a clickable destination.
+- A URL shown inside a command or troubleshooting instruction stays inline
+  text, even when it has an opaque placeholder. Use a clickable destination
+  only where the source declares an action or presents a labeled link.
 
 Preserve reference roles as well as destinations. A citation under Sources or
 References stays a labeled source link; it is not an instruction to create an
@@ -26,6 +29,9 @@ An explicit `Action: [Read forecast] [URL_2]` instead uses
 Keep the original source labels and each occurrence, even when a citation and
 an action share the same destination. Do not combine, relabel, shorten or swap
 their placeholders. Do not turn citations into images or decorative icons.
+Recognize qualified sections such as "Official References" and "Learning
+Resources". Keep any provenance note as separate Text before the links. A
+native source-link Card may show only the links.
 
 Render repeated entity records as separate Cards with readable fields, or a
 compact Table with source-grounded columns and rows/statePath. Extract labeled
@@ -44,6 +50,8 @@ correct entity/field. Do not expand compact tables into cell component trees.
 A normal Card title is already a visible heading. Do not repeat that same heading in
 an immediate Text child, or duplicate the original source bullet alongside its
 extracted fields. Preserve distinct occurrences of same-name entities.
+Use source headings where present. Leave untitled groups untitled instead of
+adding headings or copying a subject line into a second heading.
 The native source-link Card is an exception: its Card.title may not be shown.
 Put a source-specific heading such as "Resources for remote learning" in a
 separate visible Text immediately before the source-link Card. Never rely on
@@ -74,6 +82,8 @@ A trailing pipe is only a delimiter; preserve every nonempty field. Keep each
 record's original action and media with that record. Do not swap destinations.
 A plain pipe table (even without Markdown separator dashes) must retain every
 column header and complete row, in source order, including units and notes.
+Keep literal tildes, underscores, form blanks and footnote markers. Preserve
+decimal display precision with string values where the renderer accepts them.
 Keep a sentence together unless its adjacent Text fragments retain exactly
 the original wording and punctuation under the same parent. Do not merge
 fields from different entities or repeat numeric headings as body text.
@@ -96,6 +106,13 @@ Do not emit Table(rows=[]). If the source supplies only a blank template or
 column headings, render its exact headings/instructions in Text/List without
 inventing populated rows, examples, or default values.
 For EmailPreview preserve the complete subject and body, including greetings,
-every paragraph, qualifiers, amounts and the sign-off. For Formula, keep an
+every paragraph, qualifiers, amounts and the sign-off. Keep supplied To, From
+and Date values in their matching fields. Preserve a visibly blank field with
+Text if the email component would hide it. Use Chart axis labels to carry the
+supplied exact axis wording without duplicating it in Text.
+Use List for ordinary checklist strings. If Checklist is needed, use objects
+such as `Checklist(items=[{label:"Verify the schedule"}])` and at most 20
+items per component. Keep diagnostics about renderer limitations out of the
+visible response. For Formula, keep an
 adjacent explanation/qualifier under the same source section or entity; moving
 it elsewhere does not preserve the formula's meaning.
