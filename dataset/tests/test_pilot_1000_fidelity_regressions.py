@@ -28,6 +28,141 @@ def assess(source, body, *, pilot=True):
                             "<a2ui>" + body + "</a2ui>", pilot_fidelity_v2=pilot)
 
 
+def test_bulleted_action_keeps_balanced_url_and_exact_destination():
+    url = "https://www.who.int/facts/ambient-(outdoor)-air-quality#guidance"
+    source = f"- Action: [Button: WHO Guidelines] <{url}>"
+    body = f'root=Button("WHO Guidelines",onPress=openUrl("{url}"))'
+    assert assess(source, body)["eligible"]
+    for bad in (body.replace("#guidance", "#other"), body.replace("(outdoor)-air-quality", "(outdoor"),
+                body.replace("WHO Guidelines", "WHO Homepage")):
+        assert not assess(source, bad)["eligible"]
+    assert not assess(source + "\n" + source, body)["eligible"]
+    # A separate untyped occurrence is not owned by the explicit Action.
+    assert not assess(source + f"\nKeep this URL in text: {url}", body)["eligible"]
+
+
+def test_explicit_publisher_label_is_visible_and_exact():
+    url = "https://www.gov.uk/tenancy-deposit-protection"
+    label = "GOV.UK - Tenancy Deposit Protection"
+    source = f"## Official References\n- [{label}]({url})"
+    body = ('root=Column([heading,sources])\nheading=Text("Official References","h2")\n'
+            'sources=Card([links])\n' + f'links=List(items=[{{label:"{label}",url:"{url}"}}])')
+    assert assess(source, body)["eligible"]
+    for bad in (body.replace(label, "Gov"), body.replace("gov.uk/", "gov.uk/elsewhere/"),
+                body.replace('GOV.UK -', 'unrelated.org -')):
+        assert not assess(source, bad)["eligible"]
+
+
+def test_table_cta_binds_exact_complete_table_and_next_button():
+    url = "https://tickets.imaxparis.fr/qr/ticket-17"
+    source = ("| Detail | Information |\n|---|---|\n| Seat | G12 |\n"
+              f"| Digital Entry | [View QR Code]({url}) |")
+    body = ('root=Column([summary,entry])\nsummary=Table(columns=["Detail","Information"],'
+            'rows=[["Seat","G12"],["Digital Entry","View QR Code"]])\n'
+            f'entry=Button("View QR Code",onPress=openUrl("{url}"))')
+    assert assess(source, body)["eligible"]
+    for bad in (body.replace("G12", "G13"), body.replace("ticket-17", "ticket-18"),
+                body.replace("summary,entry", "entry,summary"),
+                body.replace('"Digital Entry","View QR Code"', '"Digital Entry",""')):
+        assert not assess(source, bad)["eligible"]
+    literal_source, literal_body = (text.replace("View QR Code", "View ticket_id") for text in (source, body))
+    assert assess(literal_source, literal_body)["eligible"]
+    assert not assess(literal_source, literal_body.replace("ticket_id", "ticketid"))["eligible"]
+
+
+def test_equation_title_keeps_exact_body_qualifiers_and_units():
+    source = "Nozomi 101 total = 14,500 × 3 = JPY 43,500 per party"
+    body = 'root=Formula(latex="14,500 × 3 = JPY 43,500 per party",title="Nozomi 101 total")'
+    assert assess(source, body)["eligible"]
+    for bad in (body.replace("per party", "per rider"), body.replace(" × 3", " + 3"),
+                body.replace("JPY", "USD"), body.replace("101", "102"), body.replace("14,500", "14,501")):
+        assert not assess(source, bad)["eligible"]
+
+
+def test_chart_spec_counts_once_and_requires_exact_ordered_plotted_data():
+    source = "Chart Type: Donut Chart\nChart Title: Trip Expenses\nLabels: Hotel, Food\nValues: 1200, 600"
+    body = ('root=Chart(chartType="donut",columns=["Category","Value"],rows=[["Hotel",1200],["Food",600]],'
+            'title="Trip Expenses",xKey="Category",yKey="Value")')
+    assert assess(source, body)["eligible"]
+    for bad in (body.replace("donut", "pie"), body.replace('"Food",600', '"Food",601'),
+                body.replace('["Hotel",1200],["Food",600]', '["Hotel",600],["Food",1200]')):
+        assert not assess(source, bad)["eligible"]
+    second = source.replace("Trip Expenses", "Other Expenses").replace("1200", "300")
+    assert not assess(source + "\n\n" + second, body)["eligible"]
+    both = ('root=Column([first,second])\n' + body.replace("root=", "first=") + "\n"
+            + body.replace("root=", "second=").replace("Trip Expenses", "Other Expenses").replace("1200", "300"))
+    assert assess(source + "\n\n" + second, both)["eligible"]
+
+
+def test_chart_series_rows_are_scored_as_chart_data_with_exact_bindings():
+    source = ("Chart Title: Spending\nX-Axis: Month\nY-Axis: Spending (USD)\n"
+              "- January | Rent: 1200 | Food: 400\n- February | Rent: 1100 | Food: 300")
+    body = ('root=Chart(chartType="stackedbar",columns=["Month","Rent","Food"],'
+            'rows=[["January",1200,400],["February",1100,300]],title="Spending",xKey="Month",'
+            'xLabel="Month",yLabel="Spending (USD)",series=[{yKey:"Rent",label:"Rent"},{yKey:"Food",label:"Food"}])')
+    assert assess(source, body)["eligible"]
+    assert not assess(source, body.replace('["February",1100,300]', '["February",300,1100]'))["eligible"]
+    assert not assess(source, body.replace('yKey:"Rent",label:"Rent"', 'yKey:"Food",label:"Rent"'))["eligible"]
+    equal_source = source.replace("Food: 400", "Food: 1200").replace("Food: 300", "Food: 1100")
+    equal_body = body.replace("1200,400", "1200,1200").replace("1100,300", "1100,1100")
+    assert assess(equal_source, equal_body)["eligible"]
+    swapped = equal_body.replace('yKey:"Rent",label:"Rent"', 'yKey:"Food",label:"Rent"').replace(
+        'yKey:"Food",label:"Food"', 'yKey:"Rent",label:"Food"')
+    assert not assess(equal_source, swapped)["eligible"]
+
+
+def test_invalid_time_axis_bar_orientation_stays_blocked():
+    source = "Chart Title: Clients by Day\nX-Axis: Date (UTC)\nY-Axis: Clients"
+    body = ('root=Chart(chartType="bar",columns=["Date","Clients"],'
+            'rows=[["2026-11-01",5],["2026-11-02",7]],title="Clients by Day",xType="time",'
+            'xKey="Date",yKey="Clients",xLabel="Date",yLabel="Clients")')
+    result = assess(source, body)
+    assert not result["eligible"]
+    assert "renderer_component_contract" in result["canonical_acceptance"]["blocking_reasons"]
+
+
+def test_explicit_horizontal_axis_labels_keep_their_table_bindings():
+    source = ("Chart Title: Revenue by Product Category\nX-Axis: Revenue (USD)\nY-Axis: Category\n\n"
+              "| Category | Revenue | Share |\n|---|---|---|\n| Books | 500 | 50% |\n| Games | 500 | 50% |")
+    body = ('root=Column([chart,table])\nchart=Chart(chartType="bar",orientation="horizontal",'
+            'columns=["Category","Revenue"],rows=[["Books",500],["Games",500]],title="Revenue by Product Category",'
+            'xKey="Category",yKey="Revenue",xLabel="Revenue (USD)",yLabel="Category")\n'
+            'table=Table(columns=["Category","Revenue","Share"],rows=[["Books",500,"50%"],["Games",500,"50%"]])')
+    assert assess(source, body)["eligible"]
+    for bad in (body.replace('"Revenue (USD)"', '"Revenue (CAD)"'),
+                body.replace('"horizontal"', '"vertical"'), body.replace('["Games",500]', '["Games",501]', 1)):
+        assert not assess(source, bad)["eligible"]
+
+
+def test_isolated_constraint_is_prose_but_named_entities_still_require_fields():
+    source = "- Vehicle: 2.5 m refrigerated van, clearance requirement: avoid bridges under 3.0 m."
+    body = 'root=List(items=["Vehicle: 2.5 m refrigerated van, clearance requirement: avoid bridges under 3.0 m."])'
+    assert assess(source, body)["eligible"]
+    assert not assess(source, body.replace("3.0 m", "2.9 m"))["eligible"]
+    named = "- Hotel: North Inn, Rate: $130"
+    assert not assess(named, 'root=List(items=["Hotel: North Inn, Rate: $130"])')["eligible"]
+
+
+def test_numbered_stop_card_labels_preserve_each_window_and_service():
+    source = ("Stops, time windows and service:\n1. North Station 09:00-09:45, service 30 min\n"
+              "2. South Station 10:00-10:45, service 45 min")
+    body = ('root=Column([heading,north,south])\nheading=Text("Stops, time windows and service:","h3")\n'
+            'north=Card([nw,ns],title="1. North Station")\nnw=Text("Time window: 09:00-09:45")\nns=Text("Service: 30 min")\n'
+            'south=Card([sw,ss],title="2. South Station")\nsw=Text("Time window: 10:00-10:45")\nss=Text("Service: 45 min")')
+    assert assess(source, body)["eligible"]
+    for bad in (body.replace("north=Card([nw,ns]", "north=Card([nw,ss]").replace("south=Card([sw,ss]", "south=Card([sw,ns]"),
+                body.replace("1. North Station", "North Station"), body.replace("45 min", "45 h")):
+        assert not assess(source, bad)["eligible"]
+
+
+def test_table_math_preserves_approximation_and_grouped_operands():
+    source = r"| Item | Value |" "\n|---|---|\n" r"| Cost | $\approx$ $15–$50 |" "\n" r"| Energy | $2 \times 7,700$ |"
+    body = 'root=Table(columns=["Item","Value"],rows=[["Cost","≈ $15–$50"],["Energy","2 × 7,700"]])'
+    assert assess(source, body)["eligible"]
+    for bad in (body.replace("≈", "="), body.replace("7,700", "7,701"), body.replace("×", "+"), body.replace("$50", "50")):
+        assert not assess(source, bad)["eligible"]
+
+
 def test_literal_markdown_table_keeps_exact_cells_and_headers():
     source = ("| option_id | Cost | Actual | Note* |\n|---|---|---|---|\n"
               "| A | ~12.50 | ___ | Keep optional |\n| B | 10.25 | 8.25 | Keep exact |")

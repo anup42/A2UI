@@ -299,9 +299,10 @@ def _score_one_v5_4(
     entity_detail: dict[str, Any] = {}
     pilot_certificates: dict[str, Any] = {}
     pilot_actions, pilot_media = (), ()
+    pilot_cta_cells = None
 
     def collect(*args: Any, **kwargs: Any) -> Any:
-        nonlocal pilot_actions, pilot_media
+        nonlocal pilot_actions, pilot_media, pilot_cta_cells
         evidence_started = perf_counter()
         result = collect_output_evidence_v5_4(*args, **kwargs)
         if entity_records:
@@ -318,6 +319,7 @@ def _score_one_v5_4(
                     result.evidence_ownership, entity_detail)))
         if prepared.config.pilot_fidelity_v2:
             from .matching_v5_1 import prepare_text_block
+            from .pilot_charts_v2 import project_chart_fields
             from .pilot_content_v2 import (
                 project_exact_formula_prose,
                 project_exact_headings,
@@ -329,12 +331,13 @@ def _score_one_v5_4(
                 project_exact_equation_rows,
             )
             from .pilot_semantic_fields_v2 import (
-                project_exact_chart_axes,
                 project_exact_email_fields,
                 project_exact_formula_fragments,
+                project_exact_stop_cards,
                 project_exact_track_tables,
             )
-            from .pilot_source_contract_v2 import project_source_link_labels
+            from .pilot_source_contract_v2 import project_source_link_labels, project_table_ctas
+            result, pilot_cta_cells = project_table_ctas(prepared.source_text, result)
             pilot_actions = result.action_taxonomy
             pilot_media = result.media_taxonomy
             # Base matching strips Markdown marks, including ~ and _. Those
@@ -357,8 +360,12 @@ def _score_one_v5_4(
             rows, formula_certificates = project_exact_formula_fragments(
                 literal_source, rows, source_text=prepared.source_text)
             rows, email_certificates = project_exact_email_fields(literal_source, rows)
-            rows, axis_certificates = project_exact_chart_axes(prepared.source_text, rows)
-            pilot_certificates["pilot_exact_semantic_fields"] = [*formula_certificates, *email_certificates, *axis_certificates]
+            rows, chart_certificates = project_chart_fields(
+                prepared.source_text, prepared.base.content_blocks, rows, result.role_instances.get("chart", ()))
+            rows, stop_certificates = project_exact_stop_cards(
+                prepared.base.content_blocks, rows, source_text=prepared.source_text)
+            pilot_certificates["pilot_exact_semantic_fields"] = [
+                *formula_certificates, *email_certificates, *chart_certificates, *stop_certificates]
             rows, pilot_certificates["pilot_exact_record_tables"] = project_exact_track_tables(
                 tuple(prepare_text_block(line) for line in prepared.source_text.splitlines()),
                 rows, result.output_tables, source_text=prepared.source_text)
@@ -417,9 +424,14 @@ def _score_one_v5_4(
         matching_started = perf_counter()
         certificates = []
         if prepared.config.pilot_fidelity_v2:
+            from .pilot_charts_v2 import bind_chart_specs, chart_role_candidates
             from .pilot_layout_v2 import project_exact_formula_roles
-            actual, certificates = project_exact_formula_roles(prepared.source_text, args[0], args[1])
-            args = (args[0], actual, *args[2:])
+            expected = args[0]
+            actual, certificates = project_exact_formula_roles(prepared.source_text, expected, args[1])
+            if prepared.contract_resolution.source == "deterministic fallback":
+                expected = bind_chart_specs(prepared.source_text, expected, prepared.expected_contract.get("tables", ()))
+                actual = chart_role_candidates(prepared.source_text, expected, actual)
+            args = (expected, actual, *args[2:])
         result = semantic_role_coverage_v5_4(*args, **kwargs)
         if certificates and "formula" in result[4]:
             result[4]["formula"]["pilot_exact_formula_spellings"] = certificates
@@ -433,7 +445,7 @@ def _score_one_v5_4(
 
     def tables(*args: Any, **kwargs: Any) -> Any:
         from .pilot_layout_v2 import table_fidelity_v2
-        return table_fidelity_v2(*args, source_text=prepared.source_text, **kwargs)
+        return table_fidelity_v2(*args, source_text=prepared.source_text, cta_cells=pilot_cta_cells, **kwargs)
 
     def matching_timing(domain: str, elapsed_ms: float) -> None:
         matching_times[domain] = float(elapsed_ms)

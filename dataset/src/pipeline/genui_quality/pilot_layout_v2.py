@@ -91,15 +91,16 @@ def table_cell_spelling(value: str) -> str:
     inline spans with recognized renderer spellings can shed their delimiters.
     """
     value = prose_spelling(str(value))
-    operators = {"ge": "≥", "geq": "≥", "le": "≤", "leq": "≤", "neq": "≠",
+    operators = {"ge": "≥", "geq": "≥", "le": "≤", "leq": "≤", "neq": "≠", "approx": "≈",
                  "to": "→", "rightarrow": "→", "times": "×", "cdot": "⋅", "div": "÷"}
+    number = r"[+\-]?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?"
 
     def math(text):
-        text = re.sub(r"(?<![\\$])\$\s*\\(geq?|leq?|neq)\s+([+\-]?\d+(?:\.\d+)?)\s*\$(?![$\d])",
+        text = re.sub(rf"(?<![\\$])\$\s*\\(geq?|leq?|neq|approx)\s+({number})\s*\$(?![$\d])",
                       lambda m: operators[m[1]] + " " + m[2], text)
-        text = re.sub(r"(?<![\\$])\$\s*\\(to|rightarrow|times|cdot|div)\s*\$(?![$\d])",
+        text = re.sub(r"(?<![\\$])\$\s*\\(to|rightarrow|times|cdot|div|approx)\s*\$(?![$\d])",
                       lambda m: operators[m[1]], text)
-        text = re.sub(r"(?<![\\$])\$\s*(\d+(?:\.\d+)?)\s*\\(times|cdot|div)\s*(\d+(?:\.\d+)?)\s*\$(?![$\d])",
+        text = re.sub(rf"(?<![\\$])\$\s*({number})\s*\\(times|cdot|div)\s*({number})\s*\$(?![$\d])",
                       lambda m: f"{m[1]} {operators[m[2]]} {m[3]}", text)
         return text.replace(r"\$", "$")
 
@@ -107,7 +108,7 @@ def table_cell_spelling(value: str) -> str:
     for span in re.finditer(r"(?<![\\`])(`+)([^`\n]+)\1(?!`)", value):
         # A simple identifier can render without its code delimiters. Keep
         # commands, escaped currency, paths and expressions byte-literal.
-        code = span[2] if re.fullmatch(r"[A-Za-z_]\w*(?:[.-]\w+)*", span[2]) else span[0]
+        code = span[2] if re.fullmatch(r"[A-Za-z_]\w*(?:[.-]\w+)*|\[\[|\]\]", span[2]) else span[0]
         parts.extend((math(value[cursor:span.start()]), code))
         cursor = span.end()
     return "".join((*parts, math(value[cursor:])))
@@ -120,7 +121,10 @@ def _literal_source_tables(source_text):
     def cells(line):
         return tuple(cell.strip() for cell in line.strip().removeprefix("|").removesuffix("|").split("|"))
 
-    lines = source_text.splitlines()
+    lines = source_text.splitlines(keepends=True)
+    offsets = [0]
+    for raw in lines:
+        offsets.append(offsets[-1] + len(raw))
     index, fence = 0, None
     while index + 1 < len(lines):
         line = lines[index].lstrip()
@@ -144,14 +148,14 @@ def _literal_source_tables(source_text):
         if (all(header) and len(cells(lines[start + 1])) == len(header) and rows
                 and all(len(row) == len(header) for row in rows)
                 and not any(r"\|" in raw for raw in lines[start:index])):
-            yield header, tuple(rows)
+            yield header, tuple(rows), (offsets[start], offsets[index])
 
 
 def _restore_literal_tables(source_text, expected):
     from ._core import normalize_markdown
 
     by_shape = {}
-    for headers, rows in _literal_source_tables(source_text):
+    for headers, rows, _ in _literal_source_tables(source_text):
         shape = (tuple(map(normalize_markdown, headers)),
                  tuple(tuple(map(normalize_markdown, row)) for row in rows))
         by_shape.setdefault(shape, set()).add((headers, rows))
@@ -167,7 +171,7 @@ def _restore_literal_tables(source_text, expected):
     return restored, ambiguous
 
 
-def table_fidelity_v2(expected, actual, charts, *, source_text="", **kwargs):
+def table_fidelity_v2(expected, actual, charts, *, source_text="", cta_cells=None, **kwargs):
     """Supplement canonical matching with exact table cell/column ownership.
 
     Canonical matching, representation policies and work budgets still run.
@@ -177,6 +181,9 @@ def table_fidelity_v2(expected, actual, charts, *, source_text="", **kwargs):
     from .metrics_v5_3 import table_fidelity_v5_3
 
     literal, ambiguous = _restore_literal_tables(source_text, expected)
+    if cta_cells:
+        literal = [replace(table, rows=cta_cells.get((table.headers, table.rows), table.rows))
+                   if i not in ambiguous else table for i, table in enumerate(literal)]
 
     def key(value):
         return " ".join(table_cell_spelling(str(value)).split())
@@ -303,6 +310,24 @@ def explicit_field_delimiters(record) -> bool:
     originals = "\n".join(record.original_source_units)
     return all(re.search(re.escape(label) + r":\s+" + re.escape(value), originals)
                for label, value in record.field_pairs)
+
+
+def pilot_entity_records(records, *, source_text):
+    """An isolated property bundle has no explicit entity identity.
+
+    Keep named records and consecutive property rows. A single untyped
+    `Property: value, qualifier: value` stays in literal prose accounting.
+    """
+    from .pilot_charts_v2 import declared_chart_row_texts
+
+    chart_rows = declared_chart_row_texts(source_text) if records else set()
+    records = tuple(record for record in records if explicit_field_delimiters(record)
+                    and not (record.source_format == "pipe" and len(record.original_source_units) == 1
+                             and layout_text(record.original_source_units[0]) in chart_rows))
+    bundles = {record.source_index for record in records if record.source_format == "labeled_comma"
+               and record.identity_label is None and len(record.fixed_texts) == 2 and not record.actions}
+    return tuple(record for record in records if record.source_index not in bundles
+                 or record.source_index - 1 in bundles or record.source_index + 1 in bundles)
 
 
 def certify_section_fields(source_text, records, evidence, detail):

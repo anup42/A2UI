@@ -13,7 +13,6 @@ PROFILES = ("legacy", PROFILE)
 POLICY_VERSION = "openai-stage3-fidelity-v2-20261109"
 HOLDS_PATH = ROOT / "dataset/configs/openai_stage3_fidelity_v2_source_holds.json"
 SUPPLEMENT_PATH = ROOT / "dataset/prompts/openai_stage3_fidelity_v2.md"
-_WEB_ACTION = re.compile(r"(?i)^Action:\s*\[[^\]]+\]\s*(<?https?://.+)$")
 
 
 def profile(config: dict) -> str:
@@ -43,8 +42,10 @@ def is_declared_reference(source: str, start: int, raw: str) -> bool:
 
 
 def _web_action_issues(source: str) -> list[str]:
+    from pipeline.genui_quality.pilot_source_contract_v2 import ACTION_LINE_PREFIX
     from pipeline.source_quality import _url_issue
 
+    web_action = re.compile(rf"(?i)^{ACTION_LINE_PREFIX}\[[^\]]+\]\s*(<?https?://.+)$")
     reasons, fence = [], None
     for number, line in enumerate(source.splitlines(), 1):
         raw = line.strip()
@@ -52,7 +53,7 @@ def _web_action_issues(source: str) -> list[str]:
             marker = raw[:3]
             fence = None if fence == marker else fence or marker
             continue
-        match = _WEB_ACTION.fullmatch(raw) if fence is None else None
+        match = web_action.fullmatch(raw) if fence is None else None
         if not match:
             continue
         value = match[1]

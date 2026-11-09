@@ -78,7 +78,9 @@ def literal_list_evidence(value: Any, *, source_context: bool = False, pilot_fid
             target = next((item[key] for key in LIST_LINK_FIELDS if item.get(key, "").strip() and classify_external(item[key])), "")
             if target:
                 label = next((item[key].strip() for key in ("label", "title", "text", "name", "content", "value")
-                              if item.get(key, "").strip() and not _NATIVE_URL_LIKE.search(item[key])), "")
+                              if item.get(key, "").strip() and (
+                                  _explicit_source_label(item[key], target) if key == "label"
+                                  else not _NATIVE_URL_LIKE.search(item[key]))), "")
                 if not label:
                     host = (urlsplit(target).hostname or "").removeprefix("www.").split(".")[0]
                     label = " ".join(token[:1].upper() + token[1:] for token in re.split(r"[-_\s]+", host) if token) or "Source"
@@ -127,10 +129,23 @@ def _source_url_key_v2(raw: str) -> str:
         return raw.strip().lower()
 
 
-# NativeTextFormatter.URL_REGEX; URL-looking values are not source labels.
+# NativeTextFormatter.URL_REGEX
 _NATIVE_URL_LIKE = re.compile(
     r"(?:https?://|//)[^\s<>\]]+|(?<![@\w])(?:www\.)?(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,24}(?:[/?#][^\s<>\]]*)?", re.IGNORECASE
 )
+
+
+def _explicit_source_label(label: str, target: str) -> bool:
+    """Mirror the renderer's display-only exception for its own bare host."""
+    urls = list(_NATIVE_URL_LIKE.finditer(label))
+    if not urls:
+        return True
+    from .pilot_source_card_v2 import native_https_link_proven_v2
+
+    if not native_https_link_proven_v2(target):
+        return False
+    host = (urlsplit(target).hostname or "").lower().removeprefix("www.")
+    return all(match[0].lower().removeprefix("www.") == host for match in urls)
 
 
 def classify_external(target: str) -> bool:

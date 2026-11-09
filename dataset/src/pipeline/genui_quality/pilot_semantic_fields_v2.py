@@ -145,40 +145,61 @@ def project_exact_email_fields(source, ownership):
     return rows, certificates
 
 
-_CHART_TITLE = re.compile(r"(?i)^Chart Title:\s*(.+)$")
-_CHART_AXIS = re.compile(r"(?i)^(X|Y|Right Y)[ -]Axis:\s*(.+)$")
+_STOP_RECORD = re.compile(r"(\d+\. \S.+?) (\d{2}:\d{2}[-–]\d{2}:\d{2}), service (\d+ min)")
 
 
-def project_exact_chart_axes(source_text, ownership):
-    """Bind explicit axis directives to one complete, title-matched Chart."""
-    scopes, scope = {}, None
-    for line in source_text.splitlines():
-        raw = layout_text(line)
-        if match := _CHART_TITLE.fullmatch(raw):
-            scope = {}
-            scopes.setdefault(match[1], []).append(scope)
-        elif scope is not None and (match := _CHART_AXIS.fullmatch(raw)):
-            scope.setdefault(match[1].casefold(), []).append((line.strip(), match[2]))
-        elif not raw.startswith(("Chart Type:", "Bubble Size:")):
-            scope = None
+def exact_stop_card_fields(source_text, ownership):
+    """Bind numbered stops, exact time windows and service durations."""
+    lines = source_text.splitlines()
+    groups = {}
+    fence = None
+    for index, line in enumerate(lines):
+        if marker := re.match(r"^(`{3,}|~{3,})", line.lstrip()):
+            token = marker[1]
+            if fence is None:
+                fence = token
+            elif token[0] == fence[0] and len(token) >= len(fence):
+                fence = None
+            continue
+        if fence or layout_text(line).casefold() != "stops, time windows and service:":
+            continue
+        stops = []
+        for following in lines[index + 1:]:
+            match = _STOP_RECORD.fullmatch(" ".join(following.split()))
+            if not match:
+                break
+            stops.append((following.strip(), (match[1], "Time window: " + match[2], "Service: " + match[3])))
+        if len(stops) >= 2:
+            for raw, fields in stops:
+                groups.setdefault(fields, []).append(raw)
+    cards = {}
+    for index, row in enumerate(ownership):
+        if row.get("card_instance"):
+            cards.setdefault(row["card_instance"], []).append(index)
+    for indices in cards.values():
+        if len(indices) != 3 or indices != list(range(indices[0], indices[0] + 3)):
+            continue
+        group = [ownership[i] for i in indices]
+        if (tuple(row.get("component_type") for row in group) != ("card", "text", "text")
+                or any(row.get("owner") != "generic_visible_content" for row in group)
+                or any(row.get("parent_kind") != "card" for row in group[1:])):
+            continue
+        fields = tuple(" ".join(row["text"].split()) for row in group)
+        matches = groups.get(fields, ())
+        if len(matches) == 1:
+            yield indices, matches[0]
 
-    instances = {}
-    for row in ownership:
-        if row.get("component_type") == "chart" and row.get("chart_title"):
-            instances.setdefault(row["chart_title"], set()).add(row.get("render_instance"))
-    rows, certificates = [], []
-    for row in ownership:
-        title, field = row.get("chart_title"), row.get("semantic_field")
-        matches = scopes.get(title, ())
-        if len(matches) == len(instances.get(title, ())) == 1 and len(matches[0].get(field, ())) == 1:
-            original, label = matches[0][field][0]
-            if layout_text(str(row["text"])) == label:
-                rows.append({**row, "owner": "generic_visible_content", "text": original})
-                certificates.append({"source_text": original, "component_id": row["component_id"],
-                                     "proof": "exact_chart_axis"})
-                continue
-        rows.append(row)
-    return rows, certificates
+
+def project_exact_stop_cards(source, ownership, *, source_text):
+    rows, used, certificates = list(ownership), set(), []
+    for indices, raw in exact_stop_card_fields(source_text, rows):
+        units = [unit.raw for unit in source if layout_text(unit.raw) == layout_text(raw)]
+        if len(units) != 1:
+            continue
+        rows[indices[0]] = {**rows[indices[0]], "text": units[0]}
+        used.update(indices[1:])
+        certificates.append({"source_text": raw, "output_indices": indices, "proof": "exact_stop_card_fields"})
+    return [row for i, row in enumerate(rows) if i not in used], certificates
 
 
 def project_exact_track_tables(source, ownership, tables, *, source_text):

@@ -121,8 +121,8 @@ def prepare_grpo_entity_source(base: Any, *, pilot_fidelity_v2: bool = False) ->
         source_text=base.source_text,
     )
     if pilot_fidelity_v2:
-        from .pilot_layout_v2 import explicit_field_delimiters
-        records = tuple(record for record in records if explicit_field_delimiters(record))
+        from .pilot_layout_v2 import pilot_entity_records
+        records = pilot_entity_records(records, source_text=base.source_text)
     if not records:
         return base, ()
     mapped = {record.source_index: record for record in records}

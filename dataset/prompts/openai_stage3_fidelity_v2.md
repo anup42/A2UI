@@ -32,13 +32,20 @@ their placeholders. Do not turn citations into images or decorative icons.
 Recognize qualified sections such as "Official References" and "Learning
 Resources". Keep any provenance note as separate Text before the links. A
 native source-link Card may show only the links.
+Place the exact qualified heading in visible Text before the source-link Card.
+Use the List object's explicit `label` field for a publisher name such as
+`GOV.UK - Tenancy Deposit Protection`. A bulleted `- Action:` still declares
+an action. If a key/value table has one linked value, keep its exact label in
+the cell and place its matching Button immediately after the complete Table
+under the same parent. Keep the link with the table that supplied it.
 
 Render repeated entity records as separate Cards with readable fields, or a
 compact Table with source-grounded columns and rows/statePath. Extract labeled
 attributes; a multi-field bullet copied into a List or single Text is not a
 structured record. Preserve entity/value associations, qualifiers, units,
-negations, dates, action labels and destinations. Plain prose and procedural
-steps remain Text/List; do not invent entities or fields.
+negations, dates, action labels and destinations. Keep one-off constraints,
+confirmation templates and procedural steps intact in Text/List. A comma
+followed by a qualifier does not by itself identify a separate entity.
 
 For weather, flight, booking, schedule and status records, prefer cards. For a
 compact Table choose the appropriate domain and preferredPresentation="cards"
@@ -108,8 +115,12 @@ inventing populated rows, examples, or default values.
 For EmailPreview preserve the complete subject and body, including greetings,
 every paragraph, qualifiers, amounts and the sign-off. Keep supplied To, From
 and Date values in their matching fields. Preserve a visibly blank field with
-Text if the email component would hide it. Use Chart axis labels to carry the
-supplied exact axis wording without duplicating it in Text.
+Text if the email component would hide it. Use Chart axis labels for the exact
+supplied wording. Treat contiguous chart type, title, axis and data directives
+as one specification. Keep all series, labels and values in source order.
+For a time-axis bar chart set `xType="time"` and `orientation="vertical"`.
+Horizontal bars require a categorical domain. Keep the original dates and
+series values in both cases.
 Use List for ordinary checklist strings. If Checklist is needed, use objects
 such as `Checklist(items=[{label:"Verify the schedule"}])` and at most 20
 items per component. Keep diagnostics about renderer limitations out of the

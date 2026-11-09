@@ -300,6 +300,12 @@ def project_exact_formula_prose(source, ownership, *, source_text=""):
         variants = [" ".join(texts)]
         if len(texts) == 2:
             variants.append(texts[0] + ": " + texts[1])
+            # A textual result label may be the Formula title. The first
+            # equals sign separates the label from the entire expression;
+            # all operators, amounts and qualifiers within it still match.
+            if (re.fullmatch(r"[\w][\w /()-]*", texts[0])
+                    and re.search(r"[=≈×÷*/+^]", texts[1])):
+                variants.append(texts[0] + " = " + texts[1])
         matches = set().union(*(units.get(formula_literal_key_v2(text), set()) for text in variants))
         if len(matches) != 1:
             continue

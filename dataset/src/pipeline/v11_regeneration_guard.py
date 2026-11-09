@@ -162,10 +162,20 @@ changed to manufacture a claim that did not occur in the source.
     tokenize = _tokens_v2 if pilot_fidelity_v2 else _tokens
     source_sequence = " " + tokenize(source) + " "
     formula_source = None
+    owned_layout_fields = set()
     if pilot_fidelity_v2:
         from pipeline.genui_quality.formula_evidence_v2 import (
             formula_literal_key_v2,
         )
+        from pipeline.genui_quality.pilot_layout_v2 import prose_spelling
+        from pipeline.genui_quality.pilot_semantic_fields_v2 import (
+            exact_stop_card_fields,
+        )
+
+        # Layout labels are authorized only on an exact source stop's own
+        # visible fields. A moved field or additional claim gets no credit.
+        owned_layout_fields = {i for indices, _ in exact_stop_card_fields(source, evidence.evidence_ownership)
+                               for i in indices[1:]}
 
         # Unlike prose tokenization, math evidence retains every operator,
         # script marker and grouping character. Formatting commands are only
@@ -173,10 +183,12 @@ changed to manufacture a claim that did not occur in the source.
         def formula_tokens(value):
             return formula_literal_key_v2(value)
 
-        formula_source = " " + formula_tokens(source) + " "
+        formula_source = " " + formula_tokens(prose_spelling(source)) + " "
     unsupported = []
-    for item in evidence.evidence_ownership:
+    for index, item in enumerate(evidence.evidence_ownership):
         owner = item.get("owner")
+        if index in owned_layout_fields:
+            continue
         if owner != "generic_visible_content" and not (pilot_fidelity_v2 and owner == "source_formula"):
             continue
         raw = str(item.get("text") or "")

@@ -17,6 +17,21 @@ import com.samsung.genuicraft.renderer.flat.model.*
 import com.samsung.genuicraft.renderer.flat.compose.table.*
 
 class FlatSpecRendererSupportTest {
+    @Test
+    fun explicitSourceListLabelPreservesPublisherNameForItsOwnDestination() {
+        val destination = "https://www.gov.uk/tenancy-deposit-protection"
+        val label = "GOV.UK - Tenancy Deposit Protection"
+
+        fun render(raw: String) = parseFlatSourceLinksFromListItems(
+            listOf(mapOf("label" to raw, "url" to destination))
+        ).single()
+
+        assertEquals(label, render(label).label)
+        assertEquals(destination, render(label).url)
+        val fallback = render("").label
+        assertEquals(fallback, render("other.org - Tenancy Deposit Protection").label)
+        assertEquals(fallback, render("https://www.gov.uk/path - Tenancy Deposit Protection").label)
+    }
 
     private fun parityComparable(value: Any?): Any? = when (value) {
         is Number -> value.toDouble()

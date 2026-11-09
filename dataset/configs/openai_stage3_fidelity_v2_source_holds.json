@@ -121,6 +121,14 @@
       "reason": "The Vaccine Info action opens with an angle bracket and closes with a parenthesis.",
       "review": "genui_latest_1000_review_20261109/proposed_source_holds.json",
       "review_sha256": "65073794e1180580687a62d0247896c3d877e1ee524cc1fa1f1dfce5c43a98dc"
+    },
+    {
+      "source_id": "archive-train-095281-e065c24fff115159",
+      "source_sha256": "0dd635ea9e993399bbbd1f340bfcd917f87d46836de048e60f9079d0ebad9598",
+      "sample_index": 21,
+      "reason": "The source has a two-column table with three cells in the Timestamp row: date and 14:30 EST are separated by an unescaped pipe. The intended cell boundary requires upstream review.",
+      "review": "genui_api_1000_review_20261109/analysis.md",
+      "review_sha256": "9b2138f0bd5888a90193af7d07df7710cef36e9eb7fa57699135c21112d5d43f"
     }
   ]
 }

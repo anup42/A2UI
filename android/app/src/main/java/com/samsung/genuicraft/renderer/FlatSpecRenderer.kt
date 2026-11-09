@@ -1986,7 +1986,13 @@ internal fun parseFlatSourceLinksFromListItems(value: Any?): List<ParsedButton> 
                         .firstNotNullOfOrNull { key ->
                             map[key]?.toString()
                                 ?.trim()
-                                ?.takeIf { it.isNotBlank() && !NativeTextFormatter.containsUrlLikeToken(it) }
+                                ?.takeIf {
+                                    if (key == "label") {
+                                        NativeTextFormatter.isExplicitSourceLinkLabel(it, explicitUrl)
+                                    } else {
+                                        it.isNotBlank() && !NativeTextFormatter.containsUrlLikeToken(it)
+                                    }
+                                }
                         }
                         ?: flatSourceLabelFromUrl(explicitUrl)
                     listOf(ParsedButton(label = label, url = explicitUrl))

@@ -694,6 +694,31 @@ class _EvidenceInterpreterV54(_EvidenceInterpreterV53):
                     x_fields = list(dict.fromkeys([column.key, column.label]))
                 y_fields = list(dict.fromkeys(value for series in chart.series for value in (series["key"], series["label"])))
                 if chart.complete:
+                    pilot_fields = {}
+                    if getattr(self.config, "pilot_fidelity_v2", False):
+                        from .pilot_charts_v2 import chart_axis_data_key, chart_axis_key
+
+                        for field, key in (("x", "xLabel"), ("y", "yLabel"), ("right y", "rightYLabel")):
+                            raw_axis = props.get(key)
+                            if isinstance(raw_axis, str) and raw_axis.strip():
+                                label = raw_axis.strip()
+                                if field == "x" and chart.x_type == "time":
+                                    label += " (UTC)"
+                                axes.append((field, label))
+                                pilot_fields["pilot_axis_" + field] = chart_axis_key(label)
+                        default = "horizontal" if chart.chart_type == "bar" else "vertical"
+                        orientation = str(props.get("orientation", default)).lower()
+                        horizontal = orientation == "horizontal"
+                        pilot_fields.update(pilot_orientation=orientation,
+                                            pilot_physical_x=y_fields if horizontal else x_fields,
+                                            pilot_physical_y=x_fields if horizontal else y_fields)
+                        pilot_fields["pilot_series_columns"] = [
+                            chart.columns[series["column_index"]].label for series in chart.series
+                        ]
+                        if len(chart.series) == 1:
+                            pair = (chart.series[0]["displays"], chart.x_labels) if horizontal else (
+                                chart.x_labels, chart.series[0]["displays"])
+                            pilot_fields["pilot_axis_data"] = chart_axis_data_key(zip(*pair))
                     self._add_role(
                         "chart",
                         {
@@ -711,18 +736,11 @@ class _EvidenceInterpreterV54(_EvidenceInterpreterV53):
                                 column.key for column in chart.columns
                             ],
                             "data_identity": chart.dataset_identity,
+                            **pilot_fields,
                         },
                     )
                     if chart.title:
                         self.visible_blocks.append(chart.title)
-                    if getattr(self.config, "pilot_fidelity_v2", False):
-                        for field, key in (("x", "xLabel"), ("y", "yLabel"), ("right y", "rightYLabel")):
-                            raw_axis = props.get(key)
-                            if isinstance(raw_axis, str) and raw_axis.strip():
-                                label = raw_axis.strip()
-                                if field == "x" and chart.x_type == "time":
-                                    label += " (UTC)"
-                                axes.append((field, label))
 
             if structured is not None:
                 self.visible_blocks.extend(
@@ -846,6 +864,8 @@ class _EvidenceInterpreterV54(_EvidenceInterpreterV53):
                 if action.source.startswith("on."):
                     pending = raw_events[(action.source, action.action_type)]
                     target = pending.popleft() if pending else None
+                    if token == "button" and isinstance(props.get("label"), str):
+                        action.label = props["label"].strip()
                 elif action.source.startswith("row.") and token in {"table", "chart"}:
                     try:
                         position = int(action.element_id.rsplit("[", 1)[1].rstrip("]"))

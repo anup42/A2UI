@@ -312,6 +312,22 @@ internal object NativeTextFormatter {
 
     fun containsUrlLikeToken(value: String): Boolean = URL_REGEX.containsMatchIn(value)
 
+    // The destination is already validated. A publisher's bare host may be
+    // part of its explicit display label. Keep rejecting displayed URLs and
+    // domain names that point to a different publisher.
+    fun isExplicitSourceLinkLabel(label: String, destination: String): Boolean {
+        if (label.isBlank()) return false
+        val urls = URL_REGEX.findAll(label).iterator()
+        if (!urls.hasNext()) return true
+        val host = runCatching { java.net.URI(destination).host }.getOrNull()
+            ?.lowercase(Locale.ROOT)?.removePrefix("www.") ?: return false
+        while (urls.hasNext()) {
+            val token = urls.next().value.lowercase(Locale.ROOT).removePrefix("www.")
+            if (token != host) return false
+        }
+        return true
+    }
+
     private fun formatReadableIsoDateTimes(text: String): String {
         if (!ISO_DATE_TIME_REGEX.containsMatchIn(text)) {
             return text
