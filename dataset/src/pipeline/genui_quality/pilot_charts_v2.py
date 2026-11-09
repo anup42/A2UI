@@ -6,6 +6,7 @@ import json
 import re
 from collections import Counter
 from dataclasses import dataclass
+from decimal import Decimal
 
 from pipeline.renderer_capability import canonical_chart_subtype
 
@@ -243,6 +244,68 @@ def chart_role_candidates(source, expected, actual):
                 chart["pilot_chart_data"] = "exact chart data"
         charts.append(chart)
     return {**actual, "chart": charts} if charts else actual
+
+
+def numeric_chart_audit(source, charts, ownership):
+    """Bind typed chart points to a numeric table immediately after its spec."""
+    from .pilot_layout_v2 import _literal_source_tables
+
+    def numeric_rows(rows):
+        cells = [[str(value) for value in row] for row in rows]
+        if not all(re.fullmatch(r"[+-]?\d+(?:\.\d+)?", value) for row in cells for value in row):
+            return None
+        return [tuple(Decimal(value) for value in row) for row in cells]
+
+    covered, mismatches = Counter(), []
+    if not charts:
+        return covered, mismatches
+    specs = chart_specs(source)
+    titles = Counter(spec.title_parts[0] for spec in specs)
+    tables = list(_literal_source_tables(source))
+    for spec in specs:
+        if (not spec.usable or spec.rows or not {"x", "y"} <= spec.fields.keys()
+                or titles[spec.title_parts[0]] != 1):
+            continue
+        raw, _ = next(reversed(spec.fields.values()))
+        endings = list(re.finditer(r"(?m)^[ \t]*" + re.escape(raw) + r"[ \t]*\r?$", source))
+        if len(endings) != 1:
+            continue
+        end = endings[0].end()
+        adjacent = [(headers, rows) for headers, rows, (start, _) in tables
+                    if start >= end and not source[end:start].strip()]
+        if len(adjacent) != 1 or len(adjacent[0][0]) != 2 or len(adjacent[0][1]) < 2:
+            continue
+        expected = numeric_rows(adjacent[0][1])
+        if expected is None:
+            continue
+        matches = [chart for chart in charts if chart.get("title") in {spec.title, spec.title_parts[0]}
+                   and chart.get("x_type") == "number"]
+        if not matches:
+            continue
+        if len(matches) != 1:
+            mismatches.extend(chart["component_id"] for chart in matches)
+            continue
+        chart = matches[0]
+        series = chart.get("series", ())
+        element = chart["component_id"]
+        labels = chart.get("x_labels", ())
+        values = series[0]["displays"] if len(series) == 1 else ()
+        points = list(zip(labels, values, strict=True)) if len(labels) == len(values) else []
+        axes_match = all(chart.get("pilot_axis_" + axis) == chart_axis_key(spec.fields[axis][1])
+                         for axis in ("x", "y"))
+        kind, orientation = spec.kind
+        if (not axes_match or numeric_rows(points) != expected
+                or (kind and chart.get("chart_type") != kind)
+                or (orientation and chart.get("pilot_orientation") != orientation)):
+            mismatches.append(element)
+            continue
+        group = [row for row in ownership if row.get("owner") == "source_chart" and row.get("component_id") == element]
+        if len({row.get("render_instance") for row in group}) != 1:
+            mismatches.append(element)
+            continue
+        blocks = Counter(" | ".join(map(str, point)) for point in points)
+        covered.update(blocks & Counter(str(row["text"]) for row in group))
+    return covered, mismatches
 
 
 def declared_chart_row_texts(source):

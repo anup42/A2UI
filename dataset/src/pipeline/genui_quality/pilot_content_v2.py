@@ -44,7 +44,12 @@ def project_exact_pipe_cards(source, ownership, generic_owners, *, source_text="
     Source tables never enter this generic-content view.
     """
     from .grpo_entity_formats import _parsed
+    from .pilot_source_contract_v2 import declared_media_occurrences, inline_media_view
 
+    media_declarations = declared_media_occurrences(source_text)
+    inline_records = {layout_text(item["_record"]) for item in media_declarations if "_record" in item}
+    source_lines = source_text.splitlines()
+    visible_lines = inline_media_view(source_text, media=media_declarations).splitlines()
     rows = [dict(row) for row in ownership]
     indices = [i for i, row in enumerate(rows) if row.get("owner") in generic_owners
                and str(row.get("text") or "").strip()]
@@ -68,23 +73,27 @@ def project_exact_pipe_cards(source, ownership, generic_owners, *, source_text="
         )
         dated_record = (re.fullmatch(r"(?:[A-Za-z]+ \d{1,2}|\d{4}-\d{2}-\d{2}) \([A-Za-z]+\): .+", parts[0].strip())
                         and len(parts) >= 3 and all(p.strip() for p in parts))
-        original_lines = [line for line in source_text.splitlines() if layout_text(line) == layout_text(unit.raw)]
+        original_lines = [line for line in visible_lines if layout_text(line) == layout_text(unit.raw)]
         named_record = len(original_lines) == 1 and bool(re.match(
             r"^\s*(?:[-*+]\s+)?\*\*[^*|\n]+\*\*\s*\|", original_lines[0]))
         labeled_fields = (len(parts) >= 3
                           and not re.match(r"(?i)^(?:formula|regex|permission mask|code|command):", parts[0].strip())
-                          and all(re.fullmatch(r"[A-Za-z][A-Za-z0-9 _-]*:\s+\S.*", part.strip()) for part in parts))
-        if ((record is not None and record.identity_label is not None) or option_record or dated_record or named_record or labeled_fields) and all(p.strip() for p in parts):
-            candidates.append((unit, tuple(tuple(part.split()) for part in parts)))
+                          and all(re.fullmatch(r"[A-Za-z][A-Za-z0-9 _&/()'’-]*:\s+\S.*", part.strip()) for part in parts))
+        owned_record = (record is not None and record.identity_label is not None
+                        or option_record or dated_record or named_record or layout_text(unit.raw) in inline_records)
+        summary = (labeled_fields and not owned_record and not re.search(
+            r"(?i)https?://|\[(?:[A-Z_]+_)?URL_\d+\]|(?:^|\|)\s*(?:Action|Media|Source|Reference):", unit.raw))
+        if (owned_record or summary) and all(p.strip() for p in parts):
+            candidates.append((unit, tuple(tuple(part.split()) for part in parts), summary))
             if dated_record or option_record:
                 date, subject = parts[0].split(":", 1)
-                candidates.append((unit, tuple(tuple(part.split()) for part in (date, subject, *parts[1:]))))
+                candidates.append((unit, tuple(tuple(part.split()) for part in (date, subject, *parts[1:])), False))
     consumed, certificates = set(), []
     for position, index in enumerate(indices):
         if index in consumed:
             continue
         matches = []
-        for unit, parts in candidates:
+        for unit, parts, summary in candidates:
             window = indices[position:position + len(parts)]
             if len(window) != len(parts) or any(i in consumed for i in window):
                 continue
@@ -97,7 +106,14 @@ def project_exact_pipe_cards(source, ownership, generic_owners, *, source_text="
                     or any(row.get("pilot_entity_projected") for row in group)):
                 continue
             if tuple(tuple(str(row["text"]).split()) for row in group) == parts:
-                if source_text and not _pipe_references_exact(source_text, unit.raw, instance, rows, actions, media):
+                if summary:
+                    # A numeric summary can follow a section-level icon.
+                    # This certificate covers its literal fields only.
+                    if any(item.get("card_instance") == instance for item in actions):
+                        continue
+                elif source_lines and not _pipe_references_exact(
+                    source_lines, visible_lines, unit.raw, instance, rows, actions, media,
+                ):
                     continue
                 matches.append((unit, window))
         # Equivalent duplicated source occurrences still have one exact shape;
@@ -110,19 +126,20 @@ def project_exact_pipe_cards(source, ownership, generic_owners, *, source_text="
         consumed.update(window[1:])
         certificates.append({"output_indices": window, "source_text": unit.raw,
                              "card_instance": rows[index]["card_instance"],
-                             "ordered_literal_fields_exact": True})
+                             "ordered_literal_fields_exact": True,
+                             "inline_media_owned": layout_text(unit.raw) in inline_records})
     return [row for i, row in enumerate(rows) if i not in consumed], certificates
 
 
-def _pipe_references_exact(source, unit, instance, ownership, actions, media):
+def _pipe_references_exact(lines, visible_lines, unit, instance, ownership, actions, media):
     """Keep each record's declared actions/media in the same rendered Card."""
     from .pilot_source_contract_v2 import (
         declared_media_occurrences,
         source_action_occurrences,
     )
 
-    lines = source.splitlines()
-    locations = [i for i, line in enumerate(lines) if layout_text(line) == layout_text(unit)]
+    locations = [i for i, line in enumerate(visible_lines)
+                 if layout_text(line) == layout_text(unit)]
     if len(locations) != 1:
         return False
     expected, expected_media = [], []
@@ -132,6 +149,8 @@ def _pipe_references_exact(source, unit, instance, ownership, actions, media):
     def media_key(kind, url):
         kind = str(kind).casefold()
         return ("audio" if kind == "audioplayer" else kind, url)
+    expected_media.extend(media_key(item["kind"], item["url"])
+                          for item in declared_media_occurrences(lines[locations[0]]) if "_record" in item)
     start = locations[0]
     while start > 0 and lines[start - 1].strip().startswith("Media:"):
         start -= 1

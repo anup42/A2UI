@@ -27,14 +27,17 @@ _EXPLICIT_ACTION = re.compile(
 _MARKDOWN_SOURCE = re.compile(r"(?i)^\[([^\]\n]+)\]\((https://[^\s<>]+)\)$")
 _LABELED_SOURCE = re.compile(r"^(.+?):\s*(?:<(https://[^\s<>]+)>|(https://[^\s<>]+))\s*$")
 _HEADING = re.compile(r"^(?:#{1,6}\s+(.+)|\*\*([^*]+)\*\*)$")
-_SOURCE_TITLE = re.compile(r"(?i)^(?:(?:[\w-]+ )*(?:sources?|references?|citations?|resources)|"
-                           r"(?:sources?|references?|citations?|resources) for .+):?$")
+_SOURCE_TITLE = re.compile(
+    r"(?i)^(?:(?:[\w][\w &'’/+,().-]*\s+)?(?:sources?|references?|citations?|resources)|"
+    r"(?:sources?|references?|citations?|resources) for .+):?$"
+)
+_MEDIA_FIELD = re.compile(r"(Image|Icon|Video|Audio)\s*=\s*(?:<([^<>\s|]+)>|([^\s<>|]+))")
+_INLINE_MEDIA = re.compile(r"[ \t]+\|[ \t]+Media:(.*)$")
 
 
 def declared_media_occurrences(source: str) -> list[dict]:
-    """Parse every typed reference on a complete Media line, outside fences."""
+    """Parse complete media lines and a record's explicit trailing Media field."""
     found, offset, fence = [], 0, None
-    pattern = re.compile(r"(Image|Icon|Video|Audio)\s*=\s*(?:<([^<>\s]+)>|([^\s<>]+))")
     for line in source.splitlines(keepends=True):
         start, offset = offset, offset + len(line)
         raw = line.strip()
@@ -42,32 +45,62 @@ def declared_media_occurrences(source: str) -> list[dict]:
             marker = raw[:3]
             fence = None if fence == marker else marker if fence is None else fence
             continue
-        if fence is not None or not raw.startswith("Media:"):
+        if fence is not None:
             continue
-        body, cursor, items = raw[len("Media:"):].strip(), 0, []
-        for match in pattern.finditer(body):
+        span, record = (start, offset), None
+        if raw.startswith("Media:"):
+            body = raw[len("Media:"):].strip()
+        else:
+            inline = _INLINE_MEDIA.search(raw)
+            if inline is None or r"\|" in raw or raw.startswith("|"):
+                continue
+            record = raw[:inline.start()].rstrip()
+            parts = record.split("|")
+            if not 2 <= len(parts) <= 16 or not all(part.strip() for part in parts):
+                continue
+            begin = start + len(line) - len(line.lstrip()) + inline.start()
+            span = (begin, start + len(line.rstrip("\r\n")))
+            body = inline[1].strip()
+        cursor, items = 0, []
+        for match in _MEDIA_FIELD.finditer(body):
             if body[cursor:match.start()].strip():
                 items = []
                 break
-            items.append({"kind": match[1], "url": match[2] or match[3], "_span": (start, offset)})
+            item = {"kind": match[1], "url": match[2] or match[3], "_span": span}
+            if record is not None:
+                item["_record"] = record
+            items.append(item)
             cursor = match.end()
         if items and not body[cursor:].strip():
             found.extend(items)
     return found
 
 
+def inline_media_view(source: str, *, media=None) -> str:
+    """Keep original offsets while excluding proven metadata from visible prose."""
+    if media is None:
+        media = declared_media_occurrences(source)
+    spans = {item["_span"] for item in media if "_record" in item}
+    for start, end in sorted(spans, reverse=True):
+        source = source[:start] + " " * (end - start) + source[end:]
+    return source
+
+
+
 def declared_media_fidelity(source: str, actual: Any) -> dict[str, Any]:
     """Require exact visible destinations, including fragments, for declarations."""
     from pipeline.renderer_effective_semantics_v5_4 import canonical_media_kind
 
-    expected = Counter((canonical_media_kind(item["kind"]), item["url"])
-                       for item in declared_media_occurrences(source))
+    declarations = declared_media_occurrences(source)
+    expected = Counter((canonical_media_kind(item["kind"]), item["url"]) for item in declarations)
+    inline_keys = {(canonical_media_kind(item["kind"]), item["url"])
+                   for item in declarations if "_record" in item}
     visible = Counter((canonical_media_kind(item.get("kind")), item["raw_url"])
                       for item in actual if isinstance(item.get("raw_url"), str))
     missing = expected - visible
     groups = {(kind, _core.normalize_url(url)) for kind, url in expected}
-    unexpected = {key: count for key, count in visible.items()
-                  if key not in expected and (key[0], _core.normalize_url(key[1])) in groups}
+    unexpected = {key: count for key, count in (visible - expected).items()
+                  if key in inline_keys or (key not in expected and (key[0], _core.normalize_url(key[1])) in groups)}
     return {"required_count": sum(expected.values()),
             "matched_count": sum((expected & visible).values()),
             "missing": [{"kind": kind, "url": url, "count": count}
@@ -102,7 +135,7 @@ def source_action_occurrences(source: str) -> list[dict[str, Any]]:
     return found
 
 
-def source_link_occurrences(source: str) -> list[dict[str, Any]]:
+def source_link_occurrences(source: str, *, malformed_angles: list[int] | None = None) -> list[dict[str, Any]]:
     """Explicit source-heading Markdown or label-colon-angle link lines."""
     found = []
     in_sources = False
@@ -110,7 +143,7 @@ def source_link_occurrences(source: str) -> list[dict[str, Any]]:
     fence = None
     offset = 0
     heading_span = None
-    for line in source.splitlines(keepends=True):
+    for number, line in enumerate(source.splitlines(keepends=True), 1):
         raw = line.strip()
         start, end = offset, offset + len(line)
         offset = end
@@ -144,6 +177,9 @@ def source_link_occurrences(source: str) -> list[dict[str, Any]]:
         labeled = _LABELED_SOURCE.fullmatch(body) if match is None else None
         match = match or labeled
         if match is None:
+            if (malformed_angles is not None
+                    and re.match(r"(?i)^.+?:\s*<https?://", body)):
+                malformed_angles.append(number)
             if raw and (not explicit_heading or re.match(r"(?i)^(?:Action|Media):", raw)):
                 in_sources = False
                 heading_span = None
@@ -315,6 +351,11 @@ def source_contract_v2(source: str, contract: Mapping[str, Any]) -> dict[str, An
     # Source-heading/link lines are metadata owned by these exact requirements,
     # not duplicate prose. Remove only the concrete proven occurrences.
     units = list(result.get("content_units") or [])
+    if any("_record" in item for item in media):
+        visible = inline_media_view(source, media=media)
+        inline = {line.strip(): display.strip() for line, display in
+                  zip(source.splitlines(), visible.splitlines(), strict=True) if line.strip() != display.strip()}
+        units = [inline.get(unit, unit) for unit in units]
     headings = list(result.get("headings") or [])
     owned_spans = source_link_owned_spans(source) | {item["_span"] for item in [*source_actions, *media]}
     for start, end in sorted(owned_spans):

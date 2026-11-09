@@ -567,3 +567,140 @@ def test_new_cases_do_not_enable_pilot_in_ordinary_pipelines(source, body):
     row = {"id": "default-isolation", "response_text": source}
     target = "<a2ui>" + body + "</a2ui>"
     assert assess_candidate(row, target) == assess_candidate(row, target, pilot_fidelity_v2=False)
+
+
+def test_named_list_table_retains_each_total_duration_and_owner():
+    source = (
+        "## Hotel Rates\n| Hotel | Nightly Price |\n| --- | --- |\n| Alpha | $20 |\n| Beta | $30 |\n\n"
+        "## Stay Cost Estimates\n- **Alpha**: $120 total for 6 nights.\n- **Beta**: $180 total for 6 nights."
+    )
+    body = (
+        'root=Column([ratesHeading,rates,costHeading,costs])\n'
+        'ratesHeading=Text("Hotel Rates","h2")\n'
+        'rates=Table(columns=["Hotel","Nightly Price"],rows=[["Alpha","$20"],["Beta","$30"]])\n'
+        'costHeading=Text("Stay Cost Estimates","h2")\n'
+        'costs=Table(columns=["Hotel","Stay Cost Estimate"],'
+        'rows=[["Alpha","$120 total for 6 nights."],["Beta","$180 total for 6 nights."]])'
+    )
+    assert assess(source, body)["eligible"]
+    for bad in (body.replace('$120 total for 6 nights.', '$120 total.'),
+                body.replace('"Alpha","$120', '"Beta","$120').replace('"Beta","$180', '"Alpha","$180'),
+                body.replace('Stay Cost Estimate"', 'Fees included"'),
+                body.replace('[ratesHeading,rates,costHeading,costs]', '[ratesHeading,rates,costs,costHeading]')):
+        assert not assess(source, bad)["eligible"]
+
+
+def test_pipe_summary_with_punctuation_owns_literal_fields_not_the_section_icon():
+    icon = "https://example.org/calc.svg"
+    source = (
+        f"## Monthly Split\nMedia: Icon={icon}\n"
+        "Total: **$260.00** | Tax & Reserve: **$94.67** | Person B/C Avg: **$82.67**"
+    )
+    body = (
+        'root=Column([heading,icon,summary])\nheading=Text("Monthly Split","h2")\n'
+        f'icon=Icon(url="{icon}")\n'
+        'summary=Card([total,tax,avg])\ntotal=Text("Total: $260.00")\n'
+        'tax=Text("Tax & Reserve: $94.67")\navg=Text("Person B/C Avg: $82.67")'
+    )
+    assert assess(source, body)["eligible"]
+    for bad in (body.replace("$94.67", "$94.76"), body.replace("$82.67", "$82.670"),
+                body.replace("[total,tax,avg]", "[avg,tax,total]"), body.replace("[heading,icon,summary]", "[heading,summary]")):
+        assert not assess(source, bad)["eligible"]
+
+
+def test_inline_media_stays_on_its_own_record_and_out_of_number_and_action_matching():
+    a = "https://example.org/v1.11.3/ai.svg"
+    b = "https://example.org/v2.0.5/cloud.svg"
+    source = (f"## Conference Tracks\nAI Track | Models and agents | Media: Icon={a}\n"
+              f"Cloud Track | Network orchestration | Media: Icon={b}")
+    body = (
+        'root=Column([heading,ai,cloud])\nheading=Text("Conference Tracks","h2")\n'
+        'ai=Card([aiIcon,aiText],title="AI Track")\ncloud=Card([cloudIcon,cloudText],title="Cloud Track")\n'
+        f'aiIcon=Icon(url="{a}")\ncloudIcon=Icon(url="{b}")\n'
+        'aiText=Text("Models and agents")\ncloudText=Text("Network orchestration")'
+    )
+    assert assess(source, body)["eligible"]
+    for bad in (body.replace(a, "SWAP").replace(b, a).replace("SWAP", b),
+                body.replace("aiIcon,aiText", "aiText"), body.replace(b, a),
+                body.replace("[heading,ai,cloud]", "[heading,ai,cloud,extra]") + f'\nextra=Icon(url="{a}")',
+                body.replace("Models and agents", "Models and agents v1.11.3")):
+        assert not assess(source, bad)["eligible"]
+
+
+def test_qualified_link_section_preserves_both_labels_for_a_shared_destination():
+    url = "https://example.org/guide#main"
+    source = f"## Nutrition & Health Sources\n- First source: <{url}>\n- Second source: <{url}>"
+    body = (
+        'root=Column([heading,sourceA,sourceB])\nheading=Text("Nutrition & Health Sources","h2")\n'
+        'sourceA=Card([sourceLinksA])\nsourceB=Card([sourceLinksB])\n'
+        f'sourceLinksA=List(items=[{{label:"First source",url:"{url}"}}])\n'
+        f'sourceLinksB=List(items=[{{label:"Second source",url:"{url}"}}])'
+    )
+    assert assess(source, body)["eligible"]
+    assert not assess(source, body.replace("[heading,sourceA,sourceB]", "[heading,sourceA]"))["eligible"]
+    assert not assess(source, body.replace("#main", "#other", 1))["eligible"]
+    invalid_source = source.replace(f"<{url}>", f"<{url} />", 1)
+    assert "pilot_invalid_source_link_destination:line_2" in assess(invalid_source, body)["reasons"]
+
+
+def test_comma_constraints_stay_literal_but_repeated_named_records_need_binding():
+    source = ("## Trip constraints\n- Departure: 2035-11-02, Return: 2035-11-12\n"
+              "- Passengers: 1 adult, cabin: economy")
+    body = (
+        'root=Column([heading,fields])\nheading=Text("Trip constraints","h2")\n'
+        'fields=List(items=["Departure: 2035-11-02, Return: 2035-11-12","Passengers: 1 adult, cabin: economy"])'
+    )
+    result = assess(source, body)
+    assert result["eligible"]
+    assert result["entity_ownership"]["eligible_record_count"] == 0
+    assert not assess(source, body.replace("11-12", "11-13"))["eligible"]
+
+    second_section = '\nother=Text("Travel notes","h2")\nnote=Text("Carry printed copies.")'
+    source += "\n## Travel notes\nCarry printed copies."
+    assert assess(source, body.replace("[heading,fields]", "[heading,fields,other,note]") + second_section)["eligible"]
+    moved = body.replace("[heading,fields]", "[heading,other,fields,note]") + second_section
+    assert not assess(source, moved)["eligible"]
+
+    source = "- Alpha Flight, Time: 07:30, Gate: A2\n- Beta Flight, Time: 09:40, Gate: B3"
+    body = 'root=List(items=["Alpha Flight, Time: 07:30, Gate: A2","Beta Flight, Time: 09:40, Gate: B3"])'
+    assert "entity_fields_not_structured" in assess(source, body)["reasons"]
+
+
+def test_inline_math_matches_rendered_spelling_without_changing_operators_or_code():
+    from pipeline.genui_quality.pilot_layout_v2 import inline_math_spelling
+
+    source = r"Since $5 \times 5 = 25$, the ladder is 5 feet."
+    body = 'root=Text("Since 5 × 5 = 25, the ladder is 5 feet.")'
+    assert assess(source, body)["eligible"]
+    for bad in (body.replace("×", "+"), body.replace("25", "20"), body.replace("feet", "meters")):
+        assert not assess(source, bad)["eligible"]
+    assert inline_math_spelling(r"Press $\pm 15$ seconds.") == "Press ± 15 seconds."
+    raw = r"Budget $5 or $10. Code: `$5 \times 5 = 25$`." + "\n```\n" + r"$\pm 15$" + "\n```"
+    assert inline_math_spelling(raw) == raw
+
+
+def test_numeric_chart_points_are_exact_and_text_keeps_its_display_precision():
+    source = (
+        "Chart Title: Fuel Price vs. MPG\nX-Axis: Fuel Price ($)\nY-Axis: MPG\n\n"
+        "| Price | MPG |\n| --- | --- |\n| 3.40 | 30 |\n| 3.60 | 26 |"
+    )
+    body = (
+        'root=Column([plot,table])\n'
+        'plot=Chart(chartType="scatter",columns=["price","mpg"],rows=[{price:3.4,mpg:30},{price:3.6,mpg:26}],'
+        'title="Fuel Price vs. MPG",xKey="price",yKey="mpg",xType="number",xLabel="Fuel Price ($)",yLabel="MPG")\n'
+        'table=Table(columns=["Price","MPG"],rows=[["3.40","30"],["3.60","26"]])'
+    )
+    assert assess(source, body)["eligible"]
+    swapped = body.replace("3.4,mpg:30", "3.4,mpg:26").replace("3.6,mpg:26", "3.6,mpg:30")
+    assert "fidelity:source_chart_data_mismatch" in assess(source, swapped)["reasons"]
+    assert not assess(source, body.replace('"3.40"', '"3.4"'))["eligible"]
+    extra = body.replace("[plot,table]", "[plot,table,extra]") + '\nextra=Text("3.4")'
+    assert "fidelity:unsupported_visible_numeric_anchor" in assess(source, extra)["reasons"]
+
+
+def test_procedure_mixed_units_fall_back_to_text_and_unsupported_spacing_still_holds():
+    source = "0.6 km ≈ 1.2 min, 0.4 km ≈ 0.8 min."
+    assert assess(source, "root=Text(" + json.dumps(source, ensure_ascii=False) + ")")["eligible"]
+    unsupported = r"0.6\text{ km} ≈ 1.2\text{ min},\quad 0.4\text{ km} ≈ 0.8\text{ min}."
+    result = assess(source, "root=Formula(latex=" + json.dumps(unsupported, ensure_ascii=False) + ")")
+    assert "renderer_evidence_incomplete" in result["reasons"]

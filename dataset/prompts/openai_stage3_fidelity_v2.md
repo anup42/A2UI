@@ -33,6 +33,11 @@ Recognize qualified sections such as "Official References" and "Learning
 Resources". Keep any provenance note as separate Text before the links. A
 native source-link Card may show only the links.
 Place the exact qualified heading in visible Text before the source-link Card.
+Keep each citation occurrence with its exact label, even when several labels
+share a destination. Put repeated destinations in separate source-link Cards
+with sourceLinks-style List IDs so the renderer shows each label. For a
+trailing pipe field such as Media: Icon=..., place
+the icon in that record's Card. The metadata is neither body text nor an action.
 Use the List object's explicit `label` field for a publisher name such as
 `GOV.UK - Tenancy Deposit Protection`. A bulleted `- Action:` still declares
 an action. If a key/value table has one linked value, keep its exact label in
@@ -46,6 +51,10 @@ structured record. Preserve entity/value associations, qualifiers, units,
 negations, dates, action labels and destinations. Keep one-off constraints,
 confirmation templates and procedural steps intact in Text/List. A comma
 followed by a qualifier does not by itself identify a separate entity.
+Preserve numbered steps in order. Keep each step number once, with its exact
+instruction, time window, and exception. Use a single visible heading for a
+qualifier shared by several steps. Do not infer separate entities from paired
+constraints such as departure/return or passengers/cabin.
 
 For weather, flight, booking, schedule and status records, prefer cards. For a
 compact Table choose the appropriate domain and preferredPresentation="cards"
@@ -124,6 +133,9 @@ series values in both cases.
 Use List for ordinary checklist strings. If Checklist is needed, use objects
 such as `Checklist(items=[{label:"Verify the schedule"}])` and at most 20
 items per component. Keep diagnostics about renderer limitations out of the
-visible response. For Formula, keep an
-adjacent explanation/qualifier under the same source section or entity; moving
-it elsewhere does not preserve the formula's meaning.
+visible response. Use Formula for one supported expression, such as
+Formula("5 × 5 = 25"). Keep its explanation and qualifiers beside it in the
+same section or Card. Use Text for mixed prose and calculations, such as
+Text("0.6 km ≈ 1.2 min, 0.4 km ≈ 0.8 min."). Do not add TeX spacing commands
+such as \quad or \qquad. When displaying inline math as text, preserve every
+operator, operand, sign, unit, and grouping. Do not simplify or recalculate it.

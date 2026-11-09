@@ -160,7 +160,7 @@ changed to manufacture a claim that did not occur in the source.
         config = replace(config, pilot_fidelity_v2=True, grpo_entity_extraction=True)
     evidence = collect_output_evidence_v5_4(graph, audit_renderer_graph(graph), config)
     tokenize = _tokens_v2 if pilot_fidelity_v2 else _tokens
-    source_sequence = " " + tokenize(source) + " "
+    visible_source = source
     formula_source = None
     owned_layout_fields = set()
     if pilot_fidelity_v2:
@@ -171,6 +171,7 @@ changed to manufacture a claim that did not occur in the source.
         from pipeline.genui_quality.pilot_semantic_fields_v2 import (
             exact_stop_card_fields,
         )
+        from pipeline.genui_quality.pilot_source_contract_v2 import inline_media_view
 
         # Layout labels are authorized only on an exact source stop's own
         # visible fields. A moved field or additional claim gets no credit.
@@ -183,7 +184,9 @@ changed to manufacture a claim that did not occur in the source.
         def formula_tokens(value):
             return formula_literal_key_v2(value)
 
-        formula_source = " " + formula_tokens(prose_spelling(source)) + " "
+        visible_source = inline_media_view(source)
+        formula_source = " " + formula_tokens(prose_spelling(visible_source)) + " "
+    source_sequence = " " + tokenize(visible_source) + " "
     unsupported = []
     for index, item in enumerate(evidence.evidence_ownership):
         owner = item.get("owner")
@@ -318,7 +321,19 @@ def assess_candidate(row: Mapping[str, Any], target: str | Mapping[str, Any], *,
     if pilot_fidelity_v2:
         # Only fresh canonical, whole-field certificates can resolve layout
         # separators. Raw observations and all canonical gates still apply.
+        from pipeline.genui_quality.pilot_layout_v2 import layout_text
+        from pipeline.genui_quality.pilot_source_contract_v2 import (
+            declared_media_occurrences,
+        )
+
         grouping = reward.evidence.get("content_assignment", {}).get("card_field_grouping", {})
+        inline_records = {item["_span"]: layout_text(item["_record"])
+                          for item in declared_media_occurrences(bound.source) if "_record" in item}
+        proven_inline = Counter(layout_text(item["source_text"])
+                                for item in grouping.get("pilot_exact_pipe_card_fields", ())
+                                if item.get("inline_media_owned"))
+        if Counter(inline_records.values()) != proven_inline:
+            report["reasons"].append("pilot_inline_media_record_mismatch")
         certified = Counter(_tokens_v2(item["source_text"])
                      for key in ("pilot_exact_pipe_card_fields", "pilot_exact_plain_table_headers",
                                  "pilot_exact_sibling_fragments", "pilot_exact_formula_fields",

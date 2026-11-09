@@ -256,3 +256,69 @@ def project_exact_track_tables(source, ownership, tables, *, source_text):
                              "proof": "exact_track_artist_duration_records"} for raw in raw_units)
         runs.remove(run)
     return [item for i, row in enumerate(rows) for item in additions.get(i, [] if i in consumed else [row])], certificates
+
+
+def project_exact_labeled_tables(source, ownership, tables, *, source_text):
+    """Credit a complete bold-name list in the Table under its source heading."""
+    from .pilot_layout_v2 import _literal_source_tables
+
+    pattern = re.compile(r"\s*[-*+]\s+\*\*([^*|:\n]+)\*\*:\s+([^|\n]+?)\s*")
+    runs, run, fence = [], [], None
+    for line in [*source_text.splitlines(), ""]:
+        marker = re.match(r"^\s*(`{3,}|~{3,})", line)
+        if marker:
+            token = marker[1]
+            if fence is None:
+                fence = token
+            elif token[0] == fence[0] and len(token) >= len(fence):
+                fence = None
+        match = pattern.fullmatch(line) if fence is None and marker is None else None
+        if match:
+            run.append((line, tuple(part.strip() for part in match.groups())))
+        else:
+            if len(run) >= 2:
+                runs.append(run)
+            run = []
+    if not runs:
+        return list(ownership), []
+
+    raw_tables = list(_literal_source_tables(source_text))
+    raw_units = Counter(layout_text(unit.raw) for unit in source)
+    rows, consumed, replacements, certificates = list(ownership), set(), {}, []
+    for table in tables:
+        if len(table.headers) != 2:
+            continue
+        actual = tuple(tuple(str(row.get(key, "")) for key in table.keys) for row in table.rows)
+        matches = [run for run in runs if tuple(record for _, record in run) == actual]
+        if len(matches) != 1:
+            continue
+        run = matches[0]
+        originals = [raw for raw, _ in run]
+        heading = _section(source_text, originals[0])
+        if not heading or table.headers[1] not in {heading, heading.removesuffix("s")}:
+            continue
+        names = tuple(record[0] for _, record in run)
+        if (len(set(names)) != len(names)
+                or not any(headers[0] == table.headers[0] and tuple(row[0] for row in values) == names
+                           for headers, values, _ in raw_tables)
+                or any(raw_units[layout_text(raw)] != 1 for raw in originals)):
+            continue
+
+        group = [i for i, row in enumerate(rows)
+                 if row.get("component_id") == table.element_id and row.get("owner") == "source_table"]
+        expected = Counter([*table.headers, *(" | ".join(record) for record in actual)])
+        if (not group or Counter(str(rows[i]["text"]) for i in group) != expected
+                or len({rows[i].get("render_instance") for i in group}) != 1):
+            continue
+        parent = rows[group[0]].get("parent_instance")
+        headings = [row["text"] for row in rows[:group[0]]
+                    if row.get("rendered_heading") and parent and row.get("parent_instance") == parent]
+        if not headings or layout_text(headings[-1]) != heading:
+            continue
+        replacements[group[0]] = [{**rows[group[0]], "text": raw, "owner": "generic_visible_content"}
+                                  for raw in originals]
+        consumed.update(group)
+        certificates.extend({"source_text": raw, "component_id": table.element_id,
+                             "proof": "exact_named_value_records"} for raw in originals)
+        runs.remove(run)
+    return [item for i, row in enumerate(rows) for item in replacements.get(i, [] if i in consumed else [row])], certificates

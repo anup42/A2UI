@@ -94,6 +94,13 @@ def reference_preflight(row: dict) -> dict:
             reasons.append("reference_source_hash_mismatch")
         restored = restore_url_placeholders(source, mapping)
         reasons.extend(_web_action_issues(restored))
+        from pipeline.genui_quality.pilot_source_contract_v2 import (
+            source_link_occurrences,
+        )
+
+        malformed_angles: list[int] = []
+        source_link_occurrences(restored, malformed_angles=malformed_angles)
+        reasons.extend(f"pilot_invalid_source_link_destination:line_{number}" for number in malformed_angles)
         unresolved = sorted(reference_tokens(restored))
         if unresolved and not missing:
             reasons.append("pilot_unresolved_source_references:" + ",".join(unresolved))

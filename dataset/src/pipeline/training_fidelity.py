@@ -10,6 +10,7 @@ import hashlib
 import json
 import re
 import unicodedata
+from collections import Counter
 from collections.abc import Mapping
 from dataclasses import replace
 from functools import lru_cache
@@ -60,15 +61,18 @@ def _tokens(value: Any) -> str:
 
 def _tokens_v2(value: Any) -> str:
     """Pilot literal view also preserves semantic operators ignored by prose."""
-    from pipeline.genui_quality.pilot_layout_v2 import prose_spelling
+    from pipeline.genui_quality.pilot_layout_v2 import (
+        inline_math_spelling,
+        prose_spelling,
+    )
 
     text = unicodedata.normalize("NFKC", str(value)).replace("−", "-")
-    text = prose_spelling(text)
+    text = inline_math_spelling(prose_spelling(text))
     text = _PREFIX.sub("", text)
     text = _REFERENCES.sub(" ", text)
     text = _GROUPED_NUMBER.sub(lambda match: match[0].replace(",", ""), text)
     text = text.casefold().replace(">=", "≥").replace("<=", "≤").replace("!=", "≠")
-    return " ".join(re.findall(r"[+\-]?\d+(?:[.,:/\-]\d+)*|\w+|[<>≤≥≠=+%$€£¥₹°|~≈×÷∑^_*]", text))
+    return " ".join(re.findall(r"[+\-]?\d+(?:[.,:/\-]\d+)*|\w+|[<>≤≥≠=+%$€£¥₹°|~≈×÷∑±∓⋅^_*]", text))
 
 
 def _numbers(value: Any) -> set[str]:
@@ -190,10 +194,15 @@ def audit_training_fidelity(source: str, graph: Mapping[str, Any], *,
     tokenize = _tokens_v2 if pilot_fidelity_v2 else _tokens
     represented = " " + tokenize("\n".join(visible)) + " "
     context_tokens = [" " + tokenize(value) + " " for value in contexts]
-    contract = extract_expected_ui_contract_v5_4(source)
-    source_units = build_source_ownership(source, contract)
+    visible_source = source
+    if pilot_fidelity_v2:
+        from pipeline.genui_quality.pilot_source_contract_v2 import inline_media_view
+
+        visible_source = inline_media_view(source)
+    contract = extract_expected_ui_contract_v5_4(visible_source)
+    source_units = build_source_ownership(visible_source, contract)
     link_spans = set()
-    numeric_source = source
+    numeric_source = visible_source
     if pilot_fidelity_v2:
         from pipeline.genui_quality.formula_evidence_v2 import (
             normalize_formula_evidence_v2,
@@ -207,7 +216,7 @@ def audit_training_fidelity(source: str, graph: Mapping[str, Any], *,
         spans = sorted({unit.source_span for unit in source_units
                         if unit.owner == "formula" and unit.source_span is not None}, reverse=True)
         for start, end in spans:
-            numeric_source = numeric_source[:start] + normalize_formula_evidence_v2(source[start:end]) + numeric_source[end:]
+            numeric_source = numeric_source[:start] + normalize_formula_evidence_v2(visible_source[start:end]) + numeric_source[end:]
     units = [unit for unit in source_units
              if unit.owner in {"generic_prose", "heading"}]
     if pilot_fidelity_v2:
@@ -221,7 +230,21 @@ def audit_training_fidelity(source: str, graph: Mapping[str, Any], *,
             missing.append({"unit_id": unit.unit_id, "owner": unit.owner,
                             "source_span": list(unit.source_span) if unit.source_span else None,
                             "text": unit.text})
-    unsupported = sorted(_numbers("\n".join(visible)) - _numbers(numeric_source))
+    numeric_visible = visible
+    chart_data_mismatches = []
+    if pilot_fidelity_v2:
+        from pipeline.genui_quality.pilot_charts_v2 import numeric_chart_audit
+
+        covered, chart_data_mismatches = numeric_chart_audit(
+            source, output.role_instances.get("chart", ()), output.evidence_ownership)
+        if covered and Counter(visible) == Counter(str(row.get("text") or "") for row in output.evidence_ownership):
+            numeric_visible = []
+            for block in visible:
+                if covered[block]:
+                    covered[block] -= 1
+                else:
+                    numeric_visible.append(block)
+    unsupported = sorted(_numbers("\n".join(numeric_visible)) - _numbers(numeric_source))
     joins = _join_diagnostics(source, visible)
     unsupported_charts = [item for item in output.effective_components
                           if item.get("kind") == "chart" and
@@ -233,6 +256,8 @@ def audit_training_fidelity(source: str, graph: Mapping[str, Any], *,
         reasons.append("source_literal_not_exactly_represented")
     if unsupported:
         reasons.append("unsupported_visible_numeric_anchor")
+    if chart_data_mismatches:
+        reasons.append("source_chart_data_mismatch")
     if joins:
         reasons.append("suspected_source_word_join")
     if unsupported_charts:
@@ -245,6 +270,7 @@ def audit_training_fidelity(source: str, graph: Mapping[str, Any], *,
             "missing_unit_count": len(missing), "missing_units": missing if complete_missing_units else missing[:16],
             "missing_unit_examples_truncated": len(missing) > 16 and not complete_missing_units,
             "unsupported_numeric_anchors": unsupported,
+            **({"chart_data_mismatches": chart_data_mismatches} if pilot_fidelity_v2 else {}),
             "suspected_word_join_count": len(joins), "suspected_word_joins": joins[:16],
             "unsupported_chart_count": len(unsupported_charts),
             "unsupported_charts": [{"component_id": item["component_id"], "chart_type": item.get("chart_type")}

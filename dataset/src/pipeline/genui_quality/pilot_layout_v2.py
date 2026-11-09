@@ -9,6 +9,7 @@ import re
 from collections import Counter
 from dataclasses import replace
 
+_CODE_SPAN = re.compile(r"(?<![\\`])(`+)([^`\n]+)\1(?!`)")
 _PREFIX = re.compile(r"^\s*(?:#{1,6}\s+|(?:[-*+•]|\d+[.)])\s+)")
 # Recognizable math stays literal even beside a unit/digit or with inner spaces.
 # Otherwise dollar delimiters must flank non-space text; a following digit is
@@ -84,34 +85,63 @@ def exact_fragments(source: str, parts: list[str]) -> bool:
     return not remaining
 
 
-def table_cell_spelling(value: str) -> str:
-    """Bounded source Markdown spellings, not algebraic equivalence.
-
-    Preserve code contents, operators, operands and punctuation. Only complete
-    inline spans with recognized renderer spellings can shed their delimiters.
-    """
-    value = prose_spelling(str(value))
+def inline_math_spelling(value: str) -> str:
+    """Render only explicit, bounded inline operator spellings outside code."""
     operators = {"ge": "≥", "geq": "≥", "le": "≤", "leq": "≤", "neq": "≠", "approx": "≈",
-                 "to": "→", "rightarrow": "→", "times": "×", "cdot": "⋅", "div": "÷"}
+                 "to": "→", "rightarrow": "→", "times": "×", "cdot": "⋅", "div": "÷",
+                 "pm": "±", "mp": "∓"}
     number = r"[+\-]?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?"
 
     def math(text):
-        text = re.sub(rf"(?<![\\$])\$\s*\\(geq?|leq?|neq|approx)\s+({number})\s*\$(?![$\d])",
+        text = re.sub(rf"(?<![\\$])\$\s*\\(geq?|leq?|neq|approx|pm|mp)\s+({number})\s*\$(?![$\d])",
                       lambda m: operators[m[1]] + " " + m[2], text)
         text = re.sub(r"(?<![\\$])\$\s*\\(to|rightarrow|times|cdot|div|approx)\s*\$(?![$\d])",
                       lambda m: operators[m[1]], text)
-        text = re.sub(rf"(?<![\\$])\$\s*({number})\s*\\(times|cdot|div)\s*({number})\s*\$(?![$\d])",
-                      lambda m: f"{m[1]} {operators[m[2]]} {m[3]}", text)
-        return text.replace(r"\$", "$")
+        return re.sub(
+            rf"(?<![\\$])\$\s*({number})\s*\\(times|cdot|div)\s*({number})"
+            rf"(?:\s*=\s*({number}))?\s*\$(?![$\d])",
+            lambda m: f"{m[1]} {operators[m[2]]} {m[3]}" + (f" = {m[4]}" if m[4] else ""),
+            text,
+        )
 
+    parts, fence = [], None
+    for line in value.splitlines(keepends=True):
+        marker = re.match(r"^\s*(`{3,}|~{3,})", line)
+        if marker:
+            token = marker[1]
+            if fence is None:
+                fence = token
+            elif token[0] == fence[0] and len(token) >= len(fence):
+                fence = None
+            parts.append(line)
+            continue
+        if fence is not None:
+            parts.append(line)
+            continue
+        cursor = 0
+        for span in _CODE_SPAN.finditer(line):
+            parts.extend((math(line[cursor:span.start()]), span[0]))
+            cursor = span.end()
+        parts.append(math(line[cursor:]))
+    return "".join(parts)
+
+
+def table_cell_spelling(value: str) -> str:
+    """Bounded source Markdown spellings, not algebraic equivalence."""
+    value = inline_math_spelling(prose_spelling(str(value)))
+    simple_sum = re.fullmatch(r"\$([+-]?\d+(?:\.\d+)?)\s*([+-])\s*([+-]?\d+(?:\.\d+)?)\$", value)
+    if simple_sum:
+        return " ".join(simple_sum.groups())
     parts, cursor = [], 0
-    for span in re.finditer(r"(?<![\\`])(`+)([^`\n]+)\1(?!`)", value):
+    for span in _CODE_SPAN.finditer(value):
         # A simple identifier can render without its code delimiters. Keep
         # commands, escaped currency, paths and expressions byte-literal.
-        code = span[2] if re.fullmatch(r"[A-Za-z_]\w*(?:[.-]\w+)*|\[\[|\]\]", span[2]) else span[0]
-        parts.extend((math(value[cursor:span.start()]), code))
+        code = span[2] if re.fullmatch(
+            r"[A-Za-z_]\w*(?:[.-]\w+)*|\[\[|\]\]|(?:[A-Z][a-z]* ){1,2}[A-Z][a-z]*", span[2]
+        ) else span[0]
+        parts.extend((value[cursor:span.start()].replace(r"\$", "$"), code))
         cursor = span.end()
-    return "".join((*parts, math(value[cursor:])))
+    return "".join((*parts, value[cursor:].replace(r"\$", "$")))
 
 
 def _literal_source_tables(source_text):
@@ -295,7 +325,7 @@ def restore_literal_source_view(base, source_ownership):
         # Preserve the existing parser's record-recognition scope. Restoring a
         # Markdown '*' bullet must not suddenly turn procedural prose into an
         # entity record that the original source plan did not recognize.
-        units.append(original if _PREFIX.match(raw) else _PREFIX.sub("", original))
+        units.append(inline_math_spelling(original if _PREFIX.match(raw) else _PREFIX.sub("", original)))
     blocks = tuple(prepare_text_block(value) for value in units)
     return replace(base, applicability=replace(base.applicability, generic_source_units=tuple(units)),
                    content_blocks=blocks,
@@ -312,22 +342,37 @@ def explicit_field_delimiters(record) -> bool:
                for label, value in record.field_pairs)
 
 
-def pilot_entity_records(records, *, source_text):
-    """An isolated property bundle has no explicit entity identity.
+def _property_bundle(record) -> bool:
+    return (record.source_format == "labeled_comma" and record.identity_label is None
+            and len(record.fixed_texts) == 2 and not record.actions)
 
-    Keep named records and consecutive property rows. A single untyped
-    `Property: value, qualifier: value` stays in literal prose accounting.
-    """
+
+def pilot_entity_records(records, *, source_text):
+    """Only repeated named records make comma-separated fields mandatory."""
     from .pilot_charts_v2 import declared_chart_row_texts
 
     chart_rows = declared_chart_row_texts(source_text) if records else set()
-    records = tuple(record for record in records if explicit_field_delimiters(record)
-                    and not (record.source_format == "pipe" and len(record.original_source_units) == 1
-                             and layout_text(record.original_source_units[0]) in chart_rows))
-    bundles = {record.source_index for record in records if record.source_format == "labeled_comma"
-               and record.identity_label is None and len(record.fixed_texts) == 2 and not record.actions}
-    return tuple(record for record in records if record.source_index not in bundles
-                 or record.source_index - 1 in bundles or record.source_index + 1 in bundles)
+    candidates = {record.source_index: record for record in records if explicit_field_delimiters(record)
+                  and not (record.source_format == "pipe" and len(record.original_source_units) == 1
+                           and layout_text(record.original_source_units[0]) in chart_rows)}
+    retained = []
+    for index, record in candidates.items():
+        neighbors = [candidates[i] for i in (index - 1, index + 1) if i in candidates]
+        if record.source_format != "labeled_comma" or record.identity_label or record.actions:
+            retained.append(record)
+        elif _property_bundle(record):
+            # Consecutive property bundles can be split in their own section.
+            # An exact literal bundle does not need its own Card.
+            if any(_property_bundle(other) for other in neighbors):
+                retained.append(record)
+        else:
+            labels = {label.casefold() for label, _ in record.field_pairs}
+            if any(other.source_format == "labeled_comma" and len(other.fixed_texts) == 1
+                   and record.entity != other.entity
+                   and labels == {label.casefold() for label, _ in other.field_pairs}
+                   for other in neighbors):
+                retained.append(record)
+    return tuple(retained)
 
 
 def certify_section_fields(source_text, records, evidence, detail):
@@ -339,20 +384,33 @@ def certify_section_fields(source_text, records, evidence, detail):
     """
     rows = [row for row in evidence.evidence_ownership
             if row.get("owner") == "generic_visible_content" and str(row.get("text") or "").strip()]
+    def owns_literal(index, heading):
+        row = rows[index]
+        instance = row.get("card_instance")
+        if instance:
+            titles = [r["text"] for r in rows if r.get("card_instance") == instance
+                      and r.get("component_type") == "card"]
+            if len(titles) == 1 and layout_text(titles[0]) == heading:
+                return True
+        parent = row.get("parent_instance")
+        headers = [r["text"] for r in rows[:index] if parent and r.get("parent_instance") == parent
+                   and r.get("rendered_heading")]
+        return bool(headers and layout_text(headers[-1]) == heading)
+
     certified = list(detail["certified_records"])
     existing = {item["source_index"] for item in certified}
+    literal_bundles, consumed_literals = set(), set()
     lines = source_text.splitlines()
+    property_units = {layout_text(unit) for item in records if _property_bundle(item)
+                      for unit in item.original_source_units}
     for record in records:
-        if (record.source_index in existing or record.source_format != "labeled_comma"
-                or len(record.fixed_texts) != 2 or record.actions or record.identity_label):
+        if not _property_bundle(record):
             continue
-        locations = [i for i, line in enumerate(lines)
-                     if layout_text(line) == layout_text(record.original_source_units[0])]
+        source_unit = layout_text(record.original_source_units[0])
+        locations = [i for i, line in enumerate(lines) if layout_text(line) == source_unit]
         if len(locations) != 1:
             continue
         heading = None
-        property_units = {layout_text(unit) for item in records if item.source_format == "labeled_comma"
-                          for unit in item.original_source_units}
         for index in range(locations[0] - 1, -1, -1):
             line = lines[index].strip()
             if not line or layout_text(line) in property_units:
@@ -362,8 +420,16 @@ def certify_section_fields(source_text, records, evidence, detail):
                     and len(line) <= 120 and not _PREFIX.match(line)
                     and not re.search(r"[.:!?=|`]|://", line)):
                 heading = layout_text(line)
-            break
+                break
         if not heading:
+            continue
+        literals = [i for i, row in enumerate(rows) if i not in consumed_literals
+                    and layout_text(row["text"]) == source_unit and owns_literal(i, heading)]
+        if len(literals) == 1:
+            consumed_literals.add(literals[0])
+            literal_bundles.add(record.source_index)
+            continue
+        if record.source_index in existing:
             continue
         expected = [": ".join(record.fixed_texts), *(f"{label}: {value}" for label, value in record.field_pairs)]
         candidates = []
@@ -389,10 +455,12 @@ def certify_section_fields(source_text, records, evidence, detail):
         if len(candidates) == 1:
             certified.append(candidates[0])
     # No two source records may consume the same renderer occurrence.
+    certified = [item for item in certified if item["source_index"] not in literal_bundles]
     uses = Counter(index for item in certified for index in item["output_indices"])
     certified = [item for item in certified if all(uses[i] == 1 for i in item["output_indices"])]
     bound = {item["source_index"] for item in certified if item["actions_exact"]}
     return {**detail, "certified_records": certified, "bound_record_count": len(bound),
+            "eligible_record_count": len(records) - len(literal_bundles),
             "structured_record_count": sum(item["structured"] and item["actions_exact"] for item in certified)}
 
 

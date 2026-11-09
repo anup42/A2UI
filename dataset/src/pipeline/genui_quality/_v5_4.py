@@ -155,18 +155,21 @@ def prepare_source_context_v5_4(
         persisted=expected_ui_contract,
         persisted_source=expected_ui_contract_source,
     )
+    visible_source = source_text
     if cfg.pilot_fidelity_v2:
-        from .pilot_source_contract_v2 import source_contract_v2
+        from .pilot_source_contract_v2 import inline_media_view, source_contract_v2
+
         resolution = replace(resolution, contract=source_contract_v2(source_text, resolution.contract))
-    ownership = build_source_ownership(source_text, resolution.contract)
+        visible_source = inline_media_view(source_text)
+    ownership = build_source_ownership(visible_source, resolution.contract)
     compat = _v5_3_compat_contract(
         resolution.contract,
-        source_text=source_text,
+        source_text=visible_source,
         intent=intent,
         assets=assets,
     )
     base = prepare_source_context_v5_3(
-        source_text,
+        visible_source,
         intent=intent,
         assets=assets,
         expected_ui_contract=compat,
@@ -333,10 +336,12 @@ def _score_one_v5_4(
             from .pilot_semantic_fields_v2 import (
                 project_exact_email_fields,
                 project_exact_formula_fragments,
+                project_exact_labeled_tables,
                 project_exact_stop_cards,
                 project_exact_track_tables,
             )
             from .pilot_source_contract_v2 import project_source_link_labels, project_table_ctas
+
             result, pilot_cta_cells = project_table_ctas(prepared.source_text, result)
             pilot_actions = result.action_taxonomy
             pilot_media = result.media_taxonomy
@@ -366,9 +371,12 @@ def _score_one_v5_4(
                 prepared.base.content_blocks, rows, source_text=prepared.source_text)
             pilot_certificates["pilot_exact_semantic_fields"] = [
                 *formula_certificates, *email_certificates, *chart_certificates, *stop_certificates]
-            rows, pilot_certificates["pilot_exact_record_tables"] = project_exact_track_tables(
+            rows, track_certificates = project_exact_track_tables(
                 tuple(prepare_text_block(line) for line in prepared.source_text.splitlines()),
                 rows, result.output_tables, source_text=prepared.source_text)
+            rows, labeled_certificates = project_exact_labeled_tables(
+                literal_source, rows, result.output_tables, source_text=prepared.source_text)
+            pilot_certificates["pilot_exact_record_tables"] = [*track_certificates, *labeled_certificates]
             rows, pilot_certificates["pilot_exact_card_fragments"] = project_exact_card_fragments(
                 literal_source, rows)
             rows = project_source_link_labels(prepared.source_text, rows, result.output.actions)
