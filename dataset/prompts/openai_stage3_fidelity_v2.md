@@ -11,6 +11,8 @@ Asset reference policy for this request:
 - Use only supplied opaque reference placeholders and their supplied bindings.
 - Bound URLs and declared media/assets in the response are opaque placeholders.
 - Preserve every placeholder exactly; the pipeline restores it after parsing.
+  In a destination use the placeholder as the entire value. Never append a
+  filename, path, fragment, quote, or other suffix to it.
 - Never invent a URL, local resource, or reference binding. A literal filesystem
   path, command, or prose slash (such as `asset/liability`) that remains in the
   source is instructional text: preserve it in Text/CodeBlock, not an image,
@@ -18,6 +20,8 @@ Asset reference policy for this request:
 - A URL shown inside a command or troubleshooting instruction stays inline
   text, even when it has an opaque placeholder. Use a clickable destination
   only where the source declares an action or presents a labeled link.
+Keep a raw URL from an Original URL table column in its exact cell as
+display text. A destination in that column does not declare a separate action.
 
 Preserve reference roles as well as destinations. A citation under Sources or
 References stays a labeled source link; it is not an instruction to create an
@@ -43,14 +47,20 @@ Use the List object's explicit `label` field for a publisher name such as
 an action. If a key/value table has one linked value, keep its exact label in
 the cell and place its matching Button immediately after the complete Table
 under the same parent. Keep the link with the table that supplied it.
+For a bullet such as `Waste disposal: [Button: City site] <[URL_1]>`,
+keep the complete qualifier as the Card title and place the exact Button
+label and destination inside that Card in the original section.
 
 Render repeated entity records as separate Cards with readable fields, or a
 compact Table with source-grounded columns and rows/statePath. Extract labeled
 attributes; a multi-field bullet copied into a List or single Text is not a
 structured record. Preserve entity/value associations, qualifiers, units,
-negations, dates, action labels and destinations. Keep one-off constraints,
-confirmation templates and procedural steps intact in Text/List. A comma
-followed by a qualifier does not by itself identify a separate entity.
+negations, dates, action labels and destinations. In an ingredient record,
+keep the ingredient name, quantity/unit, price and optionality as separate
+visible fields under that ingredient when the source supplies them. Keep
+one-off constraints, confirmation templates and procedural steps intact in
+Text/List. A comma followed by a qualifier does not by itself identify a
+separate entity.
 Preserve numbered steps in order. Keep each step number once, with its exact
 instruction, time window, and exception. Use a single visible heading for a
 qualifier shared by several steps. Do not infer separate entities from paired
@@ -117,7 +127,9 @@ all operands and units together; use Text when exact literal math suffices.
 
 Use valid Express component identifiers matching `[A-Za-z_][A-Za-z0-9_]*`.
 Labels containing spaces belong in string properties, never in identifiers.
-Keep every child reference bound to exactly one component definition.
+Keep every child reference bound to exactly one component definition. Supply
+a child list once per component, either positionally or as a named argument.
+Before returning, verify that every list, object, and call closes exactly once.
 Do not emit Table(rows=[]). If the source supplies only a blank template or
 column headings, render its exact headings/instructions in Text/List without
 inventing populated rows, examples, or default values.
@@ -129,7 +141,10 @@ supplied wording. Treat contiguous chart type, title, axis and data directives
 as one specification. Keep all series, labels and values in source order.
 For a time-axis bar chart set `xType="time"` and `orientation="vertical"`.
 Horizontal bars require a categorical domain. Keep the original dates and
-series values in both cases.
+series values in both cases. Chart y series require numbers. Keep clock times,
+time ranges, date strings, and other nonnumeric measurements in their exact
+source form in Table or Text. Use the source's explicit axes and ordered series
+when it supplies chart data.
 Use List for ordinary checklist strings. If Checklist is needed, use objects
 such as `Checklist(items=[{label:"Verify the schedule"}])` and at most 20
 items per component. Keep diagnostics about renderer limitations out of the

@@ -113,7 +113,16 @@ def formula_syntax_errors_v2(raw: str) -> tuple[str, ...]:
 
 def formula_literal_key_v2(raw: str) -> str:
     """Spelling equivalence only; retain math structure, words and units."""
+    label = re.fullmatch(r"([\w][\w /-]*:\s*)\$(.+)(?<!\\)\$", raw.strip())
+    if label and re.search(r"[=≈×÷]|\\(?:times|div|approx)(?![A-Za-z])", label[2]):
+        raw = label[1] + label[2]
     value = normalize_formula_evidence_v2(raw)
+    # Match a signed scalar exponent with or without explicit script braces.
+    # Grouped expressions, adjacent digits, and symbolic scripts stay exact.
+    value = re.sub(r"\^\{([+-]?\d+)\}(?![\w.,])", r"^\1", value)
+    # Bold numeric literals in supplied LaTeX change emphasis only. Bold
+    # variables and arbitrary groups may encode distinct mathematical roles.
+    value = re.sub(r"\\mathbf\{([$€£¥₹]?[+-]?\d[\d,.]*%?)\}", r"\1", value)
     # Source LaTeX floor/ceiling delimiters and literal Unicode brackets name
     # the same operation. This comparison does NOT add unsupported commands
     # to the renderer syntax allowlist: output must still pass that gate.

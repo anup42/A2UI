@@ -486,8 +486,14 @@ class _EvidenceInterpreterV54(_EvidenceInterpreterV53):
             )
             if headers and not intercepted:
                 self.visible_blocks[start_visible:start_visible] = headers
+                header_scope = {}
+                if pilot:
+                    header_scope["render_instance"] = self._pilot_render_stack[-1]["instance"]
+                    if len(self._pilot_render_stack) >= 2:
+                        header_scope["parent_instance"] = self._pilot_render_stack[-2]["instance"]
                 self.block_ownership[start_owned:start_owned] = [
                     {
+                        **header_scope,
                         "component_id": element_id,
                         "component_type": "card",
                         "card_instance": instance,

@@ -2,6 +2,7 @@
 
 import re
 from collections import Counter
+from itertools import pairwise
 
 from .formula_evidence_v2 import formula_literal_key_v2
 from .pilot_layout_v2 import layout_text, prose_spelling
@@ -37,12 +38,26 @@ def formula_owner_matches(source, unit, group, ownership):
         return True
     titles = [row["text"] for row in ownership if row.get("card_instance") == card
               and row.get("component_type") == "card"]
-    heading = _section(source, unit)
-    return heading is not None and len(titles) == 1 and layout_text(titles[0]) == heading
+    if len(titles) != 1:
+        return False
+    title = layout_text(titles[0])
+    if _section(source, unit) == title:
+        return True
+    # A plain subsection label immediately before a contiguous equation list
+    # can be its Card title even when the source has no Markdown subheading.
+    lines = source.splitlines()
+    indices = [i for i, line in enumerate(lines) if layout_text(line) == layout_text(unit)]
+    if len(indices) != 1:
+        return False
+    index = indices[0]
+    while index > 0 and re.match(r"^\s*[-*+]\s+", lines[index - 1]) and re.search(r"[=≈≥≤]", lines[index - 1]):
+        index -= 1
+    return bool(index and re.fullmatch(r"[^#*|:=≈≥≤\n]{1,100}", lines[index - 1].strip())
+                and layout_text(lines[index - 1]) == title)
 
 
 def project_exact_formula_fragments(source, ownership, *, source_text):
-    """A Formula and its adjacent qualifier must reconstruct one whole unit."""
+    """Bind a Formula and its adjacent label or qualifier to one whole unit."""
     units = [unit for unit in source if any(char in unit.raw for char in "=≈≥≤")]
     rows, consumed, certificates = list(ownership), set(), []
     for first, row in enumerate(rows):
@@ -54,8 +69,25 @@ def project_exact_formula_fragments(source, ownership, *, source_text):
         if not instance or first != indices[0] or indices != list(range(first, indices[-1] + 1)):
             continue
         group = [rows[i] for i in indices]
+        before = rows[first - 1] if first else {}
+        parent = row.get("parent_instance")
+        if (len(group) == 1 and first - 1 not in consumed and before.get("component_type") == "text"
+                and before.get("owner") == "generic_visible_content"
+                and parent and before.get("parent_instance") == parent
+                and before.get("card_instance") == row.get("card_instance")):
+            key = formula_literal_key_v2(str(before["text"]) + " = " + str(row["text"]))
+            matches = [unit for unit in units if formula_literal_key_v2(layout_text(unit.raw)) == key
+                       and formula_owner_matches(source_text, unit.raw, group, rows)]
+            if len(matches) == 1:
+                unit = matches[0]
+                rows[first - 1] = {**before, "text": unit.raw}
+                consumed.update(indices)
+                certificates.append({"source_text": unit.raw, "component_id": row.get("component_id"),
+                                     "proof": "exact_adjacent_formula_label"})
+                units.remove(unit)
+                continue
         after = indices[-1] + 1
-        if after >= len(rows):
+        if after >= len(rows) or after in consumed:
             continue
         qualifier = rows[after]
         if (qualifier.get("component_type") != "text" or qualifier.get("owner") != "generic_visible_content"
@@ -80,7 +112,7 @@ def project_exact_formula_fragments(source, ownership, *, source_text):
     return [row for i, row in enumerate(rows) if i not in consumed], certificates
 
 
-def project_exact_email_fields(source, ownership):
+def project_exact_email_fields(source, ownership, *, source_ownership=()):
     """Reconcile visible EmailPreview fields against complete literal units.
 
     New presentation equivalences apply only to one source-bound draft and
@@ -103,8 +135,19 @@ def project_exact_email_fields(source, ownership):
             spellings.setdefault(tuple(_email_body_spelling(unit.raw).split()), set()).add(unit.raw)
     unique_units = tuple(unit for unit in source if one_draft
                          and len(spellings[tuple(_email_body_spelling(unit.raw).split())]) == 1)
+    banners = [unit.text for unit, following in pairwise(source_ownership)
+               if one_draft and unit.owner == "email" and unit.source_span is not None
+               and following.owner == "generic_prose" and following.source_span is not None
+               and following.text == subjects[0] and re.fullmatch(r"(?i)email draft:?", unit.text)]
     rows, certificates = [], []
-    for row in ownership:
+    for index, row in enumerate(ownership):
+        adjacent = ownership[index + 1] if index + 1 < len(ownership) else {}
+        if (one_draft and len(banners) == 1 and row.get("text") == banners[0]
+                and row.get("rendered_heading") and row.get("owner") == "generic_visible_content"
+                and row.get("parent_instance") and row["parent_instance"] == adjacent.get("parent_instance")
+                and adjacent is subject_rows[0]):
+            rows.append({**row, "owner": "pilot_certified_source_heading"})
+            continue
         field = row.get("semantic_field")
         fields = {*EMAIL_FIELDS, "body"} if one_draft else {"subject", "body"}
         if row.get("owner") != "source_email" or field not in fields:
@@ -322,3 +365,99 @@ def project_exact_labeled_tables(source, ownership, tables, *, source_text):
                              "proof": "exact_named_value_records"} for raw in originals)
         runs.remove(run)
     return [item for i, row in enumerate(rows) for item in replacements.get(i, [] if i in consumed else [row])], certificates
+
+_SCHEDULE_ROW = re.compile(r"(\d{2}:\d{2}[-–]\d{2}:\d{2})\s+(.+)")
+_AMOUNT = r"(?:[~≈]\s*)?(?:(?:AUD|BRL|CAD|CHF|CNY|EUR|GBP|HKD|INR|JPY|MXN|NZD|SGD|THB|USD|ZAR)\s+|[$€£¥₹]\s*)[+-]?\d.*"
+_LABELED_COST_ROW = re.compile(r"(.+):\s+(" + _AMOUNT + r")")
+_PLAIN_COST_ROW = re.compile(r"(.+?)\s+(" + _AMOUNT + r")")
+_SECTION_TABLE_HEADERS = {
+    "schedule": ({"Time", "Time window"}, {"Activity", "Task", "Event"}),
+    "cost": ({"Item", "Expense", "Cost item", "Budget item", "Category"},
+             {"Amount", "Cost", "Illustrative cost", "Estimated cost", "Estimate"}),
+}
+
+
+def _section_record_runs(source_text):
+    """Read only consecutive whole rows owned by a visible source label."""
+    runs, run, heading, fence, previous = [], [], None, None, None
+    headings = Counter()
+    for line in [*source_text.splitlines(), ""]:
+        raw = line.strip()
+        marker = re.match(r"^(`{3,}|~{3,})", raw)
+        if marker:
+            token = marker[1]
+            if fence is None:
+                fence = token
+            elif token[0] == fence[0] and len(token) >= len(fence):
+                fence = None
+            heading = None
+        title = re.fullmatch(r"#{1,6}\s+(.+)|\*\*([^*]+)\*\*|([^:|=]{1,100}:)", raw)
+        match = None
+        if not (marker or fence or title or "|" in raw or "://" in raw or re.match(r"^\d+[.)]\s+", raw)):
+            body = layout_text(raw)
+            match = _SCHEDULE_ROW.fullmatch(body)
+            kind = "schedule" if match else "cost"
+            match = match or _LABELED_COST_ROW.fullmatch(body) or _PLAIN_COST_ROW.fullmatch(body)
+        key = (heading, kind, bool(re.match(r"[-*+•]\s+", raw))) if match and heading else None
+        if key != previous or key is None:
+            if len(run) >= 2:
+                runs.append((previous[0], previous[1], run))
+            run = []
+        if key:
+            run.append((raw, match.groups()))
+        if title and not (marker or fence):
+            heading = layout_text(next(value for value in title.groups() if value is not None))
+            headings[heading] += 1
+        previous = key
+    return [(heading, kind, run) for heading, kind, run in runs if headings[heading] == 1]
+
+
+def project_exact_section_tables(source, ownership, tables, *, source_text):
+    """Credit a complete schedule/cost run only under the same visible owner."""
+    runs = _section_record_runs(source_text)
+    if not runs:
+        return list(ownership), []
+    rows, matches = list(ownership), []
+    available = Counter(layout_text(unit.raw) for unit in source)
+    for table in tables:
+        headers = tuple(table.headers)
+        if len(headers) != 2 or len(set(table.keys)) != 2 or len(table.rows) < 2:
+            continue
+        actual = tuple(tuple(str(row.get(key, "")) for key in table.keys) for row in table.rows)
+        indices = [i for i, row in enumerate(rows) if row.get("component_id") == table.element_id
+                   and row.get("owner") == "source_table"]
+        if (len(indices) != len(actual) + 2
+                or indices != list(range(indices[0], indices[-1] + 1))
+                or len({rows[i].get("render_instance") for i in indices}) != 1
+                or [rows[i]["text"] for i in indices] != [*headers, *(" | ".join(row) for row in actual)]
+                or not all(rows[i].get("table_header") for i in indices[:2])):
+            continue
+        first = rows[indices[0]]
+        parent, card = first.get("parent_instance"), first.get("card_instance")
+        visible_labels = [row["text"] for row in rows[:indices[0]] if (
+            (parent and row.get("parent_instance") == parent and row.get("rendered_heading"))
+            or (card and row.get("card_instance") == card and row.get("component_type") == "card"
+                and row.get("owner") in {"generic_visible_content", "pilot_certified_source_heading"})
+        )]
+        if not visible_labels:
+            continue
+        matching = [n for n, (heading, kind, run) in enumerate(runs)
+                    if heading == layout_text(visible_labels[-1])
+                    and all(header in allowed for header, allowed in zip(headers, _SECTION_TABLE_HEADERS[kind], strict=True))
+                    and tuple(fields for _, fields in run) == actual]
+        if len(matching) == 1:
+            matches.append((matching[0], table.element_id, indices))
+    claims = Counter(index for index, _, _ in matches)
+    requested = Counter(layout_text(raw) for index, _, _ in matches if claims[index] == 1
+                        for raw, _ in runs[index][2])
+    certificates = []
+    for index, component, indices in matches:
+        if claims[index] != 1 or any(requested[layout_text(raw)] > available[layout_text(raw)]
+                                    for raw, _ in runs[index][2]):
+            continue
+        for i in indices[:2]:
+            rows[i] = {**rows[i], "owner": "pilot_certified_table_layout"}
+        for i, (raw, _) in zip(indices[2:], runs[index][2], strict=True):
+            rows[i] = {**rows[i], "text": raw, "owner": "generic_visible_content"}
+            certificates.append({"source_text": raw, "component_id": component, "proof": "exact_section_record_table"})
+    return rows, certificates

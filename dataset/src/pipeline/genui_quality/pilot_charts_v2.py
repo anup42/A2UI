@@ -88,12 +88,17 @@ def chart_specs(source: str) -> tuple[_ChartSpec, ...]:
             if raw.casefold() == "chart data specification":
                 in_spec = True
                 continue
-            match = _DIRECTIVE.fullmatch(raw)
-            if match and (in_spec or fields or match[1].casefold() in {"chart type", "chart title"}):
-                field = match[1].casefold().replace("-", " ")
-                field = _AXES.get(field, "chart title" if field == "title" else field)
-                ambiguous |= field in fields
-                fields.setdefault(field, (line.strip(), match[2]))
+            axis_parts = re.split(r"\s*\|\s*(?=Y[- ]Axis:)", raw, flags=re.IGNORECASE)
+            combined_axes = len(axis_parts) == 2 and re.match(r"^X[- ]Axis:", axis_parts[0], re.IGNORECASE)
+            directives = [_DIRECTIVE.fullmatch(part) for part in (axis_parts if combined_axes else [raw])]
+            match = directives[0]
+            if (match and all(directives)
+                    and (in_spec or fields or match[1].casefold() in {"chart type", "chart title"})):
+                for directive in directives:
+                    field = directive[1].casefold().replace("-", " ")
+                    field = _AXES.get(field, "chart title" if field == "title" else field)
+                    ambiguous |= field in fields
+                    fields.setdefault(field, (line.strip(), directive[2]))
                 continue
             if fields and _PIPE_ROW.fullmatch(line):
                 rows.append(line.strip())
@@ -133,8 +138,16 @@ def _declared_data(spec: _ChartSpec):
     return None
 
 
-def _data_matches(spec, candidate):
-    data = _declared_data(spec)
+def _data_matches(spec, candidate, table=None):
+    if table is None:
+        data = _declared_data(spec)
+    else:
+        headers, rows = table
+        if (candidate.get("pilot_orientation") != "vertical"
+                or headers[0] not in candidate.get("x_fields", ())):
+            return False
+        data = ([row[0] for row in rows], [
+            (header, [row[i] for row in rows]) for i, header in enumerate(headers[1:], 1)])
     if data is None:
         return False
     labels, series = data
@@ -144,6 +157,36 @@ def _data_matches(spec, candidate):
             and all((name is None or (item["label"] == name and i < len(columns) and columns[i] == name))
                     and list(map(table_cell_spelling, item["displays"])) == list(map(table_cell_spelling, values))
                     for i, ((name, values), item) in enumerate(zip(series, actual))))
+
+
+def _adjacent_source_table(source, spec):
+    from .pilot_layout_v2 import _literal_source_tables
+
+    raw, _ = next(reversed(spec.fields.values()))
+    endings = list(re.finditer(r"(?m)^[ \t]*" + re.escape(raw) + r"[ \t]*\r?$", source))
+    if len(endings) == 1:
+        end = endings[0].end()
+        return next(((headers, rows) for headers, rows, (start, _) in _literal_source_tables(source)
+                     if start >= end and not source[end:start].strip()), None)
+    return None
+
+
+def _adjacent_series_table(source, spec):
+    """Bind a complete categorical table to a contiguous multi-series spec."""
+    if (spec.rows or not {"x", "y"} <= spec.fields.keys()
+            or {"labels", "values", "right y"} & spec.fields.keys()):
+        return None
+    table = _adjacent_source_table(source, spec)
+    if not table:
+        return None
+    headers, rows = table
+    x_label, y_label = (spec.fields[axis][1] for axis in ("x", "y"))
+    if (len(headers) >= 3 and len(set(headers)) == len(headers) and headers[0] == x_label
+            and y_label not in headers and len(rows) >= 2
+            and len({row[0] for row in rows}) == len(rows)
+            and all(re.fullmatch(r"[+-]?\d+(?:\.\d+)?", value) for row in rows for value in row[1:])):
+        return table
+    return None
 
 
 def _axis_columns(spec, tables):
@@ -166,6 +209,25 @@ def _axis_columns(spec, tables):
             x_index, y_index = (headers.index(header) for header in selected)
             matches.append((selected, chart_axis_data_key((row[x_index], row[y_index]) for row in rows)))
     return matches[0] if len(matches) == 1 else None
+
+
+def refine_inferred_chart_count(source, contract):
+    """Discard a bare chart count inferred from the browser graphics setting."""
+    counts = contract.get("expected_role_counts") or {}
+    roles = contract.get("role_requirements") or {}
+    # The legacy instruction regex can match "Use graph" inside this setting.
+    if (counts.get("chart") != 1 or roles.get("chart")
+            or not re.search(r"(?i)\buse graphics acceleration\b", source)
+            or re.search(r"(?i)\b(?:charts?|graphs?|plots?|trends?|series|histograms?|"
+                         r"dashboards?|visuali[sz]\w+|axes|x[- ]axis|y[- ]axis)\b", source)):
+        return contract
+    from .source_contract_v5_3 import _semantic_specificity
+
+    counts = {**counts, "chart": 0}
+    specificity, count_only = _semantic_specificity(roles, counts)
+    return {**contract, "expected_role_counts": counts,
+            "required_roles": {**(contract.get("required_roles") or {}), "chart": False},
+            "contract_semantic_specificity": specificity, "count_only_role_count": count_only}
 
 
 def bind_chart_specs(source, roles, tables):
@@ -201,7 +263,7 @@ def bind_chart_specs(source, roles, tables):
         for axis in ("x", "y", "right y"):
             if axis in spec.fields:
                 requirement["pilot_axis_" + axis] = chart_axis_key(spec.fields[axis][1])
-        declared_data = _declared_data(spec) is not None
+        declared_data = _declared_data(spec) is not None or _adjacent_series_table(source, spec) is not None
         bindings = _axis_columns(spec, tables) if not declared_data else None
         if bindings or declared_data:
             requirement.pop("x_fields", None)
@@ -240,7 +302,7 @@ def chart_role_candidates(source, expected, actual):
             spec = matches[0]
             title = spec.title_parts[0]
             chart = {**chart, "title": title, "pilot_chart_title": chart_axis_key(title)}
-            if _data_matches(spec, chart):
+            if _data_matches(spec, chart, _adjacent_series_table(source, spec)):
                 chart["pilot_chart_data"] = "exact chart data"
         charts.append(chart)
     return {**actual, "chart": charts} if charts else actual
@@ -248,8 +310,6 @@ def chart_role_candidates(source, expected, actual):
 
 def numeric_chart_audit(source, charts, ownership):
     """Bind typed chart points to a numeric table immediately after its spec."""
-    from .pilot_layout_v2 import _literal_source_tables
-
     def numeric_rows(rows):
         cells = [[str(value) for value in row] for row in rows]
         if not all(re.fullmatch(r"[+-]?\d+(?:\.\d+)?", value) for row in cells for value in row):
@@ -261,21 +321,14 @@ def numeric_chart_audit(source, charts, ownership):
         return covered, mismatches
     specs = chart_specs(source)
     titles = Counter(spec.title_parts[0] for spec in specs)
-    tables = list(_literal_source_tables(source))
     for spec in specs:
         if (not spec.usable or spec.rows or not {"x", "y"} <= spec.fields.keys()
                 or titles[spec.title_parts[0]] != 1):
             continue
-        raw, _ = next(reversed(spec.fields.values()))
-        endings = list(re.finditer(r"(?m)^[ \t]*" + re.escape(raw) + r"[ \t]*\r?$", source))
-        if len(endings) != 1:
+        adjacent = _adjacent_source_table(source, spec)
+        if not adjacent or len(adjacent[0]) != 2 or len(adjacent[1]) < 2:
             continue
-        end = endings[0].end()
-        adjacent = [(headers, rows) for headers, rows, (start, _) in tables
-                    if start >= end and not source[end:start].strip()]
-        if len(adjacent) != 1 or len(adjacent[0][0]) != 2 or len(adjacent[0][1]) < 2:
-            continue
-        expected = numeric_rows(adjacent[0][1])
+        expected = numeric_rows(adjacent[1])
         if expected is None:
             continue
         matches = [chart for chart in charts if chart.get("title") in {spec.title, spec.title_parts[0]}
@@ -340,11 +393,17 @@ def project_chart_fields(source, generic, ownership, charts):
         # A repeated chart element is never an independent source proof.
         if sum(other.get("title") in {spec.title, spec.title_parts[0]} for other in charts) != 1:
             continue
-        data_match = _data_matches(spec, chart)
-        originals = [raw for field, (raw, value) in spec.fields.items() if (
-            field == "chart title" or field == "chart type" and kind
-            or field in {"labels", "values"} and data_match
-            or chart.get("pilot_axis_" + field) == chart_axis_key(value))]
+        table = _adjacent_series_table(source, spec)
+        data_match = _data_matches(spec, chart, table)
+        if table is not None and not data_match:
+            continue
+        raw_matches = {}
+        for field, (raw, value) in spec.fields.items():
+            matched = (field == "chart title" or field == "chart type" and kind
+                       or field in {"labels", "values"} and data_match
+                       or chart.get("pilot_axis_" + field) == chart_axis_key(value))
+            raw_matches[raw] = raw_matches.get(raw, True) and matched
+        originals = [raw for raw, matched in raw_matches.items() if matched]
         if data_match:
             originals.extend(spec.rows)
         end = rows.index(group[-1]) + 1

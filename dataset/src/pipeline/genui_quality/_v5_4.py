@@ -157,9 +157,13 @@ def prepare_source_context_v5_4(
     )
     visible_source = source_text
     if cfg.pilot_fidelity_v2:
+        from .pilot_charts_v2 import refine_inferred_chart_count
         from .pilot_source_contract_v2 import inline_media_view, source_contract_v2
 
-        resolution = replace(resolution, contract=source_contract_v2(source_text, resolution.contract))
+        contract = source_contract_v2(source_text, resolution.contract)
+        if resolution.source == "deterministic fallback":
+            contract = refine_inferred_chart_count(source_text, contract)
+        resolution = replace(resolution, contract=contract)
         visible_source = inline_media_view(source_text)
     ownership = build_source_ownership(visible_source, resolution.contract)
     compat = _v5_3_compat_contract(
@@ -337,12 +341,18 @@ def _score_one_v5_4(
                 project_exact_email_fields,
                 project_exact_formula_fragments,
                 project_exact_labeled_tables,
+                project_exact_section_tables,
                 project_exact_stop_cards,
                 project_exact_track_tables,
             )
-            from .pilot_source_contract_v2 import project_source_link_labels, project_table_ctas
+            from .pilot_source_contract_v2 import (
+                project_card_actions,
+                project_source_link_labels,
+                project_table_ctas,
+            )
 
             result, pilot_cta_cells = project_table_ctas(prepared.source_text, result)
+            result, card_action_certificates = project_card_actions(prepared.source_text, result)
             pilot_actions = result.action_taxonomy
             pilot_media = result.media_taxonomy
             # Base matching strips Markdown marks, including ~ and _. Those
@@ -364,19 +374,24 @@ def _score_one_v5_4(
                 literal_source, rows, source_text=prepared.source_text)
             rows, formula_certificates = project_exact_formula_fragments(
                 literal_source, rows, source_text=prepared.source_text)
-            rows, email_certificates = project_exact_email_fields(literal_source, rows)
+            rows, email_certificates = project_exact_email_fields(
+                literal_source, rows, source_ownership=prepared.source_ownership)
             rows, chart_certificates = project_chart_fields(
                 prepared.source_text, prepared.base.content_blocks, rows, result.role_instances.get("chart", ()))
             rows, stop_certificates = project_exact_stop_cards(
                 prepared.base.content_blocks, rows, source_text=prepared.source_text)
             pilot_certificates["pilot_exact_semantic_fields"] = [
-                *formula_certificates, *email_certificates, *chart_certificates, *stop_certificates]
+                *formula_certificates, *email_certificates, *chart_certificates, *stop_certificates,
+                *card_action_certificates]
             rows, track_certificates = project_exact_track_tables(
                 tuple(prepare_text_block(line) for line in prepared.source_text.splitlines()),
                 rows, result.output_tables, source_text=prepared.source_text)
             rows, labeled_certificates = project_exact_labeled_tables(
                 literal_source, rows, result.output_tables, source_text=prepared.source_text)
-            pilot_certificates["pilot_exact_record_tables"] = [*track_certificates, *labeled_certificates]
+            rows, section_certificates = project_exact_section_tables(
+                literal_source, rows, result.output_tables, source_text=prepared.source_text)
+            pilot_certificates["pilot_exact_record_tables"] = [
+                *track_certificates, *labeled_certificates, *section_certificates]
             rows, pilot_certificates["pilot_exact_card_fragments"] = project_exact_card_fragments(
                 literal_source, rows)
             rows = project_source_link_labels(prepared.source_text, rows, result.output.actions)

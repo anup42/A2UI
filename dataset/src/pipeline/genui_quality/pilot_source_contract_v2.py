@@ -19,10 +19,16 @@ SOURCE_PREFIX = "pilot_v2_source_link:"
 ACTION_PREFIX = "pilot_v2_action:"
 TABLE_ACTION_PREFIX = ACTION_PREFIX + "table:"
 _TABLE_ACTION_SOURCE = "pilot_v2_table_action"
+_CARD_ACTION_PREFIX = ACTION_PREFIX + "card:"
+_CARD_ACTION_SOURCE = "pilot_v2_card_action"
 ACTION_LINE_PREFIX = r"(?:[-*+•]\s+|\d+[.)]\s+)?Action:\s*"
 _EXPLICIT_ACTION = re.compile(
     rf"(?i)^{ACTION_LINE_PREFIX}\[\s*(?:Button\s*:\s*)?([^\]]+?)\s*\]\s*"
     r"(?:<(https://[^\s<>]+)>|(https://[^\s<>]+|\{\{u\d+\}\}|\[(?:[A-Z_]+_)?URL_\d+\]))\s*$"
+)
+_LABELED_CARD_ACTION = re.compile(
+    r"(?i)^[-*+•]\s+(?!(?:Action|Media):)([^:<>\[\]\x60|]{1,160}):\s*"
+    r"\[Button\s*:\s*([^\]]+?)\]\s*<(https://[^\s<>]+)>\s*$"
 )
 _MARKDOWN_SOURCE = re.compile(r"(?i)^\[([^\]\n]+)\]\((https://[^\s<>]+)\)$")
 _LABELED_SOURCE = re.compile(r"^(.+?):\s*(?:<(https://[^\s<>]+)>|(https://[^\s<>]+))\s*$")
@@ -48,8 +54,9 @@ def declared_media_occurrences(source: str) -> list[dict]:
         if fence is not None:
             continue
         span, record = (start, offset), None
+        line_start = start + len(line) - len(line.lstrip())
         if raw.startswith("Media:"):
-            body = raw[len("Media:"):].strip()
+            body_start = len("Media:")
         else:
             inline = _INLINE_MEDIA.search(raw)
             if inline is None or r"\|" in raw or raw.startswith("|"):
@@ -58,15 +65,19 @@ def declared_media_occurrences(source: str) -> list[dict]:
             parts = record.split("|")
             if not 2 <= len(parts) <= 16 or not all(part.strip() for part in parts):
                 continue
-            begin = start + len(line) - len(line.lstrip()) + inline.start()
+            begin = line_start + inline.start()
             span = (begin, start + len(line.rstrip("\r\n")))
-            body = inline[1].strip()
+            body_start = inline.start(1)
+        body = raw[body_start:]
+        destination_offset = line_start + body_start
         cursor, items = 0, []
         for match in _MEDIA_FIELD.finditer(body):
             if body[cursor:match.start()].strip():
                 items = []
                 break
-            item = {"kind": match[1], "url": match[2] or match[3], "_span": span}
+            target = 2 if match[2] is not None else 3
+            item = {"kind": match[1], "url": match[target], "_span": span,
+                    "_url_span": (destination_offset + match.start(target), destination_offset + match.end(target))}
             if record is not None:
                 item["_record"] = record
             items.append(item)
@@ -111,7 +122,7 @@ def declared_media_fidelity(source: str, actual: Any) -> dict[str, Any]:
 
 
 def source_action_occurrences(source: str) -> list[dict[str, Any]]:
-    """Complete explicit Action lines, including angle-wrapped destinations."""
+    """Complete Action lines and labeled records with an explicit Button."""
     found = []
     fence = None
     offset = 0
@@ -125,18 +136,77 @@ def source_action_occurrences(source: str) -> list[dict[str, Any]]:
             continue
         if fence is not None:
             continue
-        match = _EXPLICIT_ACTION.fullmatch(raw)
-        if match is not None:
-            label, target = prose_spelling(match[1]).strip(), (match[2] or match[3]).strip()
-            if label and target:
-                found.append({"id": f"{ACTION_PREFIX}{start}:{end}", "label": label,
-                              "target": target, "action_type": "openUrl", "required": True,
-                              "minimum_count": 1, "_span": (start, end)})
+        explicit = _EXPLICIT_ACTION.fullmatch(raw)
+        card = _LABELED_CARD_ACTION.fullmatch(raw)
+        if explicit:
+            owner, prefix, label, target = "", ACTION_PREFIX, explicit[1], explicit[2] or explicit[3]
+        elif card:
+            owner, prefix, label, target = prose_spelling(card[1]).strip(), _CARD_ACTION_PREFIX, card[2], card[3]
+        else:
+            continue
+        label = prose_spelling(label).strip()
+        if label and (not card or owner):
+            found.append({"id": f"{prefix}{start}:{end}", "label": label,
+                          "target": target.strip(), "action_type": "openUrl", "required": True,
+                          "minimum_count": 1, "_span": (start, end), "_owner": owner})
     return found
 
 
+def project_card_actions(source, evidence):
+    """Bind a qualified button to one rendered Card with its exact source title."""
+    from .pilot_layout_v2 import layout_text
+    from .pilot_semantic_fields_v2 import _section
+
+    expected_actions = [item for item in source_action_occurrences(source) if item["_owner"]]
+    if not expected_actions:
+        return evidence, []
+    rows = list(evidence.evidence_ownership)
+    replacements, certificates = {}, []
+    for expected in expected_actions:
+        title = expected["_owner"]
+        if sum(item["_owner"] == title for item in expected_actions) != 1:
+            continue
+        titles = [i for i, row in enumerate(rows) if row.get("component_type") == "card"
+                  and row.get("owner") == "generic_visible_content" and row.get("text") == title]
+        if len(titles) != 1:
+            continue
+        index = titles[0]
+        card = rows[index]
+        start, end = expected["_span"]
+        literal = source[start:end].strip()
+        section = _section(source, literal)
+        if section:
+            headings = [row["text"] for row in rows[:index] if row.get("rendered_heading")
+                        and card.get("parent_instance") and row.get("parent_instance") == card["parent_instance"]]
+            if not headings or layout_text(headings[-1]) != section:
+                continue
+        buttons = [row for row in rows if row.get("component_type") == "button"
+                   and card.get("render_instance") and row.get("parent_instance") == card["render_instance"]
+                   and row.get("text") == expected["label"]]
+        if len(buttons) != 1:
+            continue
+        button = buttons[0]
+        actions = [action for action in evidence.output.actions if action.element_id == button["component_id"]]
+        if len(actions) != 1:
+            continue
+        action = actions[0]
+        if (action.source not in {"on.press", "on.click", "on.tap"} or action.action_type != "openUrl"
+                or action.label != expected["label"] or action.url != expected["target"]):
+            continue
+        replacements[id(action)] = replace(action, source=_CARD_ACTION_SOURCE)
+        rows[index] = {**card, "text": literal}
+        certificates.append({"source_text": literal, "component_id": card["component_id"],
+                             "proof": "exact_card_action"})
+    if not replacements:
+        return evidence, certificates
+    actions = [replacements.get(id(action), action) for action in evidence.output.actions]
+    semantic = tuple(replacements.get(id(action), action) for action in evidence.source_semantic_actions)
+    return replace(evidence, output=replace(evidence.output, actions=actions), source_semantic_actions=semantic,
+                   evidence_ownership=tuple(rows)), certificates
+
+
 def source_link_occurrences(source: str, *, malformed_angles: list[int] | None = None) -> list[dict[str, Any]]:
-    """Explicit source-heading Markdown or label-colon-angle link lines."""
+    """Explicit labeled links, including complete standalone angle citations."""
     found = []
     in_sources = False
     explicit_heading = False
@@ -166,10 +236,16 @@ def source_link_occurrences(source: str, *, malformed_angles: list[int] | None =
             heading_span = (start, end) if bare else None
             continue
         inline = re.match(r"(?i)^(?:source|reference|citation)\s*:\s*(.+)$", raw)
-        body = inline[1] if inline else re.sub(r"^(?:[-*+]\s+|\d+[.)]\s+)", "", raw)
+        list_prefix = re.match(r"^(?:[-*+•]\s+|\d+[.)]\s+)", raw)
+        body = inline[1] if inline else raw[list_prefix.end():] if list_prefix else raw
         labeled_link = _LABELED_SOURCE.fullmatch(body)
         explicit_link_field = labeled_link is not None and re.search(r"(?i)\b(?:link|url)$", labeled_link[1])
-        if not in_sources and inline is None and not explicit_link_field:
+        # A standalone labeled angle link has an explicit display label and
+        # destination. Bare URLs in instructions, tables and commands do not
+        # acquire a clickable role from destination text alone.
+        angle_citation = bool(list_prefix and re.fullmatch(
+            r"(?i)(?!(?:Action|Media):)[^:<>\[\]`|]{1,160}:\s*<https?://.*", body))
+        if not in_sources and inline is None and not explicit_link_field and not angle_citation:
             continue
         match = _MARKDOWN_SOURCE.fullmatch(body) or _core._MARKDOWN_LINK_RE.fullmatch(body)
         if match is not None and match[2].count("(") != match[2].count(")"):
@@ -187,7 +263,7 @@ def source_link_occurrences(source: str, *, malformed_angles: list[int] | None =
         label = prose_spelling(match[1]).strip()
         target = (match[2] or match[3]).strip() if labeled else match[2].strip()
         if label and target:
-            subtype = "field:" if explicit_link_field and not in_sources and inline is None else ""
+            subtype = "field:" if (explicit_link_field or angle_citation) and not in_sources and inline is None else ""
             found.append({"id": f"{SOURCE_PREFIX}{subtype}{start}:{end}", "label": label,
                           "target": target, "action_type": "openUrl", "required": True,
                           "minimum_count": 1, "_span": (start, end),
@@ -271,10 +347,42 @@ def project_table_ctas(source, evidence):
     return replace(evidence, output=replace(evidence.output, actions=actions), source_semantic_actions=semantic), cells
 
 
+def _display_url_spans(source, expected_tables):
+    """Retire URL-only guesses only for literal, table-owned original URLs."""
+    if "Original URL" not in source:
+        return set()
+    from .pilot_layout_v2 import _literal_source_tables
+
+    spans = set()
+    for headers, rows, (start, end) in _literal_source_tables(source):
+        if headers.count("Original URL") != 1:
+            continue
+        shape = (tuple(map(_core.normalize_markdown, headers)),
+                 tuple(tuple(map(_core.normalize_markdown, row)) for row in rows))
+        owners = [table for table in expected_tables
+                  if table.get("required", True) and table.get("minimum_count", 1) == 1
+                  and table.get("representation_policy") == "table_only"
+                  and (tuple(table.get("headers") or ()), tuple(map(tuple, table.get("rows") or ()))) == shape]
+        if len(owners) != 1:
+            continue
+        column = headers.index("Original URL")
+        heading, separator, *lines = source[start:end].splitlines(keepends=True)
+        offset = start + len(heading) + len(separator)
+        for line, row in zip(lines, rows, strict=True):
+            url = row[column]
+            if re.fullmatch(r"https://[^\s<>|\[\]]+", url) and line.count(url) == 1:
+                at = offset + line.index(url)
+                spans.add((at, at + len(url)))
+            offset += len(line)
+    return spans
+
+
 def source_contract_v2(source: str, contract: Mapping[str, Any]) -> dict[str, Any]:
     result = deepcopy(dict(contract))
     links = source_link_occurrences(source)
-    source_actions = source_action_occurrences(source)
+    declared_actions = source_action_occurrences(source)
+    source_actions = [item for item in declared_actions if not item["_owner"]]
+    card_actions = [item for item in declared_actions if item["_owner"]]
     table_actions = [action for _, _, action in _table_ctas(source)]
     media = declared_media_occurrences(source)
     from pipeline.renderer_effective_semantics_v5_4 import canonical_media_kind
@@ -320,9 +428,10 @@ def source_contract_v2(source: str, contract: Mapping[str, Any]) -> dict[str, An
         actions.append(item)
     actions.extend({key: value for key, value in item.items() if not key.startswith("_")}
                    for position, item in enumerate(source_actions) if position not in claimed_actions)
-    targets = {_core.normalize_url(item["target"]) for item in [*links, *source_actions, *table_actions]}
+    targets = {_core.normalize_url(item["target"]) for item in [*links, *declared_actions, *table_actions]}
     targets.update(_core.normalize_url(item["url"]) for item in media)
-    proven_spans = {item["_span"] for item in [*links, *source_actions, *table_actions, *media]}
+    proven_spans = {item["_span"] for item in [*links, *declared_actions, *table_actions, *media]}
+    proven_spans.update(_display_url_spans(source, result.get("tables") or []))
     url_occurrences = list(_core._URL_RE.finditer(source))
     # Inspect the legacy scanner's own spans when retiring its URL-only
     # guesses. It can stop *inside* a proven destination at a close-paren.
@@ -347,7 +456,7 @@ def source_contract_v2(source: str, contract: Mapping[str, Any]) -> dict[str, An
         if _core.normalize_url(match[0]) in targets - remaining_targets and not owned_url(match)
     )
     result["actions"] = [*actions, *({key: value for key, value in item.items() if not key.startswith("_")}
-                                   for item in [*links, *table_actions])]
+                                   for item in [*links, *table_actions, *card_actions])]
     # Source-heading/link lines are metadata owned by these exact requirements,
     # not duplicate prose. Remove only the concrete proven occurrences.
     units = list(result.get("content_units") or [])
@@ -395,11 +504,15 @@ def _role(item: Any, *, expected: bool) -> str:
             return "source_link"
         if item.id.startswith(TABLE_ACTION_PREFIX):
             return "table_action"
+        if item.id.startswith(_CARD_ACTION_PREFIX):
+            return "card_action"
         if item.id.startswith(ACTION_PREFIX):
             return "action"
         return ""
     if item.source == _TABLE_ACTION_SOURCE:
         return "table_action"
+    if item.source == _CARD_ACTION_SOURCE:
+        return "card_action"
     return "source_link" if item.source == "source_link" else "action"
 
 

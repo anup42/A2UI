@@ -207,9 +207,11 @@ def audit_training_fidelity(source: str, graph: Mapping[str, Any], *,
         from pipeline.genui_quality.formula_evidence_v2 import (
             normalize_formula_evidence_v2,
         )
+        from pipeline.genui_quality.pilot_layout_v2 import inline_math_spelling
         from pipeline.genui_quality.pilot_source_contract_v2 import (
             source_link_owned_spans,
         )
+
         link_spans = source_link_owned_spans(source)
         # Normalize only authoritative formula-owned source spans, never
         # arbitrary prose, code or inferred substring matches.
@@ -217,6 +219,7 @@ def audit_training_fidelity(source: str, graph: Mapping[str, Any], *,
                         if unit.owner == "formula" and unit.source_span is not None}, reverse=True)
         for start, end in spans:
             numeric_source = numeric_source[:start] + normalize_formula_evidence_v2(visible_source[start:end]) + numeric_source[end:]
+        numeric_source = inline_math_spelling(numeric_source)
     units = [unit for unit in source_units
              if unit.owner in {"generic_prose", "heading"}]
     if pilot_fidelity_v2:

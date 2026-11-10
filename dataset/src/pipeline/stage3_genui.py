@@ -595,6 +595,26 @@ def _mask_model_references(
             path_token = add(path, kind)
             raw_to_placeholder[_to_render_asset_path(path)] = path_token
 
+    mask_source = str(response_text or "")
+    if pilot_fidelity_v2:
+        from pipeline.genui_quality.pilot_source_contract_v2 import (
+            declared_media_occurrences,
+        )
+
+        # The typed Media grammar knows the whole destination. The generic
+        # scanner treats apostrophes as quote boundaries in ordinary prose.
+        # Mask only these explicitly owned spans before that scanner runs.
+        pieces, cursor = [], 0
+        for item in declared_media_occurrences(mask_source):
+            raw = item["url"]
+            if "'" not in raw or not raw.lower().startswith(("https://", "http://")):
+                continue
+            start, end = item["_url_span"]
+            pieces.extend((mask_source[cursor:start], add(raw, item["kind"].lower())))
+            cursor = end
+        if pieces:
+            mask_source = "".join((*pieces, mask_source[cursor:]))
+
     def replace_match(match: re.Match[str]) -> str:
         quote = match.group("quote") or ""
         raw = match.group("quoted_local") or match.group(0)
@@ -605,14 +625,14 @@ def _mask_model_references(
             return match.group(0)
         if pilot_fidelity_v2 and raw not in raw_to_placeholder:
             from pipeline.openai_stage3_fidelity_v2 import is_declared_reference
-            if not is_declared_reference(response_text, match.start(), raw):
+            if not is_declared_reference(mask_source, match.start(), raw):
                 return match.group(0)
         token = raw_to_placeholder.get(raw)
         if token is None:
             token = add(raw, "asset" if _asset_kind("", raw) == "asset" else _asset_kind("", raw))
         return f"{quote}{token}{trailing}{quote}" if quote else token + trailing
 
-    masked = _MODEL_REFERENCE_RE.sub(replace_match, str(response_text or ""))
+    masked = _MODEL_REFERENCE_RE.sub(replace_match, mask_source)
     return masked, raw_to_placeholder, placeholder_to_raw
 
 

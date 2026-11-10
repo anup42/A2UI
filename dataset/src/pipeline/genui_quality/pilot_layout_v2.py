@@ -29,6 +29,7 @@ def prose_spelling(value: str) -> str:
     powers, script markers, path characters or form blanks.
     """
     def plain(text):
+        text = re.sub(r"(?<![\w\\*])\*(\d{4}-\d{2}-\d{2})\*(?![\w*])", r"\1", text)
         # Paired strong delimiters can surround a literal identifier. The
         # underscores inside that identifier remain part of its spelling.
         text = re.sub(r"(?<![\w\\*])\*\*([A-Za-z][A-Za-z0-9]*(?:_[A-Za-z0-9]+)+)\*\*(?![\w*])", r"\1", text)
@@ -93,6 +94,14 @@ def inline_math_spelling(value: str) -> str:
     number = r"[+\-]?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?"
 
     def math(text):
+        # Recognize a bounded LaTeX temperature without normalizing the
+        # inequality, sign, number, or unit into something different.
+        text = re.sub(
+            rf"(?<![\\$])\$\s*(?:\\(geq?|leq?|neq|approx)\s+)?({number})\s*\^\\circ"
+            r"\s*\\(?:text|mathrm)\{([CF])\}\s*\$(?![$\d])",
+            lambda m: (operators[m[1]] + " " if m[1] else "") + m[2] + "°" + m[3],
+            text,
+        )
         text = re.sub(rf"(?<![\\$])\$\s*\\(geq?|leq?|neq|approx|pm|mp)\s+({number})\s*\$(?![$\d])",
                       lambda m: operators[m[1]] + " " + m[2], text)
         text = re.sub(r"(?<![\\$])\$\s*\\(to|rightarrow|times|cdot|div|approx)\s*\$(?![$\d])",
@@ -293,8 +302,9 @@ def project_exact_formula_roles(source, expected, actual):
         content = str(candidate.get("content") or "")
         key = formula_literal_key_v2(content)
         title_owned = False
-        if candidate.get("title") == "Formula" and content.startswith("Formula "):
-            body_key = formula_literal_key_v2(content[len("Formula "):])
+        title = candidate.get("title")
+        if title in {"Formula", "Formula:"} and content.startswith(title + " "):
+            body_key = formula_literal_key_v2(content[len(title) + 1:])
             if body_key in labeled:
                 key, title_owned = body_key, True
         matches = bodies.get(key, ())
