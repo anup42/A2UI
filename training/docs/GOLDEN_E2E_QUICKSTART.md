@@ -446,33 +446,69 @@ edit its bound recipe. The [failure report](H100_CUDNN_BACKWARD_FIX_20260914.md)
 includes ordinary/HPO rerun commands and the hardware-health escalation path.
 CPU regression tests cannot guarantee the remote CUDA environment is healthy.
 
-## 5. Quantization, LiteRT and MTP are separate
+## 5. Continue SFT with QAT, evaluate, and export LiteRT-LM
 
-This command closes the **HF training plus dual-Golden checkpoint-testing**
-workflow. It does not convert E2B to official retained-scale QAT packages or
-automatically export/test W32/W16/W8/W4 LiteRT-LM variants. Do not call dense
-QAT-derived LoRA training a verified retained-scale QAT result.
+On the GPU host, unpack `a2ui_gpt_v11_qat_all_runs.zip` so that `$QAT_DATASET`
+points to the directory containing `train.jsonl` and `val.jsonl`. Use the
+training environment for the launcher and set `$EXPORT_PY` to the absolute
+Python path from the [pinned exporter environment](DEPLOYMENT_EXPORT_ENVIRONMENT.md).
+Set `$RUN_270M` and `$RUN_E2B` to fresh output directories. Omit `--execute` to
+inspect either plan first.
 
-For optional 270M full-model W8 QAT after a successful SFT run, initialize a
-fresh run from its selected full checkpoint (including its saved tokenizer):
+### Gemma 3 270M full QAT with W8 export
+
+Set `$SFT_270M` to the selected dense SFT checkpoint directory with its saved
+tokenizer, for example `/runs/gemma270m-epoch1/fit/training/best_golden_checkpoint`.
 
 ```bash
-python training/scripts/run_golden_training.py \
-  --profile 270m --qat \
-  --model-dir /runs/gemma270m-epoch1/fit/training/best_golden_checkpoint \
-  --output-dir /runs/gemma270m-w8-qat --execute
+python -u training/scripts/run_gemma3_270m_full_qat_pipeline.py \
+  --model-dir "$SFT_270M" --input-dir "$QAT_DATASET" \
+  --output-dir "$RUN_270M" --exporter-python "$EXPORT_PY" --execute
 ```
 
-This uses the lower-learning-rate QAT recipe and evaluates with fake
-quantization enabled. It remains an HF checkpoint workflow, not a LiteRT
-conversion or runtime-parity test.
+The defaults are one epoch at `5e-6`, evaluation and Golden32 selection every
+100 steps, a 5120-token training and evaluation prompt limit, and up to 2048
+generated tokens. After QAT-on Golden32, Golden35, and Bixby50 evaluation, the
+launcher converts the Golden32-selected checkpoint on CPU using
+`dynamic_wi8_afp32` with an 8192-token cache. It verifies physical INT8 matrix
+weights before publishing `litertlm_w8/model.litertlm` and
+`litertlm_w8/w8_export_report.json`. Checkpoint scores are in
+`evaluation_scorecard.json`.
 
-Those workflows remain available through the
-[pipeline inventory](training_pipeline_inventory.md) and the
-[retained-scale GPU runbook](gemma4_mobile_qat_remote_pc_runbook.md), with their
-own seeds, reference pins, converter environments and runtime runners. Their
-existing MTP enable/disable option remains separate; this capability command
-does not jointly train an MTP drafter. 270M has no Gemma 4 MTP drafter.
+If training and evaluation completed and only export failed, retry with the
+same launcher arguments plus `--continue-run`, or run just the exporter:
+
+```bash
+"$EXPORT_PY" -u training/scripts/export_gemma3_270m_full_qat_w8.py \
+  --run-dir "$RUN_270M" --execute
+```
+
+### Gemma 4 E2B retained-scale QAT LoRA with official-layout export
+
+Set `$E2B_SEED`, `$E2B_PACKED`, and `$E2B_OFFICIAL` to the reconstructed mobile
+seed, its pinned packed safetensors source, and the official reference LiteRT-LM
+package. Set `$SFT_E2B_RUN` to the prior retained-scale SFT run's inner
+`training/<run-id>` directory.
+
+```bash
+python -u training/scripts/run_official_mobile_pipeline.py \
+  --model-dir "$E2B_SEED" --source-safetensors "$E2B_PACKED" \
+  --official-litertlm "$E2B_OFFICIAL" \
+  --sft-checkpoint "$SFT_E2B_RUN/best_golden_checkpoint" \
+  --sft-config "$SFT_E2B_RUN/launch/resolved_training_config.yaml" \
+  --input-dir "$QAT_DATASET" --output-dir "$RUN_E2B" --tensorboard-root "${RUN_E2B}_tensorboard" \
+  --exporter-python "$EXPORT_PY" --devices auto \
+  --epochs 1 --learning-rate 5e-6 --eval-steps 100 --golden-every-steps 100 \
+  --max-seq-length 4096 --max-input-tokens 5120 --max-new-tokens 2048 --execute
+```
+
+The launcher initializes the verified adapter with a fresh optimizer, selects
+on Golden32, scores Golden35 and Bixby50, and writes `results.md` and
+`retained_scale_export/gemma4_e2b_a2ui_mobile.litertlm`.
+
+Both commands evaluate the HF QAT checkpoints before export. For separate
+LiteRT-LM runtime evaluation, see the [pipeline inventory](training_pipeline_inventory.md)
+and [retained-scale GPU runbook](gemma4_mobile_qat_remote_pc_runbook.md).
 
 Return the complete scorecard, raw/per-case predictions, manifests, quarantine
 counts, resolved config, GPU/environment versions, stage logs and checkpoint
