@@ -448,9 +448,25 @@ CPU regression tests cannot guarantee the remote CUDA environment is healthy.
 
 ## 5. Continue SFT with QAT, evaluate, and export LiteRT-LM
 
-On the GPU host, unpack `a2ui_gpt_v11_qat_all_runs.zip` so that `$QAT_DATASET`
-points to the directory containing `train.jsonl` and `val.jsonl`. Use the
-training environment for the launcher and set `$EXPORT_PY` to the absolute
+The [GPT + v11 QAT dataset](../data/train/gpt_v11_qat/a2ui_gpt_v11_qat_all_runs.zip)
+contains 9,875 training rows (6,369 accepted GPT examples and 3,506 v11 examples)
+and 266 validation rows. Golden and Bixby sources are reserved for evaluation.
+The archive includes the dataset manifest and per-row provenance.
+
+From the repository root on the GPU host, use Git LFS to download the archive,
+then verify and unpack it to a directory for training data:
+
+```bash
+archive=training/data/train/gpt_v11_qat/a2ui_gpt_v11_qat_all_runs.zip
+git lfs pull --include="$archive" --exclude=""
+data_root="$HOME/a2ui-data"
+mkdir -p "$data_root"
+printf '%s  %s\n' 329dbf5c34cade8dae8a64b8e5580e98ab8e8336b98c7c06c490120f278657c1 "$archive" | sha256sum -c - && unzip "$archive" -d "$data_root"
+export QAT_DATASET="$data_root/a2ui_gpt_v11_qat_all_runs"
+```
+
+`$QAT_DATASET` should contain `train.jsonl` and `val.jsonl`. Use the training
+environment for the launcher and set `$EXPORT_PY` to the absolute
 Python path from the [pinned exporter environment](DEPLOYMENT_EXPORT_ENVIRONMENT.md).
 Set `$RUN_270M` and `$RUN_E2B` to fresh output directories. Omit `--execute` to
 inspect either plan first.
