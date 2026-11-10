@@ -349,6 +349,81 @@ def test_real_merge_and_export_provenance_enforce_v2_policy_and_existing_gates(
         assert report["checks"]["numeric_preflight_mandatory_gates_passed"] is True
 
 
+@pytest.mark.parametrize("tamper", [None, "weights", "wrong_seed", "wrong_scope", "forged_greedy", "optimizer", "provenance"])
+def test_weight_only_initialization_is_verified_by_merge_and_export(tmp_path, monkeypatch, tamper):
+    import yaml
+    from ir_training.train import mobile_sft_init
+    from test_mobile_srq_provenance import _export_fixture, exporter, merge_lora
+
+    for module in (exporter, merge_lora):
+        monkeypatch.setattr(module, "_golden_selection_binding", lambda *_a: {"verified": True})
+    monkeypatch.setattr(merge_lora, "_portable_launcher_contract_matches", lambda *_a, **_kw: True)
+    original = tmp_path / "original"
+    original.mkdir()
+    checkpoint, source_config, _, source_metadata = _export_fixture(original, strict=True)
+    (checkpoint / "adapter_config.json").write_text("{}", encoding="utf-8")
+    config = official_config()
+    source_config.write_text(yaml.safe_dump(config), encoding="utf-8")
+    source_metadata["numeric_preflight"] = official_evidence(config)
+    source_metadata["training_config_sha256"] = hashlib.sha256(source_config.read_bytes()).hexdigest()
+    source_metadata["adapter_checkpoints"][0]["files"] = merge_lora._adapter_file_records(checkpoint)
+    (checkpoint / "training_metadata.json").write_text(json.dumps(source_metadata), encoding="utf-8")
+    record, _ = mobile_sft_init.bind_source(checkpoint, source_config)
+    config["training"][mobile_sft_init.KEY] = record
+    adapter, config_path, qparams, metadata = _export_fixture(tmp_path, strict=True)
+    qparams_report = {"verified": True, "contract_sha256": "a" * 64,
+                      "scale_storage_sha256": "b" * 64, "inventory_sha256": "e" * 64,
+                      "tensor_count": 278, "inventory": qparams.inventory}
+
+    def source_provenance(path, resolved_config, *, base):
+        assert path == checkpoint
+        assert resolved_config == source_config
+        report = merge_lora._verify_qat_training_metadata(
+            path, training_config_sha256=record["files"]["training_config"]["sha256"],
+            training_method="qat_lora_sft", mobile_training_seed={"required": False},
+            training_config=load_yaml(resolved_config), mobile_qparams=qparams_report,
+        )
+        assert report["verified"] is True
+        if tamper == "provenance":
+            report["verified"] = False
+        return {"training_run_metadata": report}
+
+    monkeypatch.setattr(merge_lora, "_training_provenance", source_provenance)
+    numeric = official_evidence(config)
+    numeric.update(adapter_initialization_mode=mobile_sft_init.MODE,
+                   zero_adapter_initialization=dict(mobile_sft_init.ZERO_EVIDENCE),
+                   source_adapter={
+                       "checkpoint": str(checkpoint),
+                       "adapter_sha256": record["files"]["adapter_weights"]["sha256"],
+                       "adapter_pair_count": 205, "finite_adapter_pairs": 205, "nonzero_adapter_pairs": 205,
+                   })
+    if tamper == "weights":
+        (checkpoint / "adapter_model.safetensors").write_bytes(b"changed")
+    elif tamper == "wrong_seed":
+        config["model"]["model_source"] = "different"
+    elif tamper == "wrong_scope":
+        numeric["source_adapter"]["adapter_pair_count"] = 204
+    elif tamper == "forged_greedy":
+        numeric["greedy_generation"]["qat_on"]["generated_token_ids"][1][0][0] = 999
+    elif tamper == "optimizer":
+        numeric["resume_state"] = {"global_step": 10}
+    config_path.write_text(yaml.safe_dump(config), encoding="utf-8")
+    config_sha = hashlib.sha256(config_path.read_bytes()).hexdigest()
+    metadata.update(training_config_sha256=config_sha, numeric_preflight=numeric)
+    (adapter / "training_metadata.json").write_text(json.dumps(metadata), encoding="utf-8")
+    merge = merge_lora._verify_qat_training_metadata(
+        adapter, training_config_sha256=config_sha, training_method="qat_lora_sft",
+        mobile_training_seed={"required": False}, training_config=config, mobile_qparams=qparams_report,
+    )
+    export = exporter._best_adapter_provenance_report(
+        adapter, config_path, qparams=qparams,
+        seed_report={"manifest_sha256": "c" * 64, "transformation_plan_sha256": "d" * 64},
+    )
+    assert merge["verified"] is (tamper is None), merge
+    assert export["verified"] is (tamper is None), export
+    assert "zero_adapter_initialization_verified" not in merge["checks"]
+
+
 @pytest.mark.parametrize("nonfinite", [float("nan"), float("inf"), -float("inf")])
 def test_forward_gate_checks_all_logits_not_only_completion_loss(nonfinite):
     from types import SimpleNamespace

@@ -962,6 +962,13 @@ def _verify_qat_training_metadata(
                 checks["resumed_adapter_initialization_verified"] = (
                     numeric_policy_report.get("checks", {}).get("resumed_adapter_initialization_verified") is True
                 )
+            from ir_training.train.mobile_sft_init import KEY
+
+            if KEY in (training_config.get("training") or {}):
+                checks.pop("zero_adapter_initialization_verified", None)
+                checks["sft_adapter_initialization_verified"] = (
+                    numeric_policy_report.get("checks", {}).get("sft_adapter_initialization_verified") is True
+                )
         checks["portable_launcher_artifacts_bound"] = (
             _portable_launcher_contract_matches(
                 metadata, training_config_sha256=training_config_sha256

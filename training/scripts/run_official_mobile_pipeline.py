@@ -35,6 +35,8 @@ def main(argv=None) -> int:
     parser.add_argument("--epochs", type=float, help="Total epochs (fresh default: 2; resume default: saved horizon)")
     parser.add_argument("--steps", type=int, help="Optional total optimizer-step horizon, not extra steps on resume")
     parser.add_argument("--resume-from-checkpoint", type=Path, help="Explicit numbered Trainer checkpoint; requires a fresh output directory. Only the total training horizon may increase.")
+    parser.add_argument("--sft-checkpoint", type=Path, help="Verified official retained-scale QAT SFT adapter for a new run with a fresh optimizer. Requires --sft-config.")
+    parser.add_argument("--sft-config", type=Path, help="Exact resolved training YAML bound to --sft-checkpoint.")
     parser.add_argument("--learning-rate", type=float, help="Fresh default: 1e-5; resume default: saved learning rate")
     parser.add_argument("--lora-rank", type=int, help="LoRA rank on the same 205 projections (fresh default: 16; resume: saved rank)")
     parser.add_argument("--lora-alpha", type=int, help="LoRA alpha (fresh default: 16; resume: saved alpha). Set explicitly when changing rank.")

@@ -107,6 +107,38 @@ def _plan(options: OfficialMobileOptions) -> dict:
     return plan
 
 
+def test_weight_only_start_inherits_adapter_rank_and_preserves_new_data(options):
+    import yaml
+    from ir_training.common.config import load_yaml
+    from ir_training.train import mobile_sft_init
+
+    source_run = options.output_dir.parent / "original"
+    checkpoint = source_run / "best_golden_checkpoint"
+    for name in ("adapter_config.json", "adapter_model.safetensors", "training_metadata.json"):
+        _write(checkpoint / name)
+    source = load_yaml(ROOT / "configs/models/gemma4_e2b_mobile_seed_ir_qat_sft.yaml")
+    source["run"].update(purpose=workflow.WORKFLOW, output_dir=str(source_run / "trainer"))
+    source["lora"].update(r=64, alpha=32)
+    source_config = _write(source_run / "resolved_training_config.yaml", yaml.safe_dump(source).encode())
+    warm = replace(options, sft_checkpoint=checkpoint, sft_config=source_config)
+    plan = _plan(warm)
+    profile = build_gpu_profile(_h100_inventory(2), model="e2b")
+    config = workflow.training_config(plan, profile, {"tokenizer": {}, "final_evaluation_datasets": {}})
+    assert config["lora"]["r"] == 64
+    assert config["lora"]["alpha"] == 32
+    assert config["training"]["refuse_resume"] is True
+    assert "resume_from_checkpoint" not in config["training"]
+    assert config["run"]["dataset_dir"] == str(options.output_dir / "prepared")
+    assert mobile_sft_init.initialization(config) == plan["sft_initialization"]
+    assert "no_op_export" in plan["stages"]
+    with pytest.raises(ValueError, match="must match the source"):
+        _plan(replace(warm, lora_rank=16))
+    with pytest.raises(ValueError, match="supplied together"):
+        _plan(replace(warm, sft_config=None))
+    with pytest.raises(ValueError, match="cannot restore Trainer state"):
+        _plan(replace(warm, resume_from_checkpoint=checkpoint))
+
+
 def _no_op_report(plan: dict) -> dict:
     """Synthetic boundary report only; real materialization is tested separately."""
     seed = Path(plan["options"]["model_dir"])

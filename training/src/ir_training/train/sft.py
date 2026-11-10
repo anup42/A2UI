@@ -85,6 +85,13 @@ def train_sft(
     qat_cfg = config.get("qat") if isinstance(config.get("qat"), dict) else {}
     qat_mtp_cfg = config.get("qat_mtp") if isinstance(config.get("qat_mtp"), dict) else {}
     method = validate_sft_recipe(config)
+    from ir_training.train import mobile_sft_init
+
+    sft_initialization = (
+        mobile_sft_init.require_source(config)
+        if mobile_sft_init.initialization(config) is not None
+        else None
+    )
     full_finetune = method in FULL_METHODS
     from ir_training.qat.full_model_contract import (
         is_full_qat, verify_full_model_inventory, verify_full_qat_coverage,
@@ -267,6 +274,10 @@ def train_sft(
             flush=True,
         )
     resume_adapter_report: dict[str, Any] | None = None
+    source_adapter_report: dict[str, Any] | None = None
+    adapter_checkpoint = (
+        Path(sft_initialization["checkpoint"]) if sft_initialization else resolved_resume_checkpoint
+    )
     if full_finetune:
         if all_parameter_qat:
             from ir_training.train.full_parameters import enable_full_parameter_training
@@ -286,26 +297,31 @@ def train_sft(
                 "FP32 weights, gradients and optimizer state require more memory than BF16 storage.",
                 flush=True,
             )
-    elif resolved_resume_checkpoint is not None:
-        _require_peft_resume_checkpoint(resolved_resume_checkpoint)
+    elif adapter_checkpoint is not None:
+        _require_peft_resume_checkpoint(adapter_checkpoint)
         model = PeftModel.from_pretrained(
             model,
-            str(resolved_resume_checkpoint),
+            str(adapter_checkpoint),
             is_trainable=True,
         )
         if retained_lora_qparams is not None:
             bind_retained_mobile_peft_targets(model, resolved_lora_targets)
-        resume_adapter_report = _validate_resumed_lora_model(
+        loaded_adapter = _validate_resumed_lora_model(
             model,
             expected_config=configured_lora,
-            checkpoint=resolved_resume_checkpoint,
+            checkpoint=adapter_checkpoint,
         )
+        if sft_initialization:
+            mobile_sft_init.require_loaded_weights(model, sft_initialization, loaded_adapter)
+            source_adapter_report = loaded_adapter
+        else:
+            resume_adapter_report = loaded_adapter
         print(
-            "Loaded LoRA weights before resume preflight: "
-            f"checkpoint={resolved_resume_checkpoint}, "
-            f"adapter_sha256={resume_adapter_report['adapter_sha256']}, "
-            f"adapter_pairs={resume_adapter_report['adapter_pair_count']}, "
-            f"nonzero_pairs={resume_adapter_report['nonzero_adapter_pairs']}",
+            "Loaded LoRA weights before numeric preflight: "
+            f"checkpoint={adapter_checkpoint}, "
+            f"adapter_sha256={loaded_adapter['adapter_sha256']}, "
+            f"adapter_pairs={loaded_adapter['adapter_pair_count']}, "
+            f"nonzero_pairs={loaded_adapter['nonzero_adapter_pairs']}",
             flush=True,
         )
     else:
@@ -582,16 +598,18 @@ def train_sft(
             else {}
         )
         print(f"SFT numeric preflight policy: {resolved_numeric_policy}", flush=True)
-        zero_adapter_initialization = (
-            {"required": False, "reason": "full_finetune", "verified_zero_delta": False}
-            if full_finetune else _verify_zero_lora_initialization(model)
-        )
-        adapter_preflight_label = (
-            "full_model" if full_finetune else ("resumed_adapter" if resolved_resume_checkpoint is not None else "zero_adapter")
-        )
+        if sft_initialization:
+            zero_adapter_initialization = dict(mobile_sft_init.ZERO_EVIDENCE)
+            adapter_preflight_label = mobile_sft_init.MODE
+        elif full_finetune:
+            zero_adapter_initialization = {"required": False, "reason": "full_finetune", "verified_zero_delta": False}
+            adapter_preflight_label = "full_model"
+        else:
+            zero_adapter_initialization = _verify_zero_lora_initialization(model)
+            adapter_preflight_label = "resumed_adapter" if resolved_resume_checkpoint is not None else "zero_adapter"
         if (
             not full_finetune
-            and resolved_resume_checkpoint is None
+            and adapter_checkpoint is None
             and qat_cfg.get("enabled", False)
             and preflight_cfg.get("require_zero_adapter_parity") is True
             and not zero_adapter_initialization["verified_zero_delta"]
@@ -723,6 +741,9 @@ def train_sft(
         )
         numeric_preflight_report["resume_adapter"] = resume_adapter_report
         numeric_preflight_report["resume_state"] = resume_state_report
+        if sft_initialization:
+            numeric_preflight_report["adapter_initialization_mode"] = mobile_sft_init.MODE
+            numeric_preflight_report["source_adapter"] = source_adapter_report
         numeric_preflight_report["greedy_generation"] = (
             _compare_initial_greedy_reports(
                 baseline_greedy_report,

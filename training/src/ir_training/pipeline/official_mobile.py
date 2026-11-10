@@ -71,6 +71,8 @@ class OfficialMobileOptions:
     epochs: float | None = None
     steps: int | None = None
     resume_from_checkpoint: Path | None = None
+    sft_checkpoint: Path | None = None
+    sft_config: Path | None = None
     learning_rate: float | None = None
     lora_rank: int | None = None
     lora_alpha: int | None = None
@@ -127,7 +129,8 @@ def build_plan(options: OfficialMobileOptions) -> dict[str, Any]:
     from ir_training.pipeline.official_mobile_mtp import normalize_options
     normalize_options(values)
     for key in ("model_dir", "input_dir", "source_safetensors", "official_litertlm",
-                "output_dir", "preparation_cache_dir", "resume_from_checkpoint", "android_repair_runtime"):
+                "output_dir", "preparation_cache_dir", "resume_from_checkpoint", "android_repair_runtime",
+                "sft_checkpoint", "sft_config"):
         if values[key] is not None:
             values[key] = str(Path(values[key]).expanduser().resolve())
     if values["prepared_input_dir"] is not None:
@@ -152,6 +155,25 @@ def build_plan(options: OfficialMobileOptions) -> dict[str, Any]:
         raise ValueError("--augmentation cannot change data on resume; reuse the saved dataset without the flag or start a fresh experiment")
     if values["resume_from_checkpoint"] and options.augmentation_dir:
         raise ValueError("--augmentation-dir cannot change the saved dataset on resume")
+    if bool(values["sft_checkpoint"]) != bool(values["sft_config"]):
+        raise ValueError("--sft-checkpoint and --sft-config must be supplied together")
+    warm_start = None
+    source_lora = {}
+    if values["sft_checkpoint"]:
+        if values["resume_from_checkpoint"]:
+            raise ValueError("Weight-only initialization cannot restore Trainer state")
+        from ir_training.train.mobile_sft_init import bind_source
+
+        warm_start, source = bind_source(Path(values["sft_checkpoint"]), Path(values["sft_config"]))
+        source_lora = source.get("lora") or {}
+        source_run_path = source["run"].get("output_dir")
+        if not isinstance(source_run_path, str) or not Path(source_run_path).is_absolute():
+            raise ValueError("Source SFT config must be the resolved run config with an absolute output directory")
+        source_run = Path(source_run_path).resolve()
+        output = Path(values["output_dir"])
+        protected = [source_run, Path(warm_start["checkpoint"]), Path(warm_start["source_config"])]
+        if any(output.is_relative_to(path) or path.is_relative_to(output) for path in protected):
+            raise ValueError("Weight-only initialization requires a separate output directory")
     resume = None
     if values["resume_from_checkpoint"]:
         from ir_training.train.mobile_resume import horizon_record, source_config
@@ -187,10 +209,14 @@ def build_plan(options: OfficialMobileOptions) -> dict[str, Any]:
     }
     for name, (section, key, default) in recipe_options.items():
         inherited = saved[section][key] if resume else default
+        if warm_start and section == "lora":
+            inherited = source_lora.get(key)
         if values[name] is None:
             values[name] = inherited
         elif resume and values[name] != inherited:
             raise ValueError(f"--{name.replace('_', '-')} cannot change on resume; start a fresh experiment")
+        elif warm_start and section == "lora" and values[name] != inherited:
+            raise ValueError(f"--{name.replace('_', '-')} must match the source SFT adapter")
     for name in ("lora_rank", "lora_alpha"):
         if type(values[name]) is not int or values[name] <= 0:
             raise ValueError(f"{name} must be a positive integer")
@@ -280,6 +306,8 @@ def build_plan(options: OfficialMobileOptions) -> dict[str, Any]:
             "frozen_w8_activation_modules": 70, "native_kv_cache_simulated": False,
             "native_numeric_parity_verified": False},
     }
+    if warm_start is not None:
+        plan["sft_initialization"] = warm_start
     if options.train_mtp:
         from ir_training.pipeline.official_mobile_mtp import extend_plan
         return extend_plan(plan)
@@ -339,6 +367,10 @@ def training_config(plan: dict, profile: dict, preparation_report: dict) -> dict
     if values["steps"] is not None:
         training["max_steps"] = values["steps"]
     training["refuse_resume"] = not bool(plan.get("resume"))
+    if plan.get("sft_initialization"):
+        from ir_training.train.mobile_sft_init import KEY
+
+        training[KEY] = copy.deepcopy(plan["sft_initialization"])
     if plan.get("resume"):
         from ir_training.train.mobile_resume import POLICY, horizon_record
         training.update(resume_from_checkpoint=values["resume_from_checkpoint"], resume_policy=POLICY)
@@ -429,7 +461,12 @@ def _configure(plan: dict) -> list[Path]:
         max_sequence=values["max_seq_length"],
         max_prompt=values.get("max_input_tokens", values["max_seq_length"]))
     source = Path(plan["paths"]["source_config"])
-    _yaml(source, training_config(plan, profile, report))
+    config = training_config(plan, profile, report)
+    if plan.get("sft_initialization"):
+        from ir_training.train.mobile_sft_init import require_source
+
+        initialization = require_source(config)
+    _yaml(source, config)
     launch, resolved, paths = mobile.build_launch_plan(source, run_id=output.name, runs_root=output / "training",
         num_gpus=profile["world_size"], source_safetensors=values["source_safetensors"], host_gpu_profile=profile)
     if not launch["checks"]["contract_ok"]:
@@ -456,6 +493,10 @@ def _configure(plan: dict) -> list[Path]:
     _write(prepared_report, report)
     # Bind this additional contract before preflight/training, not retrospectively.
     launch["bound_artifacts"]["prepared_evaluation_report"] = mobile._file_identity(prepared_report)
+    if plan.get("sft_initialization"):
+        launch["bound_artifacts"].update(
+            {f"sft_initialization_{role}": identity for role, identity in initialization["files"].items()}
+        )
     _write(paths["launch_plan"], launch)
     deployment_config = Path(plan["paths"]["mobile_config"])
     _yaml(deployment_config, mobile_export_config(plan))

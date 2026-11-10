@@ -199,6 +199,9 @@ def numeric_preflight_provenance(config: dict, numeric: dict) -> dict[str, Any]:
     """
     report: dict[str, Any] = {"verified": False, "checks": {}}
     try:
+        from ir_training.train import mobile_sft_init
+
+        sft_initialization = mobile_sft_init.initialization(config)
         policy = resolve_numeric_policy(config)
         report["policy"] = policy
         # A report cannot opt a legacy config into the diagnostic policy either.
@@ -250,6 +253,9 @@ def numeric_preflight_provenance(config: dict, numeric: dict) -> dict[str, Any]:
             checks.pop("zero_adapter_initialization_verified")
             checks["sft_adapter_initialization_verified"] = lineage.get("verified") is True
             report["sft_adapter_lineage"] = lineage
+        elif sft_initialization is not None:
+            checks.pop("zero_adapter_initialization_verified")
+            checks["sft_adapter_initialization_verified"] = mobile_sft_init.verify_numeric_initialization(config, numeric)
         elif (config.get("training") or {}).get("resume_policy") is not None:
             from pathlib import Path
 
@@ -272,6 +278,6 @@ def numeric_preflight_provenance(config: dict, numeric: dict) -> dict[str, Any]:
                 and adapter["nonzero_adapter_pairs"] <= 205
             )
         report.update(checks=checks, verified=all(checks.values()))
-    except (AttributeError, KeyError, TypeError, ValueError, OverflowError) as exc:
+    except (AttributeError, KeyError, OSError, TypeError, ValueError, OverflowError) as exc:
         report["error"] = str(exc)
     return report
