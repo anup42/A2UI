@@ -2,7 +2,9 @@
 
 import argparse
 import hashlib
+import json
 import math
+import re
 import shutil
 import sqlite3
 import time
@@ -12,8 +14,17 @@ from pathlib import Path
 
 import chatgpt_fresh_labels as labels
 import run_chatgpt_stage123 as original
+from pipeline.genui_codex_client import CodexError
 from pipeline.genui_quality.validation_v5_4 import ensure_v5_4_validation_ready
 from pipeline.v11_regeneration_io import checked, digest, file_hash, save
+
+SOURCE_TIMEOUT = 900
+# This diagnostic is emitted only by the pinned client's completion deadline.
+COMPLETION_TIMEOUT = "Generation timed out; no automatic retry"
+PRE_TIMEOUT_SCHEDULERS = {
+    "129f8feb47b58af41aaa1204d4c5bd56030dee67d06e0b8292f727a6b26a6e62",
+    "f69e96558be6be6eea4cc21e3f716468e9ab07561b434b53fcd63e7320bb5fde",
+}  # The released 040c4b79 scheduler with LF or CRLF.
 
 
 def shared_prefix_template(template):
@@ -36,7 +47,7 @@ def check_predecessor(root):
     return plan
 
 
-def scheduling_contract(root, db, plan, switch, label_size):
+def scheduling_contract(root, db, plan, switch, label_size, *, register_recovery=False):
     if not 0 <= switch < plan["target"] or not 1 <= label_size <= 1000:
         raise ValueError("Invalid transition count or Stage 3 group size")
     contract = {"plan_sha256": digest(plan), "scheduler_sha256": file_hash(Path(__file__)),
@@ -51,8 +62,18 @@ def scheduling_contract(root, db, plan, switch, label_size):
     receipt_path = root / "phased_schedule.json"
     if receipt_path.exists():
         receipt = checked(receipt_path)
-        if receipt != {**contract, "legacy_stop": receipt["legacy_stop"]}:
-            raise ValueError("Phased schedule changed on resume")
+        expected = {**contract, "legacy_stop": receipt["legacy_stop"]}
+        if receipt != expected:
+            old = receipt["scheduler_sha256"]
+            if old not in PRE_TIMEOUT_SCHEDULERS or receipt != {**expected, "scheduler_sha256": old}:
+                raise ValueError("Phased schedule changed on resume")
+            upgrade = root / "phased_timeout_runtime.json"
+            binding = {"original_schedule": digest(receipt), "scheduler_sha256": contract["scheduler_sha256"],
+                       "source_timeout_seconds": SOURCE_TIMEOUT}
+            if register_recovery and not upgrade.exists():
+                save(upgrade, binding)
+            if not upgrade.exists() or checked(upgrade) != binding:
+                raise ValueError("Register this scheduler with offline query reconciliation before resuming")
         return receipt
     starts = [r[0] for r in db.execute("SELECT start FROM shards ORDER BY start")]
     step = plan["shard_size"]
@@ -71,13 +92,166 @@ def scheduling_contract(root, db, plan, switch, label_size):
     return contract
 
 
+def init_recovery_tables(db):
+    db.execute("CREATE TABLE IF NOT EXISTS phased_skipped_turns "
+               "(key TEXT PRIMARY KEY REFERENCES turns(key), binding TEXT NOT NULL, reason TEXT NOT NULL)")
+    db.execute("CREATE TABLE IF NOT EXISTS phased_reconciliations (id TEXT PRIMARY KEY, report BLOB NOT NULL)")
+
+
+def record_skip(db, key, slots, *, stage, reason):
+    row = db.execute("SELECT binding,request,reply FROM turns WHERE key=?", (key,)).fetchone()
+    if row is None or row[2] is not None:
+        raise ValueError(f"Only an unresolved dispatched turn can be skipped: {key}")
+    binding, request = row[0], original.unpacked(row[1])
+    if digest(request) != binding or request["stage"] != stage:
+        raise ValueError(f"Invalid skipped request binding: {key}")
+    db.execute("INSERT OR IGNORE INTO phased_skipped_turns VALUES (?,?,?)", (key, binding, reason))
+    if db.execute("SELECT binding FROM phased_skipped_turns WHERE key=?", (key,)).fetchone() != (binding,):
+        raise ValueError(f"Changed skipped request: {key}")
+    hold = f"{reason}: {key}"
+    if stage == 1:
+        db.executemany("INSERT OR IGNORE INTO items(slot,hold) VALUES (?,?)", [(slot, hold) for slot in slots])
+    else:
+        db.executemany("UPDATE items SET hold=? WHERE slot=? AND hold IS NULL AND source IS NULL",
+                       [(hold, slot) for slot in slots])
+    return hold
+
+
+def check_unresolved(db):
+    unknown = db.execute("SELECT t.key FROM turns t LEFT JOIN phased_skipped_turns s ON t.key=s.key "
+                         "WHERE t.reply IS NULL AND s.key IS NULL LIMIT 1").fetchone()
+    if unknown:
+        raise ValueError(f"Review unresolved turn {unknown[0]} before live dispatch")
+    if db.execute("SELECT 1 FROM phased_skipped_turns s LEFT JOIN turns t ON t.key=s.key "
+                  "WHERE t.key IS NULL OR s.binding!=t.binding OR t.reply IS NOT NULL LIMIT 1").fetchone():
+        raise ValueError("Skipped request evidence changed")
+
+
+def admit_query(db, index, done, query):
+    slot = query["slot"]
+    if slot in done or index.has_near_duplicate(query["query_text"]):
+        return False
+    db.execute("INSERT INTO items(slot,query) VALUES (?,?)", (slot, original.packed(index.add(query))))
+    done.add(slot)
+    return True
+
+
+class OfflineQueryAdapter:
+    stage = 1
+
+    def generate(self, *_args, **_kwargs):
+        raise RuntimeError("Offline reconciliation cannot generate queries")
+
+
+def query_slots(key, bulk):
+    match = re.fullmatch(r"q-(\d+)-(\d+)-([01])", key)
+    if not match:
+        raise ValueError(f"Unexpected query key {key}")
+    start, count, attempt = map(int, match.groups())
+    if (not bulk["start"] <= start < bulk["stop"] or count != (1 if attempt else min(4, bulk["stop"] - start))
+            or (not attempt and (start - bulk["start"]) % 4)):
+        raise ValueError(f"Query group outside its prepared schedule: {key}")
+    return range(start, start + count), attempt
+
+
+def reconcile_queries(root, db, schedule, seed, skip):
+    bulk = checked(root / "phased_sources.json")
+    if bulk["schedule_sha256"] != digest(schedule) or (root / "phased_queries_done.json").exists():
+        raise ValueError("Offline reconciliation requires an unfinished, bound Stage 1")
+    init_recovery_tables(db)
+    known = {key for key, in db.execute("SELECT key FROM phased_skipped_turns")}
+    unknown = {key for key, in db.execute("SELECT key FROM turns WHERE reply IS NULL")}
+    if set(skip) - unknown or (unknown - known) != (set(skip) - known):
+        raise ValueError(f"Explicitly name each unresolved request to skip: {sorted(unknown-known)}")
+    for key in skip:
+        query_slots(key, bulk)
+    turns = []
+    manifests = []
+    for key, binding, request, blob in db.execute("SELECT key,binding,request,reply FROM turns ORDER BY rowid"):
+        if not key.startswith("q-") or int(key.split("-")[1]) < bulk["start"]:
+            continue
+        slots, attempt = query_slots(key, bulk)
+        if digest(original.unpacked(request)) != binding:
+            raise ValueError(f"Changed request journal for {key}")
+        turns.append((key, slots, attempt, blob))
+        manifests.append((key, binding, hashlib.sha256(blob).hexdigest() if blob else None))
+    identity = digest([digest(schedule), digest(bulk), sorted(skip), manifests])
+    saved = db.execute("SELECT report FROM phased_reconciliations WHERE id=?", (identity,)).fetchone()
+    if saved:
+        report = original.unpacked(saved[0])
+    else:
+        index, existing = original.QueryQualityIndex(), set()
+        for slot, query in db.execute("SELECT slot,query FROM items ORDER BY slot"):
+            existing.add(slot)
+            if query:
+                index.add(original.unpacked(query))
+        done = existing.copy()
+        candidates, held, accepted = set(), {}, []
+        with db:
+            for key, slots, attempt, blob in turns:
+                plans = [original.brief(n, seed) for n in slots]
+                if blob is None:
+                    # Verify the same prompt binding the live generator would use.
+                    try:
+                        original.query_batch(root / "sources.sqlite", OfflineQueryAdapter(), plans, seed, attempt)
+                    except ValueError as exc:
+                        if str(exc) != f"Delivery uncertain for {key}. Review the existing attempt before resuming.":
+                            raise
+                    else:
+                        raise ValueError(f"Expected unresolved request {key}")
+                    continue
+                if all(slot in existing for slot in slots):
+                    continue
+                reply = original.unpacked(blob)
+                if reply.get("model") != original.MODEL or not reply.get("thread_id") or not reply.get("turn_id"):
+                    raise ValueError(f"Missing saved query provenance: {key}")
+                try:
+                    entries = json.loads(reply["text"])
+                except ValueError:
+                    entries = []
+                identifiable = {e["slot"] for e in entries if isinstance(e, dict) and type(e.get("slot")) is int
+                                and e["slot"] in slots and isinstance(e.get("query_text"), str) and e["query_text"].strip()
+                                } if isinstance(entries, list) else set()
+                candidates.update(identifiable - existing)
+                for slot in slots:
+                    if slot not in done:
+                        held[slot] = "invalid saved query" if slot in identifiable else "no usable query in saved reply"
+                for query in original.query_batch(root / "sources.sqlite", OfflineQueryAdapter(), plans, seed, attempt):
+                    slot = query["slot"]
+                    if slot not in done:
+                        if admit_query(db, index, done, query):
+                            accepted.append(slot)
+                            held.pop(slot, None)
+                        else:
+                            held[slot] = "near-duplicate saved query"
+            db.executemany("INSERT INTO items(slot,hold) VALUES (?,?)", sorted(held.items()))
+            skipped = {}
+            for key in sorted(skip):
+                slots, _ = query_slots(key, bulk)
+                record_skip(db, key, slots, stage=1, reason="reviewed unresolved request")
+                skipped[key] = list(slots)
+            check_unresolved(db)
+            report = {"reconciliation_sha256": identity, "saved_candidates": len(candidates),
+                      "accepted_slots": sorted(accepted), "held_slots": {str(n): reason for n, reason in sorted(held.items())},
+                      "skipped_requests": skipped, "previous_items": len(existing)}
+            db.execute("INSERT INTO phased_reconciliations VALUES (?,?)", (identity, original.packed(report)))
+    path = root / f"phased_query_recovery_{identity[:12]}.json"
+    if path.exists():
+        if checked(path) != report:
+            raise ValueError("Query recovery receipt changed")
+    else:
+        save(path, report)
+    return report
+
+
 class PhasedRun:
     def __init__(self, root, db, plan, schedule, workers, client, label_client, pool):
         self.root, self.db, self.plan, self.schedule = root, db, plan, schedule
         self.database = root / "sources.sqlite"
         self.workers, self.client, self.label_client, self.pool = workers, client, label_client, pool
         self.qgen, self.agen = [original.ChatGPTSourceAdapter(client, stage=n, model=original.MODEL,
-                                                            effort=original.EFFORT) for n in (1, 2)]
+                                                            effort=original.EFFORT, timeout=SOURCE_TIMEOUT)
+                                for n in (1, 2)]
         self.index, self.seen = original.QueryQualityIndex(), set()
         for query, source in db.execute("SELECT query,source FROM items ORDER BY slot"):
             if query:
@@ -88,6 +262,9 @@ class PhasedRun:
         self.template = (original.ROOT / "dataset/prompts/muse_stage2_quality_v1.md").read_text(encoding="utf-8")
         self.source_budget = plan["target"] + max(1, plan["target"] // 20)
         self.last_progress = 0.0
+        self.active_bulk = None
+        init_recovery_tables(db)
+        check_unresolved(db)
         db.execute("CREATE TABLE IF NOT EXISTS phased_labels (start INTEGER PRIMARY KEY, stop INTEGER NOT NULL)")
         cursor = schedule["legacy_stop"]
         for start, stop in db.execute("SELECT start,stop FROM phased_labels ORDER BY start"):
@@ -107,6 +284,15 @@ class PhasedRun:
             self.check_space()
         queries, responses, source_holds = self.db.execute("SELECT count(query),count(source),count(hold) FROM items").fetchone()
         generated, accepted, held = self.totals()
+        if stage in {"Stage 1", "Stage 2"} and self.active_bulk:
+            start, target = self.active_bulk["start"], self.active_bulk["target"]
+            primary, discarded = self.db.execute(
+                "SELECT count(CASE WHEN slot<? THEN query END),count(hold) FROM items WHERE slot>=? AND slot<?",
+                (start + target, start, self.active_bulk["stop"])).fetchone()
+            if discarded > self.active_bulk["reserve"]:
+                raise ValueError("Source holds exceed the reserved slots. Review the run before dispatching more.")
+            if stage == "Stage 1":
+                detail = f"{primary:,}/{target:,} primary queries saved · {self.active_bulk['reserve']} reserve slots"
         state = {"stage": stage, "detail": detail, "workers": self.workers, "target": self.plan["target"],
                      "queries": queries, "responses": responses, "source_holds": source_holds, "generated": generated,
                      "accepted": accepted, "held": held, "updated_at": time.time()}
@@ -128,16 +314,22 @@ class PhasedRun:
             groups = [group for group in groups if any(n not in done for n in group)]
 
             def ask(group, attempt=attempt):
-                return original.query_batch(self.database, self.qgen, [original.brief(n, seed) for n in group], seed, attempt)
+                try:
+                    return original.query_batch(self.database, self.qgen, [original.brief(n, seed) for n in group],
+                                                seed, attempt), ()
+                except CodexError as exc:
+                    if exc.args != (COMPLETION_TIMEOUT,):
+                        raise
+                    key = f"q-{group[0]}-{len(group)}-{attempt}"
+                    with closing(sqlite3.connect(self.database, timeout=30)) as db, db:
+                        record_skip(db, key, group, stage=1, reason="source completion timed out")
+                    return [], group
 
-            for found in original.dispatch(self.pool, ask, groups, self.client, self.workers):
+            for found, skipped in original.dispatch(self.pool, ask, groups, self.client, self.workers):
+                done.update(skipped)
                 with self.db:
                     for query in found:
-                        slot = query["slot"]
-                        if slot not in done and not self.index.has_near_duplicate(query["query_text"]):
-                            query = self.index.add(query)
-                            self.db.execute("INSERT INTO items(slot,query) VALUES (?,?)", (slot, original.packed(query)))
-                            done.add(slot)
+                        admit_query(self.db, self.index, done, query)
                 self.progress("Stage 1", detail)
         with self.db:
             self.db.executemany("INSERT INTO items(slot,hold) VALUES (?,'invalid or duplicate query')",
@@ -151,8 +343,19 @@ class PhasedRun:
 
         def respond(item):
             slot, query = item
-            row, hold = original.answer(self.database, self.agen, original.unpacked(query),
-                                        original.brief(slot, self.plan["seed"]), self.excluded, template)
+            try:
+                row, hold = original.answer(self.database, self.agen, original.unpacked(query),
+                                            original.brief(slot, self.plan["seed"]), self.excluded, template)
+            except CodexError as exc:
+                if exc.args != (COMPLETION_TIMEOUT,):
+                    raise
+                with closing(sqlite3.connect(self.database, timeout=30)) as db, db:
+                    keys = db.execute("SELECT key FROM turns WHERE key IN (?,?) AND reply IS NULL",
+                                      (f"a-{slot}-0", f"a-{slot}-1")).fetchall()
+                    if len(keys) != 1:
+                        raise ValueError(f"Cannot identify the timed-out answer turn for slot {slot}") from exc
+                    hold = record_skip(db, keys[0][0], [slot], stage=2, reason="source completion timed out")
+                row = None
             return slot, row, hold
 
         for slot, row, hold in original.dispatch(self.pool, respond, pending, self.client, self.workers):
@@ -229,6 +432,7 @@ class PhasedRun:
         return plan
 
     def bulk_sources(self, bulk):
+        self.active_bulk = bulk
         start, stop, target = bulk["start"], bulk["stop"], bulk["target"]
         query_barrier = self.root / "phased_queries_done.json"
         binding = digest(bulk)
@@ -295,8 +499,15 @@ def run(args):
     workers = original.worker_count(args.workers)
     with original._exclusive(root), closing(sqlite3.connect(root / "sources.sqlite", timeout=30)) as db:
         plan = check_predecessor(root)
-        schedule = scheduling_contract(root, db, plan, args.switch_after, args.label_size)
+        schedule = scheduling_contract(root, db, plan, args.switch_after, args.label_size,
+                                       register_recovery=args.reconcile_queries)
         ensure_v5_4_validation_ready()
+        if args.reconcile_queries:
+            report = reconcile_queries(root, db, schedule, plan["seed"], args.skip_unresolved_query)
+            print(json.dumps({"saved_candidates": report["saved_candidates"], "accepted": len(report["accepted_slots"]),
+                              "held_slots": report["held_slots"], "skipped_requests": report["skipped_requests"],
+                              "reconciliation_sha256": report["reconciliation_sha256"]}))
+            return
         with closing(original.ChatGPTSourceClient(executable=args.codex_executable)) as client, closing(
                 original.CodexClient(executable=args.codex_executable)) as label_client, ThreadPoolExecutor(workers) as pool:
             if not client.account()["signed_in"]:
@@ -317,4 +528,10 @@ if __name__ == "__main__":
     parser.add_argument("--workers", type=int, default=32)
     parser.add_argument("--label-size", type=int, default=256)
     parser.add_argument("--codex-executable")
-    run(parser.parse_args())
+    parser.add_argument("--reconcile-queries", action="store_true", help="Validate saved bulk Stage 1 replies offline and exit")
+    parser.add_argument("--skip-unresolved-query", action="append", default=[], metavar="KEY",
+                        help="During offline reconciliation, mark this unresolved query request skipped without retrying")
+    args = parser.parse_args()
+    if args.skip_unresolved_query and not args.reconcile_queries:
+        parser.error("--skip-unresolved-query requires --reconcile-queries")
+    run(args)

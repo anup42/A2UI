@@ -31,3 +31,13 @@ python -B dataset/scripts/run_chatgpt_stage123_phased.py --output-dir C:/genui/r
 For a target of 10,000 label submissions, the coordinator then generates 9,000 primary queries. It prepares a small pool of reserve query slots based on observed source losses, bounded by the original replacement allowance. Stage 2 draws on those reserves only as needed to reach 9,000 eligible source answers. Stage 3 starts after the full answer set passes source screening. It submits 9,000 labels in consecutive groups of up to 256 for validation and archival. Held labels count toward submissions.
 
 The phased Stage 2 prompt puts the common instructions first and the individual task last. Cache reuse depends on the provider. The existing dashboard reads the same progress file, and label totals update after each archived group. Use the phased command for subsequent resumes. The transition counts are in `phased_sources.json`, and the completed query and answer phases have separate integrity receipts.
+
+Phased source turns have a 15-minute completion deadline. When an individual query or answer reaches it, the runner journals the skipped request and holds its slots. Other workers continue. Interrupted requests whose delivery is uncertain require review.
+
+For a paused bulk Stage 1 run, use the same output directory and settings. Offline reconciliation checks the saved replies against their original prompts, applies the original query and duplicate checks, and records each recovered or held slot. Supply one `--skip-unresolved-query` for each reviewed request to skip. The command writes a `phased_query_recovery_*.json` receipt and exits. Then use the normal phased command above to continue generation.
+
+```powershell
+python -B dataset/scripts/run_chatgpt_stage123_phased.py --output-dir C:/genui/runs/sol10k --switch-after 1000 --workers 32 --label-size 256 --reconcile-queries --skip-unresolved-query q-1666-4-0 --skip-unresolved-query q-4594-4-0
+```
+
+The two keys in this example belong to the November 22 run. Use the keys reported by the journal for another run. Reconciliation keeps the original schedule and binds the timeout-aware runtime in a separate receipt for a run started with the earlier phased scheduler.
