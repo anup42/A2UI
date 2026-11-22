@@ -1,16 +1,21 @@
 """Small, provider-neutral generation diagnostics; never executes a model."""
 from __future__ import annotations
 
-from datetime import datetime, timezone
 import hashlib
 import json
+from collections.abc import Mapping
+from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Mapping
+from sys import platform
+from typing import Any
 from uuid import uuid4
 
-from pipeline.renderer_semantics import iter_renderer_references
-from pipeline.renderer_capability import canonical_chart_subtype
 from llm.base import completion_metadata
+
+from pipeline.renderer_capability import canonical_chart_subtype
+from pipeline.renderer_semantics import iter_renderer_references
+
+_WINDOWS_MAX_PATH = 260
 
 
 def finish_reason(payload: Any) -> str | None:
@@ -131,12 +136,18 @@ def record_attempt(task: dict[str, Any], artifacts_dir: Path, *, phase: str,
         attempt["reasoning_source"] = reasoning_source
     if isinstance(raw, Mapping) and isinstance(raw.get("a2ui_request_attempts"), list):
         attempt["http_request_attempts"] = raw["a2ui_request_attempts"]
-    directory = artifacts_dir / "generation_attempts" / f"{task['ui_id']}_{invocation}"
-    directory.mkdir(parents=True, exist_ok=True)
-    path = directory / f"{len(attempts):03d}_{phase}.json"
     payload = {**attempt, "prompt": prompt, "system": system, "completion": text}
     if isinstance(reasoning_text, str) and reasoning_text.strip():
         payload["reasoning_text"] = reasoning_text
+    directory = artifacts_dir / "generation_attempts"
+    relative_path = Path(f"{task['ui_id']}_{invocation}") / f"{len(attempts):03d}_{phase}.json"
+    path = directory / relative_path
+    if platform == "win32" and len(str(path.absolute()).encode("utf-16-le")) // 2 >= _WINDOWS_MAX_PATH:
+        # Leave room for the Windows path terminator and keep the file readable by ordinary paths.
+        name = hashlib.sha256(relative_path.as_posix().encode("utf-8")).hexdigest()[:32]
+        path = directory / f"{name}.json"
+        payload.update(ui_id=task["ui_id"], generation_invocation_id=invocation)
+    path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("x", encoding="utf-8") as handle:
         json.dump(payload, handle, ensure_ascii=False, indent=2)
     attempt["artifact"] = str(path.relative_to(artifacts_dir))
