@@ -378,10 +378,7 @@ class QueryQualityIndex:
             return {" ".join(tokens)} if tokens else set()
         return {" ".join(tokens[i:i+3]) for i in range(max(0, len(tokens)-2))}
 
-    def add(self, query: dict[str, Any], *, annotate: bool = True) -> dict[str, Any]:
-        text = str(query.get("query_text") or "")
-        qid = str(query.get("query_id") or "")
-        shingles = self._shingles(text)
+    def _matches(self, shingles: set[str]) -> list[dict[str, Any]]:
         candidates = Counter(other for shingle in shingles for other in self.postings[shingle])
         matches = []
         for other, overlap in candidates.most_common(100):
@@ -389,6 +386,16 @@ class QueryQualityIndex:
             score = overlap / union if union else 0
             if score >= .65:
                 matches.append({"query_id": other, "word_trigram_jaccard": round(score, 6)})
+        return matches
+
+    def has_near_duplicate(self, text: str) -> bool:
+        return bool(self._matches(self._shingles(text)))
+
+    def add(self, query: dict[str, Any], *, annotate: bool = True) -> dict[str, Any]:
+        text = str(query.get("query_text") or "")
+        qid = str(query.get("query_id") or "")
+        shingles = self._shingles(text)
+        matches = self._matches(shingles)
         modality = infer_modality(text)
         family = self.families[matches[0]["query_id"]] if matches else "scenario_" + _hash(sorted(shingles))[:24]
         quality = {"version": VERSION, "modality": modality,

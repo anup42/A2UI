@@ -64,8 +64,13 @@ def source_hashes(row: dict) -> set[str]:
     return {digest(" ".join(text.split())) for text in (guard.source_text(row), existing._generation_source(row))}
 
 
-def query_for(row: dict) -> dict:
-    return {"query_text": (row.get("metadata") or {}).get("query_text", "Render the supplied response faithfully.")}
+def query_for(row: dict, *, fresh_sources=False) -> dict:
+    metadata = row.get("metadata") or {}
+    query = dict(metadata.get("query") or {}) if fresh_sources else {}
+    if query.get("query_text") and metadata.get("query_text", query["query_text"]) != query["query_text"]:
+        raise ValueError("Fresh Stage 1 query text disagrees with Stage 2 lineage")
+    query.setdefault("query_text", metadata.get("query_text", "Render the supplied response faithfully."))
+    return query
 
 
 def select(source: SplitInput, samples: int, seed: int, selection_profile="random", pilot_profile="legacy") -> tuple[list[dict], dict, dict]:
@@ -212,12 +217,15 @@ def estimate(requests: list[dict], config: dict) -> dict:
 def prepare(input_dir: Path, output_dir: Path, *, samples=1000, seed=123,
             model="gpt-6.1-sol", reasoning_effort="medium", max_output_tokens=8192,
             cache_ttl=runner.DEFAULT_CACHE_TTL, selection_profile="random", reasoning_summary="none",
-            pilot_profile="legacy", transport="batch", generation_timeout=None, generation_workers=None) -> dict:
+            pilot_profile="legacy", transport="batch", generation_timeout=None, generation_workers=None,
+            fresh_sources=False) -> dict:
     from pipeline.genui_quality.validation_v5_4 import ensure_v5_4_validation_ready
 
     fidelity_v2.profile({"pilot_profile": pilot_profile})
     if transport not in {"batch", "chatgpt"}:
         raise ValueError("Unsupported generation transport")
+    if fresh_sources and (transport != "chatgpt" or pilot_profile != fidelity_v2.PROFILE):
+        raise ValueError("Fresh sources require ChatGPT and the fidelity_v2 admission policy")
     if generation_workers is not None:
         if transport != "chatgpt":
             raise ValueError("Generation workers apply only to the ChatGPT transport")
@@ -267,8 +275,13 @@ def prepare(input_dir: Path, output_dir: Path, *, samples=1000, seed=123,
         config["reasoning_summary"] = reasoning_summary
     if pilot_profile != "legacy":
         config["pilot_profile"] = pilot_profile
+    if fresh_sources:
+        config["fresh_sources"] = True
     code_hashes = fingerprint()
     selected, counts, benchmark_files = select(source, samples, seed, selection_profile, pilot_profile)
+    if fresh_sources and any({"completion", "a2ui_express", "completion_targets", "messages"} & entry["row"].keys()
+                             for entry in selected):
+        raise ValueError("Fresh Stage 2 sources must contain no previous target or chat scaffold")
     selection_report = counts.pop("selection_report", None)
     output.mkdir(parents=True, exist_ok=False)
     if selection_report is not None:
@@ -278,7 +291,7 @@ def prepare(input_dir: Path, output_dir: Path, *, samples=1000, seed=123,
         {"query_id": entry["response_id"], "response_id": entry["response_id"], "n_idx": 1,
          "response_text": existing._generation_source(entry["row"])} for entry in selected))
     runner.write_rows(output / "queries.jsonl", (
-        {"query_id": entry["response_id"], **query_for(entry["row"])} for entry in selected))
+        {**query_for(entry["row"], fresh_sources=fresh_sources), "query_id": entry["response_id"]} for entry in selected))
     adapter = runner.CaptureAdapter(config)
     runner.run(output, output / "capture", config, adapter)
     bindings = runner.captured_bindings(output / "capture")
@@ -374,7 +387,11 @@ def index_results(records: list[dict], expected: set[str]) -> dict:
 
 
 def validate_results(output: Path, contract: dict, records: list[dict], batch_status: str) -> dict:
-    from ir_training.data.express_preparation import prepare_row, serialize_checked
+    from ir_training.data.express_preparation import (
+        TASK_PREFIX,
+        prepare_row,
+        serialize_checked,
+    )
     from ir_training.data.reference_binding import bind_source_target_references
 
     from pipeline.ir_formats import express
@@ -432,9 +449,13 @@ def validate_results(output: Path, contract: dict, records: list[dict], batch_st
                 updated = deepcopy(source_row)
                 updated["completion"] = updated["a2ui_express"] = target
                 updated["completion_targets"] = {"a2ui_express_v1": target}
-                if not updated.get("messages") or updated["messages"][-1].get("role") != "assistant":
+                if config.get("fresh_sources"):
+                    updated["messages"] = [{"role": "user", "content": TASK_PREFIX + guard.source_text(source_row)},
+                                           {"role": "assistant", "content": target}]
+                elif not updated.get("messages") or updated["messages"][-1].get("role") != "assistant":
                     raise ValueError("missing_original_assistant_target")
-                updated["messages"][-1]["content"] = target
+                else:
+                    updated["messages"][-1]["content"] = target
                 updated.setdefault("metadata", {})["chatgpt_stage3" if chatgpt else "openai_stage3_batch"] = {
                     "contract_sha256": digest(contract), "custom_id": custom_id,
                     "original_row_sha256": entry["original_row_sha256"], "original_split": "train",
