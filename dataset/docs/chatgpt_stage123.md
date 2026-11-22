@@ -19,3 +19,15 @@ Stage 1 varies domains and task shapes, with extra entity-list examples, numeric
 The source journal is `sources.sqlite`. Each completed group publishes an integrity-checked `evidence.tar.gz` containing the sources, receipts, decisions and the accepted training candidates in `p/pilot_accepted.jsonl` when generation took place. Stage 3 dashboard totals update after each group is validated. Exact and close lexical query duplicates and exact source duplicates are screened across this run.
 
 Use the same command, output directory, seed and code snapshot to continue an interrupted run. Completed work is reused. An uncertain subscription turn requires review before replay. Keep at least 512 MiB free for the next group. For a long run, use an isolated checkout so subsequent edits cannot change its evaluator.
+
+### Switch an existing run to consecutive stages
+
+At a checkpoint with no active requests or unfinished label groups, run the phased coordinator against the same output directory. Use the same model, source generator and evaluator snapshot. The coordinator verifies the original plan and completed archives. It reuses saved queries and answers, and finishes the initial groups up to the exact transition count.
+
+```powershell
+python -B dataset/scripts/run_chatgpt_stage123_phased.py --output-dir C:/genui/runs/sol10k --switch-after 1000 --workers 32 --label-size 256
+```
+
+For a target of 10,000 label submissions, the coordinator then generates 9,000 primary queries. It prepares a small pool of reserve query slots based on observed source losses, bounded by the original replacement allowance. Stage 2 draws on those reserves only as needed to reach 9,000 eligible source answers. Stage 3 starts after the full answer set passes source screening. It submits 9,000 labels in consecutive groups of up to 256 for validation and archival. Held labels count toward submissions.
+
+The phased Stage 2 prompt puts the common instructions first and the individual task last. Cache reuse depends on the provider. The existing dashboard reads the same progress file, and label totals update after each archived group. Use the phased command for subsequent resumes. The transition counts are in `phased_sources.json`, and the completed query and answer phases have separate integrity receipts.
