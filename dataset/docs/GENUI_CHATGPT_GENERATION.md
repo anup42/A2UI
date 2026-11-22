@@ -48,7 +48,7 @@ python dataset/scripts/genui_stage3.py dashboard \
 
 Open `http://127.0.0.1:8767`. Click **Check sign-in**, or **Sign in with ChatGPT** and then follow the OpenAI sign-in link. **Start generation** explicitly starts the prepared run with its selected worker count and automatically validates the completed run. Closing the tab does not stop generation; stopping the server interrupts it and may leave uncertain attempts.
 
-The header provides a visible account link. The **New generation run** panel loads available models and reasoning efforts from the signed-in account; **Refresh models** queries the catalog again. It also exposes reasoning summaries and, under **Data and execution settings**, sample count, selection profile, seed, training-data folder, a fresh output folder, per-source timeout and **Parallel workers** (1–8, default 2). Supported effort levels such as `max` and `ultra` appear only for models that advertise them. Unsupported models or effort combinations fail before preparation.
+The header provides a visible account link. The **New generation run** panel loads available models and reasoning efforts from the signed-in account; **Refresh models** queries the catalog again. It also exposes reasoning summaries and, under **Data and execution settings**, sample count, selection profile, seed, training-data folder, a fresh output folder, per-source timeout and **Parallel workers** (1–32, default 2). Supported effort levels such as `max` and `ultra` appear only for models that advertise them. Unsupported models or effort combinations fail before preparation.
 
 Click **Prepare new run** to run local selection, prompt capture and validation in the new folder. Preparation does not make model requests. After it succeeds, the dashboard switches to the prepared run; click **Start generation** separately when ready. Changing settings never edits the current contract or existing archive. The timeout is stored in the new contract and restored when reopened; CLI `run --timeout` can explicitly override the wait limit. API-only sampling/output-cap/cache settings are not exposed for this Codex route.
 
@@ -87,7 +87,7 @@ Do not run a CLI worker and dashboard worker concurrently. The output lock rejec
 
 ### Parallel execution and caching
 
-New CLI/dashboard preparations default to **two workers**, with a maximum of eight. Use `--workers 1` for sequential generation. Contracts without a worker setting retain a default of one. CLI `run --workers 4` explicitly overrides the prepared count for that invocation, and the chosen count is recorded in `generation.json` under `execution_history`; model, prompt and source bindings remain fixed.
+New CLI/dashboard preparations default to **two workers**, with a maximum of 32. Use `--workers 1` for sequential generation. Contracts without a worker setting retain a default of one. CLI `run --workers 4` explicitly overrides the prepared count for that invocation, and the chosen count is recorded in `generation.json` under `execution_history`; model, prompt and source bindings remain fixed.
 
 ```bash
 # Uses the prepared model/data and records the explicit concurrency override.

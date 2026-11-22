@@ -29,10 +29,11 @@ def main():
     prepare.add_argument("--reasoning-effort", choices=("none", "minimal", "low", "medium", "high", "xhigh", "max", "ultra"), default="medium")
     prepare.add_argument("--reasoning-summary", choices=("none", "auto"), default="auto")
     prepare.add_argument("--generation-timeout", type=int, default=600, help="Per-sample wait limit in seconds; stored in the new run")
-    prepare.add_argument("--workers", dest="generation_workers", type=int, default=2, help="Concurrent sources, 1..8; one real source first warms the shared prompt")
+    prepare.add_argument("--workers", dest="generation_workers", type=int, default=2,
+                         help=f"Concurrent sources, 1..{chatgpt_stage3.MAX_WORKERS}. The first source warms the shared prompt.")
     run = commands.add_parser("run", help="Explicit generation using ChatGPT/Codex allowance; no paid/API retries")
     run.add_argument("--timeout", type=int, help="Override the prepared per-sample wait limit (default 600 seconds)")
-    run.add_argument("--workers", type=int, help="Override prepared concurrency (1..8); the chosen count is recorded for this invocation")
+    run.add_argument("--workers", type=int, help=f"Override prepared concurrency (1..{chatgpt_stage3.MAX_WORKERS}) for this invocation.")
     run.add_argument("--skip-uncertain", action="store_true", help="Keep uncertain attempts as skipped, never regenerate them")
     collect = commands.add_parser("collect", help="Offline canonical Stage 3 and strict quality checks")
     upgrade = commands.add_parser("upgrade-dispatch-runtime", help="Offline audited Windows dispatch fix; preserves completed outputs, never generates")

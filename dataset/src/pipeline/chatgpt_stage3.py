@@ -34,7 +34,7 @@ from pipeline.v11_regeneration_io import (
 )
 
 VERSION = "genui-chatgpt-stage3-v1"
-MAX_WORKERS = 8
+MAX_WORKERS = 32
 WRITE_ATTEMPTS = 10
 
 

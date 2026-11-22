@@ -12,7 +12,7 @@ Start the read-only dashboard in a separate terminal.
 python -B dataset/scripts/chatgpt_stage123_status.py --output-dir C:/genui/runs/sol10k --port 8784
 ```
 
-Open [the local dashboard](http://127.0.0.1:8784). The target counts Stage 3 submissions. Up to eight subscription turns run concurrently. Each group finishes all three stages before the next group starts. If some queries or source answers fail screening, up to 5% additional source slots can replace them within the same Stage 3 target. Final training admission depends on each generated label passing validation.
+Open [the local dashboard](http://127.0.0.1:8784). The target counts Stage 3 submissions. Eight workers run by default. Use `--workers 32` for up to 32 concurrent subscription turns. Each group finishes all three stages before the next group starts. If some queries or source answers fail screening, up to 5% additional source slots can replace them within the same Stage 3 target. Final training admission depends on each generated label passing validation.
 
 Stage 1 varies domains and task shapes, with extra entity-list examples, numerical questions with independently computed answers, and references with supplied destinations. Stage 2 checks source quality, required results and URL provenance. A confirmed quality failure can receive one corrective attempt. Stage 3 runs the standard Express parser, v5.4 validation, reference binding and fidelity checks. Golden and Bixby sources are excluded. Downstream accuracy requires a separate training run and held-out evaluation.
 

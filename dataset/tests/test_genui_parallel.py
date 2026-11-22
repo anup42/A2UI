@@ -105,6 +105,25 @@ def test_real_parallelism_warms_once_binds_each_result_and_replays_strictly(prep
     assert genui.collect(prepared) == report
 
 
+def test_opt_in_dispatch_reaches_32_after_first_source_warms(tmp_path, monkeypatch):
+    workers = genui.worker_count(32)
+    requests = [
+        {"custom_id": f"sample-{n}", "body": {"model": "test-sol", "reasoning": {"effort": "medium"},
+                                             "input": [{"content": "shared instructions"}, {"content": f"Alder{n}"}]}}
+        for n in range(workers + 1)
+    ]
+    runner.write_rows(tmp_path / "requests.jsonl", requests)
+    (tmp_path / "chatgpt_records").mkdir()
+    contract = {"config": {"model": "test-sol"}, "bindings": {r["custom_id"]: digest(r) for r in requests}}
+    monkeypatch.setattr(genui, "load", lambda _: contract)
+    client = ParallelCodex(tmp_path, barrier_size=workers)
+    state = {"attempts": {}, "created_at": time.time()}
+    result = genui._dispatch(tmp_path, contract, state, {}, requests, client, 60, workers)
+    assert result["status"] == "generated" and client.peak == workers
+    assert client.calls == 33 and len(set(client.completed)) == 33
+    assert set(client.completed) == {record.stem for record in (tmp_path / "chatgpt_records").glob("*.json")}
+
+
 def test_failure_drains_inflight_preserves_usage_and_resume_never_retries(prepared):
     client = ParallelCodex(prepared, fail=True)
     assert genui.run(prepared, client=client)["status"] == "paused"
@@ -168,7 +187,7 @@ def test_dispatch_error_still_saves_already_started_result(prepared, monkeypatch
     assert len(list((prepared / "chatgpt_records").glob("*.json"))) == 2
 
 
-@pytest.mark.parametrize("workers", [0, 9, True, 2.5, "2"])
+@pytest.mark.parametrize("workers", [0, 33, True, 2.5, "2"])
 def test_bad_worker_limits_fail_before_any_dispatch(prepared, workers):
     with pytest.raises(ValueError, match="workers"):
         genui.run(prepared, client=FakeCodex(), workers=workers)
@@ -187,11 +206,12 @@ def test_parallel_options_only_apply_to_chatgpt_and_survive_dashboard_reload(pre
     assert genui.run(legacy, client=FakeCodex())["workers"] == 1
     controller = Controller(prepared, client_factory=FakeCodex)
     assert controller.snapshot()["workers"] == 3 and controller.defaults["workers"] == 3
-    controller.action("prepare", {**options(prepared), "workers": 4})
+    controller.action("prepare", {**options(prepared), "workers": 32})
     controller.worker.join(timeout=60)
     assert controller.error is None
-    assert genui.load(controller.evidence.directory)["config"]["generation_workers"] == 4
-    assert Controller(controller.evidence.directory, client_factory=FakeCodex).snapshot()["workers"] == 4
+    assert genui.load(controller.evidence.directory)["config"]["generation_workers"] == 32
+    assert Controller(controller.evidence.directory, client_factory=FakeCodex).snapshot()["workers"] == 32
+    assert genui.run(controller.evidence.directory, client=FakeCodex())["workers"] == 32
     controller.close()
 
 

@@ -20,7 +20,7 @@
           <label>Selection profile<select id="generation-profile" aria-label="Selection profile"><option value="failure_mix_v1">Failure mix v1 (100 or 1,000)</option><option value="random">Random training sources</option></select></label>
           <label>Selection seed<input id="generation-seed" aria-label="Selection seed" type="number" min="0" max="4294967295" step="1" value="123" required></label>
           <label>Timeout per source (seconds)<input id="generation-timeout" aria-label="Timeout per source" type="number" min="30" max="3600" step="1" value="600" required></label>
-          <label>Parallel workers<input id="generation-workers" aria-label="Parallel workers" type="number" min="1" max="8" step="1" value="2" required></label>
+          <label>Parallel workers<input id="generation-workers" aria-label="Parallel workers" type="number" min="1" max="32" step="1" value="2" required></label>
         </div>
         <div class="path-settings">
           <label>Training data folder<input id="generation-input" aria-label="Training data folder" required></label>
