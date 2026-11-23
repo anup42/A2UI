@@ -55,6 +55,9 @@ training/data/train/v11s/*.py text eol=lf
 training/data/train/v11/*.md text eol=lf
 training/data/train/v11s/*.md text eol=lf
 training/data/train/gpt_v11_qat/a2ui_gpt_v11_qat_all_runs.zip filter=lfs diff=lfs merge=lfs -text
+# Preserve GPT30K ZIP parts byte for byte across checkouts.
+training/data/train/gemma270m_gpt30k/*.zip.part-* -text -diff
+training/data/train/gemma270m_gpt30k/SHA256SUMS text eol=lf
 # Historical package audit files and policy snapshots are hash-bound evidence.
 training/reports/dataset_v11_20260930/** -text whitespace=cr-at-eol,-blank-at-eof
 training/reports/dataset_v11_20260930/**/*.gz -text -diff

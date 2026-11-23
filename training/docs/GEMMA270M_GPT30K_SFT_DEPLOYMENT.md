@@ -6,9 +6,9 @@ current status and use the scorecard for completed results.
 
 ## Dataset and recipe
 
-Use `a2ui_gemma270m_sft_30k.zip` from the merged dataset handoff. Copy the
-archive to the GPU host or use its approved shared-storage copy. The archive
-contains 31,860 training rows and 666 validation rows from the verified 10k
+The five [GPT30K ZIP parts](../data/train/gemma270m_gpt30k/) reconstruct
+`a2ui_gemma270m_sft_30k.zip` byte for byte. The archive contains 31,860
+training rows and 666 validation rows from the verified 10k
 and 20k GPT-6.2 Sol runs and the earlier GPT + v11 release. The merge screened
 both splits against Golden and Bixby sources and preserved the source identities
 and Express labels. The archived 270M tokenizer measured 31,838 training rows
@@ -22,28 +22,51 @@ selected dense checkpoint to W8 LiteRT-LM with `dynamic_wi8_afp32`. Its
 Native LiteRT-LM GPU inference tests the W8 package on all three cohorts.
 The scorecard contains nine HF evaluations and three W8 native evaluations.
 
-## Launch on the GPU host
+## Pull and restore the dataset on the GPU host
 
-Use the existing CUDA training environment. Supply a local dense Gemma 3 270M
-checkpoint and the separate exporter and LiteRT-LM runtime Python paths. The
-native runtime needs a working NVIDIA Vulkan device in the training container.
-[Pinned environment setup](DEPLOYMENT_EXPORT_ENVIRONMENT.md).
-
-From the repository root, verify and unpack the archive. Set the paths for the
-model, runtime environments, and fresh run directory.
+Run this in Bash from the existing GPU machine checkout. The parts are regular
+Git files. The commands verify each part and the assembled ZIP before extraction.
+Set the repository and data paths to match your host if they differ.
 
 ```bash
-GPT30K_ARCHIVE=/data/staging/a2ui_gemma270m_sft_30k.zip
-GPT30K_ROOT=/data/a2ui
+set -euo pipefail
+cd /group-volume/k.anup/code/A2UI
+git fetch origin new_ir_changes_20260331
+git switch new_ir_changes_20260331
+git merge --ff-only origin/new_ir_changes_20260331
+
+GPT30K_PARTS="$PWD/training/data/train/gemma270m_gpt30k"
+GPT30K_ROOT=/group-volume/k.anup/working_dir/datasets/gpt30k-20261123
 GPT30K_DATA="$GPT30K_ROOT/a2ui_gemma270m_sft_30k"
-GPT30K_MODEL=/models/gemma-3-270m-it
-GPT30K_RUN=/runs/gemma270m-gpt30k-w8-001
-EXPORT_PY=/group-volume/k.anup/envs/a2ui-export-094/bin/python
-RUNTIME_PY=/group-volume/k.anup/envs/a2ui-litert-017/bin/python
+GPT30K_ARCHIVE="$GPT30K_ROOT/a2ui_gemma270m_sft_30k.zip"
 
 mkdir -p "$GPT30K_ROOT"
-printf '%s  %s\n' c460c12da52775b684b3516a6d49e219db47d65fa51bad11fe0904898dd1d9e0 "$GPT30K_ARCHIVE" |
-  sha256sum --check - && unzip -n "$GPT30K_ARCHIVE" -d "$GPT30K_ROOT"
+(cd "$GPT30K_PARTS" && sha256sum --check SHA256SUMS)
+(
+  GPT30K_TMP=$(mktemp "${GPT30K_ARCHIVE}.XXXXXXXX")
+  trap 'rm -f -- "$GPT30K_TMP"' EXIT
+  cat "$GPT30K_PARTS"/a2ui_gemma270m_sft_30k.zip.part-{00..04} > "$GPT30K_TMP"
+  printf '%s  %s\n' c460c12da52775b684b3516a6d49e219db47d65fa51bad11fe0904898dd1d9e0 "$GPT30K_TMP" |
+    sha256sum --check -
+  mv -- "$GPT30K_TMP" "$GPT30K_ARCHIVE"
+)
+unzip -n "$GPT30K_ARCHIVE" -d "$GPT30K_ROOT"
+```
+
+## Train, export W8, and run Golden32, Golden35, and Bixby50
+
+Continue in the same shell with your existing CUDA training environment active.
+Set `GPT30K_MODEL` to your local dense Gemma 3 270M model or prior dense SFT
+checkpoint with its tokenizer. Choose a fresh output directory. The separate
+export and LiteRT-LM runtime environments must already be installed, and native
+GPU evaluation needs a working NVIDIA Vulkan device in the training container.
+[Pinned environment setup](DEPLOYMENT_EXPORT_ENVIRONMENT.md).
+
+```bash
+GPT30K_MODEL=/models/gemma-3-270m-it
+GPT30K_RUN=/group-volume/k.anup/working_dir/gemma270m-gpt30k-w8-001
+EXPORT_PY=/group-volume/k.anup/envs/a2ui-export-094/bin/python
+RUNTIME_PY=/group-volume/k.anup/envs/a2ui-litert-017/bin/python
 
 python -u "$PWD/training/scripts/run_gemma270m_gpt30k_deployment.py" \
   --model-dir "$GPT30K_MODEL" --input-dir "$GPT30K_DATA" --output-dir "$GPT30K_RUN" \
