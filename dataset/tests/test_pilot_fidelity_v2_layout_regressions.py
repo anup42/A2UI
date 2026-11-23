@@ -35,6 +35,23 @@ def test_emphasis_normalization_preserves_math_code_and_blanks(literal):
     assert prose_spelling(literal) == literal
 
 
+def test_complete_plain_list_sibling_preserves_paragraph_order_and_exact_text():
+    source = ("No—skip watering today. Check again tomorrow and water when the top inch feels dry. "
+              "When you do water, give it a good soak and let the excess drain out.")
+    lead = 'lead=Text("No—skip watering today.","h2")'
+    first = '"Check again tomorrow and water when the top inch feels dry."'
+    second = '"When you do water, give it a good soak and let the excess drain out."'
+
+    def body(*items):
+        return f'root=Column([lead,notes])\n{lead}\nnotes=List(items=[{",".join(items)}])'
+
+    assert assess(source, body(first, second))["eligible"]
+    for wrong in (body(second, first), body(first), body(first, second, second),
+                  body(first.replace("when", "before"), second),
+                  body(f'{{label:{first},url:"https://example.com/"}}', second)):
+        assert not assess(source, wrong)["eligible"]
+
+
 def test_emphasis_normalization_keeps_unbalanced_and_escaped_markers():
     assert prose_spelling(r"Keep \*word* and *unclosed") == r"Keep \*word* and *unclosed"
     assert _tokens_v2("~2 * 3") != _tokens_v2("2 3")

@@ -308,10 +308,10 @@ def _score_one_v5_4(
     pilot_actions, pilot_media = (), ()
     pilot_cta_cells = None
 
-    def collect(*args: Any, **kwargs: Any) -> Any:
+    def collect(spec: Mapping[str, Any], *args: Any, **kwargs: Any) -> Any:
         nonlocal pilot_actions, pilot_media, pilot_cta_cells
         evidence_started = perf_counter()
-        result = collect_output_evidence_v5_4(*args, **kwargs)
+        result = collect_output_evidence_v5_4(spec, *args, **kwargs)
         if entity_records:
             if not (base_prepared.applicability.table_fidelity or base_prepared.applicability.chart_roles):
                 result = project_grpo_entity_tables(entity_records, result)
@@ -368,8 +368,16 @@ def _score_one_v5_4(
                 rows, result.output_tables)
             rows, pilot_certificates["pilot_exact_equation_rows"] = project_exact_equation_rows(
                 literal_source, rows, result.output_tables)
+            acted_on = {action.element_id.split("[", 1)[0] for action in result.output.actions}
+            plain_lists = set()
+            for identifier, element in spec["elements"].items():
+                if element.get("type") != "List" or element.get("on") or element.get("children") or identifier in acted_on:
+                    continue
+                items = element.get("props", {}).get("items")
+                if isinstance(items, list) and items and all(isinstance(item, str) and item.strip() for item in items):
+                    plain_lists.add(identifier)
             rows, pilot_certificates["pilot_exact_sibling_fragments"] = project_exact_siblings(
-                literal_source, rows)
+                literal_source, rows, plain_list_ids=plain_lists)
             rows, pilot_certificates["pilot_exact_formula_fields"] = project_exact_formula_prose(
                 literal_source, rows, source_text=prepared.source_text)
             rows, formula_certificates = project_exact_formula_fragments(

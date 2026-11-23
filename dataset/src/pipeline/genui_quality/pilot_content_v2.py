@@ -186,25 +186,37 @@ def _pipe_references_exact(lines, visible_lines, unit, instance, ownership, acti
     return Counter(expected) == Counter(actual) and Counter(expected_media) == Counter(actual_media)
 
 
-def project_exact_siblings(source, ownership):
-    """Join adjacent Text siblings only when their WHOLE ordered text is exact."""
+def project_exact_siblings(source, ownership, *, plain_list_ids=frozenset()):
+    """Join adjacent Text and complete plain List siblings with exact ordered text."""
+    def text_or_plain_list(row):
+        return row.get("component_type") == "text" or (
+            row.get("component_type") == "list" and row.get("component_id") in plain_list_ids
+        )
+
+    def same_list(left, right):
+        return (left.get("component_type") == "list" and left.get("render_instance")
+                and left["render_instance"] == right.get("render_instance"))
+
     units = {unit.raw for unit in source}
     rows = [dict(row) for row in ownership]
     consumed, certificates = set(), []
     for start, row in enumerate(rows):
         parent = row.get("parent_instance")
-        if start in consumed or not parent or row.get("component_type") != "text":
+        if (start in consumed or not parent or not text_or_plain_list(row)
+                or (start > 0 and same_list(rows[start - 1], row))):
             continue
         matches = []
         for end in range(start + 1, min(len(rows), start + 16)):
             group = rows[start:end + 1]
             if any(i in consumed for i in range(start, end + 1)) or any(
                     item.get("parent_instance") != parent
-                    or item.get("component_type") != "text"
+                    or not text_or_plain_list(item)
                     or item.get("owner") != "generic_visible_content"
                     or item.get("pilot_entity_projected")
                     or item.get("card_instance") != row.get("card_instance") for item in group):
                 break
+            if end + 1 < len(rows) and same_list(rows[end], rows[end + 1]):
+                continue
             parts = [str(item.get("text") or "") for item in group]
             matches.extend((end, unit) for unit in units if exact_fragments(unit, parts))
         if len(matches) == 1:
