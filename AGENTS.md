@@ -43,6 +43,7 @@
 - Temporary scratch files should not be committed.
 
 ## Named Tasks
+- `270M GPT30K SFT deployment`: use [the handoff](training/docs/GEMMA270M_GPT30K_SFT_DEPLOYMENT.md) and its checked launcher. It trains the merged dataset, exports W8 LiteRT-LM, and runs native GPU tests on Golden32, Golden35, and Bixby50.
 - `dataset1 generation`: resume with `powershell -NoProfile -ExecutionPolicy Bypass -File dataset/scripts/start_dataset1_generation.ps1`.
 - This task runs Gemini dataset generation for `dataset_v3,dataset_v1` with target `10000`, Stage 3 min backlog `256`, Stage 2 batch `16`, Stage 3 batch `8`, and hourly generated-data commits.
 - The restart profile is documented in `dataset/task_profiles/dataset1_generation.md`.

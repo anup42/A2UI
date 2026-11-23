@@ -12,6 +12,11 @@ the repaired archive and current Golden32/Golden35/Bixby50. It adds public W32/W
 export and actual native GPU inference to `run_golden_training.py`. It does not
 switch to the older demo Golden32, retained-scale QAT topology, or MTP assistant.
 
+Use `--variants w8` for a single W8 export and native evaluation on all three
+cohorts. The E2B/270M default set is W32, W16, W8, and W4. For the
+merged GPT dataset and its 8,192-token SFT context, use the checked launch
+command in the [270M GPT30K handoff](GEMMA270M_GPT30K_SFT_DEPLOYMENT.md).
+
 ## What runs
 
 ```text
@@ -62,9 +67,9 @@ GPU + exporter prerequisite checks (no native runtime/Vulkan preflight)
   -> final report: 9 measured HF evaluations; 12 native evaluations skipped
 ```
 
-Training and HF tests still use all selected GPUs. All four conversion formats,
-CPU exporter checks, tokenizer/template contracts and precision audits remain
-required. Only native LiteRT generation/scoring and its runtime/Vulkan
+Training and HF tests use all selected GPUs. Each selected format requires
+CPU exporter checks, tokenizer/template contracts and precision
+audits. Only native LiteRT generation/scoring and its runtime/Vulkan
 requirements are omitted; `--runtime-python` is optional in this mode. The
 exporter environment is still required. This does **not** fall back to CPU
 inference or claim native compatibility: the exported variants remain untested

@@ -7,6 +7,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+from ir_training.pipeline.deployment_export import VARIANTS
 from ir_training.pipeline.golden_deployment import (
     GoldenDeploymentOptions,
     run_deployment,
@@ -27,6 +28,8 @@ def build_deployment_parser(*, required_profile: str | None = None):
     parser.add_argument("--trial-steps", type=int, default=1000)
     parser.add_argument("--trials-file", type=Path)
     parser.add_argument("--include-augmentation", action="store_true")
+    parser.add_argument("--variants", nargs="+", choices=VARIANTS,
+                        help="Export and test only these LiteRT-LM formats. Defaults to all four for E2B/270M and W8 for 1B.")
     parser.add_argument("--allow-experimental-formats", action="store_true", help="Acknowledge W16/W4 exporter/runtime limitations; never skips unsupported variants")
     parser.add_argument("--cache-length", type=int, default=8192)
     parser.add_argument("--stage-timeout-seconds", type=float, default=172800, help="Hard limit per subprocess (default 48 hours), not an idle-output timeout")
@@ -47,6 +50,9 @@ def main(argv: list[str] | None = None, *, required_profile: str | None = None) 
             "allow_experimental_formats", "cache_length", "stage_timeout_seconds", "generation_timeout_seconds",
             "case_timeout_seconds", "load_timeout_seconds", "resume_run", "skip_litert_evaluation")
     deployment = {key: values.pop(key) for key in keys}
+    variants = values.pop("variants")
+    if variants is not None:
+        deployment["variants"] = tuple(variants)
     try:
         result = run_deployment(GoldenDeploymentOptions(base=GoldenTrainingOptions(**values), **deployment), execute=execute)
     except (ValueError, OSError, RuntimeError) as exc:

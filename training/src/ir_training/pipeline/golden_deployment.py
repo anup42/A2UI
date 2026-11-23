@@ -69,6 +69,7 @@ class GoldenDeploymentOptions:
     load_timeout_seconds: float = 1800
     resume_run: bool = False
     skip_litert_evaluation: bool = False
+    variants: tuple[str, ...] | None = None
 
 
 def _base(options: GoldenDeploymentOptions) -> GoldenTrainingOptions:
@@ -150,7 +151,7 @@ def build_deployment_plan(options: GoldenDeploymentOptions) -> dict[str, Any]:
         output_dir=output / "deployment", model_dir=Path(outer["options"]["model_dir"]),
         training_python=sys.executable, exporter_python=options.exporter_python,
         cache_length=options.cache_length, max_input_tokens=base.max_input_tokens,
-        max_new_tokens=base.max_new_tokens)
+        max_new_tokens=base.max_new_tokens, selected_variants=options.variants)
     if options.skip_litert_evaluation:
         export["requires_merged_hf_and_real_litertlm_evaluation"] = False
         export["native_runtime_validation_deferred"] = True
@@ -328,7 +329,7 @@ def run_deployment(options: GoldenDeploymentOptions, *, execute: bool = False,
     if not options.allow_experimental_formats and any(
         spec["experimental"] for spec in plan["export"]["variants"].values()
     ):
-        raise ValueError("All four formats include experimental W16/W4. Read the deployment runbook, then explicitly pass --allow-experimental-formats")
+        raise ValueError("Selected formats include experimental W16/W4. Read the deployment runbook, then explicitly pass --allow-experimental-formats")
     with deployment_lock(Path(plan["output_dir"])):
         return _run_deployment_locked(options, plan, command_runner=command_runner,
             pipeline_runner=pipeline_runner, experiment_runner=experiment_runner,

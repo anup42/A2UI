@@ -161,6 +161,26 @@ def test_plan_does_not_execute_and_defaults_all_four_variants(options):
     assert not result["gpu_policy"]["cpu_inference_fallback"]
 
 
+def test_270m_long_context_w8_runs_all_three_native_evaluations(options, export_validator):
+    options = replace(options, variants=("w8",), cache_length=10240, allow_experimental_formats=False,
+                      base=replace(options.base, profile="270m", max_seq_length=8192, max_input_tokens=8192))
+    with pytest.raises(ValueError, match="cache_length"):
+        deployment.build_deployment_plan(replace(options, cache_length=8192))
+
+    calls = []
+    result = deployment.run_deployment(options, execute=True, command_runner=mock_runner(calls),
+               pipeline_runner=fake_pipeline, writer_factory=Writer, gpu_probe=inventory)
+    assert result["status"] == "complete"
+    assert list(result["exports"]) == ["w8"]
+    assert len(result["results"]) == 12
+    assert result["plan"]["export"]["probe_command"][-2:] == ["--variants", "w8"]
+    native = [argv for argv, _, _ in calls if "--builtin-gpu" in argv]
+    assert len(native) == 3
+    assert {argv[argv.index("--required-rows") + 1] for argv in native} == {"32", "35", "50"}
+    for cohort, (_, count, _) in GOLDENS.items():
+        assert result["results"][f"w8_{cohort}"]["row_count"] == count
+
+
 @pytest.mark.parametrize("change,match", [({"allow_experimental_formats": False}, "experimental"),
                                          ({"stage_timeout_seconds": 0}, "Timeout"),
                                          ({"runtime_python": Path("python")}, "absolute"),
