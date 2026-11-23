@@ -60,6 +60,7 @@ Set `GPT30K_MODEL` to your local dense Gemma 3 270M model or prior dense SFT
 checkpoint with its tokenizer. Choose a fresh output directory. The separate
 export and LiteRT-LM runtime environments must already be installed, and native
 GPU evaluation needs a working NVIDIA Vulkan device in the training container.
+TensorBoard logs go beside the run unless `A2UI_TENSORBOARD_ROOT` is already set.
 [Pinned environment setup](DEPLOYMENT_EXPORT_ENVIRONMENT.md).
 
 ```bash
@@ -67,6 +68,7 @@ GPT30K_MODEL=/models/gemma-3-270m-it
 GPT30K_RUN=/group-volume/k.anup/working_dir/gemma270m-gpt30k-w8-001
 EXPORT_PY=/group-volume/k.anup/envs/a2ui-export-094/bin/python
 RUNTIME_PY=/group-volume/k.anup/envs/a2ui-litert-017/bin/python
+export A2UI_TENSORBOARD_ROOT="${A2UI_TENSORBOARD_ROOT:-${GPT30K_RUN}_tensorboard}"
 
 python -u "$PWD/training/scripts/run_gemma270m_gpt30k_deployment.py" \
   --model-dir "$GPT30K_MODEL" --input-dir "$GPT30K_DATA" --output-dir "$GPT30K_RUN" \
