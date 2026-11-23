@@ -53,6 +53,35 @@ def test_explicit_publisher_label_is_visible_and_exact():
         assert not assess(source, bad)["eligible"]
 
 
+@pytest.mark.parametrize("prefix,dash", [("Reference", "—"), ("Source", "–"), ("Citation", "—")])
+def test_explicit_dash_citation_binds_the_exact_list_link(prefix, dash):
+    url = "https://tfl.gov.uk/plan-a-journey#route"
+    source = f"{prefix}: Transport for London {dash} {url}"
+    item = f'{{label:"Transport for London",url:"{url}"}}'
+    body = f"root=List(items=[{item}])"
+    assert assess(source, body)["eligible"]
+    for changed in (body.replace("#route", "#another"), body.replace("Transport for London", "Transport"),
+                    f"root=List(items=[{item},{item}])",
+                    f'root=Button("Transport for London",onPress=openUrl("{url}"))'):
+        assert not assess(source, changed)["eligible"]
+    assert not assess(source + "\n" + source, body)["eligible"]
+    assert not assess(f"Check first: Transport for London {dash} {url}", body)["eligible"]
+
+
+@pytest.mark.parametrize("source_label", ["Reference:", "**Reference:**"])
+def test_explicit_bare_citation_keeps_its_visible_label_and_own_role(source_label):
+    url = "https://www.si.edu/"
+    source = f"{source_label} {url}\nAction: [Button: Open the Smithsonian] {url}"
+    body = ('root=Column([citation,cta])\n'
+            f'citation=List(items=[{{label:"Reference:",url:"{url}"}}])\n'
+            f'cta=Button("Open the Smithsonian",onPress=openUrl("{url}"))')
+    assert assess(source, body)["eligible"]
+    for changed in (body.replace('"Reference:"', '"Smithsonian"'), body.replace("[citation,cta]", "[cta]"),
+                    body.replace('url:"https://www.si.edu/"', 'url:"https://www.si.edu/visit"')):
+        assert not assess(source, changed)["eligible"]
+    assert not assess(source.replace(source_label, "Reference for next week:"), body)["eligible"]
+
+
 def test_table_cta_binds_exact_complete_table_and_next_button():
     url = "https://tickets.imaxparis.fr/qr/ticket-17"
     source = ("| Detail | Information |\n|---|---|\n| Seat | G12 |\n"
@@ -318,7 +347,20 @@ def test_currency_does_not_protect_unrelated_markdown_emphasis():
         assert not assess(source, "root=Text(" + json.dumps(changed) + ")")["eligible"]
 
 
-@pytest.mark.parametrize("literal", ["$x_2 * y$", "$a+b$", "$2 **x** + 3$", "$2 **x** + 3$kg", "`$C$`", "2**3", "a * b * c", "$25"])
+def test_emphasized_currency_calculation_preserves_amounts_operators_and_qualifier():
+    visible = "The difference is $195 − $165 = $30 more."
+    source = "The difference is **$195 − $165 = $30 more**."
+    assert prose_spelling(source) == visible
+    assert prose_spelling("**$1,025.50 + $5.25 = $1,030.75**") == "$1,025.50 + $5.25 = $1,030.75"
+    for text in ("$12 more per month", "$7 stir-fry kit", "Bus both ways: $8 + $8 = $16", "$118 × 2 = $236 total."):
+        assert prose_spelling(f"**{text}**") == text
+    assert assess(source, f"root=Text({json.dumps(visible, ensure_ascii=False)})")["eligible"]
+    for wrong in (visible.replace("$165", "$155"), visible.replace("−", "+"),
+                  visible.replace(" more", ""), visible.replace("more", "less")):
+        assert not assess(source, f"root=Text({json.dumps(wrong, ensure_ascii=False)})")["eligible"]
+
+
+@pytest.mark.parametrize("literal", ["$x_2 * y$", "$a+b$", "$2 **x** + 3$", "$2 **x** + 3$kg", "`$C$`", "2**3", "a * b * c", "$25", "`**$25 + $5**`", "**$2+3$**"])
 def test_math_code_currency_and_operators_stay_exact(literal):
     assert prose_spelling(literal) == literal
 

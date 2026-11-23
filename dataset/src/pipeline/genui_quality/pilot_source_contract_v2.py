@@ -32,6 +32,12 @@ _LABELED_CARD_ACTION = re.compile(
 )
 _MARKDOWN_SOURCE = re.compile(r"(?i)^\[([^\]\n]+)\]\((https://[^\s<>]+)\)$")
 _LABELED_SOURCE = re.compile(r"^(.+?):\s*(?:<(https://[^\s<>]+)>|(https://[^\s<>]+))\s*$")
+_DASH_LABELED_SOURCE = re.compile(
+    r"^([^:<>\[\]`|]{1,160}?)[ \t]+[–—][ \t]+(?:<(https://[^\s<>]+)>|(https://[^\s<>]+))$"
+)
+_INLINE_SOURCE = re.compile(r"(?i)^(?:\*\*((?:source|reference|citation)\s*:)\*\*|"
+                            r"((?:source|reference|citation)\s*:))\s*(.+)$")
+_BARE_CITATION_TARGET = re.compile(r"(?:<(https://[^\s<>]+)>|(https://[^\s<>]+))")
 _HEADING = re.compile(r"^(?:#{1,6}\s+(.+)|\*\*([^*]+)\*\*)$")
 _SOURCE_TITLE = re.compile(
     r"(?i)^(?:(?:[\w][\w &'’/+,().-]*\s+)?(?:sources?|references?|citations?|resources)|"
@@ -235,9 +241,9 @@ def source_link_occurrences(source: str, *, malformed_angles: list[int] | None =
             # legacy bare section labels retain their existing optional role.
             heading_span = (start, end) if bare else None
             continue
-        inline = re.match(r"(?i)^(?:source|reference|citation)\s*:\s*(.+)$", raw)
+        inline = _INLINE_SOURCE.fullmatch(raw)
         list_prefix = re.match(r"^(?:[-*+•]\s+|\d+[.)]\s+)", raw)
-        body = inline[1] if inline else raw[list_prefix.end():] if list_prefix else raw
+        body = inline[3] if inline else raw[list_prefix.end():] if list_prefix else raw
         labeled_link = _LABELED_SOURCE.fullmatch(body)
         explicit_link_field = labeled_link is not None and re.search(r"(?i)\b(?:link|url)$", labeled_link[1])
         # A standalone labeled angle link has an explicit display label and
@@ -250,9 +256,19 @@ def source_link_occurrences(source: str, *, malformed_angles: list[int] | None =
         match = _MARKDOWN_SOURCE.fullmatch(body) or _core._MARKDOWN_LINK_RE.fullmatch(body)
         if match is not None and match[2].count("(") != match[2].count(")"):
             match = None
-        labeled = _LABELED_SOURCE.fullmatch(body) if match is None else None
+        # An explicit inline citation can bind the exact named publisher and
+        # URL across a display dash. Do not infer this role from prose or a URL alone.
+        dash_citation = _DASH_LABELED_SOURCE.fullmatch(body) if inline else None
+        bare_citation = _BARE_CITATION_TARGET.fullmatch(body) if inline else None
+        labeled = (labeled_link or dash_citation) if match is None else None
         match = match or labeled
-        if match is None:
+        if bare_citation:
+            label = (inline[1] or inline[2]).strip()
+            target = bare_citation[1] or bare_citation[2]
+        elif match:
+            label = prose_spelling(match[1]).strip()
+            target = (match[2] or match[3]).strip() if labeled else match[2].strip()
+        else:
             if (malformed_angles is not None
                     and re.match(r"(?i)^.+?:\s*<https?://", body)):
                 malformed_angles.append(number)
@@ -260,10 +276,10 @@ def source_link_occurrences(source: str, *, malformed_angles: list[int] | None =
                 in_sources = False
                 heading_span = None
             continue
-        label = prose_spelling(match[1]).strip()
-        target = (match[2] or match[3]).strip() if labeled else match[2].strip()
         if label and target:
-            subtype = "field:" if (explicit_link_field or angle_citation) and not in_sources and inline is None else ""
+            explicit_field = (explicit_link_field or angle_citation) and not in_sources and inline is None
+            inline_field = bare_citation or (labeled is not None and labeled is dash_citation)
+            subtype = "field:" if explicit_field or inline_field else ""
             found.append({"id": f"{SOURCE_PREFIX}{subtype}{start}:{end}", "label": label,
                           "target": target, "action_type": "openUrl", "required": True,
                           "minimum_count": 1, "_span": (start, end),

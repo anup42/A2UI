@@ -11,11 +11,17 @@ from dataclasses import replace
 
 _CODE_SPAN = re.compile(r"(?<![\\`])(`+)([^`\n]+)\1(?!`)")
 _PREFIX = re.compile(r"^\s*(?:#{1,6}\s+|(?:[-*+•]|\d+[.)])\s+)")
+_CURRENCY_AMOUNT = r"\$(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?"
+_EMPHASIZED_CURRENCY = (
+    rf"(?<![\w\\*_])\*\*(?:[A-Za-z][A-Za-z \t'-]{{0,48}}:[ \t]+)?{_CURRENCY_AMOUNT}"
+    rf"(?:[ \t]+[+\-−=×÷][ \t]+(?:{_CURRENCY_AMOUNT}|\d+(?:\.\d+)?))*"
+    r"(?:[ \t]+[^\W\d_]+(?:[’'-][^\W\d_]+)*)*[.!?]?\*\*(?![\w*_])"
+)
 # Recognizable math stays literal even beside a unit/digit or with inner spaces.
 # Otherwise dollar delimiters must flank non-space text; a following digit is
 # another currency amount, not a closing delimiter across unrelated prose.
 _PROTECTED = re.compile(
-    r"(?<![\w\\*_])\*\*\$(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?\*\*(?![\w*_])|"
+    _EMPHASIZED_CURRENCY + "|"
     r"(`+)[\s\S]*?\1|"
     r"(?<!\\)\$(?:(?=[^$\n]*[+=^\\_×÷≈≤≥])|(?=\s*\d[\d.,]*\s*\*+\s*\w)|(?!\s*\d))[^$\n]+\$|"
     r"(?<!\\)\$(?=\S)[^$\n]+(?<!\s)\$(?!\d)"
@@ -50,9 +56,9 @@ def prose_spelling(value: str) -> str:
         # A single inline variable has the same visible letter without its
         # math delimiters. Currency, compound math and code remain literal.
         protected = match[0]
-        if protected.startswith("**$"):
-            # Consume each emphasized amount before a later dollar can be
-            # mistaken for the closing delimiter of a math span.
+        if protected.startswith("**"):
+            # Consume the complete emphasized currency expression before a
+            # later dollar can be mistaken for a closing math delimiter.
             protected = protected[2:-2]
         elif re.fullmatch(r"\$[A-Za-z]\$", protected):
             protected = protected[1:-1]
