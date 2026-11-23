@@ -75,7 +75,8 @@ def project_exact_formula_fragments(source, ownership, *, source_text):
                 and before.get("owner") == "generic_visible_content"
                 and parent and before.get("parent_instance") == parent
                 and before.get("card_instance") == row.get("card_instance")):
-            key = formula_literal_key_v2(str(before["text"]) + " = " + str(row["text"]))
+            label = prose_spelling(str(before["text"]))
+            key = formula_literal_key_v2(label + " = " + str(row["text"]))
             matches = [unit for unit in units if formula_literal_key_v2(layout_text(unit.raw)) == key
                        and formula_owner_matches(source_text, unit.raw, group, rows)]
             if len(matches) == 1:
@@ -98,7 +99,8 @@ def project_exact_formula_fragments(source, ownership, *, source_text):
         variants = [" ".join(fields)]
         if len(fields) >= 2:
             variants.append(fields[0] + ": " + " ".join(fields[1:]))
-        keys = {formula_literal_key_v2(value + " " + str(qualifier["text"])) for value in variants}
+        qualifier_text = prose_spelling(str(qualifier["text"]))
+        keys = {formula_literal_key_v2(value + " " + qualifier_text) for value in variants}
         matches = [unit for unit in units if formula_literal_key_v2(layout_text(unit.raw)) in keys
                    and formula_owner_matches(source_text, unit.raw, group, rows)]
         if len(matches) != 1:

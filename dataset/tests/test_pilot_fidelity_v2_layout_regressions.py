@@ -52,6 +52,20 @@ def test_complete_plain_list_sibling_preserves_paragraph_order_and_exact_text():
         assert not assess(source, wrong)["eligible"]
 
 
+def test_adjacent_formula_qualifier_preserves_emphasis_spelling_without_losing_meaning():
+    qualifier = "The full walkthrough takes **47 minutes longer** than the checklist review."
+    source = f"64 minutes − 17 minutes = 47 minutes. {qualifier}"
+    formula = r"64\text{ minutes} − 17\text{ minutes} = 47\text{ minutes}."
+    body = ("root=Column([calculation,comparison])\n"
+            f"calculation=Formula({json.dumps(formula, ensure_ascii=False)})\n"
+            f"comparison=Text({json.dumps(qualifier)})")
+    assert assess(source, body)["eligible"]
+    for wrong in (body.replace("64", "63"), body.replace("−", "+"), body.replace("longer", "shorter"),
+                  body.replace("17\\\\text{ minutes}", "17\\\\text{ hours}"),
+                  body.replace("[calculation,comparison]", "[comparison,calculation]")):
+        assert not assess(source, wrong)["eligible"]
+
+
 def test_emphasis_normalization_keeps_unbalanced_and_escaped_markers():
     assert prose_spelling(r"Keep \*word* and *unclosed") == r"Keep \*word* and *unclosed"
     assert _tokens_v2("~2 * 3") != _tokens_v2("2 3")
