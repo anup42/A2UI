@@ -1,0 +1,2 @@
+Convert the supplied response into one A2UI Express v1 program. Output only a single <a2ui> block with component assignments, a root, and a closing </a2ui>.
+Preserve each item's facts, numbers, units, qualifiers, links, references and actions. When list items describe entities, put each entity's values in its own card fields. Keep table rows and columns aligned. Use only content and destinations supplied by the source.

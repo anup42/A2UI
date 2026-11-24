@@ -219,17 +219,34 @@ def test_cli_token_cache_switches_are_parseable(options, monkeypatch, capsys, sc
     assert Path(values["token_cache_dir"]) == options.output_dir.parent / "tokens"
 
 
-def test_prepare_only_real_benchmarks_share_one_prompt_and_keep_all_members(options):
+@pytest.mark.parametrize("profile", ["production", "compact_v1"])
+def test_prepare_only_real_benchmarks_share_one_prompt_and_keep_all_members(options, profile):
+    from ir_training.data.shared_prompt import (
+        build_inference_messages,
+        create_shared_prompt_contract,
+    )
+
+    if profile == "compact_v1":
+        options = replace(options, profile="270m", qat=True, prompt_profile=profile)
     state = prepare(options)
     assert state["status"] == "prepared" and list(state["completed"]) == ["prepare"]
     assert not (options.output_dir / "fit").exists()
     manifest = json.loads((options.output_dir / "prepared/manifest.json").read_text(encoding="utf-8"))
     assert manifest["scaffold_count"] == 1
-    assert manifest["shared_prompt"] == state["plan"]["shared_prompt"]
+    assert manifest["shared_prompt"] == state["plan"]["shared_prompt"] == create_shared_prompt_contract(prompt_profile=profile)
+    assert ("prompt_profile" in state["plan"]["options"]) == (profile != "production")
+    for split in ("train", "val"):
+        path = options.output_dir / f"prepared/{split}.jsonl"
+        for line in path.read_text(encoding="utf-8").splitlines():
+            row = json.loads(line)
+            assert row["messages"][:-1] == build_inference_messages(row["response_text"], manifest["shared_prompt"])
     for cohort, count in (("golden32", 32), ("golden35", 35), ("bixby50", 50)):
         rows = load_fixed_golden_rows(options.output_dir / f"prepared/{cohort}.jsonl", required_rows=count)
         assert len(rows) == count
         assert manifest["splits"][cohort]["quarantined_rows"] == 0
+        for row in rows:
+            messages = build_inference_messages(row["response_text"], manifest["shared_prompt"])
+            assert row["messages"][:len(messages)] == messages
 
 
 def test_query_and_response_grouping_is_transitive_and_source_preserving():

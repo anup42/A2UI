@@ -112,11 +112,16 @@ def build_deployment_plan(options: GoldenDeploymentOptions) -> dict[str, Any]:
     for name in ("model_dir", "input_dir", "source_run_dir"):
         if outer["options"][name] and output.is_relative_to(Path(outer["options"][name])):
             raise ValueError("Deployment output must be outside model/source inputs")
-    gemma3_full_qat = base.profile == "1b" and base.qat
+    gemma3_full_qat = base.profile in {"270m", "1b"} and base.qat
+    qat_270m = gemma3_full_qat and base.profile == "270m"
+    if qat_270m:
+        from ir_training.qat.gemma270m_w8 import validate_270m_model
+
+        validate_270m_model(base.model_dir.expanduser().resolve())
     if base.qat and not gemma3_full_qat:
         raise ValueError("This full deployment workflow exports dense SFT checkpoints; retained-scale/QAT export remains in its separate pipeline")
     if gemma3_full_qat and options.tune:
-        raise ValueError("Gemma 3 1B full QAT does not use the dense/LoRA screening workflow; run explicit independent experiments")
+        raise ValueError("Gemma 3 full QAT does not use the dense/LoRA screening workflow; run explicit independent experiments")
     if not base.evaluate_golden35:
         raise ValueError("Full deployment requires Golden35 after final training; tuning defers it internally")
     if not base.evaluate_bixby50:
@@ -151,7 +156,8 @@ def build_deployment_plan(options: GoldenDeploymentOptions) -> dict[str, Any]:
         output_dir=output / "deployment", model_dir=Path(outer["options"]["model_dir"]),
         training_python=sys.executable, exporter_python=options.exporter_python,
         cache_length=options.cache_length, max_input_tokens=base.max_input_tokens,
-        max_new_tokens=base.max_new_tokens, selected_variants=options.variants)
+        max_new_tokens=base.max_new_tokens, selected_variants=options.variants,
+        require_270m_qat=qat_270m)
     if options.skip_litert_evaluation:
         export["requires_merged_hf_and_real_litertlm_evaluation"] = False
         export["native_runtime_validation_deferred"] = True
@@ -188,9 +194,10 @@ def build_deployment_plan(options: GoldenDeploymentOptions) -> dict[str, Any]:
         plan["runtime_preflight_scope"] = "Skipped by request; Vulkan/LiteRT runtime is not required or validated."
         plan["experimental"] = "W16 and W4 require explicit acknowledgement and validated export; native runtime compatibility remains untested."
     if gemma3_full_qat:
-        plan["workflow"] = "gemma3_1b_full_qat_w8_deployment_v1"
+        plan["workflow"] = f"gemma3_{base.profile}_full_qat_w8_deployment_v1"
         plan["experimental"] = "Public Gemma 3 fresh-graph INT8 export; no official fixed-topology transplant or MTP. Real conversion and native testing remain required."
-        plan["gpu_policy"]["training"] = "single GPU or replicated DDP; FP32 master weights, BF16-capable AMP, microbatch 1 by default; local backward preflight does not certify optimizer/NCCL headroom"
+        if not qat_270m:
+            plan["gpu_policy"]["training"] = "single GPU or replicated DDP; FP32 master weights, BF16-capable AMP, microbatch 1 by default; local backward preflight does not certify optimizer/NCCL headroom"
     return plan
 
 
@@ -299,7 +306,7 @@ def _restore_results(state: dict, plan: dict) -> None:
             if len(paths) != 1:
                 raise ValueError(f"Cannot identify retained evaluation result: {key}")
             result, _ = _evaluation(paths[0].parent, count, artifact=artifact, litert=label.startswith("w"),
-                                    required_qat=plan["export"]["profile"] == "1b" and not label.startswith("w"))
+                                    required_qat=plan["training"]["options"]["qat"] and not label.startswith("w"))
             if state.get("results", {}).get(key) != result:
                 raise ValueError(f"Retained summary differs from its bound evaluation: {key}")
             restored[key] = result
@@ -555,7 +562,7 @@ def _run_deployment_locked(options, plan, *, command_runner, pipeline_runner,
                     if len(results) != 1 or sha256(results[0]) != entry["files"][str(results[0])]:
                         raise ValueError("Training evaluation evidence is not hash-bound")
                     evaluated, files = _evaluation(results[0].parent, count, artifact=checkpoint,
-                                                    required_qat=base.profile == "1b")
+                                                    required_qat=base.qat)
                     log_result(f"checkpoint_{role}", cohort, evaluated, _checkpoint_step(checkpoint))
                     evidence.extend(files)
             return evidence
@@ -585,7 +592,7 @@ def _run_deployment_locked(options, plan, *, command_runner, pipeline_runner,
                 argv.extend(["--step", str(step)])
                 command(argv, log_path(f"merged_{cohort}"), eval_env)
                 evaluated, paths = _evaluation(destination, count, artifact=Path(export["merged_model_dir"]),
-                                                required_qat=base.profile == "1b")
+                                                required_qat=base.qat)
                 log_result("merged", cohort, evaluated, step)
                 return paths
             stage(f"merged_{cohort}", evaluate_merged)

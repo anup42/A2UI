@@ -80,6 +80,49 @@ deployment launcher. Omit `--execute` to inspect the read-only plan. For
 post-training recovery, rerun the exact command with `--resume-run` added.
 Recovery verifies and reuses completed stages.
 
+## Compact-prompt full-parameter QAT and native W8 tests
+
+Use `--compact-qat` for a new run on the same verified GPT30K splits. This
+recipe starts from local dense Gemma 3 270M weights and trains every parameter
+with W8 fake quantization for one epoch at a learning rate of `5e-6` and
+microbatch 1. Preparation replaces the instruction scaffold in train,
+validation and all three evaluation sets while preserving their source text
+and targets. The compact scaffold includes the format and fidelity rules and
+one source-grounded travel checklist example. With the archived Gemma 270M
+tokenizer, the Bixby50 mean input falls from 4,407 to 677 tokens. Counting
+the compact prompt and the stored complete target against a 5,120-token
+limit, 31,850 of 31,860 training rows and all 666 validation rows fit.
+The run's preparation report gives the final counts after all checks.
+
+In Bash from the repository root, activate your CUDA training environment and
+set `GPT30K_MODEL`, `GPT30K_DATA`, `EXPORT_PY` and `RUNTIME_PY` to the same
+local inputs and interpreters as above. Use the original dense starting model
+for a comparison with the previous run. The converter and native runtime each
+need their own pinned environment. The native GPU tests require NVIDIA Vulkan
+in the same container. The launcher checks these prerequisites before training.
+
+```bash
+git switch new_ir_changes_20260331
+git pull --ff-only origin new_ir_changes_20260331
+GPT30K_RUN="runs/gemma270m-gpt30k-compact-qat-w8-001"
+python -u training/scripts/run_gemma270m_gpt30k_deployment.py \
+  --compact-qat --model-dir "$GPT30K_MODEL" --input-dir "$GPT30K_DATA" \
+  --output-dir "$GPT30K_RUN" --exporter-python "$EXPORT_PY" \
+  --runtime-python "$RUNTIME_PY" --execute
+```
+
+Golden32 runs every 100 optimizer steps to select the checkpoint. The pipeline evaluates the best and final
+checkpoints, exports the Golden32 winner to W8 LiteRT-LM, and runs the actual
+W8 package on Golden32, Golden35 and Bixby50. The context ceilings are 5,120
+tokens for a supervised sequence or evaluation input, plus up to 2,048
+generated tokens at inference. Individual prompts use only their actual
+tokens. Read the native scores in `deployment_scorecard.json`. For subsequent
+app inference, take `prepared/shared_prompt.json` from the training directory
+named by `deployment_manifest.json` under `plan.training.options.output_dir`.
+Build messages with its system, worked user/assistant turns and task prefix,
+then apply the exported tokenizer's chat template once. The LiteRT-LM file
+contains the tokenizer template; the caller supplies those messages.
+
 ## Status and evidence
 
 | Location under the run directory | What to read |

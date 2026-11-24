@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import Any
 
 from ir_training.common.progress import Progress, log
-from ir_training.export import gemma4_mixed248
+from ir_training.export import gemma4_mixed248, gemma270m_gpu_precision
 from ir_training.train.resume_contract import resolve_export_training_lineage
 
 PROFILES = {"e2b": {"gemma4", "gemma4_text"}, "270m": {"gemma3", "gemma3_text"},
@@ -158,12 +158,17 @@ def build_deployment_export_plan(*, profile: str, training_config_path: Path,
                                  cache_length: int = 8192, max_input_tokens: int = 4096,
                                  max_new_tokens: int = 2048,
                                  selected_variants: tuple[str, ...] | None = None,
+                                 require_270m_qat: bool = False,
                                  full_parameter_export: bool = False) -> dict[str, Any]:
     """Build subprocess contracts, including the BEFORE-training exporter probe.
 
     Future selected-checkpoint/config paths may not exist during a plan.  The
     prepare subprocess validates them against actual saved training provenance.
     """
+    if require_270m_qat:
+        if profile != "270m" or selected_variants not in (None, ("w8",)):
+            raise ValueError("Gemma 3 270M full-QAT export requires exactly W8")
+        selected_variants = ("w8",)
     variants = deployment_variants(profile, selected_variants)
     if full_parameter_export and (profile != "e2b" or tuple(variants) != ("w248",)):
         raise ValueError("Full-parameter export requires exactly E2B W248")
@@ -183,11 +188,15 @@ def build_deployment_export_plan(*, profile: str, training_config_path: Path,
              "--report", str(output / "exporter_preflight.json")]
     if full_parameter_export:
         probe.append("--full-parameter-export")
+    if require_270m_qat:
+        probe.append("--require-270m-qat")
     if selected_variants is not None:
         probe.extend(["--variants", *variants])
     prepare = [training_python, "-u", str(script), "prepare", "--profile", profile,
                "--training-config", str(training_config_path.resolve()),
                "--checkpoint", str(checkpoint_dir.resolve()), "--output-dir", str(merged)]
+    if require_270m_qat:
+        prepare.append("--require-270m-qat")
     if preparation_config_path is not None:
         prepare.extend(["--preparation-config", str(preparation_config_path.resolve())])
     for name, spec in variants.items():
@@ -196,6 +205,7 @@ def build_deployment_export_plan(*, profile: str, training_config_path: Path,
                      "command": [exporter_python, "-u", str(script), "convert", *common,
                                  "--variant", name, "--model-dir", str(merged), "--output-dir", str(folder)]})
     return {"profile": profile, "source_checkpoint": str(checkpoint_dir.resolve()),
+            **({"require_270m_qat": True} if require_270m_qat else {}),
             "training_config": str(training_config_path.resolve()), "merged_model_dir": str(merged),
             "probe_command": probe, "prepare_command": prepare, "variants": variants,
             "environment": {"CUDA_VISIBLE_DEVICES": "", "HF_HUB_OFFLINE": "1", "TRANSFORMERS_OFFLINE": "1", "PYTHONUNBUFFERED": "1"},
@@ -328,11 +338,17 @@ def probe_e2b_w4_recipe(mapping: Any, *, recipe_path: Path | None = None) -> dic
 
 def probe_exporter(*, profile: str, model_dir: Path, cache_length: int = 8192,
                    selected_variants: tuple[str, ...] | None = None,
+                   require_270m_qat: bool = False,
                    full_parameter_export: bool = False) -> dict[str, Any]:
     """Opt in to the standalone text bridge only for the separate full-QAT lane."""
     if not full_parameter_export:
-        return _probe_exporter(profile=profile, model_dir=model_dir, cache_length=cache_length,
-                               selected_variants=selected_variants)
+        result = _probe_exporter(profile=profile, model_dir=model_dir, cache_length=cache_length,
+                                 selected_variants=selected_variants)
+        if require_270m_qat:
+            if profile != "270m" or selected_variants != ("w8",):
+                raise ValueError("The 270M full-QAT exporter probe requires exactly W8.")
+            result["text_gpu_activation"] = gemma270m_gpu_precision.probe_fp32_text_builder()
+        return result
     if (profile != "e2b" or selected_variants != ("w248",)
             or _json(model_dir / "config.json").get("model_type") != "gemma4_text"):
         raise ValueError("Full-parameter export requires an unchanged gemma4_text E2B W248 checkpoint")
@@ -362,7 +378,9 @@ def _probe_exporter(*, profile: str, model_dir: Path, cache_length: int = 8192,
     variants = deployment_variants(profile, selected_variants)
     local_config = _json(model_dir / "config.json")
     if profile == "1b":
-        from ir_training.qat.gemma3_full_qat_contract import validate_gemma3_1b_model_config
+        from ir_training.qat.gemma3_full_qat_contract import (
+            validate_gemma3_1b_model_config,
+        )
 
         validate_gemma3_1b_model_config(local_config)
     model_type = local_config.get("model_type")
@@ -447,7 +465,7 @@ def _probe_exporter(*, profile: str, model_dir: Path, cache_length: int = 8192,
 
 
 def verify_checkpoint_source(training_config: Path, checkpoint: Path, profile: str, *,
-                             preparation_config: Path | None = None) -> dict[str, Any]:
+                             preparation_config: Path | None = None, require_270m_qat: bool = False) -> dict[str, Any]:
     """Bind every saved checkpoint/tokenizer file and the original dense seed."""
     original = preparation_config or training_config.parent / "training_config.yaml"
     if preparation_config is None and training_config != original:
@@ -469,8 +487,16 @@ def verify_checkpoint_source(training_config: Path, checkpoint: Path, profile: s
         config.get("qat", {}).get("enabled")
         or config.get("model", {}).get("mobile_training_seed_manifest")
     )
-    if profile == "1b":
-        from ir_training.qat.gemma3_full_qat_contract import verify_gemma3_full_qat_checkpoint
+    if require_270m_qat:
+        if profile != "270m":
+            raise ValueError("--require-270m-qat requires the 270m profile")
+        from ir_training.qat.gemma270m_w8 import deployment_qat_proof
+
+        gemma3_full_qat_contract = deployment_qat_proof(config, metadata, checkpoint)
+    elif profile == "1b":
+        from ir_training.qat.gemma3_full_qat_contract import (
+            verify_gemma3_full_qat_checkpoint,
+        )
 
         gemma3_full_qat_contract = verify_gemma3_full_qat_checkpoint(config, metadata, checkpoint)
     elif qat_or_mobile:
@@ -537,10 +563,11 @@ def verify_checkpoint_source(training_config: Path, checkpoint: Path, profile: s
 
 
 def prepare_deployment_checkpoint(*, profile: str, training_config: Path, checkpoint: Path, output_dir: Path,
-                                  preparation_config: Path | None = None) -> dict[str, Any]:
+                                  preparation_config: Path | None = None, require_270m_qat: bool = False) -> dict[str, Any]:
     if output_dir.exists() and (not output_dir.is_dir() or any(output_dir.iterdir())):
         raise ValueError(f"Deployment merged model directory must be fresh: {output_dir}")
-    binding = verify_checkpoint_source(training_config, checkpoint, profile, preparation_config=preparation_config)
+    binding = verify_checkpoint_source(training_config, checkpoint, profile, preparation_config=preparation_config,
+                                       require_270m_qat=require_270m_qat)
     training_config = Path(binding["training_config"])
     config = binding["config"]
     model_config = config["model"]
@@ -613,6 +640,10 @@ def prepare_deployment_checkpoint(*, profile: str, training_config: Path, checkp
                    "requires_merged_checkpoint_evaluation": True})
     with Progress("Bind merged model and deployment prompt files", unit="stage"):
         report["merged_files"] = {path.name: file_sha256(path) for path in sorted(output_dir.iterdir()) if path.is_file()}
+    if require_270m_qat:
+        for name, expected_hash in binding["files"].items():
+            if name.endswith(".safetensors") and report["merged_files"].get(name) != expected_hash:
+                raise ValueError(f"Materialized QAT weights differ from the selected checkpoint: {name}")
     _write(output_dir / "deployment_source.json", report)
     return report
 
@@ -704,14 +735,17 @@ def validate_deployment_export_output(plan: dict[str, Any], variant: str) -> dic
         raise ValueError("Export artifact path/hash differs from manifest")
     if report.get("inspection_sha256") != file_sha256(inspection_path):
         raise ValueError("Package inspection changed after export")
-    precision = inspect_variant_precision(_json(inspection_path), plan["profile"], variant)
+    inspection = _json(inspection_path)
+    precision = inspect_variant_precision(inspection, plan["profile"], variant)
+    if plan.get("require_270m_qat"):
+        gemma270m_gpu_precision.verify_fp32_text_activations(inspection)
     if precision != report.get("actual_precision"):
         raise ValueError("Export precision summary differs from inspected physical weights")
     source = Path(plan["merged_model_dir"]) / "deployment_source.json"
     if file_sha256(source) != report.get("source_manifest_sha256"):
         raise ValueError("Export source manifest differs from merged checkpoint")
-    if plan["profile"] == "1b":
-        _verify_gemma3_export_source(_json(source), variant)
+    if plan["profile"] == "1b" or plan.get("require_270m_qat"):
+        _verify_gemma3_export_source(_json(source), variant, expected_profile=plan["profile"])
         if (report.get("gemma3_full_qat_contract") != _json(source).get("gemma3_full_qat_contract")
                 or report.get("recipe") != "dynamic_wi8_afp32"
                 or report.get("official_retained_scale_export") is not False
@@ -753,12 +787,14 @@ def validate_deployment_export_output(plan: dict[str, Any], variant: str) -> dic
             "files": files}
 
 
-def _verify_gemma3_export_source(source: dict[str, Any], variant: str) -> None:
+def _verify_gemma3_export_source(source: dict[str, Any], variant: str, *, expected_profile: str = "1b") -> None:
     from ir_training.qat.gemma3_full_qat_contract import WORKFLOW
+    from ir_training.qat.gemma270m_w8 import PROFILE as W8_270M
 
     contract = source.get("gemma3_full_qat_contract") or {}
-    if (variant != "w8" or source.get("profile") != "1b" or source.get("full_qat_contract") is not None
-            or contract.get("verified") is not True or contract.get("workflow") != WORKFLOW
+    workflow = {"1b": WORKFLOW, "270m": W8_270M}.get(expected_profile)
+    if (not workflow or variant != "w8" or source.get("profile") != expected_profile or source.get("full_qat_contract") is not None
+            or contract.get("verified") is not True or contract.get("workflow") != workflow
             or contract.get("quantization_recipe") != "dynamic_wi8_afp32"
             or contract.get("all_parameters_trainable") is not True
             or contract.get("embedding_included") is not True
@@ -776,8 +812,9 @@ def convert_deployment_variant(*, profile: str, variant: str, model_dir: Path, o
     source = _json(model_dir / "deployment_source.json")
     if source.get("profile") != profile or source.get("official_retained_scale_export") is not False:
         raise ValueError("Deployment model lacks matching dense source provenance")
-    if profile == "1b":
-        _verify_gemma3_export_source(source, variant)
+    gemma3_w8_qat = profile == "1b" or source.get("gemma3_full_qat_contract") is not None
+    if gemma3_w8_qat:
+        _verify_gemma3_export_source(source, variant, expected_profile=profile)
     if source.get("full_qat_contract") is not None:
         if variant != "w248":
             raise ValueError("All-parameter QAT dense export supports only W248")
@@ -798,6 +835,7 @@ def convert_deployment_variant(*, profile: str, variant: str, model_dir: Path, o
         raise ValueError(f"Variant destination must be fresh: {output_dir}")
     preflight = probe_exporter(profile=profile, model_dir=model_dir, cache_length=cache_length,
                                selected_variants=(variant,),
+                               require_270m_qat=profile == "270m" and gemma3_w8_qat,
                                full_parameter_export=source.get("full_qat_contract") is not None)
     if profile == "e2b":
         parity = source.get("template_parity") or {}
@@ -846,6 +884,8 @@ def convert_deployment_variant(*, profile: str, variant: str, model_dir: Path, o
             "Quality may regress; device speed and Golden evaluation are required before adoption.")
     log(f"Convert {profile} {variant}: {spec['kind']}; CPU conversion, no GPU speed claim")
     serialization_report = None
+    fp32_text = (profile == "270m" and variant == "w8"
+                 and source.get("quantization_export_contract") == "dynamic_w8_qat_fresh_graph")
     with Progress(f"LiteRT Torch conversion {variant}", unit="stage"):
         if source.get("full_qat_contract") is not None:
             from ir_training.export.full_parameter_export import (
@@ -855,6 +895,8 @@ def convert_deployment_variant(*, profile: str, variant: str, model_dir: Path, o
             if serialization_report.get("verified") is not True:
                 raise ValueError("All-parameter checkpoint serialization proof is incomplete")
             kwargs = serialization_report["export_kwargs"]
+        elif fp32_text:
+            gemma270m_gpu_precision.export_with_fp32_text_activations(export.export, kwargs)
         else:
             export.export(**kwargs)
     if recipe_file is not None and file_sha256(output_dir / recipe_file["name"]) != recipe_file["sha256"]:
@@ -871,6 +913,8 @@ def convert_deployment_variant(*, profile: str, variant: str, model_dir: Path, o
     from ir_training.export.litertlm_inspector import inspect_litertlm
     with Progress(f"Inspect real LiteRT-LM package and weight precision {variant}", unit="stage"):
         inspection = inspect_litertlm(canonical, include_hashes=False, include_graph_details=True)
+        if fp32_text:
+            gemma270m_gpu_precision.verify_fp32_text_activations(inspection)
         _write(output_dir / "package_inspection.json", inspection)
         actual_precision = inspect_variant_precision(inspection, profile, variant)
     result = {"status": "exported_not_yet_evaluated", "profile": profile, "variant": variant,
@@ -881,7 +925,7 @@ def convert_deployment_variant(*, profile: str, variant: str, model_dir: Path, o
               "runtime_gpu_tested": False, "actual_precision": actual_precision,
               "inspection_sha256": file_sha256(output_dir / "package_inspection.json"),
               "official_retained_scale_export": False, "mtp_exported": False}
-    if profile == "1b":
+    if gemma3_w8_qat:
         result["gemma3_full_qat_contract"] = source["gemma3_full_qat_contract"]
     if recipe_file is not None:
         result["quantization_recipe_file"] = recipe_file
@@ -920,6 +964,7 @@ def main() -> None:
     parser.add_argument("--cache-length", type=int, default=8192)
     parser.add_argument("--full-parameter-export", action="store_true",
                         help="Probe the separate all-parameter gemma4_text W248 route; not the retained LoRA exporter")
+    parser.add_argument("--require-270m-qat", action="store_true", help="Require a Golden-selected Gemma 270M W8 QAT checkpoint")
     args = parser.parse_args()
     if args.cache_length <= 0:
         parser.error("--cache-length must be positive")
@@ -929,6 +974,8 @@ def main() -> None:
         parser.error("--variant is only for convert; probe takes --variants")
     if args.full_parameter_export and args.stage != "probe":
         parser.error("--full-parameter-export is probe-only; conversion requires bound full-QAT provenance")
+    if args.require_270m_qat and (args.stage not in ("probe", "prepare") or args.profile != "270m"):
+        parser.error("--require-270m-qat is only valid for probe/prepare with --profile 270m")
     required = {"probe": ("model_dir", "report"), "prepare": ("training_config", "checkpoint", "output_dir"),
                 "convert": ("model_dir", "output_dir", "variant")}[args.stage]
     for name in required:
@@ -941,12 +988,13 @@ def main() -> None:
     if args.stage == "probe":
         result = probe_exporter(profile=args.profile, model_dir=args.model_dir, cache_length=args.cache_length,
                                 selected_variants=tuple(args.variants) if args.variants is not None else None,
+                                require_270m_qat=args.require_270m_qat,
                                 full_parameter_export=args.full_parameter_export)
         _write(args.report, result)
     elif args.stage == "prepare":
         result = prepare_deployment_checkpoint(profile=args.profile, training_config=args.training_config,
                                                checkpoint=args.checkpoint, output_dir=args.output_dir,
-                                               preparation_config=args.preparation_config)
+                                               preparation_config=args.preparation_config, require_270m_qat=args.require_270m_qat)
     else:
         result = convert_deployment_variant(profile=args.profile, variant=args.variant, model_dir=args.model_dir,
                                              output_dir=args.output_dir, cache_length=args.cache_length)

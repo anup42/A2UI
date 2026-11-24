@@ -161,3 +161,39 @@ def test_pipeline_stops_before_next_stage_on_failure(cli, invocation, monkeypatc
     assert calls == (["probe"] if probe_error else ["probe", "train"])
     if probe_error:
         assert "exporter unavailable" in capsys.readouterr().err
+
+
+@pytest.mark.parametrize("compact_qat", [False, True])
+def test_gpt30k_launch_command_selects_recipe_and_native_tests(
+    compact_qat, invocation, monkeypatch, capsys,
+):
+    scripts = Path(__file__).resolve().parents[1] / "scripts"
+    monkeypatch.syspath_prepend(str(scripts))
+    import run_gemma270m_gpt30k_deployment as gpt30k
+
+    output, argv = invocation
+    digest = hashlib.sha256(b"fixture split\n").hexdigest()
+    inputs = Path(argument(argv, "--input-dir"))
+    for name in ("train.jsonl", "val.jsonl"):
+        (inputs / name).write_bytes(b"fixture split\n")
+    monkeypatch.setattr(gpt30k, "SPLIT_HASHES", {name: digest for name in ("train.jsonl", "val.jsonl")})
+    args = [*argv, "--runtime-python", sys.executable]
+    if compact_qat:
+        args.append("--compact-qat")
+    assert gpt30k.main(args) == 0
+    plan = json.loads(capsys.readouterr().out)
+    options = plan["training"]["options"]
+    assert options["qat"] is compact_qat
+    assert options.get("prompt_profile", "production") == ("compact_v1" if compact_qat else "production")
+    assert options["max_seq_length"] == options["max_input_tokens"] == (5120 if compact_qat else 8192)
+    assert plan["export"]["limits"]["cache_length"] == options["max_input_tokens"] + 2048
+    assert set(plan["export"]["variants"]) == {"w8"}
+    assert plan["runtime_python"]
+    for cohort in ("golden32", "golden35", "bixby50"):
+        assert f"best_{cohort}" in plan["training"]["stages"]
+        assert f"w8_{cohort}" in plan["stages"]
+    assert not output.exists()
+    (inputs / "train.jsonl").write_bytes(b"changed split\n")
+    with pytest.raises(SystemExit):
+        gpt30k.main(args)
+    assert "Missing or changed GPT30K split" in capsys.readouterr().err

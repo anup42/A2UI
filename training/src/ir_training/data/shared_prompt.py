@@ -19,6 +19,12 @@ from ir_training.data.express_preparation import TASK_PREFIX, prepare_row, seria
 
 SHARED_PROMPT_VERSION = "a2ui_express_shared_prompt_v1"
 PRODUCTION_PROMPT = "dataset/prompts/genui_gen_mobile_a2ui_express_v1.md"
+COMPACT_PROMPT_VERSION = "a2ui_express_compact_one_shot_v1"
+COMPACT_PROMPT = "training/prompts/gemma270m_compact_one_shot_v1.md"
+PROMPT_PROFILES = {
+    "production": (SHARED_PROMPT_VERSION, PRODUCTION_PROMPT),
+    "compact_v1": (COMPACT_PROMPT_VERSION, COMPACT_PROMPT),
+}
 
 
 def _sha(value: str) -> str:
@@ -29,8 +35,8 @@ def _json(value: Any) -> str:
     return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False)
 
 
-def create_shared_prompt_contract(*, ordering: str = "root-first") -> dict[str, Any]:
-    """Freeze the current full production contract and builder's few-shot turns.
+def create_shared_prompt_contract(*, ordering: str = "root-first", prompt_profile: str = "production") -> dict[str, Any]:
+    """Freeze the selected system instructions and worked example.
 
     Missing repository prompts fail closed; the packaged short-prompt fallback
     must never accidentally become this explicitly production-bound contract.
@@ -38,19 +44,24 @@ def create_shared_prompt_contract(*, ordering: str = "root-first") -> dict[str, 
     """
     if ordering not in {"root-first", "bottom-up"}:
         raise ValueError("ordering must be root-first or bottom-up")
-    source = (repo_root() / PRODUCTION_PROMPT).read_text(encoding="utf-8")
+    if prompt_profile not in PROMPT_PROFILES:
+        raise ValueError(f"Unknown prompt profile: {prompt_profile}")
+    version, source_path = PROMPT_PROFILES[prompt_profile]
+    source = (repo_root() / source_path).read_text(encoding="utf-8")
     system_prompt = source.replace(
         "{response_text}", "[RESPONSE_TEXT_IS_PROVIDED_IN_THE_USER_MESSAGE]"
     ).strip()
     messages = build_messages(system_prompt, "placeholder", target_format="a2ui_express_v1")[:-1]
+    if prompt_profile == "compact_v1":
+        messages[1]["content"] = TASK_PREFIX + "Travel Checklist\n- Passport\n- Charger"
     for message in messages:
         if message["role"] == "assistant":
             message["content"] = serialize_checked(message["content"], ordering).text
     scaffold = {"messages": messages, "task_prefix": TASK_PREFIX, "serialization_order": ordering}
     contract = {
-        "schema_version": 1, "version": SHARED_PROMPT_VERSION,
+        "schema_version": 1, "version": version,
         "target_format": "a2ui_express_v1", "serialization_order": ordering,
-        "source_path": PRODUCTION_PROMPT, "source_text_sha256": _sha(source),
+        "source_path": source_path, "source_text_sha256": _sha(source),
         "system_prompt_sha256": _sha(system_prompt),
         "scaffold": scaffold, "scaffold_sha256": _sha(_json(scaffold)),
     }
@@ -74,10 +85,10 @@ def validate_shared_prompt_snapshot(contract: Mapping[str, Any]) -> dict[str, An
               "source_text_sha256", "system_prompt_sha256", "scaffold", "scaffold_sha256", "contract_sha256"}
     if set(contract) != fields or type(contract.get("schema_version")) is not int or contract["schema_version"] != 1:
         invalid("unsupported snapshot schema")
-    if contract["version"] != SHARED_PROMPT_VERSION or contract["target_format"] != "a2ui_express_v1":
+    if contract["target_format"] != "a2ui_express_v1":
         invalid("unsupported snapshot version/format")
     if (not isinstance(contract["serialization_order"], str) or contract["serialization_order"] not in {"root-first", "bottom-up"}
-            or contract["source_path"] != PRODUCTION_PROMPT):
+            or (contract["version"], contract["source_path"]) not in PROMPT_PROFILES.values()):
         invalid("invalid snapshot ordering/source")
     for name in ("source_text_sha256", "system_prompt_sha256", "scaffold_sha256", "contract_sha256"):
         if not isinstance(contract[name], str) or re.fullmatch(r"[0-9a-f]{64}", contract[name]) is None:
@@ -107,7 +118,8 @@ def validate_shared_prompt_snapshot(contract: Mapping[str, Any]) -> dict[str, An
 def validate_shared_prompt_contract(contract: Mapping[str, Any]) -> dict[str, Any]:
     """New preparation must match current production as well as its own hashes."""
     saved = validate_shared_prompt_snapshot(contract)
-    expected = create_shared_prompt_contract(ordering=saved["serialization_order"])
+    profile = next(key for key, (version, _) in PROMPT_PROFILES.items() if version == saved["version"])
+    expected = create_shared_prompt_contract(ordering=saved["serialization_order"], prompt_profile=profile)
     if saved != expected:
         changed = ", ".join(key for key in expected if saved.get(key) != expected[key])
         raise ValueError(

@@ -81,6 +81,28 @@ def test_normalization_preserves_source_target_and_benchmark_metadata():
         normalize_row(original, contract)
 
 
+def test_compact_one_shot_grounded_example_and_identical_training_inference_prefix(tmp_path):
+    from ir_training.data.shared_prompt import validate_shared_prompt_snapshot
+
+    compact = create_shared_prompt_contract(prompt_profile="compact_v1")
+    full = create_shared_prompt_contract()
+    assert full == create_shared_prompt_contract(prompt_profile="production")
+    assert compact["contract_sha256"] != full["contract_sha256"]
+    assert validate_shared_prompt_contract(compact) == compact
+    system, source, example = compact["scaffold"]["messages"]
+    assert len(system["content"]) < len(full["scaffold"]["messages"][0]["content"]) / 10
+    for value in ("Travel Checklist", "Passport", "Charger"):
+        assert value in source["content"] and value in example["content"]
+    saved = tmp_path / "shared_prompt.json"
+    saved.write_text(json.dumps(compact), encoding="utf-8")
+    original = row()
+    result = normalize_row(original, compact)
+    assert result["messages"][:-1] == build_inference_messages(original["response_text"], load_shared_prompt_contract(saved))
+    assert result["messages"][-1] == original["messages"][-1]
+    with pytest.raises(ValueError, match="invalid snapshot ordering/source"):
+        validate_shared_prompt_snapshot({**compact, "source_path": full["source_path"]})
+
+
 def test_shared_preparation_keeps_both_frozen_cohorts_and_one_scaffold(tmp_path):
     root = repo_root() / "training/data/eval"
     golden32 = root / "golden32_archive_repeat_v1/golden32.jsonl"

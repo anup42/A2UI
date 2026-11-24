@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Train/evaluate/export/test on GPU: E2B/270M multi-format or 1B full-QAT W8."""
+"""Train/evaluate/export/test on GPU: E2B/270M multi-format or Gemma 3 full-QAT W8."""
 from __future__ import annotations
 
 import json
@@ -23,6 +23,8 @@ def build_deployment_parser(*, required_profile: str | None = None):
         parser.set_defaults(profile=required_profile)
     parser.add_argument("--exporter-python", type=Path, required=True, help="Absolute Python in isolated compatible LiteRT Torch export environment")
     parser.add_argument("--runtime-python", type=Path, help="Absolute Python with pinned litert-lm-api GPU runtime; required unless --skip-litert-evaluation")
+    parser.add_argument("--compact-qat", action="store_true",
+                        help="270M only: full-parameter W8 QAT with a compact one-example prompt")
     parser.add_argument("--skip-litert-evaluation", action="store_true", help="Train, test checkpoints/merged HF on Golden32/Golden35/Bixby50, and export selected variants (1B: W8 only); skip Vulkan/native-runtime preflight and LiteRT inference. Default tests every selected variant.")
     parser.add_argument("--tune", action="store_true", help="Sequential equal-step Golden32 trials, lock settings, then fresh full training; no screening Golden35/Bixby50")
     parser.add_argument("--trial-steps", type=int, default=1000)
@@ -45,6 +47,10 @@ def main(argv: list[str] | None = None, *, required_profile: str | None = None) 
     values = vars(parser.parse_args(argv))
     if required_profile is not None and values["profile"] != required_profile:
         parser.error(f"This entrypoint requires --profile {required_profile}")
+    if values.pop("compact_qat"):
+        if values["profile"] != "270m":
+            parser.error("--compact-qat requires --profile 270m")
+        values.update(qat=True, prompt_profile="compact_v1")
     execute = values.pop("execute")
     keys = ("exporter_python", "runtime_python", "tune", "trial_steps", "trials_file", "include_augmentation",
             "allow_experimental_formats", "cache_length", "stage_timeout_seconds", "generation_timeout_seconds",

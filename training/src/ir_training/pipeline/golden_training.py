@@ -81,6 +81,7 @@ class GoldenTrainingOptions:
     evaluate_bixby50: bool = True
     token_cache: bool = True
     token_cache_dir: Path | None = None
+    prompt_profile: str = "production"
 
     def __post_init__(self) -> None:
         # Keep legacy defaults intact. The new 1B profile is exclusively full
@@ -117,6 +118,9 @@ def _write(path: Path, value: Any) -> None:
 
 def _options(options: GoldenTrainingOptions) -> dict[str, Any]:
     result = asdict(options)
+    # Preserve the exact options bound by existing production runs and caches.
+    if options.prompt_profile == "production":
+        del result["prompt_profile"]
     for name in ("model_dir", "output_dir", "source_run_dir", "input_dir", "preparation_cache_dir", "token_cache_dir"):
         if result[name] is not None:
             result[name] = str(Path(result[name]).expanduser().resolve())
@@ -176,6 +180,8 @@ def build_plan(options: GoldenTrainingOptions, *, preparation_only: bool = False
         raise ValueError("--progress-seconds must be positive")
     if options.profile not in {"e2b", "270m", "1b"} or (options.qat and options.profile == "e2b"):
         raise ValueError("Profiles are e2b dense LoRA, 270m full SFT/optional QAT, and 1b full QAT. Official E2B retained-scale QAT uses its separate launcher.")
+    if options.prompt_profile != "production" and (options.profile != "270m" or not options.qat):
+        raise ValueError("The compact prompt option requires the 270m full QAT profile")
     if sum(value is not None for value in (options.input_dir, options.source_run_dir, options.prepared_input_dir)) > 1:
         raise ValueError("Choose only one of --input-dir, --source-run-dir or --prepared-input-dir")
     if options.prepared_input_dir and options.augmentation != "none":
@@ -226,7 +232,7 @@ def build_plan(options: GoldenTrainingOptions, *, preparation_only: bool = False
         if any(cache.is_relative_to(protected) or protected.is_relative_to(cache) for protected in protected_roots):
             raise ValueError(f"{key} must be outside and must not contain model, source, augmentation or run output directories")
     from ir_training.data.shared_prompt import create_shared_prompt_contract
-    prompt = create_shared_prompt_contract(ordering="root-first")
+    prompt = create_shared_prompt_contract(ordering="root-first", prompt_profile=options.prompt_profile)
     plan = {
         "schema_version": 1, "workflow": "shared_prompt_golden_bixby_training_v2",
         "options": values, "source_files": [str(path) for path in source_files],

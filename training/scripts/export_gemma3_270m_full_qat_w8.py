@@ -18,13 +18,18 @@ from ir_training.pipeline.deployment_export import (
     probe_exporter,
 )
 from ir_training.pipeline.deployment_recovery import deployment_lock
+from ir_training.qat.gemma270m_w8 import (
+    RECIPE,
+    validate_270m_model,
+    validate_selected_270m_qat,
+)
 from ir_training.train.resume_contract import (
     _verify_source_inventory,
     resolve_export_training_lineage,
 )
 
 COHORTS = {"golden32": 32, "golden35": 35, "bixby50": 50}
-RECIPE = "dynamic_wi8_afp32"
+__all__ = ["export_w8", "main", "validate_270m_model"]
 
 
 def _json(path: Path) -> dict:
@@ -32,15 +37,6 @@ def _json(path: Path) -> dict:
     if not isinstance(value, dict):
         raise TypeError(f"Expected a JSON object: {path}")
     return value
-
-
-def validate_270m_model(model_dir: Path) -> None:
-    config = _json(model_dir / "config.json")
-    text = config.get("text_config", config)
-    if (config.get("model_type") not in {"gemma3_text", "gemma3"}
-            or not isinstance(text, dict)
-            or (text.get("hidden_size"), text.get("num_hidden_layers")) != (640, 18)):
-        raise ValueError(f"Expected a local Gemma 3 270M checkpoint: {model_dir}")
 
 
 def _selected_checkpoint(run: Path) -> tuple[Path, dict, dict[Path, str]]:
@@ -70,20 +66,7 @@ def _selected_checkpoint(run: Path) -> tuple[Path, dict, dict[Path, str]]:
     bind("training", checkpoint / "training_metadata.json")
     lineage = resolve_export_training_lineage(config_path, checkpoint)
     config, metadata = lineage["config"], lineage["metadata"]
-    qat = config.get("qat") or {}
-    expected_qat = {
-        "enabled": True, "profile": "gemma3_270m_wi8_afp32_full_finetune",
-        "final_quantization": RECIPE, "weight_bits": 8, "activation_bits": 32,
-        "quantizer": "ste_ai_edge", "quantize_embeddings": True,
-    }
-    if (config["training"]["method"] != "full_finetune_qat"
-            or any(qat.get(key) != value for key, value in expected_qat.items())
-            or metadata.get("checkpoint_kind") != "full_model"
-            or metadata.get("checkpoint_role") != "best_golden"
-            or type(metadata.get("checkpoint_step")) is not int
-            or metadata["checkpoint_step"] <= 0):
-        raise ValueError("Expected the Golden-selected full-model W8 QAT checkpoint.")
-    validate_270m_model(checkpoint)
+    validate_selected_270m_qat(config, metadata, checkpoint)
     _verify_source_inventory(checkpoint, metadata)
 
     scorecard_path = run / "evaluation_scorecard.json"

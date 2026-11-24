@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Run the verified GPT30K Gemma 3 270M SFT, W8 export, and native evaluations."""
+"""Run GPT30K Gemma 3 270M SFT or compact-prompt full QAT, export W8 and test on GPU."""
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from pathlib import Path
 
@@ -16,16 +17,18 @@ SPLIT_HASHES = {
 }
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--model-dir", type=Path, required=True)
     parser.add_argument("--input-dir", type=Path, required=True, help="Extracted verified GPT30K dataset")
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--exporter-python", type=Path, required=True)
     parser.add_argument("--runtime-python", type=Path, required=True)
+    parser.add_argument("--compact-qat", action="store_true",
+                        help="Train all parameters with W8 QAT and the compact one-example deployment prompt")
     parser.add_argument("--execute", action="store_true", help="Execute on the GPU host; defaults to a read-only plan")
     parser.add_argument("--resume-run", action="store_true", help="Reuse verified stages after training")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     input_dir = args.input_dir.expanduser()
     for filename, expected in SPLIT_HASHES.items():
@@ -33,17 +36,25 @@ def main() -> int:
         if not path.is_file() or sha256(path) != expected:
             parser.error(f"Missing or changed GPT30K split: {path}")
 
-    argv = [
+    # Keep the published dense recipe and its resume identity unchanged.
+    sequence_length = "5120" if args.compact_qat else "8192"
+    cache_length = "7168" if args.compact_qat else "10240"
+    deploy_args = [
         "--model-dir", str(args.model_dir), "--input-dir", str(input_dir), "--output-dir", str(args.output_dir),
         "--exporter-python", str(args.exporter_python), "--runtime-python", str(args.runtime_python),
-        "--epochs", "1", "--max-seq-length", "8192", "--max-input-tokens", "8192", "--max-new-tokens", "2048",
-        "--cache-length", "10240", "--variants", "w8",
+        "--epochs", "1", "--max-seq-length", sequence_length, "--max-input-tokens", sequence_length,
+        "--max-new-tokens", "2048", "--cache-length", cache_length, "--variants", "w8",
     ]
+    if args.compact_qat:
+        deploy_args.extend(["--compact-qat", "--learning-rate", "5e-6", "--microbatch", "1",
+                            "--eval-steps", "100", "--golden-every-steps", "100",
+                            "--tensorboard-root", os.environ.get("A2UI_TENSORBOARD_ROOT") or
+                            f"{args.output_dir.expanduser().absolute()}_tensorboard"])
     if args.execute:
-        argv.append("--execute")
+        deploy_args.append("--execute")
     if args.resume_run:
-        argv.append("--resume-run")
-    return deploy(argv, required_profile="270m")
+        deploy_args.append("--resume-run")
+    return deploy(deploy_args, required_profile="270m")
 
 
 if __name__ == "__main__":
