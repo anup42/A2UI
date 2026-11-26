@@ -148,6 +148,30 @@ def test_other_routes_are_unchanged(monkeypatch):
         assert metadata.get_metadata_builder(other) == "old-metadata"
 
 
+def test_sm8850_split_route_is_opt_in_and_restored(monkeypatch):
+    registry, _, _, _ = _fake_exporter(monkeypatch)
+    original = registry.get_prefill_decode_exportables
+    split = types.ModuleType("litert_torch.generative.export_hf.core.split_cache")
+    split.exportable_module = types.SimpleNamespace(
+        LiteRTSplitCacheExportableModuleForDecoderOnlyLMPrefill=object,
+        LiteRTSplitCacheExportableModuleForDecoderOnlyLMGenerate=object,
+    )
+    monkeypatch.setitem(sys.modules, split.__name__, split)
+    config = Gemma4TextConfig()
+    options = types.SimpleNamespace(externalize_embedder=True, split_cache=True,
+                                    externalize_rope=True, aot_backend="qualcomm",
+                                    aot_soc_model="SM8850", litert_lm_model_type_override=None)
+    with compat.gemma4_text_export_context(), pytest.raises(ValueError, match="wrapper-only"):
+        registry.get_prefill_decode_exportables(config, options)
+    with compat.gemma4_text_export_context(qualcomm_npu=True):
+        prefill, decode = registry.get_prefill_decode_exportables(config, options)
+        assert not prefill.emit_logits and decode.emit_logits
+        options.aot_soc_model = "SM8750"
+        with pytest.raises(ValueError, match="SM8850"):
+            registry.get_prefill_decode_exportables(config, options)
+    assert registry.get_prefill_decode_exportables is original
+
+
 def test_model_gate_requires_complete_both_embedding_and_norm_inventory():
     model = Gemma4ForCausalLM()
     compat._require_model(model)
@@ -299,6 +323,20 @@ def test_real_tiny_standalone_forward_uses_final_norm_head_and_both_embeddings(
             actual = generate_cls(model, options).forward(
                 embeddings, per_layer, None, Cache(), None
             )
+            class SplitBase(Base):
+                def adapt_inputs(self, embeddings, pos_emb, mask, kv_cache):
+                    return {"inputs_embeds": embeddings, "past_key_values": kv_cache, "use_cache": True}
+
+                def post_process_kv_cache(self, cache):
+                    return {"kv_slice": cache}
+
+            prefill, decode = compat._standalone_split_classes(types.SimpleNamespace(
+                LiteRTSplitCacheExportableModuleForDecoderOnlyLMPrefill=SplitBase,
+                LiteRTSplitCacheExportableModuleForDecoderOnlyLMGenerate=SplitBase,
+            ))
+            assert set(prefill(model, options).forward(embeddings, per_layer, None, None, Cache())) == {"kv_slice"}
+            split_output = decode(model, options).forward(embeddings, per_layer, None, None, Cache())
+            torch.testing.assert_close(split_output["logits"], expected_logits)
     finally:
         for hook in hooks:
             hook.remove()

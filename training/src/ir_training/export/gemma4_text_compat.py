@@ -217,8 +217,49 @@ def _standalone_classes(upstream: Any) -> tuple[type, type, type]:
     )
 
 
+def _standalone_split_classes(base: Any) -> tuple[type, type]:
+    """Adapt the Qualcomm split-cache ABI to the actual standalone text tower."""
+    import torch
+
+    class TextSplitCache:
+        emit_logits = False
+
+        def __init__(self, model: Any, *args: Any, **kwargs: Any) -> None:
+            _require_model(model)
+            super().__init__(model, *args, **kwargs)
+
+        def _get_input(self, batch_size, input_length, cache_length):
+            inputs = super()._get_input(batch_size, input_length, cache_length)
+            config = self.model.config
+            inputs["per_layer_embeddings"] = torch.ones(
+                batch_size, input_length, config.num_hidden_layers,
+                config.hidden_size_per_layer_input, dtype=torch.float32,
+            )
+            return inputs
+
+        def forward(self, embeddings, per_layer_embeddings, pos_emb, mask, kv_cache):
+            config = self.model.config
+            inputs = self.adapt_inputs(embeddings, pos_emb, mask, kv_cache)
+            inputs["per_layer_inputs"] = per_layer_embeddings
+            inputs["past_key_values"] = inputs["past_key_values"].insert_dummy_cache_layers(config)
+            output = self.model.model(**inputs, **self.attention_kwargs())
+            cache = output.past_key_values.remove_dummy_cache_layers(config)
+            result = self.post_process_kv_cache(cache)
+            if self.emit_logits:
+                result["logits"] = self.model.lm_head(output.last_hidden_state)
+            return result
+
+    class TextPrefill(TextSplitCache, base.LiteRTSplitCacheExportableModuleForDecoderOnlyLMPrefill):
+        pass
+
+    class TextDecode(TextSplitCache, base.LiteRTSplitCacheExportableModuleForDecoderOnlyLMGenerate):
+        emit_logits = True
+
+    return TextPrefill, TextDecode
+
+
 @contextlib.contextmanager
-def gemma4_text_export_context() -> Iterator[dict[str, Any]]:
+def gemma4_text_export_context(*, qualcomm_npu: bool = False) -> Iterator[dict[str, Any]]:
     """Temporarily install the narrow standalone-text exporter route."""
     litert_version = _require_version("litert-torch", LITERT_TORCH_VERSION)
     transformers_version = _require_version("transformers", TRANSFORMERS_VERSION)
@@ -253,6 +294,16 @@ def gemma4_text_export_context() -> Iterator[dict[str, Any]]:
         _require_config(config)
         if not export_config.externalize_embedder:
             raise ValueError("Standalone Gemma 4 E2B requires externalized embedders")
+        if qualcomm_npu:
+            from litert_torch.generative.export_hf.core.split_cache import (
+                exportable_module as split,
+            )
+
+            if not (export_config.aot_backend == "qualcomm" and export_config.split_cache
+                    and export_config.externalize_rope and export_config.aot_soc_model == "SM8850"
+                    and export_config.litert_lm_model_type_override is None):
+                raise ValueError("Standalone NPU export requires the Qualcomm SM8850 split-cache ABI")
+            return _standalone_split_classes(split)
         unsupported = [
             name
             for name in ("split_cache", "externalize_rope", "aot_backend")
@@ -290,7 +341,7 @@ def gemma4_text_export_context() -> Iterator[dict[str, Any]]:
             "model_type": MODEL_TYPE,
             "litert_torch_version": litert_version,
             "transformers_version": transformers_version,
-            "prefill_decode_route": "standalone_gemma4_text",
+            "prefill_decode_route": "standalone_gemma4_text_split_cache" if qualcomm_npu else "standalone_gemma4_text",
             "token_embedder_route": "upstream_get_input_embeddings",
             "per_layer_embedder_route": "standalone_get_per_layer_inputs",
             "metadata_route": "gemma4",

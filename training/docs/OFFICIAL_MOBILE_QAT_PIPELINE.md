@@ -9,6 +9,9 @@ not trained, replaced, or used by the runtime gates. The separate `--train-mtp`
 option below adds experimental assistant adaptation after the unchanged target
 training and selection stages; omitting it preserves the existing workflow.
 
+The selected `merged_best_hf` also feeds the separate
+[SM8850 NPU export and MTP-off Bixby50 test](SM8850_NPU_EXPORT.md).
+
 The entry point is `training/scripts/run_official_mobile_pipeline.py`. It is
 plan-only unless `--execute` is passed. Every execution requires a fresh
 `--output-dir`; do not overwrite an earlier run. Fresh runs refuse resume by

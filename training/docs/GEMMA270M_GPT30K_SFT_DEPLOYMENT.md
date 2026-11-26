@@ -137,3 +137,6 @@ After recovery, use the manifest's `artifact_directories` and stage evidence
 paths for the current package and evaluations. Completion requires native GPU
 evidence for Golden32 (32 rows), Golden35 (35), and Bixby50 (50).
 [Shared deployment workflow](GOLDEN_GPU_DEPLOYMENT.md).
+
+For a separate Qualcomm target compiled from the selected checkpoint, see
+[SM8850 NPU export and Bixby50 testing](SM8850_NPU_EXPORT.md).
